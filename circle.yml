@@ -1,0 +1,5 @@
+deployment:
+  staging:
+    branch: master
+    commands:
+      - ./deploy.sh
