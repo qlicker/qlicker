@@ -18,4 +18,4 @@ export class LogoutButton extends Component {
     return (<button className='button' onClick={this.logout.bind(this)}>Logout</button>)
   } //  end render
 
-}
+} // end Loginbutton
