@@ -1,1 +1,14 @@
 /* CSS declarations go here */
+
+.ui-loginpage-login-container {
+  text-align: center;
+}
+
+.ui-login-box {
+  text-align: center;
+}
+
+
+.spacer1 {
+  height:10px;
+}
