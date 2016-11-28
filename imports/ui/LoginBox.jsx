@@ -61,7 +61,7 @@ export default class LoginBox extends Component {
     this.setState({ password: e.target.value })
   }
   checkPasswordVerify(e) {
-    this.setState({ passwordVerify: e.target.value })
+    this.setState({ password_verify: e.target.value })
   }
 
   render() {
