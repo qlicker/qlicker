@@ -20,8 +20,9 @@ export class ProfileCard extends Component {
       console.log(this.props.user, this.props.loading)
      
       r = (<div className='ui-profile-card'>
-        User Id: {this.props.user[0]._id || ''}<br/>
-        Email: {this.props.user[0].emails[0].address || ''}
+        <h3>User Account Information</h3>
+        Name: { this.props.user[0].profile.firstname + ' ' + this.props.user[0].profile.lastname }<br/>
+        Email: { this.props.user[0].emails[0].address }
       </div>)
     }
 

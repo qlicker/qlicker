@@ -5,12 +5,12 @@ import { mount } from 'react-mounter'
  
 //Layouts and Pages
 import { AppLayout } from '../../ui/layouts/app_layout'
-import { Homepage } from '../../ui/pages/homepage' 
-import { Loginpage } from '../../ui/pages/loginpage'
-import { Testpage } from '../../ui/pages/testpage'
+import { Homepage } from '../../ui/pages/home' 
+import { Loginpage } from '../../ui/pages/login'
+import { Testpage } from '../../ui/pages/test'
 
 FlowRouter.route('/', {
-  name: 'homepage',
+  name: 'home',
   action() {
     mount(AppLayout, {
       content: <Homepage />
@@ -20,7 +20,7 @@ FlowRouter.route('/', {
 
 
 FlowRouter.route('/login', {
-  name: 'loginpage',
+  name: 'login',
   action() {
     mount(AppLayout, {
       content: <Loginpage/>
@@ -29,7 +29,7 @@ FlowRouter.route('/login', {
 })
 
 FlowRouter.route('/testpage', {
-  name: 'testpage',
+  name: 'test',
   action() {
     if (!Meteor.userId()) {
       FlowRouter.go('loginpage')

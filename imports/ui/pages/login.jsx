@@ -4,7 +4,7 @@ import LoginBox from '../LoginBox.jsx'
 
 export const Loginpage = () => (
 <div className="container ui-loginpage">
-  <h2>Qlicker</h2>
+  <h1>Qlicker</h1>
   
   <div className='row'>
     <div className='three columns'>&nbsp;

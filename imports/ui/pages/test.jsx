@@ -7,9 +7,10 @@ import ProfileCard from '../ProfileCard'
 export const Testpage = function() {
 
   return (<div className="container">
-    <h2>Qlicker Protected Page</h2>
+    <h1>Qlicker Protected Page</h1>
     <ProfileCard />
-    <LogoutButton redirect='loginpage'/>
+    <br/>
+    <LogoutButton redirect='login'/>
   </div>)
 
 }

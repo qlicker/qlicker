@@ -35,7 +35,7 @@ export default class LoginBox extends Component {
           this.setState({ submit_error: true });
         } else {
           console.log(Meteor.user())
-          FlowRouter.go('testpage')
+          FlowRouter.go('test')
         }
       });
     } else { // signup
@@ -55,7 +55,7 @@ export default class LoginBox extends Component {
             console.log(error)
             this.setState({ submit_error: true });
           } else {
-            FlowRouter.go('testpage')
+            FlowRouter.go('test')
           }
         });
       }
