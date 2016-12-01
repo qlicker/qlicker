@@ -6,9 +6,14 @@
   }
 }
 
+// Component
+.ui-login-box {
+  text-align: center;
+
+  input[type=text], input[type=password] {
+    width:215px;
+  }
 
 
-// Generic
-.spacer1 {
-  height:10px;
 }
+
