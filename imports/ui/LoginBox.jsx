@@ -6,7 +6,16 @@ export default class LoginBox extends Component {
 
   constructor(props) {
     super(props)
-    this.state = { login: true, email: '', password: '', password_verify: '', form_error: false, submit_error: false }
+    this.state = { 
+      login: true, 
+      email: '', 
+      password: '', 
+      password_verify: '', 
+      form_error: false, 
+      submit_error: false,
+      firstname: '',
+      lastname: ''
+    }
   
   }
 
@@ -26,7 +35,7 @@ export default class LoginBox extends Component {
           this.setState({ submit_error: true });
         } else {
           console.log(Meteor.user())
-          FlowRouter.go('testpage')
+          FlowRouter.go('test')
         }
       });
     } else { // signup
@@ -36,13 +45,17 @@ export default class LoginBox extends Component {
       } else { 
         Accounts.createUser({
           email: this.state.email,
-          password: this.state.password
+          password: this.state.password,
+          profile: {
+            firstname: this.state.firstname,
+            lastname: this.state.lastname
+          }
         }, function(error) {
           if (error) {
             console.log(error)
             this.setState({ submit_error: true });
           } else {
-            FlowRouter.go('testpage')
+            FlowRouter.go('test')
           }
         });
       }
@@ -57,6 +70,12 @@ export default class LoginBox extends Component {
   checkEmail(e) {
     this.setState({ email: e.target.value })
   }
+  checkFirstName(e) {
+    this.setState({ firstname: e.target.value })
+  }
+  checkLastName(e) {
+    this.setState({ lastname: e.target.value })
+  }
   checkPassword(e) {
     this.setState({ password: e.target.value })
   }
@@ -69,6 +88,9 @@ export default class LoginBox extends Component {
     const submitButtonString = this.state.login ? "Login" : "Sign Up"
     return (
       <form className='ui-login-box' onSubmit={this.handleSubmit.bind(this)}>
+        { !this.state.login ? <div><input type='text' onChange={this.checkFirstName.bind(this)} placeholder='First Name' /></div> : '' }
+        { !this.state.login ? <div><input type='text' onChange={this.checkLastName.bind(this)} placeholder='Last Name' /></div> : '' }
+
         <input type='text' onChange={this.checkEmail.bind(this)} placeholder='Email' /><br/>
         <input type='password' onChange={this.checkPassword.bind(this)} placeholder='Password' /><br/>
         { !this.state.login ? <div><input type='password' onChange={this.checkPasswordVerify.bind(this)} placeholder='Retype Password' /> </div>: ''}
