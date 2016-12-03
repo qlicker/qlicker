@@ -1,1 +1,1 @@
-node_modules/.bin/eslint . --ext .js,.jsx
+node_modules/.bin/eslint . --ext .js,.jsx 
