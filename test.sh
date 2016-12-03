@@ -1,1 +1,1 @@
-exit 0
+node_modules/.bin/eslint . --ext .js,.jsx
