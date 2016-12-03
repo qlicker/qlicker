@@ -100,6 +100,7 @@ export default class LoginBox extends Component {
         <div className='spacer1'>&nbsp;</div>
         <input type='submit' value={submitButtonString} /><button onClick={this.changeForm.bind(this)}>{switchFormString}</button>
       </form>
+      <div>Test ele side by side</div>
     )
   } //  end render
 
