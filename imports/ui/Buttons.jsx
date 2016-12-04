@@ -10,7 +10,7 @@ export class LogoutButton extends Component {
 
   logout() {
     Meteor.logout((error) => {
-      if (this.props.redirect) FlowRouter.go(this.props.redirect);
+      if (this.props.redirect) Router.go(this.props.redirect);
     })
   }
 

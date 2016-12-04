@@ -13,7 +13,7 @@ export class ProfileCard extends Component {
 
   render() {
     let r
-    if (this.props.loading) r = <div>loadin</div>
+    if (this.props.loading) r = <div>loading</div>
     else {
       console.log(this.props.user, this.props.loading)
 
