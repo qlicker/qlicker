@@ -58,42 +58,26 @@ Router.route("/login", function() {
 }, {
   name: "login",
 })
-/*
-Router.route("/test", {
-  name: "test",
-  waitOn: function(){
-    return Meteor.subscribe("userData");
-  },
-  data: function(){
-    const user = Meteor.users.find({ _id: Meteor.userId() }).fetch()
-    console.log('user', user)
 
-    mount(AppLayout, {
-      content: <Testpage/>
-    })
-
-  }
-})
-*/
 Router.route("/test", {
   name: "test",
   waitOn: function(){
     return Meteor.subscribe("userData");
   },
   action: function () {
-  this.render('blank')
-
-  let user = Meteor.user()
-
-  console.log("in test route", user)
-
-  if (user && user.profile.roles.indexOf('admin') != -1) {
-    mount(AppLayout, {
-      content: <Testpage/>
-    }) 
-  } else {
-    Router.go('login')
-  }
+    this.render('blank')
+  
+    let user = Meteor.user()
+  
+    console.log("in test route", user)
+  
+    if (user && user.profile.roles.indexOf('admin') != -1) {
+      mount(AppLayout, {
+        content: <Testpage/>
+      }) 
+    } else {
+      Router.go('login')
+    }
 
   }
 })
