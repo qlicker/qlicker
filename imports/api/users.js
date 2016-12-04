@@ -1,7 +1,14 @@
 
-import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
+import { Meteor } from 'meteor/meteor'
+import { Mongo } from 'meteor/mongo'
 
+/*
+ * profile: {
+ *  firstname: '',
+ *  lastname: '',
+ *  roles: ['student', 'professor', 'admin']
+ * } 
+ */
 
 if (Meteor.isServer) {
   Meteor.publish("userData", function () {

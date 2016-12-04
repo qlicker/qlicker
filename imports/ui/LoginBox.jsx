@@ -1,5 +1,5 @@
 
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 
 export default class LoginBox extends Component {  
@@ -48,7 +48,8 @@ export default class LoginBox extends Component {
           password: this.state.password,
           profile: {
             firstname: this.state.firstname,
-            lastname: this.state.lastname
+            lastname: this.state.lastname,
+            roles: ['student']
           }
         }, function(error) {
           if (error) {

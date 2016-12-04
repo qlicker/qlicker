@@ -1,14 +1,14 @@
 
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 
-export class LogoutButton extends Component {  
+export class LogoutButton extends Component {
 
   constructor(props) {
     super(props)
   }
 
-  logout() {    
+  logout() {
     Meteor.logout((error) => {
       if (this.props.redirect) FlowRouter.go(this.props.redirect);
     })
