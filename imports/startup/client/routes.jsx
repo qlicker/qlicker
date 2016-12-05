@@ -8,41 +8,15 @@ import { mount } from 'react-mounter'
 import { AppLayout } from '../../ui/layouts/app_layout'
 import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
-import { Testpage } from '../../ui/pages/test'
-
-//FlowRouter.route('/', {
-//  name: 'home',
-//  action() {
-//    mount(AppLayout, {
-//      content: <Homepage />
-//    })
-//  }
-//})
+import { AdminDashboard } from '../../ui/pages/admin_dashboard'
+import { StudentDashboard } from '../../ui/pages/student_dashboard'
+import { ProfessorDashboard } from '../../ui/pages/professor_dashboard'
 
 
-//FlowRouter.route('/login', {
-//  name: 'login',
-//  action() {
-//    if (Meteor.userId()) {
-//      FlowRouter.go('test')
-//    }
-//    mount(AppLayout, {
-//      content: <Loginpage/>
-//    })
-//  }
-//})
+// For routes that are waiting on data, 
+// this.render('blank') is needed cause ironrouter expects you to render a blaze template
+// we need to remove default ironrouter Loading... message cause we aren't using templates
 
-//FlowRouter.route('/test', {
-//  name: 'test',
-// action() {
-//    if (!Meteor.userId()) {
-//      FlowRouter.go('login')
-//   }
-//    mount(AppLayout, {
-//      content: <Testpage/>
-//    })
-//  }
-//})
 Router.route("/", function() {
   mount(AppLayout, {
     content: <Homepage/>
@@ -59,25 +33,60 @@ Router.route("/login", function() {
   name: "login",
 })
 
-Router.route("/test", {
-  name: "test",
+
+// Admin routes
+Router.route("/admin", {
+  name: "admin",
   waitOn: function(){
     return Meteor.subscribe("userData");
   },
   action: function () {
-    this.render('blank')
+    this.render('blank')    
+
+    let user = Meteor.user()
+    if (Meteor.userHasRole(user, 'admin')) {
+      mount(AppLayout, {
+        content: <AdminDashboard/>
+      }) 
+    } else Router.go('login')
+    
+  }
+})
+
+// Prof routes
+Router.route("/manage", {
+  name: "professor",
+  waitOn: function(){
+    return Meteor.subscribe("userData");
+  },
+  action: function () {
+    this.render('blank')     
   
     let user = Meteor.user()
-  
-    console.log("in test route", user)
-  
-    if (user && user.profile.roles.indexOf('admin') != -1) {
+    if (Meteor.userHasRole(user, 'professor')) {
       mount(AppLayout, {
-        content: <Testpage/>
+        content: <ProfessorDashboard/>
       }) 
-    } else {
-      Router.go('login')
-    }
+    } else Router.go('login')
+
+  }
+})
+
+// Student Routes
+Router.route("/student", {
+  name: "student",
+  waitOn: function(){
+    return Meteor.subscribe("userData");
+  },
+  action: function () {
+    this.render('blank')     
+  
+    let user = Meteor.user()
+    if (Meteor.userHasRole(user, 'student')) {
+      mount(AppLayout, {
+        content: <StudentDashboard/>
+      }) 
+    } else Router.go('login')
 
   }
 })

@@ -33,11 +33,8 @@ export default class LoginBox extends Component {
         if (error) {
           console.log(error)
           this.setState({ submit_error: true });
-        } else {
-          console.log(Meteor.user())
-          Router.go('test')
-        }
-      });
+        } else this.navigateAfterLogin(Meteor.user()) 
+      }.bind(this));
     } else { // signup
 
       if (this.state.password != this.state.password_verify) {
@@ -55,13 +52,20 @@ export default class LoginBox extends Component {
           if (error) {
             console.log(error)
             this.setState({ submit_error: true });
-          } else {
-            Router.go('test')
-          }
-        });
+          } else this.navigateAfterLogin(Meteor.user()) 
+        }.bind(this));
       }
     }
   } // end handleSubmit
+
+
+
+  navigateAfterLogin(user) {
+    if (Meteor.userHasRole(user, 'admin')) Router.go('admin')
+    if (Meteor.userHasRole(user, 'professor')) Router.go('professor')
+    if (Meteor.userHasRole(user, 'student')) Router.go('student')
+  }
+
 
   // data validators
   changeForm(e) {

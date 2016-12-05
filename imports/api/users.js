@@ -19,3 +19,8 @@ if (Meteor.isServer) {
     }
   });
 }
+
+
+Meteor.userHasRole = function(user, role) {
+  return user && user.profile.roles.indexOf(role) != -1
+}

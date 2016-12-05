@@ -4,10 +4,10 @@ import React from 'react'
 import { LogoutButton } from '../Buttons'
 import ProfileCard from '../ProfileCard'
  
-export const Testpage = function() {
+export const StudentDashboard = function() {
 
   return (<div className="container">
-    <h1>Qlicker Protected Page</h1>
+    <h1>Qlicker Student Dasboard Page</h1>
     <ProfileCard />
     <br/>
     <LogoutButton redirect='login'/>
