@@ -15,7 +15,7 @@ export class LogoutButton extends Component {
   }
 
   render() {
-    return (<button className='button' onClick={this.logout.bind(this)}>Logout</button>)
+    return (<a href='#' className='ui-top-bar-button' onClick={this.logout.bind(this)}>Logout</a>)
   } //  end render
 
 } // end Loginbutton

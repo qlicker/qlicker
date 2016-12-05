@@ -6,7 +6,24 @@
 
 // Component
 .ui-profile-card {
+
+  display: inline-block;
+  position: relative;
+
   h3 {
     margin-bottom: 0px;
   }
+
+  .ui-profile-card-expanded {
+    display: none;
+    position: absolute;
+    top: 25px;
+    left: 0;
+    width: 200px;
+
+    &.show {
+      display: inline-block;
+    }
+  }
+
 }
