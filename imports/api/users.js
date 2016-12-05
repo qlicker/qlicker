@@ -1,7 +1,14 @@
 
-import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
+import { Meteor } from 'meteor/meteor'
+import { Mongo } from 'meteor/mongo'
 
+/*
+ * profile: {
+ *  firstname: '',
+ *  lastname: '',
+ *  roles: ['student', 'professor', 'admin']
+ * } 
+ */
 
 if (Meteor.isServer) {
   Meteor.publish("userData", function () {
@@ -11,4 +18,9 @@ if (Meteor.isServer) {
       this.ready();
     }
   });
+}
+
+// this method is not secure. Make sure to only publish data that user has access to
+Meteor.userHasRole = function(user, role) {
+  return user && user.profile.roles.indexOf(role) != -1
 }

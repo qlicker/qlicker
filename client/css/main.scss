@@ -1,7 +1,45 @@
 
 
 
-// Generic
+// Universal styles
 .spacer1 {
   height:10px;
 }
+
+.ui-page-container {
+ 
+  .ui-top-bar {
+    background: #eee;  
+
+    .ui-button-bar {
+      float:right;
+      text-decoration:none;
+      width: 50%;
+
+      a {
+        display:inline-block;
+        margin-left: 5px;
+        margin-right: 5px;
+        text-decoration: none;
+        color: black;
+        font-size: 2rem;
+
+        &:hover {
+          font-weight: bold;
+        }
+      }
+    } // . ui-button-bar
+  } // .ui-top-bar
+
+}
+
+.ui-wordmark {
+  text-decoration: none;
+  display: inline-block;
+  color: black;
+
+  h1 {
+    margin:0;
+  }
+}
+

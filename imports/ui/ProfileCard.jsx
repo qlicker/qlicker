@@ -1,28 +1,38 @@
 
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import '../api/users.js'
 
-export class ProfileCard extends Component {  
+export class ProfileCard extends Component {
 
   constructor(props) {
     super(props)
-    
-
+    this.user = this.props.user[0]
   }
 
+  mouseOver() {
+    ReactDOM.findDOMNode(this.refs.profile_expanded).className = 'ui-profile-card-expanded show'
+  }
+
+  mouseOut() { 
+    ReactDOM.findDOMNode(this.refs.profile_expanded).className = 'ui-profile-card-expanded'
+  }
 
   render() {
     let r
-    if (this.props.loading) r = <div>hello</div>
+    if (this.props.loading) r = <div>loading</div>
     else {
-      console.log(this.props.user, this.props.loading)
-     
-      r = (<div className='ui-profile-card'>
-        <h3>User Account Information</h3>
-        Name: { this.props.user[0].profile.firstname + ' ' + this.props.user[0].profile.lastname }<br/>
-        Email: { this.props.user[0].emails[0].address }
+      const name = this.user.profile.firstname + ' ' + this.user.profile.lastname
+      r = (
+      <div className='ui-profile-card'>
+        <a href='#' onMouseOver={this.mouseOver.bind(this)} onMouseOut={this.mouseOut.bind(this)}>{ name }</a>
+        <div className='ui-profile-card-expanded' ref='profile_expanded'>
+          Name: { name }<br/>
+          Email: { this.user.emails[0].address }<br/>
+          Roles: { this.user.profile.roles }
+        </div>
       </div>)
     }
 
@@ -36,10 +46,10 @@ export class ProfileCard extends Component {
 //};
 
 export default createContainer(() => {
-  const sub = Meteor.subscribe('userData');
-  
+  const sub = Meteor.subscribe('userData')
+
   return {
     user: Meteor.users.find({ _id: Meteor.userId() }).fetch(),
     loading: !sub.ready()
-  };
+  }
 }, ProfileCard);

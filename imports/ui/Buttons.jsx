@@ -1,21 +1,21 @@
 
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 
-export class LogoutButton extends Component {  
+export class LogoutButton extends Component {
 
   constructor(props) {
     super(props)
   }
 
-  logout() {    
+  logout() {
     Meteor.logout((error) => {
-      if (this.props.redirect) FlowRouter.go(this.props.redirect);
+      if (this.props.redirect) Router.go(this.props.redirect);
     })
   }
 
   render() {
-    return (<button className='button' onClick={this.logout.bind(this)}>Logout</button>)
+    return (<a href='#' className='ui-top-bar-button' onClick={this.logout.bind(this)}>Logout</a>)
   } //  end render
 
 } // end Loginbutton

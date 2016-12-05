@@ -3,7 +3,7 @@ import React from 'react'
 import LoginBox from '../LoginBox.jsx'
 
 export const Loginpage = () => (
-<div className="container ui-loginpage">
+<div className="container ui-login-page">
   <h1>Qlicker</h1>
   
   <div className='row'>

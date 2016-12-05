@@ -1,5 +1,5 @@
 
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 
 export default class LoginBox extends Component {  
@@ -33,11 +33,8 @@ export default class LoginBox extends Component {
         if (error) {
           console.log(error)
           this.setState({ submit_error: true });
-        } else {
-          console.log(Meteor.user())
-          FlowRouter.go('test')
-        }
-      });
+        } else this.navigateAfterLogin(Meteor.user()) 
+      }.bind(this));
     } else { // signup
 
       if (this.state.password != this.state.password_verify) {
@@ -48,19 +45,27 @@ export default class LoginBox extends Component {
           password: this.state.password,
           profile: {
             firstname: this.state.firstname,
-            lastname: this.state.lastname
+            lastname: this.state.lastname,
+            roles: ['student']
           }
         }, function(error) {
           if (error) {
             console.log(error)
             this.setState({ submit_error: true });
-          } else {
-            FlowRouter.go('test')
-          }
-        });
+          } else this.navigateAfterLogin(Meteor.user()) 
+        }.bind(this));
       }
     }
   } // end handleSubmit
+
+
+
+  navigateAfterLogin(user) {
+    if (Meteor.userHasRole(user, 'admin')) Router.go('admin')
+    if (Meteor.userHasRole(user, 'professor')) Router.go('professor')
+    if (Meteor.userHasRole(user, 'student')) Router.go('student')
+  }
+
 
   // data validators
   changeForm(e) {
