@@ -1,3 +1,8 @@
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+// 
+// login.jsx: login page
+
 import React from 'react'
  
 import LoginBox from '../LoginBox.jsx'

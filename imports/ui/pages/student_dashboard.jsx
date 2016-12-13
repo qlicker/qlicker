@@ -1,4 +1,7 @@
-
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+// 
+// student_dashboard.jsx: student overview page
 
 import React from 'react'
 import { LogoutButton } from '../Buttons'

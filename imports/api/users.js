@@ -1,3 +1,7 @@
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+// 
+// users.js: JS related to user collection
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
