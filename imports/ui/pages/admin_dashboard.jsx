@@ -1,4 +1,7 @@
-
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+// 
+// admin_dashboard.jsx: admin overview page
 
 import React from 'react'
 import { LogoutButton } from '../Buttons'

@@ -1,6 +1,8 @@
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+// 
+// routes.jsx: iron-router routes
 
-//import {FlowRouter} from 'meteor/kadira:flow-router'
-//
 import React from 'react'
 import { mount } from 'react-mounter'
 
@@ -11,7 +13,6 @@ import { Loginpage } from '../../ui/pages/login'
 import { AdminDashboard } from '../../ui/pages/admin_dashboard'
 import { StudentDashboard } from '../../ui/pages/student_dashboard'
 import { ProfessorDashboard } from '../../ui/pages/professor_dashboard'
-
 
 // For routes that are waiting on data, 
 // this.render('blank') is needed cause ironrouter expects you to render a blaze template

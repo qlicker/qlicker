@@ -1,6 +1,10 @@
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+// 
+// LoginBox.jsx: React component for login and signup, 
+// calls account creation method and redirects after login
 
 import React, { Component } from 'react'
-
 
 export default class LoginBox extends Component {  
 
@@ -22,6 +26,7 @@ export default class LoginBox extends Component {
   handleSubmit(e) {
     e.preventDefault()
 
+    // check if email is an email
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!re.test(this.state.email)) {
       this.setState({ form_error: true })
@@ -29,12 +34,14 @@ export default class LoginBox extends Component {
     }
 
     if (this.state.login) {
+      
       Meteor.loginWithPassword(this.state.email, this.state.password, function(error) {
         if (error) {
           console.log(error)
           this.setState({ submit_error: true });
         } else this.navigateAfterLogin(Meteor.user()) 
       }.bind(this));
+
     } else { // signup
 
       if (this.state.password != this.state.password_verify) {
@@ -55,10 +62,9 @@ export default class LoginBox extends Component {
           } else this.navigateAfterLogin(Meteor.user()) 
         }.bind(this));
       }
-    }
+    
+    } // end else
   } // end handleSubmit
-
-
 
   navigateAfterLogin(user) {
     if (Meteor.userHasRole(user, 'admin')) Router.go('admin')
@@ -66,26 +72,16 @@ export default class LoginBox extends Component {
     if (Meteor.userHasRole(user, 'student')) Router.go('student')
   }
 
-
-  // data validators
+  // input bounded methods
   changeForm(e) {
     e.preventDefault();
     this.setState({ login: !this.state.login })
   }
-  checkEmail(e) {
-    this.setState({ email: e.target.value })
-  }
-  checkFirstName(e) {
-    this.setState({ firstname: e.target.value })
-  }
-  checkLastName(e) {
-    this.setState({ lastname: e.target.value })
-  }
-  checkPassword(e) {
-    this.setState({ password: e.target.value })
-  }
-  checkPasswordVerify(e) {
-    this.setState({ password_verify: e.target.value })
+
+  setValue(e) {
+    let stateEdits = {}
+    stateEdits[e.target.dataset.stateVar] = e.target.value
+    this.setState(stateEdits)
   }
 
   render() {
@@ -93,12 +89,12 @@ export default class LoginBox extends Component {
     const submitButtonString = this.state.login ? "Login" : "Sign Up"
     return (
       <form className='ui-login-box' onSubmit={this.handleSubmit.bind(this)}>
-        { !this.state.login ? <div><input type='text' onChange={this.checkFirstName.bind(this)} placeholder='First Name' /></div> : '' }
-        { !this.state.login ? <div><input type='text' onChange={this.checkLastName.bind(this)} placeholder='Last Name' /></div> : '' }
+        { !this.state.login ? <div><input type='text' data-state-var='firstname' onChange={this.setValue.bind(this)} placeholder='First Name' /></div> : '' }
+        { !this.state.login ? <div><input type='text' data-state-var='lastname' onChange={this.setValue.bind(this)} placeholder='Last Name' /></div> : '' }
 
-        <input type='text' onChange={this.checkEmail.bind(this)} placeholder='Email' /><br/>
-        <input type='password' onChange={this.checkPassword.bind(this)} placeholder='Password' /><br/>
-        { !this.state.login ? <div><input type='password' onChange={this.checkPasswordVerify.bind(this)} placeholder='Retype Password' /> </div>: ''}
+        <input type='text' data-state-var='email' onChange={this.setValue.bind(this)} placeholder='Email' /><br/>
+        <input type='password' data-state-var='password' onChange={this.setValue.bind(this)} placeholder='Password' /><br/>
+        { !this.state.login ? <div><input type='password' data-state-var='password_verify' onChange={this.setValue.bind(this)} placeholder='Retype Password' /> </div>: ''}
         
         { this.state.form_error ? <div className="ui-login-box-error-msg">Please enter a valid email and password</div> : ''}
         { this.state.submit_error ? <div className="ui-login-box-error-msg">Please try again</div> : ''}

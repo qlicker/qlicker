@@ -1,3 +1,8 @@
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+// 
+// ProfileCard.jsx: React component for diaplying profile info
+// button UI with hover dropdown functionality to display details
 
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
