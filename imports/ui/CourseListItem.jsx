@@ -10,11 +10,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import '../api/courses.js'
 
-export class CourseListItem extends Component {
+export default class CourseListItem extends Component {
 
   constructor(props) {
     super(props)
-    this.user = this.props.user[0]
   }
 
   render() {

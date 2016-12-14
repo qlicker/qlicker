@@ -80,7 +80,7 @@ export default class LoginBox extends Component {
 
   setValue(e) {
     let stateEdits = {}
-    stateEdits[e.target.dataset.stateVar] = e.target.value
+    stateEdits[e.target.dataset.name] = e.target.value
     this.setState(stateEdits)
   }
 
@@ -89,12 +89,12 @@ export default class LoginBox extends Component {
     const submitButtonString = this.state.login ? "Login" : "Sign Up"
     return (
       <form className='ui-login-box' onSubmit={this.handleSubmit.bind(this)}>
-        { !this.state.login ? <div><input type='text' data-state-var='firstname' onChange={this.setValue.bind(this)} placeholder='First Name' /></div> : '' }
-        { !this.state.login ? <div><input type='text' data-state-var='lastname' onChange={this.setValue.bind(this)} placeholder='Last Name' /></div> : '' }
+        { !this.state.login ? <div><input type='text' data-name='firstname' onChange={this.setValue.bind(this)} placeholder='First Name' /></div> : '' }
+        { !this.state.login ? <div><input type='text' data-name='lastname' onChange={this.setValue.bind(this)} placeholder='Last Name' /></div> : '' }
 
-        <input type='text' data-state-var='email' onChange={this.setValue.bind(this)} placeholder='Email' /><br/>
-        <input type='password' data-state-var='password' onChange={this.setValue.bind(this)} placeholder='Password' /><br/>
-        { !this.state.login ? <div><input type='password' data-state-var='password_verify' onChange={this.setValue.bind(this)} placeholder='Retype Password' /> </div>: ''}
+        <input type='text' data-name='email' onChange={this.setValue.bind(this)} placeholder='Email' /><br/>
+        <input type='password' data-name='password' onChange={this.setValue.bind(this)} placeholder='Password' /><br/>
+        { !this.state.login ? <div><input type='password' data-name='password_verify' onChange={this.setValue.bind(this)} placeholder='Retype Password' /> </div>: ''}
         
         { this.state.form_error ? <div className="ui-login-box-error-msg">Please enter a valid email and password</div> : ''}
         { this.state.submit_error ? <div className="ui-login-box-error-msg">Please try again</div> : ''}

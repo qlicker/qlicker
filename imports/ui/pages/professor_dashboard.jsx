@@ -14,13 +14,13 @@ import CreateCourseModal from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
 
+
 class ProfessorDashboard extends Component {
 
   constructor(props) {
     super(props)
 
     this.state = { creatingCourse: false }
-
   }
 
 
@@ -31,13 +31,17 @@ class ProfessorDashboard extends Component {
 
 
   renderCourseList() {
+    console.log('this.courses',this.props.courses)
     return this.props.courses.map((course) => (
       <CourseListItem key={course._id} course={course} />
     ));
   } 
 
   render() {
-  
+    let courseList = <div>Hello</div> 
+    //if (this.props.loading) courseList = <div>loading</div>
+    courseList = <ul className='ui-courselist'>{this.renderCourseList()}</ul>
+ 
     return (
       <div className='ui-page-container'>
       
@@ -51,16 +55,16 @@ class ProfessorDashboard extends Component {
         </div>
       
         <div className='container ui-professor-page'>
-          
+
           <h2>My Classes</h2>
           <button onClick={this.promptCreateCourse.bind(this)}>Create Course</button>
-      
+
           <hr/>
-      
-          <ul className='ui-courselist'>{this.renderCourseList()}</ul>
-      
+          
+          {courseList}  
+
         </div>
-      
+
         <div className='ui-modal-container' ref='modals'>
           { this.state.creatingCourse ? <CreateCourseModal /> : '' }
         </div>
@@ -72,8 +76,11 @@ class ProfessorDashboard extends Component {
   
 
 export default createContainer(() => {
+  const handle = Meteor.subscribe('courses')
+  
   return {
-    courses: Courses.find({}).fetch()
+    courses: Courses.find({}).fetch(),
+    loading: !handle.ready()
   }
 }, ProfessorDashboard);
   

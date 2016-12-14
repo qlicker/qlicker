@@ -17,6 +17,7 @@
     "react-dom": "^15.4.1",
     "react-mounter": "^1.2.0",
     "react-tools": "^0.13.3",
-    "syntastic-react": "^1.0.3"
+    "syntastic-react": "^1.0.3",
+    "underscore": "^1.8.3"
   }
 }
