@@ -21,7 +21,7 @@ if (Meteor.isServer) {
         let courseId = Meteor.call('courses.insert', {
           createdAt: new Date(),
           owner: userId,
-          name: 'Enoch Tam',
+          name: 'Intro to Computer Science',
           deptCode: 'CISC',
           courseNumber: '101',
           section: '001',
