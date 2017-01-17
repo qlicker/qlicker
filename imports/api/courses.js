@@ -40,7 +40,7 @@ Meteor.methods({
     //  throw new Meteor.Error('not-authorized');
     //}
  
-    Courses.insert(course);
+    return Courses.insert(course);
   },
   /*
   'tasks.remove'(taskId) {

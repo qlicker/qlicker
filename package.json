@@ -2,7 +2,7 @@
   "name": "qlicker",
   "private": true,
   "scripts": {
-    "start": "meteor run" 
+    "start": "meteor run"
   },
   "dependencies": {
     "babel-eslint": "^7.1.1",
@@ -17,7 +17,15 @@
     "react-dom": "^15.4.1",
     "react-mounter": "^1.2.0",
     "react-tools": "^0.13.3",
+    "sinon": "^1.17.7",
+    "spacejam": "^1.6.1",
     "syntastic-react": "^1.0.3",
     "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "enzyme": "^2.7.0",
+    "react": "^15.4.2",
+    "react-addons-test-utils": "^15.4.2",
+    "react-dom": "^15.4.2"
   }
 }
