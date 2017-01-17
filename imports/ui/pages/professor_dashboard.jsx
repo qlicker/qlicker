@@ -3,39 +3,87 @@
 // 
 // professor_dashboard.jsx: professor overview page
 
-import React from 'react'
+import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
+import { createContainer } from 'meteor/react-meteor-data'
+
 import { LogoutButton } from '../Buttons'
 import ProfileCard from '../ProfileCard'
+import CourseListItem from '../CourseListItem'
+import CreateCourseModal from '../modals/CreateCourseModal'
+
+import { Courses } from '../../api/courses.js'
+
+
+class ProfessorDashboard extends Component {
+
+  constructor(props) {
+    super(props)
+
+    this.state = { creatingCourse: false }
+  }
+
+
+  promptCreateCourse(e) {
+    this.setState({ creatingCourse: true })
+  
+  }
+
+
+  renderCourseList() {
+    console.log('this.courses',this.props.courses)
+    return this.props.courses.map((course) => (
+      <CourseListItem key={course._id} course={course} />
+    ));
+  } 
+
+  render() {
+    let courseList = <div>Hello</div> 
+    //if (this.props.loading) courseList = <div>loading</div>
+    courseList = <ul className='ui-courselist'>{this.renderCourseList()}</ul>
  
-export const ProfessorDashboard = function() {
+    return (
+      <div className='ui-page-container'>
+      
+        <div className='ui-top-bar'>
+          <a href={Router.routes['professor'].path()} className='ui-wordmark'><h1>Qlicker</h1></a>
+      
+          <div className='ui-button-bar'>
+            <ProfileCard />
+            <LogoutButton redirect='login'/>
+          </div>
+        </div>
+      
+        <div className='container ui-professor-page'>
 
-return (
-<div className='ui-page-container'>
+          <h2>My Classes</h2>
+          <button onClick={this.promptCreateCourse.bind(this)}>Create Course</button>
 
-  <div className='ui-top-bar'>
-    <a href={Router.routes['professor'].path()} className='ui-wordmark'><h1>Qlicker</h1></a>
+          <hr/>
+          
+          {courseList}  
 
-    <div className='ui-button-bar'>
-      <ProfileCard />
-      <LogoutButton redirect='login'/>
-    </div>
-  </div>
+        </div>
 
-  <div className='container ui-professor-page'>
+        <div className='ui-modal-container' ref='modals'>
+          { this.state.creatingCourse ? <CreateCourseModal /> : '' }
+        </div>
+      </div>)
+  
+  }
 
-    
-    <h2>My Classes</h2>
-    <button>Create Course</button>
-
-    <hr/>
-
-    <ul>
-      <li>CISC121</li>
-      <li>CISC124</li>
-      <li>CISC365</li>
-    </ul>
-
-  </div>
-
-</div>)
 }
+  
+
+export default createContainer(() => {
+  const handle = Meteor.subscribe('courses')
+  
+  return {
+    courses: Courses.find({}).fetch(),
+    loading: !handle.ready()
+  }
+}, ProfessorDashboard);
+  
+
+
+
