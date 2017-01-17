@@ -6,7 +6,7 @@
   }
 }
 
-// Component
+// Components
 .ui-login-box {
   text-align: center;
 
@@ -14,6 +14,25 @@
     width:215px;
   }
 
+}
+
+
+ul.ui-courselist {
+
+  
+
+  li.ui-courselist-item {
+    text-decoration: none;
+    list-style: none; 
+
+    span.course-name {
+    
+    }
+    
+    span.code-number-section {
+    
+    }
+  }
 
 }
 

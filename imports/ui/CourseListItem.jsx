@@ -18,11 +18,14 @@ export default class CourseListItem extends Component {
 
   render() {
     let r
-    
+    //TODO: extract course string display to helper
     r = (
-    <div className='ui-courselist-item'>
-      { this.props.course.name }
-    </div>)
+    <li className='ui-courselist-item'>
+      <span className='course-name'>{ this.props.course.name }</span>
+      <span className='code-number-section'>
+        { this.props.course.deptCode + this.props.course.courseNumber + '-' + this.props.course.section }
+      </span>
+    </li>)
 
     return r
   } //  end render

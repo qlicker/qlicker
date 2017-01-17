@@ -8,10 +8,12 @@ import { mount } from 'react-mounter'
 
 //Layouts and Pages
 import { AppLayout } from '../../ui/layouts/app_layout'
-import Homepage from '../../ui/pages/home'
-import Loginpage from '../../ui/pages/login'
-import AdminDashboard from '../../ui/pages/admin_dashboard'
-import StudentDashboard from '../../ui/pages/student_dashboard'
+import { Homepage } from '../../ui/pages/home'
+import { Loginpage } from '../../ui/pages/login'
+import { AdminDashboard } from '../../ui/pages/admin_dashboard'
+import { StudentDashboard } from '../../ui/pages/student_dashboard'
+
+// TODO sort out these importing inconsistencies
 import ProfessorDashboard from '../../ui/pages/professor_dashboard'
 
 // For routes that are waiting on data, 
