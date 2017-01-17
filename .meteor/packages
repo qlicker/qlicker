@@ -22,3 +22,5 @@ accounts-password
 react-meteor-data
 fourseven:scss
 iron:router
+practicalmeteor:mocha
+dburles:factory
