@@ -5,9 +5,14 @@
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
-import { check } from 'meteor/check'
+import { check, Match } from 'meteor/check'
 
-import { NonEmptyString } from '../../server/helpers.js'
+// import { NonEmptyString } from '../../server/helpers.js'
+
+NonEmptyString = Match.Where(function (x) { //TODO why doesn't import work in test env?
+  check(x, String)
+  return x.length > 0
+});
 
 /* Ex. CISC498-001
  *
