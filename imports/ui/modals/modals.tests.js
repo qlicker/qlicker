@@ -11,15 +11,17 @@ import { chai } from 'meteor/practicalmeteor:chai';
 
 import CreateCourseModal from './CreateCourseModal.jsx';
 
-
-describe('CreateCourseModal', () => {
+if (Meteor.isClient) {
+ 
+  describe('CreateCourseModal', () => {
   
-
-  it('should render', () => {
-    const item = shallow(<CreateCourseModal />)
-    chai.assert(item.hasClass('ui-modal-createcourse'))
-  });
+    it('should render', () => {
+      const item = shallow(<CreateCourseModal />)
+      chai.assert(item.hasClass('ui-modal-createcourse'))
+    });
   
-  // TODO various interaction tests
+    // TODO various interaction tests
 
-})
+  })
+
+}

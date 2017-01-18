@@ -14,6 +14,18 @@ NonEmptyString = Match.Where(function (x) { //TODO why doesn't import work in te
   return x.length > 0
 });
 
+
+const coursePattern = {
+  name: NonEmptyString,
+  deptCode: NonEmptyString,
+  courseNumber: NonEmptyString,
+  section: NonEmptyString,
+  owner: NonEmptyString,
+  createdAt: Date,
+  _id: Match.Maybe(NonEmptyString)
+}
+
+
 /* Ex. CISC498-001
  *
  * course: {
@@ -30,9 +42,9 @@ export const Courses = new Mongo.Collection('courses');
 if (Meteor.isServer) {
   Meteor.publish("courses", function () {
     //if (this.userId) {
-      return Courses.find({ });
+      return Courses.find({ owner: this.userId });
     //} else {
-    //  this.ready();
+      this.ready();
     //}
   });
 }
@@ -40,11 +52,7 @@ if (Meteor.isServer) {
 
 Meteor.methods({
   'courses.insert'(course) {
-    check(course.name, NonEmptyString) //TODO change to check pattern
-    check(course.deptCode, NonEmptyString)
-    check(course.courseNumber, NonEmptyString)
-    check(course.section, NonEmptyString)
-    check(course.owner, NonEmptyString)
+    check(course, coursePattern) //TODO change to check pattern
 
     if (!Meteor.isTest && !Meteor.userHasRole(Meteor.user(), 'professor')) {
       throw new Meteor.Error('not-authorized');
@@ -55,18 +63,23 @@ Meteor.methods({
   'courses.delete'(courseId) {
     // TODO enforce permissions
     
-    Courses.remove({ '_id': courseId })
-  }
-  /*
-  'tasks.remove'(taskId) {
-    check(taskId, String)
- 
-    Tasks.remove(taskId)
+    Courses.remove({ _id: courseId })
   },
-  'tasks.setChecked'(taskId, setChecked) {
-    check(taskId, String)
-    check(setChecked, Boolean)
- 
-    Tasks.update(taskId, { $set: { checked: setChecked } })
-  },*/
+  'courses.edit'(course) {
+    check(course._id, NonEmptyString)
+    check(course, coursePattern)
+    let courseId = course._id
+
+    // TODO enforce permissions
+    
+    Courses.update({ _id: courseId }, { 
+      $set: { 
+        name: course.name,
+        deptCode: course.deptCode,
+        courseNumber: course.courseNumber,
+        section: course.section,
+        owner: course.owner
+      } 
+    })
+  }
 });
