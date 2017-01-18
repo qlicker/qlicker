@@ -24,7 +24,13 @@ if (Meteor.isServer) {
   });
 }
 
-// this method is not secure. Make sure to only publish data that user has access to
 Meteor.userHasRole = function(user, role) {
   return user && user.profile.roles.indexOf(role) != -1
 }
+
+Meteor.methods({
+  'users.hasRole'(user, role) {
+    return user && user.profile.roles.indexOf(role) != -1
+  }
+
+});
