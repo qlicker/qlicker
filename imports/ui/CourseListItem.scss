@@ -1,0 +1,19 @@
+
+.ui-courselist-item {
+
+  cursor: pointer;
+  padding: 12px;
+
+  &:hover {
+    background: #ddd;
+  }
+
+  .course-name {
+    font-weight: bold;
+  }
+
+  .code-number-section, .controls {
+    float: right;
+  }
+
+}

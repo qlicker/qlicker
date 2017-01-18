@@ -27,11 +27,14 @@ class ProfessorDashboard extends Component {
   promptCreateCourse(e) {
     this.setState({ creatingCourse: true })
   
+  } 
+
+  handleCreateCourse(e) {
+    this.setState({ creatingCourse: false })
   }
 
-
   renderCourseList() {
-    console.log('this.courses',this.props.courses)
+    //console.log('this.courses',this.props.courses)
     return this.props.courses.map((course) => (
       <CourseListItem key={course._id} course={course} />
     ));
@@ -61,12 +64,12 @@ class ProfessorDashboard extends Component {
 
           <hr/>
           
-          {courseList}  
+          { courseList }  
 
         </div>
 
         <div className='ui-modal-container' ref='modals'>
-          { this.state.creatingCourse ? <CreateCourseModal /> : '' }
+          { this.state.creatingCourse ? <CreateCourseModal done={this.handleCreateCourse.bind(this)} /> : '' }
         </div>
       </div>)
   

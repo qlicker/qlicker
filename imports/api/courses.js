@@ -33,15 +33,23 @@ if (Meteor.isServer) {
 
 Meteor.methods({
   'courses.insert'(course) {
-    //check(course.name, String)
- 
-    // Make sure the user is logged in before inserting a task
-    //if (! this.userId) {
-    //  throw new Meteor.Error('not-authorized');
-    //}
+    check(course.name, NonEmptyString) //TODO change to check pattern
+    check(course.deptCode, NonEmptyString)
+    check(course.courseNumber, NonEmptyString)
+    check(course.section, NonEmptyString)
+    check(course.owner, NonEmptyString)
+
+    if (!Meteor.userHasRole(Meteor.user(), 'professor')) {
+      throw new Meteor.Error('not-authorized');
+    }
  
     return Courses.insert(course);
   },
+  'courses.delete'(courseId) {
+    // TODO enforce permissions
+    
+    Courses.remove({ '_id': courseId })
+  }
   /*
   'tasks.remove'(taskId) {
     check(taskId, String)
