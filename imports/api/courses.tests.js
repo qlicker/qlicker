@@ -5,7 +5,7 @@ import { Random } from 'meteor/random';
 import { assert } from 'meteor/practicalmeteor:chai';
 
 import { Courses } from './courses.js'
-import { NonEmptyString } from '../../server/helpers.js'
+
  
 if (Meteor.isServer) {
 

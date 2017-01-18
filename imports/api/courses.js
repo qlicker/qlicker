@@ -7,6 +7,8 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check } from 'meteor/check'
 
+import { NonEmptyString } from '../../server/helpers.js'
+
 /* Ex. CISC498-001
  *
  * course: {
