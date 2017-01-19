@@ -3,6 +3,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { assert } from 'meteor/practicalmeteor:chai';
+import { sinon } from 'meteor/practicalmeteor:sinon';
+
 import { _ } from 'underscore'
 
 import { Courses } from './courses.js'
@@ -10,6 +12,7 @@ import { Courses } from './courses.js'
  
 if (Meteor.isServer) {
 
+  //TODO Stub Meteor user
 
   describe('Courses', () => {
     describe('methods', () => {

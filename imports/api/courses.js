@@ -7,72 +7,81 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
 
-// import { NonEmptyString } from '../../server/helpers.js'
-
-NonEmptyString = Match.Where(function (x) { //TODO why doesn't import work in test env?
-  check(x, String)
-  return x.length > 0
-});
-
-
-const coursePattern = {
-  name: NonEmptyString,
-  deptCode: NonEmptyString,
-  courseNumber: NonEmptyString,
-  section: NonEmptyString,
-  owner: NonEmptyString,
-  createdAt: Date,
-  _id: Match.Maybe(NonEmptyString)
-}
-
-
-/* Ex. CISC498-001
- *
- * course: {
- *  name: 'Information Technology Project (2016-17)',
- *  deptCode: 'CISC',
- *  courseNumber: '498',
- *  section: '001'
- * } 
- */
-
+import Helpers from './helpers.js'
 
 export const Courses = new Mongo.Collection('courses');
 
+
+// object pattern
+const coursePattern = {
+  _id: Match.Maybe(Helpers.NEString), // mongo db id
+  name: Helpers.NEString, // Information Technology Project (2016-17)
+  deptCode: Helpers.NEString, // CISC
+  courseNumber: Helpers.NEString, // 498
+  section: Helpers.NEString, // 001
+  owner: Helpers.NEString, // mongo db id reference
+  createdAt: Date
+}
+
+
+// data publishing
 if (Meteor.isServer) {
   Meteor.publish("courses", function () {
-    //if (this.userId) {
-      return Courses.find({ owner: this.userId });
-    //} else {
+    if (this.userId) {
+      return Courses.find({ owner: this.userId })
+    } else {
       this.ready();
-    //}
+    }
   });
 }
 
 
+// course permissions helper
+const verfiyCourseHasPermissions = (courseId) => {
+  if (!Meteor.isTest) {
+    let courseOwner = Courses.findOne({ _id: courseId }).owner
+
+    if ( Meteor.userHasRole(Meteor.user(), 'admin') || 
+        (Meteor.userHasRole(Meteor.user(), 'professor') && Meteor.userId() == courseOwner) ) {
+      return
+    } else {
+      throw new Meteor.Error('not-authorized')
+      return
+    }
+  }
+}
+
+// data methods
 Meteor.methods({
+
   'courses.insert'(course) {
     check(course, coursePattern) //TODO change to check pattern
 
-    if (!Meteor.isTest && !Meteor.userHasRole(Meteor.user(), 'professor')) {
-      throw new Meteor.Error('not-authorized');
+    if (!Meteor.isTest) {
+      if ( !Meteor.userHasRole(Meteor.user(), 'admin') && 
+        !Meteor.userHasRole(Meteor.user(), 'professor') ) {
+        throw new Meteor.Error('not-authorized');
+      }
     }
  
     return Courses.insert(course);
   },
+
   'courses.delete'(courseId) {
-    // TODO enforce permissions
-    
-    Courses.remove({ _id: courseId })
+
+    verfiyCourseHasPermissions(courseId)
+
+    return Courses.remove({ _id: courseId })
   },
+
   'courses.edit'(course) {
-    check(course._id, NonEmptyString)
+    check(course._id, Helpers.NEString)
     check(course, coursePattern)
     let courseId = course._id
 
-    // TODO enforce permissions
-    
-    Courses.update({ _id: courseId }, { 
+    verfiyCourseHasPermissions(courseId)
+
+    return Courses.update({ _id: courseId }, { 
       $set: { 
         name: course.name,
         deptCode: course.deptCode,
@@ -82,4 +91,5 @@ Meteor.methods({
       } 
     })
   }
+
 });

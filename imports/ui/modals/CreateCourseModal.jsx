@@ -8,14 +8,14 @@ import _ from 'underscore'
 
 import { Courses } from '../../api/courses.js'
 
-const DEFAULT_STATE = {
+export const DEFAULT_STATE = {
   name: '',
   deptCode: '',
   courseNumber: '',
   section: ''
 }
 
-export default class CreateCourseModal extends Component {
+export class CreateCourseModal extends Component {
 
   constructor(props) {
     super(props)
@@ -37,14 +37,16 @@ export default class CreateCourseModal extends Component {
       owner: Meteor.userId() 
     }, this.state)
 
-    // ui validation TODO
+    if (Meteor.isTest) {
+      this.props.done()
+    }
 
     Meteor.call('courses.insert', course, (error) => {
 
       if (error) {
         console.log(error)
         if (error.error == 'not-authorized') {
-        
+          // TODO 
         } else if (error.error == 400) {
           // check didnt pass
         } 
