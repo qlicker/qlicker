@@ -6,6 +6,8 @@
 
 import React, { Component } from 'react'
 
+import './LoginBox.scss'
+
 export default class LoginBox extends Component {  
 
   constructor(props) {

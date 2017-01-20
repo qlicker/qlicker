@@ -8,6 +8,8 @@ import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
+import './ProfileCard.scss'
+
 import '../api/users.js'
 
 export class ProfileCard extends Component {

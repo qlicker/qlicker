@@ -60,11 +60,11 @@ Meteor.methods({
     if (!Meteor.isTest) {
       if ( !Meteor.userHasRole(Meteor.user(), 'admin') && 
         !Meteor.userHasRole(Meteor.user(), 'professor') ) {
-        throw new Meteor.Error('not-authorized');
+        throw new Meteor.Error('not-authorized')
       }
     }
  
-    return Courses.insert(course);
+    return Courses.insert(course)
   },
 
   'courses.delete'(courseId) {

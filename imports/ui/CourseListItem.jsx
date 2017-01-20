@@ -16,15 +16,14 @@ export default class CourseListItem extends Component {
 
   constructor(props) {
     super(props)
-    console.log(this.props.course)
     
     this.navigateToCourse = this.navigateToCourse.bind(this)
   }
 
   deleteItem(e) {
-    e.preventDefault();
-    let c = confirm("Are you sure?")
-    if (c) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (confirm("Are you sure?")) {
       Meteor.call('courses.delete', this.props.course._id, (error) => { console.log(error) } )
     }
     

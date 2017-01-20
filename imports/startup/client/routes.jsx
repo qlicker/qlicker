@@ -10,11 +10,9 @@ import { mount } from 'react-mounter'
 import { AppLayout } from '../../ui/layouts/app_layout'
 import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
-import { AdminDashboard } from '../../ui/pages/admin_dashboard'
-import { StudentDashboard } from '../../ui/pages/student_dashboard'
 
 // TODO sort out these importing inconsistencies
-import ProfessorDashboard from '../../ui/pages/professor_dashboard'
+import PageContainer from '../../ui/pages/page_container'
 
 // For routes that are waiting on data, 
 // this.render('blank') is needed cause ironrouter expects you to render a blaze template
@@ -39,6 +37,7 @@ Router.onBeforeAction(function () {
 
 
 // Admin routes
+import { AdminDashboard } from '../../ui/pages/admin_dashboard'
 Router.route("/admin", {
   name: "admin",
   waitOn: function(){
@@ -47,12 +46,15 @@ Router.route("/admin", {
   action: function () {
     let user = Meteor.user()
     if (Meteor.userHasRole(user, 'admin')) {
-      mount(AppLayout, { content: <AdminDashboard/> }) 
+      mount(AppLayout, { content: <PageContainer> <AdminDashboard/> </PageContainer> }) 
     } else Router.go('login')
   }
 })
 
 // Prof routes
+import ProfessorDashboard from '../../ui/pages/professor_dashboard'
+import ManageCourse from '../../ui/pages/manage_course'
+
 Router.route("/manage", {
   name: "professor",
   waitOn: function(){
@@ -61,7 +63,7 @@ Router.route("/manage", {
   action: function () {
     let user = Meteor.user()
     if (Meteor.userHasRole(user, 'professor')) {
-      mount(AppLayout, { content: <ProfessorDashboard/> }) 
+      mount(AppLayout, { content: <PageContainer> <ProfessorDashboard/> </PageContainer> }) 
     } else Router.go('login')
   }
 })
@@ -73,12 +75,13 @@ Router.route("/manage/course/:_id", {
   },
   action: function () {
     if (Meteor.userRoleGreater(Meteor.user(), 'professor')) {
-      mount(AppLayout, { content: <ProfessorDashboard/> }) 
+      mount(AppLayout, { content: <PageContainer> <ManageCourse courseId={this.params._id} /> </PageContainer> }) 
     } else Router.go('login')
   }
 })
 
 // Student Routes
+import { StudentDashboard } from '../../ui/pages/student_dashboard'
 Router.route("/student", {
   name: "student",
   waitOn: function(){
@@ -86,7 +89,7 @@ Router.route("/student", {
   },
   action: function () {
     if (Meteor.userRoleGreater(Meteor.user(), 'student')) {
-      mount(AppLayout, { content: <StudentDashboard/> }) 
+      mount(AppLayout, { content: <PageContainer> <StudentDashboard/> </PageContainer> }) 
     } else Router.go('login')
 
   }

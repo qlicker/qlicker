@@ -44,37 +44,22 @@ class ProfessorDashboard extends Component {
   } 
 
   render() {
-    let courseList = <div>Hello</div> 
-    //if (this.props.loading) courseList = <div>loading</div>
-    courseList = <ul className='ui-courselist'>{this.renderCourseList()}</ul>
+    let courseList = <ul className='ui-courselist'>{this.renderCourseList()}</ul>
  
     return (
-      <div className='ui-page-container'>
-      
-        <div className='ui-top-bar'>
-          <a href={Router.routes['professor'].path()} className='ui-wordmark'><h1>Qlicker</h1></a>
-      
-          <div className='ui-button-bar'>
-            <ProfileCard />
-            <LogoutButton redirect='login'/>
-          </div>
-        </div>
-      
         <div className='container ui-professor-page'>
-
           <h2>My Classes</h2>
           <button onClick={this.promptCreateCourse}>Create Course</button>
 
           <hr/>
           
-          { courseList }  
+          { courseList }
+        
+          <div className='ui-modal-container' ref='modals'>
+            { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
+          </div>
 
-        </div>
-
-        <div className='ui-modal-container' ref='modals'>
-          { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
-        </div>
-      </div>)
+        </div>)
   
   }
 
