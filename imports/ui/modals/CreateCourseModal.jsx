@@ -21,6 +21,9 @@ export class CreateCourseModal extends Component {
     super(props)
 
     this.state = _.extend({}, DEFAULT_STATE) 
+
+    this.setValue = this.setValue.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   setValue(e) {
@@ -64,11 +67,11 @@ export class CreateCourseModal extends Component {
   render() {
     return (
       <div className='ui-modal ui-modal-createcourse'>
-        <form ref='createcourseForm' className='ui-form-createcourse' onSubmit={this.handleSubmit.bind(this)}>
-          Name: <input type='text' data-name='name' onChange={this.setValue.bind(this)} placeholder='Information Technology Project (2016-17)' /><br/>
-          Department Code: <input type='text' data-name='deptCode' onChange={this.setValue.bind(this)} placeholder='CISC' /><br/> 
-          Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue.bind(this)} placeholder='498' /><br/>
-          Section: <input type='text' data-name='section' onChange={this.setValue.bind(this)} placeholder='001' /><br/>
+        <form ref='createcourseForm' className='ui-form-createcourse' onSubmit={this.handleSubmit}>
+          Name: <input type='text' data-name='name' onChange={this.setValue} placeholder='Information Technology Project (2016-17)' /><br/>
+          Department Code: <input type='text' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br/> 
+          Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br/>
+          Section: <input type='text' data-name='section' onChange={this.setValue} placeholder='001' /><br/>
           <input type='submit' />
         </form>
       </div>)

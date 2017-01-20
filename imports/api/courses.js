@@ -68,9 +68,7 @@ Meteor.methods({
   },
 
   'courses.delete'(courseId) {
-
     verfiyCourseHasPermissions(courseId)
-
     return Courses.remove({ _id: courseId })
   },
 
@@ -87,7 +85,7 @@ Meteor.methods({
         deptCode: course.deptCode,
         courseNumber: course.courseNumber,
         section: course.section,
-        owner: course.owner
+        owner: course.owner // this method used to change course owner
       } 
     })
   }

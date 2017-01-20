@@ -21,19 +21,20 @@ import ProfessorDashboard from '../../ui/pages/professor_dashboard'
 // we need to remove default ironrouter Loading... message cause we aren't using templates
 
 Router.route("/", function() {
-  mount(AppLayout, {
-    content: <Homepage/>
-  })
+  mount(AppLayout, { content: <Homepage/> })
 }, {
   name: "home",
 })
 
 Router.route("/login", function() {
-  mount(AppLayout, {
-    content: <Loginpage/>
-  })
+  mount(AppLayout, { content: <Loginpage/> })
 }, {
   name: "login",
+})
+
+Router.onBeforeAction(function () {
+  this.render('blank') // workaround for mounting react without blaze template
+  this.next()
 })
 
 
@@ -44,15 +45,10 @@ Router.route("/admin", {
     return Meteor.subscribe("userData");
   },
   action: function () {
-    this.render('blank')    
-
     let user = Meteor.user()
     if (Meteor.userHasRole(user, 'admin')) {
-      mount(AppLayout, {
-        content: <AdminDashboard/>
-      }) 
+      mount(AppLayout, { content: <AdminDashboard/> }) 
     } else Router.go('login')
-    
   }
 })
 
@@ -63,15 +59,22 @@ Router.route("/manage", {
     return Meteor.subscribe("userData");
   },
   action: function () {
-    this.render('blank')     
-  
     let user = Meteor.user()
     if (Meteor.userHasRole(user, 'professor')) {
-      mount(AppLayout, {
-        content: <ProfessorDashboard/>
-      }) 
+      mount(AppLayout, { content: <ProfessorDashboard/> }) 
     } else Router.go('login')
+  }
+})
 
+Router.route("/manage/course/:_id", {
+  name: "manage.course",
+  waitOn: function(){
+    return Meteor.subscribe("userData");
+  },
+  action: function () {
+    if (Meteor.userRoleGreater(Meteor.user(), 'professor')) {
+      mount(AppLayout, { content: <ProfessorDashboard/> }) 
+    } else Router.go('login')
   }
 })
 
@@ -82,13 +85,8 @@ Router.route("/student", {
     return Meteor.subscribe("userData");
   },
   action: function () {
-    this.render('blank')     
-  
-    let user = Meteor.user()
-    if (Meteor.userHasRole(user, 'student')) {
-      mount(AppLayout, {
-        content: <StudentDashboard/>
-      }) 
+    if (Meteor.userRoleGreater(Meteor.user(), 'student')) {
+      mount(AppLayout, { content: <StudentDashboard/> }) 
     } else Router.go('login')
 
   }

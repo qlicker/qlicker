@@ -12,7 +12,12 @@
     font-weight: bold;
   }
 
-  .code-number-section, .controls {
+  .code-number-section {
+    margin-left:10px; 
+  }
+ 
+  .controls {
+    z-index:10;
     float: right;
   }
 

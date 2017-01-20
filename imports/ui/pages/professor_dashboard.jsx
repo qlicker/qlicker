@@ -10,7 +10,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { LogoutButton } from '../Buttons'
 import ProfileCard from '../ProfileCard'
 import CourseListItem from '../CourseListItem'
-import CreateCourseModal from '../modals/CreateCourseModal'
+import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
 
@@ -21,6 +21,9 @@ class ProfessorDashboard extends Component {
     super(props)
 
     this.state = { creatingCourse: false }
+
+    this.doneCreatingCourse = this.doneCreatingCourse.bind(this)
+    this.promptCreateCourse = this.promptCreateCourse.bind(this)
   }
 
 
@@ -29,7 +32,7 @@ class ProfessorDashboard extends Component {
   
   } 
 
-  handleCreateCourse(e) {
+  doneCreatingCourse(e) {
     this.setState({ creatingCourse: false })
   }
 
@@ -60,7 +63,7 @@ class ProfessorDashboard extends Component {
         <div className='container ui-professor-page'>
 
           <h2>My Classes</h2>
-          <button onClick={this.promptCreateCourse.bind(this)}>Create Course</button>
+          <button onClick={this.promptCreateCourse}>Create Course</button>
 
           <hr/>
           
@@ -69,7 +72,7 @@ class ProfessorDashboard extends Component {
         </div>
 
         <div className='ui-modal-container' ref='modals'>
-          { this.state.creatingCourse ? <CreateCourseModal done={this.handleCreateCourse.bind(this)} /> : '' }
+          { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
         </div>
       </div>)
   

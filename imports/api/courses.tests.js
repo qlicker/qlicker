@@ -2,7 +2,7 @@
  
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import { assert } from 'meteor/practicalmeteor:chai';
+import { expect } from 'meteor/practicalmeteor:chai';
 import { sinon } from 'meteor/practicalmeteor:sinon';
 
 import { _ } from 'underscore'
@@ -35,7 +35,7 @@ if (Meteor.isServer) {
       it('can insert new course', () => {
         let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
 
-        assert.equal(Courses.find({ _id : courseId }).count(), 1);
+        expect( Courses.find({ _id : courseId }).count() ).to.equal(1)
       })
 
 
@@ -43,7 +43,7 @@ if (Meteor.isServer) {
         let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
 
         Meteor.call('courses.delete', courseId)
-        assert.equal(Courses.find({ _id : courseId }).count(), 0);        
+        expect( Courses.find({ _id : courseId }).count() ).to.equal(0)
       })
 
       it('can edit course', () => {
@@ -59,13 +59,14 @@ if (Meteor.isServer) {
         editedCourse.owner = newOwnerId
 
         Meteor.call('courses.edit', editedCourse)
-
+        
+        // verify edits
         let courseFromDb = Courses.findOne({ _id : courseId })
-        assert.equal(courseFromDb.owner, editedCourse.owner);        
-        assert.equal(courseFromDb.name, editedCourse.name);        
-        assert.equal(courseFromDb.deptCode, editedCourse.deptCode);        
-        assert.equal(courseFromDb.courseNumber, editedCourse.courseNumber);        
-        assert.equal(courseFromDb.section, editedCourse.section);        
+        expect(courseFromDb.owner).to.equal(editedCourse.owner)
+        expect(courseFromDb.name).to.equal(editedCourse.name)
+        expect(courseFromDb.deptCode).to.equal(editedCourse.deptCode)
+        expect(courseFromDb.courseNumber).to.equal(editedCourse.courseNumber)
+        expect(courseFromDb.section).to.equal(editedCourse.section)
       })
 
 

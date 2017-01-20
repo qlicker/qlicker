@@ -13,42 +13,44 @@ import { CreateCourseModal, DEFAULT_STATE } from './CreateCourseModal.jsx'
 
 if (Meteor.isClient) {
  
-  describe('CreateCourseModal', () => {
+  describe('<CreateCourseModal />', () => {
   
+    const TEST_VALUE = 'test value',
+      NUM_INPUTS = _.keys(DEFAULT_STATE).length + 1
+    
     it('should render', () => {
-      const NUM_INPUTS = _.keys(DEFAULT_STATE).length + 1
       const modal = shallow(<CreateCourseModal />)
       chai.assert(modal.hasClass('ui-modal-createcourse'))
       chai.assert(modal.find('.ui-form-createcourse'))
       chai.assert.equal(modal.find('input').length, NUM_INPUTS)
     })
 
-    it('should update state on input change', () => { 
-      /*
-      const TEST_VALUE = 'test value'
-      const onDone = sinon.spy()
-      
-      const modal = shallow(<CreateCourseModal done={onDone} />)
-      const textInput = modal.find('input[type="text"]')
-      const submit = modal.find('input[type="submit"]')
+    it('should update state on input change', () => {   
+      const modal = mount(<CreateCourseModal  />),
+        textInput = modal.find('input[type="text"]')
 
-      //textInput.simulate('focus')
-      ///textInput.simulate('change', {
-      //  target: { value: TEST_VALUE }
-      //})
+      // set all inputs to test value
+      _(textInput.length).times((i) => {      
+        textInput.at(i).get(0).value = TEST_VALUE + i
+        textInput.at(i).simulate('change', textInput)
+      })
 
-      // check each key in state 
-      //_.keys(DEFAULT_STATE).forEach((k) => {
-      //  console.log(modal.state()[k])
-      //  expect(modal.state()[k]).to.equal(TEST_VALUE);        
-      //})
-
-      submit.get(0).click()
-      //submit.sumulate('click')
-      expect(onDone.calledOnce).to.equal(true);    
-      */
+      //check each value by key in component state
+      let count = 0
+      _.keys(DEFAULT_STATE).forEach((k) => {
+        expect(modal.state()[k]).to.equal(TEST_VALUE+(count++))
+      })
     })
-  
+
+    it('should call done callback on submit', () => { 
+      const onDone = sinon.spy(),
+        modal = mount(<CreateCourseModal done={onDone} />),
+        submit = modal.find('input[type="submit"]')
+
+      modal.find('form').simulate('submit')   
+      expect(onDone.calledOnce).to.equal(true); 
+    })
+
   }) // end describe('CreateCourseModal')
 
 }
