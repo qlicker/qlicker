@@ -42,10 +42,10 @@ if (Meteor.isServer) {
         expect(Courses.find({ _id: courseId }).count()).to.equal(0)
       })
 
-      it('can regenerate code (courses.renegerateCode)', () => {
+      it('can regenerate code (courses.regenerateCode)', () => {
         const courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
         const oldEnrollementCode = Courses.findOne({ _id: courseId }).enrollmentCode
-        const course = Meteor.call('courses.renegerateCode', courseId)
+        const course = Meteor.call('courses.regenerateCode', courseId)
 
         expect(course.enrollmentCode).to.not.equal(oldEnrollementCode)
       })

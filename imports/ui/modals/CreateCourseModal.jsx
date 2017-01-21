@@ -12,7 +12,8 @@ export const DEFAULT_STATE = {
   name: '',
   deptCode: '',
   courseNumber: '',
-  section: ''
+  section: '',
+  semester: ''
 }
 
 export class CreateCourseModal extends Component {
