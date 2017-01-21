@@ -45,7 +45,7 @@ if (Meteor.isClient) {
       const modal = mount(<CreateCourseModal done={onDone} />)
 
       modal.find('form').simulate('submit')
-      expect(onDone.calledOnce).to.equal(true)
+      expect(onDone.calledOnce).to.equal(true) // TODO spy verify course sent
     })
   }) // end describe('CreateCourseModal')
 }

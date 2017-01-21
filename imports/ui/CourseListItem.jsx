@@ -36,10 +36,11 @@ export default class CourseListItem extends Component {
     // TODO: extract course string display to helper
     r = (
       <li className='ui-courselist-item' onClick={this.navigateToCourse}>
-        <span className='course-name'>{ this.props.course.name }</span>
-        <span className='code-number-section'>
-          { this.props.course.deptCode + this.props.course.courseNumber + '-' + this.props.course.section }
-        </span>
+        <span className='ui-course-name'>{ this.props.course.name }</span>
+
+        <span className='ui-course-code'>{ this.props.course.createCourseCode() } </span>
+        <span className='ui-course-semester'>{ this.props.course.semester }</span>
+
         <span className='controls'><button onClick={this.deleteItem.bind(this)}>Delete</button></span>
       </li>)
 

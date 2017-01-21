@@ -21,27 +21,36 @@ if (Meteor.isServer) {
         name: 'Intro to Computer Science',
         deptCode: 'CISC',
         courseNumber: '101',
-        section: '001'
+        section: '001',
+        semester: 'F17'
       }
 
       beforeEach(() => {
         Courses.remove({})
       })
 
-      it('can insert new course', () => {
+      it('can insert new course (courses.insert)', () => {
         let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
 
         expect(Courses.find({ _id: courseId }).count()).to.equal(1)
       })
 
-      it('can delete course', () => {
+      it('can delete course (courses.delete)', () => {
         let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
 
         Meteor.call('courses.delete', courseId)
         expect(Courses.find({ _id: courseId }).count()).to.equal(0)
       })
 
-      it('can edit course', () => {
+      it('can regenerate code (courses.renegerateCode)', () => {
+        const courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
+        const oldEnrollementCode = Courses.findOne({ _id: courseId }).enrollmentCode
+        const course = Meteor.call('courses.renegerateCode', courseId)
+
+        expect(course.enrollmentCode).to.not.equal(oldEnrollementCode)
+      })
+
+      it('can edit course (courses.edit)', () => {
         let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
 
         let editedCourse = Courses.findOne({ _id: courseId })
@@ -49,6 +58,7 @@ if (Meteor.isServer) {
         editedCourse.deptCode = 'edited deptCode'
         editedCourse.courseNumber = 'edited courseNumber'
         editedCourse.section = 'edited section'
+        editedCourse.semester = 'edited semester'
 
         let newOwnerId = Random.id()
         editedCourse.owner = newOwnerId
@@ -62,6 +72,7 @@ if (Meteor.isServer) {
         expect(courseFromDb.deptCode).to.equal(editedCourse.deptCode)
         expect(courseFromDb.courseNumber).to.equal(editedCourse.courseNumber)
         expect(courseFromDb.section).to.equal(editedCourse.section)
+        expect(courseFromDb.semester).to.equal(editedCourse.semester)
         // other method handles regenration of enrollment code
         expect(courseFromDb.enrollmentCode).to.equal(editedCourse.enrollmentCode)
       })

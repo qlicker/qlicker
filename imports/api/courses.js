@@ -7,11 +7,11 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
 
+import { _ } from 'underscore'
+
 import Helpers from './helpers.js'
 
-export const Courses = new Mongo.Collection('courses')
-
-// object pattern
+// expected collection pattern
 const coursePattern = {
   _id: Match.Maybe(Helpers.NEString), // mongo db id
   name: Helpers.NEString, // Information Technology Project (2016-17)
@@ -20,8 +20,22 @@ const coursePattern = {
   section: Helpers.NEString, // 001
   owner: Helpers.NEString, // mongo db id reference
   enrollmentCode: Helpers.NEString,
+  semester: Helpers.NEString, // F17, W16, S15, etc.
   createdAt: Date
 }
+
+// Create course class
+const Course = function (doc) { _.extend(this, doc) }
+_.extend(Course.prototype, {
+  createCourseCode: function () {
+    return this.deptCode + ' ' + this.courseNumber + ' - ' + this.section
+  }
+})
+
+// Create course collection
+export const Courses = new Mongo.Collection('courses',
+  { transform: (doc) => { return new Course(doc) } }
+)
 
 // data publishing
 if (Meteor.isServer) {
@@ -71,6 +85,19 @@ Meteor.methods({
     return Courses.remove({ _id: courseId })
   },
 
+  'courses.regenerateCode' (courseId) {
+    verfiyCourseHasPermissions(courseId)
+
+    const enrollmentCode = Helpers.RandomEnrollmentCode()
+    Courses.update({ _id: courseId }, {
+      $set: {
+        enrollmentCode: enrollmentCode
+      }
+    })
+
+    return Courses.find({ _id: courseId }).fetch()
+  },
+
   'courses.edit' (course) {
     check(course._id, Helpers.NEString)
     check(course, coursePattern)
@@ -84,9 +111,10 @@ Meteor.methods({
         deptCode: course.deptCode,
         courseNumber: course.courseNumber,
         section: course.section,
+        semester: course.semester,
         owner: course.owner // this method used to change course owner
       }
     })
   }
 
-})
+}) // end Meteor.methods

@@ -41,7 +41,7 @@ export class CreateCourseModal extends Component {
     }, this.state)
 
     if (Meteor.isTest) {
-      this.props.done()
+      this.props.done(course)
     }
 
     Meteor.call('courses.insert', course, (error) => {
@@ -69,6 +69,7 @@ export class CreateCourseModal extends Component {
           Department Code: <input type='text' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
           Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
           Section: <input type='text' data-name='section' onChange={this.setValue} placeholder='001' /><br />
+          Semester: <input type='text' data-name='semester' onChange={this.setValue} placeholder='W17' /><br />
           <input type='submit' />
         </form>
       </div>)

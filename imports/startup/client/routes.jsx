@@ -70,7 +70,7 @@ Router.route('/manage', {
 Router.route('/manage/course/:_id', {
   name: 'manage.course',
   waitOn: function () {
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
     if (Meteor.userRoleGreater(Meteor.user(), 'professor')) {
