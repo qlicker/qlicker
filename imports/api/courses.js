@@ -87,6 +87,7 @@ Meteor.methods({
 
   'courses.delete' (courseId) {
     profHasCoursePermission(courseId)
+    // TODO remove enrollments from students
     return Courses.remove({ _id: courseId })
   },
 
@@ -173,7 +174,7 @@ Meteor.methods({
     })
   }/*,
   // course<=>session methods
-  'courses.createSession' () {
+  'courses.createSession' (courseId, sessionId) {
 
   },
   'courses.deleteSession' () {

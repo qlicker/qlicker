@@ -14,10 +14,6 @@ import { Loginpage } from '../../ui/pages/login'
 // TODO sort out these importing inconsistencies
 import PageContainer from '../../ui/pages/page_container'
 
-// For routes that are waiting on data,
-// this.render('blank') is needed cause ironrouter expects you to render a blaze template
-// we need to remove default ironrouter Loading... message cause we aren't using templates
-
 Router.route('/', function () {
   mount(AppLayout, { content: <Homepage /> })
 }, {

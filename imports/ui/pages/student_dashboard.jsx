@@ -3,17 +3,33 @@
 //
 // student_dashboard.jsx: student overview page
 
-
 import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses.js'
+import { EnrollCourseModal } from '../modals/EnrollCourseModal'
+import CourseListItem from '../CourseListItem'
 
 class StudentDashboard extends Component {
   constructor (props) {
     super(props)
 
     this.state = { enrollingInCourse: false }
+
+    this.promptForCode = this.promptForCode.bind(this)
+    this.closeModal = this.closeModal.bind(this)
+  }
+
+  promptForCode () {
+    this.setState({ enrollingInCourse: true })
+  }
+  closeModal () {
+    this.setState({ enrollingInCourse: true })
+  }
+
+  renderCourseList () {
+    console.log(this.props.courses)
+    return this.props.courses.map((c) => (<CourseListItem key={c._id} course={c} />))
   }
 
   render () {
@@ -23,7 +39,10 @@ class StudentDashboard extends Component {
         <button onClick={this.promptForCode}>Enroll in Course</button>
 
         <hr />
-        { JSON.stringify(this.props.courses) }
+        <ul>
+          { this.renderCourseList() }
+        </ul>
+        { this.state.enrollingInCourse ? <EnrollCourseModal done={this.closeModal} /> : '' }
 
       </div>)
   }

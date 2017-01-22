@@ -41,7 +41,8 @@
       "Meteor",
       "Accounts",
       "it",
-      "describe"
+      "describe",
+      "confirm"
     ]
   }
 }
