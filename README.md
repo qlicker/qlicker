@@ -19,7 +19,7 @@ When developing, please adhere to meteor and react opinions as well as following
 
 Build and bundle using `meteor build`. Deploy node app and configure mongodb accordingly.
 
-Application currently deployed at [qlicker.etdev.ca](http://qlicker.etdev.ca). This instance is redeployed on every push to master.
+Application currently deployed at [qlicker.etdev.ca](http://qlicker.etdev.ca).
 
 
 
