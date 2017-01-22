@@ -5,13 +5,15 @@
     "start": "meteor run",
     "lint": "node_modules/.bin/standard",
     "fix": "node_modules/.bin/standard --fix",
-    "test": "node_modules/.bin/standard && node_modules/spacejam/bin/spacejam test --driver-package practicalmeteor:mocha --port 4099",
-    "browser": "meteor test --driver-package practicalmeteor:mocha"
+    "test": "node_modules/spacejam/bin/spacejam test --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html'",
+    "coverage": "node_modules/spacejam/bin/spacejam test --coverage 'out_lcovonly out_coverage out_html' --port 4099 --driver-package practicalmeteor:mocha-console-runner",
+    "lbtest": "meteor test --driver-package practicalmeteor:mocha"
   },
   "dependencies": {
     "babel-eslint": "^7.1.1",
     "babel-runtime": "^6.18.0",
     "bcrypt": "^0.8.7",
+    "empty-module": "0.0.2",
     "eslint": "^3.11.1",
     "eslint-plugin-react": "^6.7.1",
     "jshint": "^2.9.4",
@@ -28,15 +30,24 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "empty-module": "0.0.2",
     "enzyme": "^2.7.0",
     "eslint": "^3.14.0",
     "eslint-plugin-react": "^6.9.0",
+    "ignore-styles": "^5.0.1",
     "react": "^15.4.2",
     "react-addons-test-utils": "^15.4.2",
     "react-dom": "^15.4.2",
+    "spacejam": "https://github.com/serut/spacejam/tarball/windows-suppport-rc4",
     "standard": "^8.6.0"
   },
   "standard": {
-    "globals": [ "Router", "Meteor", "Accounts", "it", "describe" ]
+    "globals": [
+      "Router",
+      "Meteor",
+      "Accounts",
+      "it",
+      "describe"
+    ]
   }
 }

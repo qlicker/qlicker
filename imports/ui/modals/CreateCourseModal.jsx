@@ -7,6 +7,7 @@ import React, { Component } from 'react'
 import _ from 'underscore'
 
 // import { Courses } from '../../api/courses.js'
+if (Meteor.isClient) import './CreateCourseModal.scss'
 
 export const DEFAULT_STATE = {
   name: '',

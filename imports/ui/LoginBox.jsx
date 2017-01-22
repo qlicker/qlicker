@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -5,23 +6,26 @@
 // calls account creation method and redirects after login
 
 import React, { Component } from 'react'
+import { _ } from 'underscore'
 
-import './LoginBox.scss'
+if (Meteor.isClient) import './LoginBox.scss'
 
-export default class LoginBox extends Component {
+export const DEFAULT_STATE = {
+  login: true,
+  email: '',
+  password: '',
+  password_verify: '',
+  form_error: false,
+  submit_error: false,
+  firstname: '',
+  lastname: ''
+}
+
+export class LoginBox extends Component {
 
   constructor (props) {
     super(props)
-    this.state = {
-      login: true,
-      email: '',
-      password: '',
-      password_verify: '',
-      form_error: false,
-      submit_error: false,
-      firstname: '',
-      lastname: ''
-    }
+    this.state = _.extend({}, DEFAULT_STATE)
   }
 
   handleSubmit (e) {
@@ -42,8 +46,7 @@ export default class LoginBox extends Component {
         } else this.navigateAfterLogin(Meteor.user())
       }.bind(this))
     } else {
- // signup
-
+      // signup
       if (this.state.password !== this.state.password_verify) {
         this.setState({ form_error: true })
       } else {
@@ -98,7 +101,7 @@ export default class LoginBox extends Component {
         { this.state.form_error ? <div className='ui-login-box-error-msg'>Please enter a valid email and password</div> : ''}
         { this.state.submit_error ? <div className='ui-login-box-error-msg'>Please try again</div> : ''}
         <div className='spacer1'>&nbsp;</div>
-        <input type='submit' value={submitButtonString} /><button onClick={this.changeForm.bind(this)}>{switchFormString}</button>
+        <input type='submit' value={submitButtonString} /><button className='ui-switch-form-button' onClick={this.changeForm.bind(this)}>{switchFormString}</button>
       </form>
     )
   } //  end render

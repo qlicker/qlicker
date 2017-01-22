@@ -12,19 +12,18 @@ if (Meteor.isServer) {
   // TODO Stub Meteor user
 
   describe('Courses', () => {
+    const userId = Random.id()
+
+    const sampleCourse = {
+      createdAt: new Date(),
+      owner: userId,
+      name: 'Intro to Computer Science',
+      deptCode: 'CISC',
+      courseNumber: '101',
+      section: '001',
+      semester: 'F17'
+    }
     describe('methods', () => {
-      const userId = Random.id()
-
-      const sampleCourse = {
-        createdAt: new Date(),
-        owner: userId,
-        name: 'Intro to Computer Science',
-        deptCode: 'CISC',
-        courseNumber: '101',
-        section: '001',
-        semester: 'F17'
-      }
-
       beforeEach(() => {
         Courses.remove({})
       })
@@ -76,6 +75,58 @@ if (Meteor.isServer) {
         // other method handles regenration of enrollment code
         expect(courseFromDb.enrollmentCode).to.equal(editedCourse.enrollmentCode)
       })
-    }) // end describe('methods')
+    })// end describe('methods')
+    describe('course<=>user methods', () => {
+      beforeEach(() => {
+        Courses.remove({})
+        Meteor.users.remove({})
+      })
+
+      const prepWork = (assertions) => {
+        const studentUserId = Accounts.createUser({
+          email: 'email@email.com',
+          password: 'test value',
+          profile: {
+            firstname: 'test value',
+            lastname: 'test value',
+            roles: ['student']
+          }
+        })
+        let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
+
+        Meteor.call('courses.addStudent', courseId, studentUserId)
+
+        const course = Courses.findOne({ _id: courseId })
+        const student = Meteor.users.findOne({ _id: studentUserId })
+        assertions(course, student)
+      }
+
+      it('can add student (courses.addStudent)', () => {
+        prepWork((course, student) => {
+          expect(course.students.length).to.equal(1)
+          expect(student.profile.courses.length).to.equal(1)
+        })
+      })
+
+      it('can remove student (courses.removeStudent)', () => {
+        prepWork((course, student) => {
+          Meteor.call('courses.removeStudent', course._id, student._id)
+
+          expect(Meteor.users.findOne({ _id: student._id }).profile.courses.length).to.equal(0)
+          expect(Courses.findOne({ _id: course._id }).students.length).to.equal(0)
+        })
+      })
+    }) // end describe('course<=>user methods')
+    /*
+    describe('course<=>session methods', () => {
+      it('can create session (courses.createSession)*', () => {
+
+      })
+
+      it('can delete session (courses.deleteSession)*', () => {
+
+      })
+    }) // end describe('course<=>session methods')
+    */
   }) // end describe('Courses')
 } // end Meteor.isServer

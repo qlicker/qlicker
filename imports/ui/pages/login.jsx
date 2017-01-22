@@ -7,7 +7,7 @@ import React from 'react'
 
 import './login.scss'
 
-import LoginBox from '../LoginBox.jsx'
+import { LoginBox } from '../LoginBox.jsx'
 
 export const Loginpage = () => (
   <div className='container ui-login-page'>

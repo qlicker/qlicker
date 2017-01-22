@@ -49,7 +49,7 @@ if (Meteor.isServer) {
 }
 
 // course permissions helper
-const verfiyCourseHasPermissions = (courseId) => {
+const userHasCoursePermission = (courseId) => {
   if (!Meteor.isTest) {
     let courseOwner = Courses.findOne({ _id: courseId }).owner
 
@@ -81,12 +81,12 @@ Meteor.methods({
   },
 
   'courses.delete' (courseId) {
-    verfiyCourseHasPermissions(courseId)
+    userHasCoursePermission(courseId)
     return Courses.remove({ _id: courseId })
   },
 
   'courses.regenerateCode' (courseId) {
-    verfiyCourseHasPermissions(courseId)
+    userHasCoursePermission(courseId)
 
     const enrollmentCode = Helpers.RandomEnrollmentCode()
     Courses.update({ _id: courseId }, {
@@ -103,7 +103,7 @@ Meteor.methods({
     check(course, coursePattern)
     let courseId = course._id
 
-    verfiyCourseHasPermissions(courseId)
+    userHasCoursePermission(courseId)
 
     return Courses.update({ _id: courseId }, {
       $set: {
@@ -115,6 +115,41 @@ Meteor.methods({
         owner: course.owner // this method used to change course owner
       }
     })
-  }
+  },
+  // course<=>user methods
+  'courses.addStudent' (courseId, studentUserId) {
+    // check(courseId, Helpers.MongoID)
+    // check(studentUserId, Helpers.MongoID)
 
+    userHasCoursePermission(courseId)
+
+    Meteor.users.update({ _id: studentUserId }, {
+      $addToSet: { 'profile.courses': courseId }
+    })
+
+    return Courses.update({ _id: courseId }, {
+      $addToSet: { students: { studentUserId: studentUserId } }
+    })
+  },
+  'courses.removeStudent' (courseId, studentUserId) {
+    // check(courseId, Helpers.MongoID)
+    // check(studentUserId, Helpers.MongoID)
+
+    userHasCoursePermission(courseId)
+
+    Meteor.users.update({ _id: studentUserId }, {
+      $pull: { 'profile.courses': courseId }
+    })
+    return Courses.update({ _id: courseId }, {
+      $pull: { students: { 'studentUserId': studentUserId } }
+    })
+  }/*,
+  // course<=>session methods
+  'courses.createSession' () {
+
+  },
+  'courses.deleteSession' () {
+
+  }
+  */
 }) // end Meteor.methods

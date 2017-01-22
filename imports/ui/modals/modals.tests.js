@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { shallow, mount } from 'enzyme'
-import { chai, expect } from 'meteor/practicalmeteor:chai'
+import { expect } from 'meteor/practicalmeteor:chai'
 import { sinon } from 'meteor/practicalmeteor:sinon'
 import { _ } from 'underscore'
 
@@ -18,9 +18,8 @@ if (Meteor.isClient) {
 
     it('should render', () => {
       const modal = shallow(<CreateCourseModal />)
-      chai.assert(modal.hasClass('ui-modal-createcourse'))
-      chai.assert(modal.find('.ui-form-createcourse'))
-      chai.assert.equal(modal.find('input').length, NUM_INPUTS)
+      expect(modal.hasClass('ui-modal-createcourse')).to.equal(true)
+      expect(modal.find('input').length).to.equal(NUM_INPUTS)
     })
 
     it('should update state on input change', () => {
