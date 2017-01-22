@@ -3,6 +3,7 @@
 import { Meteor } from 'meteor/meteor'
 import { Random } from 'meteor/random'
 import { expect } from 'meteor/practicalmeteor:chai'
+import { sinon } from 'meteor/practicalmeteor:sinon'
 
 import { _ } from 'underscore'
 
@@ -68,10 +69,10 @@ if (Meteor.isServer) {
         let courseFromDb = Courses.findOne({ _id: courseId })
         expect(courseFromDb.owner).to.equal(editedCourse.owner)
         expect(courseFromDb.name).to.equal(editedCourse.name)
-        expect(courseFromDb.deptCode).to.equal(editedCourse.deptCode)
-        expect(courseFromDb.courseNumber).to.equal(editedCourse.courseNumber)
+        expect(courseFromDb.deptCode).to.equal(editedCourse.deptCode.toLowerCase())
+        expect(courseFromDb.courseNumber).to.equal(editedCourse.courseNumber.toLowerCase())
         expect(courseFromDb.section).to.equal(editedCourse.section)
-        expect(courseFromDb.semester).to.equal(editedCourse.semester)
+        expect(courseFromDb.semester).to.equal(editedCourse.semester.toLowerCase())
         // other method handles regenration of enrollment code
         expect(courseFromDb.enrollmentCode).to.equal(editedCourse.enrollmentCode)
       })
@@ -94,28 +95,43 @@ if (Meteor.isServer) {
         })
         let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
 
-        Meteor.call('courses.addStudent', courseId, studentUserId)
-
-        const course = Courses.findOne({ _id: courseId })
-        const student = Meteor.users.findOne({ _id: studentUserId })
-        assertions(course, student)
+        assertions(courseId, studentUserId)
       }
 
       it('can add student (courses.addStudent)', () => {
-        prepWork((course, student) => {
+        prepWork((courseId, studentUserId) => {
+          Meteor.call('courses.addStudent', courseId, studentUserId)
+          
+          const course = Courses.findOne({ _id: courseId })
+          const student = Meteor.users.findOne({ _id: studentUserId })
+
           expect(course.students.length).to.equal(1)
           expect(student.profile.courses.length).to.equal(1)
         })
       })
 
       it('can remove student (courses.removeStudent)', () => {
-        prepWork((course, student) => {
-          Meteor.call('courses.removeStudent', course._id, student._id)
+        prepWork((courseId, studentUserId) => {
+          Meteor.call('courses.addStudent', courseId, studentUserId)
+          Meteor.call('courses.removeStudent', courseId, studentUserId)
 
-          expect(Meteor.users.findOne({ _id: student._id }).profile.courses.length).to.equal(0)
-          expect(Courses.findOne({ _id: course._id }).students.length).to.equal(0)
+          expect(Meteor.users.findOne({ _id: studentUserId }).profile.courses.length).to.equal(0)
+          expect(Courses.findOne({ _id: courseId }).students.length).to.equal(0)
         })
       })
+
+      // it('can enroll using code (courses.checkAndEnroll)', () => {
+        // prepWork((course, student) => { // TODO
+          // if (!Meteor.userId()) {
+          //   sinon.stub(Meteor, 'userId', () => student._id)
+          //   sinon.stub(Meteor, 'user', () => { return student })
+          // }
+          // Meteor.call('courses.checkAndEnroll', course.deptCode, course.courseNumber, course.enrollmentCode)
+
+          // expect(course.students.length).to.equal(1)
+          // expect(student.profile.courses.length).to.equal(1)
+        // })
+      // })
     }) // end describe('course<=>user methods')
     /*
     describe('course<=>session methods', () => {

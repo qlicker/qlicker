@@ -80,7 +80,7 @@ Router.route('/manage/course/:_id', {
 })
 
 // Student Routes
-import { StudentDashboard } from '../../ui/pages/student_dashboard'
+import StudentDashboard from '../../ui/pages/student_dashboard'
 Router.route('/student', {
   name: 'student',
   waitOn: function () {

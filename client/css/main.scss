@@ -1,13 +1,17 @@
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700');
 
+body {
+  font-family: 'Open Sans', sans-serif;
+
+}
+
 // Universal styles
 .spacer1 {
   height:10px;
 }
 
 .ui-page-container {
-  font-family: 'Open Sans', sans-serif;
  
   .ui-top-bar {
     background: #eee;  

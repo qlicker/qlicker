@@ -12,7 +12,7 @@ import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
 
-import './professor_dashboard.scss'
+if (Meteor.isClient) import './professor_dashboard.scss'
 
 class ProfessorDashboard extends Component {
 
