@@ -2,9 +2,9 @@
 Open Source Clicker - CISC498
 
 [![CircleCI](https://circleci.com/gh/etenoch/qlicker/tree/master.svg?style=shield&circle-token=add100d7632954b295a5010c4d904e5b7801d8f5)](https://circleci.com/gh/etenoch/qlicker/tree/master)
+[![codecov](https://codecov.io/gh/etenoch/qlicker/branch/master/graph/badge.svg?token=mtKx05fCA4)](https://codecov.io/gh/etenoch/qlicker)
 [![GNU GPL v3](https://img.shields.io/badge/license-GNU%20GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
-
 
 Qlicker is an application that will make it easier for professors to integrate student participation in classes. This involves a mobile-capable web application that can be used by students on their own devices as an alternative to the very common and hardware based iClicker system.
 

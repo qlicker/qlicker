@@ -1,7 +1,1 @@
-import { ReactiveVar } from 'meteor/reactive-var';
-
-
-import '../imports/startup/client';
-
-
-
+import '../imports/startup/client'

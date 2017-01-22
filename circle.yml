@@ -12,3 +12,7 @@ deployment:
     branch: master
     commands:
       - ./deploy.sh
+
+test:
+  post:
+    - ./node_modules/codecov/bin/codecov -t bcef8026-09d0-485a-a609-d3aed44d2e59

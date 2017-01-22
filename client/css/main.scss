@@ -1,5 +1,5 @@
 
-
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700');
 
 // Universal styles
 .spacer1 {
@@ -7,6 +7,7 @@
 }
 
 .ui-page-container {
+  font-family: 'Open Sans', sans-serif;
  
   .ui-top-bar {
     background: #eee;  
@@ -43,3 +44,7 @@
   }
 }
 
+
+.ui-course-code, .ui-course-semester, .ui-enrollment-code {
+  text-transform: uppercase;
+}
