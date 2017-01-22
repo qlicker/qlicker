@@ -15,4 +15,4 @@ deployment:
 
 test:
   post:
-    - bash <(curl -s https://codecov.io/bash) -t bcef8026
+    - cat .coverage/lcov.info | ./node_modules/codecov.io/bin/codecov.io.js || true # ignore codecov error

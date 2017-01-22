@@ -30,6 +30,7 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "codecov.io": "^0.1.6",
     "empty-module": "0.0.2",
     "enzyme": "^2.7.0",
     "eslint": "^3.14.0",
