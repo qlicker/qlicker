@@ -20,7 +20,7 @@ const coursePattern = {
   section: Helpers.NEString, // 001
   owner: Helpers.NEString, // mongo db id reference
   enrollmentCode: Helpers.NEString,
-  semester: Helpers.NEString, // F17, W16, S15, etc.
+  semester: Helpers.NEString, // F17, W16, S15, FW16 etc.
   createdAt: Date
 }
 
@@ -55,16 +55,14 @@ if (Meteor.isServer) {
 }
 
 // course permissions helper
-const userHasCoursePermission = (courseId) => {
-  if (!Meteor.isTest) {
-    let courseOwner = Courses.findOne({ _id: courseId }).owner
+const profHasCoursePermission = (courseId) => {
+  let courseOwner = Courses.findOne({ _id: courseId }).owner
 
-    if (Meteor.userHasRole(Meteor.user(), 'admin') ||
-        (Meteor.userHasRole(Meteor.user(), 'professor') && Meteor.userId() === courseOwner)) {
-      return
-    } else {
-      throw new Meteor.Error('not-authorized')
-    }
+  if (Meteor.userHasRole(Meteor.user(), 'admin') ||
+      (Meteor.userHasRole(Meteor.user(), 'professor') && Meteor.userId() === courseOwner)) {
+    return
+  } else {
+    throw new Meteor.Error('not-authorized')
   }
 }
 
@@ -74,13 +72,10 @@ Meteor.methods({
   'courses.insert' (course) {
     course.enrollmentCode = Helpers.RandomEnrollmentCode()
 
-    check(course, coursePattern) // TODO change to check pattern
-
-    if (!Meteor.isTest) {
-      if (!Meteor.userHasRole(Meteor.user(), 'admin') &&
-        !Meteor.userHasRole(Meteor.user(), 'professor')) {
-        throw new Meteor.Error('not-authorized')
-      }
+    check(course, coursePattern)
+    if (!Meteor.userHasRole(Meteor.user(), 'admin') &&
+      !Meteor.userHasRole(Meteor.user(), 'professor')) {
+      throw new Meteor.Error('not-authorized')
     }
 
     course.deptCode = course.deptCode.toLowerCase()
@@ -91,12 +86,12 @@ Meteor.methods({
   },
 
   'courses.delete' (courseId) {
-    userHasCoursePermission(courseId)
+    profHasCoursePermission(courseId)
     return Courses.remove({ _id: courseId })
   },
 
   'courses.regenerateCode' (courseId) {
-    userHasCoursePermission(courseId)
+    profHasCoursePermission(courseId)
 
     const enrollmentCode = Helpers.RandomEnrollmentCode()
     Courses.update({ _id: courseId }, {
@@ -109,14 +104,22 @@ Meteor.methods({
   },
 
   'courses.checkAndEnroll' (deptCode, courseNumber, enrollmentCode) {
-    deptCode = deptCode.toLowerCase()
-    courseNumber = courseNumber.toLowerCase()
-    enrollmentCode = enrollmentCode.toLowerCase()
-
-    const c = Courses.findOne({ deptCode: deptCode, courseNumber: courseNumber, enrollmentCode: enrollmentCode })
+    check(deptCode, Helpers.NEString)
+    check(courseNumber, Helpers.NEString)
+    check(enrollmentCode, Helpers.NEString)
+    const c = Courses.findOne({
+      deptCode: deptCode.toLowerCase(),
+      courseNumber: courseNumber.toLowerCase(),
+      enrollmentCode: enrollmentCode.toLowerCase()
+    })
 
     if (c) {
-      Meteor.call('courses.addStudent', c._id, Meteor.userId(), true)
+      Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
+        $addToSet: { 'profile.courses': c._id }
+      })
+      Courses.update({ _id: c._id }, {
+        $addToSet: { students: { studentUserId: Meteor.userId() } }
+      })
       return c
     }
     return false
@@ -127,7 +130,7 @@ Meteor.methods({
     check(course, coursePattern)
     let courseId = course._id
 
-    userHasCoursePermission(courseId)
+    profHasCoursePermission(courseId)
 
     return Courses.update({ _id: courseId }, {
       $set: {
@@ -140,12 +143,13 @@ Meteor.methods({
       }
     })
   },
-  // course<=>user methods
-  'courses.addStudent' (courseId, studentUserId, permission = false) { // TODO enforce permission
-    // check(courseId, Helpers.MongoID)
-    // check(studentUserId, Helpers.MongoID)
 
-    if (!permission) userHasCoursePermission(courseId)
+  // course<=>user methods
+  'courses.addStudent' (courseId, studentUserId) { // TODO enforce permission
+    check(courseId, Helpers.MongoID)
+    check(studentUserId, Helpers.MongoID)
+
+    profHasCoursePermission(courseId)
 
     Meteor.users.update({ _id: studentUserId }, {
       $addToSet: { 'profile.courses': courseId }
@@ -156,10 +160,10 @@ Meteor.methods({
     })
   },
   'courses.removeStudent' (courseId, studentUserId) {
-    // check(courseId, Helpers.MongoID)
-    // check(studentUserId, Helpers.MongoID)
+    check(courseId, Helpers.MongoID)
+    check(studentUserId, Helpers.MongoID)
 
-    userHasCoursePermission(courseId)
+    profHasCoursePermission(courseId)
 
     Meteor.users.update({ _id: studentUserId }, {
       $pull: { 'profile.courses': courseId }

@@ -1,16 +1,35 @@
 /* eslint-env mocha */
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+//
+// Unit tests for course data maniupulation methods
 
 import { Meteor } from 'meteor/meteor'
 import { Random } from 'meteor/random'
 import { expect } from 'meteor/practicalmeteor:chai'
-import { sinon } from 'meteor/practicalmeteor:sinon'
 
 import { _ } from 'underscore'
 
+import { createStubs, restoreStubs } from '../../stubs.tests.js'
+
 import { Courses } from './courses.js'
+import './users.js'
 
 if (Meteor.isServer) {
   // TODO Stub Meteor user
+  const createAndStubProfessor = () => {
+    const profUserId = Accounts.createUser({
+      email: 'email@email.com',
+      password: 'test value',
+      profile: {
+        firstname: 'test value',
+        lastname: 'test value',
+        roles: ['professor']
+      }
+    })
+    createStubs(profUserId)
+    return profUserId
+  }
 
   describe('Courses', () => {
     const userId = Random.id()
@@ -27,23 +46,28 @@ if (Meteor.isServer) {
     describe('methods', () => {
       beforeEach(() => {
         Courses.remove({})
+        Meteor.users.remove({})
+        restoreStubs()
       })
 
       it('can insert new course (courses.insert)', () => {
+        createAndStubProfessor()
         let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
 
         expect(Courses.find({ _id: courseId }).count()).to.equal(1)
       })
 
       it('can delete course (courses.delete)', () => {
-        let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
+        const profUserId = createAndStubProfessor()
+        let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
 
         Meteor.call('courses.delete', courseId)
         expect(Courses.find({ _id: courseId }).count()).to.equal(0)
       })
 
       it('can regenerate code (courses.regenerateCode)', () => {
-        const courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
+        const profUserId = createAndStubProfessor()
+        const courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
         const oldEnrollementCode = Courses.findOne({ _id: courseId }).enrollmentCode
         const course = Meteor.call('courses.regenerateCode', courseId)
 
@@ -51,7 +75,8 @@ if (Meteor.isServer) {
       })
 
       it('can edit course (courses.edit)', () => {
-        let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
+        const profUserId = createAndStubProfessor()
+        let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
 
         let editedCourse = Courses.findOne({ _id: courseId })
         editedCourse.name = 'edited name'
@@ -79,13 +104,14 @@ if (Meteor.isServer) {
     })// end describe('methods')
     describe('course<=>user methods', () => {
       beforeEach(() => {
+        restoreStubs()
         Courses.remove({})
         Meteor.users.remove({})
       })
 
-      const prepWork = (assertions) => {
+      const prepStudentCourse = (assertions) => {
         const studentUserId = Accounts.createUser({
-          email: 'email@email.com',
+          email: 'lol@email.com',
           password: 'test value',
           profile: {
             firstname: 'test value',
@@ -93,15 +119,16 @@ if (Meteor.isServer) {
             roles: ['student']
           }
         })
-        let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
+        const profUserId = createAndStubProfessor()
+        let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
 
         assertions(courseId, studentUserId)
       }
 
       it('can add student (courses.addStudent)', () => {
-        prepWork((courseId, studentUserId) => {
+        prepStudentCourse((courseId, studentUserId) => {
           Meteor.call('courses.addStudent', courseId, studentUserId)
-          
+
           const course = Courses.findOne({ _id: courseId })
           const student = Meteor.users.findOne({ _id: studentUserId })
 
@@ -111,7 +138,7 @@ if (Meteor.isServer) {
       })
 
       it('can remove student (courses.removeStudent)', () => {
-        prepWork((courseId, studentUserId) => {
+        prepStudentCourse((courseId, studentUserId) => {
           Meteor.call('courses.addStudent', courseId, studentUserId)
           Meteor.call('courses.removeStudent', courseId, studentUserId)
 
@@ -120,18 +147,18 @@ if (Meteor.isServer) {
         })
       })
 
-      // it('can enroll using code (courses.checkAndEnroll)', () => {
-        // prepWork((course, student) => { // TODO
-          // if (!Meteor.userId()) {
-          //   sinon.stub(Meteor, 'userId', () => student._id)
-          //   sinon.stub(Meteor, 'user', () => { return student })
-          // }
-          // Meteor.call('courses.checkAndEnroll', course.deptCode, course.courseNumber, course.enrollmentCode)
+      it('can enroll using code (courses.checkAndEnroll)', () => {
+        prepStudentCourse((courseId, studentUserId) => { // TODO
+          restoreStubs()
+          createStubs(studentUserId)
+          const course = Courses.findOne({ _id: courseId })
 
-          // expect(course.students.length).to.equal(1)
-          // expect(student.profile.courses.length).to.equal(1)
-        // })
-      // })
+          Meteor.call('courses.checkAndEnroll', course.deptCode, course.courseNumber, course.enrollmentCode)
+
+          expect(Courses.findOne({ _id: courseId }).students.length).to.equal(1)
+          expect(Meteor.users.findOne({ _id: studentUserId }).profile.courses.length).to.equal(1)
+        })
+      })
     }) // end describe('course<=>user methods')
     /*
     describe('course<=>session methods', () => {
