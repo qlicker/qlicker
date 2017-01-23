@@ -24,18 +24,17 @@ class StudentDashboard extends Component {
     this.setState({ enrollingInCourse: true })
   }
   closeModal () {
-    this.setState({ enrollingInCourse: true })
+    this.setState({ enrollingInCourse: false })
   }
 
   renderCourseList () {
-    console.log(this.props.courses)
     return this.props.courses.map((c) => (<CourseListItem key={c._id} course={c} />))
   }
 
   render () {
     return (
       <div className='container ui-student-page'>
-        <h2>My Classes</h2>
+        <h2>My Courses</h2>
         <button onClick={this.promptForCode}>Enroll in Course</button>
 
         <hr />

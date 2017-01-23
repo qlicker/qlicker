@@ -28,7 +28,7 @@ export default class CourseListItem extends Component {
   }
 
   navigateToCourse () {
-    Router.go('manage.course', { _id: this.props.course._id })
+    Router.go('course', { _id: this.props.course._id })
   }
 
   render () {
@@ -41,7 +41,7 @@ export default class CourseListItem extends Component {
         <span className='ui-course-code'>{ this.props.course.createCourseCode() } </span>
         <span className='ui-course-semester'>{ this.props.course.semester }</span>
 
-        <span className='controls'><button onClick={this.deleteItem.bind(this)}>Delete</button></span>
+        { Meteor.userRoleGreater(Meteor.user(), 'professor') ? <span className='controls'><button onClick={this.deleteItem.bind(this)}>Delete</button></span> : ''}
       </li>)
 
     return r

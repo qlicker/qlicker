@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// CreateCourseModal.jsx: popup dialog to prompt for course details
+// EnrollCourseModal.jsx: popup dialog to prompt for course Enrollment details
 
 import React, { Component } from 'react'
 
@@ -30,6 +30,7 @@ export class EnrollCourseModal extends Component {
     }
 
     Meteor.call('courses.checkAndEnroll', this.state.deptCode, this.state.courseNumber, this.state.enrollmentCode, (error) => {
+      console.log('arguments', arguments)
       if (error) {
         console.log(error)
         if (error.error === 'not-authorized') {

@@ -45,7 +45,7 @@ class ProfessorDashboard extends Component {
 
     return (
       <div className='container ui-professor-page'>
-        <h2>My Classes</h2>
+        <h2>My Courses</h2>
         <button onClick={this.promptCreateCourse}>Create Course</button>
 
         <hr />
