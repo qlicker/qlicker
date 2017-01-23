@@ -5,6 +5,12 @@
 
 import React, { Component } from 'react'
 
+export const DEFAULT_STATE = {
+  deptCode: '',
+  courseNumber: '',
+  enrollmentCode: ''
+}
+
 export class EnrollCourseModal extends Component {
 
   constructor (props) {
@@ -30,7 +36,6 @@ export class EnrollCourseModal extends Component {
     }
 
     Meteor.call('courses.checkAndEnroll', this.state.deptCode, this.state.courseNumber, this.state.enrollmentCode, (error) => {
-      console.log('arguments', arguments)
       if (error) {
         console.log(error)
         if (error.error === 'not-authorized') {
@@ -49,8 +54,8 @@ export class EnrollCourseModal extends Component {
 
   render () {
     return (
-      <div className='ui-modal ui-modal-createcourse'>
-        <form ref='enrollCourseForm' className='ui-form-createcourse' onSubmit={this.handleSubmit}>
+      <div className='ui-modal ui-modal-enrollcourse'>
+        <form ref='enrollCourseForm' className='ui-form-enrollcourse' onSubmit={this.handleSubmit}>
           Department Code: <input type='text' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
           Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
           Enrollment Code: <input type='text' data-name='enrollmentCode' onChange={this.setValue} placeholder='TCDHLZ' /><br />

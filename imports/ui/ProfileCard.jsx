@@ -8,7 +8,7 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import './ProfileCard.scss'
+if (Meteor.isClient) import './ProfileCard.scss'
 
 import '../api/users.js'
 
@@ -17,6 +17,8 @@ export class ProfileCard extends Component {
   constructor (props) {
     super(props)
     this.user = this.props.user[0]
+    this.mouseOver = this.mouseOver.bind(this)
+    this.mouseOut = this.mouseOut.bind(this)
   }
 
   mouseOver () {
@@ -28,22 +30,15 @@ export class ProfileCard extends Component {
   }
 
   render () {
-    let r
-    if (this.props.loading) r = <div>loading</div>
-    else {
-      const name = this.user.profile.firstname + ' ' + this.user.profile.lastname
-      r = (
-        <div className='ui-profile-card'>
-          <a href='#' onMouseOver={this.mouseOver.bind(this)} onMouseOut={this.mouseOut.bind(this)}>{ name }</a>
-          <div className='ui-profile-card-expanded' ref='profile_expanded'>
+    const name = this.user.profile.firstname + ' ' + this.user.profile.lastname
+    return (<div className='ui-profile-card'>
+        <a href='#' onMouseOver={this.mouseOver} onMouseOut={this.mouseOut}>{ name }</a>
+        <div className='ui-profile-card-expanded' ref='profile_expanded'>
           Name: { name }<br />
           Email: { this.user.emails[0].address }<br />
           Roles: { this.user.profile.roles }
-          </div>
-        </div>)
-    }
-
-    return r
+        </div>
+      </div>)
   } //  end render
 
 }

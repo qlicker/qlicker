@@ -15,22 +15,21 @@ import { createStubs, restoreStubs } from '../../stubs.tests.js'
 import { Courses } from './courses.js'
 import './users.js'
 
-if (Meteor.isServer) {
-  // TODO Stub Meteor user
-  const createAndStubProfessor = () => {
-    const profUserId = Accounts.createUser({
-      email: 'email@email.com',
-      password: 'test value',
-      profile: {
-        firstname: 'test value',
-        lastname: 'test value',
-        roles: ['professor']
-      }
-    })
-    createStubs(profUserId)
-    return profUserId
-  }
+export const createAndStubProfessor = () => {
+  const profUserId = Accounts.createUser({
+    email: 'email@email.com',
+    password: 'test value',
+    profile: {
+      firstname: 'test value',
+      lastname: 'test value',
+      roles: ['professor']
+    }
+  })
+  createStubs(profUserId)
+  return profUserId
+}
 
+if (Meteor.isServer) {
   describe('Courses', () => {
     const userId = Random.id()
 
@@ -52,9 +51,10 @@ if (Meteor.isServer) {
 
       it('can insert new course (courses.insert)', () => {
         createAndStubProfessor()
-        let courseId = Meteor.call('courses.insert', _.extend({}, sampleCourse))
+        let courseId = Meteor.call('courses.insert', sampleCourse)
 
-        expect(Courses.find({ _id: courseId }).count()).to.equal(1)
+        let cs = Courses.find({ _id: courseId })
+        expect(cs.count()).to.equal(1)
       })
 
       it('can delete course (courses.delete)', () => {
