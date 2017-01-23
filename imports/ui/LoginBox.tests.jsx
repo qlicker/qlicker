@@ -44,5 +44,5 @@ if (Meteor.isClient) {
         expect(loginBox.state()[textInput.at(i).get(0).getAttribute('data-name')]).to.equal(TEST_VALUE + i)
       })
     })
-  }) // end describe('CreateCourseModal')
+  }) // end describe('<LoginBox />')
 }
