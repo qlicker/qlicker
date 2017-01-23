@@ -12,7 +12,7 @@ import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
 
-import './professor_dashboard.scss'
+if (Meteor.isClient) import './professor_dashboard.scss'
 
 class ProfessorDashboard extends Component {
 
@@ -45,7 +45,7 @@ class ProfessorDashboard extends Component {
 
     return (
       <div className='container ui-professor-page'>
-        <h2>My Classes</h2>
+        <h2>My Courses</h2>
         <button onClick={this.promptCreateCourse}>Create Course</button>
 
         <hr />

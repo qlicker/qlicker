@@ -1,3 +1,4 @@
+/* global confirm  */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -17,10 +18,51 @@ class ManageCourse extends Component {
     super(props)
 
     this.state = { }
+
+    this.removeStudent = this.removeStudent.bind(this)
+    this.deleteSession = this.deleteSession.bind(this)
+  }
+
+  deleteSession (e) {
+    if (confirm('Are you sure? Delete')) {
+      Meteor.call('courses.deleteSession', this.props.course._id, e.target.getAttribute('key'), (error) => {
+        if (error) {
+
+        }
+      })
+    }
+  }
+
+  removeStudent (e) {
+    if (confirm('Are you sure? Delete')) {
+      Meteor.call('courses.removeStudent', this.props.course._id, e.target.dataset.studentId, (error) => {
+        if (error) {
+
+        }
+      })
+    }
   }
 
   renderSessionList () {
-    return (<div>sessions...</div>)
+    let sessions = this.props.course.sessions || []
+    return (<div>
+      <ul>
+        { sessions.map((s) => {
+          return (<li key={s.sessionId} onClick={this.removeSession}>{JSON.stringify(s)}</li>)
+        }) }
+      </ul>
+    </div>)
+  }
+
+  renderClassList () {
+    let students = this.props.course.students || []
+    return (<div>
+      <ul>
+        { students.map((s) => {
+          return (<li data-student-id={s.studentUserId} onClick={this.removeStudent}>{s.studentUserId}</li>)
+        }) }
+      </ul>
+    </div>)
   }
 
   render () {
@@ -31,21 +73,25 @@ class ManageCourse extends Component {
 
         <div className='row'>
           <div className='columns six'>
+            <h3>Course Details</h3>
             <div className='ui-course-details'>
-              <h3>Course Details</h3>
               <span className='ui-course-code'>{ this.props.course.createCourseCode() } </span>
               <span className='ui-course-semester'>{ this.props.course.semester }</span>
               <br />
               Enrollment Code: <span className='ui-enrollment-code'>{ this.props.course.enrollmentCode }</span>
             </div>
+
+            <h3>Sessions</h3>
+            <div className='ui-session-list'>
+              { this.renderSessionList() }
+            </div>
+
           </div>
 
           <div className='columns six'>
-            <div className='ui-course-sessions'>
-              <h3>Sessions</h3>
-              <div className='ui-session-list'>
-                { this.renderSessionList() }
-              </div>
+            <h3>Class List</h3>
+            <div className='ui-course-classlist'>
+              { this.renderClassList() }
             </div>
           </div>
         </div>

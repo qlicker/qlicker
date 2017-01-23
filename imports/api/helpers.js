@@ -12,8 +12,8 @@ const Helpers = {
     return x.length > 0
   }),
   MongoID: Match.Where(function (id) {
-    check(id, String)
-    return /[0-9a-fA-F]{24}/.test(id)
+    check(id, Helpers.NEString)
+    return /[0-9a-fA-F]/.test(id)
   }),
 
   RandomEnrollmentCode: function () {

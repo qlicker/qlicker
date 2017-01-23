@@ -3,37 +3,55 @@
 //
 // student_dashboard.jsx: student overview page
 
-import React from 'react'
-import { LogoutButton } from '../Buttons'
-import ProfileCard from '../ProfileCard'
+import React, { Component } from 'react'
+import { createContainer } from 'meteor/react-meteor-data'
 
-export const StudentDashboard = function () {
-  return (
-    <div className='ui-page-container'>
+import { Courses } from '../../api/courses.js'
+import { EnrollCourseModal } from '../modals/EnrollCourseModal'
+import CourseListItem from '../CourseListItem'
 
-      <div className='ui-top-bar'>
-        <a href={Router.routes['student'].path()} className='ui-wordmark'><h1>Qlicker</h1></a>
+class StudentDashboard extends Component {
+  constructor (props) {
+    super(props)
 
-        <div className='ui-button-bar'>
-          <ProfileCard />
-          <LogoutButton redirect='login' />
-        </div>
-      </div>
+    this.state = { enrollingInCourse: false }
 
+    this.promptForCode = this.promptForCode.bind(this)
+    this.closeModal = this.closeModal.bind(this)
+  }
+
+  promptForCode () {
+    this.setState({ enrollingInCourse: true })
+  }
+  closeModal () {
+    this.setState({ enrollingInCourse: false })
+  }
+
+  renderCourseList () {
+    return this.props.courses.map((c) => (<CourseListItem key={c._id} course={c} />))
+  }
+
+  render () {
+    return (
       <div className='container ui-student-page'>
-
-        <h2>My Classes</h2>
-        <button>Add Course</button>
+        <h2>My Courses</h2>
+        <button onClick={this.promptForCode}>Enroll in Course</button>
 
         <hr />
-
         <ul>
-          <li>CISC121</li>
-          <li>CISC124</li>
-          <li>CISC365</li>
+          { this.renderCourseList() }
         </ul>
+        { this.state.enrollingInCourse ? <EnrollCourseModal done={this.closeModal} /> : '' }
 
-      </div>
-
-    </div>)
+      </div>)
+  }
 }
+
+export default createContainer(() => {
+  const handle = Meteor.subscribe('courses')
+  const cArr = Meteor.user().profile.courses || []
+  return {
+    courses: Courses.find({ _id: { $in: cArr } }).fetch(),
+    loading: !handle.ready()
+  }
+}, StudentDashboard)

@@ -20,7 +20,7 @@ Meteor.userHasRole = function (user, role) {
 Meteor.userRoleGreater = function (user, role) {
   if (!user) return false
   else if (user.profile.roles.indexOf(role) !== -1) return true
-  else if (role === 'professor' && user.profile.roles.indexOf('admin') !== 1) return true
+  else if (role === 'professor' && user.profile.roles.indexOf('admin') !== -1) return true
   else return false
   // TODO generalize this
 }
