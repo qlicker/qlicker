@@ -128,7 +128,7 @@ Meteor.methods({
   },
 
   'courses.edit' (course) {
-    check(course._id, Helpers.NEString)
+    check(course._id, Helpers.MongoID)
     check(course, coursePattern)
     let courseId = course._id
 

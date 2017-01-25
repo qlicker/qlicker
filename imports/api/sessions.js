@@ -27,9 +27,7 @@ const sessionPattern = {
 // Create Session class
 const Session = function (doc) { _.extend(this, doc) }
 _.extend(Session.prototype, {
-  createCourseCode: function () {
-    return 'placeholder'
-  }
+
 })
 
 // Create course collection
@@ -64,6 +62,23 @@ Meteor.methods({
   'sessions.delete' (courseId, sessionId) {
     profHasCoursePermission(courseId)
     return Sessions.remove({ _id: sessionId })
+  },
+
+  'sessions.edit' (session) {
+    check(session._id, Helpers.MongoID)
+    check(session, sessionPattern)
+
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: session._id }, {
+      $set: {
+        name: session.name,
+        description: session.description,
+        status: session.status,
+        quiz: session.quiz,
+        dueDate: session.dueDate || undefined
+      }
+    })
   }
 
 
