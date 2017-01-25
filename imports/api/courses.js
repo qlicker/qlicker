@@ -10,7 +10,7 @@ import { check, Match } from 'meteor/check'
 import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
-import { Sessions } from './sessions.js'
+// import { Sessions } from './sessions.js'
 
 // expected collection pattern
 const coursePattern = {

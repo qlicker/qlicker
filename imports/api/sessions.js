@@ -20,7 +20,7 @@ const sessionPattern = {
   courseId: Helpers.MongoID, // parent course, mongo db id reference
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
-  dueDate: Match.Optional(Date), // quiz due date
+  dueDate: Match.Maybe(Date), // quiz due date
   createdAt: Date
 }
 

@@ -12,7 +12,6 @@ export const DEFAULT_STATE = {
   name: '',
   description: '',
   courseId: '',
-  status: '', // hidden, visible, running, done
   quiz: false,
   dueDate: undefined
 }

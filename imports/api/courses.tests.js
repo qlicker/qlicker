@@ -13,6 +13,7 @@ import { _ } from 'underscore'
 import { createStubs, restoreStubs } from '../../stubs.tests.js'
 
 import { Courses } from './courses.js'
+import { Sessions } from './sessions.js'
 import './users.js'
 
 export const createAndStubProfessor = () => {
@@ -59,10 +60,11 @@ if (Meteor.isServer) {
 
       it('can return course code (.createCourseCode)', () => {
         createAndStubProfessor()
-        let courseId = Meteor.call('courses.insert', sampleCourse)
+        const courseId = Meteor.call('courses.insert', sampleCourse)
 
-        let course = Courses.findOne({ _id: courseId })
-        expect(course.createCourseCode()).to.equal(sampleCourse.deptCode + ' ' + sampleCourse.courseNumber + ' ' + sampleCourse.section)
+        const course = Courses.findOne({ _id: courseId })
+        const strCourse = sampleCourse.deptCode + ' ' + sampleCourse.courseNumber + ' - ' + sampleCourse.section
+        expect(course.createCourseCode().toLowerCase()).to.equal(strCourse.toLowerCase())
       })
 
       it('can delete course (courses.delete)', () => {
@@ -168,16 +170,48 @@ if (Meteor.isServer) {
         })
       })
     }) // end describe('course<=>user methods')
-    /*
-    describe('course<=>session methods', () => {
-      it('can create session (courses.createSession)*', () => {
 
+    describe('course<=>session methods', () => {
+      beforeEach(() => {
+        Courses.remove({})
+        Sessions.remove({})
+        Meteor.users.remove({})
+        restoreStubs()
       })
 
-      it('can delete session (courses.deleteSession)*', () => {
+      const sampleSession = {
+        name: 'Session name',
+        description: 'Session description',
+        courseId: '',
+        quiz: false,
+        createdAt: new Date()
+      }
 
+      it('can create session (courses.createSession)', () => {
+        const profUserId = createAndStubProfessor()
+        const courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
+        Meteor.call('courses.createSession', courseId, sampleSession)
+
+        const courseFromDb = Courses.findOne({ _id: courseId })
+        const sessionFromDb = Sessions.find({ _id: courseFromDb.sessions[0].sessionId })
+        expect(sessionFromDb.count()).to.equal(1)
+      })
+
+      it('can delete session (courses.deleteSession)', () => {
+        const profUserId = createAndStubProfessor()
+        const courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
+        Meteor.call('courses.createSession', courseId, sampleSession)
+
+        let courseFromDb = Courses.findOne({ _id: courseId })
+        const sessionId = courseFromDb.sessions[0].sessionId
+
+        Meteor.call('courses.deleteSession', courseId, sessionId)
+        
+        courseFromDb = Courses.findOne({ _id: courseId })
+        const sessionFromDb = Sessions.find({ _id: sessionId })
+        expect(courseFromDb.sessions.length).to.equal(0)
+        expect(sessionFromDb.count()).to.equal(0)
       })
     }) // end describe('course<=>session methods')
-    */
   }) // end describe('Courses')
 } // end Meteor.isServer
