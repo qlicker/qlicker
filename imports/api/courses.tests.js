@@ -57,6 +57,14 @@ if (Meteor.isServer) {
         expect(cs.count()).to.equal(1)
       })
 
+      it('can return course code (.createCourseCode)', () => {
+        createAndStubProfessor()
+        let courseId = Meteor.call('courses.insert', sampleCourse)
+
+        let course = Courses.findOne({ _id: courseId })
+        expect(course.createCourseCode()).to.equal(sampleCourse.deptCode + ' ' + sampleCourse.courseNumber + ' ' + sampleCourse.section)
+      })
+
       it('can delete course (courses.delete)', () => {
         const profUserId = createAndStubProfessor()
         let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))

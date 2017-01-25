@@ -9,9 +9,12 @@ import { Meteor } from 'meteor/meteor'
  * profile: {
  *  firstname: '',
  *  lastname: '',
- *  roles: ['student', 'professor', 'admin']
+ *  roles: ['student', 'professor', 'admin'],
+ *  courses: []
  * }
  */
+import { Courses } from './courses'
+import { _ } from 'underscore'
 
 Meteor.userHasRole = function (user, role) {
   return user && user.profile.roles.indexOf(role) !== -1
@@ -27,7 +30,15 @@ Meteor.userRoleGreater = function (user, role) {
 
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
-    if (this.userId) {
+    const user = Meteor.users.findOne({ _id: this.userId })
+
+    if (Meteor.userRoleGreater(user, 'professor')) {
+      let studentRefs = []
+      Courses.find({ owner: user._id }).fetch().forEach((c) => {
+        studentRefs = studentRefs.concat(_(c.students || []).pluck('studentUserId'))
+      })
+      return Meteor.users.find({ _id: { $in: studentRefs } }, { fields: { services: false } })
+    } else if (user._id) {
       return Meteor.users.find({_id: this.userId})
     } else {
       this.ready()
