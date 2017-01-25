@@ -16,6 +16,20 @@ import { Meteor } from 'meteor/meteor'
 import { Courses } from './courses'
 import { _ } from 'underscore'
 
+const User = function (doc) { _.extend(this, doc) }
+_.extend(User.prototype, {
+  getName: function () {
+    return this.profile.lastname + ', ' + this.profile.firstname
+  },
+  getEmail: function () {
+    return this.emails[0].address
+  }
+})
+
+Meteor.users._transform = function (user) {
+  return new User(user)
+}
+
 Meteor.userHasRole = function (user, role) {
   return user && user.profile.roles.indexOf(role) !== -1
 }

@@ -79,6 +79,14 @@ Meteor.methods({
         dueDate: session.dueDate || undefined
       }
     })
+  },
+
+  'sessions.addQuestion' (sessionId, questionId) {
+
+  },
+
+  'sessions.removeQuestion' (sessionId, questionId) {
+
   }
 
 

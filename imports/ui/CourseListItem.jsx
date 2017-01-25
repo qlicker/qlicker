@@ -7,7 +7,7 @@
 
 import React, { Component, PropTypes } from 'react'
 
-import './CourseListItem.scss'
+if (Meteor.isClient) import './CourseListItem.scss'
 
 import '../api/courses.js'
 
@@ -35,7 +35,7 @@ export default class CourseListItem extends Component {
     let r
     // TODO: extract course string display to helper
     r = (
-      <li className='ui-courselist-item' onClick={this.navigateToCourse}>
+      <li className='ui-course-list-item' onClick={this.navigateToCourse}>
         <span className='ui-course-name'>{ this.props.course.name }</span>
 
         <span className='ui-course-code'>{ this.props.course.createCourseCode() } </span>

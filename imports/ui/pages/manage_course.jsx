@@ -12,6 +12,9 @@ import { Courses } from '../../api/courses.js'
 import { Sessions } from '../../api/sessions.js'
 import { CreateSessionModal } from '../modals/CreateSessionModal.jsx'
 
+import { SessionListItem } from '../SessionListItem'
+import { StudentListItem } from '../StudentListItem'
+
 if (Meteor.isClient) import './manage_course.scss'
 
 class ManageCourse extends Component {
@@ -21,28 +24,13 @@ class ManageCourse extends Component {
 
     this.state = { creatingSession: false }
     this.courseId = this.props.courseId
-    this.removeStudent = this.removeStudent.bind(this)
-    this.deleteSession = this.deleteSession.bind(this)
 
     this.sessions = {}
     this.students = {}
   }
 
-  deleteSession (e) {
-    if (confirm('Are you sure? Delete')) {
-      Meteor.call('courses.deleteSession', this.courseId, e.target.dataset.sessionId, (error) => {
-        if (error) return
-      })
-    }
-  }
 
-  removeStudent (e) {
-    if (confirm('Are you sure? Delete')) {
-      Meteor.call('courses.removeStudent', this.courseId, e.target.dataset.studentId, (error) => {
-        if (error) return
-      })
-    }
-  }
+
 
   renderSessionList () {
     let sessions = this.props.course.sessions || []
@@ -51,9 +39,7 @@ class ManageCourse extends Component {
       <ul>
         { sessions.map((s) => {
           if (!this.sessions[s.sessionId]) return
-          return (<li data-session-id={s.sessionId} onClick={this.deleteSession}>
-            { this.sessions[s.sessionId].name }
-          </li>)
+          return (<SessionListItem key={s.sessionId} session={this.sessions[s.sessionId]} />)
         }) }
       </ul>
     </div>)
@@ -66,9 +52,8 @@ class ManageCourse extends Component {
       <ul>
         { students.map((s) => {
           if (!this.students[s.studentUserId]) return
-          return (<li data-student-id={s.studentUserId} onClick={this.removeStudent}>
-            { this.students[s.studentUserId].profile.lastname + ', '+  this.students[s.studentUserId].profile.firstname }
-          </li>)
+          console.log(this.students[s.studentUserId])
+          return (<StudentListItem key={s.studentUserId} courseId={this.courseId} student={this.students[s.studentUserId]} />)
         }) }
       </ul>
     </div>)
