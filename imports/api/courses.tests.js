@@ -13,6 +13,7 @@ import { _ } from 'underscore'
 import { createStubs, restoreStubs } from '../../stubs.tests.js'
 
 import { Courses } from './courses.js'
+import { Sessions } from './sessions.js'
 import './users.js'
 
 export const createAndStubProfessor = () => {
@@ -29,19 +30,19 @@ export const createAndStubProfessor = () => {
   return profUserId
 }
 
+const userId = Random.id()
+export const sampleCourse = {
+  createdAt: new Date(),
+  owner: userId,
+  name: 'Intro to Computer Science',
+  deptCode: 'CISC',
+  courseNumber: '101',
+  section: '001',
+  semester: 'F17'
+}
+
 if (Meteor.isServer) {
   describe('Courses', () => {
-    const userId = Random.id()
-
-    const sampleCourse = {
-      createdAt: new Date(),
-      owner: userId,
-      name: 'Intro to Computer Science',
-      deptCode: 'CISC',
-      courseNumber: '101',
-      section: '001',
-      semester: 'F17'
-    }
     describe('methods', () => {
       beforeEach(() => {
         Courses.remove({})
@@ -55,6 +56,15 @@ if (Meteor.isServer) {
 
         let cs = Courses.find({ _id: courseId })
         expect(cs.count()).to.equal(1)
+      })
+
+      it('can return course code (.createCourseCode)', () => {
+        createAndStubProfessor()
+        const courseId = Meteor.call('courses.insert', sampleCourse)
+
+        const course = Courses.findOne({ _id: courseId })
+        const strCourse = sampleCourse.deptCode + ' ' + sampleCourse.courseNumber + ' - ' + sampleCourse.section
+        expect(course.createCourseCode().toLowerCase()).to.equal(strCourse.toLowerCase())
       })
 
       it('can delete course (courses.delete)', () => {
@@ -160,16 +170,5 @@ if (Meteor.isServer) {
         })
       })
     }) // end describe('course<=>user methods')
-    /*
-    describe('course<=>session methods', () => {
-      it('can create session (courses.createSession)*', () => {
-
-      })
-
-      it('can delete session (courses.deleteSession)*', () => {
-
-      })
-    }) // end describe('course<=>session methods')
-    */
   }) // end describe('Courses')
 } // end Meteor.isServer
