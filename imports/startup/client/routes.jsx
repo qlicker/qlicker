@@ -40,7 +40,7 @@ Router.route('/admin', {
   },
   action: function () {
     let user = Meteor.user()
-    if (Meteor.userHasRole(user, 'admin')) {
+    if (user.hasRole('admin')) {
       mount(AppLayout, { content: <PageContainer> <AdminDashboard /> </PageContainer> })
     } else Router.go('login')
   }
@@ -56,7 +56,7 @@ Router.route('/manage', {
   },
   action: function () {
     let user = Meteor.user()
-    if (Meteor.userHasRole(user, 'professor')) {
+    if (user.hasRole('professor')) {
       mount(AppLayout, { content: <PageContainer> <ProfessorDashboard /> </PageContainer> })
     } else Router.go('login')
   }
@@ -71,7 +71,7 @@ Router.route('/student', {
     return Meteor.subscribe('userData')
   },
   action: function () {
-    if (Meteor.userRoleGreater(Meteor.user(), 'student')) {
+    if (Meteor.user().hasGreaterRole('student')) {
       mount(AppLayout, { content: <PageContainer> <StudentDashboard /> </PageContainer> })
     } else Router.go('login')
   }
@@ -87,26 +87,26 @@ Router.route('/course/:_id', {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
-    if (Meteor.userRoleGreater(Meteor.user(), 'professor')) {
+    if (Meteor.user().hasGreaterRole('professor')) {
       mount(AppLayout, { content: <PageContainer> <ManageCourse courseId={this.params._id} /> </PageContainer> })
-    } else if (Meteor.userHasRole(Meteor.user(), 'student')) {
+    } else if (Meteor.user().hasRole('student')) {
       mount(AppLayout, { content: <PageContainer> <Course courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
 
-// import ManageSession from '../../ui/pages/manage_session'
+import ManageSession from '../../ui/pages/manage_session'
 // import Session from '../../ui/pages/session'
-// Router.route('/session/:_id', {
-//   name: 'session',
-//   waitOn: function () {
-//     return Meteor.subscribe('userData') && Meteor.subscribe('courses')
-//   },
-//   action: function () {
-//     if (Meteor.userRoleGreater(Meteor.user(), 'professor')) {
-//       mount(AppLayout, { content: <PageContainer> <ManageSession sessionId={this.params._id} /> </PageContainer> })
-//     } else if (Meteor.userHasRole(Meteor.user(), 'student')) {
-//       mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })
-//     } else Router.go('login')
-//   }
-// })
+Router.route('/session/:_id', {
+  name: 'session',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user().hasGreaterRole('professor')) {
+      mount(AppLayout, { content: <PageContainer> <ManageSession sessionId={this.params._id} /> </PageContainer> })
+    // } else if (Meteor.user().hasRole('student')) {
+    //  mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})

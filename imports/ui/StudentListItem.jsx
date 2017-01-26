@@ -30,12 +30,12 @@ export class StudentListItem extends Component {
   }
 
   render () {
-    const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
+    const navigateToStudent = () => { Router.go('session', { _id: this.props.session._id }) }
     return (
-      <li className='ui-student-list-item' onClick={this.navigateToSession}>
+      <li className='ui-student-list-item' onClick={navigateToStudent}>
         <span className='ui-student-name'>{ this.props.student.getName() }</span>
         <span className='ui-student-email'>{ this.props.student.getEmail() } </span>
-        { Meteor.userRoleGreater(Meteor.user(), 'professor') ? <span className='controls'><button onClick={this.deleteItem.bind(this)}>Delete</button></span> : ''}
+        { Meteor.user().hasGreaterRole('professor') ? <span className='controls'><button onClick={this.deleteItem.bind(this)}>Delete</button></span> : ''}
       </li>)
   } //  end render
 

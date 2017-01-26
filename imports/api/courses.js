@@ -45,7 +45,7 @@ if (Meteor.isServer) {
   Meteor.publish('courses', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (Meteor.userRoleGreater(user, 'professor')) {
+      if (user.hasGreaterRole('professor')) {
         return Courses.find({ owner: this.userId })
       } else {
         const coursesArray = user.profile.courses || []
@@ -59,8 +59,8 @@ if (Meteor.isServer) {
 const profHasCoursePermission = (courseId) => {
   let courseOwner = Courses.findOne({ _id: courseId }).owner
 
-  if (Meteor.userHasRole(Meteor.user(), 'admin') ||
-      (Meteor.userHasRole(Meteor.user(), 'professor') && Meteor.userId() === courseOwner)) {
+  if (Meteor.user().hasRole('admin') ||
+      (Meteor.user().hasRole('professor') && Meteor.userId() === courseOwner)) {
     return
   } else {
     throw new Meteor.Error('not-authorized')
@@ -74,8 +74,8 @@ Meteor.methods({
     course.enrollmentCode = Helpers.RandomEnrollmentCode()
 
     check(course, coursePattern)
-    if (!Meteor.userHasRole(Meteor.user(), 'admin') &&
-      !Meteor.userHasRole(Meteor.user(), 'professor')) {
+    if (!Meteor.user().hasRole('admin') &&
+      !Meteor.user().hasRole('professor')) {
       throw new Meteor.Error('not-authorized')
     }
 

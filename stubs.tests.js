@@ -3,6 +3,7 @@
 
 import { Meteor } from 'meteor/meteor'
 import { sinon } from 'meteor/practicalmeteor:sinon'
+import './imports/api/users.js'
 
 function stubUser (currentUserId) {
   // if (!Meteor.userId()) { // dont stub twice just in case

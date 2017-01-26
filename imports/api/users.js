@@ -23,6 +23,14 @@ _.extend(User.prototype, {
   },
   getEmail: function () {
     return this.emails[0].address
+  },
+  hasRole: function (role) {
+    return this.profile.roles.indexOf(role) !== -1
+  },
+  hasGreaterRole: function (role) {
+    if (this.profile.roles.indexOf(role) !== -1) return true
+    else if (role === 'professor' && this.profile.roles.indexOf('admin') !== -1) return true
+    else return false
   }
 })
 
@@ -30,23 +38,11 @@ Meteor.users._transform = function (user) {
   return new User(user)
 }
 
-Meteor.userHasRole = function (user, role) {
-  return user && user.profile.roles.indexOf(role) !== -1
-}
-
-Meteor.userRoleGreater = function (user, role) {
-  if (!user) return false
-  else if (user.profile.roles.indexOf(role) !== -1) return true
-  else if (role === 'professor' && user.profile.roles.indexOf('admin') !== -1) return true
-  else return false
-  // TODO generalize this
-}
-
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (Meteor.userRoleGreater(user, 'professor')) {
+    if (user && user.hasGreaterRole('professor')) {
       let studentRefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(_(c.students || []).pluck('studentUserId'))
@@ -59,16 +55,4 @@ if (Meteor.isServer) {
     }
   })
 }
-
-Meteor.methods({
-
-  'user.hasRole' (user, role) {
-    return Meteor.userHasRole(user, role)
-  },
-
-  'user.roleGreater' (user, role) {
-    return Meteor.userRoleGreater(user, role)
-  }
-
-})
 

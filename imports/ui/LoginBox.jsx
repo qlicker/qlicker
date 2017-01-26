@@ -69,9 +69,9 @@ export class LoginBox extends Component {
   } // end handleSubmit
 
   navigateAfterLogin (user) {
-    if (Meteor.userHasRole(user, 'admin')) Router.go('admin')
-    if (Meteor.userHasRole(user, 'professor')) Router.go('professor')
-    if (Meteor.userHasRole(user, 'student')) Router.go('student')
+    if (user.hasRole('admin')) Router.go('admin')
+    if (user.hasRole('professor')) Router.go('professor')
+    if (user.hasRole('student')) Router.go('student')
   }
 
   // input bounded methods

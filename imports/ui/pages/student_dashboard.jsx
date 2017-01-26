@@ -25,6 +25,7 @@ class StudentDashboard extends Component {
   }
   closeModal () {
     this.setState({ enrollingInCourse: false })
+    // this.props.handle.invalidate()
   }
 
   renderCourseList () {
@@ -52,6 +53,7 @@ export default createContainer(() => {
   const cArr = Meteor.user().profile.courses || []
   return {
     courses: Courses.find({ _id: { $in: cArr } }).fetch(),
-    loading: !handle.ready()
+    loading: !handle.ready(),
+    handle: handle
   }
 }, StudentDashboard)

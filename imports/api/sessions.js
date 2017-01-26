@@ -20,7 +20,7 @@ const sessionPattern = {
   courseId: Helpers.MongoID, // parent course, mongo db id reference
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
-  dueDate: Match.Maybe(Date), // quiz due date
+  dueDate: Match.Optional(Match.OneOf(undefined, null, Date)), // quiz due date
   createdAt: Date
 }
 
@@ -40,9 +40,12 @@ if (Meteor.isServer) {
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (Meteor.userRoleGreater(user, 'professor')) {
+      if (user.hasGreaterRole('professor')) {
         const courseIdArray = _(Courses.find({ owner: user._id }).fetch()).pluck('_id') || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
+      } else if (user.hasRole('student')) {
+        const courseIdArray = user.profile.courses || []
+        return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } })
       }
     } else this.ready()
   })
