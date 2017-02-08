@@ -10,6 +10,8 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { Sessions } from '../../api/sessions.js'
 
+import { CreateQuestionModal } from '../modals/CreateQuestionModal'
+
 if (Meteor.isClient) import './manage_session.scss'
 
 class ManageSession extends Component {
@@ -93,7 +95,7 @@ class ManageSession extends Component {
         </form>
       
         <h3>Questions</h3>
-        <div>... list of questions here</div>
+        <div><CreateQuestionModal /></div>
 
         <br/>
         <br/>

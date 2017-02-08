@@ -14,7 +14,7 @@ import Helpers from './helpers.js'
 
 // expected collection pattern
 const sessionPattern = {
-  _id: Match.Maybe(Helpers.NEString), // mongo db id
+  _id: Match.Maybe(Helpers.MongoID), // mongo db id
   name: Helpers.NEString, // 'Week 3 Lecture 1'
   description: String, // 'Quiz about stuff'
   courseId: Helpers.MongoID, // parent course, mongo db id reference
