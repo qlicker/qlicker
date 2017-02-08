@@ -9,7 +9,8 @@ import _ from 'underscore'
 
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-// if (Meteor.isClient) import './CreateCourseModal.scss'
+if (Meteor.isClient) import './CreateQuestionModal.scss'
+
 
 export const DEFAULT_STATE = {
   question: '',
@@ -28,6 +29,7 @@ export class CreateQuestionModal extends Component {
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
+    this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
   }
 
   setValue (e) {
@@ -53,20 +55,19 @@ export class CreateQuestionModal extends Component {
       this.props.done(question)
     }
 
+  }
+
+  uploadImageCallBack () {
+
+    return new Promise(
+      (resolve, reject) => {
+        resolve({ data: { link: "http://placehold.it/300/300" } });
+      }
+    )
 
   }
 
   render () {
-
-    const uploadImageCallBack = () => {
-
-      return new Promise(
-        (resolve, reject) => {
-          resolve({ data: { link: "http://placehold.it/300/300" } });
-        }
-      )
-
-    }
 
     return (
       <div className='ui-modal ui-modal-createquestion'>
@@ -75,9 +76,9 @@ export class CreateQuestionModal extends Component {
             editorState={this.state.content}
             onEditorStateChange={this.onEditorStateChange}
             toolbarClassName="home-toolbar"
-            wrapperClassName="home-wrapper"
+            wrapperClassName="editor-wrapper"
             editorClassName="home-editor"
-            toolbar={{ image: { uploadCallback: uploadImageCallBack }}} />
+            toolbar={{ options: ['inline', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'image'], list: { inDropdown: true, options:['unordered', 'ordered'] }, fontFamily: { options: ['Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Courier New'] } , textAlign: { inDropdown: true }, inline: { inDropdown: true }, link: { options: ['link'] }, image: { uploadCallback: this.uploadImageCallBack }}} />
         </form>
       </div>)
   } //  end render
