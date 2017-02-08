@@ -6,17 +6,25 @@
 import React, { Component } from 'react'
 import _ from 'underscore'
 
+import { QuestionImages } from '../../api/questions'
 
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 if (Meteor.isClient) import './CreateQuestionModal.scss'
 
-
 export const DEFAULT_STATE = {
   question: '',
   content: '',
+  answers: [], // { display: "A", content: editor content }
   submittedBy: '',
   tags: ''
+}
+export const options = {
+  options: ['inline', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'image'],
+  list: { inDropdown: true, options:['unordered', 'ordered'] },
+  fontFamily: { options: ['Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Courier New'] },
+  textAlign: { inDropdown: true }, inline: { inDropdown: true },
+  link: { options: ['link'] }, image: { uploadCallback: this.uploadImageCallBack }
 }
 
 export class CreateQuestionModal extends Component {
@@ -30,6 +38,7 @@ export class CreateQuestionModal extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
     this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
+    this.addAnswer = this.addAnswer.bind(this)
   }
 
   setValue (e) {
@@ -57,28 +66,55 @@ export class CreateQuestionModal extends Component {
 
   }
 
-  uploadImageCallBack () {
-
-    return new Promise(
-      (resolve, reject) => {
-        resolve({ data: { link: "http://placehold.it/300/300" } });
-      }
-    )
-
+  addAnswer (e) {
+    let stateEdits = { answers: [ { display: 'A', content: '' } ] }
+    this.setState(stateEdits)
   }
 
-  render () {
+  uploadImageCallBack (file) {
+    return new Promise(
+      (resolve, reject) => {
+        QuestionImages.insert(file, function (err, fileObj) {
+          console.log(err, fileObj)
+          if (err){
+            // handle error
+            reject("hmm shit") // TODO
+          } else {
+            // handle success depending what you need to do
+            setTimeout(function() {
+              resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
+            }, 500)
+          }
+        }) // .insert
+      } // (resolve, reject)
+    ) // promise
+  } // end uploadImageCallBack
 
-    return (
-      <div className='ui-modal ui-modal-createquestion'>
-        <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
-          <Editor
-            editorState={this.state.content}
-            onEditorStateChange={this.onEditorStateChange}
+  render () {
+    const newEditor = (state, callback) => {
+      return (<Editor
+            editorState={state}
+            onEditorStateChange={callback}
             toolbarClassName="home-toolbar"
             wrapperClassName="editor-wrapper"
             editorClassName="home-editor"
-            toolbar={{ options: ['inline', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'image'], list: { inDropdown: true, options:['unordered', 'ordered'] }, fontFamily: { options: ['Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Courier New'] } , textAlign: { inDropdown: true }, inline: { inDropdown: true }, link: { options: ['link'] }, image: { uploadCallback: this.uploadImageCallBack }}} />
+            toolbar={options} />)
+    }
+
+    return (
+      <div className='ui-modal ui-modal-createquestion'>
+        <button onClick={this.addAnswer}>Add Answer</button>
+        <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
+          { newEditor(this.state.content, this.onEditorStateChange) }
+
+          { 
+            this.state.answers.map(function (a) {
+              return newEditor(a.content, (e) => {
+                a.content = e
+              })
+            }) 
+          }
+
         </form>
       </div>)
   } //  end render

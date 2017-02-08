@@ -29,6 +29,46 @@ export const Questions = new Mongo.Collection('questions',
 )
 
 
+var imageStore = new FS.Store.GridFS('images');
+
+export const QuestionImages = new FS.Collection('images', {
+ stores: [imageStore]
+});
+// Images publishing
+if (Meteor.isServer) {
+  Meteor.publish('images', function(){ return QuestionImages.find() })
+}
+QuestionImages.deny({
+  insert: function(){
+    return false
+  },
+  update: function(){
+    return false
+  },
+  remove: function(){
+    return false
+  },
+  download: function(){
+    return false
+  }
+  });
+
+QuestionImages.allow({
+  insert: function(){
+    return true
+  },
+  update: function(){
+    return true
+  },
+  remove: function(){
+    return true
+  },
+  download: function(){
+    return true
+  }
+});
+
+
 
 
 // data publishing

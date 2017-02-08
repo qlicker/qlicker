@@ -19,7 +19,7 @@ class ManageSession extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { editing: false, session: _.extend({}, this.props.session) }
+    this.state = { editing: false, creatingQuestion: false, session: _.extend({}, this.props.session) }
     this.sessionId = this.props.sessionId
   
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -55,6 +55,9 @@ class ManageSession extends Component {
   render () {
     const startEditing = () => { 
       this.setState({ editing: true })
+    }
+    const createQuestion = () => { 
+      this.setState({ creatingQuestion: true })
     }
     const quizDate = this.state.quiz ? 'Deadline: ' + this.props.session.dueDate : ''
     const quizEdit = this.state.quiz ? 'Deadline: Date picker here' : ''
@@ -95,7 +98,8 @@ class ManageSession extends Component {
         </form>
       
         <h3>Questions</h3>
-        <div><CreateQuestionModal /></div>
+        <button ref='createQuestionButton' onClick={createQuestion}>Create Question</button>
+        <div>{ this.state.creatingQuestion ? <CreateQuestionModal /> : '' }</div>
 
         <br/>
         <br/>
