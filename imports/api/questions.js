@@ -14,7 +14,13 @@ import Helpers from './helpers.js'
 
 // expected collection pattern
 const questionPattern = {
-  _id: Match.Maybe(Helpers.MongoID)
+  _id: Match.Maybe(Helpers.MongoID),
+  question: Helpers.NEString, // plain text version of question
+  content: Object, // drafts.js display content
+  answers: [ { display: String, content: Match.Maybe(Object) } ], // List of multi choice { display: "A", content: editor content }
+  submittedBy: Helpers.MongoID,
+  createdAt: Date,
+  tags: [ Helpers.NEString ]
 }
 
 // Create Question class
@@ -39,37 +45,17 @@ if (Meteor.isServer) {
   Meteor.publish('images', function(){ return QuestionImages.find() })
 }
 QuestionImages.deny({
-  insert: function(){
-    return false
-  },
-  update: function(){
-    return false
-  },
-  remove: function(){
-    return false
-  },
-  download: function(){
-    return false
-  }
-  });
-
-QuestionImages.allow({
-  insert: function(){
-    return true
-  },
-  update: function(){
-    return true
-  },
-  remove: function(){
-    return true
-  },
-  download: function(){
-    return true
-  }
+  insert: function() { return false },
+  update: function() { return false },
+  remove: function() { return false },
+  download: function() { return false }
 });
-
-
-
+QuestionImages.allow({
+  insert: function() { return true },
+  update: function() { return true },
+  remove: function() { return true },
+  download: function() { return true }
+});
 
 // data publishing
 if (Meteor.isServer) {
@@ -84,7 +70,8 @@ if (Meteor.isServer) {
 Meteor.methods({
 
   'questions.insert' (question) {
-
+    check(question, pattern)
+    return Questions.insert(question)
   }
 
 }) // end Meteor.methods
