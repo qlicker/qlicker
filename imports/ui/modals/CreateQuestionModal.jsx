@@ -14,18 +14,22 @@ if (Meteor.isClient) import './CreateQuestionModal.scss'
 
 export const DEFAULT_STATE = {
   question: '',
-  content: '',
-  answers: [], // { display: "A", content: editor content }
+  content: undefined,
+  answers: [], // { answer: "A", content: editor content }
   submittedBy: '',
-  tags: ''
+  tags: []
 }
 export const options = {
-  options: ['inline', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'image'],
+  options: ['inline', 'fontSize', 'blockType', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'image'],
   list: { inDropdown: true, options:['unordered', 'ordered'] },
-  fontFamily: { options: ['Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Courier New'] },
-  textAlign: { inDropdown: true }, inline: { inDropdown: true },
+  fontFamily: { options: ['Open Sans', 'Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Courier New'] },
+  textAlign: { inDropdown: true },
+  inline: { inDropdown: true },
+  blockType: { inDropdown: true, options: ['Normal', 'H1', 'H2', 'H3'] },
   link: { options: ['link'] }, image: { uploadCallback: this.uploadImageCallBack }
 }
+export const ANSWER_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
+
 
 export class CreateQuestionModal extends Component {
 
@@ -33,12 +37,14 @@ export class CreateQuestionModal extends Component {
     super(props)
 
     this.state = _.extend({}, DEFAULT_STATE)
+    this.currentAnswer = 0
 
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
     this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
+    this.setAnswerState = this.setAnswerState.bind(this)
   }
 
   setValue (e) {
@@ -52,23 +58,49 @@ export class CreateQuestionModal extends Component {
     this.setState(stateEdits)
   }
 
+  setAnswerState (answerKey, editorContent) {
+    let answers = this.state.answers
+    answers[_(answers).findIndex({ answer: answerKey })].content = editorContent
+    this.setState({
+      answers: answers
+    })
+  }
+
   handleSubmit (e) {
     e.preventDefault()
 
     let question = _.extend({
-      createdAt: new Date(),
-      courseId: this.props.courseId
+      createdAt: new Date()
     }, this.state)
 
     if (Meteor.isTest) {
       this.props.done(question)
     }
+    console.log(question)
+    Meteor.call('questions.insert', question, (error) => {
+      if (error) {
+        console.log(error)
+        if (error.error === 'not-authorized') {
+          // TODO
+        } else if (error.error === 400) {
+          // check didnt pass
+        }
+      } else {
+        // Reset
+        this.refs.questionForm.reset()
+        this.setState(_.extend({}, DEFAULT_STATE))
+        this.currentAnswer = 0
+        this.props.done()
+      }
+    })
 
   }
 
   addAnswer (e) {
-    let stateEdits = { answers: [ { display: 'A', content: '' } ] }
-    this.setState(stateEdits)
+    this.setState({ 
+        answers: this.state.answers.concat([{ answer: ANSWER_ORDER[this.currentAnswer]}])
+    })
+    this.currentAnswer++
   }
 
   uploadImageCallBack (file) {
@@ -105,15 +137,19 @@ export class CreateQuestionModal extends Component {
       <div className='ui-modal ui-modal-createquestion'>
         <button onClick={this.addAnswer}>Add Answer</button>
         <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
+          <h2>New Question</h2>
           { newEditor(this.state.content, this.onEditorStateChange) }
 
           { 
-            this.state.answers.map(function (a) {
-              return newEditor(a.content, (e) => {
-                a.content = e
+            this.state.answers.map((a) => {
+              const editor = newEditor(a.content, (content) => {
+                this.setAnswerState(a.answer, content)
               })
+              return (<div key={'answer_' + a.answer}><h2>{ a.answer }</h2> { editor } </div>)
             }) 
           }
+
+          <input type='submit' />
 
         </form>
       </div>)

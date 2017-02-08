@@ -8,6 +8,8 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
+import draftToHtml from 'draftjs-to-html'
+
 import { Sessions } from '../../api/sessions.js'
 
 import { CreateQuestionModal } from '../modals/CreateQuestionModal'
@@ -101,10 +103,10 @@ class ManageSession extends Component {
         <button ref='createQuestionButton' onClick={createQuestion}>Create Question</button>
         <div>{ this.state.creatingQuestion ? <CreateQuestionModal /> : '' }</div>
 
-        <br/>
-        <br/>
-        Debug Info: 
-        { JSON.stringify(this.state.session) }
+
+
+
+        
       </div>)
   }
 

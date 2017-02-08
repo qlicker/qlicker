@@ -17,10 +17,10 @@ const questionPattern = {
   _id: Match.Maybe(Helpers.MongoID),
   question: Helpers.NEString, // plain text version of question
   content: Object, // drafts.js display content
-  answers: [ { display: String, content: Match.Maybe(Object) } ], // List of multi choice { display: "A", content: editor content }
+  answers: [ { answer: String, content: Match.Maybe(Object) } ], // List of multi choice { display: "A", content: editor content }
   submittedBy: Helpers.MongoID,
   createdAt: Date,
-  tags: [ Helpers.NEString ]
+  tags: [ Match.Maybe(Helpers.NEString) ]
 }
 
 // Create Question class
@@ -70,7 +70,9 @@ if (Meteor.isServer) {
 Meteor.methods({
 
   'questions.insert' (question) {
-    check(question, pattern)
+    question.question = 'Plain text representation of content'
+    question.submittedBy = this.userId
+    check(question, questionPattern)
     return Questions.insert(question)
   }
 
