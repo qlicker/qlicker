@@ -16,8 +16,8 @@ import Helpers from './helpers.js'
 const questionPattern = {
   _id: Match.Maybe(Helpers.MongoID),
   question: Helpers.NEString, // plain text version of question
-  content: Object, // drafts.js display content
-  answers: [ { answer: String, content: Match.Maybe(Object) } ], // List of multi choice { display: "A", content: editor content }
+  content: Helpers.NEString, // drafts.js display content
+  answers: [ { answer: Helpers.NEString, content: Helpers.NEString } ], // List of multi choice { display: "A", content: editor content }
   submittedBy: Helpers.MongoID,
   createdAt: Date,
   tags: [ Match.Maybe(Helpers.NEString) ]

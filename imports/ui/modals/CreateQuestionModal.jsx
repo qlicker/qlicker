@@ -54,13 +54,13 @@ export class CreateQuestionModal extends Component {
   }
 
   onEditorStateChange (e) {
-    let stateEdits = { content: e }
+    let stateEdits = { editorContent: e }
     this.setState(stateEdits)
   }
 
   setAnswerState (answerKey, editorContent) {
     let answers = this.state.answers
-    answers[_(answers).findIndex({ answer: answerKey })].content = editorContent
+    answers[_(answers).findIndex({ answer: answerKey })].editorContent = editorContent
     this.setState({
       answers: answers
     })
@@ -76,7 +76,17 @@ export class CreateQuestionModal extends Component {
     if (Meteor.isTest) {
       this.props.done(question)
     }
-    console.log(question)
+
+    // question.question = question.content.getPlainText()
+    question.content = JSON.stringify(question.editorContent)
+    question.editorContent = undefined
+
+    question.answers.map((a) => {
+      a.content = JSON.stringify(a.editorContent)
+      a.editorContent = undefined
+    })
+
+
     Meteor.call('questions.insert', question, (error) => {
       if (error) {
         console.log(error)
@@ -138,12 +148,12 @@ export class CreateQuestionModal extends Component {
         <button onClick={this.addAnswer}>Add Answer</button>
         <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
           <h2>New Question</h2>
-          { newEditor(this.state.content, this.onEditorStateChange) }
+          { newEditor(this.state.editorContent, this.onEditorStateChange) }
 
           { 
             this.state.answers.map((a) => {
-              const editor = newEditor(a.content, (content) => {
-                this.setAnswerState(a.answer, content)
+              const editor = newEditor(a.editorContent, (editorContent) => {
+                this.setAnswerState(a.answer, editorContent)
               })
               return (<div key={'answer_' + a.answer}><h2>{ a.answer }</h2> { editor } </div>)
             }) 
