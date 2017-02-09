@@ -21,6 +21,7 @@ const sessionPattern = {
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
   dueDate: Match.Optional(Match.OneOf(undefined, null, Date)), // quiz due date
+  questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date
 }
 
@@ -85,11 +86,27 @@ Meteor.methods({
   },
 
   'sessions.addQuestion' (sessionId, questionId) {
+    check(sessionId, Helpers.MongoID)
+    check(questionId, Helpers.MongoID)
 
+    const session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, {
+      $addToSet: { questions: questionId }
+    })
   },
 
   'sessions.removeQuestion' (sessionId, questionId) {
+    check(sessionId, Helpers.MongoID)
+    check(questionId, Helpers.MongoID)
 
+    const session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, {
+      $pull: { questions: questionId }
+    })
   }
 
 

@@ -61,8 +61,8 @@ if (Meteor.isServer) {
 Meteor.methods({
 
   'questions.insert' (question) {
-    question.question = 'Plain text representation of content'
-    question.submittedBy = this.userId
+    question.createdAt = new Date()
+    question.submittedBy = Meteor.userId()
     check(question, questionPattern)
     return Questions.insert(question)
   }

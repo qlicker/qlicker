@@ -22,6 +22,7 @@ export const DEFAULT_STATE = {
   content: null,
   answers: [], // { answer: "A", content: editor content }
   submittedBy: '',
+  createdAt: null,
   tags: []
 }
 export const options = {
@@ -81,9 +82,7 @@ export class CreateQuestionModal extends Component {
   handleSubmit (e) {
     e.preventDefault()
 
-    let question = _.extend({
-      createdAt: new Date()
-    }, this.state)
+    let question = _.extend({}, this.state)
 
     if (Meteor.isTest) {
       this.props.done(question)
