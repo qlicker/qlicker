@@ -66,7 +66,7 @@ export class CreateSessionModal extends Component {
 
   render () {
     return (
-      <div className='ui-modal ui-modal-createcourse'>
+      <div className='ui-modal ui-modal-createsession'>
         <form ref='createSessionForm' className='ui-form-createsession' onSubmit={this.handleSubmit}>
           Name: <input type='text' data-name='name' onChange={this.setValue} placeholder='Week 2 Lecture 3' /><br />
           Description:<br />

@@ -11,9 +11,12 @@ import { _ } from 'underscore'
 
 import { restoreStubs } from '../../stubs.tests.js'
 
-import { Courses } from './courses.js'
+
+import { Courses } from './courses'
+import { Questions } from './questions'
 import { Sessions } from './sessions'
 import { createAndStubProfessor, sampleCourse } from './courses.tests'
+import { prepQuestionAndSession } from './questions.tests'
 
 import './users.js'
 
@@ -24,6 +27,7 @@ export const sampleSession = {
   quiz: false,
   createdAt: new Date()
 }
+
 
 if (Meteor.isServer) {
   describe('Sessions', () => {
@@ -66,6 +70,7 @@ if (Meteor.isServer) {
       beforeEach(() => {
         Courses.remove({})
         Sessions.remove({})
+        Questions.remove({})
         Meteor.users.remove({})
         restoreStubs()
       })
@@ -96,6 +101,26 @@ if (Meteor.isServer) {
         expect(sessionFromDb.status).to.equal(editedSession.status)
         expect(sessionFromDb.quiz).to.equal(editedSession.quiz)
         expect(sessionFromDb.dueDate.toString()).to.equal(editedSession.dueDate.toString())
+      })
+
+      it('can add question to session (session.addQuestion)', () => {
+        prepQuestionAndSession((sessionId, questionId) => {
+          Meteor.call('sessions.addQuestion', sessionId, questionId)
+
+          const sessionFromDb = Sessions.findOne({ _id: sessionId })
+          expect(sessionFromDb.questions.length).to.equal(1)
+          expect(sessionFromDb.questions[0]).to.equal(questionId)
+        })
+      })
+
+      it('can remove question to session (session.addQuestion)', () => {
+        prepQuestionAndSession((sessionId, questionId) => {
+          Meteor.call('sessions.addQuestion', sessionId, questionId)
+          Meteor.call('sessions.removeQuestion', sessionId, questionId)
+
+          const sessionFromDb = Sessions.findOne({ _id: sessionId })
+          expect(sessionFromDb.questions.length).to.equal(0)
+        })
       })
     })// end describe('methods')
   }) // end describe('Sessions')

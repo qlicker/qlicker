@@ -8,7 +8,11 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
+import draftToHtml from 'draftjs-to-html'
+
 import { Sessions } from '../../api/sessions.js'
+
+import { CreateQuestionModal } from '../modals/CreateQuestionModal'
 
 if (Meteor.isClient) import './manage_session.scss'
 
@@ -17,7 +21,7 @@ class ManageSession extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { editing: false, session: _.extend({}, this.props.session) }
+    this.state = { editing: false, creatingQuestion: false, session: _.extend({}, this.props.session) }
     this.sessionId = this.props.sessionId
   
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -54,6 +58,15 @@ class ManageSession extends Component {
     const startEditing = () => { 
       this.setState({ editing: true })
     }
+    const createQuestion = () => { 
+      this.setState({ creatingQuestion: true })
+    }
+    
+    const doneCreatingQuestion = () => { 
+      this.setState({ creatingQuestion: false })
+    }
+
+
     const quizDate = this.state.quiz ? 'Deadline: ' + this.props.session.dueDate : ''
     const quizEdit = this.state.quiz ? 'Deadline: Date picker here' : ''
     return (
@@ -93,12 +106,9 @@ class ManageSession extends Component {
         </form>
       
         <h3>Questions</h3>
-        <div>... list of questions here</div>
+        <button ref='createQuestionButton' onClick={createQuestion}>Create Question</button>
+        <div>{ this.state.creatingQuestion ? <CreateQuestionModal done={doneCreatingQuestion} /> : '' }</div>
 
-        <br/>
-        <br/>
-        Debug Info: 
-        { JSON.stringify(this.state.session) }
       </div>)
   }
 
