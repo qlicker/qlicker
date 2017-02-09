@@ -61,6 +61,12 @@ class ManageSession extends Component {
     const createQuestion = () => { 
       this.setState({ creatingQuestion: true })
     }
+    
+    const doneCreatingQuestion = () => { 
+      this.setState({ creatingQuestion: false })
+    }
+
+
     const quizDate = this.state.quiz ? 'Deadline: ' + this.props.session.dueDate : ''
     const quizEdit = this.state.quiz ? 'Deadline: Date picker here' : ''
     return (
@@ -101,12 +107,8 @@ class ManageSession extends Component {
       
         <h3>Questions</h3>
         <button ref='createQuestionButton' onClick={createQuestion}>Create Question</button>
-        <div>{ this.state.creatingQuestion ? <CreateQuestionModal /> : '' }</div>
+        <div>{ this.state.creatingQuestion ? <CreateQuestionModal done={doneCreatingQuestion} /> : '' }</div>
 
-
-
-
-        
       </div>)
   }
 

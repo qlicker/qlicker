@@ -6,15 +6,20 @@
 import React, { Component } from 'react'
 import _ from 'underscore'
 
+import { Editor } from 'react-draft-wysiwyg'
+
+import { convertFromRaw, convertToRaw, EditorState, convertFromHTML, ContentState } from 'draft-js'
+
 import { QuestionImages } from '../../api/questions'
 
-import { Editor } from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-if (Meteor.isClient) import './CreateQuestionModal.scss'
+if (Meteor.isClient) { 
+  import './CreateQuestionModal.scss'
+  import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+}
 
 export const DEFAULT_STATE = {
   question: '',
-  content: undefined,
+  content: null,
   answers: [], // { answer: "A", content: editor content }
   submittedBy: '',
   tags: []
@@ -26,7 +31,7 @@ export const options = {
   textAlign: { inDropdown: true },
   inline: { inDropdown: true },
   blockType: { inDropdown: true, options: ['Normal', 'H1', 'H2', 'H3'] },
-  link: { options: ['link'] }, image: { uploadCallback: this.uploadImageCallBack }
+  link: { options: ['link'] }
 }
 export const ANSWER_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -37,6 +42,11 @@ export class CreateQuestionModal extends Component {
     super(props)
 
     this.state = _.extend({}, DEFAULT_STATE)
+
+    // default to header style for question
+    const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h1>New Question</h1>').contentBlocks)
+    this.state.content = EditorState.createWithContent(initialQuestionState)
+
     this.currentAnswer = 0
 
     this.setValue = this.setValue.bind(this)
@@ -45,6 +55,8 @@ export class CreateQuestionModal extends Component {
     this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
     this.setAnswerState = this.setAnswerState.bind(this)
+
+    this.options = _.extend({}, options)
   }
 
   setValue (e) {
@@ -54,13 +66,13 @@ export class CreateQuestionModal extends Component {
   }
 
   onEditorStateChange (e) {
-    let stateEdits = { editorContent: e }
+    let stateEdits = { content: e }
     this.setState(stateEdits)
   }
 
-  setAnswerState (answerKey, editorContent) {
+  setAnswerState (answerKey, content) {
     let answers = this.state.answers
-    answers[_(answers).findIndex({ answer: answerKey })].editorContent = editorContent
+    answers[_(answers).findIndex({ answer: answerKey })].content = content
     this.setState({
       answers: answers
     })
@@ -77,15 +89,14 @@ export class CreateQuestionModal extends Component {
       this.props.done(question)
     }
 
-    // question.question = question.content.getPlainText()
-    question.content = JSON.stringify(question.editorContent)
-    question.editorContent = undefined
+    const contentState = question.content.getCurrentContent()
+    question.content = JSON.stringify(convertToRaw(contentState))
+    question.question = contentState.getPlainText()
 
-    question.answers.map((a) => {
-      a.content = JSON.stringify(a.editorContent)
-      a.editorContent = undefined
+    question.answers.forEach((a) => {
+      const contentState = a.content.getCurrentContent()
+      a.content = JSON.stringify(convertToRaw(contentState))
     })
-
 
     Meteor.call('questions.insert', question, (error) => {
       if (error) {
@@ -114,6 +125,7 @@ export class CreateQuestionModal extends Component {
   }
 
   uploadImageCallBack (file) {
+    console.log(file)
     return new Promise(
       (resolve, reject) => {
         QuestionImages.insert(file, function (err, fileObj) {
@@ -132,35 +144,38 @@ export class CreateQuestionModal extends Component {
     ) // promise
   } // end uploadImageCallBack
 
+  componentDidMount () {
+  }
+
   render () {
     const newEditor = (state, callback) => {
       return (<Editor
-            editorState={state}
-            onEditorStateChange={callback}
-            toolbarClassName="home-toolbar"
-            wrapperClassName="editor-wrapper"
-            editorClassName="home-editor"
-            toolbar={options} />)
+                editorState={state}
+                onEditorStateChange={callback}
+                toolbarClassName='home-toolbar'
+                wrapperClassName='editor-wrapper'
+                editorClassName='home-editor'
+                toolbar={options}
+                uploadCallback={this.uploadImageCallBack}
+              />)
     }
 
     return (
       <div className='ui-modal ui-modal-createquestion'>
         <button onClick={this.addAnswer}>Add Answer</button>
         <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
-          <h2>New Question</h2>
-          { newEditor(this.state.editorContent, this.onEditorStateChange) }
+          { newEditor(this.state.content, this.onEditorStateChange) }
 
           { 
             this.state.answers.map((a) => {
-              const editor = newEditor(a.editorContent, (editorContent) => {
-                this.setAnswerState(a.answer, editorContent)
-              })
-              return (<div key={'answer_' + a.answer}><h2>{ a.answer }</h2> { editor } </div>)
+              const editor = newEditor(a.content, (content) => {
+                this.setAnswerState(a.answer, content)
+              }, true)
+              return (<div className='small-editor-wrapper' key={'answer_' + a.answer}><h2>{ a.answer }</h2> { editor } </div>)
             }) 
           }
-
+          <div className='u-cf'></div>
           <input type='submit' />
-
         </form>
       </div>)
   } //  end render
