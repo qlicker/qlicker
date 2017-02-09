@@ -7,10 +7,14 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
+import { convertFromRaw } from 'draft-js'
+import { stateToHTML } from 'draft-js-export-html'
+
 import CourseListItem from '../CourseListItem'
 import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
+import { Questions } from '../../api/questions'
 
 if (Meteor.isClient) import './professor_dashboard.scss'
 
@@ -56,16 +60,25 @@ class ProfessorDashboard extends Component {
           { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
         </div>
 
+        {
+          this.props.questions.map(q => {
+            const contentState = convertFromRaw(JSON.parse(q.content))
+            return (<div dangerouslySetInnerHTML={{ __html: stateToHTML(contentState) }} ></div>)
+          })
+        }
+
+
       </div>)
   }
 
 }
 
 export default createContainer(() => {
-  const handle = Meteor.subscribe('courses')
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions')
 
   return {
     courses: Courses.find({ owner: Meteor.userId() }).fetch(),
+    questions: Questions.find({ }).fetch(),
     loading: !handle.ready()
   }
 }, ProfessorDashboard)
