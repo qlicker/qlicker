@@ -5,31 +5,23 @@
 
 import React, { Component } from 'react'
 
+import { ControlledForm } from './ControlledForm'
+
 export const DEFAULT_STATE = {
   deptCode: '',
   courseNumber: '',
   enrollmentCode: ''
 }
 
-export class EnrollCourseModal extends Component {
+export class EnrollCourseModal extends ControlledForm {
 
   constructor (props) {
     super(props)
-
     this.state = {}
-
-    this.setValue = this.setValue.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-  }
-
-  setValue (e) {
-    let stateEdits = {}
-    stateEdits[e.target.dataset.name] = e.target.value
-    this.setState(stateEdits)
   }
 
   handleSubmit (e) {
-    e.preventDefault()
+    super.handleSubmit(e)
 
     if (Meteor.isTest) {
       this.props.done()

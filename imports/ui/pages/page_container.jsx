@@ -8,7 +8,7 @@ import React, { Component } from 'react'
 import { LogoutButton } from '../Buttons'
 import ProfileCard from '../ProfileCard'
 
-export default class PageContainer extends Component {
+export class PageContainer extends Component {
 
   // constructor (props) {
   //   super(props)

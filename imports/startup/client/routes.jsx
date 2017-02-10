@@ -12,7 +12,7 @@ import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
 
 // TODO sort out these importing inconsistencies
-import PageContainer from '../../ui/pages/page_container'
+import { PageContainer } from '../../ui/pages/page_container'
 
 Router.route('/', function () {
   mount(AppLayout, { content: <Homepage /> })
@@ -47,7 +47,7 @@ Router.route('/admin', {
 })
 
 // Prof routes
-import ProfessorDashboard from '../../ui/pages/professor_dashboard'
+import { ProfessorDashboard } from '../../ui/pages/professor_dashboard'
 
 Router.route('/manage', {
   name: 'professor',
@@ -64,7 +64,7 @@ Router.route('/manage', {
 
 
 // Student Routes
-import StudentDashboard from '../../ui/pages/student_dashboard'
+import { StudentDashboard } from '../../ui/pages/student_dashboard'
 Router.route('/student', {
   name: 'student',
   waitOn: function () {
@@ -79,8 +79,8 @@ Router.route('/student', {
 
 
 // Shared routes
-import ManageCourse from '../../ui/pages/manage_course'
-import Course from '../../ui/pages/course'
+import { ManageCourse } from '../../ui/pages/manage_course'
+import { Course } from '../../ui/pages/course'
 Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
@@ -95,7 +95,7 @@ Router.route('/course/:_id', {
   }
 })
 
-import ManageSession from '../../ui/pages/manage_session'
+import { ManageSession } from '../../ui/pages/manage_session'
 // import Session from '../../ui/pages/session'
 Router.route('/session/:_id', {
   name: 'session',

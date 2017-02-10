@@ -93,7 +93,7 @@ if (Meteor.isServer) {
         editedSession.dueDate = new Date() // undefined -> new Date()
 
         Meteor.call('sessions.edit', editedSession) // method test
-        
+
         // verify edits stuck
         const sessionFromDb = Sessions.findOne({ _id: sessionId })
         expect(sessionFromDb.name).to.equal(editedSession.name)
