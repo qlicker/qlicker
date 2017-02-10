@@ -3,7 +3,7 @@
 //
 // CreateQuestionModal.jsx: popup dialog to prompt for course details
 
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import _ from 'underscore'
 
 import { Editor } from 'react-draft-wysiwyg'
@@ -25,6 +25,7 @@ export const DEFAULT_STATE = {
   answers: [], // { answer: "A", content: editor content }
   submittedBy: '',
   createdAt: null,
+  courseId: null,
   tags: []
 }
 
@@ -68,6 +69,8 @@ export class CreateQuestionModal extends ControlledForm {
     if (Meteor.isTest) {
       this.props.done(question)
     }
+
+    question.courseId = this.props.courseId
 
     const contentState = question.content.getCurrentContent()
     question.content = JSON.stringify(convertToRaw(contentState))
@@ -148,7 +151,7 @@ export class CreateQuestionModal extends ControlledForm {
               const editor = newEditor(a.content, (content) => {
                 this.setAnswerState(a.answer, content)
               }, true)
-              return (<div className='small-editor-wrapper' key={'answer_' + a.answer}><h2>{ a.answer }</h2> { editor } </div>)
+              return (<div className='small-editor-wrapper' key={'answer_' + a.answer}><h2 className='answer-option'>{ a.answer }</h2> { editor } </div>)
             }) 
           }
           <div className='u-cf'></div>
@@ -158,3 +161,8 @@ export class CreateQuestionModal extends ControlledForm {
   } //  end render
 
 } // end CreateQuestionModal
+
+CreateQuestionModal.propTypes = {
+  courseId: PropTypes.string.isRequired
+}
+

@@ -28,17 +28,19 @@ const coursePattern = {
 }
 
 // Create course class
-const Course = function (doc) { _.extend(this, doc) }
+export const Course = function (doc) { _.extend(this, doc) }
 _.extend(Course.prototype, {
+  courseCode: function () {
+    return this.deptCode.toLowerCase() + this.courseNumber.toLowerCase()
+  },
   createCourseCode: function () {
     return this.deptCode + ' ' + this.courseNumber + ' - ' + this.section
   }
 })
 
 // Create course collection
-const Courses = new Mongo.Collection('courses',
-  { transform: (doc) => { return new Course(doc) } }
-)
+export const Courses = new Mongo.Collection('courses',
+  { transform: (doc) => { return new Course(doc) } })
 
 // data publishing
 if (Meteor.isServer) {
@@ -56,7 +58,7 @@ if (Meteor.isServer) {
 }
 
 // course permissions helper
-const profHasCoursePermission = (courseId) => {
+export const profHasCoursePermission = (courseId) => {
   let courseOwner = Courses.findOne({ _id: courseId }).owner
 
   if (Meteor.user().hasRole('admin') ||
@@ -196,4 +198,3 @@ Meteor.methods({
   }
 }) // end Meteor.methods
 
-export { profHasCoursePermission, Courses }

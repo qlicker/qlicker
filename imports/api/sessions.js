@@ -27,14 +27,11 @@ const sessionPattern = {
 
 // Create Session class
 const Session = function (doc) { _.extend(this, doc) }
-_.extend(Session.prototype, {
-
-})
+_.extend(Session.prototype, {})
 
 // Create course collection
 export const Sessions = new Mongo.Collection('sessions',
-  { transform: (doc) => { return new Session(doc) } }
-)
+  { transform: (doc) => { return new Session(doc) } })
 
 // data publishing
 if (Meteor.isServer) {

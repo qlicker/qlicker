@@ -1,29 +1,26 @@
 
-
-.small-editor-wrapper {
+.small-editor-wrapper {  
+  float: left;
+  width: 50%;
   
-    float: left;
-  .editor-wrapper {
-  width: 400px;  
+  .answer-option {
+    margin-bottom: 0;
+    margin-top: 4px;
   }
 
 }
 
 .editor-wrapper {
-  
   border: 1px solid black;
-
-  
+  padding: 2px 6px;
 
   .home-editor {
-
     .public-DraftStyleDefault-block {
       margin: 0.3em 0;
     }
-
   }
 
   .home-toolbar {
-    width:97%;
+    width: auto;
   }
 }

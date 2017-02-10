@@ -107,7 +107,7 @@ class _ManageSession extends Component {
       
         <h3>Questions</h3>
         <button ref='createQuestionButton' onClick={createQuestion}>Create Question</button>
-        <div>{ this.state.creatingQuestion ? <CreateQuestionModal done={doneCreatingQuestion} /> : '' }</div>
+        <div>{ this.state.creatingQuestion ? <CreateQuestionModal courseId={this.props.session.courseId} done={doneCreatingQuestion} /> : '' }</div>
 
       </div>)
   }
@@ -116,9 +116,9 @@ class _ManageSession extends Component {
 
 export const ManageSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions')
-  let sessions = Sessions.find({ _id: props.sessionId }).fetch()[0]
+  let session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   return {
-    session: sessions,
+    session: session,
     loading: !handle.ready()
   }
 }, _ManageSession)

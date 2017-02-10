@@ -13,8 +13,19 @@ import { _ } from 'underscore'
 import { createStubs, restoreStubs } from '../../stubs.tests.js'
 
 import { Courses } from './courses.js'
-import { Sessions } from './sessions.js'
 import './users.js'
+
+
+const userId = Random.id()
+export const sampleCourse = {
+  createdAt: new Date(),
+  owner: userId,
+  name: 'Intro to Computer Science',
+  deptCode: 'CISC',
+  courseNumber: '101',
+  section: '001',
+  semester: 'F17'
+}
 
 export const createAndStubProfessor = () => {
   const profUserId = Accounts.createUser({
@@ -30,35 +41,24 @@ export const createAndStubProfessor = () => {
   return profUserId
 }
 
-const userId = Random.id()
-export const sampleCourse = {
-  createdAt: new Date(),
-  owner: userId,
-  name: 'Intro to Computer Science',
-  deptCode: 'CISC',
-  courseNumber: '101',
-  section: '001',
-  semester: 'F17'
+export const prepStudentCourse = (assertions) => {
+  const studentUserId = Accounts.createUser({
+    email: 'lol@email.com',
+    password: 'test value',
+    profile: {
+      firstname: 'test value',
+      lastname: 'test value',
+      roles: ['student']
+    }
+  })
+  const profUserId = createAndStubProfessor()
+  let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
+
+  assertions(courseId, studentUserId)
 }
 
 if (Meteor.isServer) {
   describe('Courses', () => {
-    const prepStudentCourse = (assertions) => {
-      const studentUserId = Accounts.createUser({
-        email: 'lol@email.com',
-        password: 'test value',
-        profile: {
-          firstname: 'test value',
-          lastname: 'test value',
-          roles: ['student']
-        }
-      })
-      const profUserId = createAndStubProfessor()
-      let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
-
-      assertions(courseId, studentUserId)
-    }
-
     describe('methods', () => {
       beforeEach(() => {
         Courses.remove({})

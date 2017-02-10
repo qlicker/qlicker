@@ -8,6 +8,8 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
 
+import { Courses, profHasCoursePermission } from './courses'
+
 import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
@@ -19,21 +21,19 @@ const questionPattern = {
   content: Helpers.NEString, // drafts.js display content
   answers: [ { answer: Helpers.NEString, content: Helpers.NEString } ], // List of multi choice { display: "A", content: editor content }
   submittedBy: Helpers.MongoID,
+  courseId: Helpers.MongoID,
+  public: Boolean,
   createdAt: Date,
   tags: [ Match.Maybe(Helpers.NEString) ]
 }
 
 // Create Question class
 const Question = function (doc) { _.extend(this, doc) }
-_.extend(Question.prototype, {
-
-})
+_.extend(Question.prototype, {})
 
 // Create question collection
 export const Questions = new Mongo.Collection('questions',
-  { transform: (doc) => { return new Question(doc) } }
-)
-
+  { transform: (doc) => { return new Question(doc) } })
 
 var imageStore = new FS.Store.GridFS('images')
 
@@ -61,9 +61,66 @@ Meteor.methods({
 
   'questions.insert' (question) {
     question.createdAt = new Date()
+    question.public = false
     question.submittedBy = Meteor.userId()
+
+    let courseIds
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (user.hasGreaterRole('professor')) {
+      const courses = Courses.find({ owner: Meteor.userId() }).fetch()
+      courseIds = _(courses).pluck('_id')
+    } else {
+      const coursesArray = user.profile.courses || []
+      const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
+      courseIds = _(courses).pluck('_id')
+    }
+
+    if (courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add this this course')
+
     check(question, questionPattern)
     return Questions.insert(question)
+  },
+
+  'questions.update' (question) {
+    // TODO
+  },
+
+  'questions.possibleTags' () {
+    let tags = []
+
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (user.hasGreaterRole('professor')) {
+      const courses = Courses.find({ owner: Meteor.userId() }).fetch()
+      courses.forEach(c => {
+        tags.push(c.courseCode())
+      })
+    } else {
+      const coursesArray = user.profile.courses || []
+      const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
+      courses.forEach(c => {
+        tags.push(c.courseCode())
+      })
+    }
+
+    return tags
+  },
+
+  'questions.addTag' (questionId, tag) {
+    const q = Questions.findOne({ _id: questionId })
+    profHasCoursePermission(q.courseId)
+
+    return Questions.update({ _id: questionId }, {
+      $addToSet: { tags: tag }
+    })
+  },
+
+  'questions.removeTag' (questionId, tag) {
+    const q = Questions.findOne({ _id: questionId })
+    profHasCoursePermission(q.courseId)
+
+    return Questions.update({ _id: questionId }, {
+      $pull: { tags: tag }
+    })
   }
 
 }) // end Meteor.methods
