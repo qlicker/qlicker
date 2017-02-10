@@ -6,6 +6,8 @@
 import React, { Component } from 'react'
 import _ from 'underscore'
 
+import { ControlledForm } from './ControlledForm'
+ 
 // if (Meteor.isClient) import './CreateCourseModal.scss'
 
 export const DEFAULT_STATE = {
@@ -16,15 +18,11 @@ export const DEFAULT_STATE = {
   dueDate: undefined
 }
 
-export class CreateSessionModal extends Component {
+export class CreateSessionModal extends ControlledForm {
 
   constructor (props) {
     super(props)
-
     this.state = _.extend({}, DEFAULT_STATE)
-
-    this.setValue = this.setValue.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   setValue (e) {
@@ -36,7 +34,7 @@ export class CreateSessionModal extends Component {
   }
 
   handleSubmit (e) {
-    e.preventDefault()
+    super.handleSubmit(e)
 
     let session = _.extend({
       createdAt: new Date(),

@@ -17,7 +17,7 @@ import { StudentListItem } from '../StudentListItem'
 
 if (Meteor.isClient) import './manage_course.scss'
 
-class ManageCourse extends Component {
+class _ManageCourse extends Component {
 
   constructor (props) {
     super(props)
@@ -28,9 +28,6 @@ class ManageCourse extends Component {
     this.sessions = {}
     this.students = {}
   }
-
-
-
 
   renderSessionList () {
     let sessions = this.props.course.sessions || []
@@ -110,8 +107,8 @@ class ManageCourse extends Component {
 
 }
 
-export default createContainer((props) => {
   const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+export const ManageCourse = createContainer((props) => {
 
   let course = Courses.find({ _id: props.courseId }).fetch()[0]
   let students = Meteor.users.find({ _id: { $in: _(course.students || []).pluck('studentUserId') } }).fetch()
@@ -123,5 +120,5 @@ export default createContainer((props) => {
     students: students,
     loading: !handle.ready()
   }
-}, ManageCourse)
+}, _ManageCourse)
 

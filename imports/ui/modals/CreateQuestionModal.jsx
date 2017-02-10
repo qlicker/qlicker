@@ -7,8 +7,10 @@ import React, { Component } from 'react'
 import _ from 'underscore'
 
 import { Editor } from 'react-draft-wysiwyg'
-
 import { convertFromRaw, convertToRaw, EditorState, convertFromHTML, ContentState } from 'draft-js'
+
+import { ANSWER_ORDER, EDITOR_OPTIONS }  from '../../configs'
+import { ControlledForm } from './ControlledForm'
 
 import { QuestionImages } from '../../api/questions'
 
@@ -25,45 +27,24 @@ export const DEFAULT_STATE = {
   createdAt: null,
   tags: []
 }
-export const options = {
-  options: ['inline', 'fontSize', 'blockType', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'image'],
-  list: { inDropdown: true, options:['unordered', 'ordered'] },
-  fontFamily: { options: ['Open Sans', 'Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Courier New'] },
-  textAlign: { inDropdown: true },
-  inline: { inDropdown: true },
-  blockType: { inDropdown: true, options: ['Normal', 'H1', 'H2', 'H3'] },
-  link: { options: ['link'] }
-}
-export const ANSWER_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 
-
-export class CreateQuestionModal extends Component {
+export class CreateQuestionModal extends ControlledForm {
 
   constructor (props) {
     super(props)
 
-    this.state = _.extend({}, DEFAULT_STATE)
-
-    // default to header style for question
-    const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h1>New Question</h1>').contentBlocks)
-    this.state.content = EditorState.createWithContent(initialQuestionState)
-
-    this.currentAnswer = 0
-
-    this.setValue = this.setValue.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
     this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
     this.setAnswerState = this.setAnswerState.bind(this)
 
-    this.options = _.extend({}, options)
-  }
+    this.currentAnswer = 0
 
-  setValue (e) {
-    let stateEdits = {}
-    stateEdits[e.target.dataset.name] = e.target.value
-    this.setState(stateEdits)
+    this.state = _.extend({}, DEFAULT_STATE)
+    this.options = _.extend({}, EDITOR_OPTIONS)
+    // default to header style for question
+    const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h1>New Question</h1>').contentBlocks)
+    this.state.content = EditorState.createWithContent(initialQuestionState)
   }
 
   onEditorStateChange (e) {
@@ -77,10 +58,10 @@ export class CreateQuestionModal extends Component {
     this.setState({
       answers: answers
     })
-  }
+  } // end setAnswerState
 
   handleSubmit (e) {
-    e.preventDefault()
+    super.handleSubmit(e)
 
     let question = _.extend({}, this.state)
 
@@ -113,15 +94,14 @@ export class CreateQuestionModal extends Component {
         this.props.done()
       }
     })
-
-  }
+  } // end handleSubmit
 
   addAnswer (e) {
     this.setState({ 
         answers: this.state.answers.concat([{ answer: ANSWER_ORDER[this.currentAnswer]}])
     })
     this.currentAnswer++
-  }
+  } // end addAnswer
 
   uploadImageCallBack (file) {
     console.log(file)
@@ -143,8 +123,6 @@ export class CreateQuestionModal extends Component {
     ) // promise
   } // end uploadImageCallBack
 
-  componentDidMount () {
-  }
 
   render () {
     const newEditor = (state, callback) => {
@@ -154,7 +132,7 @@ export class CreateQuestionModal extends Component {
                 toolbarClassName='home-toolbar'
                 wrapperClassName='editor-wrapper'
                 editorClassName='home-editor'
-                toolbar={options}
+                toolbar={this.options}
                 uploadCallback={this.uploadImageCallBack}
               />)
     }

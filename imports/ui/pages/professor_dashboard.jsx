@@ -10,7 +10,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { convertFromRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 
-import CourseListItem from '../CourseListItem'
+import { CourseListItem } from '../CourseListItem'
 import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
@@ -18,7 +18,7 @@ import { Questions } from '../../api/questions'
 
 if (Meteor.isClient) import './professor_dashboard.scss'
 
-class ProfessorDashboard extends Component {
+class _ProfessorDashboard extends Component {
 
   constructor (props) {
     super(props)
@@ -73,7 +73,7 @@ class ProfessorDashboard extends Component {
 
 }
 
-export default createContainer(() => {
+export const ProfessorDashboard = createContainer(() => {
   const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions')
 
   return {
@@ -81,5 +81,5 @@ export default createContainer(() => {
     questions: Questions.find({ }).fetch(),
     loading: !handle.ready()
   }
-}, ProfessorDashboard)
+}, _ProfessorDashboard)
 

@@ -43,6 +43,22 @@ export const sampleCourse = {
 
 if (Meteor.isServer) {
   describe('Courses', () => {
+    const prepStudentCourse = (assertions) => {
+      const studentUserId = Accounts.createUser({
+        email: 'lol@email.com',
+        password: 'test value',
+        profile: {
+          firstname: 'test value',
+          lastname: 'test value',
+          roles: ['student']
+        }
+      })
+      const profUserId = createAndStubProfessor()
+      let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
+
+      assertions(courseId, studentUserId)
+    }
+
     describe('methods', () => {
       beforeEach(() => {
         Courses.remove({})
@@ -68,11 +84,12 @@ if (Meteor.isServer) {
       })
 
       it('can delete course (courses.delete)', () => {
-        const profUserId = createAndStubProfessor()
-        let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
-
-        Meteor.call('courses.delete', courseId)
-        expect(Courses.find({ _id: courseId }).count()).to.equal(0)
+        prepStudentCourse((courseId, studentUserId) => {
+          Meteor.call('courses.addStudent', courseId, studentUserId)
+          Meteor.call('courses.delete', courseId)
+          expect(Courses.find({ _id: courseId }).count()).to.equal(0)
+          expect(Meteor.users.find({ _id: studentUserId }).fetch()[0].profile.courses.length).to.equal(0)
+        })
       })
 
       it('can regenerate code (courses.regenerateCode)', () => {
@@ -118,22 +135,6 @@ if (Meteor.isServer) {
         Courses.remove({})
         Meteor.users.remove({})
       })
-
-      const prepStudentCourse = (assertions) => {
-        const studentUserId = Accounts.createUser({
-          email: 'lol@email.com',
-          password: 'test value',
-          profile: {
-            firstname: 'test value',
-            lastname: 'test value',
-            roles: ['student']
-          }
-        })
-        const profUserId = createAndStubProfessor()
-        let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
-
-        assertions(courseId, studentUserId)
-      }
 
       it('can add student (courses.addStudent)', () => {
         prepStudentCourse((courseId, studentUserId) => {

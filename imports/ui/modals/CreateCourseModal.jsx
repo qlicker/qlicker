@@ -6,7 +6,8 @@
 import React, { Component } from 'react'
 import _ from 'underscore'
 
-// import { Courses } from '../../api/courses.js'
+import { ControlledForm } from './ControlledForm'
+
 if (Meteor.isClient) import './CreateCourseModal.scss'
 
 export const DEFAULT_STATE = {
@@ -17,25 +18,15 @@ export const DEFAULT_STATE = {
   semester: ''
 }
 
-export class CreateCourseModal extends Component {
+export class CreateCourseModal extends ControlledForm {
 
   constructor (props) {
     super(props)
-
     this.state = _.extend({}, DEFAULT_STATE)
-
-    this.setValue = this.setValue.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-  }
-
-  setValue (e) {
-    let stateEdits = {}
-    stateEdits[e.target.dataset.name] = e.target.value
-    this.setState(stateEdits)
   }
 
   handleSubmit (e) {
-    e.preventDefault()
+    super.handleSubmit(e)
 
     let course = _.extend({
       createdAt: new Date(),

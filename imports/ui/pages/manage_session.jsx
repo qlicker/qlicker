@@ -16,7 +16,7 @@ import { CreateQuestionModal } from '../modals/CreateQuestionModal'
 
 if (Meteor.isClient) import './manage_session.scss'
 
-class ManageSession extends Component {
+class _ManageSession extends Component {
 
   constructor (props) {
     super(props)
@@ -114,12 +114,12 @@ class ManageSession extends Component {
 
 }
 
-export default createContainer((props) => {
+export const ManageSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions')
   let sessions = Sessions.find({ _id: props.sessionId }).fetch()[0]
   return {
     session: sessions,
     loading: !handle.ready()
   }
-}, ManageSession)
+}, _ManageSession)
 

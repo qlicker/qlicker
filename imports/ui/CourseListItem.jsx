@@ -11,7 +11,7 @@ if (Meteor.isClient) import './CourseListItem.scss'
 
 import '../api/courses.js'
 
-export default class CourseListItem extends Component {
+export class CourseListItem extends Component {
 
   constructor (props) {
     super(props)

@@ -10,7 +10,6 @@ import { check, Match } from 'meteor/check'
 
 import { _ } from 'underscore'
 
-import { Courses, profHasCoursePermission } from './courses.js'
 import Helpers from './helpers.js'
 
 // expected collection pattern

@@ -2,7 +2,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// CourseListItem.jsx: React component list item for each course
+// SessionListItem.jsx: React component list item for each course
 // typically used on student and professor overview page
 
 import React, { Component, PropTypes } from 'react'

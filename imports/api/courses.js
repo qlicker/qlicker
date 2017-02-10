@@ -88,7 +88,12 @@ Meteor.methods({
 
   'courses.delete' (courseId) {
     profHasCoursePermission(courseId)
-    // TODO remove enrollments from students
+
+    const course = Courses.find({ _id: courseId }).fetch()[0]
+    _(course.students).pluck('studentUserId').forEach((sId) => {
+      Meteor.call('courses.removeStudent', courseId, sId)
+    })
+
     return Courses.remove({ _id: courseId })
   },
 

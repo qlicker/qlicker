@@ -8,9 +8,9 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses.js'
 import { EnrollCourseModal } from '../modals/EnrollCourseModal'
-import CourseListItem from '../CourseListItem'
+import { CourseListItem } from '../CourseListItem'
 
-class StudentDashboard extends Component {
+class _StudentDashboard extends Component {
   constructor (props) {
     super(props)
 
@@ -48,7 +48,7 @@ class StudentDashboard extends Component {
   }
 }
 
-export default createContainer(() => {
+export const StudentDashboard = createContainer(() => {
   const handle = Meteor.subscribe('courses')
   const cArr = Meteor.user().profile.courses || []
   return {
@@ -56,4 +56,4 @@ export default createContainer(() => {
     loading: !handle.ready(),
     handle: handle
   }
-}, StudentDashboard)
+}, _StudentDashboard)

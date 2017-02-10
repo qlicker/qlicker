@@ -14,7 +14,7 @@ import { SessionListItem } from '../SessionListItem'
 
 if (Meteor.isClient) import './course.scss'
 
-class Course extends Component {
+class _Course extends Component {
 
   constructor (props) {
     super(props)
@@ -46,7 +46,7 @@ class Course extends Component {
 
 }
 
-export default createContainer((props) => {
+export const Course = createContainer((props) => {
   const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')
 
   let student = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
@@ -56,5 +56,5 @@ export default createContainer((props) => {
     sessions: Sessions.find({ courseId: { $in: student.profile.courses || [] } }).fetch(),
     loading: !handle.ready()
   }
-}, Course)
+}, _Course)
 
