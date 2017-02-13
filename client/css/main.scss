@@ -6,6 +6,9 @@ body {
 
 }
 
+$correct-color: #2AA786;
+$incorrect-color: #A72526;
+
 @keyframes colorPulse {
       0% {background-color: rgba(150,150,150,0.8);}
      100% {background-color: rgba(30,30,30,0.8);}
@@ -42,6 +45,14 @@ body {
 // Universal styles
 .spacer1 {
   height:10px;
+}
+
+.correct-color {
+  color: $correct-color;
+}
+
+.incorrect-color {
+  color: $incorrect-color;
 }
 
 .ui-page-container {
