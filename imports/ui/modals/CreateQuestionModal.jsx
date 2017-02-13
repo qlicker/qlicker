@@ -6,8 +6,6 @@
 import React, { Component, PropTypes } from 'react'
 import _ from 'underscore'
 
-import alertify from 'alertify.js'
-
 import { Editor } from 'react-draft-wysiwyg'
 import { convertFromRaw, convertToRaw, EditorState, convertFromHTML, ContentState } from 'draft-js'
 import { WithContext as ReactTags } from 'react-tag-input';

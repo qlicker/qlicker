@@ -9,6 +9,7 @@ import { expect } from 'meteor/practicalmeteor:chai'
 
 import { _ } from 'underscore'
 
+import { QUESTION_TYPE }  from '../configs'
 
 import { restoreStubs, createStubs } from '../../stubs.tests.js'
 
@@ -25,7 +26,8 @@ const exContentState = '{"entityMap":{},"blocks":[{"key":"deval","text":"New Que
 export const sampleQuestion = {
   question: 'Test question?',
   content: exContentState,
-  answers: [{ correct: false, answer: 'A', content: exContentState }],
+  type: QUESTION_TYPE.MC,
+  answers: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState }],
   submittedBy: '',
   tags: []
 }
