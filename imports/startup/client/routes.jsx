@@ -14,6 +14,10 @@ import { Loginpage } from '../../ui/pages/login'
 // TODO sort out these importing inconsistencies
 import { PageContainer } from '../../ui/pages/page_container'
 
+Router.configure({
+  loadingTemplate: 'loading'
+})
+
 Router.route('/', function () {
   mount(AppLayout, { content: <Homepage /> })
 }, {
