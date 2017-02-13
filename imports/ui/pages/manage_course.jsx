@@ -8,9 +8,10 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { Courses } from '../../api/courses.js'
-import { Sessions } from '../../api/sessions.js'
-import { CreateSessionModal } from '../modals/CreateSessionModal.jsx'
+import { Courses } from '../../api/courses'
+import { Sessions } from '../../api/sessions'
+import { CreateSessionModal } from '../modals/CreateSessionModal'
+import { CreateQuestionModal } from '../modals/CreateQuestionModal'
 
 import { SessionListItem } from '../SessionListItem'
 import { StudentListItem } from '../StudentListItem'
@@ -22,7 +23,7 @@ class _ManageCourse extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { creatingSession: false }
+    this.state = { creatingSession: false, creatingQuestion: false, }
     this.courseId = this.props.courseId
 
     this.sessions = {}
@@ -67,6 +68,8 @@ class _ManageCourse extends Component {
 
   render () {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
+    const toggleCreatingQuestion = () => { this.setState({ creatingQuestion: !this.state.creatingQuestion }) }
+
     return (
       <div className='container ui-manage-course'>
         <h2>Manage course: {this.props.course.name} </h2>
@@ -83,12 +86,10 @@ class _ManageCourse extends Component {
 
             <h3>Sessions</h3>
             <div className='ui-session-list'>
-              <button onClick={ toggleCreatingSession } >
-                Create Session
-              </button>
-              { this.state.creatingSession ? 
-                <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} /> 
-                : '' }
+              <button onClick={ toggleCreatingSession }>Create Session</button>
+              <button ref='createQuestionButton' onClick={toggleCreatingQuestion}>Create Question</button>
+
+
               { this.renderSessionList() }
             </div>
 
@@ -102,13 +103,21 @@ class _ManageCourse extends Component {
           </div>
         </div>
 
+        {/* modals */}
+        { this.state.creatingSession ? 
+          <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} /> 
+          : '' }
+        { this.state.creatingQuestion ? 
+          <CreateQuestionModal courseId={this.courseId} done={toggleCreatingQuestion} /> 
+          : '' }
+
       </div>)
   }
 
 }
 
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')
 export const ManageCourse = createContainer((props) => {
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')  && Meteor.subscribe('userData')
 
   let course = Courses.find({ _id: props.courseId }).fetch()[0]
   let students = Meteor.users.find({ _id: { $in: _(course.students || []).pluck('studentUserId') } }).fetch()

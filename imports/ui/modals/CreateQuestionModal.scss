@@ -1,29 +1,49 @@
 
+.small-editor-wrapper {  
+  span.answer-option {
+    margin-bottom: 0;
+    margin-top: 6px; 
+    font-size: 140%;
 
-.small-editor-wrapper {
-  
-    float: left;
-  .editor-wrapper {
-  width: 400px;  
+    span.answer-key {
+      font-weight: bold;
+    }
+    span.correct {
+      float: right;
+      cursor: pointer;
+    }
   }
-
 }
 
 .editor-wrapper {
-  
-  border: 1px solid black;
-
-  
+  border: 1px solid #333;
+  padding: 0px 0px;
 
   .home-editor {
-
     .public-DraftStyleDefault-block {
       margin: 0.3em 0;
     }
-
   }
 
   .home-toolbar {
-    width:97%;
+    width: auto;
+    font-size: 80%;
+    padding: 4px 2px 0;
+  }
+ 
+}
+
+.six {
+  .rdw-dropdown-wrapper, .rdw-option-wrapper {
+    margin: 0;
+  } 
+  .rdw-block-dropdown {
+    width: 67px;
+  } 
+  .rdw-fontfamily-dropdown {
+    width: 92px;
+  }
+  .rdw-inline-dropdown, .rdw-fontsize-dropdown, .rdw-list-dropdown, .rdw-text-align-dropdown {
+    width: 37px;
   }
 }

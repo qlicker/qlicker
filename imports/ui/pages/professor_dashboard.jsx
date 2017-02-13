@@ -56,9 +56,8 @@ class _ProfessorDashboard extends Component {
         <ul className='ui-courselist'>
           { courseList }
         </ul>
-        <div className='ui-modal-container' ref='modals'>
-          { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
-        </div>
+        
+        { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
 
         {
           this.props.questions.map(q => {
