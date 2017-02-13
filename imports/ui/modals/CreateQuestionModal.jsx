@@ -8,7 +8,7 @@ import _ from 'underscore'
 
 import { Editor } from 'react-draft-wysiwyg'
 import { convertFromRaw, convertToRaw, EditorState, convertFromHTML, ContentState } from 'draft-js'
-import { WithContext as ReactTags } from 'react-tag-input';
+import { WithContext as ReactTags } from 'react-tag-input'
 
 import { MC_ORDER, TF_ORDER, QUESTION_TYPE, EDITOR_OPTIONS }  from '../../configs'
 import { ControlledForm } from './ControlledForm'
