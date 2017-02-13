@@ -52,3 +52,26 @@ body {
 .ui-course-code, .ui-course-semester, .ui-enrollment-code {
   text-transform: uppercase;
 }
+
+.ui-modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(30, 30, 30, 0.8);
+  overflow: auto;
+	
+  display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-ms-flex-align: center;
+	-webkit-align-items: center;
+	-webkit-box-align: center;
+	align-items: center;
+
+  .ui-modal {
+    background: white;
+    padding: 20px;
+  }
+}

@@ -3,7 +3,7 @@
 //
 // ControlledForm.jsx: super class for controlled form components
 
-import { Component } from 'react'
+import { Component, PropTypes } from 'react'
 
 export class ControlledForm extends Component {
 
@@ -12,6 +12,7 @@ export class ControlledForm extends Component {
 
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.done = this.done.bind(this)
   }
 
   setValue (e) {
@@ -20,8 +21,20 @@ export class ControlledForm extends Component {
     this.setState(stateEdits)
   }
 
+  done (e) {
+    this.props.done()
+  }
+
+  preventPropagation (e) {
+    e.stopPropagation()
+  }
+
   handleSubmit (e) {
     e.preventDefault()
   }
 
 } // end ControlledForm
+
+// ControlledForm.propTypes = {
+//   done: PropTypes.function.isRequired
+// }

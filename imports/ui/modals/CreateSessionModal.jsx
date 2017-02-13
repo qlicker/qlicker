@@ -7,7 +7,7 @@ import React, { Component } from 'react'
 import _ from 'underscore'
 
 import { ControlledForm } from './ControlledForm'
- 
+
 // if (Meteor.isClient) import './CreateCourseModal.scss'
 
 export const DEFAULT_STATE = {
@@ -55,16 +55,21 @@ export class CreateSessionModal extends ControlledForm {
         }
       } else {
         // Reset
-        this.refs.createSessionForm.reset()
-        this.setState(_.extend({}, DEFAULT_STATE))
-        this.props.done()
+        this.done()
       }
     })
   }
 
+  done (e) {
+    this.refs.createSessionForm.reset()
+    this.setState(_.extend({}, DEFAULT_STATE))
+    super.done()
+  }
+
   render () {
-    return (
-      <div className='ui-modal ui-modal-createsession'>
+    return (<div className='ui-modal-container' onClick={this.done}>
+      <div className='ui-modal ui-modal-createsession container' onClick={this.preventPropagation}>
+        <h2>Create Session</h2>
         <form ref='createSessionForm' className='ui-form-createsession' onSubmit={this.handleSubmit}>
           Name: <input type='text' data-name='name' onChange={this.setValue} placeholder='Week 2 Lecture 3' /><br />
           Description:<br />
@@ -76,7 +81,8 @@ export class CreateSessionModal extends ControlledForm {
           { this.state.quiz ? 'Deadline: <datepicker here><br />' : '' }
           <input type='submit' />
         </form>
-      </div>)
+      </div>
+    </div>)
   } //  end render
 
 } // end CreateSessionForm

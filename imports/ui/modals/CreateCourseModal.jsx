@@ -47,24 +47,30 @@ export class CreateCourseModal extends ControlledForm {
         }
       } else {
         // Reset
-        this.refs.createcourseForm.reset()
-        this.setState(_.extend({}, DEFAULT_STATE))
-        this.props.done()
+        this.done()
       }
     })
   }
 
+  done (e) {
+    this.refs.createcourseForm.reset()
+    this.setState(_.extend({}, DEFAULT_STATE))
+    super.done()
+  }
+
   render () {
-    return (
-      <div className='ui-modal ui-modal-createcourse'>
-        <form ref='createcourseForm' className='ui-form-createcourse' onSubmit={this.handleSubmit}>
-          Name: <input type='text' data-name='name' onChange={this.setValue} placeholder='Information Technology Project (2016-17)' /><br />
-          Department Code: <input type='text' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
-          Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
-          Section: <input type='text' data-name='section' onChange={this.setValue} placeholder='001' /><br />
-          Semester: <input type='text' data-name='semester' onChange={this.setValue} placeholder='W17' /><br />
-          <input type='submit' />
-        </form>
+    return (<div className='ui-modal-container' onClick={this.done}>
+        <div className='ui-modal ui-modal-createcourse container' onClick={this.preventPropagation}>
+          <h2>Create Course</h2>
+          <form ref='createcourseForm' className='ui-form-createcourse' onSubmit={this.handleSubmit}>
+            Name: <input type='text' data-name='name' onChange={this.setValue} placeholder='Information Technology Project (2016-17)' /><br />
+            Department Code: <input type='text' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
+            Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
+            Section: <input type='text' data-name='section' onChange={this.setValue} placeholder='001' /><br />
+            Semester: <input type='text' data-name='semester' onChange={this.setValue} placeholder='W17' /><br />
+            <input type='submit' />
+          </form>
+        </div>
       </div>)
   } //  end render
 

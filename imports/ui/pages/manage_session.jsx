@@ -107,7 +107,8 @@ class _ManageSession extends Component {
       
         <h3>Questions</h3>
         <button ref='createQuestionButton' onClick={createQuestion}>Create Question</button>
-        <div>{ this.state.creatingQuestion ? <CreateQuestionModal courseId={this.props.session.courseId} done={doneCreatingQuestion} /> : '' }</div>
+        
+        { this.state.creatingQuestion ? <CreateQuestionModal courseId={this.props.session.courseId} done={doneCreatingQuestion} /> : '' }
 
       </div>)
   }

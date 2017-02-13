@@ -61,6 +61,13 @@ export class CreateQuestionModal extends ControlledForm {
     })
   } // end setAnswerState
 
+  done (e) {
+    this.refs.questionForm.reset()
+    this.setState(_.extend({}, DEFAULT_STATE))
+    this.currentAnswer = 0
+    super.done()
+  }
+    
   handleSubmit (e) {
     super.handleSubmit(e)
 
@@ -91,10 +98,7 @@ export class CreateQuestionModal extends ControlledForm {
         }
       } else {
         // Reset
-        this.refs.questionForm.reset()
-        this.setState(_.extend({}, DEFAULT_STATE))
-        this.currentAnswer = 0
-        this.props.done()
+        this.done()
       }
     })
   } // end handleSubmit
@@ -140,24 +144,26 @@ export class CreateQuestionModal extends ControlledForm {
               />)
     }
 
-    return (
-      <div className='ui-modal ui-modal-createquestion'>
-        <button onClick={this.addAnswer}>Add Answer</button>
-        <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
-          { newEditor(this.state.content, this.onEditorStateChange) }
+    return (<div className='ui-modal-container' onClick={this.done}>
+          <div className='ui-modal ui-modal-createquestion container' onClick={this.preventPropagation}>
+            <h2>Add a Question</h2>
+            <button onClick={this.addAnswer}>Add Answer</button>
+            <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
+              { newEditor(this.state.content, this.onEditorStateChange) }
 
-          { 
-            this.state.answers.map((a) => {
-              const editor = newEditor(a.content, (content) => {
-                this.setAnswerState(a.answer, content)
-              }, true)
-              return (<div className='small-editor-wrapper' key={'answer_' + a.answer}><h2 className='answer-option'>{ a.answer }</h2> { editor } </div>)
-            }) 
-          }
-          <div className='u-cf'></div>
-          <input type='submit' />
-        </form>
-      </div>)
+              { 
+                this.state.answers.map((a) => {
+                  const editor = newEditor(a.content, (content) => {
+                    this.setAnswerState(a.answer, content)
+                  }, true)
+                  return (<div className='small-editor-wrapper' key={'answer_' + a.answer}><h2 className='answer-option'>{ a.answer }</h2> { editor } </div>)
+                }) 
+              }
+              <div className='u-cf'></div>
+              <input type='submit' />
+            </form>
+          </div>
+        </div>)
   } //  end render
 
 } // end CreateQuestionModal

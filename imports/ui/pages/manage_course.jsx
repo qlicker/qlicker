@@ -108,7 +108,7 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')  && Meteor.subscribe('userData')
 
   let course = Courses.find({ _id: props.courseId }).fetch()[0]
   let students = Meteor.users.find({ _id: { $in: _(course.students || []).pluck('studentUserId') } }).fetch()
