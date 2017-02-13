@@ -25,7 +25,7 @@ const exContentState = '{"entityMap":{},"blocks":[{"key":"deval","text":"New Que
 export const sampleQuestion = {
   question: 'Test question?',
   content: exContentState,
-  answers: [{ answer: 'A', content: exContentState }],
+  answers: [{ correct: false, answer: 'A', content: exContentState }],
   submittedBy: '',
   tags: []
 }

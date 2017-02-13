@@ -19,7 +19,7 @@ const questionPattern = {
   _id: Match.Maybe(Helpers.MongoID),
   question: Helpers.NEString, // plain text version of question
   content: Helpers.NEString, // drafts.js display content
-  answers: [ { answer: Helpers.NEString, content: Helpers.NEString } ], // List of multi choice { display: "A", content: editor content }
+  answers: [ { correct: Boolean, answer: Helpers.NEString, content: Helpers.NEString } ], // List of multi choice { display: "A", content: editor content }
   submittedBy: Helpers.MongoID,
   courseId: Helpers.MongoID,
   public: Boolean,

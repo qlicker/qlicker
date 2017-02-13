@@ -140,7 +140,7 @@ export class CreateQuestionModal extends ControlledForm {
 
   addAnswer (e) {
     this.setState({ 
-        answers: this.state.answers.concat([{ answer: ANSWER_ORDER[this.currentAnswer]}])
+        answers: this.state.answers.concat([{ correct: false, answer: ANSWER_ORDER[this.currentAnswer]}])
     })
     this.currentAnswer++
   } // end addAnswer
