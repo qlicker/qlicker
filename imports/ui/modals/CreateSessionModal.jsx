@@ -25,6 +25,10 @@ export class CreateSessionModal extends ControlledForm {
     this.state = _.extend({}, DEFAULT_STATE)
   }
 
+  /**
+   * done(Event: e)
+   * Overrided onChange handler to update state with exception for session details
+   */
   setValue (e) {
     let stateEdits = {}
     let key = e.target.dataset.name
@@ -33,6 +37,10 @@ export class CreateSessionModal extends ControlledForm {
     this.setState(stateEdits)
   }
 
+  /**
+   * handleSubmit(Event: e)
+   * onSubmit handler for course form. Calls courses.createSession
+   */
   handleSubmit (e) {
     super.handleSubmit(e)
 
@@ -60,6 +68,10 @@ export class CreateSessionModal extends ControlledForm {
     })
   }
 
+  /**
+   * done(Event: e)
+   * Overrided done handler
+   */
   done (e) {
     this.refs.createSessionForm.reset()
     this.setState(_.extend({}, DEFAULT_STATE))

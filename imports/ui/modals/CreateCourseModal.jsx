@@ -25,6 +25,10 @@ export class CreateCourseModal extends ControlledForm {
     this.state = _.extend({}, DEFAULT_STATE)
   }
 
+  /**
+   * handleSubmit(Event: e)
+   * onSubmit handler for course form. Calls courses.insert
+   */
   handleSubmit (e) {
     super.handleSubmit(e)
 
@@ -52,6 +56,10 @@ export class CreateCourseModal extends ControlledForm {
     })
   }
 
+  /**
+   * done(Event: e)
+   * Overrided done handler
+   */
   done (e) {
     this.refs.createcourseForm.reset()
     this.setState(_.extend({}, DEFAULT_STATE))

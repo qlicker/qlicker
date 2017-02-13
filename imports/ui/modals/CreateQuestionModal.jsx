@@ -44,15 +44,23 @@ export class CreateQuestionModal extends ControlledForm {
     this.state = _.extend({}, DEFAULT_STATE)
     this.options = _.extend({}, EDITOR_OPTIONS)
     // default to header style for question
-    const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h1>New Question</h1>').contentBlocks)
+    const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h1>New Question?</h1>').contentBlocks)
     this.state.content = EditorState.createWithContent(initialQuestionState)
   }
 
-  onEditorStateChange (e) {
-    let stateEdits = { content: e }
+  /**
+   * onEditorStateChange(Object: content)
+   * Update wysiwyg contents for actual question in state
+   */
+  onEditorStateChange (content) {
+    let stateEdits = { content: content }
     this.setState(stateEdits)
   }
 
+  /**
+   * setAnswerState(String: answerKey, Object: content)
+   * Update wysiwyg content in the state based on the answer
+   */
   setAnswerState (answerKey, content) {
     let answers = this.state.answers
     answers[_(answers).findIndex({ answer: answerKey })].content = content
@@ -61,13 +69,21 @@ export class CreateQuestionModal extends ControlledForm {
     })
   } // end setAnswerState
 
+  /**
+   * done(Event: e)
+   * Overrided done handler
+   */
   done (e) {
     this.refs.questionForm.reset()
     this.setState(_.extend({}, DEFAULT_STATE))
     this.currentAnswer = 0
     super.done()
   }
-    
+  
+  /**
+   * handleSubmit(Event: e)
+   * onSubmit handler for Question form. Calls questions.insert
+   */
   handleSubmit (e) {
     super.handleSubmit(e)
 
@@ -79,6 +95,7 @@ export class CreateQuestionModal extends ControlledForm {
 
     question.courseId = this.props.courseId
 
+    // convert draft-js objects into JSON
     const contentState = question.content.getCurrentContent()
     question.content = JSON.stringify(convertToRaw(contentState))
     question.question = contentState.getPlainText()
@@ -110,8 +127,12 @@ export class CreateQuestionModal extends ControlledForm {
     this.currentAnswer++
   } // end addAnswer
 
+
+  /**
+   * uploadImage(File: file)
+   * Handle image uploaded through wysiwyg editor. Uploads images to QuestionImages GridFS store
+   */
   uploadImageCallBack (file) {
-    console.log(file)
     return new Promise(
       (resolve, reject) => {
         QuestionImages.insert(file, function (err, fileObj) {

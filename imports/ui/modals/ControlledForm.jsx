@@ -35,6 +35,6 @@ export class ControlledForm extends Component {
 
 } // end ControlledForm
 
-// ControlledForm.propTypes = {
-//   done: PropTypes.function.isRequired
-// }
+ControlledForm.propTypes = {
+  done: PropTypes.func.isRequired
+}

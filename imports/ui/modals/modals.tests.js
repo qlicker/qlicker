@@ -10,8 +10,10 @@ import { expect } from 'meteor/practicalmeteor:chai'
 import { sinon } from 'meteor/practicalmeteor:sinon'
 import { _ } from 'underscore'
 
-import { CreateCourseModal, DEFAULT_STATE as CREATE_DEFAULT_STATE } from './CreateCourseModal.jsx'
+import { CreateCourseModal, DEFAULT_STATE as CREATE_DEFAULT_STATE } from './CreateCourseModal'
 import { EnrollCourseModal, DEFAULT_STATE as ENROLL_DEFAULT_STATE } from './EnrollCourseModal'
+import { CreateQuestionModal, DEFAULT_STATE as QUESTION_DEFAULT_STATE } from './CreateQuestionModal'
+import { CreateSessionModal, DEFAULT_STATE as SESSION_DEFAULT_STATE } from './CreateSessionModal'
 
 if (Meteor.isClient) {
   describe('<CreateCourseModal />', () => {
@@ -20,8 +22,8 @@ if (Meteor.isClient) {
 
     it('should render', () => {
       const modal = shallow(<CreateCourseModal />)
-      expect(modal.hasClass('ui-modal-createcourse')).to.equal(true)
-      expect(modal.find('input').length).to.equal(NUM_INPUTS)
+      expect(modal.find('.ui-modal-createcourse')).to.have.length(1)
+      expect(modal.find('input')).to.have.length(NUM_INPUTS)
     })
 
     it('should update state on input change', () => {
@@ -56,7 +58,7 @@ if (Meteor.isClient) {
 
     it('should render', () => {
       const modal = shallow(<EnrollCourseModal />)
-      expect(modal.hasClass('ui-modal-enrollcourse')).to.equal(true)
+      expect(modal.find('.ui-modal-enrollcourse')).to.have.length(1)
       expect(modal.find('input').length).to.equal(NUM_INPUTS)
     })
 
@@ -85,4 +87,22 @@ if (Meteor.isClient) {
       expect(onDone.calledOnce).to.equal(true) // TODO spy verify course sent
     })
   }) // end describe('EnrollCourseModal')
+
+  describe('<CreateSessionModal />', () => {
+    // const NUM_INPUTS = _.keys(QUESTION_DEFAULT_STATE).length + 1
+
+    it('should render', () => {
+      const modal = shallow(<CreateSessionModal />)
+      expect(modal.find('.ui-modal-createsession')).to.have.length(1)
+    })
+  }) // end describe('CreateSessionModal')
+
+  describe('<CreateQuestionModal />', () => {
+    // const NUM_INPUTS = _.keys(QUESTION_DEFAULT_STATE).length + 1
+
+    it('should render', () => {
+      const modal = shallow(<CreateQuestionModal />)
+      expect(modal.find('.ui-modal-createquestion')).to.have.length(1)
+    })
+  }) // end describe('CreateQuestionModal')
 }
