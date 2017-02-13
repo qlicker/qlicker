@@ -42,15 +42,9 @@ export class CreateCourseModal extends ControlledForm {
     }
 
     Meteor.call('courses.insert', course, (error) => {
-      if (error) {
-        console.log(error)
-        if (error.error === 'not-authorized') {
-          // TODO
-        } else if (error.error === 400) {
-          // check didnt pass
-        }
-      } else {
-        // Reset
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Course Created')
         this.done()
       }
     })
@@ -76,7 +70,8 @@ export class CreateCourseModal extends ControlledForm {
             Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
             Section: <input type='text' data-name='section' onChange={this.setValue} placeholder='001' /><br />
             Semester: <input type='text' data-name='semester' onChange={this.setValue} placeholder='W17' /><br />
-            <input type='submit' />
+            <br/>
+            <div className='ui-buttongroup'><a className='button' onClick={this.done}>Cancel</a><input type='submit' id='submit'/></div>
           </form>
         </div>
       </div>)

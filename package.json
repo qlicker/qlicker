@@ -11,6 +11,7 @@
     "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha"
   },
   "dependencies": {
+    "alertify.js": "^1.0.12",
     "babel-eslint": "^7.1.1",
     "babel-runtime": "^6.18.0",
     "bcrypt": "^0.8.7",
@@ -27,6 +28,7 @@
     "react-dom": "^15.4.1",
     "react-draft-wysiwyg": "^1.7.3",
     "react-mounter": "^1.2.0",
+    "react-tag-input": "^4.6.2",
     "react-tools": "^0.13.3",
     "syntastic-react": "^1.0.3",
     "underscore": "^1.8.3"

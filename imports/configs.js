@@ -9,4 +9,11 @@ export const EDITOR_OPTIONS = {
   link: { options: ['link'] }
 }
 
-export const ANSWER_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
+export const QUESTION_TYPE = {
+  MC: 0,
+  TF: 1,
+  SA: 2
+}
+
+export const MC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
+export const TF_ORDER = ['TRUE', 'FALSE']

@@ -42,15 +42,9 @@ export class EnrollCourseModal extends ControlledForm {
     }
 
     Meteor.call('courses.checkAndEnroll', this.state.deptCode, this.state.courseNumber, this.state.enrollmentCode, (error) => {
-      if (error) {
-        console.log(error)
-        if (error.error === 'not-authorized') {
-          // TODO
-        } else if (error.error === 400) {
-          // check didnt pass
-        }
-      } else {
-        // Reset
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Enrolled Sucessfully')
         this.done()
       }
     })
@@ -64,7 +58,8 @@ export class EnrollCourseModal extends ControlledForm {
           Department Code: <input type='text' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
           Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
           Enrollment Code: <input type='text' data-name='enrollmentCode' onChange={this.setValue} placeholder='TCDHLZ' /><br />
-          <input type='submit' />
+          <br/>
+          <div className='ui-buttongroup'><a className ='button' onClick={this.done}>Cancel</a><input type='submit' id='submit'/></div>
         </form>
       </div>
     </div>)

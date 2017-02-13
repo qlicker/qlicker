@@ -54,15 +54,9 @@ export class CreateSessionModal extends ControlledForm {
     }
 
     Meteor.call('courses.createSession', this.props.courseId, session, (error) => {
-      if (error) {
-        console.log(error)
-        if (error.error === 'not-authorized') {
-          // TODO
-        } else if (error.error === 400) {
-          // check didnt pass
-        }
-      } else {
-        // Reset
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Session Created')
         this.done()
       }
     })
@@ -91,7 +85,8 @@ export class CreateSessionModal extends ControlledForm {
             <option value='true'>Online Quiz</option>
           </select><br />
           { this.state.quiz ? 'Deadline: <datepicker here><br />' : '' }
-          <input type='submit' />
+          <br/>
+          <div className='ui-buttongroup'><a className='button' onClick={this.done}>Cancel</a><input type='submit' id='submit'/></div>
         </form>
       </div>
     </div>)
