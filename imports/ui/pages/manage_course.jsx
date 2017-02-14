@@ -78,7 +78,7 @@ class _ManageCourse extends Component {
           <div className='col-md-6'>
             <h3>Course Details</h3>
             <div className='ql-course-details'>
-              <span className='ql-course-code'>{ this.props.course.createCourseCode() } </span>
+              <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
               <span className='ql-course-semester'>{ this.props.course.semester }</span>
               <br />
               Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>

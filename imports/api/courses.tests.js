@@ -74,13 +74,22 @@ if (Meteor.isServer) {
         expect(cs.count()).to.equal(1)
       })
 
-      it('can return course code (.createCourseCode)', () => {
+      it('can return full course code (.fullCourseCode)', () => {
         createAndStubProfessor()
         const courseId = Meteor.call('courses.insert', sampleCourse)
 
         const course = Courses.findOne({ _id: courseId })
         const strCourse = sampleCourse.deptCode + ' ' + sampleCourse.courseNumber + ' - ' + sampleCourse.section
-        expect(course.createCourseCode().toLowerCase()).to.equal(strCourse.toLowerCase())
+        expect(course.fullCourseCode().toLowerCase()).to.equal(strCourse.toLowerCase())
+      })
+
+      it('can return short course code (.courseCode)', () => {
+        createAndStubProfessor()
+        const courseId = Meteor.call('courses.insert', sampleCourse)
+
+        const course = Courses.findOne({ _id: courseId })
+        const strCourse = sampleCourse.deptCode + sampleCourse.courseNumber
+        expect(course.courseCode()).to.equal(strCourse.toLowerCase())
       })
 
       it('can delete course (courses.delete)', () => {

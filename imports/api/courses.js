@@ -33,7 +33,7 @@ _.extend(Course.prototype, {
   courseCode: function () {
     return this.deptCode.toLowerCase() + this.courseNumber.toLowerCase()
   },
-  createCourseCode: function () {
+  fullCourseCode: function () {
     return this.deptCode + ' ' + this.courseNumber + ' - ' + this.section
   }
 })

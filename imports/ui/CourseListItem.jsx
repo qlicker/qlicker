@@ -38,7 +38,7 @@ export class CourseListItem extends Component {
       <li className='ql-course-list-item' onClick={this.navigateToCourse}>
         <span className='ql-course-name'>{ this.props.course.name }</span>
 
-        <span className='ql-course-code'>{ this.props.course.createCourseCode() } </span>
+        <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
         <span className='ql-course-semester'>{ this.props.course.semester }</span>
 
         { Meteor.user().hasGreaterRole('professor') ? 
