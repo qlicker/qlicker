@@ -66,6 +66,10 @@ if (Meteor.isServer) {
 Meteor.methods({
 
   'questions.insert' (question) {
+    if (question._id) {
+      return Meteor.call('questions.update', question)
+    }
+
     question.createdAt = new Date()
     question.public = false
     question.submittedBy = Meteor.userId()
@@ -80,7 +84,6 @@ Meteor.methods({
       const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
       courseIds = _(courses).pluck('_id')
     }
-
     if (courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add this this course')
 
     check(question, questionPattern)
@@ -88,7 +91,12 @@ Meteor.methods({
   },
 
   'questions.update' (question) {
-    // TODO
+    check(question._id, Helpers.MongoID)
+    check(question, questionPattern)
+
+    return Questions.update({ _id: question._id }, {
+      $set: _.omit(question, '_id')
+    })
   },
 
   'questions.possibleTags' () {

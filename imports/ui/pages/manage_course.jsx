@@ -87,8 +87,7 @@ class _ManageCourse extends Component {
             <h3>Sessions</h3>
             <div className='ql-session-list'>
               <button className='btn btn-default' onClick={ toggleCreatingSession }>Create Session</button>
-              <button className='btn btn-default' ref='createQuestionButton' onClick={toggleCreatingQuestion}>Create Question</button>
-
+              <button className='btn btn-default' onClick={ toggleCreatingQuestion }>Create Question</button>
 
               { this.renderSessionList() }
             </div>
