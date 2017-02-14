@@ -38,7 +38,6 @@ class _ProfessorDashboard extends Component {
   }
 
   renderCourseList () {
-    // console.log('this.courses',this.props.courses)
     return this.props.courses.map((course) => (
       <CourseListItem key={course._id} course={course} />
     ))
@@ -62,7 +61,7 @@ class _ProfessorDashboard extends Component {
         {
           this.props.questions.map(q => {
             const contentState = convertFromRaw(JSON.parse(q.content))
-            return (<div dangerouslySetInnerHTML={{ __html: stateToHTML(contentState) }} ></div>)
+            return (<div key={q._id} dangerouslySetInnerHTML={{ __html: stateToHTML(contentState) }} ></div>)
           })
         }
 

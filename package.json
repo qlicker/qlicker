@@ -6,8 +6,8 @@
     "lint": "node_modules/.bin/standard",
     "fix": "node_modules/.bin/standard --fix",
     "test:app-watch": "meteor test --full-app --driver-package practicalmeteor:mocha",
-    "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html'",
-    "test:unit-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html'",
+    "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html' --xunit-out $CIRCLE_TEST_REPORTS/test-results.xml",
+    "test:unit-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html' --xunit-out $CIRCLE_TEST_REPORTS/test-results.xml",
     "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
     "react-dom": "^15.4.1",
     "react-draft-wysiwyg": "^1.7.3",
     "react-mounter": "^1.2.0",
+    "react-tag-input": "^4.6.2",
     "react-tools": "^0.13.3",
     "syntastic-react": "^1.0.3",
     "underscore": "^1.8.3"

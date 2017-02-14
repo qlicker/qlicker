@@ -1,5 +1,16 @@
 
-.small-editor-wrapper {  
+.answer-no-wysiwyg {
+  font-size: 130%;
+  font-weight: bold;
+  background: #eee;
+  padding: 10px;
+  text-align: center;
+}
+
+.small-editor-wrapper {
+  padding-top: 10px;
+  padding-bottom: 10px;
+
   span.answer-option {
     margin-bottom: 0;
     margin-top: 6px; 
@@ -16,12 +27,21 @@
 }
 
 .editor-wrapper {
-  border: 1px solid #333;
-  padding: 0px 0px;
+  background: #eee;
+
+  .rdw-block-dropdown {
+    max-width: 72px;
+  } 
+  .rdw-fontfamily-dropdown {
+    max-width: 100px;
+  }
 
   .home-editor {
     .public-DraftStyleDefault-block {
-      margin: 0.3em 0;
+      margin: 0 0;
+    }
+    h2 {
+      margin-bottom: 10px;
     }
   }
 
@@ -46,4 +66,12 @@
   .rdw-inline-dropdown, .rdw-fontsize-dropdown, .rdw-list-dropdown, .rdw-text-align-dropdown {
     width: 37px;
   }
+  .home-toolbar {
+    padding-top: 0px;
+    > div {
+      margin-bottom: 0;
+   }
+  }
+
 }
+
