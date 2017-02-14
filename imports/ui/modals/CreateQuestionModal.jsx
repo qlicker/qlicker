@@ -42,8 +42,8 @@ export class CreateQuestionModal extends ControlledForm {
     this.addAnswer = this.addAnswer.bind(this)
     this.setAnswerState = this.setAnswerState.bind(this)
     this.markCorrect = this.markCorrect.bind(this)
-    this.handleDelete = this.handleDelete.bind(this)
-    this.handleAddition = this.handleAddition.bind(this)
+    this.deleteTag = this.deleteTag.bind(this)
+    this.addTag = this.addTag.bind(this)
     this.handleDrag = this.handleDrag.bind(this)
     this.changeType = this.changeType.bind(this)
 
@@ -55,6 +55,13 @@ export class CreateQuestionModal extends ControlledForm {
     // default to header style for question
     const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h2>&nbsp; ?</h2>').contentBlocks)
     this.state.content = EditorState.createWithContent(initialQuestionState)
+
+    this.tagSuggestions = []
+    Meteor.call('questions.possibleTags', (e, tags) => {
+      // non-critical, if e: silently fail
+      this.tagSuggestions = tags
+      this.forceUpdate()
+    })
   }
 
   /**
@@ -97,20 +104,20 @@ export class CreateQuestionModal extends ControlledForm {
   }
 
   /**
-   * handleDelete (Int: i)
+   * deleteTag (Int: i)
    * remove tag from state
    */
-  handleDelete (i) {
+  deleteTag (i) {
       let tags = this.state.tags;
       tags.splice(i, 1);
       this.setState({tags: tags});
   }
 
   /**
-   * handleAddition (String: tag)
+   * addTag (String: tag)
    * add tag to state
    */
-  handleAddition (tag) {
+  addTag (tag) {
       let tags = this.state.tags;
       tags.push({
           id: tags.length + 1,
@@ -178,6 +185,9 @@ export class CreateQuestionModal extends ControlledForm {
    */
   done (e) {
     this.refs.questionForm.reset()
+    _(this.state.tags.length + 1).times((i) => {
+      this.deleteTag(i-1)
+    })
     this.setState(_.extend({}, DEFAULT_STATE))
     this.currentAnswer = 0
     super.done()
@@ -192,6 +202,7 @@ export class CreateQuestionModal extends ControlledForm {
 
     let question = _.extend({}, this.state)
     question.courseId = this.props.courseId
+    console.log(question)
 
     if (Meteor.isTest) {
       this.props.done(question)
@@ -207,16 +218,21 @@ export class CreateQuestionModal extends ControlledForm {
     question.content = JSON.stringify(convertToRaw(contentState))
     question.question = contentState.getPlainText()
 
-    question.answers.forEach((a) => {
-      if (a.wysiwyg) {
-        const contentState = a.content.getCurrentContent()
-        a.content = JSON.stringify(convertToRaw(contentState))  
+    question.answers = []
+    this.state.answers.forEach((a) => {
+      let copy = _.extend({}, a)
+      if (copy.wysiwyg) {
+        const contentState = copy.content.getCurrentContent()
+        copy.content = JSON.stringify(convertToRaw(contentState))  
       }
+      question.answers.push(copy)
     })
 
     Meteor.call('questions.insert', question, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else {
+      if (error) {
+        alertify.error('Error: ' + error.error)
+
+      } else {
         alertify.success('Question Added')
         this.done()
       }
@@ -318,10 +334,10 @@ export class CreateQuestionModal extends ControlledForm {
                 <div className="col-md-8">{ newEditor(this.state.content, this.onEditorStateChange) }</div>
                 <div className="col-md-4">
                   <h3>Tags</h3>
-                    <ReactTags tags={this.state.tags}
-                      suggestions={['hello', 'wut']}
-                      handleDelete={this.handleDelete}
-                      handleAddition={this.handleAddition}
+                    <ReactTags ref='tagInput' tags={this.state.tags}
+                      suggestions={this.tagSuggestions}
+                      handleDelete={this.deleteTag}
+                      handleAddition={this.addTag}
                       handleDrag={this.handleDrag} />
                 </div>
               </div>

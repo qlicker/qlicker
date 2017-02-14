@@ -96,7 +96,7 @@ export class LoginBox extends Component {
 
         <input className='form-control' type='text' data-name='email' onChange={this.setValue.bind(this)} placeholder='Email' /><br />
         <input className='form-control' type='password' data-name='password' onChange={this.setValue.bind(this)} placeholder='Password' /><br />
-        { !this.state.login ? <div><input type='password' data-name='password_verify' onChange={this.setValue.bind(this)} placeholder='Retype Password' /> </div> : ''}
+        { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue.bind(this)} placeholder='Retype Password' /> </div> : ''}
 
         { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
         { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}

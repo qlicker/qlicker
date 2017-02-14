@@ -18,19 +18,19 @@ import Helpers from './helpers.js'
 const questionPattern = {
   _id: Match.Maybe(Helpers.MongoID),
   question: Helpers.NEString, // plain text version of question
-  type: Helpers.QuestionType, 
+  type: Helpers.QuestionType,
   content: Helpers.NEString, // drafts.js display content
-  answers: [ { 
-    wysiwyg: Boolean, 
-    correct: Boolean, 
-    answer: Helpers.NEString, 
+  answers: [ {
+    wysiwyg: Boolean,
+    correct: Boolean,
+    answer: Helpers.NEString,
     content: Match.Maybe(Helpers.NEString)
-  } ], // List of multi choice { display: "A", content: editor content }
+  } ],
   submittedBy: Helpers.MongoID,
   courseId: Helpers.MongoID,
   public: Boolean,
   createdAt: Date,
-  tags: [ Match.Maybe(Helpers.NEString) ]
+  tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ]
 }
 
 // Create Question class
@@ -98,13 +98,13 @@ Meteor.methods({
     if (user.hasGreaterRole('professor')) {
       const courses = Courses.find({ owner: Meteor.userId() }).fetch()
       courses.forEach(c => {
-        tags.push(c.courseCode())
+        tags.push(c.courseCode().toUpperCase())
       })
     } else {
       const coursesArray = user.profile.courses || []
       const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
       courses.forEach(c => {
-        tags.push(c.courseCode())
+        tags.push(c.courseCode().toUpperCase())
       })
     }
 
