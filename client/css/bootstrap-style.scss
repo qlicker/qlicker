@@ -1,0 +1,235 @@
+/* Custom page CSS */
+// Variables
+$main-text: #212121;
+$blue: #2FB0E8;
+$background: #F3F3F4;
+$hover-color: #676A6C;
+$inactive-color: #989898;
+$font-stack: "Avenir", Helvetica, Arial, sans-serif;
+
+// Mixins
+@mixin respond-to($media) {
+  @if $media == 767px {
+    @media (max-width: 767px) { @content; }
+  }
+  @else if $media == 768px {
+    @media (min-width: 768px) { @content; }
+  }
+  @else if $media == 992px {
+    @media (min-width: 992px) { @content; }
+  }
+}
+
+@mixin question-bar($color) {
+  // padding & media & font size stuff for standard question
+  border: 5px solid $color;
+  color: $color;
+}
+
+// @mixin change-background($color) {
+//   background-color: $color
+// }
+
+// SCSS code
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body.bootstrap-overrides {
+  padding-top: 65px; 
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+  font-family: $font-stack;
+  font-weight: 200;
+  font-size: 12px;
+  color: $main-text;
+}
+
+.body-white {
+  background-color: #fff;
+}
+.body-grey {
+  background-color: $background;
+}
+
+
+body > .container {
+  padding: 60px 15px 0;
+}
+
+.container .text-muted {
+  margin: 20px 0;
+}
+
+#navbar {
+ background-color: #fff;
+ font-size: 15px;
+ font-weight: 500;
+}
+
+.bootstrap-overrides.navbar-brand {
+  background-color: $blue;
+  color: #fff;
+  width: 150px;
+  text-align: center;
+}
+
+.bootstrap-overrides.navbar-brand:hover {
+  background-color: $blue;
+  color: #fff;
+}
+
+.nav > li:hover {
+	background-color: $background;
+}
+
+.nav > li > a.bootstrap-overrides, .nav > li > a:hover.bootstrap-overrides {
+  color: $hover-color;
+}
+
+.nav > li > a {
+  padding: 15px 30px;
+}
+
+.nav > li.bootstrap-overrides-padding > a {
+  padding: 7.5px 30px;
+}
+
+.nav-profile {
+	width: 35px;
+	height: 35px;
+	margin-right: 10px;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+code {
+  font-size: 80%;
+}
+
+.content-section {
+	background-color: #fff;
+	box-shadow: 0px 0px 7px rgba(201, 201, 201, 0.30);
+	padding: 30px;
+	margin: 5px 30px 60px 30px;
+}
+
+.content-section-title {
+	margin: 60px 30px 0px 30px;
+	font-size: 25px;
+	padding: 10px 15px;
+}
+
+.table {
+	margin: 0;
+}
+
+tbody > tr:first-child > td {
+  border: none;
+}
+
+.bootstrap-overrides.table>tbody>tr>td {
+  padding: 20px 0px 20px 0px;
+  vertical-align: middle;
+}
+
+.flexbox-section {
+	display: flex;
+}
+
+.presentation-section {
+	height: 50px;
+	width: 100%;
+}
+
+.presentation-badge {
+  display: inline-block;
+  text-align: center;
+  border-radius: 5px;
+  padding: 3px 0;
+  width: 65px;
+  color: #fff;
+}
+
+.active-badge {
+	background-color: $blue;
+}
+
+.inactive-badge {
+  background-color: $inactive-color;
+}
+
+.presentation-title-main {
+	display: block;
+	font-weight: 500;
+}
+
+.slides-loader {
+	width: 200px;
+	height: 5px;
+	background-color: grey;
+}
+
+#presentation-title {
+  h1, h2 {
+  	font-size: 10px;
+  }
+}
+
+#presentation-completed > h2 {
+	font-size: 10px;
+}
+
+#presentation-participants > h2 {
+	font-size: 10px;
+}
+
+
+.bootstrap-overrides.navbar-brand {
+  @include respond-to(767px) {
+    z-index: -1;
+    position: absolute;
+    background-color: $blue;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.navbar > .container {
+  @include respond-to(768px) {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+  @include respond-to(992px) {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+.navbar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
+  @include respond-to(768px) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  @include respond-to(992px) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.navbar-right {
+  @include respond-to(768px) {
+    margin-right: 0;
+  }
+  @include respond-to(992px) {
+    margin-right: 0;
+  }
+}
+

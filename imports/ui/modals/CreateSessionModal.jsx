@@ -73,20 +73,28 @@ export class CreateSessionModal extends ControlledForm {
   }
 
   render () {
-    return (<div className='ui-modal-container' onClick={this.done}>
-      <div className='ui-modal ui-modal-createsession container' onClick={this.preventPropagation}>
+    return (<div className='ql-modal-container' onClick={this.done}>
+      <div className='ql-modal ql-modal-createsession container' onClick={this.preventPropagation}>
         <h2>Create Session</h2>
-        <form ref='createSessionForm' className='ui-form-createsession' onSubmit={this.handleSubmit}>
-          Name: <input type='text' data-name='name' onChange={this.setValue} placeholder='Week 2 Lecture 3' /><br />
-          Description:<br />
-          <textarea type='text' data-name='description' onChange={this.setValue} placeholder='Quiz on topic 3' /><br />
-          Format: <select data-name='quiz' onChange={this.setValue} >
+        <form ref='createSessionForm' className='ql-form-createsession' onSubmit={this.handleSubmit}>
+          <label>Name:</label>
+          <input type='text' data-name='name' className='form-control' onChange={this.setValue} placeholder='Week 2 Lecture 3' /><br />
+
+          <label>Description:</label>
+          <textarea type='text' data-name='description' className='form-control' onChange={this.setValue} placeholder='Quiz on topic 3' /><br />
+
+          <label>Format:</label>
+          <select data-name='quiz' className='form-control' onChange={this.setValue} >
             <option value='false' default>Lecture Poll</option>
             <option value='true'>Online Quiz</option>
           </select><br />
+
           { this.state.quiz ? 'Deadline: <datepicker here><br />' : '' }
-          <br/>
-          <div className='ui-buttongroup'><a className='button' onClick={this.done}>Cancel</a><input type='submit' id='submit'/></div>
+
+          <div className='ql-buttongroup'>
+            <a className='btn btn-default' onClick={this.done}>Cancel</a>
+            <input className='btn btn-default' type='submit' id='submit' />
+          </div>
         </form>
       </div>
     </div>)

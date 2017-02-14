@@ -18,7 +18,7 @@ export class LogoutButton extends Component {
   }
 
   render () {
-    return (<a href='#' className='ui-top-bar-button' onClick={this.logout.bind(this)}>Logout</a>)
+    return (<a href='#' className='ql-top-bar-button btn btn-default' onClick={this.logout.bind(this)}>Logout</a>)
   } //  end render
 
 } // end Logoutbutton

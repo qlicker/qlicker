@@ -22,7 +22,7 @@ if (Meteor.isClient) {
 
     it('should render', () => {
       const modal = shallow(<CreateCourseModal />)
-      expect(modal.find('.ui-modal-createcourse')).to.have.length(1)
+      expect(modal.find('.ql-modal-createcourse')).to.have.length(1)
       expect(modal.find('input')).to.have.length(NUM_INPUTS)
     })
 
@@ -58,7 +58,7 @@ if (Meteor.isClient) {
 
     it('should render', () => {
       const modal = shallow(<EnrollCourseModal />)
-      expect(modal.find('.ui-modal-enrollcourse')).to.have.length(1)
+      expect(modal.find('.ql-modal-enrollcourse')).to.have.length(1)
       expect(modal.find('input').length).to.equal(NUM_INPUTS)
     })
 
@@ -93,7 +93,7 @@ if (Meteor.isClient) {
 
     it('should render', () => {
       const modal = shallow(<CreateSessionModal />)
-      expect(modal.find('.ui-modal-createsession')).to.have.length(1)
+      expect(modal.find('.ql-modal-createsession')).to.have.length(1)
     })
   }) // end describe('CreateSessionModal')
 
@@ -102,7 +102,7 @@ if (Meteor.isClient) {
 
     it('should render', () => {
       const modal = shallow(<CreateQuestionModal />)
-      expect(modal.find('.ui-modal-createquestion')).to.have.length(1)
+      expect(modal.find('.ql-modal-createquestion')).to.have.length(1)
     })
   }) // end describe('CreateQuestionModal')
 }

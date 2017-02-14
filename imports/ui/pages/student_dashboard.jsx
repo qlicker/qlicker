@@ -34,9 +34,9 @@ class _StudentDashboard extends Component {
 
   render () {
     return (
-      <div className='container ui-student-page'>
+      <div className='container ql-student-page'>
         <h2>My Courses</h2>
-        <button onClick={this.promptForCode}>Enroll in Course</button>
+        <button className='btn btn-default' onClick={this.promptForCode}>Enroll in Course</button>
 
         <hr />
         <ul>

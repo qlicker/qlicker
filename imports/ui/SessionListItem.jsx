@@ -33,10 +33,14 @@ export class SessionListItem extends Component {
     const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const testAlert = () => { alert('hello') }
     return (
-      <li className='ui-session-list-item' onClick={Meteor.user().hasRole('professor') ? navigateToSession : testAlert}>
-        <span className='ui-session-name'>{ this.props.session.name }</span>
-        <span className='ui-session-status'>{ this.props.session.status } </span>
-        { Meteor.user().hasGreaterRole('professor') ? <span className='controls'><button onClick={this.deleteItem.bind(this)}>Delete</button></span> : ''}
+      <li className='ql-session-list-item' onClick={Meteor.user().hasRole('professor') ? navigateToSession : testAlert}>
+        <span className='ql-session-name'>{ this.props.session.name }</span>
+        <span className='ql-session-status'>{ this.props.session.status } </span>
+        { Meteor.user().hasGreaterRole('professor') ? 
+          <span className='controls'>
+            <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
+          </span> 
+        : ''}
       </li>)
   } //  end render
 

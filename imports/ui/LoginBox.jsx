@@ -90,18 +90,19 @@ export class LoginBox extends Component {
     const switchFormString = !this.state.login ? 'Cancel' : 'Sign Up'
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
     return (
-      <form className='ui-login-box' onSubmit={this.handleSubmit.bind(this)}>
-        { !this.state.login ? <div><input type='text' data-name='firstname' onChange={this.setValue.bind(this)} placeholder='First Name' /></div> : '' }
-        { !this.state.login ? <div><input type='text' data-name='lastname' onChange={this.setValue.bind(this)} placeholder='Last Name' /></div> : '' }
+      <form className='ql-login-box' onSubmit={this.handleSubmit.bind(this)}>
+        { !this.state.login ? <div><input className='form-control' type='text' data-name='firstname' onChange={this.setValue.bind(this)} placeholder='First Name' /></div> : '' }
+        { !this.state.login ? <div><input className='form-control' type='text' data-name='lastname' onChange={this.setValue.bind(this)} placeholder='Last Name' /></div> : '' }
 
-        <input type='text' data-name='email' onChange={this.setValue.bind(this)} placeholder='Email' /><br />
-        <input type='password' data-name='password' onChange={this.setValue.bind(this)} placeholder='Password' /><br />
+        <input className='form-control' type='text' data-name='email' onChange={this.setValue.bind(this)} placeholder='Email' /><br />
+        <input className='form-control' type='password' data-name='password' onChange={this.setValue.bind(this)} placeholder='Password' /><br />
         { !this.state.login ? <div><input type='password' data-name='password_verify' onChange={this.setValue.bind(this)} placeholder='Retype Password' /> </div> : ''}
 
-        { this.state.form_error ? <div className='ui-login-box-error-msg'>Please enter a valid email and password</div> : ''}
-        { this.state.submit_error ? <div className='ui-login-box-error-msg'>Please try again</div> : ''}
+        { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
+        { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
         <div className='spacer1'>&nbsp;</div>
-        <input type='submit' value={submitButtonString} /><button className='ui-switch-form-button' onClick={this.changeForm.bind(this)}>{switchFormString}</button>
+        <input type='submit' className='btn btn-default' value={submitButtonString} />
+        <button className='ql-switch-form-button btn btn-default' onClick={this.changeForm.bind(this)}>{switchFormString}</button>
       </form>
     )
   } //  end render
