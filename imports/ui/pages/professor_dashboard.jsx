@@ -7,11 +7,11 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { convertFromRaw } from 'draft-js'
-import { stateToHTML } from 'draft-js-export-html'
+import { DraftHelper } from '../../draft-helpers'
 
 import { CourseListItem } from '../CourseListItem'
 import { CreateCourseModal } from '../modals/CreateCourseModal'
+import { CreateQuestionModal } from '../modals/CreateQuestionModal'
 
 import { Courses } from '../../api/courses.js'
 import { Questions } from '../../api/questions'
@@ -23,10 +23,11 @@ class _ProfessorDashboard extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { creatingCourse: false }
+    this.state = { creatingCourse: false, edits: {} }
 
     this.doneCreatingCourse = this.doneCreatingCourse.bind(this)
     this.promptCreateCourse = this.promptCreateCourse.bind(this)
+    this.editQuestion = this.editQuestion.bind(this)
   }
 
   promptCreateCourse (e) {
@@ -42,7 +43,13 @@ class _ProfessorDashboard extends Component {
       <CourseListItem key={course._id} course={course} />
     ))
   }
-
+  editQuestion (questionId) {
+    const e = _({}).extend(this.state.edits[questionId])
+    e[questionId] = (questionId in this.state.edits) ? !this.state.edits[questionId] : true
+    this.setState({ 
+      edits: e
+    })
+  }
   render () {
     let courseList = <ul className='ql-courselist'>{this.renderCourseList()}</ul>
 
@@ -52,19 +59,18 @@ class _ProfessorDashboard extends Component {
         <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
 
         <hr />
-        <ul className='ql-courselist'>
-          { courseList }
-        </ul>
+        { courseList }
         
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
 
         {
           this.props.questions.map(q => {
-            const contentState = convertFromRaw(JSON.parse(q.content))
-            return (<div key={q._id} dangerouslySetInnerHTML={{ __html: stateToHTML(contentState) }} ></div>)
+            return (<div key={q._id} >
+                <div dangerouslySetInnerHTML={{ __html: DraftHelper.toHtml(q.content) }} onClick={() => this.editQuestion(q._id)}></div>
+                { this.state.edits[q._id] ? <CreateQuestionModal courseId={q.courseId} done={() => this.editQuestion(q._id)} question={q} /> : '' }
+              </div>)
           })
         }
-
 
       </div>)
   }

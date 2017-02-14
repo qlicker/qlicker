@@ -62,11 +62,13 @@ if (Meteor.isServer) {
         })
       })
 
+      it('can edit question (questions.update)')
+
       it('can get tags as prof (questions.possibleTags)', () => {
         const profUserId = createAndStubProfessor()
         Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
         const tags = Meteor.call('questions.possibleTags')
-        expect(tags).to.contain((new Course(sampleCourse)).courseCode())
+        expect(tags).to.contain((new Course(sampleCourse)).courseCode().toUpperCase())
       })
 
       it('can get tags as student (questions.possibleTags)', () => {
@@ -76,7 +78,7 @@ if (Meteor.isServer) {
           createStubs(studentUserId)
 
           const tags = Meteor.call('questions.possibleTags')
-          expect(tags).to.contain((new Course(sampleCourse)).courseCode())
+          expect(tags).to.contain((new Course(sampleCourse)).courseCode().toUpperCase())
         })
       })
 

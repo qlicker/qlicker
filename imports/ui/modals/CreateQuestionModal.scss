@@ -89,4 +89,23 @@
       }
     }
   }
+
+  .ReactTags__tags {
+    .ReactTags__tagInput {
+      position: absolute;
+      top: 0;
+      left: 0
+    }
+    .ReactTags__tagInputField {
+      padding-left: 6px;
+      text-transform: uppercase;
+    }
+    .ReactTags__suggestions > ul {
+      padding-left: 0px;
+    }
+    .ReactTags__tag {
+      margin-top: 40px;
+      text-transform: uppercase;
+    }
+  }
 } // end .ql-modal-createquestion

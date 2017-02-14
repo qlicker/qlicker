@@ -1,3 +1,7 @@
+// QLICKER
+// Author: Enoch T <me@enocht.am>
+//
+// config.js: various constants
 
 export const EDITOR_OPTIONS = {
   options: ['inline', 'fontSize', 'blockType', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'image'],
