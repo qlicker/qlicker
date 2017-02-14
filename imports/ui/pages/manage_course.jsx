@@ -71,23 +71,23 @@ class _ManageCourse extends Component {
     const toggleCreatingQuestion = () => { this.setState({ creatingQuestion: !this.state.creatingQuestion }) }
 
     return (
-      <div className='container ui-manage-course'>
+      <div className='container ql-manage-course'>
         <h2>Manage course: {this.props.course.name} </h2>
 
         <div className='row'>
-          <div className='columns six'>
+          <div className='col-md-6'>
             <h3>Course Details</h3>
-            <div className='ui-course-details'>
-              <span className='ui-course-code'>{ this.props.course.createCourseCode() } </span>
-              <span className='ui-course-semester'>{ this.props.course.semester }</span>
+            <div className='ql-course-details'>
+              <span className='ql-course-code'>{ this.props.course.createCourseCode() } </span>
+              <span className='ql-course-semester'>{ this.props.course.semester }</span>
               <br />
-              Enrollment Code: <span className='ui-enrollment-code'>{ this.props.course.enrollmentCode }</span>
+              Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
             </div>
 
             <h3>Sessions</h3>
-            <div className='ui-session-list'>
-              <button onClick={ toggleCreatingSession }>Create Session</button>
-              <button ref='createQuestionButton' onClick={toggleCreatingQuestion}>Create Question</button>
+            <div className='ql-session-list'>
+              <button className='btn btn-default' onClick={ toggleCreatingSession }>Create Session</button>
+              <button className='btn btn-default' ref='createQuestionButton' onClick={toggleCreatingQuestion}>Create Question</button>
 
 
               { this.renderSessionList() }
@@ -95,9 +95,9 @@ class _ManageCourse extends Component {
 
           </div>
 
-          <div className='columns six'>
+          <div className='col-md-6'>
             <h3>Class List</h3>
-            <div className='ui-course-classlist'>
+            <div className='ql-course-classlist'>
               { this.renderClassList() }
             </div>
           </div>

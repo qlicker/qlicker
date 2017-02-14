@@ -51,15 +51,23 @@ export class EnrollCourseModal extends ControlledForm {
   }
 
   render () {
-    return (<div className='ui-modal-container' onClick={this.done}>
-      <div className='ui-modal ui-modal-enrollcourse container' onClick={this.preventPropagation}>
+    return (<div className='ql-modal-container' onClick={this.done}>
+      <div className='ql-modal ql-modal-enrollcourse container' onClick={this.preventPropagation}>
         <h2>Enroll In Course</h2>
-        <form ref='enrollCourseForm' className='ui-form-enrollcourse' onSubmit={this.handleSubmit}>
-          Department Code: <input type='text' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
-          Course Number: <input type='text' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
-          Enrollment Code: <input type='text' data-name='enrollmentCode' onChange={this.setValue} placeholder='TCDHLZ' /><br />
-          <br/>
-          <div className='ui-buttongroup'><a className ='button' onClick={this.done}>Cancel</a><input type='submit' id='submit'/></div>
+        <form ref='enrollCourseForm' className='ql-form-enrollcourse' onSubmit={this.handleSubmit}>
+          <label>Department Code:</label>
+          <input type='text' className='form-control' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
+
+          <label>Course Number:</label>
+          <input type='text' className='form-control' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
+
+          <label>Enrollment Code:</label>
+          <input type='text' className='form-control' data-name='enrollmentCode' onChange={this.setValue} placeholder='TCDHLZ' /><br />
+
+          <div className='ql-buttongroup'>
+            <a className='btn btn-default' onClick={this.done}>Cancel</a>
+            <input className='btn btn-default' type='submit' id='submit' />
+          </div>
         </form>
       </div>
     </div>)

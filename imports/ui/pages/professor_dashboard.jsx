@@ -44,15 +44,15 @@ class _ProfessorDashboard extends Component {
   }
 
   render () {
-    let courseList = <ul className='ui-courselist'>{this.renderCourseList()}</ul>
+    let courseList = <ul className='ql-courselist'>{this.renderCourseList()}</ul>
 
     return (
-      <div className='container ui-professor-page'>
+      <div className='container ql-professor-page'>
         <h2>My Courses</h2>
-        <button onClick={this.promptCreateCourse}>Create Course</button>
+        <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
 
         <hr />
-        <ul className='ui-courselist'>
+        <ul className='ql-courselist'>
           { courseList }
         </ul>
         

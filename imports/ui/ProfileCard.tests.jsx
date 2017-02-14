@@ -14,5 +14,6 @@
 if (Meteor.isClient) {
   describe('<ProfileCard />', () => {
     // TODO interaction tests
+    it('should render')
   }) // end describe('<ProfileCard />')
 }

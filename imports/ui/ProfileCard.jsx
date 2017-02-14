@@ -22,18 +22,18 @@ export class ProfileCard extends Component {
   }
 
   mouseOver () {
-    ReactDOM.findDOMNode(this.refs.profile_expanded).className = 'ui-profile-card-expanded show'
+    ReactDOM.findDOMNode(this.refs.profile_expanded).className = 'ql-profile-card-expanded show'
   }
 
   mouseOut () {
-    ReactDOM.findDOMNode(this.refs.profile_expanded).className = 'ui-profile-card-expanded'
+    ReactDOM.findDOMNode(this.refs.profile_expanded).className = 'ql-profile-card-expanded'
   }
 
   render () {
     const name = this.user.profile.firstname + ' ' + this.user.profile.lastname
-    return (<div className='ui-profile-card'>
+    return (<div className='ql-profile-card'>
         <a href='#' onMouseOver={this.mouseOver} onMouseOut={this.mouseOut}>{ name }</a>
-        <div className='ui-profile-card-expanded' ref='profile_expanded'>
+        <div className='ql-profile-card-expanded' ref='profile_expanded'>
           Name: { name }<br />
           Email: { this.user.emails[0].address }<br />
           Roles: { this.user.profile.roles }

@@ -35,13 +35,17 @@ export class CourseListItem extends Component {
     let r
     // TODO: extract course string display to helper
     r = (
-      <li className='ui-course-list-item' onClick={this.navigateToCourse}>
-        <span className='ui-course-name'>{ this.props.course.name }</span>
+      <li className='ql-course-list-item' onClick={this.navigateToCourse}>
+        <span className='ql-course-name'>{ this.props.course.name }</span>
 
-        <span className='ui-course-code'>{ this.props.course.createCourseCode() } </span>
-        <span className='ui-course-semester'>{ this.props.course.semester }</span>
+        <span className='ql-course-code'>{ this.props.course.createCourseCode() } </span>
+        <span className='ql-course-semester'>{ this.props.course.semester }</span>
 
-        { Meteor.user().hasGreaterRole('professor') ? <span className='controls'><button onClick={this.deleteItem.bind(this)}>Delete</button></span> : ''}
+        { Meteor.user().hasGreaterRole('professor') ? 
+          <span className='controls'>
+            <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
+          </span> 
+        : ''}
       </li>)
 
     return r

@@ -37,7 +37,7 @@ class _Course extends Component {
   render () {
     console.log(this.props.sessions)
     return (
-      <div className='container ui-manage-course'>
+      <div className='container ql-manage-course'>
         <h2>Course: {this.props.course.name} </h2>
         { JSON.stringify(this.props.course) }
         { this.renderSessionList() }

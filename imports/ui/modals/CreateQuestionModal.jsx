@@ -281,7 +281,7 @@ export class CreateQuestionModal extends ControlledForm {
           <span className={ a.answer === 'TRUE' ? 'correct-color' : 'incorrect-color' }>{ a.answer }</span>
         </div>)
 
-      return (<div className='six columns small-editor-wrapper' key={'answer_' + a.answer}>
+      return (<div className='col-md-6 small-editor-wrapper' key={'answer_' + a.answer}>
         { !a.wysiwyg ? noWysiwygAnswer : wysiwygAnswer }
       </div>)
     }
@@ -298,21 +298,25 @@ export class CreateQuestionModal extends ControlledForm {
         </div>)
     }
 
-    return (<div className='ui-modal-container' onClick={this.done}>
-          <div className='ui-modal ui-modal-createquestion container' onClick={this.preventPropagation}>
-            <div className='ui-modal-header'>
+    return (<div className='ql-modal-container' onClick={this.done}>
+          <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
+            <div className='ql-modal-header'>
               <h2>Add a Question</h2>
-              <select onChange={this.changeType} className='ui-header-button'>
+              <select onChange={this.changeType} className='ql-header-button question-type form-control'>
                 <option value='MC'>Multiple Choice</option>
                 <option value='TF'>True / False</option>
                 <option value='SA'>Short Answer</option>
               </select>
-              { this.state.type === QUESTION_TYPE.MC ? <button className='ui-header-button' onClick={this.addAnswer}>Add Answer</button> : '' }
+              { this.state.type === QUESTION_TYPE.MC ? 
+                <button className='ql-header-button btn btn-default' onClick={this.addAnswer}>Add Answer</button> 
+                : '' }
+
             </div>
-            <form ref='questionForm' className='ui-form-question' onSubmit={this.handleSubmit}>
+
+            <form ref='questionForm' className='ql-form-question' onSubmit={this.handleSubmit}>
               <div className="row">
-                <div className="columns eight">{ newEditor(this.state.content, this.onEditorStateChange) }</div>
-                <div className="columns four">
+                <div className="col-md-8">{ newEditor(this.state.content, this.onEditorStateChange) }</div>
+                <div className="col-md-4">
                   <h3>Tags</h3>
                     <ReactTags tags={this.state.tags}
                       suggestions={['hello', 'wut']}
@@ -321,10 +325,15 @@ export class CreateQuestionModal extends ControlledForm {
                       handleDrag={this.handleDrag} />
                 </div>
               </div>
+              
               { editorRows }
-              <br/>
-              <div className='ui-buttongroup'><a className ='button' onClick={this.done}>Cancel</a><input type='submit' id='submit'/></div>
+
+              <div className='ql-buttongroup'>
+                <a className='btn btn-default' onClick={this.done}>Cancel</a>
+                <input className='btn btn-default' type='submit' id='submit' />
+              </div>
             </form>
+
           </div>
         </div>)
   } //  end render
