@@ -17,6 +17,10 @@ import { PageContainer } from '../../ui/pages/page_container'
 Router.configure({
   loadingTemplate: 'loading'
 })
+Router.onBeforeAction(function () {
+  this.render('blank') // workaround for mounting react without blaze template
+  this.next()
+})
 
 Router.route('/', function () {
   mount(AppLayout, { content: <Homepage /> })
@@ -30,10 +34,22 @@ Router.route('/login', function () {
   name: 'login'
 })
 
-Router.onBeforeAction(function () {
-  this.render('blank') // workaround for mounting react without blaze template
-  this.next()
+Router.route('/profile', {
+  name: 'profile',
+  waitOn: function () {
+    return Meteor.subscribe('userData')
+  },
+  action: function () {
+    let user = Meteor.user()
+    if (user) {
+      // mount(AppLayout, { content: <PageContainer user={user}> <ProfilePage userId={user._id}/> </PageContainer> })
+      // TODO
+      mount(AppLayout, { content: <div>Hello</div> })
+    } else Router.go('login')
+  }
 })
+
+
 
 // Admin routes
 import { AdminDashboard } from '../../ui/pages/admin_dashboard'
@@ -45,7 +61,7 @@ Router.route('/admin', {
   action: function () {
     let user = Meteor.user()
     if (user.hasRole('admin')) {
-      mount(AppLayout, { content: <PageContainer> <AdminDashboard /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user}> <AdminDashboard /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -56,12 +72,13 @@ import { ProfessorDashboard } from '../../ui/pages/professor_dashboard'
 Router.route('/manage', {
   name: 'professor',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData')
   },
   action: function () {
     let user = Meteor.user()
     if (user.hasRole('professor')) {
-      mount(AppLayout, { content: <PageContainer> <ProfessorDashboard /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user}> <ProfessorDashboard /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -75,8 +92,9 @@ Router.route('/student', {
     return Meteor.subscribe('userData')
   },
   action: function () {
-    if (Meteor.user().hasGreaterRole('student')) {
-      mount(AppLayout, { content: <PageContainer> <StudentDashboard /> </PageContainer> })
+    let user = Meteor.user()
+    if (user.hasGreaterRole('student')) {
+      mount(AppLayout, { content: <PageContainer user={user}> <StudentDashboard /> </PageContainer> })
     } else Router.go('login')
   }
 })

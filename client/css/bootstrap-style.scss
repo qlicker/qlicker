@@ -75,9 +75,11 @@ body > .container {
   text-align: center;
 }
 
-.bootstrap-overrides.navbar-brand:hover {
-  background-color: $blue;
-  color: #fff;
+.bootstrap-overrides.navbar-brand {
+  &:hover, &:active, &:focus {
+    background-color: $blue;
+    color: #fff;
+  } 
 }
 
 .nav > li:hover {

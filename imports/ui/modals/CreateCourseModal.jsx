@@ -69,7 +69,7 @@ export class CreateCourseModal extends ControlledForm {
             <input type='text' className='form-control' data-name='name' onChange={this.setValue} placeholder='Information Technology Project (2016-17)' /><br />
             
             <label>Department Code:</label>
-            <input type='text' className='form-control' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
+            <input type='text' className='form-control uppercase' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
             
             <label>Course Number:</label>
             <input type='text' className='form-control' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />

@@ -32,19 +32,33 @@ const waitForSubscriptions = () => new Promise(resolve => {
 //   (such as a route change) have occured. This makes it a promise.
 const afterFlushPromise = denodeify(Tracker.afterFlush)
 
+const triggerChange = (id, value) => {
+  const element = document.getElementById(id)
+  element.value = value
+  element.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
 if (Meteor.isClient) {
-  describe('routes', () => {
-    beforeEach(() => {
+  describe('routes', function () {
+    this.timeout(2500)
+
+    before((done) => {
+      Router.go('/')
+      generateData()
+        .then(waitForSubscriptions)
+        .then(done)
+    })
+
+    beforeEach((done) => {
       // First, ensure the data that we expect is loaded on the server
       //   Then, route the app to the homepage
       Meteor.logout()
-      generateData()
-        .then(() => Router.go('/'))
-        .then(waitForSubscriptions)
+      // generateData().then(done)
+      done()
     })
 
     describe('when logged out', () => {
-      it('no data available', () => {
+      it('should have no data available', (done) => {
         const courses = Courses.find({}).fetch()
         const sessions = Sessions.find({}).fetch()
         const users = Meteor.users.find({}).fetch()
@@ -57,8 +71,66 @@ if (Meteor.isClient) {
             expect(sessions).to.have.length(0)
             expect(users).to.have.length(0)
             expect(questions).to.have.length(0)
+            done()
           })
       })
     })
-  })
+
+    describe('student logged in', () => {
+      before((done) => {
+        Meteor.logout(() => {
+          Router.go('/')
+          afterFlushPromise().then(done)
+        })
+      })
+
+      it('should redirect to student dashboard', () => {
+        Router.go('/login')
+
+        return afterFlushPromise()
+          .then(waitForSubscriptions)
+          .then(() => {
+            triggerChange('emailField', 'student@email.com')
+            triggerChange('passwordField', 'p3ssw0rd')
+
+            $('#submitButton').click()
+          })
+          .then(waitForSubscriptions)
+          .then(() => {
+            expect(Router.current().route.getName()).to.equal('student')
+          })
+      })
+    })
+
+    describe('professor logged in', () => {
+      before((done) => {
+        Meteor.logout(() => {
+          Router.go('/')
+          afterFlushPromise().then(done)
+        })
+      })
+
+      it('should redirect to professor dashboard', () => {
+        Router.go('/login')
+
+        return afterFlushPromise()
+          .then(waitForSubscriptions)
+          .then(() => {
+            triggerChange('emailField', 'professor@email.com')
+            triggerChange('passwordField', 'p3ssw0rd')
+
+            $('#submitButton').click()
+          })
+          .then(waitForSubscriptions)
+          .then(() => {
+            expect(Router.current().route.getName()).to.equal('professor')
+          })
+      })
+
+      it('can create course')
+      it('can delete course')
+      it('can create question')
+      it('can create session and add question')
+    }) // end describe('logged in'
+  }) // end describe('routes'
 }

@@ -26,11 +26,14 @@ export class LoginBox extends Component {
   constructor (props) {
     super(props)
     this.state = _.extend({}, DEFAULT_STATE)
+
+    this.setValue = this.setValue.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.changeForm = this.changeForm.bind(this)
   }
 
   handleSubmit (e) {
     e.preventDefault()
-
     // check if email is an email
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ // eslint-disable-line 
     if (!re.test(this.state.email)) {
@@ -90,19 +93,19 @@ export class LoginBox extends Component {
     const switchFormString = !this.state.login ? 'Cancel' : 'Sign Up'
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
     return (
-      <form className='ql-login-box' onSubmit={this.handleSubmit.bind(this)}>
-        { !this.state.login ? <div><input className='form-control' type='text' data-name='firstname' onChange={this.setValue.bind(this)} placeholder='First Name' /></div> : '' }
-        { !this.state.login ? <div><input className='form-control' type='text' data-name='lastname' onChange={this.setValue.bind(this)} placeholder='Last Name' /></div> : '' }
+      <form className='ql-login-box' onSubmit={this.handleSubmit}>
+        { !this.state.login ? <div><input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' /></div> : '' }
+        { !this.state.login ? <div><input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' /></div> : '' }
 
-        <input className='form-control' type='text' data-name='email' onChange={this.setValue.bind(this)} placeholder='Email' /><br />
-        <input className='form-control' type='password' data-name='password' onChange={this.setValue.bind(this)} placeholder='Password' /><br />
-        { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue.bind(this)} placeholder='Retype Password' /> </div> : ''}
+        <input className='form-control' id='emailField' type='text' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
+        <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
+        { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /> </div> : ''}
 
         { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
         { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
         <div className='spacer1'>&nbsp;</div>
-        <input type='submit' className='btn btn-default' value={submitButtonString} />
-        <button className='ql-switch-form-button btn btn-default' onClick={this.changeForm.bind(this)}>{switchFormString}</button>
+        <input type='submit' id='submitButton' className='btn btn-default' value={submitButtonString} />
+        <button className='ql-switch-form-button btn btn-default' onClick={this.changeForm}>{switchFormString}</button>
       </form>
     )
   } //  end render
