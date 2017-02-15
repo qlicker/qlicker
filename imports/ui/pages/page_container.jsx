@@ -48,7 +48,7 @@ class _PageContainer extends Component {
                     <li className='dropdown-header'>My Active Courses</li>
                     {
                       this.props.courses.map((c) => {
-                        return (<li><a className='uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
+                        return (<li key={c._id}><a className='uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
                       })
                     }
                   </ul>

@@ -12,7 +12,6 @@ import { DraftHelper } from '../../draft-helpers'
 
 import { CreateQuestionModal } from '../modals/CreateQuestionModal'
 
-import { Courses } from '../../api/courses.js'
 import { Questions } from '../../api/questions'
 
 // if (Meteor.isClient) import './.scss'
@@ -38,17 +37,19 @@ class _ManageQuestions extends Component {
     return (
       <div className='container ql-professor-page'>
         <h1>Question Management</h1>
-        { /* session list goes here */ }
+
+        <button className='btn btn-default' onClick={() => this.editQuestion(-1)}>New Question</button>
 
         { /* list questions */
           this.props.questions.map(q => {
             return (<div key={q._id} >
               <div dangerouslySetInnerHTML={{ __html: DraftHelper.toHtml(q.content) }} onClick={() => this.editQuestion(q._id)} />
-              { this.state.edits[q._id] ? <CreateQuestionModal courseId={q.courseId} done={() => this.editQuestion(q._id)} question={q} /> : '' }
+              { this.state.edits[q._id] ? <CreateQuestionModal done={() => this.editQuestion(q._id)} question={q} /> : '' }
             </div>)
           })
         }
 
+        { this.state.edits[-1] ? <CreateQuestionModal done={() => this.editQuestion(-1)} /> : '' }
       </div>)
   }
 

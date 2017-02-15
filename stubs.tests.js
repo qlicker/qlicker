@@ -10,7 +10,6 @@ function stubUser (currentUserId) {
   sinon.stub(Meteor, 'userId', () => currentUserId)
   sinon.stub(Meteor, 'user', () => Meteor.users.findOne({ _id: currentUserId }))
   // }
-  console.log('Stub user check:', Meteor.userId())
 }
 
 function restoreUser () {
@@ -22,7 +21,6 @@ function restoreUser () {
 // adding a method like this!
 Meteor.methods({
   stub (currentUser) {
-    console.log('Stubbing on server', currentUser)
     stubUser(currentUser)
   },
   restore () {

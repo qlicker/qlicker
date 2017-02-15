@@ -33,7 +33,6 @@ export const DEFAULT_STATE = {
   answers: [], // { correct: false, answer: 'A', content: editor content }
   submittedBy: '',
   createdAt: null,
-  sessionId: null,
   tags: []
 }
 
@@ -383,7 +382,4 @@ export class CreateQuestionModal extends ControlledForm {
 
 } // end CreateQuestionModal
 
-CreateQuestionModal.propTypes = {
-  sessionId: PropTypes.string.optional
-}
 

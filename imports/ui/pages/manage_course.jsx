@@ -23,7 +23,7 @@ class _ManageCourse extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { creatingSession: false, creatingQuestion: false, }
+    this.state = { creatingSession: false }
     this.courseId = this.props.courseId
 
     this.sessions = {}
@@ -68,14 +68,14 @@ class _ManageCourse extends Component {
 
   render () {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
-    const toggleCreatingQuestion = () => { this.setState({ creatingQuestion: !this.state.creatingQuestion }) }
 
     return (
       <div className='container ql-manage-course'>
-        <h2>Manage course: {this.props.course.name} </h2>
+        <h2>{this.props.course.name} </h2>
 
         <div className='row'>
           <div className='col-md-6'>
+            <br/>
             <h3>Course Details</h3>
             <div className='ql-course-details'>
               <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
@@ -83,11 +83,11 @@ class _ManageCourse extends Component {
               <br />
               Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
             </div>
-
+            
+            <br/>
             <h3>Sessions</h3>
             <div className='ql-session-list'>
               <button className='btn btn-default' onClick={ toggleCreatingSession }>Create Session</button>
-              <button className='btn btn-default' onClick={ toggleCreatingQuestion }>Create Question</button>
 
               { this.renderSessionList() }
             </div>
@@ -95,6 +95,7 @@ class _ManageCourse extends Component {
           </div>
 
           <div className='col-md-6'>
+            <br/>
             <h3>Class List</h3>
             <div className='ql-course-classlist'>
               { this.renderClassList() }
@@ -106,10 +107,6 @@ class _ManageCourse extends Component {
         { this.state.creatingSession ? 
           <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} /> 
           : '' }
-        { this.state.creatingQuestion ? 
-          <CreateQuestionModal courseId={this.courseId} done={toggleCreatingQuestion} /> 
-          : '' }
-
       </div>)
   }
 

@@ -45,7 +45,7 @@ class _ManageCourses extends Component {
 
     return (
       <div className='container ql-professor-page'>
-        <h2>Courses</h2>
+        <h1>Courses</h1>
         <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
         { courseList }
 

@@ -115,7 +115,8 @@ Meteor.methods({
     question.courseId = session.courseId
 
     const copiedQuestionId = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
-    return Meteor.call('sessions.addQuestion', sessionId, copiedQuestionId)
+    Meteor.call('sessions.addQuestion', sessionId, copiedQuestionId)
+    return copiedQuestionId
   },
 
   'questions.possibleTags' () {
@@ -140,7 +141,7 @@ Meteor.methods({
 
   'questions.addTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    profHasCoursePermission(q.courseId)
+    if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $addToSet: { tags: tag }
@@ -149,7 +150,7 @@ Meteor.methods({
 
   'questions.removeTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    profHasCoursePermission(q.courseId)
+    if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $pull: { tags: tag }

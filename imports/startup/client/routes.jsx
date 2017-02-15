@@ -42,9 +42,8 @@ Router.route('/profile', {
   action: function () {
     let user = Meteor.user()
     if (user) {
-      // mount(AppLayout, { content: <PageContainer user={user}> <ProfilePage userId={user._id}/> </PageContainer> })
-      // TODO
-      mount(AppLayout, { content: <div>Hello</div> })
+      mount(AppLayout, { content: <PageContainer user={user}> {user.getName()} </PageContainer> })
+      // TODO <ProfilePage userId={user._id}/>
     } else Router.go('login')
   }
 })
