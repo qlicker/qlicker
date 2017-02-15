@@ -16,6 +16,26 @@ import { denodeify } from '../utils/denodeify'
 Meteor.methods({
   generateFixtures () {
     resetDatabase()
+
+    Accounts.createUser({
+      email: 'student@email.com',
+      password: 'p3ssw0rd',
+      profile: {
+        firstname: 'John',
+        lastname: 'Student',
+        roles: ['student']
+      }
+    })
+
+    Accounts.createUser({
+      email: 'professor@email.com',
+      password: 'p3ssw0rd',
+      profile: {
+        firstname: 'John',
+        lastname: 'Professor',
+        roles: ['professor']
+      }
+    })
   }
 })
 
