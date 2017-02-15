@@ -6,9 +6,10 @@
     "lint": "node_modules/.bin/standard",
     "fix": "node_modules/.bin/standard --fix",
     "test:app-watch": "meteor test --full-app --driver-package practicalmeteor:mocha",
-    "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html' --xunit-out $CIRCLE_TEST_REPORTS/test-results.xml",
-    "test:unit-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html' --xunit-out $CIRCLE_TEST_REPORTS/test-results.xml",
-    "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha"
+    "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html in_coverage' --xunit-out $CIRCLE_TEST_REPORTS/full-app-results.xml",
+    "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha",
+    "test:unit-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html' --xunit-out $CIRCLE_TEST_REPORTS/unit-results.xml",
+    "test:all": "npm run test:unit-coverage && npm run test:app-coverage"
   },
   "dependencies": {
     "babel-eslint": "^7.1.1",
