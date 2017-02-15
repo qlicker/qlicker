@@ -96,7 +96,7 @@ class _ManageSession extends Component {
         </form>
       
         <h3>Questions</h3>
-        <button className='btn btn-default' ref='addQuestionButton' >Add Question</button>
+        <button className='btn btn-default' ref='addQuestionButton' onClick={this.addQuestion}>Add Question</button>
         
       </div>)
   }

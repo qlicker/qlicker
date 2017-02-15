@@ -8,21 +8,19 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
-import { DraftHelper } from '../../draft-helpers'
-
 import { CourseListItem } from '../CourseListItem'
 import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
 
-if (Meteor.isClient) import './professor_dashboard.scss'
+// if (Meteor.isClient) import './.scss'
 
-class _ProfessorDashboard extends Component {
+class _ManageCourses extends Component {
 
   constructor (props) {
     super(props)
 
-    this.state = { creatingCourse: false, edits: {} }
+    this.state = { creatingCourse: false }
 
     this.doneCreatingCourse = this.doneCreatingCourse.bind(this)
     this.promptCreateCourse = this.promptCreateCourse.bind(this)
@@ -47,30 +45,22 @@ class _ProfessorDashboard extends Component {
 
     return (
       <div className='container ql-professor-page'>
-        <h1>Welcome to Qlicker</h1>
-
-        <hr />
-        <h2>Active Courses</h2>
+        <h2>Courses</h2>
         <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
         { courseList }
-        
-        <hr />
-        <h2>Upcoming Sessions</h2>
-        session list here
 
-        {/* modals */}
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
       </div>)
   }
 
 }
 
-export const ProfessorDashboard = createContainer(() => {
+export const ManageCourses = createContainer(() => {
   const handle = Meteor.subscribe('courses')
 
   return {
     courses: Courses.find({ owner: Meteor.userId() }).fetch(),
     loading: !handle.ready()
   }
-}, _ProfessorDashboard)
+}, _ManageCourses)
 

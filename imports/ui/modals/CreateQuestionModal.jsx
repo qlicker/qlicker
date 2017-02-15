@@ -33,7 +33,7 @@ export const DEFAULT_STATE = {
   answers: [], // { correct: false, answer: 'A', content: editor content }
   submittedBy: '',
   createdAt: null,
-  courseId: null,
+  sessionId: null,
   tags: []
 }
 
@@ -226,7 +226,6 @@ export class CreateQuestionModal extends ControlledForm {
     super.handleSubmit(e)
     
     let question = _.extend({}, this.state)
-    question.courseId = this.props.courseId
 
     if (Meteor.isTest) {
       this.props.done(question)
@@ -385,6 +384,6 @@ export class CreateQuestionModal extends ControlledForm {
 } // end CreateQuestionModal
 
 CreateQuestionModal.propTypes = {
-  courseId: PropTypes.string.isRequired
+  sessionId: PropTypes.string.optional
 }
 

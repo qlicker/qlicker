@@ -124,6 +124,9 @@ $incorrect-color: #A72526;
   }
 }
 
+.uppercase {
+  text-transform: uppercase;
+}
 
 @keyframes colorPulse {
   0% {background-color: rgba(150,150,150,0.8);}
