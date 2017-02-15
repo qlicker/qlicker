@@ -54,7 +54,7 @@ if (Meteor.isServer) {
         restoreStubs()
       })
 
-      it('can create question (questions.insert)', () => {
+      it('can create question as professor (questions.insert)', () => {
         prepQuestionAndSession((_, questionId) => {
           const questionFromDb = Questions.find({ _id: questionId }).fetch()
           expect(questionFromDb.length).to.equal(1)
@@ -62,7 +62,19 @@ if (Meteor.isServer) {
         })
       })
 
-      it('can edit question (questions.update)')
+      it('can create question as student (questions.insert)')
+
+      it('can edit question (questions.update)', () => {
+        prepQuestionAndSession((_, questionId) => {
+          const editedQuestion = Questions.findOne({ _id: questionId })
+          editedQuestion.question = 'New plain text'
+          // weak assumption: if it edits on attribute, other should work fine
+          // obvs not great testing practice
+          Meteor.call('questions.update', editedQuestion)
+          const questionToCheck = Questions.findOne({ _id: questionId })
+          expect(questionToCheck.question).to.equal(editedQuestion.question)
+        })
+      })
 
       it('can get tags as prof (questions.possibleTags)', () => {
         const profUserId = createAndStubProfessor()

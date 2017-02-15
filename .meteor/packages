@@ -29,3 +29,4 @@ practicalmeteor:mocha-console-runner
 cfs:standard-packages
 cfs:gridfs
 twbs:bootstrap
+xolvio:cleaner
