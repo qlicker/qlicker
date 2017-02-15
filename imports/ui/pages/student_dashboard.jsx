@@ -18,6 +18,7 @@ class _StudentDashboard extends Component {
 
     this.promptForCode = this.promptForCode.bind(this)
     this.closeModal = this.closeModal.bind(this)
+    this.renderCourseList = this.renderCourseList.bind(this)
   }
 
   promptForCode () {

@@ -7,6 +7,9 @@ import React, { Component } from 'react'
 
 import { ControlledForm } from './ControlledForm'
 
+// css
+if (Meteor.isClient) import './EnrollCourseModal.scss'
+
 export const DEFAULT_STATE = {
   deptCode: '',
   courseNumber: '',

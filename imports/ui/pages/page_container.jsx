@@ -10,12 +10,19 @@ import ProfileCard from '../ProfileCard'
 
 export class PageContainer extends Component {
 
-  // constructor (props) {
-  //   super(props)
-  // }
+  constructor (props) {
+    super(props)
+    this.state = {}
+    this.state.user = Meteor.user() || this.props.user
+  }
 
   render () {
-    const homePath = Router.routes[Meteor.user().profile.roles[0]].path()
+    const logout = () => {
+      Router.go('login')
+      Meteor.logout()
+    }
+
+    const homePath = Router.routes[this.state.user.profile.roles[0]].path()
     return (
       <div className='ql-page-container'>
         <nav className='navbar navbar-default navbar-fixed-top'>
@@ -49,13 +56,13 @@ export class PageContainer extends Component {
               <ul className='nav navbar-nav navbar-right'>
                 <li className='dropdown bootstrap-overrides-padding'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
-                    <img src='assets/img/persona.jpg' className='nav-profile img-circle' /> David Smith <span className='caret' />
+                    <img src='images/persona.jpg' className='nav-profile img-circle' /> { this.state.user.getName() } <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
-                    <li><a href='#'>Profile</a></li>
+                    <li><a href={Router.routes['profile'].path()}>Profile</a></li>
                     <li><a href='#'>Settings</a></li>
                     <li role='separator' className='divider' />
-                    <li><a href='#'>Logout</a></li>
+                    <li><a href='#' onClick={logout} >Logout</a></li>
                   </ul>
                 </li>
               </ul>
