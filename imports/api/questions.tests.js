@@ -36,7 +36,6 @@ export const prepQuestionAndSession = (assertion) => {
   const profUserId = createAndStubProfessor()
   const courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
   const sessionId = Meteor.call('courses.createSession', courseId, sampleSession)
-  sampleQuestion.courseId = courseId
   const questionId = Meteor.call('questions.insert', sampleQuestion)
 
   assertion(sessionId, questionId, courseId)
@@ -76,6 +75,16 @@ if (Meteor.isServer) {
         })
       })
 
+      it('can copyQuestion and add to session', () => {
+        prepQuestionAndSession((sessionId, questionId) => {
+          const copiedQuestionId = Meteor.call('question.copyToSession', questionId, sessionId)
+
+          const session = Sessions.findOne({ _id: sessionId })
+          expect(session.questions).to.have.length(1)
+          expect(session.questions).to.contain(copiedQuestionId)
+        })
+      })
+
       it('can get tags as prof (questions.possibleTags)', () => {
         const profUserId = createAndStubProfessor()
         Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
@@ -95,13 +104,13 @@ if (Meteor.isServer) {
       })
 
       it('can add/remove tag (questions .addTag, .removeTag)', () => {
-        prepQuestionAndSession((_, questionId, courseId) => {
+        prepQuestionAndSession((_, questionId) => {
           const tag = 'CISC498'
           Meteor.call('questions.addTag', questionId, tag)
           expect(Questions.findOne({ _id: questionId }).tags).to.contain(tag)
 
           Meteor.call('questions.removeTag', questionId, tag)
-          expect(Questions.findOne({ _id: questionId }).tags.length).to.equal(0)
+          expect(Questions.findOne({ _id: questionId }).tags).to.have.length(0)
         })
       })
     }) // end describe('methods')
