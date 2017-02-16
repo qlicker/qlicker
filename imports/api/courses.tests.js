@@ -138,6 +138,7 @@ if (Meteor.isServer) {
         expect(courseFromDb.enrollmentCode).to.equal(editedCourse.enrollmentCode)
       })
     })// end describe('methods')
+
     describe('course<=>user methods', () => {
       beforeEach(() => {
         restoreStubs()

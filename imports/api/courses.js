@@ -72,6 +72,10 @@ export const profHasCoursePermission = (courseId) => {
 // data methods
 Meteor.methods({
 
+  /**
+   * courses.insert(Course: course)
+   * insert new course object into Courses mongodb Collection
+   */
   'courses.insert' (course) {
     course.enrollmentCode = Helpers.RandomEnrollmentCode()
 
@@ -88,6 +92,10 @@ Meteor.methods({
     return Courses.insert(course)
   },
 
+  /**
+   * courses.delete(String (mongoid): courseId)
+   * deletes course object Courses mongodb Collection
+   */
   'courses.delete' (courseId) {
     profHasCoursePermission(courseId)
 
@@ -99,6 +107,10 @@ Meteor.methods({
     return Courses.remove({ _id: courseId })
   },
 
+  /**
+   * courses.regenerateCode(String (mongoid): courseId)
+   * generates and sets a new enrollment code for the course
+   */
   'courses.regenerateCode' (courseId) {
     profHasCoursePermission(courseId)
 
@@ -112,6 +124,10 @@ Meteor.methods({
     return Courses.find({ _id: courseId }).fetch()
   },
 
+  /**
+   * courses.checkAndEnroll(String: deptCode, String: courseNumber, String: enrollmentCode)
+   * verifies validity of code and enrolls student
+   */
   'courses.checkAndEnroll' (deptCode, courseNumber, enrollmentCode) {
     check(deptCode, Helpers.NEString)
     check(courseNumber, Helpers.NEString)
@@ -134,6 +150,10 @@ Meteor.methods({
     return false
   },
 
+  /**
+   * courses.edit(Course: course)
+   * edits and updates all valid attributes of the course
+   */
   'courses.edit' (course) {
     check(course._id, Helpers.MongoID)
     check(course, coursePattern)
@@ -154,6 +174,11 @@ Meteor.methods({
   },
 
   // course<=>user methods
+
+  /**
+   * courses.addStudent(String (mongoid): courseId, String (mongoid): studentUserId)
+   * adds a student to course
+   */
   'courses.addStudent' (courseId, studentUserId) { // TODO enforce permission
     check(courseId, Helpers.MongoID)
     check(studentUserId, Helpers.MongoID)
@@ -168,6 +193,11 @@ Meteor.methods({
       $addToSet: { students: { studentUserId: studentUserId } }
     })
   },
+
+  /**
+   * courses.removeStudent(String (mongoid): courseId, String (mongoid): studentUserId)
+   * removes a student to course
+   */
   'courses.removeStudent' (courseId, studentUserId) {
     check(courseId, Helpers.MongoID)
     check(studentUserId, Helpers.MongoID)
@@ -181,7 +211,13 @@ Meteor.methods({
       $pull: { students: { 'studentUserId': studentUserId } }
     })
   },
+
   // course<=>session methods
+
+  /**
+   * courses.createSession(String (mongoid): courseId, Session session)
+   * inserts a session into the Session collection and adds it to the course
+   */
   'courses.createSession' (courseId, session) {
     session.courseId = courseId
     const sessionId = Meteor.call('sessions.insert', session)
@@ -190,6 +226,11 @@ Meteor.methods({
     })
     return sessionId
   },
+
+  /**
+   * courses.deleteSession(String (mongoid): courseId, Session session)
+   * deletes the session from collection and removes link from course
+   */
   'courses.deleteSession' (courseId, sessionId) {
     Courses.update({ _id: courseId }, {
       $pull: { sessions: { 'sessionId': sessionId } }
