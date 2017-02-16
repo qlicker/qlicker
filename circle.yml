@@ -9,9 +9,7 @@ checkout:
 
 test:
   override:
-    - npm run test:unit-coverage:
-        parallel: true
-    - npm run test:app-coverage:
+    - case $CIRCLE_NODE_INDEX in 0) npm run test:unit-coverage ;; 1) npm run test:app-coverage ;; esac:
         parallel: true
   post:
     - ./node_modules/codecov/bin/codecov -t bcef8026-09d0-485a-a609-d3aed44d2e59
