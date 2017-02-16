@@ -243,7 +243,12 @@ export class CreateQuestionModal extends ControlledForm {
     question.answers = []
     this.state.answers.forEach((a) => {
       let copy = _.extend({}, a)
-      if (copy.wysiwyg) copy.content = DraftHelper.toJson(copy.content).json
+      if (copy.wysiwyg) {
+        const serialized = DraftHelper.toJson(copy.content)
+        copy.content = serialized.json
+        copy.plainText = serialized.plainText
+      } 
+
       question.answers.push(copy)
     })
 

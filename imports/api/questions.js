@@ -25,7 +25,8 @@ const questionPattern = {
     wysiwyg: Boolean,
     correct: Boolean,
     answer: Helpers.NEString,
-    content: Match.Maybe(Helpers.NEString)
+    content: Match.Maybe(Helpers.NEString),
+    plainText: Helpers.NEString
   } ],
   submittedBy: Helpers.MongoID,
   // null if template, questionId of original once copied to question

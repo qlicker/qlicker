@@ -71,7 +71,7 @@ class _ManageCourse extends Component {
 
     return (
       <div className='container ql-manage-course'>
-        <h2>{this.props.course.name} </h2>
+        <h2>Course: {this.props.course.name} </h2>
 
         <div className='row'>
           <div className='col-md-6'>

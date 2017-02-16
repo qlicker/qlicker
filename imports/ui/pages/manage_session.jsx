@@ -10,7 +10,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import draftToHtml from 'draftjs-to-html'
 
-import { Sessions } from '../../api/sessions.js'
+import { Sessions } from '../../api/sessions'
+import { Questions } from '../../api/questions'
+
+import { AddQuestionModal } from '../modals/AddQuestionModal'
 
 if (Meteor.isClient) import './manage_session.scss'
 
@@ -56,12 +59,15 @@ class _ManageSession extends Component {
     const startEditing = () => { 
       this.setState({ editing: true })
     }
+    const toggleAddingQuestion = () => { 
+      this.setState({ addingQuestion: !this.state.addingQuestion })
+    }
 
     const quizDate = this.state.quiz ? 'Deadline: ' + this.props.session.dueDate : ''
     const quizEdit = this.state.quiz ? 'Deadline: Date picker here' : ''
     return (
       <div className='container ql-manage-session'>
-        <h2>Manage session: { this.state.session.name } </h2>
+        <h2>Session:{ this.state.session.name } </h2>
         { !this.state.editing ? <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button> : '' }
         <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>
           Name: { this.state.editing ?
@@ -96,17 +102,33 @@ class _ManageSession extends Component {
         </form>
       
         <h3>Questions</h3>
-        <button className='btn btn-default' ref='addQuestionButton' onClick={this.addQuestion}>Add Question</button>
-        
+        <button className='btn btn-default' ref='addQuestionButton' onClick={toggleAddingQuestion}>Add Question</button>
+
+        {
+          this.props.questions.map((q) => {
+            return (q.question)
+          })
+        }
+
+        { this.state.addingQuestion ?
+          <AddQuestionModal
+            session={this.props.session}
+            questions={this.props.questionPool}
+            done={toggleAddingQuestion} />
+          : '' }
+
       </div>)
   }
 
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions')
-  let session = Sessions.find({ _id: props.sessionId }).fetch()[0]
+  const handle = Meteor.subscribe('sessions') && Meteor.subscribe('questions')
+  const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
+
   return {
+    questions: Questions.find({ _id: { $in: session.questions || [] } }),
+    questionPool: Questions.find({ }).fetch(),
     session: session,
     loading: !handle.ready()
   }

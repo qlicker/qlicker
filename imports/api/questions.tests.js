@@ -27,7 +27,7 @@ export const sampleQuestion = {
   question: 'Test question?',
   content: exContentState,
   type: QUESTION_TYPE.MC,
-  answers: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState }],
+  answers: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState, plainText: 'New Question' }],
   submittedBy: '',
   tags: []
 }

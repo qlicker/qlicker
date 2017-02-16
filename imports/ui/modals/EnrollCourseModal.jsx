@@ -76,4 +76,6 @@ export class EnrollCourseModal extends ControlledForm {
     </div>)
   } //  end render
 
-} // end CreateCourseModal
+} // end EnrollCourseModal
+
+
