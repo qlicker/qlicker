@@ -8,6 +8,8 @@ checkout:
     - git submodule update --init
 
 test:
+  override:
+    - npm run test:unit-coverage && npm run test:app-coverage
   post:
     - ./node_modules/codecov/bin/codecov -t bcef8026-09d0-485a-a609-d3aed44d2e59
 
