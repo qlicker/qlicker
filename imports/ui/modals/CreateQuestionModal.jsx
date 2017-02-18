@@ -17,10 +17,10 @@ import { ControlledForm } from './ControlledForm'
 import { QuestionImages } from '../../api/questions'
 
 // constants
-import { MC_ORDER, TF_ORDER, QUESTION_TYPE, EDITOR_OPTIONS }  from '../../configs'
+import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../../configs'
 
 // css
-if (Meteor.isClient) { 
+if (Meteor.isClient) {
   import './CreateQuestionModal.scss'
   import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
   import 'react-tag-input/example/reactTags.css'
@@ -61,7 +61,6 @@ export class CreateQuestionModal extends ControlledForm {
       this.state.answers.forEach((a) => {
         if (a.wysiwyg) a.content = DraftHelper.toEditorState(a.content)
       })
-
     } else { // if adding new question
       this.state = _.extend({}, DEFAULT_STATE)
 
@@ -105,7 +104,8 @@ export class CreateQuestionModal extends ControlledForm {
       } else if (type === QUESTION_TYPE.SA) {
         this.currentAnswer = -1
         this.answerOrder = []
-      }
+      } 
+      // TODO multi select
     })
   }
 
@@ -114,14 +114,14 @@ export class CreateQuestionModal extends ControlledForm {
    * reorder tags
    */
   handleDrag (tag, currPos, newPos) {
-      let tags = this.state.tags;
+    let tags = this.state.tags
 
       // mutate array
-      tags.splice(currPos, 1);
-      tags.splice(newPos, 0, tag);
+    tags.splice(currPos, 1)
+    tags.splice(newPos, 0, tag)
 
       // re-render
-      this.setState({ tags: tags });
+    this.setState({ tags: tags })
   }
 
   /**
@@ -129,9 +129,9 @@ export class CreateQuestionModal extends ControlledForm {
    * remove tag from state
    */
   deleteTag (i) {
-      let tags = this.state.tags
-      tags.splice(i, 1)
-      this.setState({ tags: tags })
+    let tags = this.state.tags
+    tags.splice(i, 1)
+    this.setState({ tags: tags })
   }
 
   /**
@@ -139,12 +139,12 @@ export class CreateQuestionModal extends ControlledForm {
    * add tag to state
    */
   addTag (tag) {
-      let tags = this.state.tags
-      tags.push({
-          id: tags.length + 1,
-          text: tag
-      })
-      this.setState({ tags: tags })
+    let tags = this.state.tags
+    tags.push({
+      id: tags.length + 1,
+      text: tag
+    })
+    this.setState({ tags: tags })
   }
 
   /**
@@ -168,11 +168,11 @@ export class CreateQuestionModal extends ControlledForm {
     })
   } // end setAnswerState
 
-  addAnswer (_, e, wysiwyg=true, done=null) {
+  addAnswer (_, e, wysiwyg = true, done = null) {
     if (this.currentAnswer >= this.answerOrder.length) return
     this.setState({
-      answers: this.state.answers.concat([{ 
-        correct: this.currentAnswer === 0 ? true : false, 
+      answers: this.state.answers.concat([{
+        correct: this.currentAnswer === 0,
         answer: this.answerOrder[this.currentAnswer],
         wysiwyg: wysiwyg
       }])
@@ -180,7 +180,6 @@ export class CreateQuestionModal extends ControlledForm {
       this.currentAnswer++
       if (done) done()
     })
-    
   } // end addAnswer
 
   /**
@@ -189,7 +188,7 @@ export class CreateQuestionModal extends ControlledForm {
    */
   markCorrect (answerKey) {
     let answers = this.state.answers
-    
+
     answers.forEach((a, i) => {
       if (a.answer === answerKey) answers[i].correct = true
       else answers[i].correct = false
@@ -216,14 +215,14 @@ export class CreateQuestionModal extends ControlledForm {
     this.currentAnswer = 0
     super.done()
   }
-  
+
   /**
    * handleSubmit(Event: e)
    * onSubmit handler for Question form. Calls questions.insert
    */
   handleSubmit (e) {
     super.handleSubmit(e)
-    
+
     let question = _.extend({}, this.state)
 
     if (Meteor.isTest) {
@@ -234,7 +233,7 @@ export class CreateQuestionModal extends ControlledForm {
       alertify.error('Question needs at least one answer')
       return
     }
-    
+
     // convert draft-js objects into JSON
     const serialized = DraftHelper.toJson(question.content)
     question.content = serialized.json
@@ -247,7 +246,7 @@ export class CreateQuestionModal extends ControlledForm {
         const serialized = DraftHelper.toJson(copy.content)
         copy.content = serialized.json
         copy.plainText = serialized.plainText
-      } 
+      }
 
       question.answers.push(copy)
     })
@@ -261,7 +260,7 @@ export class CreateQuestionModal extends ControlledForm {
       if (error) {
         alertify.error('Error: ' + error.error)
       } else {
-        alertify.success( !question._id ? 'Question Added' : 'Edits Saved')
+        alertify.success(!question._id ? 'Question Added' : 'Edits Saved')
         this.done()
       }
     })
@@ -276,12 +275,12 @@ export class CreateQuestionModal extends ControlledForm {
       (resolve, reject) => {
         QuestionImages.insert(file, function (err, fileObj) {
           console.log(err, fileObj)
-          if (err){
+          if (err) {
             // handle error
-            reject("hmm shit") // TODO
+            reject('hmm shit') // TODO
           } else {
             // handle success depending what you need to do
-            setTimeout(function() {
+            setTimeout(function () {
               resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
             }, 500)
           }
@@ -290,20 +289,19 @@ export class CreateQuestionModal extends ControlledForm {
     ) // promise
   } // end uploadImageCallBack
 
-
   render () {
     // create new draft-js editor with slimmed down confif
     const newEditor = (state, callback) => {
       return (<Editor
-                editorState={state}
-                onEditorStateChange={callback}
-                toolbarClassName='home-toolbar'
-                wrapperClassName='editor-wrapper'
-                editorClassName='home-editor'
-                toolbar={this.options}
-                uploadCallback={this.uploadImageCallBack} />)
+        editorState={state}
+        onEditorStateChange={callback}
+        toolbarClassName='home-toolbar'
+        wrapperClassName='editor-wrapper'
+        editorClassName='home-editor'
+        toolbar={this.options}
+        uploadCallback={this.uploadImageCallBack} />)
     }
-    
+
     // create wrapped draft-js editor based on answer object
     const answerEditor = (a) => {
       const editor = newEditor(a.content, (content) => {
@@ -314,9 +312,9 @@ export class CreateQuestionModal extends ControlledForm {
         <div>
           <span className='answer-option'>
             Option <span className='answer-key'>{ a.answer }</span>
-            <span className='correct' onClick={() => this.markCorrect(a.answer) }>
-              { a.correct ? 
-                <span className='correct-color'>Correct</span> : 
+            <span className='correct' onClick={() => this.markCorrect(a.answer)}>
+              { a.correct ?
+                <span className='correct-color'>Correct</span> :
                 <span className='incorrect-color'>Incorrect</span> }
             </span>
           </span>
@@ -324,8 +322,8 @@ export class CreateQuestionModal extends ControlledForm {
         </div>)
 
       const noWysiwygAnswer = (<div className='answer-no-wysiwyg'>
-          <span className={ a.answer === 'TRUE' ? 'correct-color' : 'incorrect-color' }>{ a.answer }</span>
-        </div>)
+        <span className={a.answer === 'TRUE' ? 'correct-color' : 'incorrect-color'}>{ a.answer }</span>
+      </div>)
 
       return (<div className='col-md-6 small-editor-wrapper' key={'answer_' + a.answer}>
         { !a.wysiwyg ? noWysiwygAnswer : wysiwygAnswer }
@@ -335,56 +333,58 @@ export class CreateQuestionModal extends ControlledForm {
     // generate rows with up to 2 editors on each row
     let editorRows = []
     const len = this.state.answers.length
-    for (let i = 0; i < len; i=i+2) {
+    for (let i = 0; i < len; i = i + 2) {
       let gaurunteed = this.state.answers[i]
-      let possiblyUndefined = i < len ? this.state.answers[i+1] : undefined
+      let possiblyUndefined = i < len ? this.state.answers[i + 1] : undefined
 
-      editorRows.push(<div key={'row_'+i+'-'+i+1} className='row'>
+      editorRows.push(<div key={'row_' + i + '-' + i + 1} className='row'>
         { answerEditor(gaurunteed) }
         { possiblyUndefined ? answerEditor(possiblyUndefined) : '' }
-        </div>)
+      </div>)
     }
 
     return (<div className='ql-modal-container' onClick={this.done}>
-          <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
-            <div className='ql-modal-header'>
-              <h2>{ !this.state._id ? 'Add a Question' : 'Edit Question' }</h2>
-              <select defaultValue={this.state.type} onChange={this.changeType} className='ql-header-button question-type form-control'>
-                <option value={ QUESTION_TYPE.MC }>Multiple Choice</option>
-                <option value={ QUESTION_TYPE.TF }>True / False</option>
-                <option value={ QUESTION_TYPE.SA }>Short Answer</option>
-              </select>
-              { this.state.type === QUESTION_TYPE.MC ? 
-                <button className='ql-header-button btn btn-default' onClick={this.addAnswer}>Add Answer</button> 
-                : '' }
+      <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
+        <div className='ql-modal-header'>
+          <h2>{ !this.state._id ? 'Add a Question' : 'Edit Question' }</h2>
+          <select defaultValue={this.state.type} onChange={this.changeType} className='ql-header-button question-type form-control'>
+            {
+              _(QUESTION_TYPE).keys().map((k) => {
+                const val = QUESTION_TYPE[k]
+                return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
+              })
+            }
+          </select>
+          { this.state.type === QUESTION_TYPE.MC ?
+            <button className='ql-header-button btn btn-default' onClick={this.addAnswer}>Add Answer</button>
+            : '' }
 
+        </div>
+
+        <form ref='questionForm' className='ql-form-question' onSubmit={this.handleSubmit}>
+          <div className='row'>
+            <div className='col-md-8'>{ newEditor(this.state.content, this.onEditorStateChange) }</div>
+            <div className='col-md-4'>
+              <h3>Tags</h3>
+              <ReactTags ref='tagInput' tags={this.state.tags}
+                suggestions={this.tagSuggestions}
+                handleDelete={this.deleteTag}
+                handleAddition={this.addTag}
+                handleDrag={this.handleDrag} />
             </div>
-
-            <form ref='questionForm' className='ql-form-question' onSubmit={this.handleSubmit}>
-              <div className="row">
-                <div className="col-md-8">{ newEditor(this.state.content, this.onEditorStateChange) }</div>
-                <div className="col-md-4">
-                  <h3>Tags</h3>
-                    <ReactTags ref='tagInput' tags={this.state.tags}
-                      suggestions={this.tagSuggestions}
-                      handleDelete={this.deleteTag}
-                      handleAddition={this.addTag}
-                      handleDrag={this.handleDrag} />
-                </div>
-              </div>
-              
-              { editorRows }
-
-              <div className='ql-buttongroup'>
-                <a className='btn btn-default' onClick={this.done}>Cancel</a>
-                <input className='btn btn-default' type='submit' id='submit' />
-              </div>
-            </form>
-
           </div>
-        </div>)
+
+          { editorRows }
+
+          <div className='ql-buttongroup'>
+            <a className='btn btn-default' onClick={this.done}>Cancel</a>
+            <input className='btn btn-default' type='submit' id='submit' />
+          </div>
+        </form>
+
+      </div>
+    </div>)
   } //  end render
 
 } // end CreateQuestionModal
-
 

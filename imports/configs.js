@@ -16,8 +16,12 @@ export const EDITOR_OPTIONS = {
 export const QUESTION_TYPE = {
   MC: 0,
   TF: 1,
-  SA: 2
+  SA: 2,
+  MS: 3
 }
+
+export const QUESTION_TYPE_STRINGS = ['Multiple Choice', 'True/False', 'Short Answer', 'Multi Select']
+
 
 export const MC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 export const TF_ORDER = ['TRUE', 'FALSE']

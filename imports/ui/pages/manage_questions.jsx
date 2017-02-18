@@ -11,6 +11,7 @@ import { _ } from 'underscore'
 import { DraftHelper } from '../../draft-helpers'
 
 import { CreateQuestionModal } from '../modals/CreateQuestionModal'
+import { QuestionListItem } from '../QuestionListItem'
 
 import { Questions } from '../../api/questions'
 
@@ -43,7 +44,8 @@ class _ManageQuestions extends Component {
         { /* list questions */
           this.props.questions.map(q => {
             return (<div key={q._id} >
-              <div dangerouslySetInnerHTML={{ __html: DraftHelper.toHtml(q.content) }} onClick={() => this.editQuestion(q._id)} />
+              {/*<div dangerouslySetInnerHTML={{ __html: DraftHelper.toHtml(q.content) }} onClick={() => this.editQuestion(q._id)} />*/}
+              <QuestionListItem question={q} click={this.editQuestion} />
               { this.state.edits[q._id] ? <CreateQuestionModal done={() => this.editQuestion(q._id)} question={q} /> : '' }
             </div>)
           })

@@ -14,6 +14,7 @@ import { Sessions } from '../../api/sessions'
 import { Questions } from '../../api/questions'
 
 import { AddQuestionModal } from '../modals/AddQuestionModal'
+import { QuestionListItem } from '../QuestionListItem'
 
 if (Meteor.isClient) import './manage_session.scss'
 
@@ -67,7 +68,7 @@ class _ManageSession extends Component {
     const quizEdit = this.state.quiz ? 'Deadline: Date picker here' : ''
     return (
       <div className='container ql-manage-session'>
-        <h2>Session:{ this.state.session.name } </h2>
+        <h2>Session: { this.state.session.name } </h2>
         { !this.state.editing ? <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button> : '' }
         <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>
           Name: { this.state.editing ?
@@ -106,7 +107,7 @@ class _ManageSession extends Component {
 
         {
           this.props.questions.map((q) => {
-            return (q.question)
+            return <QuestionListItem key={q._id} question={q} />
           })
         }
 
@@ -127,7 +128,7 @@ export const ManageSession = createContainer((props) => {
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
 
   return {
-    questions: Questions.find({ _id: { $in: session.questions || [] } }),
+    questions: Questions.find({ _id: { $in: session.questions || [] } }).fetch(),
     questionPool: Questions.find({ }).fetch(),
     session: session,
     loading: !handle.ready()
