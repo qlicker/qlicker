@@ -10,10 +10,7 @@ import { ControlledForm } from './ControlledForm'
 
 import { QuestionListItem } from '../QuestionListItem'
 
-import { DraftHelper } from '../../draft-helpers'
 import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../../configs'
-
-// if (Meteor.isClient) import './AddQuestionModal.scss'
 
 export class AddQuestionModal extends ControlledForm {
 

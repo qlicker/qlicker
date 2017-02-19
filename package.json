@@ -9,6 +9,7 @@
     "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html in_coverage' --xunit-out $CIRCLE_TEST_REPORTS/full-app-results.xml",
     "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha",
     "test:unit-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html' --xunit-out $CIRCLE_TEST_REPORTS/unit-results.xml",
+    "test:unit-no-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099",
     "test:all": "npm run test:unit-coverage && npm run test:app-coverage"
   },
   "dependencies": {

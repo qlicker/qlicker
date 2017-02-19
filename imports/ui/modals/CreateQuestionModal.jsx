@@ -3,7 +3,7 @@
 //
 // CreateQuestionModal.jsx: popup dialog to prompt for course details
 
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
 import _ from 'underscore'
 
 // draft-js
@@ -18,13 +18,6 @@ import { QuestionImages } from '../../api/questions'
 
 // constants
 import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../../configs'
-
-// css
-if (Meteor.isClient) {
-  import './CreateQuestionModal.scss'
-  import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-  import 'react-tag-input/example/reactTags.css'
-}
 
 export const DEFAULT_STATE = {
   question: '',
@@ -104,7 +97,7 @@ export class CreateQuestionModal extends ControlledForm {
       } else if (type === QUESTION_TYPE.SA) {
         this.currentAnswer = -1
         this.answerOrder = []
-      } 
+      }
       // TODO multi select
     })
   }
@@ -313,9 +306,9 @@ export class CreateQuestionModal extends ControlledForm {
           <span className='answer-option'>
             Option <span className='answer-key'>{ a.answer }</span>
             <span className='correct' onClick={() => this.markCorrect(a.answer)}>
-              { a.correct ?
-                <span className='correct-color'>Correct</span> :
-                <span className='incorrect-color'>Incorrect</span> }
+              { a.correct
+                ? <span className='correct-color'>Correct</span>
+                : <span className='incorrect-color'>Incorrect</span> }
             </span>
           </span>
           { editor }
@@ -355,8 +348,8 @@ export class CreateQuestionModal extends ControlledForm {
               })
             }
           </select>
-          { this.state.type === QUESTION_TYPE.MC ?
-            <button className='ql-header-button btn btn-default' onClick={this.addAnswer}>Add Answer</button>
+          { this.state.type === QUESTION_TYPE.MC
+            ? <button className='ql-header-button btn btn-default' onClick={this.addAnswer}>Add Answer</button>
             : '' }
 
         </div>

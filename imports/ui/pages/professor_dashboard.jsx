@@ -15,8 +15,6 @@ import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
 
-if (Meteor.isClient) import './professor_dashboard.scss'
-
 class _ProfessorDashboard extends Component {
 
   constructor (props) {
@@ -53,7 +51,7 @@ class _ProfessorDashboard extends Component {
         <h2>Active Courses</h2>
         <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
         { courseList }
-        
+
         <hr />
         <h2>Upcoming Sessions</h2>
         session list here

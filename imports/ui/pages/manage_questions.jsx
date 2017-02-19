@@ -15,8 +15,6 @@ import { QuestionListItem } from '../QuestionListItem'
 
 import { Questions } from '../../api/questions'
 
-// if (Meteor.isClient) import './.scss'
-
 class _ManageQuestions extends Component {
 
   constructor (props) {

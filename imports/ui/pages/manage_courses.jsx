@@ -13,8 +13,6 @@ import { CreateCourseModal } from '../modals/CreateCourseModal'
 
 import { Courses } from '../../api/courses.js'
 
-// if (Meteor.isClient) import './.scss'
-
 class _ManageCourses extends Component {
 
   constructor (props) {

@@ -6,6 +6,7 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
+import _ from 'underscore'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
@@ -15,8 +16,6 @@ import { CreateQuestionModal } from '../modals/CreateQuestionModal'
 
 import { SessionListItem } from '../SessionListItem'
 import { StudentListItem } from '../StudentListItem'
-
-if (Meteor.isClient) import './manage_course.scss'
 
 class _ManageCourse extends Component {
 
@@ -75,7 +74,7 @@ class _ManageCourse extends Component {
 
         <div className='row'>
           <div className='col-md-6'>
-            <br/>
+            <br />
             <h3>Course Details</h3>
             <div className='ql-course-details'>
               <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
@@ -83,11 +82,11 @@ class _ManageCourse extends Component {
               <br />
               Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
             </div>
-            
-            <br/>
+
+            <br />
             <h3>Sessions</h3>
             <div className='ql-session-list'>
-              <button className='btn btn-default' onClick={ toggleCreatingSession }>Create Session</button>
+              <button className='btn btn-default' onClick={toggleCreatingSession}>Create Session</button>
 
               { this.renderSessionList() }
             </div>
@@ -95,7 +94,7 @@ class _ManageCourse extends Component {
           </div>
 
           <div className='col-md-6'>
-            <br/>
+            <br />
             <h3>Class List</h3>
             <div className='ql-course-classlist'>
               { this.renderClassList() }
@@ -104,8 +103,8 @@ class _ManageCourse extends Component {
         </div>
 
         {/* modals */}
-        { this.state.creatingSession ? 
-          <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} /> 
+        { this.state.creatingSession
+          ? <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} />
           : '' }
       </div>)
   }
@@ -113,7 +112,7 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')  && Meteor.subscribe('userData')
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions') && Meteor.subscribe('userData')
 
   let course = Courses.find({ _id: props.courseId }).fetch()[0]
   let students = Meteor.users.find({ _id: { $in: _(course.students || []).pluck('studentUserId') } }).fetch()

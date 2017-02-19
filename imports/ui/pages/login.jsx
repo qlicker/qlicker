@@ -5,8 +5,6 @@
 
 import React from 'react'
 
-import './login.scss'
-
 import { LoginBox } from '../LoginBox.jsx'
 
 export const Loginpage = () => (

@@ -8,8 +8,6 @@ import _ from 'underscore'
 
 import { ControlledForm } from './ControlledForm'
 
-// if (Meteor.isClient) import './CreateCourseModal.scss'
-
 export const DEFAULT_STATE = {
   name: '',
   description: '',

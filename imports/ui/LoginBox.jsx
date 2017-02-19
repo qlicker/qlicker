@@ -8,8 +8,6 @@
 import React, { Component } from 'react'
 import { _ } from 'underscore'
 
-if (Meteor.isClient) import './LoginBox.scss'
-
 export const DEFAULT_STATE = {
   login: true,
   email: '',

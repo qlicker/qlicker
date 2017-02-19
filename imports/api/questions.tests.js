@@ -79,7 +79,7 @@ if (Meteor.isServer) {
 
       it('can copyQuestion and add to session', () => {
         prepQuestionAndSession((sessionId, questionId) => {
-          const copiedQuestionId = Meteor.call('question.copyToSession', questionId, sessionId)
+          const copiedQuestionId = Meteor.call('questions.copyToSession', sessionId, questionId)
 
           const session = Sessions.findOne({ _id: sessionId })
           expect(session.questions).to.have.length(1)

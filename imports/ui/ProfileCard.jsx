@@ -8,8 +8,6 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
-if (Meteor.isClient) import './ProfileCard.scss'
-
 import '../api/users.js'
 
 export class ProfileCard extends Component {
@@ -32,13 +30,13 @@ export class ProfileCard extends Component {
   render () {
     const name = this.user.profile.firstname + ' ' + this.user.profile.lastname
     return (<div className='ql-profile-card'>
-        <a href='#' onMouseOver={this.mouseOver} onMouseOut={this.mouseOut}>{ name }</a>
-        <div className='ql-profile-card-expanded' ref='profile_expanded'>
-          Name: { name }<br />
-          Email: { this.user.emails[0].address }<br />
-          Roles: { this.user.profile.roles }
-        </div>
-      </div>)
+      <a href='#' onMouseOver={this.mouseOver} onMouseOut={this.mouseOut}>{ name }</a>
+      <div className='ql-profile-card-expanded' ref='profile_expanded'>
+        Name: { name }<br />
+        Email: { this.user.emails[0].address }<br />
+        Roles: { this.user.profile.roles }
+      </div>
+    </div>)
   } //  end render
 
 }

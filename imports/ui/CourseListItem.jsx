@@ -7,8 +7,6 @@
 
 import React, { Component, PropTypes } from 'react'
 
-if (Meteor.isClient) import './CourseListItem.scss'
-
 import '../api/courses.js'
 
 export class CourseListItem extends Component {
@@ -41,10 +39,10 @@ export class CourseListItem extends Component {
         <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
         <span className='ql-course-semester'>{ this.props.course.semester }</span>
 
-        { Meteor.user().hasGreaterRole('professor') ? 
-          <span className='controls'>
+        { Meteor.user().hasGreaterRole('professor')
+          ? <span className='controls'>
             <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
-          </span> 
+          </span>
         : ''}
       </li>)
 

@@ -12,8 +12,6 @@ import { Courses } from '../../api/courses'
 import { Sessions } from '../../api/sessions'
 import { SessionListItem } from '../SessionListItem'
 
-if (Meteor.isClient) import './course.scss'
-
 class _Course extends Component {
 
   constructor (props) {
