@@ -161,6 +161,10 @@ export class CreateQuestionModal extends ControlledForm {
     })
   } // end setAnswerState
 
+  /**
+   * addAnswer(Event _, Event e, Boolean wysiwyg, Callback done = null)
+   * add answer to MC, MS, and TF questions
+   */
   addAnswer (_, e, wysiwyg = true, done = null) {
     if (this.currentAnswer >= this.answerOrder.length) return
     this.setState({
@@ -245,6 +249,8 @@ export class CreateQuestionModal extends ControlledForm {
     this.state.tags.forEach((t) => {
       question.tags.push(_.extend({}, t))
     })
+
+    question.courseId = this.props.courseId
 
     Meteor.call('questions.insert', question, (error) => {
       if (error) {

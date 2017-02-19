@@ -148,7 +148,8 @@ class _ManageSession extends Component {
         <ol className='ql-session-question-list'>
           {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
         </ol>
-        {
+
+        { /* add question modal */
           this.state.addingQuestion
             ? <AddQuestionModal
               session={this.props.session}
@@ -156,7 +157,6 @@ class _ManageSession extends Component {
               done={toggleAddingQuestion} />
             : ''
         }
-
       </div>)
   }
 
