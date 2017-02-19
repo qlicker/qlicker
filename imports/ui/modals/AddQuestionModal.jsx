@@ -102,7 +102,7 @@ export class AddQuestionModal extends ControlledForm {
       return
     }
 
-    Meteor.call('sessions.addQuestion', this.props.session._id, this.state.questionId, (error) => {
+    Meteor.call('questions.copyToSession', this.props.session._id, this.state.questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else {
         alertify.success('Question Added')

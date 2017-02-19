@@ -101,6 +101,8 @@ Meteor.methods({
     const session = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(session.courseId)
 
+    // TODO if question was a copy attached to session (should be all), delete question from db
+
     return Sessions.update({ _id: sessionId }, {
       $pull: { questions: questionId }
     })

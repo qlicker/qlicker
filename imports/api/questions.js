@@ -63,9 +63,14 @@ QuestionImages.allow({ insert: () => true, update: () => true, remove: () => tru
 
 // data publishing
 if (Meteor.isServer) {
-  Meteor.publish('questions', function () {
+  Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
-      return Questions.find({})
+      return Questions.find({ submittedBy: this.userId, sessionId: sessionId })
+    } else this.ready()
+  })
+  Meteor.publish('questions.library', function () {
+    if (this.userId) {
+      return Questions.find({ submittedBy: this.userId, originalQuestion: {$exists: false} })
     } else this.ready()
   })
 }
@@ -107,7 +112,14 @@ Meteor.methods({
     })
   },
 
-  'question.copyToSession' (questionId, sessionId) {
+  'questions.delete' (questionId) {
+    check(questionId, Helpers.MongoID)
+
+    // TODO check permission
+    return Questions.remove({ _id: questionId })
+  },
+
+  'questions.copyToSession' (sessionId, questionId) {
     const session = Sessions.findOne({ _id: sessionId })
     const question = Questions.findOne({ _id: questionId })
 

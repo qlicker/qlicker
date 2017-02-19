@@ -63,6 +63,8 @@ if (Meteor.isServer) {
 
       it('can create question as student (questions.insert)')
 
+      it('can delete question (questions.delete)')
+
       it('can edit question (questions.update)', () => {
         prepQuestionAndSession((_, questionId) => {
           const editedQuestion = Questions.findOne({ _id: questionId })

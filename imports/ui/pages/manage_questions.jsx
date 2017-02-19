@@ -25,6 +25,7 @@ class _ManageQuestions extends Component {
     this.state = { edits: {} }
 
     this.editQuestion = this.editQuestion.bind(this)
+    this.deleteQuestion = this.deleteQuestion.bind(this)
   }
 
   editQuestion (questionId) {
@@ -34,19 +35,25 @@ class _ManageQuestions extends Component {
       edits: e
     })
   }
-  
+
+  deleteQuestion (questionId) {
+    Meteor.call('questions.delete', questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Deleted')
+    })
+  }
+
   render () {
     return (
       <div className='container ql-professor-page'>
-        <h1>Question Management</h1>
+        <h1>Question Library</h1>
 
         <button className='btn btn-default' onClick={() => this.editQuestion(-1)}>New Question</button>
 
         { /* list questions */
           this.props.questions.map(q => {
             return (<div key={q._id} >
-              {/*<div dangerouslySetInnerHTML={{ __html: DraftHelper.toHtml(q.content) }} onClick={() => this.editQuestion(q._id)} />*/}
-              <QuestionListItem question={q} click={this.editQuestion} />
+              <QuestionListItem question={q} click={this.editQuestion} delete={this.deleteQuestion} />
               { this.state.edits[q._id] ? <CreateQuestionModal done={() => this.editQuestion(q._id)} question={q} /> : '' }
             </div>)
           })
@@ -59,7 +66,7 @@ class _ManageQuestions extends Component {
 }
 
 export const ManageQuestions = createContainer(() => {
-  const handle = Meteor.subscribe('questions')
+  const handle = Meteor.subscribe('questions.library')
 
   return {
     questions: Questions.find({ }).fetch(),
