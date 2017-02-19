@@ -34,6 +34,7 @@ class _ManageQuestions extends Component {
       edits: e
     })
   }
+  
   render () {
     return (
       <div className='container ql-professor-page'>

@@ -28,6 +28,7 @@ class _ManageSession extends Component {
   
     this.handleSubmit = this.handleSubmit.bind(this)
     this.setValue = this.setValue.bind(this)
+    this.removeQuestion = this.removeQuestion.bind(this)
   }
   
   setValue (e) {
@@ -42,17 +43,18 @@ class _ManageSession extends Component {
     e.preventDefault();
     
     Meteor.call('sessions.edit', this.state.session, (error) => {
-      if (error) {
-        console.log(error)
-        if (error.error === 'not-authorized') {
-          // TODO
-        } else if (error.error === 400) {
-          // check didnt pass
-        }
-      } else {
-        // done
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Question Added')
         this.setState({ editing: false })
       }
+    })
+  }
+
+  removeQuestion (questionId) {
+    Meteor.call('sessions.removeQuestion', this.sessionId, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Removed')
     })
   }
 
@@ -107,7 +109,7 @@ class _ManageSession extends Component {
 
         {
           this.props.questions.map((q) => {
-            return <QuestionListItem key={q._id} question={q} />
+            return <QuestionListItem key={q._id} question={q} remove={this.removeQuestion} />
           })
         }
 

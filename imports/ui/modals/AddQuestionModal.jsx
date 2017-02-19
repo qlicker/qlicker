@@ -72,7 +72,7 @@ export class AddQuestionModal extends ControlledForm {
    */
   filterPool () {
     const pool = _(this.props.questions).filter((q) => {
-      const inQuestion = this.state.searchString 
+      const inQuestion = this.state.searchString
         ? q.question.toLowerCase().includes(this.state.searchString.toLowerCase())
         : true
 
@@ -134,7 +134,6 @@ export class AddQuestionModal extends ControlledForm {
 
             </div>
             <div className='col-md-8'>
-
               { /* list questions */
                   this.state.questionPool.map(q => {
                     return (<div key={q._id} className={this.state.questionId === q._id ? 'correct-color' : ''}>
@@ -142,12 +141,12 @@ export class AddQuestionModal extends ControlledForm {
                     </div>)
                   })
                 }
-
-              <div className='ql-buttongroup'>
-                <a className='btn btn-default' onClick={this.done}>Cancel</a>
-                <input className='btn btn-default' type='submit' id='submit' />
-              </div>
             </div>
+          </div>
+
+          <div className='ql-buttongroup'>
+            <a className='btn btn-default' onClick={this.done}>Cancel</a>
+            <input className='btn btn-default' type='submit' id='submit' />
           </div>
 
         </form>
