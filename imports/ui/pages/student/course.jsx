@@ -8,9 +8,9 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { Courses } from '../../api/courses'
-import { Sessions } from '../../api/sessions'
-import { SessionListItem } from '../SessionListItem'
+import { Courses } from '../../../api/courses'
+import { Sessions } from '../../../api/sessions'
+import { SessionListItem } from '../../SessionListItem'
 
 class _Course extends Component {
 

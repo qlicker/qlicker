@@ -34,7 +34,7 @@ export class CreateQuestionModal extends ControlledForm {
   constructor (props) {
     super(props)
 
-    // bindding methods for calling within react context
+    // binding methods for calling within react context
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
     this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
@@ -198,12 +198,6 @@ export class CreateQuestionModal extends ControlledForm {
    */
   done (e) {
     this.refs.questionForm.reset()
-
-    // _(this.state.tags.length + 1).times((i) => {
-    //   this.deleteTag(i-1)
-    // })
-    // console.log('should be empty', this.state.tags)
-
     this.setState(_.extend({}, DEFAULT_STATE))
     this.currentAnswer = 0
     super.done()
@@ -239,6 +233,9 @@ export class CreateQuestionModal extends ControlledForm {
         const serialized = DraftHelper.toJson(copy.content)
         copy.content = serialized.json
         copy.plainText = serialized.plainText
+      } else if (question.type === QUESTION_TYPE.TF) {
+        copy.content = a.answer
+        copy.plainText = a.answer
       }
 
       question.answers.push(copy)

@@ -9,13 +9,12 @@ import React, { Component } from 'react'
 import _ from 'underscore'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { Courses } from '../../api/courses'
-import { Sessions } from '../../api/sessions'
-import { CreateSessionModal } from '../modals/CreateSessionModal'
-import { CreateQuestionModal } from '../modals/CreateQuestionModal'
+import { Courses } from '../../../api/courses'
+import { Sessions } from '../../../api/sessions'
+import { CreateSessionModal } from '../../modals/CreateSessionModal'
 
-import { SessionListItem } from '../SessionListItem'
-import { StudentListItem } from '../StudentListItem'
+import { SessionListItem } from '../../SessionListItem'
+import { StudentListItem } from '../../StudentListItem'
 
 class _ManageCourse extends Component {
 

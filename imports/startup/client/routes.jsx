@@ -11,7 +11,6 @@ import { AppLayout } from '../../ui/layouts/app_layout'
 import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
 
-// TODO sort out these importing inconsistencies
 import { PageContainer } from '../../ui/pages/page_container'
 
 Router.configure({
@@ -51,7 +50,7 @@ Router.route('/profile', {
 
 
 // Admin routes
-import { AdminDashboard } from '../../ui/pages/admin_dashboard'
+import { AdminDashboard } from '../../ui/pages/admin/admin_dashboard'
 Router.route('/admin', {
   name: 'admin',
   waitOn: function () {
@@ -66,7 +65,7 @@ Router.route('/admin', {
 })
 
 // Prof routes
-import { ProfessorDashboard } from '../../ui/pages/professor_dashboard'
+import { ProfessorDashboard } from '../../ui/pages/professor/professor_dashboard'
 Router.route('/manage', {
   name: 'professor',
   waitOn: function () {
@@ -81,7 +80,7 @@ Router.route('/manage', {
   }
 })
 
-import { ManageQuestions } from '../../ui/pages/manage_questions'
+import { ManageQuestions } from '../../ui/pages/professor/manage_questions'
 Router.route('/questions', {
   name: 'questions',
   waitOn: function () {
@@ -96,7 +95,7 @@ Router.route('/questions', {
   }
 })
 
-import { ManageCourses } from '../../ui/pages/manage_courses'
+import { ManageCourses } from '../../ui/pages/professor/manage_courses'
 Router.route('/courses', {
   name: 'courses',
   waitOn: function () {
@@ -114,7 +113,7 @@ Router.route('/courses', {
 
 
 // Student Routes
-import { StudentDashboard } from '../../ui/pages/student_dashboard'
+import { StudentDashboard } from '../../ui/pages/student/student_dashboard'
 Router.route('/student', {
   name: 'student',
   waitOn: function () {
@@ -131,8 +130,8 @@ Router.route('/student', {
 
 
 // Shared routes
-import { ManageCourse } from '../../ui/pages/manage_course'
-import { Course } from '../../ui/pages/course'
+import { ManageCourse } from '../../ui/pages/professor/manage_course'
+import { Course } from '../../ui/pages/student/course'
 Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
@@ -147,7 +146,7 @@ Router.route('/course/:_id', {
   }
 })
 
-import { ManageSession } from '../../ui/pages/manage_session'
+import { ManageSession } from '../../ui/pages/professor/manage_session'
 // import Session from '../../ui/pages/session'
 Router.route('/session/:_id', {
   name: 'session',

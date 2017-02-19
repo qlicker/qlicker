@@ -20,21 +20,23 @@ export class QuestionListItem extends Component {
 
     const qid = this.props.question._id
 
-    this.click = this.props.click ? (e) => {
+    const stopClick = (e) => {
       e.preventDefault()
       e.stopPropagation()
+    }
+
+    this.click = this.props.click ? (e) => {
+      stopClick(e)
       this.props.click(qid)
     } : noop
 
     this.remove = this.props.remove ? (e) => {
-      e.preventDefault()
-      e.stopPropagation()
+      stopClick(e)
       this.props.remove(qid)
     } : noop
 
     this.delete = this.props.delete ? (e) => {
-      e.preventDefault()
-      e.stopPropagation()
+      stopClick(e)
       this.props.delete(qid)
     } : noop
   }

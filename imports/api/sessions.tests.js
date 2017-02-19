@@ -58,7 +58,7 @@ if (Meteor.isServer) {
         const sessionId = courseFromDb.sessions[0].sessionId
 
         Meteor.call('courses.deleteSession', courseId, sessionId)  // method test
-        
+
         courseFromDb = Courses.findOne({ _id: courseId })
         const sessionFromDb = Sessions.find({ _id: sessionId })
         expect(courseFromDb.sessions.length).to.equal(0)
@@ -122,6 +122,8 @@ if (Meteor.isServer) {
           expect(sessionFromDb.questions.length).to.equal(0)
         })
       })
+
+      it('can batch edit question list (sessions.batchEdit)')
     })// end describe('methods')
   }) // end describe('Sessions')
 } // end Meteor.isServer

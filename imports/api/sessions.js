@@ -52,6 +52,10 @@ if (Meteor.isServer) {
 // data methods
 Meteor.methods({
 
+  /**
+   * sessions.insert(Session: session)
+   * insert new session object into Sessions mongodb Collection
+   */
   'sessions.insert' (session) {
     session.status = 'hidden'
     check(session, sessionPattern)
@@ -60,11 +64,19 @@ Meteor.methods({
     return Sessions.insert(session)
   },
 
+  /**
+   * sessions.delete(MongoId (string) courseId, MongoId (string) sessionId)
+   * Delete session from Sessions collection (use course.deleteSession to delete from course)
+   */
   'sessions.delete' (courseId, sessionId) {
     profHasCoursePermission(courseId)
     return Sessions.remove({ _id: sessionId })
   },
 
+  /**
+   * sessions.edit(Session: session)
+   * edit all valid attributes is session object
+   */
   'sessions.edit' (session) {
     check(session._id, Helpers.MongoID)
     check(session, sessionPattern)
@@ -82,6 +94,10 @@ Meteor.methods({
     })
   },
 
+  /**
+   * sessions.addQuestion(MongoId (string) sessionId, MongoId (string) questionId)
+   * copy question from library and attach to session
+   */
   'sessions.addQuestion' (sessionId, questionId) {
     check(sessionId, Helpers.MongoID)
     check(questionId, Helpers.MongoID)
@@ -94,6 +110,10 @@ Meteor.methods({
     })
   },
 
+  /**
+   * sessions.removeQuestion(MongoId (string) sessionId, MongoId (string) questionId)
+   * remove question from a session
+   */
   'sessions.removeQuestion' (sessionId, questionId) {
     check(sessionId, Helpers.MongoID)
     check(questionId, Helpers.MongoID)
@@ -102,10 +122,25 @@ Meteor.methods({
     profHasCoursePermission(session.courseId)
 
     // TODO if question was a copy attached to session (should be all), delete question from db
+    // Currently orphans questions
 
     return Sessions.update({ _id: sessionId }, {
       $pull: { questions: questionId }
     })
+  },
+
+  /**
+   * sessions.batchEdit(MongoId (string) sessionId, [MongoId (string)] questionIdList)
+   * replaces list of attached questions with supplied list (use for reordering questions)
+   */
+  'sessions.batchEdit' (sessionId, questionIdList) {
+    check(sessionId, Helpers.MongoID)
+    check(questionIdList, [ Helpers.MongoID ])
+
+    const session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, { $set: { questions: questionIdList } })
   }
 
 

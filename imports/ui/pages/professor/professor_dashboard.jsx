@@ -6,19 +6,19 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
-import { _ } from 'underscore'
+import _ from 'underscore'
 
-import { CourseListItem } from '../CourseListItem'
-import { CreateCourseModal } from '../modals/CreateCourseModal'
+import { CourseListItem } from '../../CourseListItem'
+import { CreateCourseModal } from '../../modals/CreateCourseModal'
 
-import { Courses } from '../../api/courses.js'
+import { Courses } from '../../../api/courses.js'
 
-class _ManageCourses extends Component {
+class _ProfessorDashboard extends Component {
 
   constructor (props) {
     super(props)
 
-    this.state = { creatingCourse: false }
+    this.state = { creatingCourse: false, edits: {} }
 
     this.doneCreatingCourse = this.doneCreatingCourse.bind(this)
     this.promptCreateCourse = this.promptCreateCourse.bind(this)
@@ -43,22 +43,30 @@ class _ManageCourses extends Component {
 
     return (
       <div className='container ql-professor-page'>
-        <h1>Courses</h1>
+        <h1>Welcome to Qlicker</h1>
+
+        <hr />
+        <h2>Active Courses</h2>
         <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
         { courseList }
 
+        <hr />
+        <h2>Upcoming Sessions</h2>
+        session list here
+
+        {/* modals */}
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
       </div>)
   }
 
 }
 
-export const ManageCourses = createContainer(() => {
+export const ProfessorDashboard = createContainer(() => {
   const handle = Meteor.subscribe('courses')
 
   return {
     courses: Courses.find({ owner: Meteor.userId() }).fetch(),
     loading: !handle.ready()
   }
-}, _ManageCourses)
+}, _ProfessorDashboard)
 

@@ -8,12 +8,10 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
-import { DraftHelper } from '../../draft-helpers'
+import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
+import { QuestionListItem } from '../../QuestionListItem'
 
-import { CreateQuestionModal } from '../modals/CreateQuestionModal'
-import { QuestionListItem } from '../QuestionListItem'
-
-import { Questions } from '../../api/questions'
+import { Questions } from '../../../api/questions'
 
 class _ManageQuestions extends Component {
 
