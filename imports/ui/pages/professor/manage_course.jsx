@@ -23,45 +23,34 @@ class _ManageCourse extends Component {
 
     this.state = { creatingSession: false }
     this.courseId = this.props.courseId
-
-    this.sessions = {}
-    this.students = {}
   }
 
   renderSessionList () {
     let sessions = this.props.course.sessions || []
 
-    return (<div>
-      <ul>
-        { sessions.map((s) => {
-          if (!this.sessions[s.sessionId]) return
-          return (<SessionListItem key={s.sessionId} session={this.sessions[s.sessionId]} />)
-        }) }
-      </ul>
-    </div>)
+    return (<ul>
+      {
+        sessions.map((s) => {
+          const ses = this.props.sessions[s.sessionId]
+          if (!ses) return
+          return (<SessionListItem key={s.sessionId} session={ses} />)
+        })
+      }
+    </ul>)
   }
 
   renderClassList () {
     let students = this.props.course.students || []
 
-    return (<div>
-      <ul>
-        { students.map((s) => {
-          if (!this.students[s.studentUserId]) return
-          console.log(this.students[s.studentUserId])
-          return (<StudentListItem key={s.studentUserId} courseId={this.courseId} student={this.students[s.studentUserId]} />)
-        }) }
-      </ul>
-    </div>)
-  }
-
-  componentWillUpdate (nextProps) {
-    nextProps.sessions.forEach((s) => {
-      this.sessions[s._id] = s
-    })
-    nextProps.students.forEach((s) => {
-      this.students[s._id] = s
-    })
+    return (<ul>
+      {
+        students.map((s) => {
+          const stu = this.props.students[s.studentUserId]
+          if (!stu) return
+          return (<StudentListItem key={s.studentUserId} courseId={this.courseId} student={stu} />)
+        })
+      }
+    </ul>)
   }
 
   render () {
@@ -111,16 +100,22 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions') && Meteor.subscribe('userData')
+  const handle = Meteor.subscribe('courses') &&
+    Meteor.subscribe('sessions') &&
+    Meteor.subscribe('userData')
 
-  let course = Courses.find({ _id: props.courseId }).fetch()[0]
-  let students = Meteor.users.find({ _id: { $in: _(course.students || []).pluck('studentUserId') } }).fetch()
-  let sessions = Sessions.find({ _id: { $in: _(course.sessions || []).pluck('sessionId') } }).fetch()
+  const course = Courses.find({ _id: props.courseId }).fetch()[0]
+
+  const studentIds = _(course.students || []).pluck('studentUserId')
+  const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
+
+  const sessionIds = _(course.sessions || []).pluck('sessionId')
+  const sessions = Sessions.find({ _id: { $in: sessionIds } }).fetch()
 
   return {
     course: course,
-    sessions: sessions,
-    students: students,
+    sessions: _(sessions).indexBy('_id'),
+    students: _(students).indexBy('_id'),
     loading: !handle.ready()
   }
 }, _ManageCourse)

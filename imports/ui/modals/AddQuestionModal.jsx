@@ -85,7 +85,7 @@ export class AddQuestionModal extends ControlledForm {
 
   /**
    * handleSubmit(Event: e)
-   * onSubmit handler for add form. Calls sessions.addQuestion
+   * onSubmit handler for add form. Calls questions.copyToSession
    */
   handleSubmit (e) {
     super.handleSubmit(e)

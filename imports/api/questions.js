@@ -8,7 +8,7 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
 
-import { Courses, profHasCoursePermission } from './courses'
+import { Courses } from './courses'
 import { Sessions } from './sessions'
 
 import { _ } from 'underscore'
@@ -63,14 +63,36 @@ QuestionImages.allow({ insert: () => true, update: () => true, remove: () => tru
 
 // data publishing
 if (Meteor.isServer) {
+  // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
       return Questions.find({ submittedBy: this.userId, sessionId: sessionId })
     } else this.ready()
   })
+
+  // questions owned by a professor
   Meteor.publish('questions.library', function () {
     if (this.userId) {
-      return Questions.find({ submittedBy: this.userId, originalQuestion: {$exists: false} })
+      return Questions.find({ submittedBy: this.userId, sessionId: {$exists: false} })
+    } else this.ready()
+  })
+
+  // truly public questions
+  Meteor.publish('questions.public', function () {
+    if (this.userId) {
+      return Questions.find({ public: true, courseId: {$exists: false} })
+    } else this.ready()
+  })
+
+  // truly public questions
+  Meteor.publish('questions.fromStudent', function () {
+    if (this.userId) {
+      const cArr = _(Courses.find({ owner: this.userId }).fetch()).pluck('_id')
+      return Questions.find({
+        courseId: {$in: cArr},
+        sessionId: {$exists: false},
+        public: true
+      })
     } else this.ready()
   })
 }

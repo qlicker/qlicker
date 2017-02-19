@@ -21,6 +21,7 @@
     "draftjs-to-html": "^0.6.0",
     "eslint": "^3.11.1",
     "immutable": "^3.8.1",
+    "jquery": "^2.2.0",
     "jshint": "^2.9.4",
     "meteor-node-stubs": "~0.2.0",
     "react": "^15.4.1",
