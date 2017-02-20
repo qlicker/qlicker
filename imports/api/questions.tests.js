@@ -9,7 +9,7 @@ import { expect } from 'meteor/practicalmeteor:chai'
 
 import { _ } from 'underscore'
 
-import { QUESTION_TYPE }  from '../configs'
+import { QUESTION_TYPE } from '../configs'
 
 import { restoreStubs, createStubs } from '../../stubs.tests.js'
 
@@ -61,9 +61,41 @@ if (Meteor.isServer) {
         })
       })
 
-      it('can create question as student (questions.insert)')
+      it('can create question as student (questions.insert)', () => {
+        // create prof and course
+        const profUserId = createAndStubProfessor()
+        const courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
 
-      it('can delete question (questions.delete)')
+        // create and add student
+        const studentUserId = Accounts.createUser({
+          email: 'lol@email.com',
+          password: 'test value',
+          profile: {
+            firstname: 'test value',
+            lastname: 'test value',
+            roles: ['student']
+          }
+        })
+        Meteor.call('courses.addStudent', courseId, studentUserId)
+
+        // stub student
+        restoreStubs()
+        createStubs(studentUserId)
+        const questionId = Meteor.call('questions.insert', _({ courseId: courseId }).extend(sampleQuestion))
+
+        // check inserted question
+        const qFromDb = Questions.findOne({ _id: questionId })
+        expect(qFromDb.courseId).to.equal(courseId)
+        expect(qFromDb.public).to.equal(true)
+        expect(qFromDb.submittedBy).to.equal(studentUserId)
+      })
+
+      it('can delete question (questions.delete)', () => {
+        prepQuestionAndSession((_, questionId) => {
+          Meteor.call('questions.delete', questionId)
+          expect(Questions.find({ _id: questionId }).fetch()).to.have.length(0)
+        })
+      })
 
       it('can edit question (questions.update)', () => {
         prepQuestionAndSession((_, questionId) => {

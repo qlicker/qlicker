@@ -84,7 +84,7 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // truly public questions
+  // questions submitted to specific course
   Meteor.publish('questions.fromStudent', function () {
     if (this.userId) {
       const cArr = _(Courses.find({ owner: this.userId }).fetch()).pluck('_id')
@@ -100,6 +100,10 @@ if (Meteor.isServer) {
 // data methods
 Meteor.methods({
 
+  /**
+   * questions.insert(Question question)
+   * inserts a new question
+   */
   'questions.insert' (question) {
     if (question._id) { // if _id already exists, update the question
       return Meteor.call('questions.update', question)
@@ -123,6 +127,10 @@ Meteor.methods({
     return Questions.insert(question)
   },
 
+  /**
+   * questions.update(Question question)
+   * updates all question details
+   */
   'questions.update' (question) {
     check(question._id, Helpers.MongoID)
     check(question, questionPattern)
@@ -134,13 +142,23 @@ Meteor.methods({
     })
   },
 
+  /**
+   * questions.delete(MongoId (string) questionId)
+   * deletes question
+   */
   'questions.delete' (questionId) {
     check(questionId, Helpers.MongoID)
 
-    // TODO check permission
+    const question = Questions.findOne({ _id: questionId })
+    if (question.submittedBy !== Meteor.userId()) throw Error('Not authorized to delete question')
+
     return Questions.remove({ _id: questionId })
   },
 
+  /**
+   * questions.copyToSession(MongoId (string) sessionId, MongoId (string) questionId)
+   * duplicates question and adds it to a question
+   */
   'questions.copyToSession' (sessionId, questionId) {
     const session = Sessions.findOne({ _id: sessionId })
     const question = Questions.findOne({ _id: questionId })
@@ -154,6 +172,10 @@ Meteor.methods({
     return copiedQuestionId
   },
 
+  /**
+   * questions.possibleTags()
+   * returns a list of autocomplete tag sugguestions for the current user
+   */
   'questions.possibleTags' () {
     let tags = []
 
@@ -174,6 +196,10 @@ Meteor.methods({
     return tags
   },
 
+  /**
+   * questions.addTag(MongoId (string) questionId, String tag)
+   * adds a tag to the session tag set
+   */
   'questions.addTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
     if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
@@ -183,6 +209,10 @@ Meteor.methods({
     })
   },
 
+  /**
+   * questions.removeTag(MongoId (string) questionId, String tag)
+   * removes a tag from a question
+   */
   'questions.removeTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
     if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')

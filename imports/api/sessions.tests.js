@@ -123,7 +123,20 @@ if (Meteor.isServer) {
         })
       })
 
-      it('can batch edit question list (sessions.batchEdit)')
+      it('can batch edit question list (sessions.batchEdit)', () => {
+        prepQuestionAndSession((sessionId, questionId) => {
+          // use 3 of the same questions for testing. (ids will be different)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+
+          const originalQlist = Sessions.findOne({ _id: sessionId }).questions
+
+          const shuffled = _(originalQlist).shuffle()
+          Meteor.call('sessions.batchEdit', sessionId, shuffled)
+          expect(shuffled).to.deep.equal(Sessions.findOne({ _id: sessionId }).questions)
+        })
+      })
     })// end describe('methods')
   }) // end describe('Sessions')
 } // end Meteor.isServer
