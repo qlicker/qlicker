@@ -6,7 +6,7 @@
 import React from 'react'
 import _ from 'underscore'
 
-import { ControlledForm } from './ControlledForm'
+import { ControlledForm } from '../ControlledForm'
 
 export const DEFAULT_STATE = {
   name: '',

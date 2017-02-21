@@ -1,5 +1,25 @@
 
 .ql-manage-session {
 
+  .ql-session-sidebar {
+    background: white;
+    border-right: 1px solid #ddd;
+  }
+
+  .ql-session-child-container {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 18px;
+    width: 100%;
+    margin: 10px;
+
+    .ql-header-text-input {
+      width: 100%;
+    }
+
+    &.ql-add-question-prompt {
+      text-align: center;
+    }
+  }
 
 }

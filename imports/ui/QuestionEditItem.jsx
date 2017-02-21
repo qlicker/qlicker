@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// CreateQuestionModal.jsx: popup dialog to prompt for course details
+// QuestionEditItem.jsx: component for editing/create used in session creation
 
 import React from 'react'
 import _ from 'underscore'
@@ -9,15 +9,15 @@ import _ from 'underscore'
 // draft-js
 import { Editor } from 'react-draft-wysiwyg'
 import { EditorState, convertFromHTML, ContentState } from 'draft-js'
-import { DraftHelper } from '../../draft-helpers'
+import { DraftHelper } from '../draft-helpers'
 
 import { WithContext as ReactTags } from 'react-tag-input'
 
-import { ControlledForm } from '../ControlledForm'
-import { QuestionImages } from '../../api/questions'
+import { ControlledForm } from './ControlledForm'
+import { QuestionImages } from '../api/questions'
 
 // constants
-import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../../configs'
+import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../configs'
 
 export const DEFAULT_STATE = {
   question: '',
@@ -29,7 +29,7 @@ export const DEFAULT_STATE = {
   tags: []
 }
 
-export class CreateQuestionModal extends ControlledForm {
+export class QuestionEditItem extends ControlledForm {
 
   constructor (props) {
     super(props)
@@ -339,11 +339,11 @@ export class CreateQuestionModal extends ControlledForm {
       </div>)
     }
 
-    return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
-        <div className='ql-modal-header'>
+    return (
+      <div className='ql-question-edit-item'>
+        <div className='header'>
           <h2>{ !this.state._id ? 'Add a Question' : 'Edit Question' }</h2>
-          <select defaultValue={this.state.type} onChange={this.changeType} className='ql-header-button question-type form-control'>
+          <select defaultValue={this.state.type} onChange={this.changeType} className='question-type form-control'>
             {
               _(QUESTION_TYPE).keys().map((k) => {
                 const val = QUESTION_TYPE[k]
@@ -352,7 +352,7 @@ export class CreateQuestionModal extends ControlledForm {
             }
           </select>
           { this.state.type === QUESTION_TYPE.MC
-            ? <button className='ql-header-button btn btn-default' onClick={this.addAnswer}>Add Answer</button>
+            ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
             : '' }
 
         </div>
@@ -378,9 +378,8 @@ export class CreateQuestionModal extends ControlledForm {
           </div>
         </form>
 
-      </div>
-    </div>)
+      </div>)
   } //  end render
 
-} // end CreateQuestionModal
+} // end QuestionEditItem
 

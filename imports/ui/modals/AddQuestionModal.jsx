@@ -6,7 +6,7 @@
 import React, { PropTypes } from 'react'
 import _ from 'underscore'
 
-import { ControlledForm } from './ControlledForm'
+import { ControlledForm } from '../ControlledForm'
 
 import { QuestionListItem } from '../QuestionListItem'
 

@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 
-import { ControlledForm } from './ControlledForm'
+import { ControlledForm } from '../ControlledForm'
 
 export const DEFAULT_STATE = {
   deptCode: '',

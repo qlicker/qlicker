@@ -7,6 +7,8 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import _ from 'underscore'
+import $ from 'jquery'
+
 import { createContainer } from 'meteor/react-meteor-data'
 import DragSortableList from 'react-drag-sortable'
 
@@ -15,6 +17,7 @@ import { Questions } from '../../../api/questions'
 
 import { AddQuestionModal } from '../../modals/AddQuestionModal'
 import { QuestionListItem } from '../../QuestionListItem'
+import { QuestionEditItem } from '../../QuestionEditItem'
 
 class _ManageSession extends Component {
 
@@ -53,7 +56,7 @@ class _ManageSession extends Component {
     Meteor.call('sessions.edit', this.state.session, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else {
-        alertify.success('Question Added')
+        alertify.success('Session details saved')
         this.setState({ editing: false })
       }
     })
@@ -87,6 +90,13 @@ class _ManageSession extends Component {
     })
   }
 
+  componentDidMount () {
+    $('#sidebar-tabs a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    })
+  }
+
   render () {
     const startEditing = () => {
       this.setState({ editing: true })
@@ -109,50 +119,93 @@ class _ManageSession extends Component {
 
     return (
       <div className='container ql-manage-session'>
-        <h2>Session: { this.state.session.name } </h2>
-        { !this.state.editing ? <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button> : '' }
-        <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>
-          Name: { this.state.editing
-            ? <input type='text' className='form-control' data-name='name' onChange={this.setValue} value={this.state.session.name} />
-            : this.state.session.name }<br />
 
-          Description: { this.state.editing
-            ? <textarea className='form-control' data-name='description'
-              onChange={this.setValue}
-              placeholder='Quiz on topic 3'
-              value={this.state.session.description} />
-            : this.state.session.description }<br />
+        <div className='row'>
+          <div className='col-md-4 ql-session-sidebar'>
+            <div className='tab-content'>
+              <div role='tabpanel' className='tab-pane active' id='session'>
+                <h2>Session: { this.state.session.name }</h2>
 
-          Format: { this.state.editing
-            ? <select className='form-control' data-name='quiz' onChange={this.setValue} defaultValue={this.state.session.quiz}>
-              <option value={false}>Lecture Poll</option>
-              <option value>Online Quiz</option>
-            </select>
-            : this.state.session.quiz ? 'Quiz' : 'Lecture Poll' }<br />
+                { !this.state.editing ? <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button> : '' }
+                <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>
+                  Name: { this.state.editing
+                    ? <input type='text' className='form-control' data-name='name' onChange={this.setValue} value={this.state.session.name} />
+                    : this.state.session.name }<br />
 
-          Status: { this.state.editing
-            ? <select className='form-control' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
-              <option value='hidden'>Draft (Hidden)</option>
-              <option value='visible'>Visible</option>
-              <option value='running'>Active</option>
-              <option value='done'>Done</option>
-            </select>
-            : this.state.session.status }<br />
+                  Description: { this.state.editing
+                    ? <textarea className='form-control' data-name='description'
+                      onChange={this.setValue}
+                      placeholder='Quiz on topic 3'
+                      value={this.state.session.description} />
+                    : this.state.session.description }<br />
 
-          { this.state.editing ? quizDate : quizDate }
-          { this.state.editing ? <input className='btn btn-default' type='submit' /> : '' }
-        </form>
+                  Format: { this.state.editing
+                    ? <select className='form-control' data-name='quiz' onChange={this.setValue} defaultValue={this.state.session.quiz}>
+                      <option value={false}>Lecture Poll</option>
+                      <option value>Online Quiz</option>
+                    </select>
+                    : this.state.session.quiz ? 'Quiz' : 'Lecture Poll' }<br />
 
-        <h3>Questions</h3>
-        <button className='btn btn-default' ref='addQuestionButton' onClick={toggleAddingQuestion}>Add Question</button>
-        <ol className='ql-session-question-list'>
-          {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
-        </ol>
+                  Status: { this.state.editing
+                    ? <select className='form-control' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
+                      <option value='hidden'>Draft (Hidden)</option>
+                      <option value='visible'>Visible</option>
+                      <option value='running'>Active</option>
+                      <option value='done'>Done</option>
+                    </select>
+                    : this.state.session.status }<br />
+
+                  { this.state.editing ? quizDate : quizDate }
+                  { this.state.editing ? <input className='btn btn-default' type='submit' /> : '' }
+                </form>
+
+                <hr />
+                <button className='btn btn-default' ref='addQuestionButton' onClick={toggleAddingQuestion}>Add Question</button>
+                <ol className='ql-session-question-list'>
+                  {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
+                </ol>
+              </div>
+              <div role='tabpanel' className='tab-pane' id='questions'>
+                question library here
+              </div>
+            </div>
+
+            <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
+              <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
+              <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Questions</a></li>
+            </ul>
+
+          </div>
+          <div className='col-md-8' >
+
+            <div className='ql-session-child-container'>
+              <input type='text' className='ql-header-text-input' value={this.state.session.name} />
+            </div>
+
+            {
+              this.state.session.questions.map((questionId) => {
+                const q = this.props.questions[questionId]
+                return q ? (<div className='ql-session-child-container'>
+                  <QuestionEditItem question={q} />
+                </div>) : ''
+              })
+            }
+
+            <div className='ql-session-child-container ql-add-question-prompt'>
+              <div className='ql-prompt-option'>New Question</div>
+              <div className='ql-prompt-option'>Copy from library</div>
+              <div className='ql-prompt-option'>Copy from public</div>
+            </div>
+
+
+
+          </div>
+        </div>
 
         { /* add question modal */
           this.state.addingQuestion
             ? <AddQuestionModal
-              session={this.props.session}
+              session={this.state.session}
               questions={this.props.questionPool}
               done={toggleAddingQuestion} />
             : ''
