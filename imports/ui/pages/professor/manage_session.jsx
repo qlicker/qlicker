@@ -33,6 +33,7 @@ class _ManageSession extends Component {
       this.state.session.questions.push(-1)
     } else this.state.session.questions = [-1]
 
+    this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
   }
@@ -64,6 +65,27 @@ class _ManageSession extends Component {
       else alertify.success('Order Saved')
     })
   }
+
+
+  /**
+   * addToSession(MongoId (String) questionId)
+   * handler for question sidebar. Calls questions.copyToSession
+   */
+  addToSession (questionId) {
+    if (!questionId) {
+      alertify.error('Please select a question to add')
+      return
+    }
+
+    Meteor.call('questions.copyToSession', this.state.session._id, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Question Added')
+        this.done()
+      }
+    })
+  }
+
 
   componentDidMount () {
     $('#sidebar-tabs a').click(function (e) {
@@ -105,7 +127,7 @@ class _ManageSession extends Component {
                 <QuestionSidebar
                   session={this.state.session}
                   questions={this.props.questionPool}
-                  onSelect={(qId)=>{alert(qId)}} />
+                  onSelect={this.addToSession} />
               </div>
             </div>
 
