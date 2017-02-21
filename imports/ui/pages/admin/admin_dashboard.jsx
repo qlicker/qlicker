@@ -4,8 +4,8 @@
 // admin_dashboard.jsx: admin overview page
 
 import React from 'react'
-import { LogoutButton } from '../Buttons'
-import ProfileCard from '../ProfileCard'
+import { LogoutButton } from '../../Buttons'
+import ProfileCard from '../../ProfileCard'
 
 export const AdminDashboard = function () {
   return (

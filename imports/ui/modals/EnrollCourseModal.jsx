@@ -5,10 +5,7 @@
 
 import React, { Component } from 'react'
 
-import { ControlledForm } from './ControlledForm'
-
-// css
-if (Meteor.isClient) import './EnrollCourseModal.scss'
+import { ControlledForm } from '../ControlledForm'
 
 export const DEFAULT_STATE = {
   deptCode: '',
@@ -76,4 +73,6 @@ export class EnrollCourseModal extends ControlledForm {
     </div>)
   } //  end render
 
-} // end CreateCourseModal
+} // end EnrollCourseModal
+
+

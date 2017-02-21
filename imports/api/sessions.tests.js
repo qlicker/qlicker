@@ -58,7 +58,7 @@ if (Meteor.isServer) {
         const sessionId = courseFromDb.sessions[0].sessionId
 
         Meteor.call('courses.deleteSession', courseId, sessionId)  // method test
-        
+
         courseFromDb = Courses.findOne({ _id: courseId })
         const sessionFromDb = Sessions.find({ _id: sessionId })
         expect(courseFromDb.sessions.length).to.equal(0)
@@ -120,6 +120,21 @@ if (Meteor.isServer) {
 
           const sessionFromDb = Sessions.findOne({ _id: sessionId })
           expect(sessionFromDb.questions.length).to.equal(0)
+        })
+      })
+
+      it('can batch edit question list (sessions.batchEdit)', () => {
+        prepQuestionAndSession((sessionId, questionId) => {
+          // use 3 of the same questions for testing. (ids will be different)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+
+          const originalQlist = Sessions.findOne({ _id: sessionId }).questions
+
+          const shuffled = _(originalQlist).shuffle()
+          Meteor.call('sessions.batchEdit', sessionId, shuffled)
+          expect(shuffled).to.deep.equal(Sessions.findOne({ _id: sessionId }).questions)
         })
       })
     })// end describe('methods')

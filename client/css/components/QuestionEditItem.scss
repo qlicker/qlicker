@@ -1,7 +1,7 @@
 
-.ql-modal-createquestion {
+.ql-question-edit-item {
 
-  .ql-modal-header {
+  .header {
     select.question-type {
       width: 200px;
     }
@@ -10,7 +10,6 @@
   .answer-no-wysiwyg {
     font-size: 130%;
     font-weight: bold;
-    background: #eee;
     padding: 10px;
     text-align: center;
   }
@@ -35,7 +34,6 @@
   }
 
   .editor-wrapper {
-    background: #eee;
     
     .rdw-option-wrapper {
       height: 30px;

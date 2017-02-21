@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// CreateQuestionModal.jsx: popup dialog to prompt for course details
+// QuestionEditItem.jsx: component for editing/create used in session creation
 
 import React from 'react'
 import _ from 'underscore'
@@ -9,19 +9,19 @@ import _ from 'underscore'
 // draft-js
 import { Editor } from 'react-draft-wysiwyg'
 import { EditorState, convertFromHTML, ContentState } from 'draft-js'
-import { DraftHelper } from '../../draft-helpers'
+import { DraftHelper } from '../draft-helpers'
 
 import { WithContext as ReactTags } from 'react-tag-input'
 
-import { ControlledForm } from '../ControlledForm'
-import { QuestionImages } from '../../api/questions'
+import { ControlledForm } from './ControlledForm'
+import { QuestionImages } from '../api/questions'
 
 // constants
-import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../../configs'
+import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../configs'
 
 export const DEFAULT_STATE = {
   question: '',
-  type: QUESTION_TYPE.MC, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
+  type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
   answers: [], // { correct: false, answer: 'A', content: editor content }
   submittedBy: '',
@@ -29,7 +29,7 @@ export const DEFAULT_STATE = {
   tags: []
 }
 
-export class CreateQuestionModal extends ControlledForm {
+export class QuestionEditItem extends ControlledForm {
 
   constructor (props) {
     super(props)
@@ -58,7 +58,7 @@ export class CreateQuestionModal extends ControlledForm {
       this.state = _.extend({}, DEFAULT_STATE)
 
       // bold placehodler text for question editor
-      const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h2>&nbsp; ?</h2>').contentBlocks)
+      const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h2>Question?</h2>').contentBlocks)
       this.state.content = EditorState.createWithContent(initialQuestionState)
     }
     // set draft-js editor toolbar options
@@ -225,32 +225,7 @@ export class CreateQuestionModal extends ControlledForm {
       return
     }
 
-    // convert draft-js objects into JSON
-    const serialized = DraftHelper.toJson(question.content)
-    question.content = serialized.json
-    question.question = serialized.plainText
-
-    question.answers = []
-    this.state.answers.forEach((a) => {
-      let copy = _.extend({}, a)
-      if (copy.wysiwyg) {
-        const serialized = DraftHelper.toJson(copy.content)
-        copy.content = serialized.json
-        copy.plainText = serialized.plainText
-      } else if (question.type === QUESTION_TYPE.TF) {
-        copy.content = a.answer
-        copy.plainText = a.answer
-      }
-
-      question.answers.push(copy)
-    })
-
-    question.tags = []
-    this.state.tags.forEach((t) => {
-      question.tags.push(_.extend({}, t))
-    })
-
-    question.courseId = this.props.courseId
+    // TODO set session id
 
     Meteor.call('questions.insert', question, (error) => {
       if (error) {
@@ -339,48 +314,67 @@ export class CreateQuestionModal extends ControlledForm {
       </div>)
     }
 
-    return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
-        <div className='ql-modal-header'>
-          <h2>{ !this.state._id ? 'Add a Question' : 'Edit Question' }</h2>
-          <select defaultValue={this.state.type} onChange={this.changeType} className='ql-header-button question-type form-control'>
+    return (
+      <div className='ql-question-edit-item'>
+        <div className='header'>
+
+          { newEditor(this.state.content, this.onEditorStateChange) }
+
+          {/*
+          <select defaultValue={this.state.type} onChange={this.changeType} className='question-type form-control'>
             {
               _(QUESTION_TYPE).keys().map((k) => {
                 const val = QUESTION_TYPE[k]
                 return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
               })
             }
-          </select>
-          { this.state.type === QUESTION_TYPE.MC
-            ? <button className='ql-header-button btn btn-default' onClick={this.addAnswer}>Add Answer</button>
-            : '' }
+          </select> */}
 
+          <div className='ql-prompt-option'>
+            MC Icon
+            <input type='radio' value={QUESTION_TYPE.MC} name='question-type[]' onChange={this.changeType} />
+          </div>
+
+          <div className='ql-prompt-option'>
+            MS Icon
+            <input type='radio' value={QUESTION_TYPE.MS} name='question-type[]' onChange={this.changeType} />
+          </div>
+
+          <div className='ql-prompt-option'>
+            TF Icon
+            <input type='radio' value={QUESTION_TYPE.TF} name='question-type[]' onChange={this.changeType} />
+          </div>
+
+          <div className='ql-prompt-option'>
+            SA Icon
+            <input type='radio' value={QUESTION_TYPE.SA} name='question-type[]' onChange={this.changeType} />
+          </div>
         </div>
+
+
+        { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
+          ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
+          : '' }
 
         <form ref='questionForm' className='ql-form-question' onSubmit={this.handleSubmit}>
           <div className='row'>
-            <div className='col-md-8'>{ newEditor(this.state.content, this.onEditorStateChange) }</div>
-            <div className='col-md-4'>
+
+            {/*<div className='col-md-4'>
               <h3>Tags</h3>
               <ReactTags ref='tagInput' tags={this.state.tags}
                 suggestions={this.tagSuggestions}
                 handleDelete={this.deleteTag}
                 handleAddition={this.addTag}
                 handleDrag={this.handleDrag} />
-            </div>
+            </div> */}
           </div>
 
           { editorRows }
 
-          <div className='ql-buttongroup'>
-            <a className='btn btn-default' onClick={this.done}>Cancel</a>
-            <input className='btn btn-default' type='submit' id='submit' />
-          </div>
         </form>
 
-      </div>
-    </div>)
+      </div>)
   } //  end render
 
-} // end CreateQuestionModal
+} // end QuestionEditItem
 

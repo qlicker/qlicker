@@ -8,18 +8,18 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { Courses } from '../../api/courses'
-import { Sessions } from '../../api/sessions'
-import { SessionListItem } from '../SessionListItem'
+import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
 
-if (Meteor.isClient) import './course.scss'
+import { Courses } from '../../../api/courses'
+import { Sessions } from '../../../api/sessions'
+import { SessionListItem } from '../../SessionListItem'
 
 class _Course extends Component {
 
   constructor (props) {
     super(props)
 
-    this.state = { }
+    this.state = { submittingQuestion: false }
   }
 
   renderSessionList () {
@@ -35,12 +35,26 @@ class _Course extends Component {
   }
 
   render () {
-    console.log(this.props.sessions)
+    const toggleSubmittingQuestion = () => {
+      this.setState({ submittingQuestion: !this.state.submittingQuestion })
+    }
+
     return (
       <div className='container ql-manage-course'>
         <h2>Course: {this.props.course.name} </h2>
-        { JSON.stringify(this.props.course) }
+
+        <button className='btn btn-default' onClick={toggleSubmittingQuestion}>Submit Question</button>
+        <br />
         { this.renderSessionList() }
+
+        <br />
+        Debug:
+        { JSON.stringify(this.props.course) }
+
+        { this.state.submittingQuestion
+          ? <CreateQuestionModal courseId={this.props.course._id} done={toggleSubmittingQuestion} />
+          : '' }
+
       </div>)
   }
 

@@ -6,9 +6,7 @@
 import React, { Component } from 'react'
 import _ from 'underscore'
 
-import { ControlledForm } from './ControlledForm'
-
-// if (Meteor.isClient) import './CreateCourseModal.scss'
+import { ControlledForm } from '../ControlledForm'
 
 export const DEFAULT_STATE = {
   name: '',
