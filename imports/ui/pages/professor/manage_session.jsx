@@ -15,9 +15,10 @@ import DragSortableList from 'react-drag-sortable'
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
 
-import { AddQuestionModal } from '../../modals/AddQuestionModal'
+import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
+import { SessionDetails } from '../../SessionDetails'
 
 class _ManageSession extends Component {
 
@@ -28,38 +29,12 @@ class _ManageSession extends Component {
 
     this.sessionId = this.props.sessionId
 
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.setValue = this.setValue.bind(this)
+    if (this.state.session.questions) {
+      this.state.session.questions.push(-1)
+    } else this.state.session.questions = [-1]
+
     this.removeQuestion = this.removeQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
-  }
-
-  /**
-   * setValue(Event: e)
-   * set edited values for session editing
-   */
-  setValue (e) {
-    let stateEdits = this.state
-    let key = e.target.dataset.name
-    if (key === 'quiz') stateEdits.session[e.target.dataset.name] === (e.target.value === 'true')
-    else stateEdits.session[e.target.dataset.name] = e.target.value
-    this.setState(stateEdits)
-  }
-
-  /**
-   * handleSubmit(Event: e)
-   * onSubmit handler for session edit form. Calls sessions.edit
-   */
-  handleSubmit (e) {
-    e.preventDefault()
-
-    Meteor.call('sessions.edit', this.state.session, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else {
-        alertify.success('Session details saved')
-        this.setState({ editing: false })
-      }
-    })
   }
 
   /**
@@ -98,18 +73,11 @@ class _ManageSession extends Component {
   }
 
   render () {
-    const startEditing = () => {
-      this.setState({ editing: true })
-    }
-    const toggleAddingQuestion = () => {
-      this.setState({ addingQuestion: !this.state.addingQuestion })
-    }
+    if (this.props.loading) return <div>Loading</div>
 
-    const quizDate = this.state.quiz ? 'Deadline: ' + this.props.session.dueDate : ''
-    const quizEdit = this.state.quiz ? 'Deadline: Date picker here' : ''
-
+    const questionList = this.state.session.questions || []
     const qlItems = []
-    this.state.session.questions.forEach((questionId) => {
+    questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
         content: <QuestionListItem question={q} remove={this.removeQuestion} />,
@@ -126,53 +94,24 @@ class _ManageSession extends Component {
               <div role='tabpanel' className='tab-pane active' id='session'>
                 <h2>Session: { this.state.session.name }</h2>
 
-                { !this.state.editing ? <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button> : '' }
-                <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>
-                  Name: { this.state.editing
-                    ? <input type='text' className='form-control' data-name='name' onChange={this.setValue} value={this.state.session.name} />
-                    : this.state.session.name }<br />
-
-                  Description: { this.state.editing
-                    ? <textarea className='form-control' data-name='description'
-                      onChange={this.setValue}
-                      placeholder='Quiz on topic 3'
-                      value={this.state.session.description} />
-                    : this.state.session.description }<br />
-
-                  Format: { this.state.editing
-                    ? <select className='form-control' data-name='quiz' onChange={this.setValue} defaultValue={this.state.session.quiz}>
-                      <option value={false}>Lecture Poll</option>
-                      <option value>Online Quiz</option>
-                    </select>
-                    : this.state.session.quiz ? 'Quiz' : 'Lecture Poll' }<br />
-
-                  Status: { this.state.editing
-                    ? <select className='form-control' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
-                      <option value='hidden'>Draft (Hidden)</option>
-                      <option value='visible'>Visible</option>
-                      <option value='running'>Active</option>
-                      <option value='done'>Done</option>
-                    </select>
-                    : this.state.session.status }<br />
-
-                  { this.state.editing ? quizDate : quizDate }
-                  { this.state.editing ? <input className='btn btn-default' type='submit' /> : '' }
-                </form>
+                <SessionDetails session={this.state.session} />
 
                 <hr />
-                <button className='btn btn-default' ref='addQuestionButton' onClick={toggleAddingQuestion}>Add Question</button>
                 <ol className='ql-session-question-list'>
                   {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
                 </ol>
               </div>
               <div role='tabpanel' className='tab-pane' id='questions'>
-                question library here
+                <QuestionSidebar
+                  session={this.state.session}
+                  questions={this.props.questionPool}
+                  onSelect={(qId)=>{alert(qId)}} />
               </div>
             </div>
 
             <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
               <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
-              <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Questions</a></li>
+              <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
             </ul>
 
           </div>
@@ -183,33 +122,20 @@ class _ManageSession extends Component {
             </div>
 
             {
-              this.state.session.questions.map((questionId) => {
-                const q = this.props.questions[questionId]
-                return q ? (<div className='ql-session-child-container'>
+              questionList.map((questionId) => {
+                const q = questionId === -1 ? null : this.props.questions[questionId]
+
+                return (<div className='ql-session-child-container'>
                   <QuestionEditItem question={q} />
-                </div>) : ''
+                </div>)
               })
             }
-
-            <div className='ql-session-child-container ql-add-question-prompt'>
-              <div className='ql-prompt-option'>New Question</div>
-              <div className='ql-prompt-option'>Copy from library</div>
-              <div className='ql-prompt-option'>Copy from public</div>
-            </div>
 
 
 
           </div>
         </div>
 
-        { /* add question modal */
-          this.state.addingQuestion
-            ? <AddQuestionModal
-              session={this.state.session}
-              questions={this.props.questionPool}
-              done={toggleAddingQuestion} />
-            : ''
-        }
       </div>)
   }
 
@@ -223,7 +149,7 @@ export const ManageSession = createContainer((props) => {
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
   return {
     questions: _.indexBy(questionsInSession, '_id'),
-    questionPool: Questions.find({ originalQuestion: {$exists: false} }).fetch(),
+    questionPool: Questions.find({ sessionId: {$exists: false} }).fetch(),
     session: session,
     loading: !handle.ready()
   }

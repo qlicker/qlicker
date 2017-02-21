@@ -1,18 +1,18 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// AddQuestionModal.jsx: popup dialog to prompt for course Enrollment details
+// QuestionSidebar.jsx: vertical component to search for questions
 
 import React, { PropTypes } from 'react'
 import _ from 'underscore'
 
-import { ControlledForm } from '../ControlledForm'
+import { ControlledForm } from './ControlledForm'
 
-import { QuestionListItem } from '../QuestionListItem'
+import { QuestionListItem } from './QuestionListItem'
 
-import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../../configs'
+import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
-export class AddQuestionModal extends ControlledForm {
+export class QuestionSidebar extends ControlledForm {
 
   constructor (props) {
     super(props)
@@ -41,6 +41,7 @@ export class AddQuestionModal extends ControlledForm {
    */
   setQuestion (questionId) {
     this.setState({ questionId: questionId })
+    this.props.onSelect(questionId)
   }
 
   /**
@@ -109,51 +110,38 @@ export class AddQuestionModal extends ControlledForm {
   }
 
   render () {
-    return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-addquestion container' onClick={this.preventPropagation}>
-        <div className='ql-modal-header'><h2>Add Question</h2></div>
+    return (
+      <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
 
-          <div className='row'>
-            <div className='col-md-4'>
-              <h3>Search and Filtering</h3>
-              <input type='text' className='form-control' onChange={_.throttle(this.setSearchString, 500)} />
+          <h3>Search and Filtering</h3>
+          <input type='text' className='form-control' onChange={_.throttle(this.setSearchString, 500)} />
 
-              <select defaultValue={this.state.type} onChange={this.setType} className='ql-header-button question-type form-control'>
-                <option key={-1} value={-1}>Any Type</option>
-                {
-                  _(QUESTION_TYPE).keys().map((k) => {
-                    const val = QUESTION_TYPE[k]
-                    return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
-                  })
-                }
-              </select>
+          <select defaultValue={this.state.type} onChange={this.setType} className='ql-header-button question-type form-control'>
+            <option key={-1} value={-1}>Any Type</option>
+            {
+              _(QUESTION_TYPE).keys().map((k) => {
+                const val = QUESTION_TYPE[k]
+                return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
+              })
+            }
+          </select>
 
-            </div>
-            <div className='col-md-8'>
-              { /* list questions */
-                  this.state.questionPool.map(q => {
-                    return (<div key={q._id} className={this.state.questionId === q._id ? 'correct-color' : ''}>
-                      { <QuestionListItem question={q} click={this.setQuestion} /> }
-                    </div>)
-                  })
-                }
-            </div>
-          </div>
-
-          <div className='ql-buttongroup'>
-            <a className='btn btn-default' onClick={this.done}>Cancel</a>
-            <input className='btn btn-default' type='submit' id='submit' />
-          </div>
+          { /* list questions */
+            this.state.questionPool.map(q => {
+              return (<div key={q._id} className={this.state.questionId === q._id ? 'correct-color' : ''}>
+                { <QuestionListItem question={q} click={this.setQuestion} /> }
+              </div>)
+            })
+          }
 
         </form>
-      </div>
-    </div>)
+      </div>)
   } //  end render
 
-} // end AddQuestionModal
+} // end QuestionSidebar
 
-AddQuestionModal.propTypes = {
+QuestionSidebar.propTypes = {
   session: PropTypes.object.isRequired,
   questions: PropTypes.array.isRequired
 }
