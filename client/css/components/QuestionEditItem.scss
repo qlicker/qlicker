@@ -1,10 +1,13 @@
 
 .ql-question-edit-item {
 
-  .question-editor-wrapper {
+  .editor-wrapper {
     border-bottom: 2px solid #ccc;
     margin-bottom: 5px;
-    font-size: 2em;
+
+    &.question-editor {
+      font-size: 2em;  
+    }
     
     .cke_textarea_inline {
       padding: 6px;

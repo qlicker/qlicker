@@ -3,17 +3,16 @@
 //
 // QuestionEditItem.jsx: component for editing/create used in session creation
 
-import React from 'react'
+import React, { PropTypes } from 'react'
 import _ from 'underscore'
 
-// draft-js
-import { Editor } from 'react-draft-wysiwyg'
-import { EditorState, convertFromHTML, ContentState } from 'draft-js'
-import { DraftHelper } from '../draft-helpers'
+import ReactRadioButtonGroup from 'react-radio-button-group'
 
 import { WithContext as ReactTags } from 'react-tag-input'
 
 import { ControlledForm } from './ControlledForm'
+import { Editor } from './Editor'
+import { RadioPrompt } from './RadioPrompt'
 import { QuestionImages } from '../api/questions'
 
 // constants
@@ -48,18 +47,8 @@ export class QuestionEditItem extends ControlledForm {
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
-
-      this.state.content = DraftHelper.toEditorState(this.state.content)
-
-      this.state.answers.forEach((a) => {
-        if (a.wysiwyg) a.content = DraftHelper.toEditorState(a.content)
-      })
     } else { // if adding new question
       this.state = _.extend({}, DEFAULT_STATE)
-
-      // bold placehodler text for question editor
-      const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h2>Question?</h2>').contentBlocks)
-      this.state.content = EditorState.createWithContent(initialQuestionState)
     }
     // set draft-js editor toolbar options
     this.options = _.extend({}, EDITOR_OPTIONS)
@@ -78,11 +67,11 @@ export class QuestionEditItem extends ControlledForm {
   } // end constructor
 
   /**
-   * changeType (Event: e)
+   * changeType (Number: newValue)
    * change question type to MC, TF or SA
    */
-  changeType (e) {
-    let type = parseInt(e.target.value)
+  changeType (newValue) {
+    let type = parseInt(newValue)
 
     this.setState({ type: type, answers: [] }, () => {
       if (type === QUESTION_TYPE.MC) {
@@ -261,39 +250,15 @@ export class QuestionEditItem extends ControlledForm {
   } // end uploadImageCallBack
 
   componentWillReceiveProps (nextProps) {
-    this.setState(nextProps.question)
-  }
-
-  componentDidMount () {
-    let elements = CKEDITOR.document.find('.question-editor'),
-      i = 0,
-      element
-
-    while ((element = elements.getItem(i++))) {
-      CKEDITOR.inline(element, {
-        placeholder: 'Question?'
-      })
-    }
+    if (nextProps && nextProps.question) this.setState(nextProps.question)
   }
 
   render () {
-    // create new draft-js editor with slimmed down confif
-    const newEditor = (state, callback) => {
-      return (<Editor
-        editorState={state}
-        onEditorStateChange={callback}
-        toolbarClassName='home-toolbar'
-        wrapperClassName='editor-wrapper'
-        editorClassName='home-editor'
-        toolbar={this.options}
-        uploadCallback={this.uploadImageCallBack} />)
-    }
-
-    // create wrapped draft-js editor based on answer object
+    console.log(this.state)
     const answerEditor = (a) => {
-      const editor = newEditor(a.content, (content) => {
+      const changeHandler = (content) => {
         this.setAnswerState(a.answer, content)
-      }, true)
+      }
 
       const wysiwygAnswer = (
         <div>
@@ -305,7 +270,11 @@ export class QuestionEditItem extends ControlledForm {
                 : <span className='incorrect-color'>Incorrect</span> }
             </span>
           </span>
-          { editor }
+          <Editor
+            change={changeHandler}
+            val={a.content}
+            className='answer-editor'
+            />
         </div>)
 
       const noWysiwygAnswer = (<div className='answer-no-wysiwyg'>
@@ -325,63 +294,45 @@ export class QuestionEditItem extends ControlledForm {
       let possiblyUndefined = i < len ? this.state.answers[i + 1] : undefined
 
       editorRows.push(<div key={'row_' + i + '-' + i + 1} className='row'>
-        {/* { answerEditor(gaurunteed) }
-        { possiblyUndefined ? answerEditor(possiblyUndefined) : '' } */}
-        editor here
+        { answerEditor(gaurunteed) }
+        { possiblyUndefined ? answerEditor(possiblyUndefined) : '' }
       </div>)
     }
+
+    const radioOptions = [
+      { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },
+      { value: QUESTION_TYPE.MS, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MS] },
+      { value: QUESTION_TYPE.TF, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.TF] },
+      { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
+    ]
 
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
-          {/* { newEditor(this.state.content, this.onEditorStateChange) } */}
-          <div className='question-editor-wrapper'>
-            <textarea className='question-editor' placeholder='Question?' />
-          </div>
-          <div className='ql-prompt-option'>
-            MC Icon
-            <input type='radio' value={QUESTION_TYPE.MC} name='question-type[]' onChange={this.changeType} />
-          </div>
 
-          <div className='ql-prompt-option'>
-            MS Icon
-            <input type='radio' value={QUESTION_TYPE.MS} name='question-type[]' onChange={this.changeType} />
-          </div>
+          <Editor
+            change={this.onEditorStateChange}
+            val={this.state.content}
+            className='question-editor'
+            placeholder='Question?' />
 
-          <div className='ql-prompt-option'>
-            TF Icon
-            <input type='radio' value={QUESTION_TYPE.TF} name='question-type[]' onChange={this.changeType} />
-          </div>
+          <RadioPrompt
+            options={radioOptions}
+            value={this.state.type}
+            onChange={this.changeType} />
 
-          <div className='ql-prompt-option'>
-            SA Icon
-            <input type='radio' value={QUESTION_TYPE.SA} name='question-type[]' onChange={this.changeType} />
-          </div>
         </div>
 
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
           ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
           : '' }
 
-        <form ref='questionForm' className='ql-form-question' onSubmit={this.handleSubmit}>
-          <div className='row'>
-
-            {/* <div className='col-md-4'>
-              <h3>Tags</h3>
-              <ReactTags ref='tagInput' tags={this.state.tags}
-                suggestions={this.tagSuggestions}
-                handleDelete={this.deleteTag}
-                handleAddition={this.addTag}
-                handleDrag={this.handleDrag} />
-            </div> */}
-          </div>
-
-          { editorRows }
-
-        </form>
-
+        {editorRows}
       </div>)
   } //  end render
 
 } // end QuestionEditItem
 
+QuestionEditItem.propTypes = {
+  done: PropTypes.func
+}

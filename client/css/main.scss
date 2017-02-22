@@ -167,16 +167,3 @@ $incorrect-color: #A72526;
   font-size: 2em;
   border: none;
 }
-
-.ql-prompt-option {
-  display: inline-block;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  padding: 14px;
-  cursor: pointer;
-
-  &:hover {
-    border: 1px solid $blue;
-    
-  }
-}
