@@ -260,6 +260,22 @@ export class QuestionEditItem extends ControlledForm {
     ) // promise
   } // end uploadImageCallBack
 
+  componentWillReceiveProps (nextProps) {
+    this.setState(nextProps.question)
+  }
+
+  componentDidMount () {
+    let elements = CKEDITOR.document.find('.question-editor'),
+      i = 0,
+      element
+
+    while ((element = elements.getItem(i++))) {
+      CKEDITOR.inline(element, {
+        placeholder: 'Question?'
+      })
+    }
+  }
+
   render () {
     // create new draft-js editor with slimmed down confif
     const newEditor = (state, callback) => {
@@ -309,27 +325,19 @@ export class QuestionEditItem extends ControlledForm {
       let possiblyUndefined = i < len ? this.state.answers[i + 1] : undefined
 
       editorRows.push(<div key={'row_' + i + '-' + i + 1} className='row'>
-        { answerEditor(gaurunteed) }
-        { possiblyUndefined ? answerEditor(possiblyUndefined) : '' }
+        {/* { answerEditor(gaurunteed) }
+        { possiblyUndefined ? answerEditor(possiblyUndefined) : '' } */}
+        editor here
       </div>)
     }
 
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
-
-          { newEditor(this.state.content, this.onEditorStateChange) }
-
-          {/*
-          <select defaultValue={this.state.type} onChange={this.changeType} className='question-type form-control'>
-            {
-              _(QUESTION_TYPE).keys().map((k) => {
-                const val = QUESTION_TYPE[k]
-                return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
-              })
-            }
-          </select> */}
-
+          {/* { newEditor(this.state.content, this.onEditorStateChange) } */}
+          <div className='question-editor-wrapper'>
+            <textarea className='question-editor' placeholder='Question?' />
+          </div>
           <div className='ql-prompt-option'>
             MC Icon
             <input type='radio' value={QUESTION_TYPE.MC} name='question-type[]' onChange={this.changeType} />
@@ -351,7 +359,6 @@ export class QuestionEditItem extends ControlledForm {
           </div>
         </div>
 
-
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
           ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
           : '' }
@@ -359,7 +366,7 @@ export class QuestionEditItem extends ControlledForm {
         <form ref='questionForm' className='ql-form-question' onSubmit={this.handleSubmit}>
           <div className='row'>
 
-            {/*<div className='col-md-4'>
+            {/* <div className='col-md-4'>
               <h3>Tags</h3>
               <ReactTags ref='tagInput' tags={this.state.tags}
                 suggestions={this.tagSuggestions}

@@ -29,9 +29,9 @@ class _ManageSession extends Component {
 
     this.sessionId = this.props.sessionId
 
-    if (this.state.session.questions) {
-      this.state.session.questions.push(-1)
-    } else this.state.session.questions = [-1]
+    // if (this.state.session.questions) {
+    //   this.state.session.questions.push(-1)
+    // } else this.state.session.questions = [-1]
 
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
@@ -79,13 +79,13 @@ class _ManageSession extends Component {
 
     Meteor.call('questions.copyToSession', this.state.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
-      else {
-        alertify.success('Question Added')
-        this.done()
-      }
+      else alertify.success('Question Added')
     })
   }
 
+  componentWillReceiveProps (nextProps) {
+    this.setState({ session: nextProps.session })
+  }
 
   componentDidMount () {
     $('#sidebar-tabs a').click(function (e) {
@@ -97,7 +97,7 @@ class _ManageSession extends Component {
   render () {
     if (this.props.loading) return <div>Loading</div>
 
-    const questionList = this.state.session.questions || []
+    let questionList = this.state.session.questions || []
     const qlItems = []
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
@@ -119,6 +119,7 @@ class _ManageSession extends Component {
                 <SessionDetails session={this.state.session} />
 
                 <hr />
+                <h3>Question Order</h3>
                 <ol className='ql-session-question-list'>
                   {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
                 </ol>
@@ -142,7 +143,6 @@ class _ManageSession extends Component {
             <div className='ql-session-child-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} />
             </div>
-
             {
               questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
@@ -169,6 +169,7 @@ export const ManageSession = createContainer((props) => {
     Meteor.subscribe('questions.library')
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
+
   return {
     questions: _.indexBy(questionsInSession, '_id'),
     questionPool: Questions.find({ sessionId: {$exists: false} }).fetch(),
