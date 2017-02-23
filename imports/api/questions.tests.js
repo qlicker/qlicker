@@ -21,13 +21,13 @@ import { sampleSession } from './sessions.tests'
 
 import './users.js'
 
-const exContentState = '{"entityMap":{},"blocks":[{"key":"deval","text":"New Question","type":"header-one","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}'
+const exContentState = '<p>Test question?</p>'
 
 export const sampleQuestion = {
-  question: 'Test question?',
+  plainText: 'Test question?',
   content: exContentState,
   type: QUESTION_TYPE.MC,
-  answers: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState, plainText: 'New Question' }],
+  answers: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState, plainText: 'Test question?' }],
   submittedBy: '',
   tags: []
 }
@@ -100,7 +100,7 @@ if (Meteor.isServer) {
       it('can edit question (questions.update)', () => {
         prepQuestionAndSession((_, questionId) => {
           const editedQuestion = Questions.findOne({ _id: questionId })
-          editedQuestion.question = 'New plain text'
+          editedQuestion.plainText = 'New plain text'
           // weak assumption: if it edits on attribute, other should work fine
           // obvs not great testing practice
           Meteor.call('questions.update', editedQuestion)
