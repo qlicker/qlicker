@@ -33,6 +33,7 @@ class _ManageSession extends Component {
     //   this.state.session.questions.push(-1)
     // } else this.state.session.questions = [-1]
 
+    this.setSessionName = this.setSessionName.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
@@ -66,6 +67,11 @@ class _ManageSession extends Component {
     })
   }
 
+  setSessionName (e) {
+    const editedSession = this.state.session
+    editedSession.name = e.target.value
+    this.setState({ session: editedSession })
+  }
 
   /**
    * addToSession(MongoId (String) questionId)
@@ -84,7 +90,7 @@ class _ManageSession extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ session: nextProps.session })
+    if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
   }
 
   componentDidMount () {
@@ -141,23 +147,20 @@ class _ManageSession extends Component {
           <div className='col-md-8' >
 
             <div className='ql-session-child-container'>
-              <input type='text' className='ql-header-text-input' value={this.state.session.name} />
+              <input type='text' className='ql-header-text-input' value={this.state.session.name} onChange={this.setSessionName} />
             </div>
             {
               questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
 
-                return (<div className='ql-session-child-container'>
+                return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem question={q} />
                 </div>)
               })
             }
 
-
-
           </div>
         </div>
-
       </div>)
   }
 

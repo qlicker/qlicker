@@ -37,6 +37,7 @@ export class RadioPrompt extends Component {
 
             return (
               <div
+                key={'prompt-option-' + o.value}
                 className={'ql-prompt-option ' + classString}
                 onClick={() => { this.clicked(o.value) }}>
                 {o.label}
@@ -51,7 +52,7 @@ export class RadioPrompt extends Component {
 } // end RadioPrompt
 
 RadioPrompt.propTypes = {
-  options: PropTypes.object.isRequired,
-  value: PropTypes.object.isRequired,
-  onChange: PropTypes.object.isRequired
+  options: PropTypes.array,
+  value: PropTypes.number,
+  onChange: PropTypes.func
 }

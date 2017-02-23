@@ -18,15 +18,15 @@ import Helpers from './helpers.js'
 // expected collection pattern
 const questionPattern = {
   _id: Match.Maybe(Helpers.MongoID),
-  question: Helpers.NEString, // plain text version of question
+  plainText: Helpers.NEString, // plain text version of question
   type: Helpers.QuestionType,
-  content: Helpers.NEString, // drafts.js display content
+  content: Helpers.NEString, // wysiwyg display content
   answers: [ {
     wysiwyg: Boolean,
     correct: Boolean,
     answer: Helpers.NEString,
-    content: Match.Maybe(Helpers.NEString),
-    plainText: Helpers.NEString
+    content: String,
+    plainText: String
   } ],
   submittedBy: Helpers.MongoID,
   // null if template, questionId of original once copied to question
@@ -137,9 +137,12 @@ Meteor.methods({
 
     if (question.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
 
-    return Questions.update({ _id: question._id }, {
+    const r = Questions.update({ _id: question._id }, {
       $set: _.omit(question, '_id')
     })
+
+    if (r) return question._id
+    else throw Error('Unable to update')
   },
 
   /**

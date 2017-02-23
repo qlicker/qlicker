@@ -3,14 +3,13 @@
 //
 // QuestionEditItem.jsx: component for editing/create used in session creation
 
-import React, { PropTypes } from 'react'
+import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 
 import ReactRadioButtonGroup from 'react-radio-button-group'
 
 import { WithContext as ReactTags } from 'react-tag-input'
 
-import { ControlledForm } from './ControlledForm'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 import { QuestionImages } from '../api/questions'
@@ -19,7 +18,7 @@ import { QuestionImages } from '../api/questions'
 import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../configs'
 
 export const DEFAULT_STATE = {
-  question: '',
+  plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
   answers: [], // { correct: false, answer: 'A', content: editor content }
@@ -28,7 +27,7 @@ export const DEFAULT_STATE = {
   tags: []
 }
 
-export class QuestionEditItem extends ControlledForm {
+export class QuestionEditItem extends Component {
 
   constructor (props) {
     super(props)
@@ -43,19 +42,30 @@ export class QuestionEditItem extends ControlledForm {
     this.addTag = this.addTag.bind(this)
     this.handleDrag = this.handleDrag.bind(this)
     this.changeType = this.changeType.bind(this)
+    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2500)
 
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
+
+      this.currentAnswer = this.state.answers.length
+      switch (this.state.type) {
+        case QUESTION_TYPE.MC:
+          this.answerOrder = MC_ORDER
+          break
+        case QUESTION_TYPE.MS:
+          this.answerOrder = MC_ORDER
+          break
+        case QUESTION_TYPE.TF:
+          this.answerOrder = TF_ORDER
+          break
+      }
     } else { // if adding new question
       this.state = _.extend({}, DEFAULT_STATE)
+      // tracking for adding new mulitple choice answers
+      this.currentAnswer = 0
+      this.answerOrder = MC_ORDER
     }
-    // set draft-js editor toolbar options
-    this.options = _.extend({}, EDITOR_OPTIONS)
-
-    // tracking for adding new mulitple choice answers
-    this.currentAnswer = 0
-    this.answerOrder = _.extend({}, MC_ORDER)
 
     // populate tagging suggestions
     this.tagSuggestions = []
@@ -87,6 +97,7 @@ export class QuestionEditItem extends ControlledForm {
         this.currentAnswer = -1
         this.answerOrder = []
       }
+      this._DB_saveQuestion()
       // TODO multi select
     })
   }
@@ -133,20 +144,24 @@ export class QuestionEditItem extends ControlledForm {
    * onEditorStateChange(Object: content)
    * Update wysiwyg contents for actual question in state
    */
-  onEditorStateChange (content) {
-    let stateEdits = { content: content }
-    this.setState(stateEdits)
+  onEditorStateChange (content, plainText) {
+    let stateEdits = { content: content, plainText: plainText }
+    this.setState(stateEdits, () => {
+      this._DB_saveQuestion()
+    })
   }
 
   /**
    * setAnswerState(String: answerKey, Object: content)
    * Update wysiwyg content in the state based on the answer
    */
-  setAnswerState (answerKey, content) {
+  setAnswerState (answerKey, content, plainText) {
     let answers = this.state.answers
-    answers[_(answers).findIndex({ answer: answerKey })].content = content
-    this.setState({
-      answers: answers
+    const i = _(answers).findIndex({ answer: answerKey })
+    answers[i].content = content
+    answers[i].plainText = plainText
+    this.setState({ answers: answers }, () => {
+      this._DB_saveQuestion()
     })
   } // end setAnswerState
 
@@ -155,15 +170,20 @@ export class QuestionEditItem extends ControlledForm {
    * add answer to MC, MS, and TF questions
    */
   addAnswer (_, e, wysiwyg = true, done = null) {
+    const answerKey = this.answerOrder[this.currentAnswer]
     if (this.currentAnswer >= this.answerOrder.length) return
     this.setState({
       answers: this.state.answers.concat([{
         correct: this.currentAnswer === 0,
-        answer: this.answerOrder[this.currentAnswer],
+        answer: answerKey,
         wysiwyg: wysiwyg
       }])
     }, () => {
       this.currentAnswer++
+
+      if (wysiwyg) this.setAnswerState(answerKey, '', '')
+      else this.setAnswerState(answerKey, answerKey, answerKey)
+
       if (done) done()
     })
   } // end addAnswer
@@ -186,42 +206,24 @@ export class QuestionEditItem extends ControlledForm {
   }
 
   /**
-   * done(Event: e)
-   * Overrided done handler
+   * saveQuestion ()
+   * Calls questions.insert to save question to db
    */
-  done (e) {
-    this.refs.questionForm.reset()
-    this.setState(_.extend({}, DEFAULT_STATE))
-    this.currentAnswer = 0
-    super.done()
-  }
-
-  /**
-   * handleSubmit(Event: e)
-   * onSubmit handler for Question form. Calls questions.insert
-   */
-  handleSubmit (e) {
-    super.handleSubmit(e)
-
+  saveQuestion () {
+    alertify.log('saveQuestion called')
     let question = _.extend({}, this.state)
 
-    if (Meteor.isTest) {
-      this.props.done(question)
-    }
+    if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
-    if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) {
-      alertify.error('Question needs at least one answer')
-      return
-    }
-
+    console.log(question)
     // TODO set session id
-
-    Meteor.call('questions.insert', question, (error) => {
+    this.edited = false
+    Meteor.call('questions.insert', question, (error, questionId) => {
       if (error) {
         alertify.error('Error: ' + error.error)
       } else {
         alertify.success(!question._id ? 'Question Added' : 'Edits Saved')
-        this.done()
+        this.state._id = questionId
       }
     })
   } // end handleSubmit
@@ -250,14 +252,23 @@ export class QuestionEditItem extends ControlledForm {
   } // end uploadImageCallBack
 
   componentWillReceiveProps (nextProps) {
-    if (nextProps && nextProps.question) this.setState(nextProps.question)
+    this.setState(nextProps.question)
   }
 
+  // componentDidMount () {
+  //   this.saveTimer = setInterval(() => {
+  //     if (this.edited) this.saveQuestion()
+  //   }, 4000)
+  // }
+
+  // componentWillUnmount () {
+  //   clearInterval(this.saveTimer)
+  // }
+
   render () {
-    console.log(this.state)
     const answerEditor = (a) => {
-      const changeHandler = (content) => {
-        this.setAnswerState(a.answer, content)
+      const changeHandler = (content, plainText) => {
+        this.setAnswerState(a.answer, content, plainText)
       }
 
       const wysiwygAnswer = (

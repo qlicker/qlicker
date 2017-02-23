@@ -17,10 +17,6 @@ export class Editor extends Component {
     })
   }
 
-  componentWillReceiveProps (nextProps) {
-    this.setState(nextProps.question)
-  }
-
   componentDidMount () {
     this.setupCKEditor()
   }

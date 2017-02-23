@@ -50,7 +50,7 @@ export class QuestionListItem extends Component {
       <li
         className={this.props.click ? 'cursor-pointer' : '' + ' ql-question-list-item'}
         onClick={this.click} >
-        <span className='ql-question-name'>{q.question}</span>
+        <span className='ql-question-name'>{q.plainText}</span>
         <span className='ql-question-status'>{QUESTION_TYPE_STRINGS[q.type]} </span>
         <span className='controls'>
           { this.props.remove
