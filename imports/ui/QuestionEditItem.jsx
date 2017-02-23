@@ -62,6 +62,7 @@ export class QuestionEditItem extends Component {
       }
     } else { // if adding new question
       this.state = _.extend({}, DEFAULT_STATE)
+      this.state.submittedBy = Meteor.userId()
       // tracking for adding new mulitple choice answers
       this.currentAnswer = 0
       this.answerOrder = MC_ORDER
@@ -210,19 +211,23 @@ export class QuestionEditItem extends Component {
    * Calls questions.insert to save question to db
    */
   saveQuestion () {
-    alertify.log('saveQuestion called')
     let question = _.extend({}, this.state)
 
     if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
-    console.log(question)
-    // TODO set session id
-    this.edited = false
+    if (this.props.sessionId) question.sessionId = this.props.sessionId
+
+    // insert (or edit)
     Meteor.call('questions.insert', question, (error, questionId) => {
       if (error) {
         alertify.error('Error: ' + error.error)
       } else {
-        alertify.success(!question._id ? 'Question Added' : 'Edits Saved')
+        if (!question._id) {
+          alertify.success('Question Saved')
+          this.props.onNewQuestion(questionId)
+        } else {
+          alertify.success('Edits Saved')
+        }
         this.state._id = questionId
       }
     })
@@ -238,32 +243,20 @@ export class QuestionEditItem extends Component {
         QuestionImages.insert(file, function (err, fileObj) {
           console.log(err, fileObj)
           if (err) {
-            // handle error
             reject('hmm shit') // TODO
           } else {
-            // handle success depending what you need to do
             setTimeout(function () {
               resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
             }, 500)
           }
         }) // .insert
       } // (resolve, reject)
-    ) // promise
+    )
   } // end uploadImageCallBack
 
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
   }
-
-  // componentDidMount () {
-  //   this.saveTimer = setInterval(() => {
-  //     if (this.edited) this.saveQuestion()
-  //   }, 4000)
-  // }
-
-  // componentWillUnmount () {
-  //   clearInterval(this.saveTimer)
-  // }
 
   render () {
     const answerEditor = (a) => {
@@ -320,19 +313,17 @@ export class QuestionEditItem extends Component {
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
-
           <Editor
             change={this.onEditorStateChange}
             val={this.state.content}
             className='question-editor'
             placeholder='Question?' />
-
-          <RadioPrompt
-            options={radioOptions}
-            value={this.state.type}
-            onChange={this.changeType} />
-
         </div>
+
+        <RadioPrompt
+          options={radioOptions}
+          value={this.state.type}
+          onChange={this.changeType} />
 
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
           ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>

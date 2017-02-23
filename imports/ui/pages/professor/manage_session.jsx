@@ -29,14 +29,12 @@ class _ManageSession extends Component {
 
     this.sessionId = this.props.sessionId
 
-    // if (this.state.session.questions) {
-    //   this.state.session.questions.push(-1)
-    // } else this.state.session.questions = [-1]
-
     this.setSessionName = this.setSessionName.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
+    this.addNewQuestion = this.addNewQuestion.bind(this)
+    this.newQuestionSaved = this.newQuestionSaved.bind(this)
   }
 
   /**
@@ -71,6 +69,23 @@ class _ManageSession extends Component {
     const editedSession = this.state.session
     editedSession.name = e.target.value
     this.setState({ session: editedSession })
+  }
+
+  addNewQuestion () {
+    if (this.state.session.questions) {
+      this.state.session.questions.push(-1)
+    } else this.state.session.questions = [-1]
+    console.log(this.state.session.questions)
+    this.forceUpdate()
+  }
+
+  newQuestionSaved (questionId) {
+    console.log(this.state.session._id, questionId)
+    this.state.session.questions.splice(this.state.session.questions.indexOf(-1), 1)
+    Meteor.call('sessions.addQuestion', this.state.session._id, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Added')
+    })
   }
 
   /**
@@ -154,10 +169,16 @@ class _ManageSession extends Component {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
 
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
-                  <QuestionEditItem question={q} />
+                  <QuestionEditItem 
+                    question={q}
+                    sessionId={this.state.session._id}
+                    onNewQuestion={this.newQuestionSaved} />
                 </div>)
               })
             }
+            <div className='ql-session-child-container'>
+              <button className='btn btn-default' onClick={this.addNewQuestion}>New Question</button>
+            </div>
 
           </div>
         </div>

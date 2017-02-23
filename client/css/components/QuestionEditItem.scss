@@ -2,18 +2,23 @@
 .ql-question-edit-item {
 
   .editor-wrapper {
-    border-bottom: 2px solid #ccc;
-    margin-bottom: 5px;
-
+    
     &.question-editor {
       font-size: 2em;  
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 5px;
+    }
+
+    &.answer-editor {
+      border: 1px solid #ccc;
     }
     
     .cke_textarea_inline {
-      padding: 6px;
+      padding: 8px;      
+      padding-bottom: 2px;
 
       &.cke_focus {
-        line-height: 30px;
+        line-height: 1em;
       }
     }
   }
