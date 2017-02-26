@@ -31,7 +31,7 @@ export class SessionListItem extends Component {
     const navigateToEdit = (e) => {
       e.preventDefault()
       e.stopPropagation()
-      Router.go('session.manage', { _id: this.props.session._id })
+      Router.go('session.edit', { _id: this.props.session._id })
     }
     return (
       <li className='ql-session-list-item' onClick={navigateToSession}>

@@ -147,8 +147,8 @@ Router.route('/course/:_id', {
 })
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
-Router.route('/session/manage:_id', {
-  name: 'session.manage',
+Router.route('/session/edit/:_id', {
+  name: 'session.edit',
   waitOn: function () {
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
   },

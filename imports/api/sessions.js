@@ -145,7 +145,23 @@ Meteor.methods({
   },
 
   /**
-   * sessions.setCurrent(MongoId (string) questionId)
+   * sessions.startSession(MongoId (string) sessionId)
+   * mark session as active and set first question to current
+   */
+  'sessions.startSession' (sessionId) {
+
+  },
+
+  /**
+   * sessions.endSession(MongoId (string) sessionId)
+   * mark session as done and clear currentQuestion
+   */
+  'sessions.endSession' (sessionId) {
+
+  },
+
+  /**
+   * sessions.setCurrent(MongoId (string) sessionId, MongoId (string) questionId)
    * set currently running question
    */
   'sessions.setCurrent' (sessionId, questionId) {

@@ -6,7 +6,6 @@
 import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 
-import ReactRadioButtonGroup from 'react-radio-button-group'
 
 import { WithContext as ReactTags } from 'react-tag-input'
 
@@ -15,7 +14,7 @@ import { RadioPrompt } from './RadioPrompt'
 import { QuestionImages } from '../api/questions'
 
 // constants
-import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../configs'
+import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
 export const DEFAULT_STATE = {
   plainText: '',

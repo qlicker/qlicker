@@ -2,18 +2,16 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// manage_course.jsx: page for managing a specific course
+// session.jsx: page for display a running session to student
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
-import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
-
 import { Questions } from '../../../api/questions'
 import { Sessions } from '../../../api/sessions'
-import { SessionListItem } from '../../SessionListItem'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 class _Session extends Component {
 
@@ -26,17 +24,11 @@ class _Session extends Component {
 
   render () {
     const current = this.props.session.currentQuestion
-    if (current) {
-      const q = this.props.questions[current]
-      console.log(q, current, this.props.questions)
-      return (
-        <div className='container ql-session-display'>
-          { JSON.stringify(q) }
-        </div>)
-    }
+    const q = current ? this.props.questions[current] : null
+
     return (
       <div className='container ql-session-display'>
-        No question selected
+        { q ? <QuestionDisplay question={q} /> : '' }
       </div>)
   }
 

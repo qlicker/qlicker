@@ -67,6 +67,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
       // TODO permissions submittedBy: this.userId,
+      // TODO for students, omit answers
       return Questions.find({ sessionId: sessionId })
     } else this.ready()
   })

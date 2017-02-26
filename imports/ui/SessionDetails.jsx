@@ -54,7 +54,7 @@ export class SessionDetails extends Component {
       { !this.state.editing
         ? <div>
           <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button>
-          <button className='btn btn-default' ref='runButton' onClick={Router.go('session', { _id: this.state.session._id })}>Run Session</button>
+          <button className='btn btn-default' ref='runButton' onClick={() => { Router.go('session', { _id: this.state.session._id }) }}>Run Session</button>
         </div>
         : '' }
       <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>

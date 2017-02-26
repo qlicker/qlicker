@@ -88,8 +88,9 @@ class _RunSession extends Component {
       })
     })
 
-    // const current = this.state.session.currentQuestion
-    // const q = current ? this.state.questions[current] : null
+    const current = this.state.session.currentQuestion
+    const q = current ? this.props.questions[current] : null
+    console.log(q)
     return (
       <div className='container-fluid ql-manage-session'>
 
@@ -107,7 +108,7 @@ class _RunSession extends Component {
             </div>
           </div>
           <div className='col-md-8 col-sm-8' >
-            {/*{ JSON.stringify(q) }*/}
+            { q ? JSON.stringify(q) : '' }
           </div>
         </div>
       </div>)
