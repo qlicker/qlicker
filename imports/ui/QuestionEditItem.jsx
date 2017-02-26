@@ -23,7 +23,6 @@ export const DEFAULT_STATE = {
   content: null,
   answers: [], // { correct: false, answer: 'A', content: editor content }
   submittedBy: '',
-  createdAt: null,
   tags: []
 }
 
@@ -211,24 +210,25 @@ export class QuestionEditItem extends Component {
    * Calls questions.insert to save question to db
    */
   saveQuestion () {
-    let question = _.extend({}, this.state)
+    let question = _.extend({ createdAt: new Date() }, this.state)
+    console.log('lol wut', this.state, question)
 
     if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
 
     // insert (or edit)
-    Meteor.call('questions.insert', question, (error, questionId) => {
+    Meteor.call('questions.insert', question, (error, newQuestion) => {
       if (error) {
         alertify.error('Error: ' + error.error)
       } else {
-        if (!question._id) {
+        if (!this.state._id) {
           alertify.success('Question Saved')
-          this.props.onNewQuestion(questionId)
+          if (this.props.onNewQuestion) this.props.onNewQuestion(newQuestion._id)
         } else {
           alertify.success('Edits Saved')
         }
-        this.state._id = questionId
+        this.setState(newQuestion)
       }
     })
   } // end handleSubmit
@@ -336,5 +336,7 @@ export class QuestionEditItem extends Component {
 } // end QuestionEditItem
 
 QuestionEditItem.propTypes = {
-  done: PropTypes.func
+  done: PropTypes.func,
+  question: PropTypes.func,
+  onNewQuestion: PropTypes.func
 }

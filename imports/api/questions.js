@@ -124,7 +124,8 @@ Meteor.methods({
     }
 
     check(question, questionPattern)
-    return Questions.insert(question)
+    const id = Questions.insert(question)
+    return Questions.findOne({ _id: id })
   },
 
   /**
@@ -171,7 +172,7 @@ Meteor.methods({
     question.courseId = session.courseId
 
     const copiedQuestionId = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
-    Meteor.call('sessions.addQuestion', sessionId, copiedQuestionId)
+    Meteor.call('sessions.addQuestion', sessionId, copiedQuestionId._id)
     return copiedQuestionId
   },
 

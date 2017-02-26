@@ -129,37 +129,38 @@ class _ManageSession extends Component {
     })
 
     return (
-      <div className='container ql-manage-session'>
+      <div className='container-fluid ql-manage-session'>
 
         <div className='row'>
-          <div className='col-md-4 ql-session-sidebar'>
-            <div className='tab-content'>
-              <div role='tabpanel' className='tab-pane active' id='session'>
-                <h2>Session: { this.state.session.name }</h2>
+          <div className='col-md-4 col-sm-4 sidebar-container'>
+            <div className='ql-session-sidebar'>
+              <div className='tab-content'>
+                <div role='tabpanel' className='tab-pane active' id='session'>
+                  <h2>Session: { this.state.session.name }</h2>
 
-                <SessionDetails session={this.state.session} />
+                  <SessionDetails session={this.state.session} />
 
-                <hr />
-                <h3>Question Order</h3>
-                <ol className='ql-session-question-list'>
-                  {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
-                </ol>
+                  <hr />
+                  <h3>Question Order</h3>
+                  <ol className='ql-session-question-list'>
+                    {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
+                  </ol>
+                </div>
+                <div role='tabpanel' className='tab-pane' id='questions'>
+                  <QuestionSidebar
+                    session={this.state.session}
+                    questions={this.props.questionPool}
+                    onSelect={this.addToSession} />
+                </div>
               </div>
-              <div role='tabpanel' className='tab-pane' id='questions'>
-                <QuestionSidebar
-                  session={this.state.session}
-                  questions={this.props.questionPool}
-                  onSelect={this.addToSession} />
-              </div>
+
+              <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
+                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
+                <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
+              </ul>
             </div>
-
-            <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
-              <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
-              <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
-            </ul>
-
           </div>
-          <div className='col-md-8' >
+          <div className='col-md-8 col-sm-8' >
 
             <div className='ql-session-child-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} onChange={this.setSessionName} />
@@ -169,7 +170,7 @@ class _ManageSession extends Component {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
 
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
-                  <QuestionEditItem 
+                  <QuestionEditItem
                     question={q}
                     sessionId={this.state.session._id}
                     onNewQuestion={this.newQuestionSaved} />
