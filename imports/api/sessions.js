@@ -22,7 +22,8 @@ const sessionPattern = {
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
   dueDate: Match.Optional(Match.OneOf(undefined, null, Date)), // quiz due date
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
-  createdAt: Date
+  createdAt: Date,
+  currentQuestion: Match.Maybe(Helpers.MongoID)
 }
 
 // Create Session class
@@ -141,6 +142,23 @@ Meteor.methods({
     profHasCoursePermission(session.courseId)
 
     return Sessions.update({ _id: sessionId }, { $set: { questions: questionIdList } })
+  },
+
+  /**
+   * sessions.setCurrent(MongoId (string) questionId)
+   * set currently running question
+   */
+  'sessions.setCurrent' (sessionId, questionId) {
+    check(questionId, Helpers.MongoID)
+
+    const session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, {
+      $set: {
+        currentQuestion: questionId
+      }
+    })
   }
 
 

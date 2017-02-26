@@ -26,6 +26,7 @@ class _StudentDashboard extends Component {
   }
   closeModal () {
     this.setState({ enrollingInCourse: false })
+    this.forceUpdate()
     // this.props.handle.invalidate()
   }
 

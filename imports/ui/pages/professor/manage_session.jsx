@@ -75,12 +75,10 @@ class _ManageSession extends Component {
     if (this.state.session.questions) {
       this.state.session.questions.push(-1)
     } else this.state.session.questions = [-1]
-    console.log(this.state.session.questions)
     this.forceUpdate()
   }
 
   newQuestionSaved (questionId) {
-    console.log(this.state.session._id, questionId)
     this.state.session.questions.splice(this.state.session.questions.indexOf(-1), 1)
     Meteor.call('sessions.addQuestion', this.state.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)

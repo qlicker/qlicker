@@ -66,7 +66,8 @@ if (Meteor.isServer) {
   // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
-      return Questions.find({ submittedBy: this.userId, sessionId: sessionId })
+      // TODO permissions submittedBy: this.userId,
+      return Questions.find({ sessionId: sessionId })
     } else this.ready()
   })
 

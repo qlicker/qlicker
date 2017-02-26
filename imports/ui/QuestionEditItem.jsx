@@ -211,7 +211,6 @@ export class QuestionEditItem extends Component {
    */
   saveQuestion () {
     let question = _.extend({ createdAt: new Date() }, this.state)
-    console.log('lol wut', this.state, question)
 
     if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
