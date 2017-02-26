@@ -179,6 +179,20 @@ Meteor.methods({
   },
 
   /**
+   * questions.copyToLibrary(MongoId (string) questionId)
+   * duplicates a public question and adds it to your library
+   */
+  'questions.copyToLibrary' (questionId) {
+    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
+    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    question.public = false
+    question.submittedBy = Meteor.userId()
+
+    const id = Questions.insert(question)
+    return id
+  },
+
+  /**
    * questions.possibleTags()
    * returns a list of autocomplete tag sugguestions for the current user
    */

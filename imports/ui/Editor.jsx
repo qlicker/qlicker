@@ -9,7 +9,7 @@ import React, { Component } from 'react'
 export class Editor extends Component {
 
   setupCKEditor () {
-    CKEDITOR.plugins.addExternal( 'confighelper', '/ckeditor/plugins/confighelper/', 'plugin.js' )
+    CKEDITOR.plugins.addExternal('confighelper', '/ckeditor/plugins/confighelper/', 'plugin.js')
 
     const editor = CKEDITOR.inline(this.refs.theEditor, {
       placeholder: this.props.placeholder || '',

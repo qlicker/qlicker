@@ -138,6 +138,8 @@ if (Meteor.isServer) {
         })
       })
 
+      it('can start session (sessions.startSession)')
+      it('can end session (sessions.endSession)')
       it('can set current question (sessions.setCurrent)')
     })// end describe('methods')
   }) // end describe('Sessions')

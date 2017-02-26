@@ -26,9 +26,7 @@ export class CreateQuestionModal extends Component {
       <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
         <div className='ql-modal-header'><h2>Add a Question</h2></div>
 
-        { this.props.question
-          ? <QuestionEditItem ref='editItem' question={this.props.question} />
-          : <QuestionEditItem ref='editItem' /> }
+        <QuestionEditItem ref='editItem' question={this.props.question} courseId={this.props.courseId} />
 
         <button className='btn btn-default' onClick={this.saveAndClose}>Close</button>
       </div>
@@ -39,5 +37,6 @@ export class CreateQuestionModal extends Component {
 
 CreateQuestionModal.propTypes = {
   done: PropTypes.func,
-  question: PropTypes.object
+  question: PropTypes.object,
+  courseId: PropTypes.string
 }

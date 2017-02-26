@@ -214,6 +214,7 @@ export class QuestionEditItem extends Component {
     if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
+    if (this.props.courseId) question.courseId = this.props.courseId
 
     // insert (or edit)
     Meteor.call('questions.insert', question, (error, newQuestion) => {

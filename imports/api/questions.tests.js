@@ -109,7 +109,7 @@ if (Meteor.isServer) {
         })
       })
 
-      it('can copyQuestion and add to session', () => {
+      it('can copyQuestion and add to session (questions.copyToSession)', () => {
         prepQuestionAndSession((sessionId, questionId) => {
           const copiedQuestionId = Meteor.call('questions.copyToSession', sessionId, questionId)
 
@@ -118,6 +118,8 @@ if (Meteor.isServer) {
           expect(session.questions).to.contain(copiedQuestionId)
         })
       })
+
+      it('can copyPublic question to library (questions.copyToLibrary)')
 
       it('can get tags as prof (questions.possibleTags)', () => {
         const profUserId = createAndStubProfessor()
