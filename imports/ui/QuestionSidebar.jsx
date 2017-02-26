@@ -84,30 +84,6 @@ export class QuestionSidebar extends ControlledForm {
     this.setState({ questionPool: pool })
   }
 
-  /**
-   * handleSubmit(Event: e)
-   * onSubmit handler for add form. Calls questions.copyToSession
-   */
-  handleSubmit (e) {
-    super.handleSubmit(e)
-
-    if (Meteor.isTest) {
-      this.props.done()
-    }
-
-    if (!this.state.questionId) {
-      alertify.error('Please select a question to add')
-      return
-    }
-
-    Meteor.call('questions.copyToSession', this.props.session._id, this.state.questionId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else {
-        alertify.success('Question Added')
-        this.done()
-      }
-    })
-  }
 
   render () {
     return (

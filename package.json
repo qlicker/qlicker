@@ -28,7 +28,6 @@
     "react-addons-pure-render-mixin": "^15.4.1",
     "react-addons-test-utils": "^15.4.2",
     "react-dom": "^15.4.1",
-    "react-draft-wysiwyg": "^1.7.3",
     "react-drag-sortable": "^1.0.1",
     "react-mounter": "^1.2.0",
     "react-tag-input": "^4.6.2",

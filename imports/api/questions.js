@@ -18,15 +18,15 @@ import Helpers from './helpers.js'
 // expected collection pattern
 const questionPattern = {
   _id: Match.Maybe(Helpers.MongoID),
-  question: Helpers.NEString, // plain text version of question
+  plainText: Helpers.NEString, // plain text version of question
   type: Helpers.QuestionType,
-  content: Helpers.NEString, // drafts.js display content
+  content: Helpers.NEString, // wysiwyg display content
   answers: [ {
     wysiwyg: Boolean,
     correct: Boolean,
     answer: Helpers.NEString,
-    content: Match.Maybe(Helpers.NEString),
-    plainText: Helpers.NEString
+    content: String,
+    plainText: String
   } ],
   submittedBy: Helpers.MongoID,
   // null if template, questionId of original once copied to question
@@ -66,7 +66,9 @@ if (Meteor.isServer) {
   // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
-      return Questions.find({ submittedBy: this.userId, sessionId: sessionId })
+      // TODO permissions submittedBy: this.userId,
+      // TODO for students, omit answers
+      return Questions.find({ sessionId: sessionId })
     } else this.ready()
   })
 
@@ -124,7 +126,8 @@ Meteor.methods({
     }
 
     check(question, questionPattern)
-    return Questions.insert(question)
+    const id = Questions.insert(question)
+    return Questions.findOne({ _id: id })
   },
 
   /**
@@ -137,9 +140,12 @@ Meteor.methods({
 
     if (question.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
 
-    return Questions.update({ _id: question._id }, {
+    const r = Questions.update({ _id: question._id }, {
       $set: _.omit(question, '_id')
     })
+
+    if (r) return question._id
+    else throw Error('Unable to update')
   },
 
   /**
@@ -167,9 +173,23 @@ Meteor.methods({
     question.sessionId = sessionId
     question.courseId = session.courseId
 
-    const copiedQuestionId = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
-    Meteor.call('sessions.addQuestion', sessionId, copiedQuestionId)
-    return copiedQuestionId
+    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
+    Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
+    return copiedQuestion._id
+  },
+
+  /**
+   * questions.copyToLibrary(MongoId (string) questionId)
+   * duplicates a public question and adds it to your library
+   */
+  'questions.copyToLibrary' (questionId) {
+    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
+    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    question.public = false
+    question.submittedBy = Meteor.userId()
+
+    const id = Questions.insert(question)
+    return id
   },
 
   /**

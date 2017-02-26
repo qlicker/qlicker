@@ -47,6 +47,13 @@ class _ManageQuestions extends Component {
     })
   }
 
+  copyPublicQuestion (questionId) {
+    Meteor.call('questions.copyToLibrary', questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Copied to Library')
+    })
+  }
+
   render () {
     return (
       <div className='container ql-professor-page'>
@@ -75,7 +82,7 @@ class _ManageQuestions extends Component {
               { /* list questions */
                 this.props.public.map(q => {
                   return (<div key={q._id} >
-                    <QuestionListItem question={q} />
+                    <QuestionListItem question={q} click={this.copyPublicQuestion} />
                   </div>)
                 })
               }
@@ -84,7 +91,7 @@ class _ManageQuestions extends Component {
               { /* list questions */
                 this.props.fromStudent.map(q => {
                   return (<div key={q._id} >
-                    <QuestionListItem question={q} />
+                    <QuestionListItem question={q} click={this.copyPublicQuestion} />
                   </div>)
                 })
               }

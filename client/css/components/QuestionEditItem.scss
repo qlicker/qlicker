@@ -1,6 +1,28 @@
 
 .ql-question-edit-item {
 
+  .editor-wrapper {
+    
+    &.question-editor {
+      font-size: 2em;  
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 5px;
+    }
+
+    &.answer-editor {
+      border: 1px solid #ccc;
+    }
+    
+    .cke_textarea_inline {
+      padding: 8px;      
+      padding-bottom: 2px;
+
+      &.cke_focus {
+        line-height: 1em;
+      }
+    }
+  }
+
   .header {
     select.question-type {
       width: 200px;
@@ -35,57 +57,10 @@
 
   .editor-wrapper {
     
-    .rdw-option-wrapper {
-      height: 30px;
-    }
-
-    .rdw-block-dropdown {
-      max-width: 72px;
-    } 
-    .rdw-fontfamily-dropdown {
-      max-width: 100px;
-    }
-    .home-editor {
-      padding: 4px;
-
-      .public-DraftStyleDefault-block {
-        margin: 0 0;
-      }
-      h2 {
-        margin-bottom: 10px;
-      }
-    }
-
-    .home-toolbar {
-      width: auto;
-      font-size: 80%;
-      padding: 4px 2px 0;
-    }
   }
 
   .col-md-6 {
-    .rdw-dropdown-wrapper, .rdw-option-wrapper {
-      margin: 2px;
-    } 
-    .rdw-block-dropdown {
-      width: 67px;
-    } 
-    .rdw-fontfamily-dropdown {
-      width: 92px;
-    }
-    .rdw-inline-dropdown, .rdw-fontsize-dropdown, .rdw-list-dropdown, .rdw-text-align-dropdown {
-      width: 37px;
-    }
-    .home-toolbar {
-      padding-top: 0px;
 
-      > div {
-        margin-bottom: 0;
-        > div {
-          height: 30px;
-        }
-      }
-    }
   }
 
   .ReactTags__tags {

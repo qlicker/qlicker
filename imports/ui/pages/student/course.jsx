@@ -2,7 +2,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// manage_course.jsx: page for managing a specific course
+// course.jsx: student page for course details
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'

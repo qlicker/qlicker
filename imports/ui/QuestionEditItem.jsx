@@ -3,33 +3,29 @@
 //
 // QuestionEditItem.jsx: component for editing/create used in session creation
 
-import React from 'react'
+import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 
-// draft-js
-import { Editor } from 'react-draft-wysiwyg'
-import { EditorState, convertFromHTML, ContentState } from 'draft-js'
-import { DraftHelper } from '../draft-helpers'
 
 import { WithContext as ReactTags } from 'react-tag-input'
 
-import { ControlledForm } from './ControlledForm'
+import { Editor } from './Editor'
+import { RadioPrompt } from './RadioPrompt'
 import { QuestionImages } from '../api/questions'
 
 // constants
-import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, EDITOR_OPTIONS } from '../configs'
+import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
 export const DEFAULT_STATE = {
-  question: '',
+  plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
   answers: [], // { correct: false, answer: 'A', content: editor content }
   submittedBy: '',
-  createdAt: null,
   tags: []
 }
 
-export class QuestionEditItem extends ControlledForm {
+export class QuestionEditItem extends Component {
 
   constructor (props) {
     super(props)
@@ -44,29 +40,31 @@ export class QuestionEditItem extends ControlledForm {
     this.addTag = this.addTag.bind(this)
     this.handleDrag = this.handleDrag.bind(this)
     this.changeType = this.changeType.bind(this)
+    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2500)
 
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
 
-      this.state.content = DraftHelper.toEditorState(this.state.content)
-
-      this.state.answers.forEach((a) => {
-        if (a.wysiwyg) a.content = DraftHelper.toEditorState(a.content)
-      })
+      this.currentAnswer = this.state.answers.length
+      switch (this.state.type) {
+        case QUESTION_TYPE.MC:
+          this.answerOrder = MC_ORDER
+          break
+        case QUESTION_TYPE.MS:
+          this.answerOrder = MC_ORDER
+          break
+        case QUESTION_TYPE.TF:
+          this.answerOrder = TF_ORDER
+          break
+      }
     } else { // if adding new question
       this.state = _.extend({}, DEFAULT_STATE)
-
-      // bold placehodler text for question editor
-      const initialQuestionState = ContentState.createFromBlockArray(convertFromHTML('<h2>Question?</h2>').contentBlocks)
-      this.state.content = EditorState.createWithContent(initialQuestionState)
+      this.state.submittedBy = Meteor.userId()
+      // tracking for adding new mulitple choice answers
+      this.currentAnswer = 0
+      this.answerOrder = MC_ORDER
     }
-    // set draft-js editor toolbar options
-    this.options = _.extend({}, EDITOR_OPTIONS)
-
-    // tracking for adding new mulitple choice answers
-    this.currentAnswer = 0
-    this.answerOrder = _.extend({}, MC_ORDER)
 
     // populate tagging suggestions
     this.tagSuggestions = []
@@ -78,11 +76,11 @@ export class QuestionEditItem extends ControlledForm {
   } // end constructor
 
   /**
-   * changeType (Event: e)
+   * changeType (Number: newValue)
    * change question type to MC, TF or SA
    */
-  changeType (e) {
-    let type = parseInt(e.target.value)
+  changeType (newValue) {
+    let type = parseInt(newValue)
 
     this.setState({ type: type, answers: [] }, () => {
       if (type === QUESTION_TYPE.MC) {
@@ -98,6 +96,7 @@ export class QuestionEditItem extends ControlledForm {
         this.currentAnswer = -1
         this.answerOrder = []
       }
+      this._DB_saveQuestion()
       // TODO multi select
     })
   }
@@ -144,20 +143,24 @@ export class QuestionEditItem extends ControlledForm {
    * onEditorStateChange(Object: content)
    * Update wysiwyg contents for actual question in state
    */
-  onEditorStateChange (content) {
-    let stateEdits = { content: content }
-    this.setState(stateEdits)
+  onEditorStateChange (content, plainText) {
+    let stateEdits = { content: content, plainText: plainText }
+    this.setState(stateEdits, () => {
+      this._DB_saveQuestion()
+    })
   }
 
   /**
    * setAnswerState(String: answerKey, Object: content)
    * Update wysiwyg content in the state based on the answer
    */
-  setAnswerState (answerKey, content) {
+  setAnswerState (answerKey, content, plainText) {
     let answers = this.state.answers
-    answers[_(answers).findIndex({ answer: answerKey })].content = content
-    this.setState({
-      answers: answers
+    const i = _(answers).findIndex({ answer: answerKey })
+    answers[i].content = content
+    answers[i].plainText = plainText
+    this.setState({ answers: answers }, () => {
+      this._DB_saveQuestion()
     })
   } // end setAnswerState
 
@@ -166,15 +169,20 @@ export class QuestionEditItem extends ControlledForm {
    * add answer to MC, MS, and TF questions
    */
   addAnswer (_, e, wysiwyg = true, done = null) {
+    const answerKey = this.answerOrder[this.currentAnswer]
     if (this.currentAnswer >= this.answerOrder.length) return
     this.setState({
       answers: this.state.answers.concat([{
         correct: this.currentAnswer === 0,
-        answer: this.answerOrder[this.currentAnswer],
+        answer: answerKey,
         wysiwyg: wysiwyg
       }])
     }, () => {
       this.currentAnswer++
+
+      if (wysiwyg) this.setAnswerState(answerKey, '', '')
+      else this.setAnswerState(answerKey, answerKey, answerKey)
+
       if (done) done()
     })
   } // end addAnswer
@@ -197,42 +205,29 @@ export class QuestionEditItem extends ControlledForm {
   }
 
   /**
-   * done(Event: e)
-   * Overrided done handler
+   * saveQuestion ()
+   * Calls questions.insert to save question to db
    */
-  done (e) {
-    this.refs.questionForm.reset()
-    this.setState(_.extend({}, DEFAULT_STATE))
-    this.currentAnswer = 0
-    super.done()
-  }
+  saveQuestion () {
+    let question = _.extend({ createdAt: new Date() }, this.state)
 
-  /**
-   * handleSubmit(Event: e)
-   * onSubmit handler for Question form. Calls questions.insert
-   */
-  handleSubmit (e) {
-    super.handleSubmit(e)
+    if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
-    let question = _.extend({}, this.state)
+    if (this.props.sessionId) question.sessionId = this.props.sessionId
+    if (this.props.courseId) question.courseId = this.props.courseId
 
-    if (Meteor.isTest) {
-      this.props.done(question)
-    }
-
-    if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) {
-      alertify.error('Question needs at least one answer')
-      return
-    }
-
-    // TODO set session id
-
-    Meteor.call('questions.insert', question, (error) => {
+    // insert (or edit)
+    Meteor.call('questions.insert', question, (error, newQuestion) => {
       if (error) {
         alertify.error('Error: ' + error.error)
       } else {
-        alertify.success(!question._id ? 'Question Added' : 'Edits Saved')
-        this.done()
+        if (!this.state._id) {
+          alertify.success('Question Saved')
+          if (this.props.onNewQuestion) this.props.onNewQuestion(newQuestion._id)
+        } else {
+          alertify.success('Edits Saved')
+        }
+        this.setState(newQuestion)
       }
     })
   } // end handleSubmit
@@ -247,37 +242,26 @@ export class QuestionEditItem extends ControlledForm {
         QuestionImages.insert(file, function (err, fileObj) {
           console.log(err, fileObj)
           if (err) {
-            // handle error
             reject('hmm shit') // TODO
           } else {
-            // handle success depending what you need to do
             setTimeout(function () {
               resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
             }, 500)
           }
         }) // .insert
       } // (resolve, reject)
-    ) // promise
+    )
   } // end uploadImageCallBack
 
-  render () {
-    // create new draft-js editor with slimmed down confif
-    const newEditor = (state, callback) => {
-      return (<Editor
-        editorState={state}
-        onEditorStateChange={callback}
-        toolbarClassName='home-toolbar'
-        wrapperClassName='editor-wrapper'
-        editorClassName='home-editor'
-        toolbar={this.options}
-        uploadCallback={this.uploadImageCallBack} />)
-    }
+  componentWillReceiveProps (nextProps) {
+    this.setState(nextProps.question)
+  }
 
-    // create wrapped draft-js editor based on answer object
+  render () {
     const answerEditor = (a) => {
-      const editor = newEditor(a.content, (content) => {
-        this.setAnswerState(a.answer, content)
-      }, true)
+      const changeHandler = (content, plainText) => {
+        this.setAnswerState(a.answer, content, plainText)
+      }
 
       const wysiwygAnswer = (
         <div>
@@ -289,7 +273,11 @@ export class QuestionEditItem extends ControlledForm {
                 : <span className='incorrect-color'>Incorrect</span> }
             </span>
           </span>
-          { editor }
+          <Editor
+            change={changeHandler}
+            val={a.content}
+            className='answer-editor'
+            />
         </div>)
 
       const noWysiwygAnswer = (<div className='answer-no-wysiwyg'>
@@ -314,67 +302,40 @@ export class QuestionEditItem extends ControlledForm {
       </div>)
     }
 
+    const radioOptions = [
+      { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },
+      { value: QUESTION_TYPE.MS, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MS] },
+      { value: QUESTION_TYPE.TF, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.TF] },
+      { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
+    ]
+
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
-
-          { newEditor(this.state.content, this.onEditorStateChange) }
-
-          {/*
-          <select defaultValue={this.state.type} onChange={this.changeType} className='question-type form-control'>
-            {
-              _(QUESTION_TYPE).keys().map((k) => {
-                const val = QUESTION_TYPE[k]
-                return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
-              })
-            }
-          </select> */}
-
-          <div className='ql-prompt-option'>
-            MC Icon
-            <input type='radio' value={QUESTION_TYPE.MC} name='question-type[]' onChange={this.changeType} />
-          </div>
-
-          <div className='ql-prompt-option'>
-            MS Icon
-            <input type='radio' value={QUESTION_TYPE.MS} name='question-type[]' onChange={this.changeType} />
-          </div>
-
-          <div className='ql-prompt-option'>
-            TF Icon
-            <input type='radio' value={QUESTION_TYPE.TF} name='question-type[]' onChange={this.changeType} />
-          </div>
-
-          <div className='ql-prompt-option'>
-            SA Icon
-            <input type='radio' value={QUESTION_TYPE.SA} name='question-type[]' onChange={this.changeType} />
-          </div>
+          <Editor
+            change={this.onEditorStateChange}
+            val={this.state.content}
+            className='question-editor'
+            placeholder='Question?' />
         </div>
 
+        <RadioPrompt
+          options={radioOptions}
+          value={this.state.type}
+          onChange={this.changeType} />
 
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
           ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
           : '' }
 
-        <form ref='questionForm' className='ql-form-question' onSubmit={this.handleSubmit}>
-          <div className='row'>
-
-            {/*<div className='col-md-4'>
-              <h3>Tags</h3>
-              <ReactTags ref='tagInput' tags={this.state.tags}
-                suggestions={this.tagSuggestions}
-                handleDelete={this.deleteTag}
-                handleAddition={this.addTag}
-                handleDrag={this.handleDrag} />
-            </div> */}
-          </div>
-
-          { editorRows }
-
-        </form>
-
+        {editorRows}
       </div>)
   } //  end render
 
 } // end QuestionEditItem
 
+QuestionEditItem.propTypes = {
+  done: PropTypes.func,
+  question: PropTypes.func,
+  onNewQuestion: PropTypes.func
+}

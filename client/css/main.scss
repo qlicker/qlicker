@@ -160,22 +160,10 @@ $incorrect-color: #A72526;
   -webkit-box-shadow: 4px 4px 34px -8px rgba(0,0,0,0.46);
   -moz-box-shadow: 4px 4px 34px -8px rgba(0,0,0,0.46);
   box-shadow: 4px 4px 34px -8px rgba(0,0,0,0.46);
+  z-index: 99;
 }
 
 .ql-header-text-input {
   font-size: 2em;
   border: none;
-}
-
-.ql-prompt-option {
-  display: inline-block;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  padding: 14px;
-  cursor: pointer;
-
-  &:hover {
-    border: 1px solid $blue;
-    
-  }
 }

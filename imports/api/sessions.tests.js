@@ -137,6 +137,10 @@ if (Meteor.isServer) {
           expect(shuffled).to.deep.equal(Sessions.findOne({ _id: sessionId }).questions)
         })
       })
+
+      it('can start session (sessions.startSession)')
+      it('can end session (sessions.endSession)')
+      it('can set current question (sessions.setCurrent)')
     })// end describe('methods')
   }) // end describe('Sessions')
 } // end Meteor.isServer

@@ -1,9 +1,22 @@
 
 .ql-manage-session {
+  max-width: 1170px;
+
+  .sidebar-container {
+    position: relative;
+  }
 
   .ql-session-sidebar {
     background: white;
     border-right: 1px solid #ddd;
+    height: calc(100vh - 50px);
+    padding: 20px;
+
+    #sidebar-tabs {
+      position: absolute;
+      bottom: 0;
+    }
+
   }
 
   .ql-session-child-container {

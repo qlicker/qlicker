@@ -51,7 +51,12 @@ export class SessionDetails extends Component {
       this.setState({ editing: true })
     }
     const r = (<div>
-      { !this.state.editing ? <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button> : '' }
+      { !this.state.editing
+        ? <div>
+          <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button>
+          <button className='btn btn-default' ref='runButton' onClick={() => { Router.go('session', { _id: this.state.session._id }) }}>Run Session</button>
+        </div>
+        : '' }
       <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>
         Name: { this.state.editing
           ? <input type='text' className='form-control' data-name='name' onChange={this.setValue} value={this.state.session.name} />

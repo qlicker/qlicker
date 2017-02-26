@@ -28,14 +28,19 @@ export class SessionListItem extends Component {
 
   render () {
     const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
-    const testAlert = () => { alert('hello') }
+    const navigateToEdit = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      Router.go('session.edit', { _id: this.props.session._id })
+    }
     return (
-      <li className='ql-session-list-item' onClick={Meteor.user().hasRole('professor') ? navigateToSession : testAlert}>
+      <li className='ql-session-list-item' onClick={navigateToSession}>
         <span className='ql-session-name'>{ this.props.session.name }</span>
         <span className='ql-session-status'>{ this.props.session.status } </span>
         { Meteor.user().hasGreaterRole('professor')
           ? <span className='controls'>
             <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
+            <button className='btn btn-default' onClick={navigateToEdit}>Edit</button>
           </span>
         : ''}
       </li>)

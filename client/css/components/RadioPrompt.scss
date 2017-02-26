@@ -1,0 +1,21 @@
+
+@import '../main.scss';
+
+// Components
+.ql-buttons-prompt {
+
+  .ql-prompt-option {
+    display: inline-block;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 14px;
+    cursor: pointer;
+
+    &:hover, &.prompt-selected {
+      border: 1px solid $blue;
+      color: $blue;
+    }
+  }
+
+}
+
