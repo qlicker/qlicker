@@ -36,7 +36,7 @@ export const prepQuestionAndSession = (assertion) => {
   const profUserId = createAndStubProfessor()
   const courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
   const sessionId = Meteor.call('courses.createSession', courseId, sampleSession)
-  const questionId = Meteor.call('questions.insert', sampleQuestion)
+  const questionId = Meteor.call('questions.insert', sampleQuestion)._id
 
   assertion(sessionId, questionId, courseId)
 }
@@ -81,10 +81,10 @@ if (Meteor.isServer) {
         // stub student
         restoreStubs()
         createStubs(studentUserId)
-        const questionId = Meteor.call('questions.insert', _({ courseId: courseId }).extend(sampleQuestion))
+        const question = Meteor.call('questions.insert', _({ courseId: courseId }).extend(sampleQuestion))
 
         // check inserted question
-        const qFromDb = Questions.findOne({ _id: questionId })
+        const qFromDb = Questions.findOne({ _id: question._id })
         expect(qFromDb.courseId).to.equal(courseId)
         expect(qFromDb.public).to.equal(true)
         expect(qFromDb.submittedBy).to.equal(studentUserId)

@@ -171,9 +171,9 @@ Meteor.methods({
     question.sessionId = sessionId
     question.courseId = session.courseId
 
-    const copiedQuestionId = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
-    Meteor.call('sessions.addQuestion', sessionId, copiedQuestionId._id)
-    return copiedQuestionId
+    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
+    Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
+    return copiedQuestion._id
   },
 
   /**
