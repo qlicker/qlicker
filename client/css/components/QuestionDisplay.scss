@@ -1,0 +1,50 @@
+@import '../bootstrap-style.scss';
+
+.ql-question-display {
+
+  .ql-question-content {
+    font-size: 3em;
+    background: white;
+    padding: 20px;
+  }
+
+  .ql-answers {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    .ql-answer-content-container {
+      width: 40%;
+      padding: 10px;
+      padding-left: 15px;
+      padding-right: 15px;
+      font-size: 2em;
+      background: white;
+      display: block;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+
+      &:hover {
+        border: 1px solid $blue;
+        color: $blue;
+        cursor: pointer;
+      }
+
+      .ql-checkbox {
+        float: left;
+        font-weight: bold;
+      }
+
+      .ql-wysiwyg-content {
+        margin-left: 40px;
+      }
+
+      .ql-tf-content {
+        text-align: center;
+      }
+    }
+  }
+
+} // end .ql-question-display

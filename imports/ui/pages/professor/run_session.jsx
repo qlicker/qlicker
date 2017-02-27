@@ -15,10 +15,8 @@ import DragSortableList from 'react-drag-sortable'
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
 
-import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
-import { QuestionEditItem } from '../../QuestionEditItem'
-import { SessionDetails } from '../../SessionDetails'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 class _RunSession extends Component {
 
@@ -90,7 +88,6 @@ class _RunSession extends Component {
 
     const current = this.state.session.currentQuestion
     const q = current ? this.props.questions[current] : null
-    console.log(q)
     return (
       <div className='container-fluid ql-manage-session'>
 
@@ -102,13 +99,30 @@ class _RunSession extends Component {
               <hr />
               <h3>Questions</h3>
               <ol className='ql-session-question-list'>
-                {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
+                {/*{<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}*/}
+                {
+                  questionList.map((questionId) => {
+                    const q = this.props.questions[questionId]
+                    if (q._id === this.state.session.currentQuestion) {
+                      return <div className='current-question-list-item'><QuestionListItem question={q} click={this.setCurrentQuestion} /></div>
+                    } else return <QuestionListItem question={q} click={this.setCurrentQuestion} />
+                  })
+                }
               </ol>
 
             </div>
           </div>
           <div className='col-md-8 col-sm-8' >
-            { q ? JSON.stringify(q) : '' }
+            <h2>Current Question: {q ? q.plainText : ''}</h2>
+            <button className='btn btn-default'>Hide Admin Stuff</button>
+            <button className='btn btn-default'>Show/Hide Question</button>
+            <button className='btn btn-default'>Allow/Deny Answers</button>
+            <button className='btn btn-default'>Show/Hide Stats</button>
+            <button className='btn btn-default'>Separate Display</button>
+
+            <hr />
+            <h3>Question Preview</h3>
+            <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} readonly /> : '' }</div>
           </div>
         </div>
       </div>)
