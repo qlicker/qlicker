@@ -49,7 +49,7 @@ export class QuestionDisplay extends Component {
             }
 
             return <div className='ql-answer-content-container'>
-              { !this.readonly ? <div className='ql-checkbox'>{a.answer}.</div> : '' }
+              <div className='ql-checkbox'>{a.answer}.</div>
               {content}
             </div>
           })

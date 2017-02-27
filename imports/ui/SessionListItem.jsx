@@ -27,7 +27,10 @@ export class SessionListItem extends Component {
   }
 
   render () {
-    const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
+    const navigateToSession = () => {
+      if (Meteor.user().hasGreaterRole('professor')) Router.go('session.run', { _id: this.props.session._id })
+      else Router.go('session', { _id: this.props.session._id })
+    }
     const navigateToEdit = (e) => {
       e.preventDefault()
       e.stopPropagation()

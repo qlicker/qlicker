@@ -1,4 +1,6 @@
 
+import { _ } from 'underscore'
+
 import { check, Match } from 'meteor/check'
 import { QUESTION_TYPE }  from '../configs'
 
@@ -7,6 +9,11 @@ import { QUESTION_TYPE }  from '../configs'
 const Helpers = {
 
   chars: 'abcdefghijklmnopqrstuvwxyz0123456789',
+
+  tf_result: { answer: this.NEString },
+  mc_result: { answer: this.NEString },
+  ms_result: { answer: [ this.NEString ] },
+  sa_result: { answer: this.NEString },
 
   // checkers
   NEString: Match.Where(function (x) {
@@ -21,6 +28,7 @@ const Helpers = {
     check(n, Number)
     return _(QUESTION_TYPE).values().indexOf(n) > -1
   }),
+  AnswerObject: Match.OneOf(this.tf_result, this.mc_result, this.ms_result, this.sa_result),
 
   RandomEnrollmentCode: function () {
     return Array(6).join().split(',').map(function () { return Helpers.chars.charAt(Math.floor(Math.random() * Helpers.chars.length)) }).join('')

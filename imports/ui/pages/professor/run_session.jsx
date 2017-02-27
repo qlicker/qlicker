@@ -30,6 +30,8 @@ class _RunSession extends Component {
     this.removeQuestion = this.removeQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
+    this.prevQuestion = this.prevQuestion.bind(this)
+    this.nextQuestion = this.nextQuestion.bind(this)
   }
 
   /**
@@ -67,6 +69,15 @@ class _RunSession extends Component {
     })
   }
 
+  prevQuestion () {
+    const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
+    this.setCurrentQuestion(this.state.session.questions[currentIndex - 1])
+  }
+
+  nextQuestion () {
+    const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
+    this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
+  }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
@@ -113,16 +124,22 @@ class _RunSession extends Component {
             </div>
           </div>
           <div className='col-md-8 col-sm-8' >
-            <h2>Current Question: {q ? q.plainText : ''}</h2>
-            <button className='btn btn-default'>Hide Admin Stuff</button>
+            <h3>Current Question: {q ? q.plainText : ''}</h3>
             <button className='btn btn-default'>Show/Hide Question</button>
             <button className='btn btn-default'>Allow/Deny Answers</button>
+            <button className='btn btn-default'>Presentation Mode</button>
+            <button className='btn btn-default' onClick={() => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }}>Seperate Question Display</button>
+            <hr />
+            <h3>Results/Stats</h3>
             <button className='btn btn-default'>Show/Hide Stats</button>
-            <button className='btn btn-default'>Separate Display</button>
-
+            <br />
+            &lt; results and stats here &gt;
             <hr />
             <h3>Question Preview</h3>
             <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} readonly /> : '' }</div>
+            <br />
+            <button className='btn btn-default' onClick={this.prevQuestion}>Previous Question</button>
+            <button className='btn btn-default' onClick={this.nextQuestion}>Next Question</button>
           </div>
         </div>
       </div>)
