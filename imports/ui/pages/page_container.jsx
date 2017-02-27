@@ -60,7 +60,7 @@ class _PageContainer extends Component {
               <ul className='nav navbar-nav navbar-right'>
                 <li className='dropdown bootstrap-overrides-padding'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
-                    <img src='images/persona.jpg' className='nav-profile img-circle' /> {this.state.user.getName()} <span className='caret' />
+                    <img src={this.state.user.profileImageUrl()} className='nav-profile img-circle' /> {this.state.user.getName()} <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
                     <li><a href={Router.routes['profile'].path()}>Profile</a></li>

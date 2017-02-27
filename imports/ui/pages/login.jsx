@@ -8,21 +8,22 @@ import React from 'react'
 import { LoginBox } from '../LoginBox.jsx'
 
 export const Loginpage = () => (
-  <div className='container ql-login-page'>
-    <h1>Qlicker</h1>
+  <div className='ql-login-page'>
+    <div className='ql-outside-header'><h1 className='ql-wordmark'>Qlicker</h1></div>
 
-    <div className='row'>
-      <div className='col-md-3'>&nbsp;
+    <div className='container'>
+
+      <div className='row'>
+        <div className='col-md-4'>&nbsp;
+        </div>
+
+        <div className='col-md-4 login-container'>
+          <LoginBox />
+        </div>
+
+        <div className='col-md-4'>&nbsp;
+        </div>
+
       </div>
-
-      <div className='col-md-6 login-container'>
-        <h3>Login/Sign Up</h3>
-        <LoginBox />
-      </div>
-
-      <div className='col-md-3'>&nbsp;
-      </div>
-
     </div>
-
   </div>)

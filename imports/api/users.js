@@ -9,6 +9,7 @@ import { Meteor } from 'meteor/meteor'
  * profile: {
  *  firstname: '',
  *  lastname: '',
+ *  profileImage: '',
  *  roles: ['student', 'professor', 'admin'],
  *  courses: []
  * }
@@ -31,12 +32,31 @@ _.extend(User.prototype, {
     if (this.profile.roles.indexOf(role) !== -1) return true
     else if (role === 'professor' && this.profile.roles.indexOf('admin') !== -1) return true
     else return false
+  },
+  profileImageUrl: function () {
+    return this.profile.profileImage
+      ? '/cfs/files/profile_images/' + this.profile.profileImage
+      : '/images/avatar.png'
   }
 })
 
 Meteor.users._transform = function (user) {
   return new User(user)
 }
+
+var imageStore = new FS.Store.GridFS('profile_images')
+
+export const ProfileImages = new FS.Collection('profile_images', {
+  stores: [imageStore]
+})
+// Images publishing
+if (Meteor.isServer) {
+  Meteor.publish('profile_images', function () { return ProfileImages.find() })
+}
+ProfileImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
+ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
+
+
 
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {

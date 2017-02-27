@@ -64,16 +64,6 @@ $incorrect-color: #A72526;
 
 }
 
-.ql-wordmark {
-  text-decoration: none;
-  display: inline-block;
-  color: black;
-
-  h1 {
-    margin:0;
-  }
-}
-
 
 .ql-course-code, .ql-course-semester, .ql-enrollment-code {
   text-transform: uppercase;
@@ -170,4 +160,32 @@ $incorrect-color: #A72526;
 .ql-header-text-input {
   font-size: 2em;
   border: none;
+}
+
+
+.ql-outside-header {
+  width: 100%;
+  background: $blue;
+  padding: 5px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .ql-wordmark {
+    color: white;
+  }
+}
+
+.ql-wordmark {
+  text-decoration: none;
+  display: inline-block;
+  color: black;
+  font-family: $font-stack;
+
+  h1 {
+    margin:0;
+  }
 }
