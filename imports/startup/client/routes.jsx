@@ -160,16 +160,26 @@ Router.route('/session/edit/:_id', {
 })
 
 import { RunSession } from '../../ui/pages/professor/run_session'
-import { Session } from '../../ui/pages/student/session'
 Router.route('/session/run/:_id', {
-  name: 'session',
+  name: 'session.run',
   waitOn: function () {
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
   },
   action: function () {
     if (Meteor.user().hasGreaterRole('professor')) {
       mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} /> </PageContainer> })
-    } else if (Meteor.user().hasRole('student')) {
+    } else Router.go('login')
+  }
+})
+
+import { Session } from '../../ui/pages/student/session'
+Router.route('/session/present/:_id', {
+  name: 'session',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user()) {
       mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }

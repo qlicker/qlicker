@@ -15,10 +15,8 @@ import DragSortableList from 'react-drag-sortable'
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
 
-import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
-import { QuestionEditItem } from '../../QuestionEditItem'
-import { SessionDetails } from '../../SessionDetails'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 class _RunSession extends Component {
 
@@ -32,6 +30,8 @@ class _RunSession extends Component {
     this.removeQuestion = this.removeQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
+    this.prevQuestion = this.prevQuestion.bind(this)
+    this.nextQuestion = this.nextQuestion.bind(this)
   }
 
   /**
@@ -69,6 +69,15 @@ class _RunSession extends Component {
     })
   }
 
+  prevQuestion () {
+    const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
+    this.setCurrentQuestion(this.state.session.questions[currentIndex - 1])
+  }
+
+  nextQuestion () {
+    const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
+    this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
+  }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
@@ -90,7 +99,6 @@ class _RunSession extends Component {
 
     const current = this.state.session.currentQuestion
     const q = current ? this.props.questions[current] : null
-    console.log(q)
     return (
       <div className='container-fluid ql-manage-session'>
 
@@ -102,13 +110,36 @@ class _RunSession extends Component {
               <hr />
               <h3>Questions</h3>
               <ol className='ql-session-question-list'>
-                {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
+                {/*{<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}*/}
+                {
+                  questionList.map((questionId) => {
+                    const q = this.props.questions[questionId]
+                    if (q._id === this.state.session.currentQuestion) {
+                      return <div className='current-question-list-item'><QuestionListItem question={q} click={this.setCurrentQuestion} /></div>
+                    } else return <QuestionListItem question={q} click={this.setCurrentQuestion} />
+                  })
+                }
               </ol>
 
             </div>
           </div>
           <div className='col-md-8 col-sm-8' >
-            { q ? JSON.stringify(q) : '' }
+            <h3>Current Question: {q ? q.plainText : ''}</h3>
+            <button className='btn btn-default'>Show/Hide Question</button>
+            <button className='btn btn-default'>Allow/Deny Answers</button>
+            <button className='btn btn-default'>Presentation Mode</button>
+            <button className='btn btn-default' onClick={() => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }}>Seperate Question Display</button>
+            <hr />
+            <h3>Results/Stats</h3>
+            <button className='btn btn-default'>Show/Hide Stats</button>
+            <br />
+            &lt; results and stats here &gt;
+            <hr />
+            <h3>Question Preview</h3>
+            <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} readonly /> : '' }</div>
+            <br />
+            <button className='btn btn-default' onClick={this.prevQuestion}>Previous Question</button>
+            <button className='btn btn-default' onClick={this.nextQuestion}>Next Question</button>
           </div>
         </div>
       </div>)

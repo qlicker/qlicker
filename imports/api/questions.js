@@ -38,7 +38,9 @@ const questionPattern = {
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   createdAt: Date,
-  tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ]
+  tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ],
+  // possible results from students if question is attached to a session
+  results: [ Match.Maybe({ studentUserId: Helpers.MongoID, answer: Helpers.AnswerObject }) ]
 }
 
 // Create Question class
