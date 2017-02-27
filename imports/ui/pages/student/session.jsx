@@ -25,27 +25,30 @@ class _Session extends Component {
   render () {
     const current = this.props.session.currentQuestion
     const q = current ? this.props.questions[current] : null
-
+    const questionDisplay = this.props.user.hasRole('professor')
+      ? <QuestionDisplay question={q} readonly />
+      : <QuestionDisplay question={q} />
     return (
       <div className='container ql-session-display'>
-        { q ? <QuestionDisplay question={q} /> : '' }
+        { q ? questionDisplay : '' }
       </div>)
   }
 
 }
 
+// meteor reactive data container
 export const Session = createContainer((props) => {
   const handle = Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inSession', props.sessionId)
 
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
-  let student = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
+  let user = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
   return {
-    questions: _.indexBy(questionsInSession, '_id'),
-    student: student,
-    session: session,
+    questions: _.indexBy(questionsInSession, '_id'), // question map
+    user: user, // user object
+    session: session, // session object
     loading: !handle.ready()
   }
 }, _Session)

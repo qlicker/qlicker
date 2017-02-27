@@ -27,7 +27,7 @@ export class QuestionDisplay extends Component {
 
   render () {
     const q = this.props.question
-    return (<div className='ql-question-display'>
+    return (<div className={'ql-question-display ' + (this.readonly ? '' : 'interactive')}>
 
       <div className='ql-question-content'>
         {WysiwygHelper.htmlDiv(q.content)}
