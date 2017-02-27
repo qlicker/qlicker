@@ -40,7 +40,7 @@ const questionPattern = {
   createdAt: Date,
   tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ],
   // possible results from students if question is attached to a session
-  results: [ Match.Maybe({ studentUserId: Helpers.MongoID, answer: Helpers.AnswerObject }) ]
+  results: Match.Maybe([ Match.Maybe({ studentUserId: Helpers.MongoID, answer: Helpers.AnswerObject }) ])
 }
 
 // Create Question class

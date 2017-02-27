@@ -2,6 +2,14 @@
 
 .ql-question-display {
 
+  &.interactive {
+      .ql-answer-content-container:hover {
+        border: 1px solid $blue;
+        color: $blue;
+        cursor: pointer;
+      }
+  }
+
   .ql-question-content {
     font-size: 3em;
     background: white;
@@ -26,12 +34,6 @@
       display: block;
       margin-top: 10px;
       border: 1px solid #ccc;
-
-      &:hover {
-        border: 1px solid $blue;
-        color: $blue;
-        cursor: pointer;
-      }
 
       .ql-checkbox {
         float: left;
