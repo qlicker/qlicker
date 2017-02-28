@@ -41,7 +41,15 @@ const questionPattern = {
   createdAt: Date,
   tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ],
   // possible results from students if question is attached to a session
-  results: Match.Maybe([ Match.Maybe({ studentUserId: Helpers.MongoID, answer: Helpers.AnswerObject }) ])
+  results: Match.Maybe([{
+    studentUserId: Helpers.MongoID,
+    answer: Helpers.AnswerItem,
+    createdAt: Date
+  }]),
+  // config stuff for use while running a session
+  sessionOptions: Match.Maybe({
+    accepting: Boolean // accepting answers for question
+  })
 }
 
 // Create Question class
@@ -242,6 +250,31 @@ Meteor.methods({
 
     return Questions.update({ _id: questionId }, {
       $pull: { tags: tag }
+    })
+  },
+
+  /**
+   * questions.addStudentAnswer(MongoId (string) questionId, String tag)
+   * add a student result to question (that is attached to session)
+   */
+  'questions.addStudentAnswer' (questionId, answerObject) {
+    answerObject.createdAt = new Date()
+    check(answerObject.answer, Helpers.AnswerItem)
+
+    const q = Questions.findOne({ _id: questionId })
+    if (!q.sessionId) throw Error('Question not attached to session')
+    if (Meteor.userId() !== answerObject.studentUserId) throw Error('Cannot submit answer')
+
+    const attempted = q.results && _(q.results).where({ studentUserId: Meteor.userId() }).length > 0
+
+    if (attempted) {
+      Questions.update({ _id: questionId }, {
+        $pull: { results: { studentUserId: Meteor.userId() } }
+      })
+    }
+
+    return Questions.update({ _id: questionId }, {
+      $addToSet: { results: answerObject }
     })
   }
 }) // end Meteor.methods
