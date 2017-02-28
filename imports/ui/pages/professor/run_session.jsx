@@ -31,7 +31,7 @@ class _RunSession extends Component {
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
     this.prevQuestion = this.prevQuestion.bind(this)
-    this.nextQuestion = this.nextQuestion.bind(this)
+    this.nextQuestion = this.nextQuestion.bind(this)   
   }
 
   /**
@@ -133,7 +133,7 @@ class _RunSession extends Component {
             <h3>Results/Stats</h3>
             <button className='btn btn-default'>Show/Hide Stats</button>
             <br />
-            &lt; results and stats here &gt;
+            { JSON.stringify(q.getDistribution()) }
             <hr />
             <h3>Question Preview</h3>
             <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} readonly /> : '' }</div>

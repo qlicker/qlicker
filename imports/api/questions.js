@@ -13,8 +13,10 @@ import { Courses } from './courses'
 import { Sessions } from './sessions'
 
 import { _ } from 'underscore'
+import dl from 'datalib'
 
 import Helpers from './helpers.js'
+import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
 
 // expected collection pattern
 const questionPattern = {
@@ -54,7 +56,17 @@ const questionPattern = {
 
 // Create Question class
 const Question = function (doc) { _.extend(this, doc) }
-_.extend(Question.prototype, {})
+_.extend(Question.prototype, {
+  getDistribution: function () {
+    if (this.type === QUESTION_TYPE.SA || !this.results) return null
+    const aggr = dl.groupby('answer').execute(this.results)
+    aggr.map((answer) => {
+      answer.count = answer.values.length
+      answer.values = undefined
+    })
+    return aggr
+  }
+})
 
 // Create question collection
 export const Questions = new Mongo.Collection('questions',
