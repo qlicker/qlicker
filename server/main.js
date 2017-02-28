@@ -6,6 +6,5 @@ import '../imports/api/sessions.js'
 import '../imports/api/questions.js'
 
 Meteor.startup(() => {
-
 })
 

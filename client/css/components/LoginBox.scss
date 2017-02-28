@@ -4,9 +4,42 @@
 // Components
 .ql-login-box {
   text-align: center;
+  color: #888;
 
   input[type=text], input[type=password] {
-    width:215px;
+  }
+
+  .ql-profile-image-dropzone {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 2px dashed rgba(0, 0, 0, 0.3);
+    background: none;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    .dz-preview.dz-image-preview {
+      background: none;
+    }
+
+    .glyphicon-camera {
+      font-size: 3.8em;
+      margin-bottom: 8px;
+      display: block;
+      text-align: center;
+    }
+  }
+
+  .bottom-account-message, .top-account-message {
+    font-size: 90%;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+
+  .top-account-message {
+    margin-bottom: 5px;
   }
 
 }
