@@ -51,7 +51,8 @@ const questionPattern = {
   // config stuff for use while running a session
   sessionOptions: Match.Maybe({
     accepting: Boolean // accepting answers for question
-  })
+  }),
+  getDistribution: Match.Maybe(Match.Any)
 }
 
 // Create Question class
