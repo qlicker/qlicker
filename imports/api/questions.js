@@ -7,6 +7,7 @@
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
+import { Email } from 'meteor/email'
 
 import { Courses } from './courses'
 import { Sessions } from './sessions'
@@ -243,5 +244,4 @@ Meteor.methods({
       $pull: { tags: tag }
     })
   }
-
 }) // end Meteor.methods

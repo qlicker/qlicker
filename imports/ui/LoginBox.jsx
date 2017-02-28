@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -7,6 +6,7 @@
 
 import React, { Component } from 'react'
 import { _ } from 'underscore'
+import { ProfileImages } from '../api/users'
 
 export const DEFAULT_STATE = {
   login: true,
@@ -57,6 +57,7 @@ export class LoginBox extends Component {
           profile: {
             firstname: this.state.firstname,
             lastname: this.state.lastname,
+            profileImage: this.state.profileImage,
             roles: ['student']
           }
         }, function (error) {
@@ -68,6 +69,27 @@ export class LoginBox extends Component {
       }
     } // end else
   } // end handleSubmit
+
+  /**
+   * uploadImage(File: file)
+   * handle image upload and display
+   */
+  uploadImageCallBack (file) {
+    return new Promise(
+      (resolve, reject) => {
+        ProfileImages.insert(file, function (err, fileObj) {
+          console.log(err, fileObj)
+          if (err) {
+            reject('hmm shit') // TODO
+          } else {
+            setTimeout(function () {
+              resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
+            }, 500)
+          }
+        }) // .insert
+      } // (resolve, reject)
+    )
+  } // end uploadImageCallBack
 
   navigateAfterLogin (user) {
     if (user.hasRole('admin')) Router.go('admin')
@@ -87,23 +109,63 @@ export class LoginBox extends Component {
     this.setState(stateEdits)
   }
 
+  componentDidUpdate () {
+    if (this.state.login) return
+    if (Meteor.isTest) return
+    new Dropzone('#profile-image-uploader', {
+      url: '/some/random/url',
+      accept: (file, done) => {
+        ProfileImages.insert(file, (err, fileObj) => {
+          console.log(fileObj)
+          if (err) {
+            alertify.error('Error: ' + JSON.stringify(err))
+          } else {
+            done()
+            const imageId = fileObj._id
+            console.log(imageId)
+            this.setState({ profileImage: imageId })
+          }
+        })
+      }
+    })
+  }
+
   render () {
-    const switchFormString = !this.state.login ? 'Cancel' : 'Sign Up'
+    const switchFormString = this.state.login ? 'Create an Account' : 'Login'
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
+    const topMessage = this.state.login ? 'Login to Qlicker' : 'Register for Qlicker'
+    const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'
+    const fillOutInfoMessage = this.state.login ? '' : 'Fill out the information below to get started'
     return (
       <form className='ql-login-box' onSubmit={this.handleSubmit}>
-        { !this.state.login ? <div><input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' /></div> : '' }
-        { !this.state.login ? <div><input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' /></div> : '' }
+        <h4>{topMessage}</h4>
+        <div className='top-account-message'>{fillOutInfoMessage}</div>
+        <br />
+
+        { !this.state.login
+          ? (
+            <div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
+              <div className='dz-default dz-message'>
+                <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                Upload profile picture
+              </div>
+            </div>)
+          : '' }
+
+        { !this.state.login ? <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' /> : '' }
+        { !this.state.login ? <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' /> : '' }
 
         <input className='form-control' id='emailField' type='text' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
+
         <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
         { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /> </div> : ''}
 
         { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
         { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
         <div className='spacer1'>&nbsp;</div>
-        <input type='submit' id='submitButton' className='btn btn-default' value={submitButtonString} />
-        <button className='ql-switch-form-button btn btn-default' onClick={this.changeForm}>{switchFormString}</button>
+        <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
+        <div className='bottom-account-message'>{haveAccountMessage}</div>
+        <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
       </form>
     )
   } //  end render
