@@ -33,7 +33,7 @@ _.extend(User.prototype, {
     else if (role === 'professor' && this.profile.roles.indexOf('admin') !== -1) return true
     else return false
   },
-  profileImageUrl: function () {
+  getImageUrl: function () {
     return this.profile.profileImage
       ? '/cfs/files/profile_images/' + this.profile.profileImage
       : '/images/avatar.png'

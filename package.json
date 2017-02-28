@@ -19,6 +19,7 @@
     "draft-js": "^0.10.0",
     "draft-js-export-html": "^0.5.2",
     "draftjs-to-html": "^0.6.0",
+    "dropzone": "^4.3.0",
     "eslint": "^3.11.1",
     "immutable": "^3.8.1",
     "jquery": "^2.2.0",

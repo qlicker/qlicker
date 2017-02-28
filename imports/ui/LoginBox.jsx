@@ -1,4 +1,3 @@
-/* global Dropzone */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -112,6 +111,7 @@ export class LoginBox extends Component {
 
   componentDidUpdate () {
     if (this.state.login) return
+    if (Meteor.isTest) return
     new Dropzone('#profile-image-uploader', {
       url: '/some/random/url',
       accept: (file, done) => {
@@ -143,12 +143,13 @@ export class LoginBox extends Component {
         <br />
 
         { !this.state.login
-          ? (<div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
-            <div className='dz-default dz-message'>
-              <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-              Upload profile picture
-            </div>
-          </div>)
+          ? (
+            <div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
+              <div className='dz-default dz-message'>
+                <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                Upload profile picture
+              </div>
+            </div>)
           : '' }
 
         { !this.state.login ? <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' /> : '' }

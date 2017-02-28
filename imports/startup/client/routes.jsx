@@ -33,6 +33,7 @@ Router.route('/login', function () {
   name: 'login'
 })
 
+import { ProfilePage } from '../../ui/pages/profile'
 Router.route('/profile', {
   name: 'profile',
   waitOn: function () {
@@ -41,8 +42,7 @@ Router.route('/profile', {
   action: function () {
     let user = Meteor.user()
     if (user) {
-      mount(AppLayout, { content: <PageContainer user={user}> {user.getName()} </PageContainer> })
-      // TODO <ProfilePage userId={user._id}/>
+      mount(AppLayout, { content: <PageContainer user={user}> <ProfilePage /> </PageContainer> })
     } else Router.go('login')
   }
 })

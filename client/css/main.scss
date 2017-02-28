@@ -38,6 +38,12 @@ $incorrect-color: #A72526;
   cursor: pointer;
 }
 
+.ql-child-container {
+  > .container {
+    padding-top: 20px;
+  }
+}
+
 .ql-page-container {
  
   .ql-top-bar {
