@@ -50,7 +50,9 @@ const questionPattern = {
   }]),
   // config stuff for use while running a session
   sessionOptions: Match.Maybe({
-    accepting: Boolean // accepting answers for question
+    accepting: Boolean, // accepting answers for question,
+    stats: Boolean, // students able to see distribution of answers
+    correct: Boolean // students able to see which is correct
   }),
   getDistribution: Match.Maybe(Match.Any)
 }
@@ -59,6 +61,10 @@ const questionPattern = {
 const Question = function (doc) { _.extend(this, doc) }
 _.extend(Question.prototype, {
   getDistribution: function () {
+    // prevent students from seeing stats, unless prof has set sessionOptions.stats
+    if (Meteor.user().hasRole('student') &&
+      (!this.sessionOptions || !this.sessionOptions.stats)) return null
+
     if (this.type === QUESTION_TYPE.SA || !this.results) return null
     const aggr = dl.groupby('answer').count().execute(this.results)
     return _(aggr).sortBy('answer')
@@ -86,15 +92,21 @@ if (Meteor.isServer) {
   // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
-      // TODO permissions submittedBy: this.userId,
-      // TODO for students, omit answers
-      return Questions.find({ sessionId: sessionId })
+      const user = Meteor.users.findOne({ _id: this.userId })
+      if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
+
+      if (user.hasRole('student')) {
+        return Questions.find({ sessionId: sessionId }, { fields: { results: false, 'answers.correct': false } })
+      }
     } else this.ready()
   })
 
   // questions owned by a professor
   Meteor.publish('questions.library', function () {
     if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      if (!user.hasRole('professor')) return this.ready()
+
       return Questions.find({ submittedBy: this.userId, sessionId: {$exists: false} })
     } else this.ready()
   })
