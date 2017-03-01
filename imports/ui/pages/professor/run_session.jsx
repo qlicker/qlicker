@@ -63,6 +63,10 @@ class _RunSession extends Component {
     })
   }
 
+  /**
+   * setCurrentQuestion(MongoId (string): questionId)
+   * calls sessions.setCurrent to set current question running in session
+   */
   setCurrentQuestion (questionId) {
     Meteor.call('sessions.setCurrent', this.state.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
@@ -70,14 +74,23 @@ class _RunSession extends Component {
     })
   }
 
+  /**
+   * prevQuestion()
+   * set question to previous in list
+   */
   prevQuestion () {
     const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
-    this.setCurrentQuestion(this.state.session.questions[currentIndex - 1])
+    if (currentIndex > 0) this.setCurrentQuestion(this.state.session.questions[currentIndex - 1])
   }
 
+  /**
+   * nextQuestion()
+   * set question to next in list
+   */
   nextQuestion () {
+    const l = this.state.session.questions.length
     const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
-    this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
+    if (currentIndex < l - 1) this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
   }
 
   componentWillReceiveProps (nextProps) {

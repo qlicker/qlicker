@@ -194,13 +194,19 @@ export class QuestionEditItem extends Component {
   markCorrect (answerKey) {
     let answers = this.state.answers
 
-    answers.forEach((a, i) => {
-      if (a.answer === answerKey) answers[i].correct = true
-      else answers[i].correct = false
-    })
+    if (this.state.type === QUESTION_TYPE.MS) {
+      answers.forEach((a, i) => {
+        if (a.answer === answerKey) answers[i].correct = !answers[i].correct
+      })
+    } else {
+      answers.forEach((a, i) => {
+        if (a.answer === answerKey) answers[i].correct = true
+        else answers[i].correct = false
+      })
+    }
 
-    this.setState({
-      answers: answers
+    this.setState({ answers: answers}, () => {
+      this._DB_saveQuestion()
     })
   }
 

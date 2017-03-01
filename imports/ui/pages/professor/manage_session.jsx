@@ -35,6 +35,8 @@ class _ManageSession extends Component {
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
+    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 2000)
+
   }
 
   /**
@@ -65,12 +67,22 @@ class _ManageSession extends Component {
     })
   }
 
+  /**
+   * setSessionName(Event: e)
+   * onchange event handler for session name input field
+   */
   setSessionName (e) {
     const editedSession = this.state.session
     editedSession.name = e.target.value
-    this.setState({ session: editedSession })
+    this.setState({ session: editedSession }, () => {
+      this._DB_saveSessionEdits()
+    })
   }
 
+  /**
+   * addNewQuestion()
+   * add a blank question edit item to create a new question
+   */
   addNewQuestion () {
     if (this.state.session.questions) {
       this.state.session.questions.push(-1)
@@ -78,6 +90,10 @@ class _ManageSession extends Component {
     this.forceUpdate()
   }
 
+  /**
+   * newQuestionSaved(MongoId (string): questionId)
+   * swap out temporary '-1' placeholder in question list with new questionId
+   */
   newQuestionSaved (questionId) {
     this.state.session.questions.splice(this.state.session.questions.indexOf(-1), 1)
     Meteor.call('sessions.addQuestion', this.state.session._id, questionId, (error) => {
@@ -102,10 +118,31 @@ class _ManageSession extends Component {
     })
   }
 
+  /**
+   * saveSessionEdits()
+   * save current session state to db
+   */
+  saveSessionEdits () {
+    Meteor.call('sessions.edit', this.state.session, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Session details saved')
+      }
+    })
+  }
+
+  /**
+   * componentWillReceiveProps(nextProps)
+   * update state from props
+   */
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
   }
 
+  /**
+   * componentDidMount(nextProps)
+   * enable bootstrap tabs
+   */
   componentDidMount () {
     $('#sidebar-tabs a').click(function (e) {
       e.preventDefault()

@@ -13,8 +13,6 @@ export class QuestionDisplay extends Component {
   constructor (p) {
     super(p)
 
-    this.submitAnswer = this.submitAnswer.bind(this)
-
     this.readonly = false
     if (this.props.readonly) this.readonly = this.props.readonly
   }
@@ -25,20 +23,6 @@ export class QuestionDisplay extends Component {
 
   componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
-  }
-
-  submitAnswer (answer) {
-    const answerObject = {
-      studentUserId: Meteor.userId(),
-      answer: answer // 'A' or 'TRUE' or ['A', 'C'] or 'Short answer text'
-    }
-    Meteor.call('questions.addStudentAnswer', this.props.question._id, answerObject, (err) => {
-      if (err) alertify.error('Error: ' + err.error)
-      else {
-        alertify.success('Answer Submitted')
-        // success. do stuff here if needed
-      }
-    })
   }
 
   render () {
@@ -55,11 +39,11 @@ export class QuestionDisplay extends Component {
             let content
 
             if (a.wysiwyg) {
-              content = (<div onClick={() => this.submitAnswer(a.answer)} className='ql-wysiwyg-content' key={'answer_' + a.answer}>
+              content = (<div className='ql-wysiwyg-content' key={'answer_' + a.answer}>
                 { WysiwygHelper.htmlDiv(a.content) }
               </div>)
             } else {
-              content = (<div onClick={() => this.submitAnswer(a.answer)} className='ql-tf-content' key={'answer_' + a.answer}>
+              content = (<div className='ql-tf-content' key={'answer_' + a.answer}>
                 <span className={a.answer === 'TRUE' ? 'correct-color' : 'incorrect-color'}>{a.answer}</span>
               </div>)
             }
