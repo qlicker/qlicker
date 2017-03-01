@@ -60,12 +60,8 @@ const Question = function (doc) { _.extend(this, doc) }
 _.extend(Question.prototype, {
   getDistribution: function () {
     if (this.type === QUESTION_TYPE.SA || !this.results) return null
-    const aggr = dl.groupby('answer').execute(this.results)
-    aggr.map((answer) => {
-      answer.count = answer.values.length
-      answer.values = undefined
-    })
-    return aggr
+    const aggr = dl.groupby('answer').count().execute(this.results)
+    return _(aggr).sortBy('answer')
   }
 })
 

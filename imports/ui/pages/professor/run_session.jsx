@@ -11,6 +11,7 @@ import $ from 'jquery'
 
 import { createContainer } from 'meteor/react-meteor-data'
 import DragSortableList from 'react-drag-sortable'
+import { BarChart, Bar, XAxis, YAxis } from 'recharts'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
@@ -31,7 +32,7 @@ class _RunSession extends Component {
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
     this.prevQuestion = this.prevQuestion.bind(this)
-    this.nextQuestion = this.nextQuestion.bind(this)   
+    this.nextQuestion = this.nextQuestion.bind(this)
   }
 
   /**
@@ -83,9 +84,9 @@ class _RunSession extends Component {
     if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
   }
 
-
   render () {
-    if (this.props.loading) return <div>Loading</div>
+    const current = this.state.session.currentQuestion
+    if (this.props.loading || !current) return <div>Loading</div>
 
     let questionList = this.state.session.questions || []
     const qlItems = []
@@ -97,8 +98,9 @@ class _RunSession extends Component {
       })
     })
 
-    const current = this.state.session.currentQuestion
-    const q = current ? this.props.questions[current] : null
+    const q = this.props.questions[current]
+    const answerDistribution = q.getDistribution()
+
     return (
       <div className='container-fluid ql-manage-session'>
 
@@ -110,7 +112,7 @@ class _RunSession extends Component {
               <hr />
               <h3>Questions</h3>
               <ol className='ql-session-question-list'>
-                {/*{<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}*/}
+                {/* {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}*/}
                 {
                   questionList.map((questionId) => {
                     const q = this.props.questions[questionId]
@@ -124,7 +126,7 @@ class _RunSession extends Component {
             </div>
           </div>
           <div className='col-md-8 col-sm-8' >
-            <h3>Current Question: {q ? q.plainText : ''}</h3>
+            <h3>Current Question: {q.plainText}</h3>
             <button className='btn btn-default'>Show/Hide Question</button>
             <button className='btn btn-default'>Allow/Deny Answers</button>
             <button className='btn btn-default'>Presentation Mode</button>
@@ -132,8 +134,15 @@ class _RunSession extends Component {
             <hr />
             <h3>Results/Stats</h3>
             <button className='btn btn-default'>Show/Hide Stats</button>
-            <br />
-            { JSON.stringify(q.getDistribution()) }
+
+            <BarChart
+              width={500} height={200} data={answerDistribution}
+              margin={{top: 5, right: 0, left: -20, bottom: 5}}>
+              <XAxis dataKey='answer' />
+              <YAxis allowDecimals={false} />
+              <Bar dataKey='count' fill='#2FB0E8' label isAnimationActive={false} />
+            </BarChart>
+
             <hr />
             <h3>Question Preview</h3>
             <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} readonly /> : '' }</div>
