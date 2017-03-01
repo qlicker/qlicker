@@ -61,12 +61,14 @@ const questionPattern = {
 const Question = function (doc) { _.extend(this, doc) }
 _.extend(Question.prototype, {
   getDistribution: function () {
+    let data = this.results
     // prevent students from seeing stats, unless prof has set sessionOptions.stats
-    if (Meteor.user().hasRole('student') &&
-      (!this.sessionOptions || !this.sessionOptions.stats)) return null
+    if (Meteor.user().hasRole('student') && (!this.sessionOptions || !this.sessionOptions.stats)) {
+      return null
+    }
 
-    if (this.type === QUESTION_TYPE.SA || !this.results) return null
-    const aggr = dl.groupby('answer').count().execute(this.results)
+    if (this.type === QUESTION_TYPE.SA || !data) return null
+    const aggr = dl.groupby('answer').count().execute(data)
     return _(aggr).sortBy('answer')
   }
 })
@@ -96,7 +98,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole('student')) {
-        return Questions.find({ sessionId: sessionId }, { fields: { results: false, 'answers.correct': false } })
+        return Questions.find({ sessionId: sessionId }, { fields: { 'results.studentUserId': false, 'answers.correct': false } })
       }
     } else this.ready()
   })
@@ -296,6 +298,32 @@ Meteor.methods({
 
     return Questions.update({ _id: questionId }, {
       $addToSet: { results: answerObject }
+    })
+  },
+
+  /**
+   * questions.showStats(MongoId (string) questionId)
+   * enable stats/answer distribution visibility for students
+   */
+  'questions.showStats' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.stats': true }
+    })
+  },
+
+  /**
+   * questions.hideStats(MongoId (string) questionId)
+   * disables stats/answer distribution visibility for students
+   */
+  'questions.hideStats' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.stats': false }
     })
   }
 }) // end Meteor.methods

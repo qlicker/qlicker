@@ -29,6 +29,7 @@ class _RunSession extends Component {
     this.sessionId = this.props.sessionId
 
     this.removeQuestion = this.removeQuestion.bind(this)
+    this.toggleStats = this.toggleStats.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
     this.prevQuestion = this.prevQuestion.bind(this)
@@ -44,6 +45,25 @@ class _RunSession extends Component {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
     })
+  }
+
+  /**
+   * toggleStats(MongoId (string): questionId)
+   * calls questions.showStats or .hideStats to show/hide answer distribution from students
+   */
+  toggleStats (questionId) {
+    const sessionOptions = this.props.questions[questionId].sessionOptions
+    if (!sessionOptions || !sessionOptions.stats) {
+      Meteor.call('questions.showStats', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Enabled Stats')
+      })
+    } else {
+      Meteor.call('questions.hideStats', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Disabled stats')
+      })
+    }
   }
 
   /**
@@ -146,7 +166,7 @@ class _RunSession extends Component {
             <button className='btn btn-default' onClick={() => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }}>Seperate Question Display</button>
             <hr />
             <h3>Results/Stats</h3>
-            <button className='btn btn-default'>Show/Hide Stats</button>
+            <button className='btn btn-default' onClick={() => this.toggleStats(q._id)}>Show/Hide Stats</button>
 
             <BarChart
               width={500} height={200} data={answerDistribution}
