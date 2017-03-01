@@ -149,6 +149,8 @@ if (Meteor.isServer) {
           expect(Questions.findOne({ _id: questionId }).tags).to.have.length(0)
         })
       })
+
+      it('can add question result (questions.addStudentAnswer)')
     }) // end describe('methods')
   }) // end describe('Questions')
 } // end Meteor.isServer

@@ -13,8 +13,10 @@ import { Courses } from './courses'
 import { Sessions } from './sessions'
 
 import { _ } from 'underscore'
+import dl from 'datalib'
 
 import Helpers from './helpers.js'
+import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
 
 // expected collection pattern
 const questionPattern = {
@@ -41,12 +43,35 @@ const questionPattern = {
   createdAt: Date,
   tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ],
   // possible results from students if question is attached to a session
-  results: Match.Maybe([ Match.Maybe({ studentUserId: Helpers.MongoID, answer: Helpers.AnswerObject }) ])
+  results: Match.Maybe([{
+    studentUserId: Helpers.MongoID,
+    answer: Helpers.AnswerItem,
+    createdAt: Date
+  }]),
+  // config stuff for use while running a session
+  sessionOptions: Match.Maybe({
+    accepting: Boolean, // accepting answers for question,
+    stats: Boolean, // students able to see distribution of answers
+    correct: Boolean // students able to see which is correct
+  }),
+  getDistribution: Match.Maybe(Match.Any)
 }
 
 // Create Question class
 const Question = function (doc) { _.extend(this, doc) }
-_.extend(Question.prototype, {})
+_.extend(Question.prototype, {
+  getDistribution: function () {
+    let data = this.results
+    // prevent students from seeing stats, unless prof has set sessionOptions.stats
+    if (Meteor.user().hasRole('student') && (!this.sessionOptions || !this.sessionOptions.stats)) {
+      return null
+    }
+
+    if (this.type === QUESTION_TYPE.SA || !data) return null
+    const aggr = dl.groupby('answer').count().execute(data)
+    return _(aggr).sortBy('answer')
+  }
+})
 
 // Create question collection
 export const Questions = new Mongo.Collection('questions',
@@ -69,15 +94,21 @@ if (Meteor.isServer) {
   // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
-      // TODO permissions submittedBy: this.userId,
-      // TODO for students, omit answers
-      return Questions.find({ sessionId: sessionId })
+      const user = Meteor.users.findOne({ _id: this.userId })
+      if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
+
+      if (user.hasRole('student')) {
+        return Questions.find({ sessionId: sessionId }, { fields: { 'results.studentUserId': false, 'answers.correct': false } })
+      }
     } else this.ready()
   })
 
   // questions owned by a professor
   Meteor.publish('questions.library', function () {
     if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      if (!user.hasRole('professor')) return this.ready()
+
       return Questions.find({ submittedBy: this.userId, sessionId: {$exists: false} })
     } else this.ready()
   })
@@ -242,6 +273,57 @@ Meteor.methods({
 
     return Questions.update({ _id: questionId }, {
       $pull: { tags: tag }
+    })
+  },
+
+  /**
+   * questions.addStudentAnswer(MongoId (string) questionId, String tag)
+   * add a student result to question (that is attached to session)
+   */
+  'questions.addStudentAnswer' (questionId, answerObject) {
+    answerObject.createdAt = new Date()
+    check(answerObject.answer, Helpers.AnswerItem)
+
+    const q = Questions.findOne({ _id: questionId })
+    if (!q.sessionId) throw Error('Question not attached to session')
+    if (Meteor.userId() !== answerObject.studentUserId) throw Error('Cannot submit answer')
+
+    const attempted = q.results && _(q.results).where({ studentUserId: Meteor.userId() }).length > 0
+
+    if (attempted) {
+      Questions.update({ _id: questionId }, {
+        $pull: { results: { studentUserId: Meteor.userId() } }
+      })
+    }
+
+    return Questions.update({ _id: questionId }, {
+      $addToSet: { results: answerObject }
+    })
+  },
+
+  /**
+   * questions.showStats(MongoId (string) questionId)
+   * enable stats/answer distribution visibility for students
+   */
+  'questions.showStats' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.stats': true }
+    })
+  },
+
+  /**
+   * questions.hideStats(MongoId (string) questionId)
+   * disables stats/answer distribution visibility for students
+   */
+  'questions.hideStats' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.stats': false }
     })
   }
 }) // end Meteor.methods

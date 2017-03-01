@@ -11,6 +11,7 @@ import $ from 'jquery'
 
 import { createContainer } from 'meteor/react-meteor-data'
 import DragSortableList from 'react-drag-sortable'
+import { BarChart, Bar, XAxis, YAxis } from 'recharts'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
@@ -28,6 +29,7 @@ class _RunSession extends Component {
     this.sessionId = this.props.sessionId
 
     this.removeQuestion = this.removeQuestion.bind(this)
+    this.toggleStats = this.toggleStats.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
     this.prevQuestion = this.prevQuestion.bind(this)
@@ -43,6 +45,25 @@ class _RunSession extends Component {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
     })
+  }
+
+  /**
+   * toggleStats(MongoId (string): questionId)
+   * calls questions.showStats or .hideStats to show/hide answer distribution from students
+   */
+  toggleStats (questionId) {
+    const sessionOptions = this.props.questions[questionId].sessionOptions
+    if (!sessionOptions || !sessionOptions.stats) {
+      Meteor.call('questions.showStats', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Enabled Stats')
+      })
+    } else {
+      Meteor.call('questions.hideStats', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Disabled stats')
+      })
+    }
   }
 
   /**
@@ -62,6 +83,10 @@ class _RunSession extends Component {
     })
   }
 
+  /**
+   * setCurrentQuestion(MongoId (string): questionId)
+   * calls sessions.setCurrent to set current question running in session
+   */
   setCurrentQuestion (questionId) {
     Meteor.call('sessions.setCurrent', this.state.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
@@ -69,23 +94,32 @@ class _RunSession extends Component {
     })
   }
 
+  /**
+   * prevQuestion()
+   * set question to previous in list
+   */
   prevQuestion () {
     const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
-    this.setCurrentQuestion(this.state.session.questions[currentIndex - 1])
+    if (currentIndex > 0) this.setCurrentQuestion(this.state.session.questions[currentIndex - 1])
   }
 
+  /**
+   * nextQuestion()
+   * set question to next in list
+   */
   nextQuestion () {
+    const l = this.state.session.questions.length
     const currentIndex = this.state.session.questions.indexOf(this.state.session.currentQuestion)
-    this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
+    if (currentIndex < l - 1) this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
   }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
   }
 
-
   render () {
-    if (this.props.loading) return <div>Loading</div>
+    const current = this.state.session.currentQuestion
+    if (this.props.loading || !current) return <div>Loading</div>
 
     let questionList = this.state.session.questions || []
     const qlItems = []
@@ -97,8 +131,9 @@ class _RunSession extends Component {
       })
     })
 
-    const current = this.state.session.currentQuestion
-    const q = current ? this.props.questions[current] : null
+    const q = this.props.questions[current]
+    const answerDistribution = q.getDistribution()
+
     return (
       <div className='container-fluid ql-manage-session'>
 
@@ -110,7 +145,7 @@ class _RunSession extends Component {
               <hr />
               <h3>Questions</h3>
               <ol className='ql-session-question-list'>
-                {/*{<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}*/}
+                {/* {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}*/}
                 {
                   questionList.map((questionId) => {
                     const q = this.props.questions[questionId]
@@ -124,16 +159,23 @@ class _RunSession extends Component {
             </div>
           </div>
           <div className='col-md-8 col-sm-8' >
-            <h3>Current Question: {q ? q.plainText : ''}</h3>
+            <h3>Current Question: {q.plainText}</h3>
             <button className='btn btn-default'>Show/Hide Question</button>
             <button className='btn btn-default'>Allow/Deny Answers</button>
             <button className='btn btn-default'>Presentation Mode</button>
             <button className='btn btn-default' onClick={() => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }}>Seperate Question Display</button>
             <hr />
             <h3>Results/Stats</h3>
-            <button className='btn btn-default'>Show/Hide Stats</button>
-            <br />
-            &lt; results and stats here &gt;
+            <button className='btn btn-default' onClick={() => this.toggleStats(q._id)}>Show/Hide Stats</button>
+
+            <BarChart
+              width={500} height={200} data={answerDistribution}
+              margin={{top: 5, right: 0, left: -20, bottom: 5}}>
+              <XAxis dataKey='answer' />
+              <YAxis allowDecimals={false} />
+              <Bar dataKey='count' fill='#2FB0E8' label isAnimationActive={false} />
+            </BarChart>
+
             <hr />
             <h3>Question Preview</h3>
             <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} readonly /> : '' }</div>

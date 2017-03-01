@@ -177,5 +177,4 @@ Meteor.methods({
     })
   }
 
-
 }) // end Meteor.methods
