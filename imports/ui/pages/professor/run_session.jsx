@@ -234,20 +234,17 @@ class _RunSession extends Component {
                 }
               </ol>
               <hr />
-              <div className='btn-group btn-group-justified' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}>Previous Question</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next Question</a>
+              <div className='btn-group btn-group-justified bottom-group' role='group'>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous Question</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next Question <span className='glyphicon glyphicon-arrow-right' /></a>
               </div>
             </div>
           </div>
           <div className='ql-main-content' >
-            <h3>Current Question: {q.plainText}</h3>
-            <hr />
             <h3>Results/Stats</h3>
             {<AnswerDistribution question={q} />}
             <div className='clear' />
-            <hr />
-            <h3>Question Preview</h3>
+            <h3 className='m-margin-top'>Question Preview</h3>
             <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly /> : '' }</div>
           </div>
         </div>

@@ -14,6 +14,8 @@ class _PageContainer extends Component {
     super(props)
     this.state = {}
     this.state.user = Meteor.user() || this.props.user
+
+    alertify.logPosition('bottom right')
   }
 
   render () {
@@ -24,7 +26,9 @@ class _PageContainer extends Component {
 
     const homePath = Router.routes[this.state.user.profile.roles[0]].path()
     const questionsPage = Router.routes['questions'].path()
-    const coursesPage = Router.routes['courses'].path()
+    const coursesPage = this.state.user.hasRole('professor')
+      ? Router.routes['courses'].path()
+      : Router.routes['student'].path()
     return (
       <div className='ql-page-container'>
         <nav className='navbar navbar-default navbar-fixed-top'>
@@ -53,7 +57,11 @@ class _PageContainer extends Component {
                     }
                   </ul>
                 </li>
-                <li><a className='bootstrap-overrides' href={questionsPage}>Questions</a></li>
+                {
+                  this.state.user.hasRole('professor')
+                    ? <li><a className='bootstrap-overrides' href={questionsPage}>Questions</a></li>
+                    : ''
+                }
                 <li><a className='bootstrap-overrides' href='#'>Grades</a></li>
               </ul>
 
@@ -85,7 +93,7 @@ export const PageContainer = createContainer(() => {
   const handle = Meteor.subscribe('courses')
 
   return {
-    courses: Courses.find({ owner: Meteor.userId() }).fetch(),
+    courses: Courses.find({}).fetch(),
     loading: !handle.ready()
   }
 }, _PageContainer)

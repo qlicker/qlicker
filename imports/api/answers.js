@@ -70,6 +70,8 @@ Meteor.methods({
     if (!q.sessionId) throw Error('Question not attached to session')
     if (Meteor.userId() !== answerObject.studentUserId) throw Error('Cannot submit answer')
 
+    // TODO check if attempt number is current in question
+
     const c = Answers.find({
       attempt: answerObject.attempt,
       questionId: answerObject.questionId,

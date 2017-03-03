@@ -33,7 +33,7 @@ export class _AnswerDistribution extends Component {
     })
     return (<div>
       <BarChart className='ql-answer-distribution'
-        height={200} width={600} data={this.props.distribution}
+        height={190} width={600} data={this.props.distribution}
         margin={{top: 10, right: 10, left: -25, bottom: 5}}>
         <XAxis dataKey='answer' />
         <YAxis allowDecimals={false} />
