@@ -40,7 +40,7 @@ export class QuestionEditItem extends Component {
     this.addTag = this.addTag.bind(this)
     this.handleDrag = this.handleDrag.bind(this)
     this.changeType = this.changeType.bind(this)
-    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2500)
+    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2000)
 
     // if editing pre-exsiting question
     if (this.props.question) {

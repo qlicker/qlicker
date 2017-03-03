@@ -186,6 +186,8 @@ class _RunSession extends Component {
     const strAttemptEnabled = currentAttempt.closed
       ? 'Allow Answers' : 'Disallow Answers'
 
+    // small methods
+    const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     return (
       <div className='ql-manage-session'>
 
@@ -194,8 +196,8 @@ class _RunSession extends Component {
             <div className='ql-session-sidebar'>
               <h2>Session: { this.state.session.name }</h2>
               <div className='btn-group btn-group-justified' role='group'>
-                <a href='#' className='btn btn-default btn-sm'>Presentation Mode</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={() => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }}>Seperate Question Display</a>
+                <a href='#' className='btn btn-default btn-sm'>Presentation Mode <span className='glyphicon glyphicon-fullscreen' /></a>
+                <a href='#' className='btn btn-default btn-sm' onClick={secondDisplay}>2nd Display <span className='glyphicon glyphicon-blackboard' /></a>
               </div>
               <hr />
               <h3>Current Question</h3>

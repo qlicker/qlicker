@@ -21,7 +21,7 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 370px;
+      width: 360px;
       height: calc(100vh - 50px);
       padding: 20px;
 
@@ -33,7 +33,7 @@
     }
     
     .ql-main-content {
-      margin-left: 370px;
+      margin-left: 360px;
       padding: 20px;
       overflow: auto;
       height: calc(100vh - 50px);
@@ -46,7 +46,8 @@
     border: 1px solid #ddd;
     padding: 18px;
     width: 100%;
-    margin: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 
     .ql-header-text-input {
       width: 100%;
