@@ -27,7 +27,7 @@ export const sampleQuestion = {
   plainText: 'Test question?',
   content: exContentState,
   type: QUESTION_TYPE.MC,
-  answers: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState, plainText: 'Test question?' }],
+  options: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState, plainText: 'Test question?' }],
   submittedBy: '',
   tags: []
 }

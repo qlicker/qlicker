@@ -20,7 +20,7 @@ export const DEFAULT_STATE = {
   plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
-  answers: [], // { correct: false, answer: 'A', content: editor content }
+  options: [], // { correct: false, answer: 'A', content: editor content }
   submittedBy: '',
   tags: []
 }
@@ -34,19 +34,19 @@ export class QuestionEditItem extends Component {
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
     this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
-    this.setAnswerState = this.setAnswerState.bind(this)
+    this.setOptionState = this.setOptionState.bind(this)
     this.markCorrect = this.markCorrect.bind(this)
     this.deleteTag = this.deleteTag.bind(this)
     this.addTag = this.addTag.bind(this)
     this.handleDrag = this.handleDrag.bind(this)
     this.changeType = this.changeType.bind(this)
-    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2500)
+    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2000)
 
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
 
-      this.currentAnswer = this.state.answers.length
+      this.currentAnswer = this.state.options.length
       switch (this.state.type) {
         case QUESTION_TYPE.MC:
           this.answerOrder = MC_ORDER
@@ -82,7 +82,7 @@ export class QuestionEditItem extends Component {
   changeType (newValue) {
     let type = parseInt(newValue)
 
-    this.setState({ type: type, answers: [] }, () => {
+    this.setState({ type: type, options: [] }, () => {
       if (type === QUESTION_TYPE.MC) {
         this.currentAnswer = 0
         this.answerOrder = _.extend({}, MC_ORDER)
@@ -151,18 +151,18 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * setAnswerState(String: answerKey, Object: content)
+   * setOptionState(String: answerKey, Object: content)
    * Update wysiwyg content in the state based on the answer
    */
-  setAnswerState (answerKey, content, plainText) {
-    let answers = this.state.answers
-    const i = _(answers).findIndex({ answer: answerKey })
-    answers[i].content = content
-    answers[i].plainText = plainText
-    this.setState({ answers: answers }, () => {
+  setOptionState (answerKey, content, plainText) {
+    let options = this.state.options
+    const i = _(options).findIndex({ answer: answerKey })
+    options[i].content = content
+    options[i].plainText = plainText
+    this.setState({ options: options }, () => {
       this._DB_saveQuestion()
     })
-  } // end setAnswerState
+  } // end setOptionState
 
   /**
    * addAnswer(Event _, Event e, Boolean wysiwyg, Callback done = null)
@@ -172,7 +172,7 @@ export class QuestionEditItem extends Component {
     const answerKey = this.answerOrder[this.currentAnswer]
     if (this.currentAnswer >= this.answerOrder.length) return
     this.setState({
-      answers: this.state.answers.concat([{
+      options: this.state.options.concat([{
         correct: this.currentAnswer === 0,
         answer: answerKey,
         wysiwyg: wysiwyg
@@ -180,8 +180,8 @@ export class QuestionEditItem extends Component {
     }, () => {
       this.currentAnswer++
 
-      if (wysiwyg) this.setAnswerState(answerKey, '', '')
-      else this.setAnswerState(answerKey, answerKey, answerKey)
+      if (wysiwyg) this.setOptionState(answerKey, '', '')
+      else this.setOptionState(answerKey, answerKey, answerKey)
 
       if (done) done()
     })
@@ -192,20 +192,20 @@ export class QuestionEditItem extends Component {
    * Set answer as correct in stae
    */
   markCorrect (answerKey) {
-    let answers = this.state.answers
+    let options = this.state.options
 
     if (this.state.type === QUESTION_TYPE.MS) {
-      answers.forEach((a, i) => {
-        if (a.answer === answerKey) answers[i].correct = !answers[i].correct
+      options.forEach((a, i) => {
+        if (a.answer === answerKey) options[i].correct = !options[i].correct
       })
     } else {
-      answers.forEach((a, i) => {
-        if (a.answer === answerKey) answers[i].correct = true
-        else answers[i].correct = false
+      options.forEach((a, i) => {
+        if (a.answer === answerKey) options[i].correct = true
+        else options[i].correct = false
       })
     }
 
-    this.setState({ answers: answers}, () => {
+    this.setState({ options: options }, () => {
       this._DB_saveQuestion()
     })
   }
@@ -217,7 +217,7 @@ export class QuestionEditItem extends Component {
   saveQuestion () {
     let question = _.extend({ createdAt: new Date() }, this.state)
 
-    if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
+    if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
     if (this.props.courseId) question.courseId = this.props.courseId
@@ -266,7 +266,7 @@ export class QuestionEditItem extends Component {
   render () {
     const answerEditor = (a) => {
       const changeHandler = (content, plainText) => {
-        this.setAnswerState(a.answer, content, plainText)
+        this.setOptionState(a.answer, content, plainText)
       }
 
       const wysiwygAnswer = (
@@ -297,10 +297,10 @@ export class QuestionEditItem extends Component {
 
     // generate rows with up to 2 editors on each row
     let editorRows = []
-    const len = this.state.answers.length
+    const len = this.state.options.length
     for (let i = 0; i < len; i = i + 2) {
-      let gaurunteed = this.state.answers[i]
-      let possiblyUndefined = i < len ? this.state.answers[i + 1] : undefined
+      let gaurunteed = this.state.options[i]
+      let possiblyUndefined = i < len ? this.state.options[i + 1] : undefined
 
       editorRows.push(<div key={'row_' + i + '-' + i + 1} className='row'>
         { answerEditor(gaurunteed) }
