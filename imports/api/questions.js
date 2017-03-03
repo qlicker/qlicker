@@ -44,29 +44,29 @@ const questionPattern = {
   tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ],
   // config stuff for use while running a session
   sessionOptions: Match.Maybe({
+    hidden: Boolean, // temporarily hide question on screen
     stats: Boolean, // students able to see distribution of answers
     correct: Boolean, // students able to see which is correct
     attempts: [{
       number: Number,
-      accepting: Boolean
+      closed: Boolean
     }]
   })
+}
+
+const defaultSessionOptions = {
+  hidden: false,
+  stats: false,
+  correct: false,
+  attempts: [{
+    number: 1,
+    closed: false
+  }]
 }
 
 // Create Question class
 const Question = function (doc) { _.extend(this, doc) }
 _.extend(Question.prototype, {
-  // getDistribution: function () {
-  //   let data = this.results
-  //   // prevent students from seeing stats, unless prof has set sessionOptions.stats
-  //   if (Meteor.user().hasRole('student') && (!this.sessionOptions || !this.sessionOptions.stats)) {
-  //     return null
-  //   }
-
-  //   if (this.type === QUESTION_TYPE.SA || !data) return null
-  //   const aggr = dl.groupby('answer').count().execute(data)
-  //   return _(aggr).sortBy('answer')
-  // }
 })
 
 // Create question collection
@@ -273,7 +273,45 @@ Meteor.methods({
   },
 
   /**
-   * questions.showStats(MongoId (string) questionId)
+   * questions.startAttempt(MongoId (string) questionId)
+   * setup default .sessionOptions for a question and add an attempt
+   */
+  'questions.startAttempt' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    if (q.sessionOptions) { // add another attempt (if first is closed)
+      const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+      if (maxAttempt.closed) {
+        return Questions.update({ _id: questionId }, {
+          '$push': { 'sessionOptions.attempts': { number: maxAttempt.number + 1, closed: false } }
+        })
+      }
+    } else {
+      return Questions.update({ _id: questionId }, {
+        '$set': { 'sessionOptions': _.extend({}, defaultSessionOptions) }
+      })
+    }
+  },
+
+  /**
+   * questions.endAttempt(MongoId (string) questionId)
+   * closed last attempt and start a new one
+   */
+  'questions.endAttempt' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    if (q.sessionOptions) { // add another attempt (if first is closed)
+      q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed = true
+      return Questions.update({ _id: questionId }, {
+        '$set': { 'sessionOptions.attempts': q.sessionOptions.attempts }
+      })
+    }
+  },
+
+  /**
+   * questions.showQuestion(MongoId (string) questionId)
    * enable stats/answer distribution visibility for students
    */
   'questions.showStats' (questionId) {
@@ -296,5 +334,30 @@ Meteor.methods({
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.stats': false }
     })
+  },
+
+  /**
+   * questions.showQuestion(MongoId (string) questionId)
+   */
+  'questions.showQuestion' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.hidden': false }
+    })
+  },
+
+  /**
+   * questions.hideQuestion(MongoId (string) questionId)
+   */
+  'questions.hideQuestion' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.hidden': true }
+    })
   }
+
 }) // end Meteor.methods

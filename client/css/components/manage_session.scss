@@ -1,22 +1,44 @@
 
 .ql-manage-session {
-  max-width: 1170px;
 
-  .sidebar-container {
-    position: relative;
-  }
-
-  .ql-session-sidebar {
-    background: white;
-    border-right: 1px solid #ddd;
+  .ql-row-container {
+    top: 50px;
+    left: 0;
+    position: absolute;
     height: calc(100vh - 50px);
-    padding: 20px;
+    width: 100%;
 
-    #sidebar-tabs {
+    .sidebar-container {
       position: absolute;
-      bottom: 0;
+      height: calc(100vh - 50px);
+      left: 0;
+      top: 0;
     }
 
+    .ql-session-sidebar {
+      background: white;
+      border-right: 1px solid #ddd;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 370px;
+      height: calc(100vh - 50px);
+      padding: 20px;
+
+      #sidebar-tabs {
+        position: absolute;
+        bottom: 0;
+      }
+
+    }
+    
+    .ql-main-content {
+      margin-left: 370px;
+      padding: 20px;
+      overflow: auto;
+      height: calc(100vh - 50px);
+      max-width: 1000px;
+    }
   }
 
   .ql-session-child-container {
@@ -42,7 +64,8 @@
 
   .ql-question-preview {
     border: 1px solid #ccc;
-    padding: 10px 0px 
+    padding: 10px 0px;
+    max-width: 700px;
   }
 
 }

@@ -164,10 +164,10 @@ class _ManageSession extends Component {
     })
 
     return (
-      <div className='container-fluid ql-manage-session'>
+      <div className='ql-manage-session'>
 
-        <div className='row'>
-          <div className='col-md-4 col-sm-4 sidebar-container'>
+        <div className='ql-row-container'>
+          <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
               <div className='tab-content'>
                 <div role='tabpanel' className='tab-pane active' id='session'>
@@ -195,7 +195,7 @@ class _ManageSession extends Component {
               </ul>
             </div>
           </div>
-          <div className='col-md-8 col-sm-8' >
+          <div className='ql-main-content' >
 
             <div className='ql-session-child-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} onChange={this.setSessionName} />

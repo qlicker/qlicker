@@ -33,6 +33,10 @@ class _RunSession extends Component {
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
     this.prevQuestion = this.prevQuestion.bind(this)
     this.nextQuestion = this.nextQuestion.bind(this)
+    this.newAttempt = this.newAttempt.bind(this)
+    this.toggleHidden = this.toggleHidden.bind(this)
+
+    Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
   }
 
   /**
@@ -61,6 +65,25 @@ class _RunSession extends Component {
       Meteor.call('questions.hideStats', questionId, (error) => {
         if (error) alertify.error('Error: ' + error.error)
         else alertify.success('Disabled stats')
+      })
+    }
+  }
+
+  /**
+   * toggleHidden(MongoId (string): questionId)
+   * calls questions.hideQuestion or .showQuestion to show/hide question display
+   */
+  toggleHidden (questionId) {
+    const sessionOptions = this.props.questions[questionId].sessionOptions
+    if (!sessionOptions || !sessionOptions.hidden) {
+      Meteor.call('questions.hideQuestion', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Question Hidden')
+      })
+    } else {
+      Meteor.call('questions.showQuestion', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Question Visible')
       })
     }
   }
@@ -112,8 +135,26 @@ class _RunSession extends Component {
     if (currentIndex < l - 1) this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
   }
 
+  newAttempt () {
+    const qId = this.state.session.currentQuestion
+    Meteor.call('questions.endAttempt', qId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        const qId = this.state.session.currentQuestion
+        Meteor.call('questions.startAttempt', qId, (error) => {
+          if (error) alertify.error('Error: ' + error.error)
+          else alertify.success('New Attempt')
+        })
+      }
+    })
+  }
+
   componentWillReceiveProps (nextProps) {
-    if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
+    if (nextProps && nextProps.session) {
+      this.setState({ session: nextProps.session }, () => {
+        Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+      })
+    }
   }
 
   render () {
@@ -132,19 +173,55 @@ class _RunSession extends Component {
     })
 
     const q = this.props.questions[current]
+    if (!q.sessionOptions) return <div>Loading</div>
+    const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+
+    // strings
+    const strQuestionVisible = q.sessionOptions.hidden
+      ? 'Show Question' : 'Hide Question'
+    const strCorrectVisible = q.sessionOptions.correct
+      ? 'Hide Correct' : 'Show Correct'
+    const strStatsVisible = q.sessionOptions.stats
+      ? 'Hide Stats' : 'Show Stats'
+    const strAttemptEnabled = currentAttempt.closed
+      ? 'Allow Answers' : 'Disallow Answers'
 
     return (
-      <div className='container-fluid ql-manage-session'>
+      <div className='ql-manage-session'>
 
-        <div className='row'>
-          <div className='col-md-4 col-sm-4 sidebar-container'>
+        <div className='ql-row-container'>
+          <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
               <h2>Session: { this.state.session.name }</h2>
-
+              <div className='btn-group btn-group-justified' role='group'>
+                <a href='#' className='btn btn-default btn-sm'>Presentation Mode</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }}>Seperate Question Display</a>
+              </div>
+              <hr />
+              <h3>Current Question</h3>
+              <div className='btn-group btn-group-justified' role='group'>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
+                <a href='#' className='btn btn-default btn-sm' >{strCorrectVisible}</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
+              </div>
+              <br />
+              <div className='btn-group btn-group-justified' role='group'>
+                <a href='#' className='btn btn-default btn-sm'>{strAttemptEnabled}</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
+              </div>
+              <br />
+              Attempts:
+              <ol>
+                {
+                  q.sessionOptions.attempts.map((a) => {
+                    return <li>Active: {JSON.stringify(!a.closed)}</li>
+                  })
+                }
+              </ol>
               <hr />
               <h3>Questions</h3>
               <ol className='ql-session-question-list'>
-                {/* {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}*/}
+                {/* {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />} */}
                 {
                   questionList.map((questionId) => {
                     const q = this.props.questions[questionId]
@@ -154,26 +231,22 @@ class _RunSession extends Component {
                   })
                 }
               </ol>
-
+              <hr />
+              <div className='btn-group btn-group-justified' role='group'>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}>Previous Question</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next Question</a>
+              </div>
             </div>
           </div>
-          <div className='col-md-8 col-sm-8' >
+          <div className='ql-main-content' >
             <h3>Current Question: {q.plainText}</h3>
-            <button className='btn btn-default'>Show/Hide Question</button>
-            <button className='btn btn-default'>Allow/Deny Answers</button>
-            <button className='btn btn-default'>Presentation Mode</button>
-            <button className='btn btn-default' onClick={() => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }}>Seperate Question Display</button>
             <hr />
             <h3>Results/Stats</h3>
-            <button className='btn btn-default' onClick={() => this.toggleStats(q._id)}>Show/Hide Stats</button>
-            <AnswerDistribution question={q} attempt={1} />
-
+            {<AnswerDistribution question={q} />}
+            <div className='clear' />
             <hr />
             <h3>Question Preview</h3>
-            <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} readonly /> : '' }</div>
-            <br />
-            <button className='btn btn-default' onClick={this.prevQuestion}>Previous Question</button>
-            <button className='btn btn-default' onClick={this.nextQuestion}>Next Question</button>
+            <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly /> : '' }</div>
           </div>
         </div>
       </div>)

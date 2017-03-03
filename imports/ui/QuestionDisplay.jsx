@@ -23,7 +23,7 @@ export class QuestionDisplay extends Component {
     const answerObject = {
       studentUserId: Meteor.userId(),
       answer: answer,
-      attempt: 1,
+      attempt: this.props.attempt.number,
       questionId: this.props.question._id
     }
     Meteor.call('answer.addQuestionAnswer', answerObject, (err, answerId) => {

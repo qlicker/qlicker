@@ -195,3 +195,14 @@ $incorrect-color: #A72526;
     margin:0;
   }
 }
+
+.ql-answer-distribution {
+  display: inline-block;
+  float: left;
+  background: white;
+  border: 1px solid #ccc;
+}
+
+.clear {
+  clear: both;
+}
