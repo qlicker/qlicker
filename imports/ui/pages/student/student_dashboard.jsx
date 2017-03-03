@@ -14,11 +14,19 @@ class _StudentDashboard extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { enrollingInCourse: false }
+    this.state = { enrollingInCourse: false, showResendLink: true }
 
     this.promptForCode = this.promptForCode.bind(this)
     this.closeModal = this.closeModal.bind(this)
     this.renderCourseList = this.renderCourseList.bind(this)
+    this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
+  }
+
+  sendVerificationEmail () {
+    Meteor.call('users.sendVerificationEmail', (e) => {
+      if (e) alertify.error('Error sending email')
+      else this.setState({ showResendLink: false })
+    })
   }
 
   promptForCode () {
@@ -35,11 +43,21 @@ class _StudentDashboard extends Component {
   }
 
   render () {
+    const needsEmailVerification = !Meteor.user().emails[0].verified
     return (
       <div className='container ql-student-page'>
         <h2>My Courses</h2>
-        <button className='btn btn-default' onClick={this.promptForCode}>Enroll in Course</button>
+        <hr />
+        <div className='messages'>
+          { needsEmailVerification
+            ? <div className='alert alert-warning' role='alert' >
+              To enroll in some courses, you may need to verify your email. &nbsp;&nbsp;&nbsp;
+              { this.state.showResendLink ? <a href='#' onClick={this.sendVerificationEmail}>Resend Email</a> : 'Check your email' }
+            </div>
+            : '' }
+        </div>
 
+        <button className='btn btn-default' onClick={this.promptForCode}>Enroll in Course</button>
         <hr />
         <ul>
           { this.renderCourseList() }

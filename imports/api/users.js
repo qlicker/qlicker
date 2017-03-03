@@ -1,3 +1,4 @@
+/* global FS */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -56,8 +57,6 @@ if (Meteor.isServer) {
 ProfileImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
 ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
 
-
-
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     const user = Meteor.users.findOne({ _id: this.userId })
@@ -76,3 +75,18 @@ if (Meteor.isServer) {
   })
 }
 
+// data methods
+Meteor.methods({
+
+  /**
+   * users.sendVerificationEmail()
+   * send verification email
+   */
+  'users.sendVerificationEmail' () {
+    let userId = Meteor.userId()
+    if (userId) {
+      return Accounts.sendVerificationEmail(userId)
+    }
+  }
+
+})

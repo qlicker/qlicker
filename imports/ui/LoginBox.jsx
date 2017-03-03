@@ -28,6 +28,14 @@ export class LoginBox extends Component {
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.changeForm = this.changeForm.bind(this)
+    this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
+  }
+
+  sendVerificationEmail () {
+    Meteor.call('users.sendVerificationEmail', (e) => {
+      if (e) alertify.error('Error sending email')
+      else this.setState({ showResendLink: false })
+    })
   }
 
   handleSubmit (e) {
@@ -64,7 +72,10 @@ export class LoginBox extends Component {
           if (error) {
             console.log(error)
             this.setState({ submit_error: true })
-          } else this.navigateAfterLogin(Meteor.user())
+          } else { 
+            this.sendVerificationEmail()
+            this.navigateAfterLogin(Meteor.user())
+          }
         }.bind(this))
       }
     } // end else
