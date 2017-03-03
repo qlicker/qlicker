@@ -1,13 +1,11 @@
-/* global confirm  */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// manage_course.jsx: page for managing a specific course
+// run_session.jsx: page for managing a currently running session
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import _ from 'underscore'
-import $ from 'jquery'
+import { _ } from 'underscore'
 
 import { createContainer } from 'meteor/react-meteor-data'
 import DragSortableList from 'react-drag-sortable'
@@ -18,6 +16,7 @@ import { Questions } from '../../../api/questions'
 
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
+import { AnswerDistribution } from '../../AnswerDistribution'
 
 class _RunSession extends Component {
 
@@ -118,6 +117,7 @@ class _RunSession extends Component {
   }
 
   render () {
+    if (this.state.session.status !== 'running') return <div>Session not running</div>
     const current = this.state.session.currentQuestion
     if (this.props.loading || !current) return <div>Loading</div>
 
@@ -132,7 +132,6 @@ class _RunSession extends Component {
     })
 
     const q = this.props.questions[current]
-    const answerDistribution = q.getDistribution()
 
     return (
       <div className='container-fluid ql-manage-session'>
@@ -167,14 +166,7 @@ class _RunSession extends Component {
             <hr />
             <h3>Results/Stats</h3>
             <button className='btn btn-default' onClick={() => this.toggleStats(q._id)}>Show/Hide Stats</button>
-
-            <BarChart
-              width={500} height={200} data={answerDistribution}
-              margin={{top: 5, right: 0, left: -20, bottom: 5}}>
-              <XAxis dataKey='answer' />
-              <YAxis allowDecimals={false} />
-              <Bar dataKey='count' fill='#2FB0E8' label isAnimationActive={false} />
-            </BarChart>
+            <AnswerDistribution question={q} attempt={1} />
 
             <hr />
             <h3>Question Preview</h3>
@@ -193,6 +185,7 @@ export const RunSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library')
+
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
