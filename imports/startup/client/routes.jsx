@@ -47,7 +47,24 @@ Router.route('/profile', {
   }
 })
 
-
+Router.route('/verify-email/:token', {
+  name: 'verify-email',
+  action: function () {
+    if (this.params.token) {
+      Accounts.verifyEmail(this.params.token, (error) => {
+        if (error) {
+          alertify.error('Error: ' + error.reason)
+        } else {
+          Router.go('/login')
+          alertify.success('Email verified! Thanks!')
+        }
+      })
+    } else {
+      alertify.error('Error: could not verify your email.')
+      Router.go('/')
+    }
+  }
+})
 
 // Admin routes
 import { AdminDashboard } from '../../ui/pages/admin/admin_dashboard'
@@ -110,8 +127,6 @@ Router.route('/courses', {
   }
 })
 
-
-
 // Student Routes
 import { StudentDashboard } from '../../ui/pages/student/student_dashboard'
 Router.route('/student', {
@@ -127,7 +142,6 @@ Router.route('/student', {
     } else Router.go('login')
   }
 })
-
 
 // Shared routes
 import { ManageCourse } from '../../ui/pages/professor/manage_course'
