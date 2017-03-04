@@ -87,6 +87,27 @@ Meteor.methods({
     if (userId) {
       return Accounts.sendVerificationEmail(userId)
     }
+  },
+
+  /**
+   * users.updateProfileImage(MongoId (string) profileImageId)
+   * update profile image with new image in ProfileImages collection
+   */
+  'users.updateProfileImage' (profileImageId) {
+    return Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'profile.profileImage': profileImageId }
+    })
+  },
+
+  /**
+   * users.changeEmail(String newEmail)
+   * change to new email
+   */
+  'users.changeEmail' (newEmail) {
+    Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'emails': [ { address: newEmail, verified: false } ] }
+    })
+    return Meteor.call('users.sendVerificationEmail')
   }
 
 })

@@ -40,12 +40,6 @@ export class LoginBox extends Component {
 
   handleSubmit (e) {
     e.preventDefault()
-    // check if email is an email
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ // eslint-disable-line 
-    if (!re.test(this.state.email)) {
-      this.setState({ form_error: true })
-      return
-    }
 
     if (this.state.login) {
       Meteor.loginWithPassword(this.state.email, this.state.password, function (error) {
@@ -72,7 +66,7 @@ export class LoginBox extends Component {
           if (error) {
             console.log(error)
             this.setState({ submit_error: true })
-          } else { 
+          } else {
             this.sendVerificationEmail()
             this.navigateAfterLogin(Meteor.user())
           }
@@ -80,27 +74,6 @@ export class LoginBox extends Component {
       }
     } // end else
   } // end handleSubmit
-
-  /**
-   * uploadImage(File: file)
-   * handle image upload and display
-   */
-  uploadImageCallBack (file) {
-    return new Promise(
-      (resolve, reject) => {
-        ProfileImages.insert(file, function (err, fileObj) {
-          console.log(err, fileObj)
-          if (err) {
-            reject('hmm shit') // TODO
-          } else {
-            setTimeout(function () {
-              resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
-            }, 500)
-          }
-        }) // .insert
-      } // (resolve, reject)
-    )
-  } // end uploadImageCallBack
 
   navigateAfterLogin (user) {
     if (user.hasRole('admin')) Router.go('admin')
@@ -166,7 +139,7 @@ export class LoginBox extends Component {
         { !this.state.login ? <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' /> : '' }
         { !this.state.login ? <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' /> : '' }
 
-        <input className='form-control' id='emailField' type='text' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
+        <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
 
         <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
         { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /> </div> : ''}
