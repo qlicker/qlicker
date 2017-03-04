@@ -9,8 +9,6 @@ import React, { Component, PropTypes } from 'react'
 
 import { QUESTION_TYPE_STRINGS } from '../configs'
 
-// if (Meteor.isClient) import './QuestionListItem.scss'
-
 const noop = () => {}
 
 export class QuestionListItem extends Component {
