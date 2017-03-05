@@ -94,7 +94,9 @@ export const QuestionsFromStudent = createContainer(() => {
   const fromStudent = Questions.find({
     courseId: {$exists: true},
     sessionId: {$exists: false},
-    public: true }).fetch()
+    public: true
+  }, { sort: { createdAt: -1 } })
+  .fetch()
 
   return {
     fromStudent: fromStudent,

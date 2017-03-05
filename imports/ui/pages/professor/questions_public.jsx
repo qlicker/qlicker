@@ -91,7 +91,9 @@ class _QuestionsPublic extends Component {
 export const QuestionsPublic = createContainer(() => {
   const handle = Meteor.subscribe('questions.public')
 
-  const publicQuestions = Questions.find({ public: true, courseId: {$exists: false} }).fetch()
+  const publicQuestions = Questions
+    .find({ public: true, courseId: {$exists: false} }, { sort: { createdAt: -1 } })
+    .fetch()
 
   return {
     public: publicQuestions,

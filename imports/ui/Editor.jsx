@@ -18,10 +18,10 @@ export class Editor extends Component {
   setupCKEditor () {
     CKEDITOR.plugins.addExternal('confighelper', '/ckeditor/plugins/confighelper/', 'plugin.js')
 
-    if (this.editor) {
-      this.editor.destroy()
-      this.editor = null
-    }
+    // if (this.editor) {
+    //   this.editor.destroy()
+    //   this.editor = null
+    // }
 
     this.editor = CKEDITOR.inline(this.refs.theEditor, {
       placeholder: this.props.placeholder || '',
@@ -41,8 +41,8 @@ export class Editor extends Component {
   }
 
   componentDidUpdate () {
-    this.setupCKEditor()
-    if (this.editor) this.editor.setData(this.state.val)
+    // this.setupCKEditor()
+    // if (this.editor) this.editor.setData(this.state.val)
   }
 
   render () {

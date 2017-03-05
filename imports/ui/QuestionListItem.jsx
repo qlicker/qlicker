@@ -47,7 +47,7 @@ export class QuestionListItem extends Component {
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item'}
         onClick={this.click} >
-        <span className='ql-question-name'>{q.plainText}</span>
+        <span className='ql-question-name'>{q.plainText || <span className='new-question-placeholder'>New Question</span> }</span>
         {/* <span className='ql-question-status'>{QUESTION_TYPE_STRINGS[q.type]} </span> */}
         <div className='ql-label-list'>
           {

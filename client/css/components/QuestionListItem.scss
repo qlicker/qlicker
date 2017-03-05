@@ -4,6 +4,11 @@
   background: white;
   border: 1px solid #ddd;
 
+  .new-question-placeholder {
+    font-style: italic;
+    color: #bbb;  
+  }
+
   &:hover {
     background: #eee;
   }

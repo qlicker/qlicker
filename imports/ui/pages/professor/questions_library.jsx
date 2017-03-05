@@ -31,14 +31,35 @@ class _QuestionsLibrary extends Component {
 
     this.state = { edits: {}, selected: null }
 
-    if (this.props.selected) this.state.selected = this.props.selected
+    if (this.props.selected) {
+      if (this.props.selected in this.props.questionMap) this.state.selected = this.props.selected
+    }
 
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
   }
 
   editQuestion (questionId) {
-    this.setState({ selected: questionId })
+    if (questionId === -1) {
+      const blankQuestion = {
+        plainText: '', // plain text version of question
+        type: -1,
+        content: '', // wysiwyg display content
+        options: [],
+        tags: []
+      }
+      Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
+        if (e) return alertify.error('Error: couldn\'t add new question')
+        alertify.success('New Blank Question Added')
+        this.setState({ selected: null }, () => {
+          this.setState({ selected: newQuestion._id })
+        })
+      })
+    } else {
+      this.setState({ selected: null }, () => {
+        this.setState({ selected: questionId })
+      })
+    }
   }
 
   questionDeleted () {
@@ -92,7 +113,9 @@ export const QuestionsLibrary = createContainer(() => {
 
   const library = Questions.find({
     submittedBy: Meteor.userId(),
-    sessionId: {$exists: false} }).fetch()
+    sessionId: {$exists: false}
+  }, { sort: { createdAt: -1 } })
+  .fetch()
 
   return {
     library: library,
