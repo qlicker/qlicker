@@ -6,8 +6,8 @@
 import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 
-
 import { WithContext as ReactTags } from 'react-tag-input'
+import { Creatable } from 'react-select'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
@@ -36,10 +36,9 @@ export class QuestionEditItem extends Component {
     this.addAnswer = this.addAnswer.bind(this)
     this.setOptionState = this.setOptionState.bind(this)
     this.markCorrect = this.markCorrect.bind(this)
-    this.deleteTag = this.deleteTag.bind(this)
     this.addTag = this.addTag.bind(this)
-    this.handleDrag = this.handleDrag.bind(this)
     this.changeType = this.changeType.bind(this)
+    this.saveQuestion = this.saveQuestion.bind(this)
     this._DB_saveQuestion = _.debounce(this.saveQuestion, 2000)
 
     // if editing pre-exsiting question
@@ -70,7 +69,9 @@ export class QuestionEditItem extends Component {
     this.tagSuggestions = []
     Meteor.call('questions.possibleTags', (e, tags) => {
       // non-critical, if e: silently fail
-      this.tagSuggestions = tags
+      tags.forEach((t) => {
+        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
       this.forceUpdate()
     })
   } // end constructor
@@ -102,41 +103,13 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * handleDrag (String: tag, Int: currPos, Int: newPos)
-   * reorder tags
-   */
-  handleDrag (tag, currPos, newPos) {
-    let tags = this.state.tags
-
-      // mutate array
-    tags.splice(currPos, 1)
-    tags.splice(newPos, 0, tag)
-
-      // re-render
-    this.setState({ tags: tags })
-  }
-
-  /**
-   * deleteTag (Int: i)
-   * remove tag from state
-   */
-  deleteTag (i) {
-    let tags = this.state.tags
-    tags.splice(i, 1)
-    this.setState({ tags: tags })
-  }
-
-  /**
    * addTag (String: tag)
    * add tag to state
    */
-  addTag (tag) {
-    let tags = this.state.tags
-    tags.push({
-      id: tags.length + 1,
-      text: tag
+  addTag (tags) {
+    this.setState({ tags: tags }, () => {
+      this._DB_saveQuestion()
     })
-    this.setState({ tags: tags })
   }
 
   /**
@@ -216,7 +189,7 @@ export class QuestionEditItem extends Component {
    */
   saveQuestion () {
     let question = _.extend({ createdAt: new Date() }, this.state)
-
+    console.log(question)
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
@@ -318,11 +291,27 @@ export class QuestionEditItem extends Component {
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
-          <Editor
-            change={this.onEditorStateChange}
-            val={this.state.content}
-            className='question-editor'
-            placeholder='Question?' />
+          <div className='row'>
+            <div className={this.props.tags ? 'col-md-9' : 'col-md-12'}>
+              <Editor
+                change={this.onEditorStateChange}
+                val={this.state.content}
+                className='question-editor'
+                placeholder='Question?' />
+            </div>
+            { this.props.tags
+              ? <div className='col-md-3'>
+                <Creatable
+                  name='tag-input'
+                  placeholder='Question Tags'
+                  multi
+                  value={this.state.tags}
+                  options={this.tagSuggestions}
+                  onChange={this.addTag}
+                  />
+              </div>
+              : '' }
+          </div>
         </div>
 
         <RadioPrompt
@@ -343,5 +332,6 @@ export class QuestionEditItem extends Component {
 QuestionEditItem.propTypes = {
   done: PropTypes.func,
   question: PropTypes.func,
-  onNewQuestion: PropTypes.func
+  onNewQuestion: PropTypes.func,
+  tags: PropTypes.bool
 }

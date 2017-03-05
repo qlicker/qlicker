@@ -97,7 +97,7 @@ Router.route('/manage', {
   }
 })
 
-import { ManageQuestions } from '../../ui/pages/professor/manage_questions'
+import { QuestionsLibrary } from '../../ui/pages/professor/questions_library'
 Router.route('/questions', {
   name: 'questions',
   waitOn: function () {
@@ -107,10 +107,42 @@ Router.route('/questions', {
   action: function () {
     let user = Meteor.user()
     if (user.hasRole('professor')) {
-      mount(AppLayout, { content: <PageContainer user={user}> <ManageQuestions /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsLibrary /> </PageContainer> })
     } else Router.go('login')
   }
 })
+
+import { QuestionsPublic } from '../../ui/pages/professor/questions_public'
+Router.route('/questions/public', {
+  name: 'questions.public',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData')
+  },
+  action: function () {
+    let user = Meteor.user()
+    if (user.hasRole('professor')) {
+      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { QuestionsFromStudent } from '../../ui/pages/professor/questions_fromstudent'
+Router.route('/questions/submissions', {
+  name: 'questions.fromStudent',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData')
+  },
+  action: function () {
+    let user = Meteor.user()
+    if (user.hasRole('professor')) {
+      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+
 
 import { ManageCourses } from '../../ui/pages/professor/manage_courses'
 Router.route('/courses', {

@@ -41,7 +41,7 @@ const questionPattern = {
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   createdAt: Date,
-  tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ],
+  tags: [ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ],
   // config stuff for use while running a session
   sessionOptions: Match.Maybe({
     hidden: Boolean, // temporarily hide question on screen
