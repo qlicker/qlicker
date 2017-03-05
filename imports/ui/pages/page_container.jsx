@@ -25,7 +25,6 @@ class _PageContainer extends Component {
     }
 
     const homePath = Router.routes[this.state.user.profile.roles[0]].path()
-    const questionsPage = Router.routes['questions'].path()
     const coursesPage = this.state.user.hasRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
@@ -59,7 +58,15 @@ class _PageContainer extends Component {
                 </li>
                 {
                   this.state.user.hasRole('professor')
-                    ? <li><a className='bootstrap-overrides' href={questionsPage}>Questions</a></li>
+                    ? <li className='dropdown'>
+                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
+                      <ul className='dropdown-menu' >
+                        <li><a href={Router.routes['questions'].path()}>My Question Library</a></li>
+                        <li role='separator' className='divider' >&nbsp;</li>
+                        <li><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
+                        <li><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+                      </ul>
+                    </li>
                     : ''
                 }
                 <li><a className='bootstrap-overrides' href='#'>Grades</a></li>
@@ -87,7 +94,6 @@ class _PageContainer extends Component {
   }
 
 }
-
 
 export const PageContainer = createContainer(() => {
   const handle = Meteor.subscribe('courses')

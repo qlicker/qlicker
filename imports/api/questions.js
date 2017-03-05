@@ -21,9 +21,9 @@ import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
 // expected collection pattern
 const questionPattern = {
   _id: Match.Maybe(Helpers.MongoID),
-  plainText: Helpers.NEString, // plain text version of question
+  plainText: String, // plain text version of question
   type: Helpers.QuestionType,
-  content: Helpers.NEString, // wysiwyg display content
+  content: String, // wysiwyg display content
   options: [ {
     wysiwyg: Boolean,
     correct: Boolean,
@@ -41,7 +41,7 @@ const questionPattern = {
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   createdAt: Date,
-  tags: [ Match.Maybe({ id: Number, text: Helpers.NEString }) ],
+  tags: [ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ],
   // config stuff for use while running a session
   sessionOptions: Match.Maybe({
     hidden: Boolean, // temporarily hide question on screen
@@ -217,6 +217,7 @@ Meteor.methods({
     const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     question.public = false
     question.submittedBy = Meteor.userId()
+    question.createdAt = new Date()
 
     const id = Questions.insert(question)
     return id

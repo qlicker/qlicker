@@ -32,7 +32,7 @@ const Helpers = {
   }),
   QuestionType: Match.Where(function (n) {
     check(n, Number)
-    return _(QUESTION_TYPE).chain().values().contains(n)
+    return _(QUESTION_TYPE).chain().values().contains(n) || n === -1
   }),
   AnswerItem: Match.Where(function () {
     if (Match.test(Helpers.NEString)) return true

@@ -210,3 +210,17 @@ $incorrect-color: #A72526;
 .m-margin-top {
   margin-top: 10px;
 }
+
+.ql-page-container .label {
+  background: transparent;
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: 110%;
+  font-weight: normal;
+
+  &.label-info {
+    border: 1px solid $blue;
+    color: $blue;
+  }
+
+}
