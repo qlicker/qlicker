@@ -98,7 +98,7 @@ Router.route('/manage', {
 })
 
 import { QuestionsLibrary } from '../../ui/pages/professor/questions_library'
-Router.route('/questions', {
+Router.route('/questions/library/:_id?', {
   name: 'questions',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -107,7 +107,7 @@ Router.route('/questions', {
   action: function () {
     let user = Meteor.user()
     if (user.hasRole('professor')) {
-      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsLibrary /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })

@@ -31,27 +31,22 @@ class _QuestionsLibrary extends Component {
 
     this.state = { edits: {}, selected: null }
 
+    if (this.props.selected) this.state.selected = this.props.selected
+
     this.editQuestion = this.editQuestion.bind(this)
-    this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.questionDeleted = this.questionDeleted.bind(this)
   }
 
   editQuestion (questionId) {
     this.setState({ selected: questionId })
-    // const e = _({}).extend(this.state.edits[questionId])
-    // e[questionId] = (questionId in this.state.edits) ? !this.state.edits[questionId] : true
-    // this.setState({
-    //   edits: e
-    // })
   }
 
-  deleteQuestion (questionId) {
-    Meteor.call('questions.delete', questionId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else alertify.success('Question Deleted')
-    })
+  questionDeleted () {
+    this.setState({ selected: null })
   }
 
   render () {
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
@@ -64,8 +59,8 @@ class _QuestionsLibrary extends Component {
             <div className='ql-question-list'>
               { /* list questions */
                 this.props.library.map(q => {
-                  return (<div key={q._id} >
-                    <QuestionListItem question={q} click={this.editQuestion} delete={this.deleteQuestion} />
+                  return (<div key={q._id} className={this.state.selected === q._id ? 'selected' : ''}>
+                    <QuestionListItem question={q} click={this.editQuestion} />
                   </div>)
                 })
               }
@@ -74,11 +69,12 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-8'>
             { this.state.selected
             ? <div>
-              <h3>Edit Question</h3>
               <div className='ql-edit-item-container'>
-                <QuestionEditItem question={this.props.questionMap[this.state.selected]} tags />
+                <QuestionEditItem
+                  question={this.props.questionMap[this.state.selected]}
+                  deleted={this.questionDeleted}
+                  metadata />
               </div>
-              <h3>Preview Question</h3>
               <div className='ql-preview-item-container'>
                 <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly />
               </div>

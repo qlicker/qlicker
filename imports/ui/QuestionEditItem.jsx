@@ -5,6 +5,7 @@
 
 import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
+import $ from 'jquery'
 
 import { WithContext as ReactTags } from 'react-tag-input'
 import { Creatable } from 'react-select'
@@ -39,6 +40,8 @@ export class QuestionEditItem extends Component {
     this.addTag = this.addTag.bind(this)
     this.changeType = this.changeType.bind(this)
     this.saveQuestion = this.saveQuestion.bind(this)
+    this.togglePublic = this.togglePublic.bind(this)
+    this.deleteQuestion = this.deleteQuestion.bind(this)
     this._DB_saveQuestion = _.debounce(this.saveQuestion, 2000)
 
     // if editing pre-exsiting question
@@ -183,6 +186,12 @@ export class QuestionEditItem extends Component {
     })
   }
 
+  togglePublic () {
+    this.setState({ public: !this.state.public }, () => {
+      this.saveQuestion()
+    })
+  }
+
   /**
    * saveQuestion ()
    * Calls questions.insert to save question to db
@@ -209,7 +218,15 @@ export class QuestionEditItem extends Component {
         this.setState(newQuestion)
       }
     })
-  } // end handleSubmit
+  } // end saveQuestion
+
+  deleteQuestion () {
+    Meteor.call('questions.delete', this.state._id, (error) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Deleted')
+      if (this.props.deleted) this.props.deleted()
+    })
+  }
 
   /**
    * uploadImage(File: file)
@@ -234,6 +251,14 @@ export class QuestionEditItem extends Component {
 
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
+  }
+
+  componentDidMount () {
+    this.componentDidUpdate()
+  }
+
+  componentDidUpdate () {
+    $('[data-toggle="tooltip"]').tooltip()
   }
 
   render () {
@@ -288,19 +313,36 @@ export class QuestionEditItem extends Component {
       { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
     ]
 
+    const strMakePublic = this.state.public ? 'Make Private' : 'Make Public'
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
-          <div className='row'>
-            <div className={this.props.tags ? 'col-md-9' : 'col-md-12'}>
-              <Editor
-                change={this.onEditorStateChange}
-                val={this.state.content}
-                className='question-editor'
-                placeholder='Question?' />
-            </div>
-            { this.props.tags
-              ? <div className='col-md-3'>
+          { this.props.metadata
+            ? <div className='row'>
+              <div className='col-md-6'>
+                <div className='btn-group'>
+                  <button className='btn btn-default'
+                    data-toggle='tooltip'
+                    data-placement='top'
+                    title='Create a copy of this question'>
+                    Duplicate
+                  </button>
+                  <button
+                    className='btn btn-default'
+                    onClick={this.deleteQuestion}>
+                    Delete
+                  </button>
+                  <button
+                    className='btn btn-default'
+                    onClick={this.togglePublic}
+                    data-toggle='tooltip'
+                    data-placement='top'
+                    title={!this.state.public ? 'Allow others to view and copy this question' : ''}>
+                    {strMakePublic}
+                  </button>
+                </div>
+              </div>
+              <div className='col-md-6'>
                 <Creatable
                   name='tag-input'
                   placeholder='Question Tags'
@@ -310,7 +352,16 @@ export class QuestionEditItem extends Component {
                   onChange={this.addTag}
                   />
               </div>
-              : '' }
+            </div>
+            : '' }
+          <div className='row'>
+            <div className='col-md-12'>
+              <Editor
+                change={this.onEditorStateChange}
+                val={this.state.content}
+                className='question-editor'
+                placeholder='Question?' />
+            </div>
           </div>
         </div>
 
@@ -319,11 +370,12 @@ export class QuestionEditItem extends Component {
           value={this.state.type}
           onChange={this.changeType} />
 
+        {editorRows}
+
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
           ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
           : '' }
 
-        {editorRows}
       </div>)
   } //  end render
 
@@ -331,7 +383,8 @@ export class QuestionEditItem extends Component {
 
 QuestionEditItem.propTypes = {
   done: PropTypes.func,
-  question: PropTypes.func,
+  question: PropTypes.object,
   onNewQuestion: PropTypes.func,
-  tags: PropTypes.bool
+  metadata: PropTypes.bool,
+  deleted: PropTypes.func
 }

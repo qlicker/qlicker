@@ -22,7 +22,13 @@
 
 
   .ql-question-list {
-    margin-top: 10px;
+    margin-top: 15px;
+
+    .selected {
+      .ql-question-list-item {
+        font-weight: bold;
+      }
+    }
 
     .ql-question-list-item {
 

@@ -4,12 +4,25 @@
   background: white;
   border: 1px solid #ddd;
 
+  &:hover {
+    background: #eee;
+  }
+
   .ql-question-name {
     font-size: 130%;
   }  
 
   .ql-question-status {
     margin-top: 4px;
+  }
+
+  .ql-label-list {
+    margin-top: 10px;
+
+    span {
+      margin-right: 4px;
+    }
+
   }
 
   .controls {
