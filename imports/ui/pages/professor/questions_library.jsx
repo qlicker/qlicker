@@ -9,8 +9,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
+// import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
 import { QuestionListItem } from '../../QuestionListItem'
+import { QuestionEditItem } from '../../QuestionEditItem'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 import { Questions } from '../../../api/questions'
 
@@ -27,18 +29,19 @@ class _QuestionsLibrary extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {} }
+    this.state = { edits: {}, selected: null }
 
     this.editQuestion = this.editQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
   }
 
   editQuestion (questionId) {
-    const e = _({}).extend(this.state.edits[questionId])
-    e[questionId] = (questionId in this.state.edits) ? !this.state.edits[questionId] : true
-    this.setState({
-      edits: e
-    })
+    this.setState({ selected: questionId })
+    // const e = _({}).extend(this.state.edits[questionId])
+    // e[questionId] = (questionId in this.state.edits) ? !this.state.edits[questionId] : true
+    // this.setState({
+    //   edits: e
+    // })
   }
 
   deleteQuestion (questionId) {
@@ -48,29 +51,41 @@ class _QuestionsLibrary extends Component {
     })
   }
 
-  componentDidMount () {
-    $('#ql-question-source-tabs a').click(function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    })
-  }
-
   render () {
     return (
-      <div className='container ql-professor-page'>
+      <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
         {createNav('library')}
 
-        <button className='btn btn-default' onClick={() => this.editQuestion(-1)}>New Question</button>
-        { /* list questions */
-          this.props.library.map(q => {
-            return (<div key={q._id} >
-              <QuestionListItem question={q} click={this.editQuestion} delete={this.deleteQuestion} />
-              { this.state.edits[q._id] ? <CreateQuestionModal done={() => this.editQuestion(q._id)} question={q} /> : '' }
-            </div>)
-          })
-        }
-        { this.state.edits[-1] ? <CreateQuestionModal done={() => this.editQuestion(-1)} /> : '' }
+        <div className='row'>
+          <div className='col-md-4'>
+            <br />
+            <button className='btn btn-default' onClick={() => this.editQuestion(-1)}>New Question</button>
+            <div className='ql-question-list'>
+              { /* list questions */
+                this.props.library.map(q => {
+                  return (<div key={q._id} >
+                    <QuestionListItem question={q} click={this.editQuestion} delete={this.deleteQuestion} />
+                  </div>)
+                })
+              }
+            </div>
+          </div>
+          <div className='col-md-8'>
+            { this.state.selected
+            ? <div>
+              <h3>Edit Question</h3>
+              <div className='ql-edit-item-container'>
+                <QuestionEditItem question={this.props.questionMap[this.state.selected]} tags />
+              </div>
+              <h3>Preview Question</h3>
+              <div className='ql-preview-item-container'>
+                <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly />
+              </div>
+            </div>
+            : '' }
+          </div>
+        </div>
       </div>)
   }
 
@@ -85,6 +100,7 @@ export const QuestionsLibrary = createContainer(() => {
 
   return {
     library: library,
+    questionMap: _(library).indexBy('_id'),
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)

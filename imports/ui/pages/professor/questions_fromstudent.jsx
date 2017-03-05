@@ -13,6 +13,7 @@ import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
 import { QuestionListItem } from '../../QuestionListItem'
 
 import { Questions } from '../../../api/questions'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 import { createNav } from './questions_library'
 
@@ -21,31 +22,14 @@ class _QuestionsFromStudent extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {} }
+    this.state = { edits: {}, selected: null }
 
     this.copyPublicQuestion = this.copyPublicQuestion.bind(this)
+    this.selectQuestion = this.selectQuestion.bind(this)
   }
 
-  editQuestion (questionId) {
-    const e = _({}).extend(this.state.edits[questionId])
-    e[questionId] = (questionId in this.state.edits) ? !this.state.edits[questionId] : true
-    this.setState({
-      edits: e
-    })
-  }
-
-  deleteQuestion (questionId) {
-    Meteor.call('questions.delete', questionId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else alertify.success('Question Deleted')
-    })
-  }
-
-  componentDidMount () {
-    $('#ql-question-source-tabs a').click(function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    })
+  selectQuestion (questionId) {
+    this.setState({ selected: questionId })
   }
 
   copyPublicQuestion (questionId) {
@@ -57,17 +41,33 @@ class _QuestionsFromStudent extends Component {
 
   render () {
     return (
-      <div className='container ql-professor-page'>
+      <div className='container ql-questions-library'>
         <h1>Student Submitted Questions</h1>
         {createNav('student')}
-        { /* list questions */
-          this.props.fromStudent.map(q => {
-            return (<div key={q._id} >
-              <QuestionListItem question={q} click={this.copyPublicQuestion} />
-            </div>)
-          })
-        }
 
+        <div className='row'>
+          <div className='col-md-4'>
+            <div className='ql-question-list'>
+              { /* list questions */
+                this.props.fromStudent.map(q => {
+                  return (<div key={q._id} >
+                    <QuestionListItem question={q} click={this.selectQuestion} />
+                  </div>)
+                })
+              }
+            </div>
+          </div>
+          <div className='col-md-8'>
+            { this.state.selected
+              ? <div>
+                <h3>Preview Question</h3>
+                <div className='ql-preview-item-container'>
+                  <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly />
+                </div>
+              </div>
+            : '' }
+          </div>
+        </div>
       </div>)
   }
 
@@ -83,6 +83,7 @@ export const QuestionsFromStudent = createContainer(() => {
 
   return {
     fromStudent: fromStudent,
+    questionMap: _(fromStudent).indexBy('_id'),
     loading: !handle.ready()
   }
 }, _QuestionsFromStudent)

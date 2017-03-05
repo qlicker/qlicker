@@ -1,0 +1,19 @@
+
+.ql-question-list-item {
+  padding: 15px;
+  background: white;
+  border: 1px solid #ddd;
+
+  .ql-question-name {
+    font-size: 130%;
+  }  
+
+  .ql-question-status {
+    margin-top: 4px;
+  }
+
+  .controls {
+    margin-top: 4px;
+  }
+
+} // end .ql-question-list-item

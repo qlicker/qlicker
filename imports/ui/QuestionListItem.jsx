@@ -45,20 +45,26 @@ export class QuestionListItem extends Component {
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
     return (
-      <li
-        className={this.props.click ? 'cursor-pointer' : '' + ' ql-question-list-item'}
+      <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item'}
         onClick={this.click} >
         <span className='ql-question-name'>{q.plainText}</span>
-        <span className='ql-question-status'>{QUESTION_TYPE_STRINGS[q.type]} </span>
-        <span className='controls'>
+        {/* <span className='ql-question-status'>{QUESTION_TYPE_STRINGS[q.type]} </span> */}
+        <div className='ql-label-list'>
+          {
+            q.tags.map((t) => {
+              return <span className='label label-info'>{t.label}</span>
+            })
+          }
+        </div>
+        <div className='controls'>
           { this.props.remove
             ? <button className='btn btn-default' onClick={this.remove}>Remove</button>
             : ''}
           { this.props.delete
             ? <button className='btn btn-default' onClick={this.delete}>Delete</button>
             : ''}
-        </span>
-      </li>)
+        </div>
+      </div>)
   } //  end render
 
 }

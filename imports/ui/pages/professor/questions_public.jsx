@@ -27,12 +27,6 @@ class _QuestionsPublic extends Component {
   }
 
 
-  componentDidMount () {
-    $('#ql-question-source-tabs a').click(function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    })
-  }
 
   copyPublicQuestion (questionId) {
     Meteor.call('questions.copyToLibrary', questionId, (error) => {
@@ -43,7 +37,7 @@ class _QuestionsPublic extends Component {
 
   render () {
     return (
-      <div className='container ql-professor-page'>
+      <div className='container ql-questions-library'>
         <h1>Public Question Pool</h1>
         {createNav('public')}
         { /* list questions */
