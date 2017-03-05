@@ -87,10 +87,22 @@ QuestionImages.allow({ insert: () => true, update: () => true, remove: () => tru
 
 // data publishing
 if (Meteor.isServer) {
+  Meteor.publish('questions.inCourse', function (courseId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne(this.userId)
+      const course = Courses.findOne(courseId)
+      if (user.hasRole('professor')) return Questions.find({ sessionId: { $in: course.sessions || [] } })
+
+      if (user.hasRole('student')) {
+        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } }, { fields: { 'answers.correct': false } })
+      }
+    } else this.ready()
+  })
+
   // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
-      const user = Meteor.users.findOne({ _id: this.userId })
+      const user = Meteor.users.findOne(this.userId)
       if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole('student')) {
@@ -102,7 +114,7 @@ if (Meteor.isServer) {
   // questions owned by a professor
   Meteor.publish('questions.library', function () {
     if (this.userId) {
-      const user = Meteor.users.findOne({ _id: this.userId })
+      const user = Meteor.users.findOne(this.userId)
       if (!user.hasRole('professor')) return this.ready()
 
       return Questions.find({ submittedBy: this.userId, sessionId: {$exists: false} })

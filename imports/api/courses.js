@@ -23,7 +23,8 @@ const coursePattern = {
   enrollmentCode: Helpers.NEString,
   semester: Helpers.NEString, // F17, W16, S15, FW16 etc.
   inactive: Match.Maybe(Boolean),
-  students: Match.Maybe(Array),
+  students: Match.Maybe(Array), // TODO pluck out to just array if ids
+  sessions: Match.Maybe(Array), // TODO pluck out to just array if ids
   createdAt: Date
 }
 

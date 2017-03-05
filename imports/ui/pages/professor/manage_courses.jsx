@@ -22,6 +22,15 @@ class _ManageCourses extends Component {
 
     this.doneCreatingCourse = this.doneCreatingCourse.bind(this)
     this.promptCreateCourse = this.promptCreateCourse.bind(this)
+    this.deleteCourse = this.deleteCourse.bind(this)
+  }
+
+  deleteCourse (courseId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.delete', courseId, (error) => {
+        if (error) return alertify.error('Error deleting course')
+      })
+    }
   }
 
   promptCreateCourse (e) {
@@ -34,7 +43,7 @@ class _ManageCourses extends Component {
 
   renderCourseList () {
     return this.props.courses.map((course) => (
-      <CourseListItem key={course._id} course={course} />
+      <CourseListItem key={course._id} course={course} delete={() => this.deleteCourse(course._id)} />
     ))
   }
 
