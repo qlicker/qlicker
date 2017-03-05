@@ -64,7 +64,7 @@ if (Meteor.isServer) {
     if (user && user.hasGreaterRole('professor')) {
       let studentRefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
-        studentRefs = studentRefs.concat(_(c.students || []).pluck('studentUserId'))
+        studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({ _id: { $in: studentRefs } }, { fields: { services: false } })
     } else if (user._id) {

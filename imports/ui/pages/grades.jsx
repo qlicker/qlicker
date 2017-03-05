@@ -30,8 +30,8 @@ class _Grades extends Component {
       <div className='container ql-grades-page'>
         <h2>Grades: {this.props.course.name}</h2>
         {
-          sessionList.map(s => {
-            return JSON.stringify(this.props.sessions[s.sessionId])
+          sessionList.map(sessionId => {
+            return JSON.stringify(this.props.sessions[sessionId])
           })
         }
       </div>

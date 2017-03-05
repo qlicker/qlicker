@@ -59,7 +59,6 @@ class _ManageCourses extends Component {
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
       </div>)
   }
-
 }
 
 export const ManageCourses = createContainer(() => {

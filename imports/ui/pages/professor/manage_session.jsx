@@ -197,9 +197,9 @@ class _ManageSession extends Component {
 
                   <hr />
                   <h3>Question Order</h3>
-                  <ol className='ql-session-question-list'>
+                  <div className='ql-session-question-list'>
                     {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
-                  </ol>
+                  </div>
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
                   <select className='form-control' onChange={this.changeQuestionPool}>

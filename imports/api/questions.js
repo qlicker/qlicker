@@ -94,7 +94,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor')) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
       if (user.hasRole('student')) {
-        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } }, { fields: { 'answers.correct': false } })
+        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } }, { fields: { 'options.correct': false } })
       }
     } else this.ready()
   })
@@ -106,7 +106,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole('student')) {
-        return Questions.find({ sessionId: sessionId }, { fields: { 'answers.correct': false } })
+        return Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } })
       }
     } else this.ready()
   })

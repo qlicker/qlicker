@@ -45,7 +45,7 @@ if (Meteor.isServer) {
         Meteor.call('courses.createSession', courseId, sampleSession)  // method test
 
         const courseFromDb = Courses.findOne({ _id: courseId })
-        const sessionFromDb = Sessions.find({ _id: courseFromDb.sessions[0].sessionId })
+        const sessionFromDb = Sessions.find({ _id: courseFromDb.sessions[0] })
         expect(sessionFromDb.count()).to.equal(1)
       })
 
@@ -55,7 +55,7 @@ if (Meteor.isServer) {
         Meteor.call('courses.createSession', courseId, sampleSession)
 
         let courseFromDb = Courses.findOne({ _id: courseId })
-        const sessionId = courseFromDb.sessions[0].sessionId
+        const sessionId = courseFromDb.sessions[0]
 
         Meteor.call('courses.deleteSession', courseId, sessionId)  // method test
 
@@ -81,7 +81,7 @@ if (Meteor.isServer) {
         Meteor.call('courses.createSession', courseId, sampleSession)
 
         let courseFromDb = Courses.findOne({ _id: courseId })
-        const sessionId = courseFromDb.sessions[0].sessionId
+        const sessionId = courseFromDb.sessions[0]
         const oldSession = Sessions.findOne({ _id: sessionId })
 
         // edit all the props that are elegible to be edited

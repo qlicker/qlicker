@@ -30,10 +30,10 @@ class _ManageCourse extends Component {
 
     return (<ul>
       {
-        sessions.map((s) => {
-          const ses = this.props.sessions[s.sessionId]
+        sessions.map((sId) => {
+          const ses = this.props.sessions[sId]
           if (!ses) return
-          return (<SessionListItem key={s.sessionId} session={ses} />)
+          return (<SessionListItem key={sId} session={ses} />)
         })
       }
     </ul>)
@@ -45,9 +45,9 @@ class _ManageCourse extends Component {
     return (<ul>
       {
         students.map((s) => {
-          const stu = this.props.students[s.studentUserId]
+          const stu = this.props.students[s]
           if (!stu) return
-          return (<StudentListItem key={s.studentUserId} courseId={this.courseId} student={stu} />)
+          return (<StudentListItem key={s} courseId={this.courseId} student={stu} />)
         })
       }
     </ul>)
@@ -106,10 +106,11 @@ export const ManageCourse = createContainer((props) => {
 
   const course = Courses.find({ _id: props.courseId }).fetch()[0]
 
-  const studentIds = _(course.students || []).pluck('studentUserId')
+  const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
+  console.log(studentIds, students)
 
-  const sessionIds = _(course.sessions || []).pluck('sessionId')
+  const sessionIds = course.sessions || []
   const sessions = Sessions.find({ _id: { $in: sessionIds } }).fetch()
 
   return {

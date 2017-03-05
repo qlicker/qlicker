@@ -48,7 +48,7 @@ export class QuestionEditItem extends Component {
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
 
-      this.currentAnswer = this.state.options.length
+      this.currentAnswer = this.state.options ? this.state.options.length : 0
       switch (this.state.type) {
         case QUESTION_TYPE.MC:
           this.answerOrder = MC_ORDER
@@ -198,7 +198,7 @@ export class QuestionEditItem extends Component {
    */
   saveQuestion () {
     let question = _.extend({ createdAt: new Date() }, this.state)
-    console.log(question)
+
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
@@ -295,7 +295,7 @@ export class QuestionEditItem extends Component {
 
     // generate rows with up to 2 editors on each row
     let editorRows = []
-    const len = this.state.options.length
+    const len = this.state.options ? this.state.options.length : 0
     for (let i = 0; i < len; i = i + 2) {
       let gaurunteed = this.state.options[i]
       let possiblyUndefined = i < len ? this.state.options[i + 1] : undefined
