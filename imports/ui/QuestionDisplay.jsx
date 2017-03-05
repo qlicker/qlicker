@@ -35,7 +35,7 @@ export class QuestionDisplay extends Component {
 
       <div className='ql-answers'>
         {
-          q.options.map((a) => {
+          q.answers.map((a) => {
             let content
 
             if (a.wysiwyg) {
