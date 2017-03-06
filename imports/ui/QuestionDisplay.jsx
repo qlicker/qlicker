@@ -15,6 +15,8 @@ export class QuestionDisplay extends Component {
 
     this.readonly = false
     if (this.props.readonly) this.readonly = this.props.readonly
+
+    this.submitAnswer = this.submitAnswer.bind(this)
   }
 
   componentDidMount () {
@@ -23,6 +25,26 @@ export class QuestionDisplay extends Component {
 
   componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+
+  submitAnswer (answer) {
+    const l = this.props.question.sessionOptions.attempts.length
+    const attempt = this.props.question.sessionOptions.attempts[l - 1]
+    const answerObject = {
+      studentUserId: Meteor.userId(),
+      answer: answer,
+      attempt: attempt.number,
+      questionId: this.props.question._id
+    }
+    console.log(answerObject)
+    Meteor.call('answer.addQuestionAnswer', answerObject, (err, answerId) => {
+      if (err) {
+        alertify.error('Error: ' + err.error)
+      } else {
+        alertify.success('Answer Submitted')
+        // success. do stuff here if needed
+      }
+    })
   }
 
   render () {
@@ -39,11 +61,11 @@ export class QuestionDisplay extends Component {
             let content
 
             if (a.wysiwyg) {
-              content = (<div className='ql-wysiwyg-content' key={'answer_' + a.answer}>
+              content = (<div onClick={() => this.submitAnswer(a.answer)} className='ql-wysiwyg-content' key={'answer_' + a.answer}>
                 { WysiwygHelper.htmlDiv(a.content) }
               </div>)
             } else {
-              content = (<div className='ql-tf-content' key={'answer_' + a.answer}>
+              content = (<div onClick={() => this.submitAnswer(a.answer)} className='ql-tf-content' key={'answer_' + a.answer}>
                 <span className={a.answer === 'TRUE' ? 'correct-color' : 'incorrect-color'}>{a.answer}</span>
               </div>)
             }

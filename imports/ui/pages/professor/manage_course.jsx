@@ -108,7 +108,6 @@ export const ManageCourse = createContainer((props) => {
 
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
-  console.log(studentIds, students)
 
   const sessionIds = course.sessions || []
   const sessions = Sessions.find({ _id: { $in: sessionIds } }).fetch()

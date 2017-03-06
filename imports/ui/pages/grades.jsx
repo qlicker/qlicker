@@ -14,6 +14,8 @@ import { Questions } from '../../api/questions'
 import { Answers } from '../../api/answers'
 import { Sessions } from '../../api/sessions'
 
+import { SessionGrades } from '../SessionGrades'
+
 class _Grades extends Component {
 
   constructor (props) {
@@ -31,7 +33,7 @@ class _Grades extends Component {
         <h2>Grades: {this.props.course.name}</h2>
         {
           sessionList.map(sessionId => {
-            return JSON.stringify(this.props.sessions[sessionId])
+            return <SessionGrades key={sessionId} session={this.props.sessions[sessionId]} />
           })
         }
       </div>
