@@ -13,6 +13,37 @@ import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 import { Answers } from '../api/answers'
 import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
 
+export const doAggregations = (question, answers) => {
+  // do aggregations
+  const maxAttempt = question.sessionOptions.attempts.length
+  const validOptions = _(question.options).pluck('answer')
+
+  const data = []
+  let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
+  options.map((a) => {
+    a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
+    delete a.values
+  })
+  options = _(options).indexBy('answer')
+
+  validOptions.forEach((key) => {
+    if (key in options) {
+      const counts = _(options[key].counts).indexBy('attempt')
+      _(maxAttempt).times((i) => {
+        options[key]['attempt_' + (i + 1)] = counts[i + 1] ? counts[i + 1].count : 0
+      })
+    } else {
+      _(maxAttempt).times((i) => {
+        if (!(key in options)) options[key] = { answer: key }
+        options[key]['attempt_' + (i + 1)] = 0
+      })
+    }
+    data.push(options[key])
+  })
+
+  return { distribution: data, maxAttempt: maxAttempt }
+}
+
 export class _AnswerDistribution extends Component {
 
   getRandomColor () {
@@ -29,7 +60,7 @@ export class _AnswerDistribution extends Component {
     const bars = []
     _(this.props.maxAttempt).times((i) => {
       const color = colorSeq[i] || this.getRandomColor()
-      bars.push(<Bar dataKey={'attempt_' + (i + 1)} maxBarSize={45} fill={color} label isAnimationActive={false} />)
+      bars.push(<Bar key={i} dataKey={'attempt_' + (i + 1)} maxBarSize={45} fill={color} label isAnimationActive={false} />)
     })
     return (<div>
       <BarChart className='ql-answer-distribution'
@@ -40,6 +71,7 @@ export class _AnswerDistribution extends Component {
         <Legend />
         {bars}
       </BarChart>
+      <div className='clear'>&nbsp;</div>
     </div>)
   } //  end render
 

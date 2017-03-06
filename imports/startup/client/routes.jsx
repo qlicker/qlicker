@@ -192,6 +192,33 @@ Router.route('/course/:_id', {
   }
 })
 
+import { GradesOverview } from '../../ui/pages/grades_overview'
+Router.route('/courses/grades', {
+  name: 'grades.overview',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+  },
+  action: function () {
+    if (Meteor.user() && Meteor.user().hasRole('professor')) {
+      mount(AppLayout, { content: <PageContainer> <GradesOverview /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { GradesPage } from '../../ui/pages/grades'
+Router.route('/course/:_id/grades', {
+  name: 'course.grades',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user()) {
+      mount(AppLayout, { content: <PageContainer> <GradesPage courseId={this.params._id} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+
 import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {
   name: 'session.edit',

@@ -23,7 +23,8 @@ const coursePattern = {
   enrollmentCode: Helpers.NEString,
   semester: Helpers.NEString, // F17, W16, S15, FW16 etc.
   inactive: Match.Maybe(Boolean),
-  students: Match.Maybe(Array),
+  students: Match.Maybe([Helpers.MongoID]), // TODO pluck out to just array if ids
+  sessions: Match.Maybe([Helpers.MongoID]), // TODO pluck out to just array if ids
   createdAt: Date
 }
 
@@ -100,7 +101,7 @@ Meteor.methods({
     profHasCoursePermission(courseId)
 
     const course = Courses.find({ _id: courseId }).fetch()[0]
-    _(course.students).pluck('studentUserId').forEach((sId) => {
+    course.students.forEach((sId) => {
       Meteor.call('courses.removeStudent', courseId, sId)
     })
 
@@ -143,7 +144,7 @@ Meteor.methods({
         $addToSet: { 'profile.courses': c._id }
       })
       Courses.update({ _id: c._id }, {
-        $addToSet: { students: { studentUserId: Meteor.userId() } }
+        $addToSet: { students: Meteor.userId() }
       })
       return c
     }
@@ -190,7 +191,7 @@ Meteor.methods({
     })
 
     return Courses.update({ _id: courseId }, {
-      $addToSet: { students: { studentUserId: studentUserId } }
+      $addToSet: { students: studentUserId }
     })
   },
 
@@ -208,7 +209,7 @@ Meteor.methods({
       $pull: { 'profile.courses': courseId }
     })
     return Courses.update({ _id: courseId }, {
-      $pull: { students: { 'studentUserId': studentUserId } }
+      $pull: { students: studentUserId }
     })
   },
 
@@ -222,7 +223,7 @@ Meteor.methods({
     session.courseId = courseId
     const sessionId = Meteor.call('sessions.insert', session)
     Courses.update({ _id: courseId }, {
-      $addToSet: { sessions: { sessionId: sessionId } }
+      $addToSet: { sessions: sessionId }
     })
     return sessionId
   },
@@ -233,7 +234,7 @@ Meteor.methods({
    */
   'courses.deleteSession' (courseId, sessionId) {
     Courses.update({ _id: courseId }, {
-      $pull: { sessions: { 'sessionId': sessionId } }
+      $pull: { sessions: sessionId }
     })
     return Meteor.call('sessions.delete', courseId, sessionId)
   }

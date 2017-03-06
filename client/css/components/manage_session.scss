@@ -25,6 +25,12 @@
       height: calc(100vh - 50px);
       padding: 20px;
 
+      .ql-session-question-list {
+        .ql-question-list-item {
+          cursor: grab;
+        }
+      }
+
       #sidebar-tabs {
         position: absolute;
         bottom: 0;

@@ -222,7 +222,7 @@ class _RunSession extends Component {
               </ol>
               <hr />
               <h3>Questions</h3>
-              <ol className='ql-session-question-list'>
+              <div className='ql-session-question-list'>
                 {/* {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />} */}
                 {
                   questionList.map((questionId) => {
@@ -232,7 +232,7 @@ class _RunSession extends Component {
                     } else return <QuestionListItem question={q} click={this.setCurrentQuestion} />
                   })
                 }
-              </ol>
+              </div>
               <hr />
               <div className='btn-group btn-group-justified bottom-group' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous Question</a>

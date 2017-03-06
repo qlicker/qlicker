@@ -53,6 +53,41 @@ if (Meteor.isServer) {
       }
     } else this.ready()
   })
+
+  Meteor.publish('answers.forSession', function (sessionId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const session = Sessions.findOne({ _id: sessionId })
+      const course = Courses.findOne({ _id: session.courseId })
+
+      if (user.hasRole('professor') && course.owner === this.userId) {
+        return Answers.find({ questionId: { $in: session.questions } })
+      } else if (user.hasRole('student')) {
+        return Answers.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
+      }
+    } else this.ready()
+  })
+
+  Meteor.publish('answers.forCourse', function (courseId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const course = Courses.findOne({ _id: courseId })
+
+      const questionIds = []
+      const sessions = Sessions.find({ _id: (course.sessions || []).pluck('sessionId') }).fetch()
+      sessions.forEach((s) => {
+        Questions.find().fetch().forEach((q) => {
+          questionIds.push(q._id)
+        })
+      })
+
+      if (user.hasRole('professor') && course.owner === this.userId) {
+        return Answers.find({ questionId: { $in: questionIds } })
+      } else if (user.hasRole('student')) {
+        return Answers.find({ questionId: { $in: questionIds }, studentUserId: this.userId })
+      }
+    } else this.ready()
+  })
 }
 
 // data methods
