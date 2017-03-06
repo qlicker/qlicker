@@ -44,6 +44,7 @@ export class QuestionListItem extends Component {
   render () {
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
+    const tags = q.tags || []
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item'}
         onClick={this.click} >
@@ -51,7 +52,7 @@ export class QuestionListItem extends Component {
         {/* <span className='ql-question-status'>{QUESTION_TYPE_STRINGS[q.type]} </span> */}
         <div className='ql-label-list'>
           {
-            q.tags.map((t) => {
+            tags.map((t) => {
               return <span className='label label-info'>{t.label}</span>
             })
           }

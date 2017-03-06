@@ -168,7 +168,7 @@ class _RunSession extends Component {
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
-        content: <QuestionListItem question={q} click={this.setCurrentQuestion} />,
+        content: <QuestionListItem key={q._id} question={q} click={this.setCurrentQuestion} />,
         id: questionId
       })
     })
