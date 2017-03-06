@@ -36,7 +36,8 @@ class _RunSession extends Component {
     this.newAttempt = this.newAttempt.bind(this)
     this.toggleHidden = this.toggleHidden.bind(this)
 
-    Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+    const currentQuestion = this.state.session.currentQuestion || this.state.session.questions[0]
+    Meteor.call('questions.startAttempt', currentQuestion)
   }
 
   /**
