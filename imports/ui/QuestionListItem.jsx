@@ -8,40 +8,13 @@
 import React, { Component, PropTypes } from 'react'
 
 import { QUESTION_TYPE_STRINGS } from '../configs'
+import { ListItem } from './ListItem'
 
-const noop = () => {}
+export class QuestionListItem extends ListItem {
 
-export class QuestionListItem extends Component {
-
-  constructor (props) {
-    super(props)
-
-    if (this.props.question) {
-      const qid = this.props.question._id
-
-      const stopClick = (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-      }
-
-      this.click = this.props.click ? (e) => {
-        stopClick(e)
-        this.props.click(qid)
-      } : noop
-
-      this.remove = this.props.remove ? (e) => {
-        stopClick(e)
-        this.props.remove(qid)
-      } : noop
-
-      this.delete = this.props.delete ? (e) => {
-        stopClick(e)
-        this.props.delete(qid)
-      } : noop
-    }
-  }
 
   render () {
+    const controls = this.makeControls()
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
     return (
@@ -56,23 +29,13 @@ export class QuestionListItem extends Component {
             })
           }
         </div>
-        <div className='controls'>
-          { this.props.remove
-            ? <button className='btn btn-default' onClick={this.remove}>Remove</button>
-            : ''}
-          { this.props.delete
-            ? <button className='btn btn-default' onClick={this.delete}>Delete</button>
-            : ''}
-        </div>
+        {controls}
       </div>)
   } //  end render
 
 }
 
 QuestionListItem.propTypes = {
-  question: PropTypes.object,
-  click: PropTypes.func,
-  remove: PropTypes.func,
-  delete: PropTypes.func
+  question: PropTypes.object
 }
 

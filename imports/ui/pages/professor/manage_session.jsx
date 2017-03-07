@@ -172,7 +172,7 @@ class _ManageSession extends Component {
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
-        content: <QuestionListItem question={q} remove={this.removeQuestion} />,
+        content: <QuestionListItem question={q} controls={[{ label: 'Remove', click: () => this.removeQuestion(questionId) }]} />,
         id: questionId
       })
     })
@@ -233,7 +233,8 @@ class _ManageSession extends Component {
                   <QuestionEditItem
                     question={q}
                     sessionId={this.state.session._id}
-                    onNewQuestion={this.newQuestionSaved} />
+                    onNewQuestion={this.newQuestionSaved}
+                    autoSave />
                 </div>)
               })
             }

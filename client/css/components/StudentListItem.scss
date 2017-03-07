@@ -1,12 +1,8 @@
+@import '../mixins.scss';
 
 .ql-student-list-item {
+  @include list-item();
 
-  cursor: pointer;
-  padding: 12px;
-
-  &:hover {
-    background: #ddd;
-  }
 
   .ql-student-name {
     font-weight: bold;
@@ -16,9 +12,6 @@
     margin-left:10px; 
   }
  
-  .controls {
-    z-index:10;
-    float: right;
-  }
+
 
 }
