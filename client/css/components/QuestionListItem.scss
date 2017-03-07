@@ -1,20 +1,16 @@
+@import '../mixins.scss';
 
 .ql-question-list-item {
-  padding: 15px;
-  background: white;
-  border: 1px solid #ddd;
+  @include list-item();
 
   .new-question-placeholder {
     font-style: italic;
     color: #bbb;  
   }
 
-  &:hover {
-    background: #eee;
-  }
-
   .ql-question-name {
     font-size: 130%;
+    display: block;
   }  
 
   .ql-question-status {
@@ -23,6 +19,7 @@
 
   .ql-label-list {
     margin-top: 10px;
+    display: inline-block;
 
     span {
       margin-right: 4px;
@@ -30,8 +27,9 @@
 
   }
 
-  .controls {
-    margin-top: 4px;
+  .dropup {
+    float: right;
   }
+
 
 } // end .ql-question-list-item

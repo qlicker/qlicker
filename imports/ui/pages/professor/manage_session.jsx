@@ -172,7 +172,7 @@ class _ManageSession extends Component {
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
-        content: <QuestionListItem question={q} remove={this.removeQuestion} />,
+        content: <QuestionListItem question={q} controls={[{ label: 'Remove', click: () => this.removeQuestion(questionId) }]} />,
         id: questionId
       })
     })

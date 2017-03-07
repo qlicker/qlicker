@@ -3,7 +3,6 @@
 
 .ql-course-list-item {
   @include list-item();
-  border-bottom: none;
 
   .ql-course-code {
     font-weight: bold;
@@ -17,9 +16,5 @@
     margin-left: 12px; 
   }
 
-  .controls {
-    z-index:10;
-    float: right;
-  }
 
 }

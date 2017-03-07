@@ -13,28 +13,9 @@ import { SESSION_STATUS_STRINGS } from '../configs'
 
 export class SessionListItem extends ListItem {
 
-  deleteItem (e) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (confirm('Are you sure?')) {
-      Meteor.call('courses.deleteSession',
-        this.props.session.courseId,
-        this.props.session._id,
-        (error) => { console.log(error) })
-    }
-  }
 
   render () {
     const session = this.props.session
-    const navigateToSession = () => {
-      if (Meteor.user().hasGreaterRole('professor')) Router.go('session.run', { _id: session._id })
-      else Router.go('session', { _id: session._id })
-    }
-    const navigateToEdit = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      Router.go('session.edit', { _id: session._id })
-    }
     const controls = this.makeControls()
 
     const status = session.status
@@ -46,24 +27,28 @@ export class SessionListItem extends ListItem {
       completion = ((index + 1) / session.questions.length) * 100
     }
     return (
-      <div className='ql-session-list-item' onClick={navigateToSession}>
+      <div className='ql-session-list-item' onClick={this.click}>
         <div className='row'>
           <div className='col-md-2'>
-            <span className={'ql-session-status ' + status}>{strStatus} </span>
+            <span className={'ql-session-status ' + ('ql-' + status)}>{strStatus} </span>
           </div>
-          <div className='col-md-6'>
+          <div className={this.props.controls ? 'col-md-5' : 'col-md-6'}>
             <span className='ql-session-name'>{ session.name }</span>
-            <span className='active-time'>{ 'active as of 12/08/2017 @ 3:30pm' }</span>
+            { session.description ? <span className='active-time'>{session.description}</span> : '' }
           </div>
-          <div className='col-md-4'>
-            <span className='completion'>Completion: {completion}%</span>
+          <div className={this.props.controls ? 'col-md-3' : 'col-md-4'}>
+            <span className='completion'>Progress: {completion}%</span>
             <div className='ql-progress'>
               <div className='ql-progress-bar' style={{ width: completion + '%' }}>&nbsp;</div>
             </div>
           </div>
+          { this.props.controls
+            ? <div className='col-md-2'>
+              {controls}
+            </div>
+            : '' }
         </div>
 
-        { this.props.controls ? <span className='controls'>{controls}</span> : '' }
       </div>)
   } //  end render
 

@@ -73,16 +73,16 @@
   padding: 4px 12px;
   border-radius: 4px;
 
-  &.hidden {
+  &.ql-hidden {
     background: $inactive-color;
   }
-  &.visible {
+  &.ql-visible {
     background: $inactive-color;
   }
-  &.running {
+  &.ql-running {
     background: $blue;
   }
-  &.done {
+  &.ql-done {
     background: $inactive-color;
   }
 

@@ -29,8 +29,26 @@ export class ListItem extends Component {
   makeControls () {
     const controls = []
     ;(this.props.controls || []).forEach((c) => {
-      controls.push(<button className='btn btn-default' onClick={(e) => this.wrapFunc(e, c.click)}>{c.label}</button>)
+      controls.push(<li><a href='#' onClick={(e) => this.wrapFunc(e, c.click)}>{c.label}</a></li>)
     })
+
+    if (!this.props.controls) return ''
+    return (
+      <div className='btn-group dropup'>
+        <button
+          onClick={this.wrapFunc}
+          type='button'
+          className='btn btn-default dropdown-toggle'
+          data-toggle='dropdown'
+          aria-haspopup='true'
+          aria-expanded='false'>
+          More <span className='caret' />
+        </button>
+        <ul className='dropdown-menu'>
+          {controls}
+        </ul>
+      </div>
+    )
   }
 
 }

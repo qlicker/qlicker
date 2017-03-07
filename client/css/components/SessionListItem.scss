@@ -4,10 +4,6 @@
   @include list-item();
   cursor: pointer;
 
-  &:hover {
-    background: #ddd;
-  }
-
   .row {
     height: 100%;
     display: flex;
@@ -42,9 +38,5 @@
     font-size: 90%;    
   }
 
-  .controls {
-    z-index:10;
-    float: right;
-  }
 
 }

@@ -101,9 +101,11 @@ Meteor.methods({
     profHasCoursePermission(courseId)
 
     const course = Courses.find({ _id: courseId }).fetch()[0]
-    course.students.forEach((sId) => {
-      Meteor.call('courses.removeStudent', courseId, sId)
-    })
+    if (course.students) {
+      course.students.forEach((sId) => {
+        Meteor.call('courses.removeStudent', courseId, sId)
+      })
+    }
 
     return Courses.remove({ _id: courseId })
   },
