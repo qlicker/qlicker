@@ -107,3 +107,17 @@
     height: 10px;
   }
 }
+
+// labels
+.ql-page-container .label {
+  background: transparent;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-weight: normal;
+
+  &.label-info {
+    border: 1px solid $blue;
+    color: $blue;
+  }
+
+}

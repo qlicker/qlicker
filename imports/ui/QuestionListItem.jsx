@@ -21,7 +21,7 @@ export class QuestionListItem extends ListItem {
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item'}
         onClick={this.click} >
         <span className='ql-question-name'>{q.plainText || <span className='new-question-placeholder'>New Question</span> }</span>
-        {/* <span className='ql-question-status'>{QUESTION_TYPE_STRINGS[q.type]} </span> */}
+        { this.props.details ? <span className='ql-question-details'>{this.props.details}</span> : '' }
         <div className='ql-label-list'>
           {
             q.tags.map((t) => {
@@ -36,6 +36,7 @@ export class QuestionListItem extends ListItem {
 }
 
 QuestionListItem.propTypes = {
-  question: PropTypes.object
+  question: PropTypes.object,
+  detailsKey: PropTypes.string
 }
 
