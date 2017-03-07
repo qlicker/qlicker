@@ -237,6 +237,15 @@ Meteor.methods({
       $pull: { sessions: sessionId }
     })
     return Meteor.call('sessions.delete', courseId, sessionId)
+  },
+
+  /**
+   * courses.getCourseCodeTag(String (mongoid): courseId)
+   * get tag object for a specific courseid
+   */
+  'courses.getCourseCodeTag' (courseId) {
+    const c = Courses.findOne(courseId).courseCode().toUpperCase()
+    return { value: c, label: c }
   }
 }) // end Meteor.methods
 

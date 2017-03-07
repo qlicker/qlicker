@@ -42,7 +42,7 @@ export class QuestionEditItem extends Component {
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
-    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2000)
+    this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1800)
 
     // if editing pre-exsiting question
     if (this.props.question) {
@@ -77,6 +77,14 @@ export class QuestionEditItem extends Component {
       })
       this.forceUpdate()
     })
+
+    if (this.props.courseId) {
+      // add course code tag
+      Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
+        if (this.state.tags) this.state.tags.push(tag)
+        else this.state.tags = [tag]
+      })
+    }
   } // end constructor
 
   /**
@@ -386,5 +394,6 @@ QuestionEditItem.propTypes = {
   question: PropTypes.object,
   onNewQuestion: PropTypes.func,
   metadata: PropTypes.bool,
-  deleted: PropTypes.func
+  deleted: PropTypes.func,
+  autoSave: PropTypes.bool
 }

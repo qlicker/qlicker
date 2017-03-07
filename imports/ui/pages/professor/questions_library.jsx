@@ -94,7 +94,7 @@ class _QuestionsLibrary extends Component {
                 <QuestionEditItem
                   question={this.props.questionMap[this.state.selected]}
                   deleted={this.questionDeleted}
-                  metadata />
+                  metadata autoSave />
               </div>
               <div className='ql-preview-item-container'>
                 <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly />

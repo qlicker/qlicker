@@ -48,8 +48,6 @@ class _Course extends Component {
         { this.renderSessionList() }
 
         <br />
-        Debug:
-        { JSON.stringify(this.props.course) }
 
         { this.state.submittingQuestion
           ? <CreateQuestionModal courseId={this.props.course._id} done={toggleSubmittingQuestion} />

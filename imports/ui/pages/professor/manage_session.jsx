@@ -233,7 +233,8 @@ class _ManageSession extends Component {
                   <QuestionEditItem
                     question={q}
                     sessionId={this.state.session._id}
-                    onNewQuestion={this.newQuestionSaved} />
+                    onNewQuestion={this.newQuestionSaved}
+                    autoSave />
                 </div>)
               })
             }
