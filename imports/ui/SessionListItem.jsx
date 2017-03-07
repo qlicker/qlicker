@@ -7,13 +7,11 @@
 
 import React, { Component, PropTypes } from 'react'
 
+import { ListItem } from './ListItem'
 import '../api/courses.js'
+import { SESSION_STATUS_STRINGS } from '../configs'
 
-export class SessionListItem extends Component {
-
-  // constructor (props) {
-  //   super(props)
-  // }
+export class SessionListItem extends ListItem {
 
   deleteItem (e) {
     e.preventDefault()
@@ -27,26 +25,46 @@ export class SessionListItem extends Component {
   }
 
   render () {
+    const session = this.props.session
     const navigateToSession = () => {
-      if (Meteor.user().hasGreaterRole('professor')) Router.go('session.run', { _id: this.props.session._id })
-      else Router.go('session', { _id: this.props.session._id })
+      if (Meteor.user().hasGreaterRole('professor')) Router.go('session.run', { _id: session._id })
+      else Router.go('session', { _id: session._id })
     }
     const navigateToEdit = (e) => {
       e.preventDefault()
       e.stopPropagation()
-      Router.go('session.edit', { _id: this.props.session._id })
+      Router.go('session.edit', { _id: session._id })
+    }
+    const controls = this.makeControls()
+
+    const status = session.status
+    const strStatus = SESSION_STATUS_STRINGS[status]
+
+    let completion = 0
+    if (session.currentQuestion) {
+      const index = session.questions.indexOf(session.currentQuestion)
+      completion = ((index + 1) / session.questions.length) * 100
     }
     return (
-      <li className='ql-session-list-item' onClick={navigateToSession}>
-        <span className='ql-session-name'>{ this.props.session.name }</span>
-        <span className='ql-session-status'>{ this.props.session.status } </span>
-        { Meteor.user().hasGreaterRole('professor')
-          ? <span className='controls'>
-            <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
-            <button className='btn btn-default' onClick={navigateToEdit}>Edit</button>
-          </span>
-        : ''}
-      </li>)
+      <div className='ql-session-list-item' onClick={navigateToSession}>
+        <div className='row'>
+          <div className='col-md-2'>
+            <span className={'ql-session-status ' + status}>{strStatus} </span>
+          </div>
+          <div className='col-md-6'>
+            <span className='ql-session-name'>{ session.name }</span>
+            <span className='active-time'>{ 'active as of 12/08/2017 @ 3:30pm' }</span>
+          </div>
+          <div className='col-md-4'>
+            <span className='completion'>Completion: {completion}%</span>
+            <div className='ql-progress'>
+              <div className='ql-progress-bar' style={{ width: completion + '%' }}>&nbsp;</div>
+            </div>
+          </div>
+        </div>
+
+        { this.props.controls ? <span className='controls'>{controls}</span> : '' }
+      </div>)
   } //  end render
 
 }

@@ -199,7 +199,8 @@ Router.route('/courses/grades', {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
-    if (Meteor.user() && Meteor.user().hasRole('professor')) {
+    const u = Meteor.user()
+    if (u) {
       mount(AppLayout, { content: <PageContainer> <GradesOverview /> </PageContainer> })
     } else Router.go('login')
   }

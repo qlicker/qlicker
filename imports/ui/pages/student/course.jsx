@@ -26,11 +26,9 @@ class _Course extends Component {
     // let sessions = this.props.course.sessions || []
     let sessions = this.props.sessions || []
     return (<div>
-      <ul>
-        { sessions.map((s) => {
-          return (<SessionListItem key={s.sessionId} session={s} />)
-        }) }
-      </ul>
+      { sessions.map((s) => {
+        return (<SessionListItem key={s.sessionId} session={s} />)
+      }) }
     </div>)
   }
 

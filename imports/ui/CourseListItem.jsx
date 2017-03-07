@@ -7,50 +7,28 @@
 
 import React, { Component, PropTypes } from 'react'
 
+import { ListItem } from './ListItem'
 import '../api/courses.js'
 
-export class CourseListItem extends Component {
-
-  constructor (props) {
-    super(props)
-
-    this.click = this.click.bind(this)
-    console.log(this.props)
-  }
-
-  deleteItem (e) {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (this.props.delete) this.props.delete()
-  }
-
-  click () {
-    if (this.props.click) this.props.click()
-    else Router.go('course', { _id: this.props.course._id })
-  }
+export class CourseListItem extends ListItem {
 
   render () {
+    const controls = this.makeControls()
     return (
-      <li className='ql-course-list-item' onClick={this.click}>
+      <div className={'ql-course-list-item ' + (this.props.click ? 'click' : '')} onClick={this.click}>
+        <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
+
         <span className='ql-course-name'>{ this.props.course.name }</span>
 
-        <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
         <span className='ql-course-semester'>{ this.props.course.semester }</span>
 
-        { Meteor.user().hasGreaterRole('professor') && this.props.delete
-          ? <span className='controls'>
-            <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
-          </span>
-        : ''}
-      </li>)
+        { this.props.controls ? <span className='controls'>{controls}</span> : '' }
+      </div>)
   } //  end render
 
 }
 
 CourseListItem.propTypes = {
-  course: PropTypes.object.isRequired,
-  delete: PropTypes.func,
-  click: PropTypes.func
+  course: PropTypes.object.isRequired
 }
 
