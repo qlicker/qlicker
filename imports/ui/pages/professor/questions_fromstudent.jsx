@@ -59,7 +59,7 @@ class _QuestionsFromStudent extends Component {
               { /* list questions */
                 this.props.fromStudent.map(q => {
                   return (<div key={q._id} >
-                    <QuestionListItem question={q} click={this.selectQuestion} />
+                    <QuestionListItem question={q} click={() => this.selectQuestion(q._id)} />
                   </div>)
                 })
               }

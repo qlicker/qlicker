@@ -58,7 +58,7 @@ class _QuestionsPublic extends Component {
               { /* list questions */
                 this.props.public.map(q => {
                   return (<div key={q._id} >
-                    <QuestionListItem question={q} click={this.selectQuestion} />
+                    <QuestionListItem question={q} click={() => this.selectQuestion(q._id)} />
                   </div>)
                 })
               }

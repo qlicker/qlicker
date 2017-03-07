@@ -81,7 +81,7 @@ class _QuestionsLibrary extends Component {
               { /* list questions */
                 this.props.library.map(q => {
                   return (<div key={q._id} className={this.state.selected === q._id ? 'selected' : ''}>
-                    <QuestionListItem question={q} click={this.editQuestion} />
+                    <QuestionListItem question={q} click={() => this.editQuestion(q._id)} />
                   </div>)
                 })
               }
