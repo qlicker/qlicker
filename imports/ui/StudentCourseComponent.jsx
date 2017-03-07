@@ -29,7 +29,7 @@ export class _StudentCourseComponent extends Component {
       <div>
         {
           this.props.sessions.map((s) => {
-            return <SessionListItem key={s._id} session={s} />
+            return <SessionListItem key={s._id} session={s} click={() => Router.go(this.props.sessionRoute, { _id: s._id })}/>
           }) // TODO limit num session on student home page
         }
       </div>
@@ -48,6 +48,7 @@ export const StudentCourseComponent = createContainer((props) => {
 }, _StudentCourseComponent)
 
 StudentCourseComponent.propTypes = {
-  course: PropTypes.object.isRequired
+  course: PropTypes.object.isRequired,
+  sessionRoute: PropTypes.string
 }
 

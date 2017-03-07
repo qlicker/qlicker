@@ -29,7 +29,7 @@ export class ListItem extends Component {
   makeControls () {
     const controls = []
     ;(this.props.controls || []).forEach((c) => {
-      controls.push(<li><a href='#' onClick={(e) => this.wrapFunc(e, c.click)}>{c.label}</a></li>)
+      controls.push(<li key={'ctrl_' + c.label}><a href='#' onClick={(e) => this.wrapFunc(e, c.click)}>{c.label}</a></li>)
     })
 
     if (!this.props.controls) return ''

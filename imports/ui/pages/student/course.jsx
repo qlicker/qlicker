@@ -26,9 +26,12 @@ class _Course extends Component {
     // let sessions = this.props.course.sessions || []
     let sessions = this.props.sessions || []
     return (<div>
-      { sessions.map((s) => {
-        return (<SessionListItem key={s.sessionId} session={s} />)
-      }) }
+      {
+        sessions.map((s) => (<SessionListItem
+          key={s._id}
+          session={s}
+          click={() => { Router.go('session', { _id: s._id }) }} />))
+      }
     </div>)
   }
 

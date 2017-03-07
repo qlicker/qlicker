@@ -107,7 +107,7 @@ export class QuestionSidebar extends ControlledForm {
           { /* list questions */
             this.state.questionPool.map(q => {
               return (<div key={q._id} className={this.state.questionId === q._id ? 'correct-color' : ''}>
-                { <QuestionListItem question={q} click={this.setQuestion} /> }
+                { <QuestionListItem question={q} click={() => this.setQuestion(q._id)} /> }
               </div>)
             })
           }

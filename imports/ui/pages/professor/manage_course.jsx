@@ -25,6 +25,17 @@ class _ManageCourse extends Component {
     this.courseId = this.props.courseId
     this.deleteSession = this.deleteSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
+    this.deleteCourse = this.deleteCourse.bind(this)
+  }
+
+  deleteCourse () {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.delete', this.courseId, (error) => {
+        if (error) return alertify.error('Error deleting course')
+        alertify.success('Course Deleted')
+        Router.go('courses')
+      })
+    }
   }
 
   deleteSession (sessionId) {
@@ -96,6 +107,7 @@ class _ManageCourse extends Component {
           <div className='col-md-4'>
             <br />
             <h3>Course Details</h3>
+            <button className='btn btn-default' onClick={this.deleteCourse}>Delete</button>
             <div className='ql-course-details'>
               <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
               <span className='ql-course-semester'>{ this.props.course.semester }</span>

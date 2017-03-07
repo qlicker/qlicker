@@ -22,8 +22,10 @@ export class SessionListItem extends ListItem {
     const strStatus = SESSION_STATUS_STRINGS[status]
 
     let completion = 0
+    let index = 0
+    const length = session.questions.length
     if (session.currentQuestion) {
-      const index = session.questions.indexOf(session.currentQuestion)
+      index = session.questions.indexOf(session.currentQuestion)
       completion = ((index + 1) / session.questions.length) * 100
     }
     return (
@@ -34,10 +36,10 @@ export class SessionListItem extends ListItem {
           </div>
           <div className={this.props.controls ? 'col-md-5' : 'col-md-6'}>
             <span className='ql-session-name'>{ session.name }</span>
-            { session.description ? <span className='active-time'>{session.description}</span> : '' }
+            <span className='active-time'>{session.createdAt.toString()}</span>
           </div>
           <div className={this.props.controls ? 'col-md-3' : 'col-md-4'}>
-            <span className='completion'>Progress: {completion}%</span>
+            <span className='completion'>Question: {index + 1}/{length}</span>
             <div className='ql-progress'>
               <div className='ql-progress-bar' style={{ width: completion + '%' }}>&nbsp;</div>
             </div>
@@ -55,6 +57,7 @@ export class SessionListItem extends ListItem {
 }
 
 SessionListItem.propTypes = {
-  session: PropTypes.object.isRequired
+  session: PropTypes.object.isRequired,
+  details: PropTypes.bool
 }
 

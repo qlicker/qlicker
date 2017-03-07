@@ -40,7 +40,7 @@ class _StudentDashboard extends Component {
   }
 
   renderCourseList () {
-    return this.props.courses.map((c) => (<StudentCourseComponent key={c._id} course={c} />))
+    return this.props.courses.map((c) => (<StudentCourseComponent key={c._id} course={c} sessionRoute='session' />))
   }
 
   render () {
