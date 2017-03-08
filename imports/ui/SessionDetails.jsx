@@ -4,8 +4,7 @@
 //
 // SessionDetails.jsx: component for displaying and editing session details
 
-import React, { Component, PropTypes } from 'react'
-
+import React, { Component } from 'react'
 
 export class SessionDetails extends Component {
 

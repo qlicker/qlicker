@@ -8,7 +8,6 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../../api/courses.js'
 import { EnrollCourseModal } from '../../modals/EnrollCourseModal'
-import { CourseListItem } from '../../CourseListItem'
 import { StudentCourseComponent } from '../../StudentCourseComponent'
 
 class _StudentDashboard extends Component {

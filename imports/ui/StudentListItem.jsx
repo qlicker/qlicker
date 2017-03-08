@@ -5,7 +5,7 @@
 // SessionListItem.jsx: React component list item for each course
 // typically used on student and professor overview page
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 import '../api/courses.js'

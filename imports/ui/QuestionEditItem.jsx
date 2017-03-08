@@ -7,7 +7,6 @@ import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { WithContext as ReactTags } from 'react-tag-input'
 import { Creatable } from 'react-select'
 
 import { Editor } from './Editor'

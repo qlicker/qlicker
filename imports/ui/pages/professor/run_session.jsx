@@ -4,12 +4,9 @@
 // run_session.jsx: page for managing a currently running session
 
 import React, { Component } from 'react'
-// import ReactDOM from 'react-dom'
 import { _ } from 'underscore'
 
 import { createContainer } from 'meteor/react-meteor-data'
-import DragSortableList from 'react-drag-sortable'
-import { BarChart, Bar, XAxis, YAxis } from 'recharts'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
@@ -148,7 +145,10 @@ class _RunSession extends Component {
     })
   }
 
-
+  /**
+   * newAttempt(MongoId (string): questionId)
+   * create a new 'attempt' for a specific question and end (stop allowing submission on old one)
+   */
   newAttempt () {
     const qId = this.state.session.currentQuestion
     Meteor.call('questions.endAttempt', qId, (error) => {

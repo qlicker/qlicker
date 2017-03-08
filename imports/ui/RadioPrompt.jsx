@@ -4,7 +4,6 @@
 // RadioPrompt.jsx: custom "radio button" style group of buttons
 
 import React, { Component, PropTypes } from 'react'
-import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
 export class RadioPrompt extends Component {
 
