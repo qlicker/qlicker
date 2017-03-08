@@ -4,12 +4,9 @@
 // run_session.jsx: page for managing a currently running session
 
 import React, { Component } from 'react'
-// import ReactDOM from 'react-dom'
 import { _ } from 'underscore'
 
 import { createContainer } from 'meteor/react-meteor-data'
-import DragSortableList from 'react-drag-sortable'
-import { BarChart, Bar, XAxis, YAxis } from 'recharts'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
@@ -33,6 +30,7 @@ class _RunSession extends Component {
     this.setCurrentQuestion = this.setCurrentQuestion.bind(this)
     this.prevQuestion = this.prevQuestion.bind(this)
     this.nextQuestion = this.nextQuestion.bind(this)
+    this.endSession = this.endSession.bind(this)
     this.newAttempt = this.newAttempt.bind(this)
     this.toggleHidden = this.toggleHidden.bind(this)
 
@@ -135,6 +133,22 @@ class _RunSession extends Component {
     if (currentIndex < l - 1) this.setCurrentQuestion(this.state.session.questions[currentIndex + 1])
   }
 
+  /**
+   * endSession()
+   * close session, set to inactive
+   */
+  endSession () {
+    Meteor.call('sessions.endSession', this.state.session._id, (error) => {
+      if (error) return alertify.error('Error: could not end session ')
+      alertify.success('Session Ended')
+      Router.go('professor') // TODO go to grades overview page for that session
+    })
+  }
+
+  /**
+   * newAttempt(MongoId (string): questionId)
+   * create a new 'attempt' for a specific question and end (stop allowing submission on old one)
+   */
   newAttempt () {
     const qId = this.state.session.currentQuestion
     Meteor.call('questions.endAttempt', qId, (error) => {
@@ -228,15 +242,16 @@ class _RunSession extends Component {
                   questionList.map((questionId) => {
                     const q = this.props.questions[questionId]
                     if (q._id === this.state.session.currentQuestion) {
-                      return <div className='current-question-list-item'><QuestionListItem question={q} click={this.setCurrentQuestion} /></div>
-                    } else return <QuestionListItem question={q} click={this.setCurrentQuestion} />
+                      return <div className='current-question-list-item'><QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} /></div>
+                    } else return <QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} />
                   })
                 }
               </div>
               <hr />
               <div className='btn-group btn-group-justified bottom-group' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous Question</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next Question <span className='glyphicon glyphicon-arrow-right' /></a>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.endSession}>End session</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next <span className='glyphicon glyphicon-arrow-right' /></a>
               </div>
             </div>
           </div>

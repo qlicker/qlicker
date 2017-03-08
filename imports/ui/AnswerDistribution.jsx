@@ -11,7 +11,6 @@ import dl from 'datalib'
 import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
 import { Answers } from '../api/answers'
-import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
 
 export const doAggregations = (question, answers) => {
   // do aggregations

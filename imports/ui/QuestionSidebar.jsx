@@ -92,8 +92,7 @@ export class QuestionSidebar extends ControlledForm {
       <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
 
-          <h3>Search and Filtering</h3>
-          <input type='text' className='form-control' onChange={_.throttle(this.setSearchString, 500)} />
+          <input type='text' className='form-control search-field' onChange={_.throttle(this.setSearchString, 500)} />
 
           <select defaultValue={this.state.type} onChange={this.setType} className='ql-header-button question-type form-control'>
             <option key={-1} value={-1}>Any Type</option>
@@ -107,7 +106,7 @@ export class QuestionSidebar extends ControlledForm {
 
           { /* list questions */
             this.state.questionPool.map(q => {
-              return (<div key={q._id} className={this.state.questionId === q._id ? 'correct-color' : ''}>
+              return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
                 { !q.courseId
                   ? <QuestionListItem question={q} click={() => this.setQuestion(q._id)} />
                   : <StudentQuestionListItem question={q} click={() => this.setQuestion(q._id)} /> }
@@ -123,5 +122,6 @@ export class QuestionSidebar extends ControlledForm {
 
 QuestionSidebar.propTypes = {
   session: PropTypes.object.isRequired,
-  questions: PropTypes.array.isRequired
+  questions: PropTypes.array.isRequired,
+  onSelect: PropTypes.func
 }

@@ -7,8 +7,6 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
-import dl from 'datalib'
-
 import { Questions } from '../api/questions'
 import { AnswerDistribution } from './AnswerDistribution'
 import { StudentResultsList } from './StudentResultsList'

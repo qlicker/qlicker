@@ -1,18 +1,16 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// manage_questions.jsx: question library and management
+// questions_library.jsx: page for managing and editing your own questions
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
-import $ from 'jquery'
 
-// import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
-import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
+import { QuestionSidebar } from '../../QuestionSidebar'
 
 import { Questions } from '../../../api/questions'
 
@@ -77,15 +75,7 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-4'>
             <br />
             <button className='btn btn-default' onClick={() => this.editQuestion(-1)}>New Question</button>
-            <div className='ql-question-list'>
-              { /* list questions */
-                this.props.library.map(q => {
-                  return (<div key={q._id} className={this.state.selected === q._id ? 'selected' : ''}>
-                    <QuestionListItem question={q} click={() => this.editQuestion(q._id)} />
-                  </div>)
-                })
-              }
-            </div>
+            <QuestionSidebar questions={this.props.library} onSelect={this.editQuestion} />
           </div>
           <div className='col-md-8'>
             { this.state.selected

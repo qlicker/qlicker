@@ -5,9 +5,8 @@
 // QuestionListItem.jsx: React component list item for each course
 // typically used on student and professor overview page
 
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
-import { _ } from 'underscore'
 
 import { QuestionListItem } from './QuestionListItem'
 
