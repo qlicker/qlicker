@@ -158,10 +158,10 @@ Meteor.methods({
 
   /**
    * sessions.endSession(MongoId (string) sessionId)
-   * mark session as done and clear currentQuestion
+   * mark session as done
    */
   'sessions.endSession' (sessionId) {
-    return Sessions.update({ _id: sessionId }, { $unset: { currentQuestion: '' } })
+    return Sessions.update({ _id: sessionId }, { $set: { status: 'done' } })
   },
 
   /**

@@ -223,6 +223,7 @@ class _ManageSession extends Component {
                     <option value='public'>Public Question Pool</option>
                     <option value='student'>Submitted by Students</option>
                   </select>
+                  <h3>Search and Filtering</h3>
                   <QuestionSidebar
                     session={this.state.session}
                     questions={getQuestionPool()}
