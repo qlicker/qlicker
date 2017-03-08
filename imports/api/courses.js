@@ -101,9 +101,11 @@ Meteor.methods({
     profHasCoursePermission(courseId)
 
     const course = Courses.find({ _id: courseId }).fetch()[0]
-    course.students.forEach((sId) => {
-      Meteor.call('courses.removeStudent', courseId, sId)
-    })
+    if (course.students) {
+      course.students.forEach((sId) => {
+        Meteor.call('courses.removeStudent', courseId, sId)
+      })
+    }
 
     return Courses.remove({ _id: courseId })
   },
@@ -237,6 +239,15 @@ Meteor.methods({
       $pull: { sessions: sessionId }
     })
     return Meteor.call('sessions.delete', courseId, sessionId)
+  },
+
+  /**
+   * courses.getCourseCodeTag(String (mongoid): courseId)
+   * get tag object for a specific courseid
+   */
+  'courses.getCourseCodeTag' (courseId) {
+    const c = Courses.findOne(courseId).courseCode().toUpperCase()
+    return { value: c, label: c }
   }
 }) // end Meteor.methods
 

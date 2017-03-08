@@ -25,3 +25,11 @@ export const QUESTION_TYPE_STRINGS = ['Multiple Choice', 'True/False', 'Short An
 
 export const MC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 export const TF_ORDER = ['TRUE', 'FALSE']
+
+
+export const SESSION_STATUS_STRINGS = {
+  hidden: 'Draft',
+  visible: 'Upcoming',
+  running: 'Active',
+  done: 'Inactive'
+}

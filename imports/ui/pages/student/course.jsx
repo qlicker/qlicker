@@ -26,11 +26,12 @@ class _Course extends Component {
     // let sessions = this.props.course.sessions || []
     let sessions = this.props.sessions || []
     return (<div>
-      <ul>
-        { sessions.map((s) => {
-          return (<SessionListItem key={s.sessionId} session={s} />)
-        }) }
-      </ul>
+      {
+        sessions.map((s) => (<SessionListItem
+          key={s._id}
+          session={s}
+          click={() => { Router.go('session', { _id: s._id }) }} />))
+      }
     </div>)
   }
 
@@ -48,8 +49,6 @@ class _Course extends Component {
         { this.renderSessionList() }
 
         <br />
-        Debug:
-        { JSON.stringify(this.props.course) }
 
         { this.state.submittingQuestion
           ? <CreateQuestionModal courseId={this.props.course._id} done={toggleSubmittingQuestion} />

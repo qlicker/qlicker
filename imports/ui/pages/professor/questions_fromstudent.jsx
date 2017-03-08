@@ -9,7 +9,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { QuestionListItem } from '../../QuestionListItem'
+import { StudentQuestionListItem } from '../../StudentQuestionListItem'
 
 import { Questions } from '../../../api/questions'
 import { QuestionDisplay } from '../../QuestionDisplay'
@@ -59,7 +59,7 @@ class _QuestionsFromStudent extends Component {
               { /* list questions */
                 this.props.fromStudent.map(q => {
                   return (<div key={q._id} >
-                    <QuestionListItem question={q} click={this.selectQuestion} />
+                    <StudentQuestionListItem question={q} click={() => this.selectQuestion(q._id)} />
                   </div>)
                 })
               }

@@ -1,18 +1,16 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// QuestionStats.jsx: Component for attempt distributions for a question
+// StudentResultsList.jsx: Student list displaying answers
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
 import dl from 'datalib'
-import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
 import { Answers } from '../api/answers'
 import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
-
 
 export class _StudentResultsList extends Component {
 
