@@ -5,9 +5,10 @@
 
 import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
-
+import $ from 'jquery'
 
 import { WithContext as ReactTags } from 'react-tag-input'
+import { Creatable } from 'react-select'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
@@ -20,7 +21,7 @@ export const DEFAULT_STATE = {
   plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
-  answers: [], // { correct: false, answer: 'A', content: editor content }
+  options: [], // { correct: false, answer: 'A', content: editor content }
   submittedBy: '',
   tags: []
 }
@@ -34,19 +35,20 @@ export class QuestionEditItem extends Component {
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
     this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
-    this.setAnswerState = this.setAnswerState.bind(this)
+    this.setOptionState = this.setOptionState.bind(this)
     this.markCorrect = this.markCorrect.bind(this)
-    this.deleteTag = this.deleteTag.bind(this)
     this.addTag = this.addTag.bind(this)
-    this.handleDrag = this.handleDrag.bind(this)
     this.changeType = this.changeType.bind(this)
-    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2500)
+    this.saveQuestion = this.saveQuestion.bind(this)
+    this.togglePublic = this.togglePublic.bind(this)
+    this.deleteQuestion = this.deleteQuestion.bind(this)
+    this._DB_saveQuestion = _.debounce(this.saveQuestion, 2000)
 
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
 
-      this.currentAnswer = this.state.answers.length
+      this.currentAnswer = this.state.options ? this.state.options.length : 0
       switch (this.state.type) {
         case QUESTION_TYPE.MC:
           this.answerOrder = MC_ORDER
@@ -70,7 +72,9 @@ export class QuestionEditItem extends Component {
     this.tagSuggestions = []
     Meteor.call('questions.possibleTags', (e, tags) => {
       // non-critical, if e: silently fail
-      this.tagSuggestions = tags
+      tags.forEach((t) => {
+        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
       this.forceUpdate()
     })
   } // end constructor
@@ -82,7 +86,7 @@ export class QuestionEditItem extends Component {
   changeType (newValue) {
     let type = parseInt(newValue)
 
-    this.setState({ type: type, answers: [] }, () => {
+    this.setState({ type: type, options: [] }, () => {
       if (type === QUESTION_TYPE.MC) {
         this.currentAnswer = 0
         this.answerOrder = _.extend({}, MC_ORDER)
@@ -102,41 +106,13 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * handleDrag (String: tag, Int: currPos, Int: newPos)
-   * reorder tags
-   */
-  handleDrag (tag, currPos, newPos) {
-    let tags = this.state.tags
-
-      // mutate array
-    tags.splice(currPos, 1)
-    tags.splice(newPos, 0, tag)
-
-      // re-render
-    this.setState({ tags: tags })
-  }
-
-  /**
-   * deleteTag (Int: i)
-   * remove tag from state
-   */
-  deleteTag (i) {
-    let tags = this.state.tags
-    tags.splice(i, 1)
-    this.setState({ tags: tags })
-  }
-
-  /**
    * addTag (String: tag)
    * add tag to state
    */
-  addTag (tag) {
-    let tags = this.state.tags
-    tags.push({
-      id: tags.length + 1,
-      text: tag
+  addTag (tags) {
+    this.setState({ tags: tags }, () => {
+      this._DB_saveQuestion()
     })
-    this.setState({ tags: tags })
   }
 
   /**
@@ -151,18 +127,18 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * setAnswerState(String: answerKey, Object: content)
+   * setOptionState(String: answerKey, Object: content)
    * Update wysiwyg content in the state based on the answer
    */
-  setAnswerState (answerKey, content, plainText) {
-    let answers = this.state.answers
-    const i = _(answers).findIndex({ answer: answerKey })
-    answers[i].content = content
-    answers[i].plainText = plainText
-    this.setState({ answers: answers }, () => {
+  setOptionState (answerKey, content, plainText) {
+    let options = this.state.options
+    const i = _(options).findIndex({ answer: answerKey })
+    options[i].content = content
+    options[i].plainText = plainText
+    this.setState({ options: options }, () => {
       this._DB_saveQuestion()
     })
-  } // end setAnswerState
+  } // end setOptionState
 
   /**
    * addAnswer(Event _, Event e, Boolean wysiwyg, Callback done = null)
@@ -172,7 +148,7 @@ export class QuestionEditItem extends Component {
     const answerKey = this.answerOrder[this.currentAnswer]
     if (this.currentAnswer >= this.answerOrder.length) return
     this.setState({
-      answers: this.state.answers.concat([{
+      options: this.state.options.concat([{
         correct: this.currentAnswer === 0,
         answer: answerKey,
         wysiwyg: wysiwyg
@@ -180,8 +156,8 @@ export class QuestionEditItem extends Component {
     }, () => {
       this.currentAnswer++
 
-      if (wysiwyg) this.setAnswerState(answerKey, '', '')
-      else this.setAnswerState(answerKey, answerKey, answerKey)
+      if (wysiwyg) this.setOptionState(answerKey, '', '')
+      else this.setOptionState(answerKey, answerKey, answerKey)
 
       if (done) done()
     })
@@ -192,15 +168,27 @@ export class QuestionEditItem extends Component {
    * Set answer as correct in stae
    */
   markCorrect (answerKey) {
-    let answers = this.state.answers
+    let options = this.state.options
 
-    answers.forEach((a, i) => {
-      if (a.answer === answerKey) answers[i].correct = true
-      else answers[i].correct = false
+    if (this.state.type === QUESTION_TYPE.MS) {
+      options.forEach((a, i) => {
+        if (a.answer === answerKey) options[i].correct = !options[i].correct
+      })
+    } else {
+      options.forEach((a, i) => {
+        if (a.answer === answerKey) options[i].correct = true
+        else options[i].correct = false
+      })
+    }
+
+    this.setState({ options: options }, () => {
+      this._DB_saveQuestion()
     })
+  }
 
-    this.setState({
-      answers: answers
+  togglePublic () {
+    this.setState({ public: !this.state.public }, () => {
+      this.saveQuestion()
     })
   }
 
@@ -211,7 +199,7 @@ export class QuestionEditItem extends Component {
   saveQuestion () {
     let question = _.extend({ createdAt: new Date() }, this.state)
 
-    if (question.answers.length === 0 && question.type !== QUESTION_TYPE.SA) return
+    if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
     if (this.props.courseId) question.courseId = this.props.courseId
@@ -230,7 +218,15 @@ export class QuestionEditItem extends Component {
         this.setState(newQuestion)
       }
     })
-  } // end handleSubmit
+  } // end saveQuestion
+
+  deleteQuestion () {
+    Meteor.call('questions.delete', this.state._id, (error) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Deleted')
+      if (this.props.deleted) this.props.deleted()
+    })
+  }
 
   /**
    * uploadImage(File: file)
@@ -257,10 +253,18 @@ export class QuestionEditItem extends Component {
     this.setState(nextProps.question)
   }
 
+  componentDidMount () {
+    this.componentDidUpdate()
+  }
+
+  componentDidUpdate () {
+    $('[data-toggle="tooltip"]').tooltip()
+  }
+
   render () {
     const answerEditor = (a) => {
       const changeHandler = (content, plainText) => {
-        this.setAnswerState(a.answer, content, plainText)
+        this.setOptionState(a.answer, content, plainText)
       }
 
       const wysiwygAnswer = (
@@ -291,10 +295,10 @@ export class QuestionEditItem extends Component {
 
     // generate rows with up to 2 editors on each row
     let editorRows = []
-    const len = this.state.answers.length
+    const len = this.state.options ? this.state.options.length : 0
     for (let i = 0; i < len; i = i + 2) {
-      let gaurunteed = this.state.answers[i]
-      let possiblyUndefined = i < len ? this.state.answers[i + 1] : undefined
+      let gaurunteed = this.state.options[i]
+      let possiblyUndefined = i < len ? this.state.options[i + 1] : undefined
 
       editorRows.push(<div key={'row_' + i + '-' + i + 1} className='row'>
         { answerEditor(gaurunteed) }
@@ -309,14 +313,56 @@ export class QuestionEditItem extends Component {
       { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
     ]
 
+    const strMakePublic = this.state.public ? 'Make Private' : 'Make Public'
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
-          <Editor
-            change={this.onEditorStateChange}
-            val={this.state.content}
-            className='question-editor'
-            placeholder='Question?' />
+          { this.props.metadata
+            ? <div className='row'>
+              <div className='col-md-6'>
+                <div className='btn-group'>
+                  <button className='btn btn-default'
+                    data-toggle='tooltip'
+                    data-placement='top'
+                    title='Create a copy of this question'>
+                    Duplicate
+                  </button>
+                  <button
+                    className='btn btn-default'
+                    onClick={this.deleteQuestion}>
+                    Delete
+                  </button>
+                  <button
+                    className='btn btn-default'
+                    onClick={this.togglePublic}
+                    data-toggle='tooltip'
+                    data-placement='top'
+                    title={!this.state.public ? 'Allow others to view and copy this question' : ''}>
+                    {strMakePublic}
+                  </button>
+                </div>
+              </div>
+              <div className='col-md-6'>
+                <Creatable
+                  name='tag-input'
+                  placeholder='Question Tags'
+                  multi
+                  value={this.state.tags}
+                  options={this.tagSuggestions}
+                  onChange={this.addTag}
+                  />
+              </div>
+            </div>
+            : '' }
+          <div className='row'>
+            <div className='col-md-12'>
+              <Editor
+                change={this.onEditorStateChange}
+                val={this.state.content}
+                className='question-editor'
+                placeholder='Question?' />
+            </div>
+          </div>
         </div>
 
         <RadioPrompt
@@ -324,11 +370,12 @@ export class QuestionEditItem extends Component {
           value={this.state.type}
           onChange={this.changeType} />
 
+        {editorRows}
+
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
           ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
           : '' }
 
-        {editorRows}
       </div>)
   } //  end render
 
@@ -336,6 +383,8 @@ export class QuestionEditItem extends Component {
 
 QuestionEditItem.propTypes = {
   done: PropTypes.func,
-  question: PropTypes.func,
-  onNewQuestion: PropTypes.func
+  question: PropTypes.object,
+  onNewQuestion: PropTypes.func,
+  metadata: PropTypes.bool,
+  deleted: PropTypes.func
 }

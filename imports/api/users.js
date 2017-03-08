@@ -1,3 +1,4 @@
+/* global FS */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -56,8 +57,6 @@ if (Meteor.isServer) {
 ProfileImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
 ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
 
-
-
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     const user = Meteor.users.findOne({ _id: this.userId })
@@ -65,7 +64,7 @@ if (Meteor.isServer) {
     if (user && user.hasGreaterRole('professor')) {
       let studentRefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
-        studentRefs = studentRefs.concat(_(c.students || []).pluck('studentUserId'))
+        studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({ _id: { $in: studentRefs } }, { fields: { services: false } })
     } else if (user._id) {
@@ -76,3 +75,39 @@ if (Meteor.isServer) {
   })
 }
 
+// data methods
+Meteor.methods({
+
+  /**
+   * users.sendVerificationEmail()
+   * send verification email
+   */
+  'users.sendVerificationEmail' () {
+    let userId = Meteor.userId()
+    if (userId) {
+      return Accounts.sendVerificationEmail(userId)
+    }
+  },
+
+  /**
+   * users.updateProfileImage(MongoId (string) profileImageId)
+   * update profile image with new image in ProfileImages collection
+   */
+  'users.updateProfileImage' (profileImageId) {
+    return Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'profile.profileImage': profileImageId }
+    })
+  },
+
+  /**
+   * users.changeEmail(String newEmail)
+   * change to new email
+   */
+  'users.changeEmail' (newEmail) {
+    Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'emails': [ { address: newEmail, verified: false } ] }
+    })
+    return Meteor.call('users.sendVerificationEmail')
+  }
+
+})

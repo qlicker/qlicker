@@ -147,7 +147,7 @@ $incorrect-color: #A72526;
 #page-loading-spinner {
   animation: colorPulse 1s infinite alternate, fadein 1s;
   position: fixed;
-  top:40px;
+  top:80px;
   left: 48%;
   width: 100px;
   margin: 0 auto; 
@@ -194,4 +194,33 @@ $incorrect-color: #A72526;
   h1 {
     margin:0;
   }
+}
+
+.ql-answer-distribution {
+  display: inline-block;
+  float: left;
+  background: white;
+  border: 1px solid #ccc;
+}
+
+.clear {
+  clear: both;
+}
+
+.m-margin-top {
+  margin-top: 10px;
+}
+
+.ql-page-container .label {
+  background: transparent;
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: 110%;
+  font-weight: normal;
+
+  &.label-info {
+    border: 1px solid $blue;
+    color: $blue;
+  }
+
 }

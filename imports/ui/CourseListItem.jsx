@@ -14,44 +14,43 @@ export class CourseListItem extends Component {
   constructor (props) {
     super(props)
 
-    this.navigateToCourse = this.navigateToCourse.bind(this)
+    this.click = this.click.bind(this)
+    console.log(this.props)
   }
 
   deleteItem (e) {
     e.preventDefault()
     e.stopPropagation()
-    if (confirm('Are you sure?')) {
-      Meteor.call('courses.delete', this.props.course._id, (error) => { console.log(error) })
-    }
+
+    if (this.props.delete) this.props.delete()
   }
 
-  navigateToCourse () {
-    Router.go('course', { _id: this.props.course._id })
+  click () {
+    if (this.props.click) this.props.click()
+    else Router.go('course', { _id: this.props.course._id })
   }
 
   render () {
-    let r
-    // TODO: extract course string display to helper
-    r = (
-      <li className='ql-course-list-item' onClick={this.navigateToCourse}>
+    return (
+      <li className='ql-course-list-item' onClick={this.click}>
         <span className='ql-course-name'>{ this.props.course.name }</span>
 
         <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
         <span className='ql-course-semester'>{ this.props.course.semester }</span>
 
-        { Meteor.user().hasGreaterRole('professor')
+        { Meteor.user().hasGreaterRole('professor') && this.props.delete
           ? <span className='controls'>
             <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
           </span>
         : ''}
       </li>)
-
-    return r
   } //  end render
 
 }
 
 CourseListItem.propTypes = {
-  course: PropTypes.object.isRequired
+  course: PropTypes.object.isRequired,
+  delete: PropTypes.func,
+  click: PropTypes.func
 }
 

@@ -9,11 +9,27 @@
   input[type=text], input[type=password] {
   }
 
+  .bottom-account-message, .top-account-message {
+    font-size: 90%;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+
+
+  .top-account-message {
+    margin-bottom: 5px;
+  }
+
+}
+
+
+.ql-profile-image-container, .ql-login-box {
+
   .ql-profile-image-dropzone {
     margin-bottom: 10px;
     border-radius: 8px;
     border: 2px dashed rgba(0, 0, 0, 0.3);
-    background: none;
+    background: transparent;
     padding: 5px;
     display: flex;
     align-items: center;
@@ -21,7 +37,7 @@
     flex-direction: column;
 
     .dz-preview.dz-image-preview {
-      background: none;
+      background: transparent;
     }
 
     .glyphicon-camera {
@@ -32,15 +48,4 @@
     }
   }
 
-  .bottom-account-message, .top-account-message {
-    font-size: 90%;
-    margin-top: 10px;
-    margin-bottom: 5px;
-  }
-
-  .top-account-message {
-    margin-bottom: 5px;
-  }
-
 }
-

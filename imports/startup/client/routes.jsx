@@ -47,7 +47,24 @@ Router.route('/profile', {
   }
 })
 
-
+Router.route('/verify-email/:token', {
+  name: 'verify-email',
+  action: function () {
+    if (this.params.token) {
+      Accounts.verifyEmail(this.params.token, (error) => {
+        if (error) {
+          alertify.error('Error: ' + error.reason)
+        } else {
+          Router.go('/login')
+          alertify.success('Email verified! Thanks!')
+        }
+      })
+    } else {
+      alertify.error('Error: could not verify your email.')
+      Router.go('/')
+    }
+  }
+})
 
 // Admin routes
 import { AdminDashboard } from '../../ui/pages/admin/admin_dashboard'
@@ -80,8 +97,8 @@ Router.route('/manage', {
   }
 })
 
-import { ManageQuestions } from '../../ui/pages/professor/manage_questions'
-Router.route('/questions', {
+import { QuestionsLibrary } from '../../ui/pages/professor/questions_library'
+Router.route('/questions/library/:_id?', {
   name: 'questions',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -90,10 +107,42 @@ Router.route('/questions', {
   action: function () {
     let user = Meteor.user()
     if (user.hasRole('professor')) {
-      mount(AppLayout, { content: <PageContainer user={user}> <ManageQuestions /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
+
+import { QuestionsPublic } from '../../ui/pages/professor/questions_public'
+Router.route('/questions/public', {
+  name: 'questions.public',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData')
+  },
+  action: function () {
+    let user = Meteor.user()
+    if (user.hasRole('professor')) {
+      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { QuestionsFromStudent } from '../../ui/pages/professor/questions_fromstudent'
+Router.route('/questions/submissions', {
+  name: 'questions.fromStudent',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData')
+  },
+  action: function () {
+    let user = Meteor.user()
+    if (user.hasRole('professor')) {
+      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+
 
 import { ManageCourses } from '../../ui/pages/professor/manage_courses'
 Router.route('/courses', {
@@ -109,8 +158,6 @@ Router.route('/courses', {
     } else Router.go('login')
   }
 })
-
-
 
 // Student Routes
 import { StudentDashboard } from '../../ui/pages/student/student_dashboard'
@@ -128,7 +175,6 @@ Router.route('/student', {
   }
 })
 
-
 // Shared routes
 import { ManageCourse } from '../../ui/pages/professor/manage_course'
 import { Course } from '../../ui/pages/student/course'
@@ -145,6 +191,33 @@ Router.route('/course/:_id', {
     } else Router.go('login')
   }
 })
+
+import { GradesOverview } from '../../ui/pages/grades_overview'
+Router.route('/courses/grades', {
+  name: 'grades.overview',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+  },
+  action: function () {
+    if (Meteor.user() && Meteor.user().hasRole('professor')) {
+      mount(AppLayout, { content: <PageContainer> <GradesOverview /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { GradesPage } from '../../ui/pages/grades'
+Router.route('/course/:_id/grades', {
+  name: 'course.grades',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user()) {
+      mount(AppLayout, { content: <PageContainer> <GradesPage courseId={this.params._id} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {

@@ -1,0 +1,21 @@
+
+.ql-student-results-list {
+  display: block;
+
+  table {
+    thead {
+      th {
+        border: 1px solid #ddd;
+        padding: 10px; 
+      }
+    }
+    tbody {
+      td, > tr:first-child > td {
+        border: 1px solid #ddd;
+        padding: 10px;
+      }
+
+    }
+    
+  }
+}

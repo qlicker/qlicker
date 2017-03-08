@@ -3,8 +3,31 @@
 // Component
 .ql-profile-page {
 
-  .ql-profile-image {
-    width: 200px;
+  .ql-profile-image-container {
+    position: relative;
+    
+    .ql-profile-image {
+      width: 100%;
+    }
+
+    .ql-image-upload-new-button {
+      position: absolute;
+      bottom: 0;
+      height: 45px;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0 ,0.1);
+      color: white;
+      padding: 10px;
+      font-size: 130%;
+      text-align: center;
+
+      &:hover {
+        background: rgba(0, 0, 0 ,0.5);
+        cursor: pointer;
+      }
+    }
+
   }
 
 }

@@ -1,0 +1,38 @@
+
+.ql-questions-library {
+
+  .ql-edit-item-container {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 18px;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    &.ql-add-question-prompt {
+      text-align: center;
+    }
+  }
+
+  .ql-preview-item-container {
+    border: 1px solid #ccc;
+    padding: 10px 0px;
+  }
+
+
+
+  .ql-question-list {
+    margin-top: 15px;
+
+    .selected {
+      .ql-question-list-item {
+        font-weight: bold;
+      }
+    }
+
+    .ql-question-list-item {
+
+    }
+  }
+
+}

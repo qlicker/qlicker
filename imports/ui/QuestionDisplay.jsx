@@ -14,8 +14,16 @@ export class QuestionDisplay extends Component {
     constructor (p) {
         super(p)
 
+<<<<<<< HEAD
         this.readonly = false
         if (this.props.readonly) this.readonly = this.props.readonly
+=======
+    this.readonly = false
+    if (this.props.readonly) this.readonly = this.props.readonly
+
+    this.submitAnswer = this.submitAnswer.bind(this)
+  }
+>>>>>>> master
 
         this.isQuiz = false
         if (this.props.isQuiz) this.isQuiz = this.props.isQuiz
@@ -27,12 +35,39 @@ export class QuestionDisplay extends Component {
     - question types
     - next/submit button for quiz mode (props onclick to change session state)
 
+<<<<<<< HEAD
     */
+=======
+  submitAnswer (answer) {
+    const l = this.props.question.sessionOptions.attempts.length
+    const attempt = this.props.question.sessionOptions.attempts[l - 1]
+    const answerObject = {
+      studentUserId: Meteor.userId(),
+      answer: answer,
+      attempt: attempt.number,
+      questionId: this.props.question._id
+    }
+    console.log(answerObject)
+    Meteor.call('answer.addQuestionAnswer', answerObject, (err, answerId) => {
+      if (err) {
+        alertify.error('Error: ' + err.error)
+      } else {
+        alertify.success('Answer Submitted')
+        // success. do stuff here if needed
+      }
+    })
+  }
+
+  render () {
+    const q = this.props.question
+    return (<div className={'ql-question-display ' + (this.readonly ? '' : 'interactive')}>
+>>>>>>> master
 
     componentDidMount () {
         this.componentDidUpdate()
     }
 
+<<<<<<< HEAD
     componentDidUpdate () {
         MathJax.Hub.Queue(['Typeset', MathJax.Hub])
     }
@@ -64,6 +99,21 @@ export class QuestionDisplay extends Component {
                 content = this.wysiwygContent(a.answer, a.content, a.correct)
             } else {
                 content = this.commonContent('mc', a.answer, a.content, a.correct)
+=======
+      <div className='ql-answers'>
+        {
+          q.options.map((a) => {
+            let content
+
+            if (a.wysiwyg) {
+              content = (<div onClick={() => this.submitAnswer(a.answer)} className='ql-wysiwyg-content' key={'answer_' + a.answer}>
+                { WysiwygHelper.htmlDiv(a.content) }
+              </div>)
+            } else {
+              content = (<div onClick={() => this.submitAnswer(a.answer)} className='ql-tf-content' key={'answer_' + a.answer}>
+                <span className={a.answer === 'TRUE' ? 'correct-color' : 'incorrect-color'}>{a.answer}</span>
+              </div>)
+>>>>>>> master
             }
 
             return (

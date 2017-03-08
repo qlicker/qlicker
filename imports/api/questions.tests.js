@@ -27,7 +27,7 @@ export const sampleQuestion = {
   plainText: 'Test question?',
   content: exContentState,
   type: QUESTION_TYPE.MC,
-  answers: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState, plainText: 'Test question?' }],
+  options: [{ wysiwyg: true, correct: false, answer: 'A', content: exContentState, plainText: 'Test question?' }],
   submittedBy: '',
   tags: []
 }
@@ -149,6 +149,8 @@ if (Meteor.isServer) {
           expect(Questions.findOne({ _id: questionId }).tags).to.have.length(0)
         })
       })
+
+      it('can add question result (questions.addStudentAnswer)')
     }) // end describe('methods')
   }) // end describe('Questions')
 } // end Meteor.isServer

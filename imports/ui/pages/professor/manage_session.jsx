@@ -25,7 +25,12 @@ class _ManageSession extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { editing: false, session: _.extend({}, this.props.session) }
+
+    this.state = {
+      editing: false,
+      session: _.extend({}, this.props.session),
+      questionPool: 'library'
+    }
 
     this.sessionId = this.props.sessionId
 
@@ -35,6 +40,8 @@ class _ManageSession extends Component {
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
+    this.changeQuestionPool = this.changeQuestionPool.bind(this)
+    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 2000)
   }
 
   /**
@@ -46,6 +53,14 @@ class _ManageSession extends Component {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
     })
+  }
+
+  /**
+   * changeQuestionPool(Event: e)
+   * select onchange handler for changing question list
+   */
+  changeQuestionPool (e) {
+    this.setState({ questionPool: e.target.value })
   }
 
   /**
@@ -65,12 +80,22 @@ class _ManageSession extends Component {
     })
   }
 
+  /**
+   * setSessionName(Event: e)
+   * onchange event handler for session name input field
+   */
   setSessionName (e) {
     const editedSession = this.state.session
     editedSession.name = e.target.value
-    this.setState({ session: editedSession })
+    this.setState({ session: editedSession }, () => {
+      this._DB_saveSessionEdits()
+    })
   }
 
+  /**
+   * addNewQuestion()
+   * add a blank question edit item to create a new question
+   */
   addNewQuestion () {
     if (this.state.session.questions) {
       this.state.session.questions.push(-1)
@@ -78,6 +103,10 @@ class _ManageSession extends Component {
     this.forceUpdate()
   }
 
+  /**
+   * newQuestionSaved(MongoId (string): questionId)
+   * swap out temporary '-1' placeholder in question list with new questionId
+   */
   newQuestionSaved (questionId) {
     this.state.session.questions.splice(this.state.session.questions.indexOf(-1), 1)
     Meteor.call('sessions.addQuestion', this.state.session._id, questionId, (error) => {
@@ -102,10 +131,32 @@ class _ManageSession extends Component {
     })
   }
 
-  componentWillReceiveProps (nextProps) {
-    if (nextProps && nextProps.session) this.setState({ session: nextProps.session })
+  /**
+   * saveSessionEdits()
+   * save current session state to db
+   */
+  saveSessionEdits () {
+    Meteor.call('sessions.edit', this.state.session, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Session details saved')
+      }
+    })
   }
 
+  /**
+   * componentWillReceiveProps(Props (Object) nP)
+   * update state from props
+   */
+  componentWillReceiveProps (nP) {
+    if (!nP) return
+    if (nP.session) this.setState({ session: nP.session })
+  }
+
+  /**
+   * componentDidMount(nextProps)
+   * enable bootstrap tabs
+   */
   componentDidMount () {
     $('#sidebar-tabs a').click(function (e) {
       e.preventDefault()
@@ -126,11 +177,17 @@ class _ManageSession extends Component {
       })
     })
 
-    return (
-      <div className='container-fluid ql-manage-session'>
+    const getQuestionPool = () => {
+      if (this.state.questionPool === 'student') return this.props.questionFromStudents
+      if (this.state.questionPool === 'public') return this.props.questionPublic
+      return this.props.questionLibrary
+    }
 
-        <div className='row'>
-          <div className='col-md-4 col-sm-4 sidebar-container'>
+    return (
+      <div className='ql-manage-session'>
+
+        <div className='ql-row-container'>
+          <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
               <div className='tab-content'>
                 <div role='tabpanel' className='tab-pane active' id='session'>
@@ -140,14 +197,19 @@ class _ManageSession extends Component {
 
                   <hr />
                   <h3>Question Order</h3>
-                  <ol className='ql-session-question-list'>
+                  <div className='ql-session-question-list'>
                     {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
-                  </ol>
+                  </div>
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
+                  <select className='form-control' onChange={this.changeQuestionPool}>
+                    <option value='library'>My Question Library</option>
+                    <option value='public'>Public Question Pool</option>
+                    <option value='student'>Submitted by Students</option>
+                  </select>
                   <QuestionSidebar
                     session={this.state.session}
-                    questions={this.props.questionPool}
+                    questions={getQuestionPool()}
                     onSelect={this.addToSession} />
                 </div>
               </div>
@@ -158,7 +220,7 @@ class _ManageSession extends Component {
               </ul>
             </div>
           </div>
-          <div className='col-md-8 col-sm-8' >
+          <div className='ql-main-content' >
 
             <div className='ql-session-child-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} onChange={this.setSessionName} />
@@ -189,13 +251,17 @@ class _ManageSession extends Component {
 export const ManageSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
-    Meteor.subscribe('questions.library')
+    Meteor.subscribe('questions.library') &&
+    Meteor.subscribe('questions.public') &&
+    Meteor.subscribe('questions.fromStudent')
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
   return {
     questions: _.indexBy(questionsInSession, '_id'),
-    questionPool: Questions.find({ sessionId: {$exists: false} }).fetch(),
+    questionLibrary: Questions.find({ submittedBy: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
+    questionPublic: Questions.find({ public: true, courseId: {$exists: false} }).fetch(),
+    questionFromStudents: Questions.find({ courseId: session.courseId, sessionId: {$exists: false}, public: true }).fetch(),
     session: session,
     loading: !handle.ready()
   }

@@ -16,9 +16,7 @@ export class QuestionSidebar extends ControlledForm {
 
   constructor (props) {
     super(props)
-    this.state = {}
-    this.state.questionPool = this.props.questions.slice()
-    this.state.type = -1
+    this.state = { questionPool: this.props.questions.slice(), questionType: -1 }
 
     this.setQuestion = this.setQuestion.bind(this)
     this.setSearchString = this.setSearchString.bind(this)
@@ -69,9 +67,9 @@ export class QuestionSidebar extends ControlledForm {
    * filters items from the this.state.questionPool
    */
   filterPool () {
-    const pool = _(this.props.questions).filter((q) => {
+    const pool = _(this.props.questions.slice()).filter((q) => {
       const inQuestion = this.state.searchString
-        ? q.question.toLowerCase().includes(this.state.searchString.toLowerCase())
+        ? q.plainText.toLowerCase().includes(this.state.searchString.toLowerCase())
         : true
 
       const inAnswers = false // TODO or in any of the answers
@@ -84,6 +82,9 @@ export class QuestionSidebar extends ControlledForm {
     this.setState({ questionPool: pool })
   }
 
+  componentWillReceiveProps (nextProps) {
+    this.setState({ questionPool: nextProps.questions.slice() })
+  }
 
   render () {
     return (

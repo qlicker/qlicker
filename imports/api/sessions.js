@@ -84,6 +84,9 @@ Meteor.methods({
 
     profHasCoursePermission(session.courseId)
 
+    if (session.status === 'running') Meteor.call('sessions.startSession', session._id)
+    else Meteor.call('sessions.endSession', session._id)
+
     return Sessions.update({ _id: session._id }, {
       $set: {
         name: session.name,
@@ -149,7 +152,8 @@ Meteor.methods({
    * mark session as active and set first question to current
    */
   'sessions.startSession' (sessionId) {
-
+    const s = Sessions.findOne({ _id: sessionId })
+    return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0] } })
   },
 
   /**
@@ -157,7 +161,7 @@ Meteor.methods({
    * mark session as done and clear currentQuestion
    */
   'sessions.endSession' (sessionId) {
-
+    return Sessions.update({ _id: sessionId }, { $unset: { currentQuestion: '' } })
   },
 
   /**
@@ -176,6 +180,5 @@ Meteor.methods({
       }
     })
   }
-
 
 }) // end Meteor.methods
