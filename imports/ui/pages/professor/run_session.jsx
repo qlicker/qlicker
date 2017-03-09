@@ -214,14 +214,6 @@ class _RunSession extends Component {
     if (this.props.loading || !current) return <div className='ql-subs-loading'>Loading</div>
 
     let questionList = this.state.session.questions || []
-    const qlItems = []
-    questionList.forEach((questionId) => {
-      const q = this.props.questions[questionId]
-      qlItems.push({
-        content: <QuestionListItem question={q} click={this.setCurrentQuestion} />,
-        id: questionId
-      })
-    })
 
     const q = this.props.questions[current]
     if (!q.sessionOptions) return <div>Loading</div>
@@ -232,6 +224,7 @@ class _RunSession extends Component {
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
     const strAttemptEnabled = currentAttempt.closed ? 'Allow Answers' : 'Disallow Answers'
+    const strAttemptOpen = currentAttempt.closed ? 'Closed for Answers' : 'Open for Answers'
 
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
@@ -259,18 +252,10 @@ class _RunSession extends Component {
                 <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
               </div>
               <br />
-              Attempts:
-              <ol>
-                {
-                  q.sessionOptions.attempts.map((a) => {
-                    return <li>Active: {JSON.stringify(!a.closed)}</li>
-                  })
-                }
-              </ol>
+              Current Attempt ({currentAttempt.number}): {strAttemptOpen}
               <hr />
               <h3>Questions</h3>
               <div className='ql-session-question-list'>
-                {/* {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />} */}
                 {
                   questionList.map((questionId) => {
                     const q = this.props.questions[questionId]
