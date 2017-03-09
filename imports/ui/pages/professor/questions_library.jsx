@@ -75,9 +75,7 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-4'>
             <br />
             <button className='btn btn-default' onClick={() => this.editQuestion(-1)}>New Question</button>
-
             <QuestionSidebar questions={this.props.library} onSelect={this.editQuestion} />
-
           </div>
           <div className='col-md-8'>
             { this.state.selected
@@ -86,7 +84,7 @@ class _QuestionsLibrary extends Component {
                 <QuestionEditItem
                   question={this.props.questionMap[this.state.selected]}
                   deleted={this.questionDeleted}
-                  metadata />
+                  metadata autoSave />
               </div>
               <div className='ql-preview-item-container'>
                 <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly />

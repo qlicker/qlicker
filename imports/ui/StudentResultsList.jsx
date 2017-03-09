@@ -1,13 +1,12 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// QuestionStats.jsx: Component for attempt distributions for a question
+// StudentResultsList.jsx: Student list displaying answers
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Answers } from '../api/answers'
-
 
 export class _StudentResultsList extends Component {
 

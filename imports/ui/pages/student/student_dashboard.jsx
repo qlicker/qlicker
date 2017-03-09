@@ -39,7 +39,7 @@ class _StudentDashboard extends Component {
   }
 
   renderCourseList () {
-    return this.props.courses.map((c) => (<CourseListItem key={c._id} course={c} />))
+    return this.props.courses.map((c) => (<StudentCourseComponent key={c._id} course={c} sessionRoute='session' />))
   }
 
   render () {
@@ -47,7 +47,6 @@ class _StudentDashboard extends Component {
     return (
       <div className='container ql-student-page'>
         <h2>My Courses</h2>
-        <hr />
         <div className='messages'>
           { needsEmailVerification
             ? <div className='alert alert-warning' role='alert' >
@@ -56,12 +55,10 @@ class _StudentDashboard extends Component {
             </div>
             : '' }
         </div>
-
         <button className='btn btn-default' onClick={this.promptForCode}>Enroll in Course</button>
-        <hr />
-        <ul>
+        <div className='ql-courselist'>
           { this.renderCourseList() }
-        </ul>
+        </div>
         { this.state.enrollingInCourse ? <EnrollCourseModal done={this.closeModal} /> : '' }
 
       </div>)

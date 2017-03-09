@@ -9,6 +9,7 @@ import _ from 'underscore'
 import { ControlledForm } from './ControlledForm'
 
 import { QuestionListItem } from './QuestionListItem'
+import { StudentQuestionListItem } from './StudentQuestionListItem'
 
 import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 

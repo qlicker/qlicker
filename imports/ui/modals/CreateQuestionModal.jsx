@@ -25,9 +25,13 @@ export class CreateQuestionModal extends Component {
       <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
         <div className='ql-modal-header'><h2>Add a Question</h2></div>
 
-        <QuestionEditItem ref='editItem' question={this.props.question} courseId={this.props.courseId} tags />
+        <QuestionEditItem
+          ref='editItem'
+          question={this.props.question}
+          courseId={this.props.courseId}
+          tags />
 
-        <button className='btn btn-default' onClick={this.saveAndClose}>Close</button>
+        <button className='btn btn-default' onClick={this.saveAndClose}>Submit Question</button>
       </div>
     </div>)
   } //  end render

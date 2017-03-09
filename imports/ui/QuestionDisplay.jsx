@@ -202,7 +202,7 @@ export class _QuestionDisplay extends Component {
         if (this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
-          if (stats > 0){
+          if (stats > 0) {
             statClass += ' show-stats'
 
             if (this.props.question.sessionOptions.correct && a.correct) { 
@@ -304,7 +304,7 @@ export const QuestionDisplay = createContainer((props) => {
     distribution: data,
     loading: !handle.ready()
   }
-}, _QuestionDisplay)
+}, _QuestionDisplay )
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,

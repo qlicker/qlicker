@@ -23,34 +23,77 @@ class _ManageCourse extends Component {
 
     this.state = { creatingSession: false }
     this.courseId = this.props.courseId
+    this.deleteSession = this.deleteSession.bind(this)
+    this.removeStudent = this.removeStudent.bind(this)
+    this.deleteCourse = this.deleteCourse.bind(this)
+  }
+
+  deleteCourse () {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.delete', this.courseId, (error) => {
+        if (error) return alertify.error('Error deleting course')
+        alertify.success('Course Deleted')
+        Router.go('courses')
+      })
+    }
+  }
+
+  deleteSession (sessionId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.deleteSession', this.courseId, sessionId, (error) => {
+        if (error) return alertify.error('Couldn\'t delete session')
+        alertify.success('Delete session')
+      })
+    }
+  }
+
+  removeStudent (studentUserId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.removeStudent',
+        this.courseId,
+        studentUserId,
+        (error) => {
+          if (error) return alertify.error('Error: couldn\'t remove student')
+          alertify.success('Removed student')
+        })
+    }
   }
 
   renderSessionList () {
     let sessions = this.props.course.sessions || []
 
-    return (<ul>
+    return (<div>
       {
         sessions.map((sId) => {
           const ses = this.props.sessions[sId]
+          const nav = () => { Router.go('session.edit', { _id: sId }) }
           if (!ses) return
-          return (<SessionListItem key={sId} session={ses} />)
+          return (<SessionListItem
+            key={sId}
+            session={ses}
+            click={nav}
+            controls={[{ label: 'Delete', click: () => this.deleteSession(sId) }]} />)
         })
       }
-    </ul>)
+    </div>)
   }
 
   renderClassList () {
     let students = this.props.course.students || []
 
-    return (<ul>
+    return (<div>
       {
         students.map((s) => {
           const stu = this.props.students[s]
           if (!stu) return
-          return (<StudentListItem key={s} courseId={this.courseId} student={stu} />)
+          return (<StudentListItem
+            key={s}
+            courseId={this.courseId}
+            student={stu}
+            controls={[{ label: 'Delete', click: () => this.removeStudent(s) }]} />)
         })
       }
-    </ul>)
+    </div>)
   }
 
   render () {
@@ -61,9 +104,10 @@ class _ManageCourse extends Component {
         <h2>Course: {this.props.course.name} </h2>
 
         <div className='row'>
-          <div className='col-md-6'>
+          <div className='col-md-4'>
             <br />
             <h3>Course Details</h3>
+            <button className='btn btn-default' onClick={this.deleteCourse}>Delete</button>
             <div className='ql-course-details'>
               <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
               <span className='ql-course-semester'>{ this.props.course.semester }</span>
@@ -87,15 +131,6 @@ class _ManageCourse extends Component {
               <button className='btn btn-default' onClick={toggleCreatingSession}>Create Session</button>
 
               { this.renderSessionList() }
-            </div>
-
-          </div>
-
-          <div className='col-md-6'>
-            <br />
-            <h3>Class List</h3>
-            <div className='ql-course-classlist'>
-              { this.renderClassList() }
             </div>
           </div>
         </div>

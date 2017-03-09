@@ -7,37 +7,19 @@
 
 import React, { PropTypes } from 'react'
 
+import { ListItem } from './ListItem'
 import '../api/courses.js'
 
-export class StudentListItem extends Component {
-
-  // constructor (props) {
-  //   super(props)
-  // }
-
-  deleteItem (e) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (confirm('Are you sure?')) {
-      Meteor.call('courses.removeStudent',
-        this.props.courseId,
-        this.props.student._id,
-        (error) => { console.log(error) })
-    }
-  }
+export class StudentListItem extends ListItem {
 
   render () {
-    const navigateToStudent = () => { Router.go('session', { _id: this.props.session._id }) }
+    const controls = this.makeControls()
     return (
-      <li className='ql-student-list-item' onClick={navigateToStudent}>
+      <div className='ql-student-list-item'>
         <span className='ql-student-name'>{ this.props.student.getName() }</span>
         <span className='ql-student-email'>{ this.props.student.getEmail() } </span>
-        { Meteor.user().hasGreaterRole('professor')
-          ? <span className='controls'>
-            <button className='btn btn-default' onClick={this.deleteItem.bind(this)}>Delete</button>
-          </span>
-          : ''}
-      </li>)
+        {controls}
+      </div>)
   } //  end render
 
 }
