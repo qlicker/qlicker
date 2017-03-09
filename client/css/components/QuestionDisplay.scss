@@ -1,5 +1,10 @@
 @import '../bootstrap-style.scss';
 
+// Do something with these
+$blue-bar: rgba(47,176,232, 0.4);
+$green-bar: rgba(42,167,134, 0.3);
+$red-bar: rgba(167,37,38, 0.3);
+
 .ql-question-display {
 
   &.interactive {
@@ -7,6 +12,18 @@
         border: 1px solid $blue;
         color: $blue;
         cursor: pointer;
+
+        .ql-checkbox {
+          border-color: $blue;
+          &:after {
+            content: '\2713';
+            position: absolute;
+            font-size: 18px;
+            top: 0px;
+            left: 3px;
+            color: $blue;
+          }
+        }
       }
   }
 
@@ -26,16 +43,13 @@
     .ql-answer-content-container {
       width: 90%;
       max-width: 400px;
-      padding: 10px;
-      padding-left: 15px;
-      padding-right: 15px;
       font-size: 2em;
       background: white;
-      display: block;
+      display: inline-block;
       margin-top: 10px;
       border: 1px solid #ccc;
 
-      .ql-checkbox {
+      .ql-mc {
         float: left;
         font-weight: bold;
       }
@@ -45,7 +59,46 @@
       }
 
       .ql-tf-content {
-        text-align: center;
+        margin-left: 150px;
+        // text-align: center;
+      }
+
+      .ql-ms-content {
+        margin-left: 40px;
+      }
+
+      .ql-checkbox {
+        float: left;
+        -webkit-appearance: none;
+        background-color: transparent;
+        border: 2px solid #cacece;
+        padding: 10px;
+        border-radius: 3px;
+        display: inline-block;
+        position: relative;
+      }
+
+      .stat-bar {
+        width: 0%;
+        height: 100%;
+        padding: 10px;
+        padding-left: 15px;
+        padding-right: 15px;
+        background-color: transparent;
+        transition: 0.6s ease-out;
+        transition-property: width, background-color;
+        &.show-stats {
+          background-color: $blue-bar;
+          color: $main-text;
+        }
+        &.show-stats-correct {
+          background-color: $green-bar;
+          color: $main-text;
+        }
+        &.show-stats-incorrect {
+          background-color: $red-bar;
+          color: $main-text;
+        }
       }
     }
   }
