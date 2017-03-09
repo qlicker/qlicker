@@ -158,3 +158,9 @@ $incorrect-color: #A72526;
   margin-top: 20px;
   font-size: 140%;
 }
+
+@media (max-width: 480px) {
+  .ql-child-container > .container {
+    padding-top:0;
+  }
+}

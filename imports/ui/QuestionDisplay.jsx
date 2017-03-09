@@ -25,6 +25,7 @@ export class _QuestionDisplay extends Component {
     if (this.props.isQuiz) this.isQuiz = this.props.isQuiz
 
     this.submitAnswer = this.submitAnswer.bind(this)
+    this.disallowAnswers = this.disallowAnswers.bind(this)
   }
 
   componentDidMount () {
@@ -35,8 +36,15 @@ export class _QuestionDisplay extends Component {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
 
+  disallowAnswers () {
+    const q = this.props.question
+    const disallowAnswers = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
+    return this.readonly || disallowAnswers
+  }
+
   // doesn't work for multiselect & works when readonly is true
   submitAnswer (answer) {
+    if (this.disallowAnswers()) return
     const l = this.props.question.sessionOptions.attempts.length
     const attempt = this.props.question.sessionOptions.attempts[l - 1]
     const answerObject = {
@@ -75,7 +83,7 @@ export class _QuestionDisplay extends Component {
     }
 
     return (
-      <div onTouchStart={() => this.submitAnswer(answer)} onClick={() => this.submitAnswer(answer)} className={classContent} key={'answer_' + answer} >
+      <div className={classContent} key={'answer_' + answer} >
         { WysiwygHelper.htmlDiv(content) }
       </div>)
   }
@@ -86,7 +94,7 @@ export class _QuestionDisplay extends Component {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
-      <div onTouchStart={() => this.submitAnswer(answer)} onClick={() => this.submitAnswer(answer)} className={'ql-' + typeStr + '-content'} key={'answer_' + answer}>
+      <div className={'ql-' + typeStr + '-content'} key={'answer_' + answer}>
         <span className={classContent}>{content}</span>
       </div>
     )
@@ -123,7 +131,7 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div className='ql-answer-content-container'>
+          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               <div className='ql-mc'>{a.answer}.</div>
               {content}
@@ -164,7 +172,7 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div className='ql-answer-content-container'>
+          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               {content}
             </div>
@@ -216,7 +224,7 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div className='ql-answer-content-container'>
+          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               <input type='checkbox' className='ql-checkbox' />
               {content}
@@ -256,11 +264,13 @@ export class _QuestionDisplay extends Component {
     }
 
     return (
-      <div className={'ql-question-display ' + (this.readonly ? '' : 'interactive')}>
+      <div className={'ql-question-display ' + (this.disallowAnswers() ? '' : 'interactive')}>
 
         <div className='ql-question-content'>
           {WysiwygHelper.htmlDiv(q.content)}
         </div>
+
+        { this.disallowAnswers() ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
         <div className='ql-answers'>
           {content}

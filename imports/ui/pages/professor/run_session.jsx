@@ -34,6 +34,7 @@ class _RunSession extends Component {
     this.newAttempt = this.newAttempt.bind(this)
     this.toggleHidden = this.toggleHidden.bind(this)
     this.toggleCorrect = this.toggleCorrect.bind(this)
+    this.toggleAttempt = this.toggleAttempt.bind(this)
 
     Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
   }
@@ -87,6 +88,35 @@ class _RunSession extends Component {
     }
   }
 
+  /**
+   * toggleAttempt(MongoId (string): questionId)
+   * toggle closed/open for latest question attempt
+   */
+  toggleAttempt (questionId) {
+    const current = this.state.session.currentQuestion
+    const q = this.props.questions[current]
+    const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+
+    Meteor.call('questions.setAttemptStatus', questionId, !currentAttempt.closed, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success(!currentAttempt.closed ? 'Answering Enabled' : 'Answering Disabled')
+    })
+  }
+
+  /**
+   * newAttempt(MongoId (string): questionId)
+   * create a new 'attempt' for a specific question and end (stop allowing submission on old one)
+   */
+  newAttempt () {
+    const qId = this.state.session.currentQuestion
+    Meteor.call('questions.setAttemptStatus', qId, true, (error) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      Meteor.call('questions.startAttempt', qId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('New Attempt')
+      })
+    })
+  }
 
   /**
    * toggleCorrect(MongoId (string): questionId)
@@ -166,28 +196,14 @@ class _RunSession extends Component {
     })
   }
 
-  /**
-   * newAttempt(MongoId (string): questionId)
-   * create a new 'attempt' for a specific question and end (stop allowing submission on old one)
-   */
-  newAttempt () {
-    const qId = this.state.session.currentQuestion
-    Meteor.call('questions.endAttempt', qId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else {
-        const qId = this.state.session.currentQuestion
-        Meteor.call('questions.startAttempt', qId, (error) => {
-          if (error) alertify.error('Error: ' + error.error)
-          else alertify.success('New Attempt')
-        })
-      }
-    })
-  }
-
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) {
       this.setState({ session: nextProps.session }, () => {
-        Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+        const current = this.state.session.currentQuestion
+        const q = this.props.questions[current]
+        if (!q.sessionOptions || !q.sessionOptions.attempts) {
+          Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+        }
       })
     }
   }
@@ -212,14 +228,10 @@ class _RunSession extends Component {
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
 
     // strings
-    const strQuestionVisible = q.sessionOptions.hidden
-      ? 'Show Question' : 'Hide Question'
-    const strCorrectVisible = q.sessionOptions.correct
-      ? 'Hide Correct' : 'Show Correct'
-    const strStatsVisible = q.sessionOptions.stats
-      ? 'Hide Stats' : 'Show Stats'
-    const strAttemptEnabled = currentAttempt.closed
-      ? 'Allow Answers' : 'Disallow Answers'
+    const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
+    const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
+    const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
+    const strAttemptEnabled = currentAttempt.closed ? 'Allow Answers' : 'Disallow Answers'
 
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
@@ -243,7 +255,7 @@ class _RunSession extends Component {
               </div>
               <br />
               <div className='btn-group btn-group-justified' role='group'>
-                <a href='#' className='btn btn-default btn-sm'>{strAttemptEnabled}</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
               </div>
               <br />
