@@ -33,6 +33,8 @@ class _RunSession extends Component {
     this.endSession = this.endSession.bind(this)
     this.newAttempt = this.newAttempt.bind(this)
     this.toggleHidden = this.toggleHidden.bind(this)
+    this.toggleCorrect = this.toggleCorrect.bind(this)
+    this.toggleAttempt = this.toggleAttempt.bind(this)
 
     Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
   }
@@ -82,6 +84,55 @@ class _RunSession extends Component {
       Meteor.call('questions.showQuestion', questionId, (error) => {
         if (error) alertify.error('Error: ' + error.error)
         else alertify.success('Question Visible')
+      })
+    }
+  }
+
+  /**
+   * toggleAttempt(MongoId (string): questionId)
+   * toggle closed/open for latest question attempt
+   */
+  toggleAttempt (questionId) {
+    const current = this.state.session.currentQuestion
+    const q = this.props.questions[current]
+    const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+
+    Meteor.call('questions.setAttemptStatus', questionId, !currentAttempt.closed, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success(!currentAttempt.closed ? 'Answering Enabled' : 'Answering Disabled')
+    })
+  }
+
+  /**
+   * newAttempt(MongoId (string): questionId)
+   * create a new 'attempt' for a specific question and end (stop allowing submission on old one)
+   */
+  newAttempt () {
+    const qId = this.state.session.currentQuestion
+    Meteor.call('questions.setAttemptStatus', qId, true, (error) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      Meteor.call('questions.startAttempt', qId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('New Attempt')
+      })
+    })
+  }
+
+  /**
+   * toggleCorrect(MongoId (string): questionId)
+   * calls questions.hideCorrect or .showCorrect to show/hide correct quesiton option
+   */
+  toggleCorrect (questionId) {
+    const sessionOptions = this.props.questions[questionId].sessionOptions
+    if (!sessionOptions || sessionOptions.correct) {
+      Meteor.call('questions.hideCorrect', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Correct Answer Hidden')
+      })
+    } else {
+      Meteor.call('questions.showCorrect', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Correct Answer Visible')
       })
     }
   }
@@ -145,60 +196,35 @@ class _RunSession extends Component {
     })
   }
 
-  /**
-   * newAttempt(MongoId (string): questionId)
-   * create a new 'attempt' for a specific question and end (stop allowing submission on old one)
-   */
-  newAttempt () {
-    const qId = this.state.session.currentQuestion
-    Meteor.call('questions.endAttempt', qId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else {
-        const qId = this.state.session.currentQuestion
-        Meteor.call('questions.startAttempt', qId, (error) => {
-          if (error) alertify.error('Error: ' + error.error)
-          else alertify.success('New Attempt')
-        })
-      }
-    })
-  }
-
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) {
       this.setState({ session: nextProps.session }, () => {
-        Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+        const current = this.state.session.currentQuestion
+        const q = this.props.questions[current]
+        if (!q.sessionOptions || !q.sessionOptions.attempts) {
+          Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+        }
       })
     }
   }
 
   render () {
-    if (this.state.session.status !== 'running') return <div>Session not running</div>
+    if (this.state.session.status !== 'running') return <div className='ql-subs-loading'>Session not running</div>
     const current = this.state.session.currentQuestion
-    if (this.props.loading || !current) return <div>Loading</div>
+    if (this.props.loading || !current) return <div className='ql-subs-loading'>Loading</div>
 
     let questionList = this.state.session.questions || []
-    const qlItems = []
-    questionList.forEach((questionId) => {
-      const q = this.props.questions[questionId]
-      qlItems.push({
-        content: <QuestionListItem question={q} click={this.setCurrentQuestion} />,
-        id: questionId
-      })
-    })
 
     const q = this.props.questions[current]
     if (!q.sessionOptions) return <div>Loading</div>
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
 
     // strings
-    const strQuestionVisible = q.sessionOptions.hidden
-      ? 'Show Question' : 'Hide Question'
-    const strCorrectVisible = q.sessionOptions.correct
-      ? 'Hide Correct' : 'Show Correct'
-    const strStatsVisible = q.sessionOptions.stats
-      ? 'Hide Stats' : 'Show Stats'
-    const strAttemptEnabled = currentAttempt.closed
-      ? 'Allow Answers' : 'Disallow Answers'
+    const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
+    const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
+    const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
+    const strAttemptEnabled = currentAttempt.closed ? 'Allow Answers' : 'Disallow Answers'
+    const strAttemptOpen = currentAttempt.closed ? 'Closed for Answers' : 'Open for Answers'
 
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
@@ -217,27 +243,19 @@ class _RunSession extends Component {
               <h3>Current Question</h3>
               <div className='btn-group btn-group-justified' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
-                <a href='#' className='btn btn-default btn-sm' >{strCorrectVisible}</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
               </div>
               <br />
               <div className='btn-group btn-group-justified' role='group'>
-                <a href='#' className='btn btn-default btn-sm'>{strAttemptEnabled}</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
               </div>
               <br />
-              Attempts:
-              <ol>
-                {
-                  q.sessionOptions.attempts.map((a) => {
-                    return <li>Active: {JSON.stringify(!a.closed)}</li>
-                  })
-                }
-              </ol>
+              Current Attempt ({currentAttempt.number}): {strAttemptOpen}
               <hr />
               <h3>Questions</h3>
               <div className='ql-session-question-list'>
-                {/* {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />} */}
                 {
                   questionList.map((questionId) => {
                     const q = this.props.questions[questionId]
