@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// manage_questions.jsx: question library and management
+// questions_public.jsx: page for copying public questions
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
@@ -9,10 +9,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { QuestionListItem } from '../../QuestionListItem'
+import { QuestionSidebar } from '../../QuestionSidebar'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 import { Questions } from '../../../api/questions'
-import { QuestionDisplay } from '../../QuestionDisplay'
 
 import { createNav } from './questions_library'
 
@@ -54,15 +54,7 @@ class _QuestionsPublic extends Component {
         {createNav('public')}
         <div className='row'>
           <div className='col-md-4'>
-            <div className='ql-question-list'>
-              { /* list questions */
-                this.props.public.map(q => {
-                  return (<div key={q._id} >
-                    <QuestionListItem question={q} click={this.selectQuestion} />
-                  </div>)
-                })
-              }
-            </div>
+            <QuestionSidebar questions={this.props.public} onSelect={this.selectQuestion} />
           </div>
           <div className='col-md-8'>
             { this.state.selected

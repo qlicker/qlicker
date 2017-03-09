@@ -211,6 +211,7 @@ $incorrect-color: #A72526;
   margin-top: 10px;
 }
 
+
 .ql-page-container .label {
   background: transparent;
   padding: 5px 7px;
@@ -223,4 +224,8 @@ $incorrect-color: #A72526;
     color: $blue;
   }
 
+}
+
+.list-item-selected {
+  font-weight: bold;
 }

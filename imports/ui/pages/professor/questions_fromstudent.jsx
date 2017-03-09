@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// manage_questions.jsx: question library and management
+// questions_fromstudent.jsx: page for managing student submitted questions
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
@@ -9,10 +9,9 @@ import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { QuestionListItem } from '../../QuestionListItem'
-
-import { Questions } from '../../../api/questions'
 import { QuestionDisplay } from '../../QuestionDisplay'
+import { QuestionSidebar } from '../../QuestionSidebar'
+import { Questions } from '../../../api/questions'
 
 import { createNav } from './questions_library'
 
@@ -55,15 +54,7 @@ class _QuestionsFromStudent extends Component {
 
         <div className='row'>
           <div className='col-md-4'>
-            <div className='ql-question-list'>
-              { /* list questions */
-                this.props.fromStudent.map(q => {
-                  return (<div key={q._id} >
-                    <QuestionListItem question={q} click={this.selectQuestion} />
-                  </div>)
-                })
-              }
-            </div>
+            <QuestionSidebar questions={this.props.fromStudent} onSelect={this.selectQuestion} />
           </div>
           <div className='col-md-8'>
             { this.state.selected

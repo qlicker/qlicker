@@ -5,9 +5,9 @@
 // QuestionListItem.jsx: React component list item for each course
 // typically used on student and professor overview page
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes, Component } from 'react'
 
-import { QUESTION_TYPE_STRINGS } from '../configs'
+import { ListItem } from './ListItem'
 
 const noop = () => {}
 

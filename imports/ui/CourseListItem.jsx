@@ -5,7 +5,7 @@
 // CourseListItem.jsx: React component list item for each course
 // typically used on student and professor overview page
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes, Component } from 'react'
 
 import '../api/courses.js'
 

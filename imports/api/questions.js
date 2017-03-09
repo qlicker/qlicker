@@ -7,13 +7,11 @@
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
-import { Email } from 'meteor/email'
 
 import { Courses } from './courses'
 import { Sessions } from './sessions'
 
 import { _ } from 'underscore'
-import dl from 'datalib'
 
 import Helpers from './helpers.js'
 import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'

@@ -4,7 +4,6 @@
 // CreateQuestionModal.jsx: popup dialog to prompt for question details
 
 import React, { Component, PropTypes } from 'react'
-import { _ } from 'underscore'
 
 import { QuestionEditItem } from '../QuestionEditItem'
 

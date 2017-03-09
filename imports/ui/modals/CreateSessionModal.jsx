@@ -3,7 +3,7 @@
 //
 // CreateCourseModal.jsx: popup dialog to prompt for course details
 
-import React, { Component } from 'react'
+import React from 'react'
 import _ from 'underscore'
 
 import { ControlledForm } from '../ControlledForm'

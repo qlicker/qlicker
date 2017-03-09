@@ -72,6 +72,16 @@ class _ManageCourse extends Component {
             </div>
 
             <br />
+
+            <h3>Class List</h3>
+            <div className='ql-course-classlist'>
+              { this.renderClassList() }
+            </div>
+
+          </div>
+
+          <div className='col-md-8'>
+            <br />
             <h3>Sessions</h3>
             <div className='ql-session-list'>
               <button className='btn btn-default' onClick={toggleCreatingSession}>Create Session</button>

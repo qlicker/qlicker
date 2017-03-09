@@ -3,7 +3,7 @@
 //
 // EnrollCourseModal.jsx: popup dialog to prompt for course Enrollment details
 
-import React, { Component } from 'react'
+import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 

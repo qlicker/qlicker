@@ -10,8 +10,6 @@ import { _ } from 'underscore'
 import $ from 'jquery'
 
 import { Courses } from '../../api/courses'
-import { Questions } from '../../api/questions'
-import { Answers } from '../../api/answers'
 import { Sessions } from '../../api/sessions'
 
 import { SessionGrades } from '../SessionGrades'
