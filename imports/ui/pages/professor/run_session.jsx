@@ -33,6 +33,7 @@ class _RunSession extends Component {
     this.endSession = this.endSession.bind(this)
     this.newAttempt = this.newAttempt.bind(this)
     this.toggleHidden = this.toggleHidden.bind(this)
+    this.toggleCorrect = this.toggleCorrect.bind(this)
 
     Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
   }
@@ -82,6 +83,26 @@ class _RunSession extends Component {
       Meteor.call('questions.showQuestion', questionId, (error) => {
         if (error) alertify.error('Error: ' + error.error)
         else alertify.success('Question Visible')
+      })
+    }
+  }
+
+
+  /**
+   * toggleCorrect(MongoId (string): questionId)
+   * calls questions.hideCorrect or .showCorrect to show/hide correct quesiton option
+   */
+  toggleCorrect (questionId) {
+    const sessionOptions = this.props.questions[questionId].sessionOptions
+    if (!sessionOptions || sessionOptions.correct) {
+      Meteor.call('questions.hideCorrect', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Correct Answer Hidden')
+      })
+    } else {
+      Meteor.call('questions.showCorrect', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Correct Answer Visible')
       })
     }
   }
@@ -217,7 +238,7 @@ class _RunSession extends Component {
               <h3>Current Question</h3>
               <div className='btn-group btn-group-justified' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
-                <a href='#' className='btn btn-default btn-sm' >{strCorrectVisible}</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
               </div>
               <br />

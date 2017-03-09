@@ -8,10 +8,10 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { Answers } from '../api/answers'
 import dl from 'datalib'
+import { _ } from 'underscore'
 import { $ } from 'jquery'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
-
 
 export class _QuestionDisplay extends Component {
 
@@ -47,7 +47,7 @@ export class _QuestionDisplay extends Component {
     }
     Meteor.call('answer.addQuestionAnswer', answerObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
-        alertify.success('Answer Submitted')
+      alertify.success('Answer Submitted')
     })
   }
 
@@ -61,7 +61,7 @@ export class _QuestionDisplay extends Component {
         if (a.answer === answer && a.counts) {
           answerStat = Math.round(a.counts[0].count / total * 100, 2)
         }
-      } 
+      }
     })
 
     return answerStat
@@ -109,17 +109,17 @@ export class _QuestionDisplay extends Component {
         if (this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
-          if (stats > 0){
+          if (stats > 0) {
             statClass += ' show-stats'
 
-            if (this.props.question.sessionOptions.correct && a.correct) { 
+            if (this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
             } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
-          } 
+          }
 
-          widthStyle = { width:  stats + '%'}
+          widthStyle = { width: stats + '%' }
         }
 
         return (
@@ -150,17 +150,17 @@ export class _QuestionDisplay extends Component {
         if (this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
-          if (stats > 0){
+          if (stats > 0) {
             statClass += ' show-stats'
 
-            if (this.props.question.sessionOptions.correct && a.correct) { 
+            if (this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
             } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
-          } 
+          }
 
-          widthStyle = { width:  stats + '%'}
+          widthStyle = { width: stats + '%' }
         }
 
         return (
@@ -205,20 +205,20 @@ export class _QuestionDisplay extends Component {
           if (stats > 0) {
             statClass += ' show-stats'
 
-            if (this.props.question.sessionOptions.correct && a.correct) { 
+            if (this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
             } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
-          } 
+          }
 
-          widthStyle = { width:  stats + '%'}
+          widthStyle = { width: stats + '%' }
         }
 
         return (
           <div className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
-              <input type="checkbox" className='ql-checkbox' />
+              <input type='checkbox' className='ql-checkbox' />
               {content}
             </div>
           </div>
@@ -231,7 +231,7 @@ export class _QuestionDisplay extends Component {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     if (this.props.question.sessionOptions.hidden) return <div className='container'>Waiting for a Question...</div>
-    
+
     const q = this.props.question
     const type = q.type
     let content, buttons
@@ -277,7 +277,7 @@ export const QuestionDisplay = createContainer((props) => {
   const l = props.question.sessionOptions.attempts.length
   const attempt = props.question.sessionOptions.attempts[l - 1]
 
-  const handle = Meteor.subscribe('answers.forQuestion', props.question._id) 
+  const handle = Meteor.subscribe('answers.forQuestion', props.question._id)
   const answers = Answers.find({ questionId: props.question._id, attempt: l }).fetch()
 
   const validOptions = _(props.question.options).pluck('answer')
@@ -285,13 +285,13 @@ export const QuestionDisplay = createContainer((props) => {
 
   const data = []
   let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
-  
+
   options.map((a) => {
     a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
     delete a.values
   })
   options = _(options).indexBy('answer')
-  
+
   validOptions.forEach((key) => {
     data.push(options[key])
   })
@@ -304,7 +304,7 @@ export const QuestionDisplay = createContainer((props) => {
     distribution: data,
     loading: !handle.ready()
   }
-}, _QuestionDisplay )
+}, _QuestionDisplay)
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
