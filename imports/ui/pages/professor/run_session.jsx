@@ -193,9 +193,9 @@ class _RunSession extends Component {
   }
 
   render () {
-    if (this.state.session.status !== 'running') return <div>Session not running</div>
+    if (this.state.session.status !== 'running') return <div className='ql-subs-loading'>Session not running</div>
     const current = this.state.session.currentQuestion
-    if (this.props.loading || !current) return <div>Loading</div>
+    if (this.props.loading || !current) return <div className='ql-subs-loading'>Loading</div>
 
     let questionList = this.state.session.questions || []
     const qlItems = []

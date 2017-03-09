@@ -75,7 +75,7 @@ export class _QuestionDisplay extends Component {
     }
 
     return (
-      <div onClick={() => this.submitAnswer(answer)} className={classContent} key={'answer_' + answer} >
+      <div onTouchStart={() => this.submitAnswer(answer)} onClick={() => this.submitAnswer(answer)} className={classContent} key={'answer_' + answer} >
         { WysiwygHelper.htmlDiv(content) }
       </div>)
   }
@@ -86,7 +86,7 @@ export class _QuestionDisplay extends Component {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
-      <div onClick={() => this.submitAnswer(answer)} className={'ql-' + typeStr + '-content'} key={'answer_' + answer}>
+      <div onTouchStart={() => this.submitAnswer(answer)} onClick={() => this.submitAnswer(answer)} className={'ql-' + typeStr + '-content'} key={'answer_' + answer}>
         <span className={classContent}>{content}</span>
       </div>
     )
@@ -230,7 +230,7 @@ export class _QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (this.props.question.sessionOptions.hidden) return <div className='container'>Waiting for a Question...</div>
+    if (this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
     const type = q.type
