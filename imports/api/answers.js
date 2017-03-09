@@ -47,7 +47,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor') && course.owner === this.userId) {
         return Answers.find({ questionId: questionId })
       } else if (user.hasRole('student')) {
-        return Answers.find({ questionId: questionId, studentUserId: this.userId })
+        return Answers.find({ questionId: questionId })
       }
     } else this.ready()
   })
@@ -61,7 +61,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor') && course.owner === this.userId) {
         return Answers.find({ questionId: { $in: session.questions } })
       } else if (user.hasRole('student')) {
-        return Answers.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
+        return Answers.find({ questionId: { $in: session.questions } })
       }
     } else this.ready()
   })
@@ -82,7 +82,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor') && course.owner === this.userId) {
         return Answers.find({ questionId: { $in: questionIds } })
       } else if (user.hasRole('student')) {
-        return Answers.find({ questionId: { $in: questionIds }, studentUserId: this.userId })
+        return Answers.find({ questionId: { $in: questionIds } })
       }
     } else this.ready()
   })

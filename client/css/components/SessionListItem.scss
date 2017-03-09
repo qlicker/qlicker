@@ -1,42 +1,24 @@
-@import '../mixins.scss';
 
 .ql-session-list-item {
-  @include list-item();
+
   cursor: pointer;
+  padding: 12px;
 
-  .row {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    > div {
-      display: flex;
-      align-items: baseline;
-      flex-direction: column;
-
-      &:first-child {
-        align-items: center;
-      }
-    }
-    
+  &:hover {
+    background: #ddd;
   }
 
   .ql-session-name {
     font-weight: bold;
   }
-  .active-time {
-    display: block;
-    font-size: 90%;
-  }
 
   .ql-session-status {
     margin-left:10px; 
   }
-
-  .completion {
-    font-size: 90%;    
+ 
+  .controls {
+    z-index:10;
+    float: right;
   }
-
 
 }
