@@ -1,20 +1,24 @@
 
-@import '../mixins.scss';
-
 .ql-course-list-item {
-  @include list-item();
 
-  .ql-course-code {
-    font-weight: bold;
+  cursor: pointer;
+  padding: 12px;
+
+  &:hover {
+    background: #ddd;
   }
 
   .ql-course-name {
-    margin-left: 12px; 
+    font-weight: bold;
   }
 
-  .ql-course-semester {
-    margin-left: 12px; 
+  .ql-course-code {
+    margin-left:10px; 
   }
-
+ 
+  .controls {
+    z-index:10;
+    float: right;
+  }
 
 }

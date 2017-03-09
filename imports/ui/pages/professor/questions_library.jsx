@@ -81,7 +81,7 @@ class _QuestionsLibrary extends Component {
               { /* list questions */
                 this.props.library.map(q => {
                   return (<div key={q._id} className={this.state.selected === q._id ? 'selected' : ''}>
-                    <QuestionListItem question={q} click={() => this.editQuestion(q._id)} />
+                    <QuestionListItem question={q} click={this.editQuestion} />
                   </div>)
                 })
               }
@@ -94,7 +94,7 @@ class _QuestionsLibrary extends Component {
                 <QuestionEditItem
                   question={this.props.questionMap[this.state.selected]}
                   deleted={this.questionDeleted}
-                  metadata autoSave />
+                  metadata />
               </div>
               <div className='ql-preview-item-container'>
                 <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly />

@@ -43,20 +43,18 @@ class _ManageCourses extends Component {
 
   renderCourseList () {
     return this.props.courses.map((course) => (
-      <CourseListItem
-        key={course._id}
-        course={course}
-        click={() => { Router.go('course', { _id: course._id }) }}
-        controls={[{ label: 'Delete', click: () => this.deleteCourse(course._id) }]} />
+      <CourseListItem key={course._id} course={course} delete={() => this.deleteCourse(course._id)} />
     ))
   }
 
   render () {
+    let courseList = <ul className='ql-courselist'>{this.renderCourseList()}</ul>
+
     return (
       <div className='container ql-professor-page'>
         <h1>Courses</h1>
         <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
-        { <div className='ql-courselist'>{this.renderCourseList()}</div> }
+        { courseList }
 
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
       </div>)

@@ -94,7 +94,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor')) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
       if (user.hasRole('student')) {
-        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } }, { fields: { 'options.correct': false } })
+        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } })
       }
     } else this.ready()
   })
@@ -106,7 +106,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole('student')) {
-        return Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } })
+        return Questions.find({ sessionId: sessionId })
       }
     } else this.ready()
   })
@@ -370,6 +370,30 @@ Meteor.methods({
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.hidden': true }
+    })
+  },
+
+    /**
+   * questions.showCorrect(MongoId (string) questionId)
+   */
+  'questions.showCorrect' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.correct': true }
+    })
+  },
+
+  /**
+   * questions.hideCorrect(MongoId (string) questionId)
+   */
+  'questions.hideCorrect' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.correct': false }
     })
   }
 

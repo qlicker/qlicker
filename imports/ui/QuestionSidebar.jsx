@@ -9,7 +9,6 @@ import _ from 'underscore'
 import { ControlledForm } from './ControlledForm'
 
 import { QuestionListItem } from './QuestionListItem'
-import { StudentQuestionListItem } from './StudentQuestionListItem'
 
 import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
@@ -108,9 +107,7 @@ export class QuestionSidebar extends ControlledForm {
           { /* list questions */
             this.state.questionPool.map(q => {
               return (<div key={q._id} className={this.state.questionId === q._id ? 'correct-color' : ''}>
-                { !q.courseId
-                  ? <QuestionListItem question={q} click={() => this.setQuestion(q._id)} />
-                  : <StudentQuestionListItem question={q} click={() => this.setQuestion(q._id)} /> }
+                { <QuestionListItem question={q} click={this.setQuestion} /> }
               </div>)
             })
           }

@@ -35,8 +35,10 @@ class _RunSession extends Component {
     this.nextQuestion = this.nextQuestion.bind(this)
     this.newAttempt = this.newAttempt.bind(this)
     this.toggleHidden = this.toggleHidden.bind(this)
+    this.toggleCorrect = this.toggleCorrect.bind(this)
 
-    Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+    const currentQuestion = this.state.session.currentQuestion || this.state.session.questions[0]
+    Meteor.call('questions.startAttempt', currentQuestion)
   }
 
   /**
@@ -65,6 +67,25 @@ class _RunSession extends Component {
       Meteor.call('questions.hideStats', questionId, (error) => {
         if (error) alertify.error('Error: ' + error.error)
         else alertify.success('Disabled stats')
+      })
+    }
+  }
+
+  /**
+   * toggleCorrect(MongoId (string): questionId)
+   * calls questions.showCorrect or .hideCorrect to show/hide answer distribution from students
+   */
+  toggleCorrect (questionId) {
+    const sessionOptions = this.props.questions[questionId].sessionOptions
+    if (!sessionOptions || !sessionOptions.correct) {
+      Meteor.call('questions.showCorrect', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Enabled Visible Answer')
+      })
+    } else {
+      Meteor.call('questions.hideCorrect', questionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Disabled Visible Answer')
       })
     }
   }
@@ -167,7 +188,7 @@ class _RunSession extends Component {
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
-        content: <QuestionListItem question={q} click={this.setCurrentQuestion} />,
+        content: <QuestionListItem key={q._id} question={q} click={this.setCurrentQuestion} />,
         id: questionId
       })
     })
@@ -203,7 +224,7 @@ class _RunSession extends Component {
               <h3>Current Question</h3>
               <div className='btn-group btn-group-justified' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
-                <a href='#' className='btn btn-default btn-sm' >{strCorrectVisible}</a>
+                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
               </div>
               <br />

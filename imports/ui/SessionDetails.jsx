@@ -47,26 +47,46 @@ export class SessionDetails extends Component {
   }
 
   render () {
+    const startEditing = () => {
+      this.setState({ editing: true })
+    }
     const r = (<div>
-      <button className='btn btn-default' ref='runButton' onClick={() => { Router.go('session.run', { _id: this.state.session._id }) }}>Run Session</button>
+      { !this.state.editing
+        ? <div>
+          <button className='btn btn-default' ref='editButton' onClick={startEditing}>Edit Session</button>
+          <button className='btn btn-default' ref='runButton' onClick={() => { Router.go('session.run', { _id: this.state.session._id }) }}>Run Session</button>
+        </div>
+        : '' }
+      <form ref='editSessionForm' className='ql-form-editsession' onSubmit={this.handleSubmit}>
+        Name: { this.state.editing
+          ? <input type='text' className='form-control' data-name='name' onChange={this.setValue} value={this.state.session.name} />
+          : this.state.session.name }<br />
 
-      <textarea className='form-control' data-name='description'
-        onChange={this.setValue}
-        placeholder='Quiz on topic 3'
-        value={this.state.session.description} /><br />
-      <select className='form-control' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
-        <option value='hidden'>Draft (Hidden)</option>
-        <option value='visible'>Visible</option>
-        <option value='running'>Active</option>
-        <option value='done'>Done</option>
-      </select>
+        Description: { this.state.editing
+          ? <textarea className='form-control' data-name='description'
+            onChange={this.setValue}
+            placeholder='Quiz on topic 3'
+            value={this.state.session.description} />
+          : this.state.session.description }<br />
 
-      {/* <select className='form-control' data-name='quiz' onChange={this.setValue} defaultValue={this.state.session.quiz}>
-        <option value={false}>Lecture Poll</option>
-        <option value>Online Quiz</option>
-      </select> */}
+        Format: { this.state.editing
+          ? <select className='form-control' data-name='quiz' onChange={this.setValue} defaultValue={this.state.session.quiz}>
+            <option value={false}>Lecture Poll</option>
+            <option value>Online Quiz</option>
+          </select>
+          : this.state.session.quiz ? 'Quiz' : 'Lecture Poll' }<br />
 
+        Status: { this.state.editing
+          ? <select className='form-control' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
+            <option value='hidden'>Draft (Hidden)</option>
+            <option value='visible'>Visible</option>
+            <option value='running'>Active</option>
+            <option value='done'>Done</option>
+          </select>
+          : this.state.session.status }<br />
 
+        { this.state.editing ? <input className='btn btn-default' type='submit' /> : '' }
+      </form>
     </div>)
     return r
   } //  end render

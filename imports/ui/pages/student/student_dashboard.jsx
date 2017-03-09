@@ -9,7 +9,6 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { Courses } from '../../../api/courses.js'
 import { EnrollCourseModal } from '../../modals/EnrollCourseModal'
 import { CourseListItem } from '../../CourseListItem'
-import { StudentCourseComponent } from '../../StudentCourseComponent'
 
 class _StudentDashboard extends Component {
   constructor (props) {
@@ -40,7 +39,7 @@ class _StudentDashboard extends Component {
   }
 
   renderCourseList () {
-    return this.props.courses.map((c) => (<StudentCourseComponent key={c._id} course={c} sessionRoute='session' />))
+    return this.props.courses.map((c) => (<CourseListItem key={c._id} course={c} />))
   }
 
   render () {
@@ -48,6 +47,7 @@ class _StudentDashboard extends Component {
     return (
       <div className='container ql-student-page'>
         <h2>My Courses</h2>
+        <hr />
         <div className='messages'>
           { needsEmailVerification
             ? <div className='alert alert-warning' role='alert' >
@@ -56,10 +56,12 @@ class _StudentDashboard extends Component {
             </div>
             : '' }
         </div>
+
         <button className='btn btn-default' onClick={this.promptForCode}>Enroll in Course</button>
-        <div className='ql-courselist'>
+        <hr />
+        <ul>
           { this.renderCourseList() }
-        </div>
+        </ul>
         { this.state.enrollingInCourse ? <EnrollCourseModal done={this.closeModal} /> : '' }
 
       </div>)

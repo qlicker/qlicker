@@ -18,11 +18,13 @@ import { Questions } from '../../../api/questions'
 import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
+import { SessionDetails } from '../../SessionDetails'
 
 class _ManageSession extends Component {
 
   constructor (props) {
     super(props)
+
 
     this.state = {
       editing: false,
@@ -32,25 +34,14 @@ class _ManageSession extends Component {
 
     this.sessionId = this.props.sessionId
 
-    this.setValue = this.setValue.bind(this)
+    this.setSessionName = this.setSessionName.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
     this.changeQuestionPool = this.changeQuestionPool.bind(this)
-    this.runSession = this.runSession.bind(this)
-    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
-  }
-
-  runSession () {
-    const sessionEdits = this.state.session
-    sessionEdits.status = 'running'
-    this.setState({ session: sessionEdits }, () => {
-      this.saveSessionEdits(() => {
-        Router.go('session.run', { _id: this.state.session._id })
-      })
-    })
+    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 2000)
   }
 
   /**
@@ -89,10 +80,14 @@ class _ManageSession extends Component {
     })
   }
 
-  setValue (e) {
-    let stateEdits = this.state.session
-    stateEdits[e.target.dataset.name] = e.target.value
-    this.setState({ session: stateEdits }, () => {
+  /**
+   * setSessionName(Event: e)
+   * onchange event handler for session name input field
+   */
+  setSessionName (e) {
+    const editedSession = this.state.session
+    editedSession.name = e.target.value
+    this.setState({ session: editedSession }, () => {
       this._DB_saveSessionEdits()
     })
   }
@@ -140,12 +135,11 @@ class _ManageSession extends Component {
    * saveSessionEdits()
    * save current session state to db
    */
-  saveSessionEdits (optCallback) {
+  saveSessionEdits () {
     Meteor.call('sessions.edit', this.state.session, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else {
         alertify.success('Session details saved')
-        if (optCallback) optCallback()
       }
     })
   }
@@ -178,7 +172,7 @@ class _ManageSession extends Component {
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
-        content: <QuestionListItem question={q} controls={[{ label: 'Remove', click: () => this.removeQuestion(questionId) }]} />,
+        content: <QuestionListItem question={q} remove={this.removeQuestion} />,
         id: questionId
       })
     })
@@ -199,18 +193,8 @@ class _ManageSession extends Component {
                 <div role='tabpanel' className='tab-pane active' id='session'>
                   <h2>Session: { this.state.session.name }</h2>
 
-                  <button className='btn btn-default' onClick={this.runSession}>Run Session</button>
+                  <SessionDetails session={this.state.session} />
 
-                  <textarea className='form-control' data-name='description'
-                    onChange={this.setValue}
-                    placeholder='Description'
-                    value={this.state.session.description} /><br />
-                  <select className='form-control' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
-                    <option value='hidden'>Draft (Hidden)</option>
-                    <option value='visible'>Visible</option>
-                    <option value='running'>Active</option>
-                    <option value='done'>Done</option>
-                  </select>
                   <hr />
                   <h3>Question Order</h3>
                   <div className='ql-session-question-list'>
@@ -239,7 +223,7 @@ class _ManageSession extends Component {
           <div className='ql-main-content' >
 
             <div className='ql-session-child-container'>
-              <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='status' onChange={this.setValue} />
+              <input type='text' className='ql-header-text-input' value={this.state.session.name} onChange={this.setSessionName} />
             </div>
             {
               questionList.map((questionId) => {
@@ -249,8 +233,7 @@ class _ManageSession extends Component {
                   <QuestionEditItem
                     question={q}
                     sessionId={this.state.session._id}
-                    onNewQuestion={this.newQuestionSaved}
-                    autoSave />
+                    onNewQuestion={this.newQuestionSaved} />
                 </div>)
               })
             }
