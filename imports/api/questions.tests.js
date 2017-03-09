@@ -150,7 +150,11 @@ if (Meteor.isServer) {
         })
       })
 
-      it('can add question result (questions.addStudentAnswer)')
+      it('can start an attempt (questions.startAttempt)')
+
+      it('can end attempt (questions.endAttempt)')
+
+      it('can show/hide question items')
     }) // end describe('methods')
   }) // end describe('Questions')
 } // end Meteor.isServer

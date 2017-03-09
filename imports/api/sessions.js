@@ -153,6 +153,7 @@ Meteor.methods({
    */
   'sessions.startSession' (sessionId) {
     const s = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(s.courseId)
     return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0] } })
   },
 
@@ -161,6 +162,8 @@ Meteor.methods({
    * mark session as done
    */
   'sessions.endSession' (sessionId) {
+    const s = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(s.courseId)
     return Sessions.update({ _id: sessionId }, { $set: { status: 'done' } })
   },
 

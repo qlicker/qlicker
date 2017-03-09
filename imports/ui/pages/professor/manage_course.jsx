@@ -101,7 +101,7 @@ class _ManageCourse extends Component {
 
     return (
       <div className='container ql-manage-course'>
-        <h2>Course: {this.props.course.name} </h2>
+        <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
 
         <div className='row'>
           <div className='col-md-4'>
@@ -109,8 +109,8 @@ class _ManageCourse extends Component {
             <h3>Course Details</h3>
             <button className='btn btn-default' onClick={this.deleteCourse}>Delete</button>
             <div className='ql-course-details'>
-              <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
-              <span className='ql-course-semester'>{ this.props.course.semester }</span>
+              <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -
+              <span className='ql-course-semester'> { this.props.course.semester }</span>
               <br />
               Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
             </div>

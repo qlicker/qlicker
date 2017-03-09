@@ -243,7 +243,7 @@ Meteor.methods({
 
   /**
    * courses.getCourseCodeTag(String (mongoid): courseId)
-   * get tag object for a specific courseid
+   * get tag object for a specific courseid for react multi select component
    */
   'courses.getCourseCodeTag' (courseId) {
     const c = Courses.findOne(courseId).courseCode().toUpperCase()

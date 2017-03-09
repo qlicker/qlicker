@@ -1,21 +1,20 @@
 
-.ui-manage-session {
+.ql-manage-course {
 
   h3 {
     margin-top: 10px;
   }
 
-  .ui-course-details {
-    .ui-course-code {
+  .ql-course-details {
+    .ql-course-code {
       font-weight: bold;
+      text-transform: uppercase;
     }
 
-  }
-  .ui-course-sessions {
-    .ui-session-list {
-      border: 1px solid black;
-
+    .ql-enrollment-code {
+      font-size: 120%;
     }
+
   }
 
 }
