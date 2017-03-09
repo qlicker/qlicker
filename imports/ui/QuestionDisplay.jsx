@@ -8,10 +8,10 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { Answers } from '../api/answers'
 import dl from 'datalib'
+import { _ } from 'underscore'
 import { $ } from 'jquery'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
-
 
 export class _QuestionDisplay extends Component {
 
@@ -25,6 +25,7 @@ export class _QuestionDisplay extends Component {
     if (this.props.isQuiz) this.isQuiz = this.props.isQuiz
 
     this.submitAnswer = this.submitAnswer.bind(this)
+    this.disallowAnswers = this.disallowAnswers.bind(this)
   }
 
   componentDidMount () {
@@ -35,8 +36,15 @@ export class _QuestionDisplay extends Component {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
 
+  disallowAnswers () {
+    const q = this.props.question
+    const disallowAnswers = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
+    return this.readonly || disallowAnswers
+  }
+
   // doesn't work for multiselect & works when readonly is true
   submitAnswer (answer) {
+    if (this.disallowAnswers()) return
     const l = this.props.question.sessionOptions.attempts.length
     const attempt = this.props.question.sessionOptions.attempts[l - 1]
     const answerObject = {
@@ -47,7 +55,7 @@ export class _QuestionDisplay extends Component {
     }
     Meteor.call('answer.addQuestionAnswer', answerObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
-        alertify.success('Answer Submitted')
+      alertify.success('Answer Submitted')
     })
   }
 
@@ -61,7 +69,7 @@ export class _QuestionDisplay extends Component {
         if (a.answer === answer && a.counts) {
           answerStat = Math.round(a.counts[0].count / total * 100, 2)
         }
-      } 
+      }
     })
 
     return answerStat
@@ -75,7 +83,7 @@ export class _QuestionDisplay extends Component {
     }
 
     return (
-      <div onClick={() => this.submitAnswer(answer)} className={classContent} key={'answer_' + answer} >
+      <div className={classContent} key={'answer_' + answer} >
         { WysiwygHelper.htmlDiv(content) }
       </div>)
   }
@@ -86,7 +94,7 @@ export class _QuestionDisplay extends Component {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
-      <div onClick={() => this.submitAnswer(answer)} className={'ql-' + typeStr + '-content'} key={'answer_' + answer}>
+      <div className={'ql-' + typeStr + '-content'} key={'answer_' + answer}>
         <span className={classContent}>{content}</span>
       </div>
     )
@@ -109,21 +117,21 @@ export class _QuestionDisplay extends Component {
         if (this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
-          if (stats > 0){
+          if (stats > 0) {
             statClass += ' show-stats'
 
-            if (this.props.question.sessionOptions.correct && a.correct) { 
+            if (this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
             } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
-          } 
+          }
 
-          widthStyle = { width:  stats + '%'}
+          widthStyle = { width: stats + '%' }
         }
 
         return (
-          <div className='ql-answer-content-container'>
+          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               <div className='ql-mc'>{a.answer}.</div>
               {content}
@@ -150,21 +158,21 @@ export class _QuestionDisplay extends Component {
         if (this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
-          if (stats > 0){
+          if (stats > 0) {
             statClass += ' show-stats'
 
-            if (this.props.question.sessionOptions.correct && a.correct) { 
+            if (this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
             } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
-          } 
+          }
 
-          widthStyle = { width:  stats + '%'}
+          widthStyle = { width: stats + '%' }
         }
 
         return (
-          <div className='ql-answer-content-container'>
+          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               {content}
             </div>
@@ -205,20 +213,20 @@ export class _QuestionDisplay extends Component {
           if (stats > 0) {
             statClass += ' show-stats'
 
-            if (this.props.question.sessionOptions.correct && a.correct) { 
+            if (this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
             } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
-          } 
+          }
 
-          widthStyle = { width:  stats + '%'}
+          widthStyle = { width: stats + '%' }
         }
 
         return (
-          <div className='ql-answer-content-container'>
+          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
-              <input type="checkbox" className='ql-checkbox' />
+              <input type='checkbox' className='ql-checkbox' />
               {content}
             </div>
           </div>
@@ -230,8 +238,8 @@ export class _QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (this.props.question.sessionOptions.hidden) return <div className='container'>Waiting for a Question...</div>
-    
+    if (this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
+
     const q = this.props.question
     const type = q.type
     let content, buttons
@@ -256,11 +264,13 @@ export class _QuestionDisplay extends Component {
     }
 
     return (
-      <div className={'ql-question-display ' + (this.readonly ? '' : 'interactive')}>
+      <div className={'ql-question-display ' + (this.disallowAnswers() ? '' : 'interactive')}>
 
         <div className='ql-question-content'>
           {WysiwygHelper.htmlDiv(q.content)}
         </div>
+
+        { this.disallowAnswers() ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
         <div className='ql-answers'>
           {content}
@@ -277,7 +287,7 @@ export const QuestionDisplay = createContainer((props) => {
   const l = props.question.sessionOptions.attempts.length
   const attempt = props.question.sessionOptions.attempts[l - 1]
 
-  const handle = Meteor.subscribe('answers.forQuestion', props.question._id) 
+  const handle = Meteor.subscribe('answers.forQuestion', props.question._id)
   const answers = Answers.find({ questionId: props.question._id, attempt: l }).fetch()
 
   const validOptions = _(props.question.options).pluck('answer')
@@ -285,13 +295,13 @@ export const QuestionDisplay = createContainer((props) => {
 
   const data = []
   let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
-  
+
   options.map((a) => {
     a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
     delete a.values
   })
   options = _(options).indexBy('answer')
-  
+
   validOptions.forEach((key) => {
     data.push(options[key])
   })
@@ -304,7 +314,7 @@ export const QuestionDisplay = createContainer((props) => {
     distribution: data,
     loading: !handle.ready()
   }
-}, _QuestionDisplay )
+}, _QuestionDisplay)
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,

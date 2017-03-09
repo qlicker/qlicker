@@ -55,7 +55,10 @@ $red-bar: rgba(167,37,38, 0.3);
       }
 
       .ql-wysiwyg-content {
+        background: rgba(240, 240, 240, 0.1);
         margin-left: 40px;
+        overflow-x: visible;
+        white-space: nowrap;
       }
 
       .ql-tf-content {

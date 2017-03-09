@@ -92,7 +92,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor')) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
       if (user.hasRole('student')) {
-        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } })
+        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } }) // TODO
       }
     } else this.ready()
   })
@@ -104,7 +104,7 @@ if (Meteor.isServer) {
       if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole('student')) {
-        return Questions.find({ sessionId: sessionId })
+        return Questions.find({ sessionId: sessionId }) // TODO
       }
     } else this.ready()
   })
@@ -306,15 +306,15 @@ Meteor.methods({
   },
 
   /**
-   * questions.endAttempt(MongoId (string) questionId)
-   * closed last attempt and start a new one
+   * questions.setAttemptStatus(MongoId (string) questionId, Boolean bool)
+   * close or open the latest attempt
    */
-  'questions.endAttempt' (questionId) {
+  'questions.setAttemptStatus' (questionId, bool) {
     const q = Questions.findOne({ _id: questionId })
     if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
 
     if (q.sessionOptions) { // add another attempt (if first is closed)
-      q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed = true
+      q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed = bool
       return Questions.update({ _id: questionId }, {
         '$set': { 'sessionOptions.attempts': q.sessionOptions.attempts }
       })

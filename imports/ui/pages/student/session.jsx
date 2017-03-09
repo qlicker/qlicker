@@ -23,6 +23,9 @@ class _Session extends Component {
 
 
   render () {
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.session.status !== 'running') return <div className='ql-subs-loading'>Session not active</div>
+
     const current = this.props.session.currentQuestion
     const q = current ? this.props.questions[current] : null
     const questionDisplay = this.props.user.hasRole('professor')

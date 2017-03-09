@@ -3,3 +3,13 @@
 
 
 }
+
+@media (max-width: 480px) {
+  .ql-session-display {
+    &.container {
+      padding:0;
+      margin:0;
+    }
+  }
+
+}

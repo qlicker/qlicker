@@ -148,6 +148,19 @@ $incorrect-color: #A72526;
   margin-top: 10px;
 }
 
-  .list-item-selected {
-    font-weight: bold;
+.list-item-selected {
+  font-weight: bold;
+}
+
+.ql-subs-loading {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  font-size: 140%;
+}
+
+@media (max-width: 480px) {
+  .ql-child-container > .container {
+    padding-top:0;
   }
+}
