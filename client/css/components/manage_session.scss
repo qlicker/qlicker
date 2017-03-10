@@ -26,6 +26,18 @@
       padding: 20px;
       overflow: auto;
 
+      &.presenting {
+        width: 300px;
+        // left: -300px;
+        // transition: left 0.6s;
+
+        &:hover {
+          // left: 0;
+          // transition: left 0.6s;
+        }
+
+      }
+
       .ql-session-question-list {
         .ql-question-list-item {
           cursor: grab;
@@ -52,6 +64,10 @@
       overflow: auto;
       height: calc(100vh - 50px);
       max-width: 1000px;
+
+      &.presenting {
+        margin-left: 300px;
+      }
     }
   }
 
