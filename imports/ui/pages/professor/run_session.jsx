@@ -278,7 +278,7 @@ class _RunSession extends Component {
             {<AnswerDistribution question={q} />}
             <div className='clear' />
             <h3 className='m-margin-top'>Question Preview</h3>
-            <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly /> : '' }</div>
+            <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }</div>
           </div>
         </div>
       </div>)

@@ -24,7 +24,7 @@ export class QuestionListItem extends ListItem {
         <div className='ql-label-list'>
           {
             q.tags.map((t) => {
-              return <span className='label label-info'>{t.label}</span>
+              return <span key={t.value} className='label label-info'>{t.label}</span>
             })
           }
         </div>

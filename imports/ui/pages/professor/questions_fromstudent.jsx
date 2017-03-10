@@ -68,7 +68,7 @@ class _QuestionsFromStudent extends Component {
                     Copy to Library
                   </button>
                 <div className='ql-preview-item-container'>
-                  <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly />
+                  <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
                 </div>
               </div>
             : '' }

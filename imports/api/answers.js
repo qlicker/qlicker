@@ -42,6 +42,7 @@ if (Meteor.isServer) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const question = Questions.findOne({ _id: questionId })
       const session = Sessions.findOne({ _id: question.sessionId })
+      if (!question.sessionId) return this.ready()
       const course = Courses.findOne({ _id: session.courseId })
 
       if (user.hasRole('professor') && course.owner === this.userId) {

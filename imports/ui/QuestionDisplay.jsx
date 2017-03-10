@@ -39,7 +39,7 @@ export class _QuestionDisplay extends Component {
   disallowAnswers () {
     const q = this.props.question
     const disallowAnswers = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
-    return this.readonly || disallowAnswers
+    return disallowAnswers
   }
 
   // doesn't work for multiselect & works when readonly is true
@@ -78,7 +78,7 @@ export class _QuestionDisplay extends Component {
   wysiwygContent (answer, content, correct) {
     let classContent = 'ql-wysiwyg-content'
 
-    if (this.props.question.sessionOptions.correct) {
+    if (!this.props.noStats && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'ql-wysiwyg-content correct-color' : 'ql-wysiwyg-content incorrect-color'
     }
 
@@ -90,7 +90,7 @@ export class _QuestionDisplay extends Component {
 
   commonContent (typeStr, answer, content, correct) {
     let classContent = ''
-    if (this.props.question.sessionOptions.correct) {
+    if (!this.props.noStats && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
@@ -114,7 +114,7 @@ export class _QuestionDisplay extends Component {
           content = this.commonContent('mc', a.answer, a.content, a.correct)
         }
 
-        if (this.props.question.sessionOptions.stats) {
+        if (!this.props.noStats && this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
@@ -131,7 +131,7 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
+          <div key={'question_' + a.answer} onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               <div className='ql-mc'>{a.answer}.</div>
               {content}
@@ -155,7 +155,7 @@ export class _QuestionDisplay extends Component {
           content = this.commonContent('tf', a.answer, a.content, a.correct)
         }
 
-        if (this.props.question.sessionOptions.stats) {
+        if (!this.props.noStats && this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
@@ -172,7 +172,7 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
+          <div key={'question_' + a.answer} onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               {content}
             </div>
@@ -207,7 +207,7 @@ export class _QuestionDisplay extends Component {
           content = this.commonContent('ms', a.answer, a.content, a.correct)
         }
 
-        if (this.props.question.sessionOptions.stats) {
+        if (!this.props.noStats && this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
@@ -238,7 +238,7 @@ export class _QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
+    if (!this.props.noStats && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
     const type = q.type
@@ -264,13 +264,13 @@ export class _QuestionDisplay extends Component {
     }
 
     return (
-      <div className={'ql-question-display ' + (this.disallowAnswers() ? '' : 'interactive')}>
+      <div className={'ql-question-display ' + (this.disallowAnswers() || this.readonly ? '' : 'interactive')}>
 
         <div className='ql-question-content'>
           {WysiwygHelper.htmlDiv(q.content)}
         </div>
 
-        { this.disallowAnswers() ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
+        { this.disallowAnswers() && (!this.props.noStats) ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
         <div className='ql-answers'>
           {content}
@@ -284,28 +284,29 @@ export class _QuestionDisplay extends Component {
 }
 
 export const QuestionDisplay = createContainer((props) => {
-  const l = props.question.sessionOptions.attempts.length
-  const attempt = props.question.sessionOptions.attempts[l - 1]
-
   const handle = Meteor.subscribe('answers.forQuestion', props.question._id)
-  const answers = Answers.find({ questionId: props.question._id, attempt: l }).fetch()
-
-  const validOptions = _(props.question.options).pluck('answer')
-  let total = answers.length
-
   const data = []
-  let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
+  let total
+  if (!props.noStats) {
+    const l = props.question.sessionOptions.attempts.length
 
-  options.map((a) => {
-    a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
-    delete a.values
-  })
-  options = _(options).indexBy('answer')
+    const answers = Answers.find({ questionId: props.question._id, attempt: l }).fetch()
 
-  validOptions.forEach((key) => {
-    data.push(options[key])
-  })
+    const validOptions = _(props.question.options).pluck('answer')
+    total = answers.length
 
+    let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
+
+    options.map((a) => {
+      a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
+      delete a.values
+    })
+    options = _(options).indexBy('answer')
+
+    validOptions.forEach((key) => {
+      data.push(options[key])
+    })
+  }
   return {
     question: props.question,
     isQuiz: props.isQuiz,
@@ -318,6 +319,8 @@ export const QuestionDisplay = createContainer((props) => {
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
-  isQuiz: PropTypes.bool.isRequired,
-  readonly: PropTypes.bool
+  isQuiz: PropTypes.bool,
+  readonly: PropTypes.bool,
+  noStats: PropTypes.bool,
+  prof: PropTypes.bool
 }
