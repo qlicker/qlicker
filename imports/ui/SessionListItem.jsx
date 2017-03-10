@@ -23,10 +23,11 @@ export class SessionListItem extends ListItem {
 
     let completion = 0
     let index = 0
-    const length = session.questions.length
-    if (session.currentQuestion) {
+    let length = 0
+    if (session.questions && session.currentQuestion) {
+      length = session.questions.length
       index = session.questions.indexOf(session.currentQuestion)
-      completion = ((index + 1) / session.questions.length) * 100
+      completion = ((index + 1) / length) * 100
     }
     return (
       <div className='ql-session-list-item' onClick={this.click}>
