@@ -3,6 +3,9 @@
 
 // Components
 .ql-buttons-prompt {
+  padding: 5px;
+  display:flex;
+  justify-content: center;
 
   .ql-prompt-option {
     display: inline-block;

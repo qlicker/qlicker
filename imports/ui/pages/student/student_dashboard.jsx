@@ -43,6 +43,7 @@ class _StudentDashboard extends Component {
   }
 
   render () {
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const needsEmailVerification = !Meteor.user().emails[0].verified
     return (
       <div className='container ql-student-page'>
@@ -66,8 +67,10 @@ class _StudentDashboard extends Component {
 }
 
 export const StudentDashboard = createContainer(() => {
-  const handle = Meteor.subscribe('courses')
-  const cArr = Meteor.user().profile.courses || []
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('userData')
+  const user = Meteor.users.findOne(Meteor.userId())
+  const cArr = user.profile.courses || []
+
   return {
     courses: Courses.find({ _id: { $in: cArr } }).fetch(),
     loading: !handle.ready(),

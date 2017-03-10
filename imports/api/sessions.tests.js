@@ -113,7 +113,7 @@ if (Meteor.isServer) {
         })
       })
 
-      it('can remove question to session (session.addQuestion)', () => {
+      it('can remove question to session (session.removeQuestion)', () => {
         prepQuestionAndSession((sessionId, questionId) => {
           Meteor.call('sessions.addQuestion', sessionId, questionId)
           Meteor.call('sessions.removeQuestion', sessionId, questionId)
@@ -138,9 +138,47 @@ if (Meteor.isServer) {
         })
       })
 
-      it('can start session (sessions.startSession)')
-      it('can end session (sessions.endSession)')
-      it('can set current question (sessions.setCurrent)')
+      it('can start session and end session (sessions.startSession & sessions.endSession)', () => {
+        prepQuestionAndSession((sessionId, questionId) => {
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+
+          const firstQuestionId = Sessions.findOne({ _id: sessionId }).questions[0]
+
+          Meteor.call('sessions.startSession', sessionId)
+
+          const sessionFromDb1 = Sessions.findOne(sessionId)
+          expect(sessionFromDb1.currentQuestion).to.equal(firstQuestionId)
+
+          const questionBeforeEnd = sessionFromDb1.currentQuestion
+          Meteor.call('sessions.endSession', sessionId)
+
+          const sessionFromDb2 = Sessions.findOne(sessionId)
+          expect(sessionFromDb2.status).to.equal('done')
+          expect(sessionFromDb2.currentQuestion).to.equal(questionBeforeEnd)
+        })
+      })
+
+      it('can set current question (sessions.setCurrent)', () => {
+        prepQuestionAndSession((sessionId, questionId) => {
+          // use 3 of the same questions for testing. (ids will be different)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+          Meteor.call('questions.copyToSession', sessionId, questionId)
+
+          const qList = Sessions.findOne({ _id: sessionId }).questions
+
+          expect(Sessions.findOne(sessionId).currentQuestion).to.be.undefined
+
+          Meteor.call('sessions.startSession', sessionId)
+          Meteor.call('sessions.setCurrent', sessionId, qList[0])
+          expect(Sessions.findOne(sessionId).currentQuestion).to.equal(qList[0])
+          Meteor.call('sessions.setCurrent', sessionId, qList[1])
+          expect(Sessions.findOne(sessionId).currentQuestion).to.equal(qList[1])
+          Meteor.call('sessions.setCurrent', sessionId, qList[2])
+          expect(Sessions.findOne(sessionId).currentQuestion).to.equal(qList[2])
+        })
+      })
     })// end describe('methods')
   }) // end describe('Sessions')
 } // end Meteor.isServer

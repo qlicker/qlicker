@@ -16,6 +16,7 @@ export class QuestionListItem extends ListItem {
     const controls = this.makeControls()
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
+    const tags = q.tags || []
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item'}
         onClick={this.click} >
@@ -23,8 +24,8 @@ export class QuestionListItem extends ListItem {
         { this.props.details ? <span className='ql-question-details'>{this.props.details}</span> : '' }
         <div className='ql-label-list'>
           {
-            q.tags.map((t) => {
-              return <span className='label label-info'>{t.label}</span>
+            tags.map((t) => {
+              return <span key={t.value} className='label label-info'>{t.label}</span>
             })
           }
         </div>

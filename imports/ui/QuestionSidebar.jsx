@@ -121,7 +121,7 @@ export class QuestionSidebar extends ControlledForm {
 } // end QuestionSidebar
 
 QuestionSidebar.propTypes = {
-  session: PropTypes.object.isRequired,
+  session: PropTypes.object,
   questions: PropTypes.array.isRequired,
   onSelect: PropTypes.func
 }

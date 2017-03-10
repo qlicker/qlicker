@@ -137,6 +137,14 @@ if (Meteor.isServer) {
         // other method handles regenration of enrollment code
         expect(courseFromDb.enrollmentCode).to.equal(editedCourse.enrollmentCode)
       })
+
+      it('can get course code from courseId (courses.getCourseCodeTag)', () => {
+        const profUserId = createAndStubProfessor()
+        let courseId = Meteor.call('courses.insert', _.extend({ owner: profUserId }, _.omit(sampleCourse, 'owner')))
+        const codeToTest = Meteor.call('courses.getCourseCodeTag', courseId)
+        const course = Courses.findOne(courseId)
+        expect(codeToTest.value).to.equal(course.courseCode().toUpperCase())
+      })
     })// end describe('methods')
 
     describe('course<=>user methods', () => {

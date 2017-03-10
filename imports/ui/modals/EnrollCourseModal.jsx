@@ -42,7 +42,7 @@ export class EnrollCourseModal extends ControlledForm {
     }
 
     Meteor.call('courses.checkAndEnroll', this.state.deptCode, this.state.courseNumber, this.state.enrollmentCode, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
+      if (error) alertify.error('Error: could not enroll in course')
       else {
         alertify.success('Enrolled Sucessfully')
         this.done()

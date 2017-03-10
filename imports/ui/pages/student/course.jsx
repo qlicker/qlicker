@@ -66,7 +66,7 @@ export const Course = createContainer((props) => {
   return {
     course: Courses.find({ _id: props.courseId }).fetch()[0],
     student: student,
-    sessions: Sessions.find({ courseId: { $in: student.profile.courses || [] } }).fetch(),
+    sessions: Sessions.find({ courseId: props.courseId }).fetch(),
     loading: !handle.ready()
   }
 }, _Course)

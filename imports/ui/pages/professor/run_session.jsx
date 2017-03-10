@@ -20,7 +20,7 @@ class _RunSession extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { editing: false, session: _.extend({}, this.props.session) }
+    this.state = { presenting: false, session: _.extend({}, this.props.session) }
 
     this.sessionId = this.props.sessionId
 
@@ -228,58 +228,80 @@ class _RunSession extends Component {
 
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
+    const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
+
+    // fragments
+    const questionPreview = <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }</div>
     return (
       <div className='ql-manage-session'>
 
         <div className='ql-row-container'>
           <div className='ql-sidebar-container'>
-            <div className='ql-session-sidebar'>
+            <div className={'ql-session-sidebar' + (this.state.presenting ? ' presenting' : '')}>
               <h2>Session: { this.state.session.name }</h2>
-              <div className='btn-group btn-group-justified' role='group'>
-                <a href='#' className='btn btn-default btn-sm'>Presentation Mode <span className='glyphicon glyphicon-fullscreen' /></a>
+              <div className='btn-group btn-group-justified _display' role='group'>
+                <a href='#' className='btn btn-default btn-sm' onClick={togglePresenting}>Presentation <span className='glyphicon glyphicon-fullscreen' /></a>
                 <a href='#' className='btn btn-default btn-sm' onClick={secondDisplay}>2nd Display <span className='glyphicon glyphicon-blackboard' /></a>
               </div>
               <hr />
               <h3>Current Question</h3>
-              <div className='btn-group btn-group-justified' role='group'>
+              <div className='btn-group btn-group-justified _questions' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
               </div>
               <br />
-              <div className='btn-group btn-group-justified' role='group'>
+              <div className='btn-group btn-group-justified _attempts' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
               </div>
               <br />
-              Current Attempt ({currentAttempt.number}): {strAttemptOpen}
-              <hr />
-              <h3>Questions</h3>
-              <div className='ql-session-question-list'>
-                {
-                  questionList.map((questionId) => {
-                    const q = this.props.questions[questionId]
-                    if (q._id === this.state.session.currentQuestion) {
-                      return <div className='current-question-list-item'><QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} /></div>
-                    } else return <QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} />
-                  })
-                }
+              <div className='attempt-message'>
+                Current Attempt ({currentAttempt.number}): {strAttemptOpen}
               </div>
               <hr />
-              <div className='btn-group btn-group-justified bottom-group' role='group'>
+
+              {
+                !this.state.presenting
+                ? <div>
+                  <h3>Questions</h3>
+                  <div className='ql-session-question-list'>
+                    {
+                      questionList.map((questionId) => {
+                        const q = this.props.questions[questionId]
+                        if (q._id === this.state.session.currentQuestion) {
+                          return <div className='current-question-list-item'><QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} /></div>
+                        } else return <QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} />
+                      })
+                    }
+                  </div>
+                  <hr />
+                </div>
+                : ''
+              }
+
+              <div className='btn-group btn-group-justified bottom-group _nav' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.endSession}>End session</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next <span className='glyphicon glyphicon-arrow-right' /></a>
               </div>
             </div>
           </div>
-          <div className='ql-main-content' >
-            <h3>Results/Stats</h3>
-            {<AnswerDistribution question={q} />}
-            <div className='clear' />
-            <h3 className='m-margin-top'>Question Preview</h3>
-            <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly /> : '' }</div>
+
+          <div className={'ql-main-content' + (this.state.presenting ? ' presenting' : '')}>
+            {
+              !this.state.presenting
+              ? <div>
+                <h3>Results/Stats</h3>
+                {<AnswerDistribution question={q} />}
+                <div className='clear' />
+                <h3 className='m-margin-top'>Question Preview</h3>
+              </div>
+              : ''
+            }
+            {questionPreview}
           </div>
+
         </div>
       </div>)
   }
