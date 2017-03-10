@@ -239,24 +239,26 @@ class _RunSession extends Component {
           <div className='ql-sidebar-container'>
             <div className={'ql-session-sidebar' + (this.state.presenting ? ' presenting' : '')}>
               <h2>Session: { this.state.session.name }</h2>
-              <div className='btn-group btn-group-justified' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={togglePresenting}>Presentation Mode <span className='glyphicon glyphicon-fullscreen' /></a>
+              <div className='btn-group btn-group-justified _display' role='group'>
+                <a href='#' className='btn btn-default btn-sm' onClick={togglePresenting}>Presentation <span className='glyphicon glyphicon-fullscreen' /></a>
                 <a href='#' className='btn btn-default btn-sm' onClick={secondDisplay}>2nd Display <span className='glyphicon glyphicon-blackboard' /></a>
               </div>
               <hr />
               <h3>Current Question</h3>
-              <div className='btn-group btn-group-justified' role='group'>
+              <div className='btn-group btn-group-justified _questions' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
               </div>
               <br />
-              <div className='btn-group btn-group-justified' role='group'>
+              <div className='btn-group btn-group-justified _attempts' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
               </div>
               <br />
-              Current Attempt ({currentAttempt.number}): {strAttemptOpen}
+              <div className='attempt-message'>
+                Current Attempt ({currentAttempt.number}): {strAttemptOpen}
+              </div>
               <hr />
 
               {
@@ -278,7 +280,7 @@ class _RunSession extends Component {
                 : ''
               }
 
-              <div className='btn-group btn-group-justified bottom-group' role='group'>
+              <div className='btn-group btn-group-justified bottom-group _nav' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.endSession}>End session</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next <span className='glyphicon glyphicon-arrow-right' /></a>
