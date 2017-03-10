@@ -165,7 +165,7 @@ Router.route('/student', {
   name: 'student',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('courses') && Meteor.subscribe('userData')
   },
   action: function () {
     let user = Meteor.user()

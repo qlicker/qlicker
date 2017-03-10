@@ -51,8 +51,8 @@ if (Meteor.isServer) {
       if (user.hasGreaterRole('professor')) {
         return Courses.find({ owner: this.userId })
       } else {
-        const coursesArray = user.profile.courses || []
-        return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
+        // const coursesArray = user.profile.courses || [] // TODO fix enrollment bug
+        return Courses.find({ }, { fields: { students: false } })
       }
     } else this.ready()
   })
@@ -150,7 +150,7 @@ Meteor.methods({
       })
       return c
     }
-    return false
+    throw Error('Couldn\'t enroll in course')
   },
 
   /**
