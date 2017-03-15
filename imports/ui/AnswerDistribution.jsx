@@ -12,36 +12,6 @@ import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
 import { Answers } from '../api/answers'
 
-export const doAggregations = (question, answers) => {
-  // do aggregations
-  const maxAttempt = question.sessionOptions.attempts.length
-  const validOptions = _(question.options).pluck('answer')
-
-  const data = []
-  let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
-  options.map((a) => {
-    a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
-    delete a.values
-  })
-  options = _(options).indexBy('answer')
-
-  validOptions.forEach((key) => {
-    if (key in options) {
-      const counts = _(options[key].counts).indexBy('attempt')
-      _(maxAttempt).times((i) => {
-        options[key]['attempt_' + (i + 1)] = counts[i + 1] ? counts[i + 1].count : 0
-      })
-    } else {
-      _(maxAttempt).times((i) => {
-        if (!(key in options)) options[key] = { answer: key }
-        options[key]['attempt_' + (i + 1)] = 0
-      })
-    }
-    data.push(options[key])
-  })
-
-  return { distribution: data, maxAttempt: maxAttempt }
-}
 
 export class _AnswerDistribution extends Component {
 
@@ -89,22 +59,33 @@ export const AnswerDistribution = createContainer((props) => {
     a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
     delete a.values
   })
-  options = _(options).indexBy('answer')
+  const kOptions = _(options).indexBy('answer')
+  console.log(kOptions)
+  // split up multi-select responses
+  const arrayKeys = _(options).chain().pluck('answer').filter((k) => k instanceof Array).value()
+  arrayKeys.forEach((k) => {
+    k.forEach((j) => {
+      kOptions[j] = _({}).extend(kOptions[k])
+      kOptions[j].answer = j
+    })
+  })
 
   validOptions.forEach((key) => {
-    if (key in options) {
-      const counts = _(options[key].counts).indexBy('attempt')
+    if (key in kOptions) {
+      const counts = _(kOptions[key].counts).indexBy('attempt')
       _(maxAttempt).times((i) => {
-        options[key]['attempt_' + (i + 1)] = counts[i + 1] ? counts[i + 1].count : 0
+        kOptions[key]['attempt_' + (i + 1)] = counts[i + 1] ? counts[i + 1].count : 0
       })
     } else {
       _(maxAttempt).times((i) => {
-        if (!(key in options)) options[key] = { answer: key }
-        options[key]['attempt_' + (i + 1)] = 0
+        if (!(key in kOptions)) kOptions[key] = { answer: key }
+        kOptions[key]['attempt_' + (i + 1)] = 0
       })
     }
-    data.push(options[key])
+    data.push(kOptions[key])
   })
+
+  console.log(validOptions, data)
 
   return {
     answers: answers,
