@@ -6,7 +6,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
-import { Answers } from '../api/answers'
+import { Responses } from '../api/responses'
 import dl from 'datalib'
 import { _ } from 'underscore'
 import { $ } from 'jquery'
@@ -24,8 +24,8 @@ export class _QuestionDisplay extends Component {
     this.isQuiz = false
     if (this.props.isQuiz) this.isQuiz = this.props.isQuiz
 
-    this.submitAnswer = this.submitAnswer.bind(this)
-    this.disallowAnswers = this.disallowAnswers.bind(this)
+    this.submitResponse = this.submitResponse.bind(this)
+    this.disallowResponses = this.disallowResponses.bind(this)
   }
 
   componentDidMount () {
@@ -36,17 +36,16 @@ export class _QuestionDisplay extends Component {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
 
-  disallowAnswers () {
+  disallowResponses () {
     const q = this.props.question
-    const disallowAnswers = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
-    return disallowAnswers
+    const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
+    return disallowResponses
   }
 
-  // doesn't work for multiselect & works when readonly is true
-  submitAnswer (answer) {
-    if (this.disallowAnswers() || this.readonly) return
-    const myAnswers = _(this.props.answers).where({ studentUserId: Meteor.userId() })
-    const oldAnswer = myAnswers.length > 0 ? myAnswers[0] : null
+  submitResponse (answer) {
+    if (this.disallowResponses() || this.readonly) return
+    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
+    const oldAnswer = myResponses.length > 0 ? myResponses[0] : null
 
     const l = this.props.question.sessionOptions.attempts.length
     const attempt = this.props.question.sessionOptions.attempts[l - 1]
@@ -70,7 +69,7 @@ export class _QuestionDisplay extends Component {
       answerObject.answer = _(answerObject.answer).uniq() // in theory, this is not needed
     }
 
-    Meteor.call('answer.addQuestionAnswer', answerObject, (err, answerId) => {
+    Meteor.call('responses.add', answerObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Answer Submitted')
     })
@@ -145,7 +144,7 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div key={'question_' + a.answer} onClick={() => this.submitAnswer(a.answer)} className='ql-answer-content-container'>
+          <div key={'question_' + a.answer} onClick={() => this.submitResponse(a.answer)} className='ql-answer-content-container'>
             <div className={statClass} style={widthStyle}>
               { classSuffixStr === 'mc' ? <div className='ql-mc'>{a.answer}.</div> : '' }
               { classSuffixStr === 'ms' ? <input type='checkbox' className='ql-checkbox' /> : '' }
@@ -196,13 +195,13 @@ export class _QuestionDisplay extends Component {
     }
 
     return (
-      <div className={'ql-question-display ' + (this.disallowAnswers() || this.readonly ? '' : 'interactive')}>
+      <div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
 
         <div className='ql-question-content'>
           {WysiwygHelper.htmlDiv(q.content)}
         </div>
 
-        { this.disallowAnswers() && (!this.props.noStats) ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
+        { this.disallowResponses() && (!this.props.noStats) ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
         <div className='ql-answers'>
           {content}
@@ -216,20 +215,20 @@ export class _QuestionDisplay extends Component {
 }
 
 export const QuestionDisplay = createContainer((props) => {
-  const handle = Meteor.subscribe('answers.forQuestion', props.question._id)
+  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const data = []
   let total
-  let answers
+  let responses
 
   if (!props.noStats) {
     const l = props.question.sessionOptions.attempts.length
 
-    answers = Answers.find({ questionId: props.question._id, attempt: l }).fetch()
+    responses = Responses.find({ questionId: props.question._id, attempt: l }).fetch()
 
     const validOptions = _(props.question.options).pluck('answer')
-    total = answers.length
+    total = responses.length
 
-    let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
+    let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
 
     options.map((a) => {
       a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
@@ -249,15 +248,15 @@ export const QuestionDisplay = createContainer((props) => {
     validOptions.forEach((key) => {
       data.push(keyedOptions[key])
     })
-    // console.log(keyedOptions, options, arrayKeys, data)
   }
+
   return {
     question: props.question,
     isQuiz: props.isQuiz,
     readonly: props.readonly,
     totalAnswered: total,
     distribution: data,
-    answers: answers,
+    responses: responses,
     loading: !handle.ready()
   }
 }, _QuestionDisplay)

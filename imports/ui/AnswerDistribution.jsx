@@ -10,7 +10,7 @@ import { _ } from 'underscore'
 import dl from 'datalib'
 import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
-import { Answers } from '../api/answers'
+import { Responses } from '../api/responses'
 
 
 export class _AnswerDistribution extends Component {
@@ -47,14 +47,14 @@ export class _AnswerDistribution extends Component {
 }
 
 export const AnswerDistribution = createContainer((props) => {
-  const handle = Meteor.subscribe('answers.forQuestion', props.question._id)
-  const answers = Answers.find({ questionId: props.question._id }).fetch()
+  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
+  const responses = Responses.find({ questionId: props.question._id }).fetch()
 
   const maxAttempt = props.question.sessionOptions.attempts.length
   const validOptions = _(props.question.options).pluck('answer')
 
   const data = []
-  let options = _(dl.groupby('answer').execute(answers)).sortBy('answer')
+  let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
   options.map((a) => {
     a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
     delete a.values
@@ -85,10 +85,9 @@ export const AnswerDistribution = createContainer((props) => {
     data.push(kOptions[key])
   })
 
-  console.log(validOptions, data)
 
   return {
-    answers: answers,
+    responses: responses,
     distribution: data,
     maxAttempt: maxAttempt,
     loading: !handle.ready()
