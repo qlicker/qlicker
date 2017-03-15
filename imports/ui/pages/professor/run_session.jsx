@@ -223,8 +223,8 @@ class _RunSession extends Component {
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
-    const strAttemptEnabled = currentAttempt.closed ? 'Allow Answers' : 'Disallow Answers'
-    const strAttemptOpen = currentAttempt.closed ? 'Closed for Answers' : 'Open for Answers'
+    const strAttemptEnabled = currentAttempt.closed ? 'Allow Responses' : 'Disallow Responses'
+    const strAttemptOpen = currentAttempt.closed ? 'Closed for Responses' : 'Open for Responses'
 
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }

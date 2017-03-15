@@ -2,7 +2,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// sessions.js: JS related to course collection
+// responses.js: JS related to question responses
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
@@ -17,7 +17,7 @@ import { _ } from 'underscore'
 import Helpers from './helpers.js'
 
 // expected collection pattern
-const answerPattern = {
+const responsePattern = {
   _id: Match.Maybe(Helpers.MongoID),
   attempt: Number,
   questionId: Helpers.MongoID,
@@ -26,18 +26,18 @@ const answerPattern = {
   createdAt: Date
 }
 
-// Create Answer class
-const Answer = function (doc) { _.extend(this, doc) }
-_.extend(Answer.prototype, {})
+// Create Response class
+const Response = function (doc) { _.extend(this, doc) }
+_.extend(Response.prototype, {})
 
-// Create answers collection
-export const Answers = new Mongo.Collection('answers',
-  { transform: (doc) => { return new Answer(doc) } })
+// Create Responses collection
+export const Responses = new Mongo.Collection('responses',
+  { transform: (doc) => { return new Response(doc) } })
 
 // data publishing
 if (Meteor.isServer) {
   // questions in a specific question
-  Meteor.publish('answers.forQuestion', function (questionId) {
+  Meteor.publish('responses.forQuestion', function (questionId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const question = Questions.findOne({ _id: questionId })
@@ -46,28 +46,28 @@ if (Meteor.isServer) {
       const course = Courses.findOne({ _id: session.courseId })
 
       if (user.hasRole('professor') && course.owner === this.userId) {
-        return Answers.find({ questionId: questionId })
+        return Responses.find({ questionId: questionId })
       } else if (user.hasRole('student')) {
-        return Answers.find({ questionId: questionId }) // TODO
+        return Responses.find({ questionId: questionId }) // TODO
       }
     } else this.ready()
   })
 
-  Meteor.publish('answers.forSession', function (sessionId) {
+  Meteor.publish('responses.forSession', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const session = Sessions.findOne({ _id: sessionId })
       const course = Courses.findOne({ _id: session.courseId })
 
       if (user.hasRole('professor') && course.owner === this.userId) {
-        return Answers.find({ questionId: { $in: session.questions } })
+        return Responses.find({ questionId: { $in: session.questions } })
       } else if (user.hasRole('student')) {
-        return Answers.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
+        return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
       }
     } else this.ready()
   })
 
-  Meteor.publish('answers.forCourse', function (courseId) {
+  Meteor.publish('responses.forCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const course = Courses.findOne({ _id: courseId })
@@ -81,9 +81,9 @@ if (Meteor.isServer) {
       })
 
       if (user.hasRole('professor') && course.owner === this.userId) {
-        return Answers.find({ questionId: { $in: questionIds } })
+        return Responses.find({ questionId: { $in: questionIds } })
       } else if (user.hasRole('student')) {
-        return Answers.find({ questionId: { $in: questionIds }, studentUserId: this.userId })
+        return Responses.find({ questionId: { $in: questionIds }, studentUserId: this.userId })
       }
     } else this.ready()
   })
@@ -93,12 +93,12 @@ if (Meteor.isServer) {
 Meteor.methods({
 
   /**
-   * answer.addQuestionAnswer(Answer answerObject)
+   * responses.add(Reponse responseObject)
    * add a student result to question (that is attached to session)
    */
-  'answer.addQuestionAnswer' (answerObject) {
+  'responses.add' (answerObject) {
     answerObject.createdAt = new Date()
-    check(answerObject, answerPattern)
+    check(answerObject, responsePattern)
 
     const q = Questions.findOne({ _id: answerObject.questionId })
     if (!q.sessionId) throw Error('Question not attached to session')
@@ -106,20 +106,20 @@ Meteor.methods({
 
     // TODO check if attempt number is current in question
 
-    const c = Answers.find({
+    const c = Responses.find({
       attempt: answerObject.attempt,
       questionId: answerObject.questionId,
       studentUserId: answerObject.studentUserId
     }).count()
-    if (c > 0) return Meteor.call('answer.update', answerObject)
+    if (c > 0) return Meteor.call('responses.update', answerObject)
 
-    return Answers.insert(answerObject)
+    return Responses.insert(answerObject)
   },
 
-  'answer.update' (answerObject) {
-    check(answerObject, answerPattern)
+  'responses.update' (answerObject) {
+    check(answerObject, responsePattern)
 
-    return Answers.update({
+    return Responses.update({
       attempt: answerObject.attempt,
       questionId: answerObject.questionId,
       studentUserId: answerObject.studentUserId

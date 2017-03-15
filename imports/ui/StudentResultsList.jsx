@@ -6,7 +6,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { Answers } from '../api/answers'
+import { Responses } from '../api/responses'
 
 export class _StudentResultsList extends Component {
 
@@ -20,7 +20,7 @@ export class _StudentResultsList extends Component {
         </thead>
         <tbody>
           {
-            this.props.answers.map((row) => {
+            this.props.responses.map((row) => {
               return (<tr key={row._id}>
                 <td>{row.studentUserId}</td>
                 <td>{row.answer}</td>
@@ -36,11 +36,11 @@ export class _StudentResultsList extends Component {
 }
 
 export const StudentResultsList = createContainer((props) => {
-  const handle = Meteor.subscribe('answers.forQuestion', props.question._id)
-  const answers = Answers.find({ questionId: props.question._id }).fetch()
+  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
+  const responses = Responses.find({ questionId: props.question._id }).fetch()
 
   return {
-    answers: answers,
+    responses: responses,
     loading: !handle.ready()
   }
 }, _StudentResultsList)
