@@ -270,8 +270,8 @@ class _RunSession extends Component {
                       questionList.map((questionId) => {
                         const q = this.props.questions[questionId]
                         if (q._id === this.state.session.currentQuestion) {
-                          return <div className='current-question-list-item'><QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} /></div>
-                        } else return <QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} />
+                          return <div key={q._id} className='current-question-list-item'><QuestionListItem question={q} click={() => this.setCurrentQuestion(q._id)} /></div>
+                        } else return <QuestionListItem key={q._id} question={q} click={() => this.setCurrentQuestion(q._id)} />
                       })
                     }
                   </div>

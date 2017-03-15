@@ -41,7 +41,7 @@ export class QuestionEditItem extends Component {
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
-    this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1800)
+    this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
     // if editing pre-exsiting question
     if (this.props.question) {
@@ -92,12 +92,22 @@ export class QuestionEditItem extends Component {
    */
   changeType (newValue) {
     let type = parseInt(newValue)
+    const oldType = this.state.type
+    const retainOptions = (oldType === QUESTION_TYPE.MC && type === QUESTION_TYPE.MS) ||
+      (type === QUESTION_TYPE.MC && oldType === QUESTION_TYPE.MS)
 
-    this.setState({ type: type, options: [] }, () => {
-      if (type === QUESTION_TYPE.MC) {
-        this.currentAnswer = 0
-        this.answerOrder = _.extend({}, MC_ORDER)
-      } else if (type === QUESTION_TYPE.TF) {
+    const stateUpdater = { type: type }
+    if (!retainOptions) stateUpdater.options = []
+    else {
+      const options = this.state.options
+      options.forEach((a, i) => {
+        if (i === 0) options[i].correct = true
+        else options[i].correct = false
+      })
+    }
+
+    this.setState(stateUpdater, () => {
+      if (type === QUESTION_TYPE.TF) {
         this.currentAnswer = 0
         this.answerOrder = _.extend({}, TF_ORDER)
         this.addAnswer(null, null, false, () => {
@@ -106,9 +116,11 @@ export class QuestionEditItem extends Component {
       } else if (type === QUESTION_TYPE.SA) {
         this.currentAnswer = -1
         this.answerOrder = []
+      } else if (!retainOptions) {
+        this.currentAnswer = 0
+        this.answerOrder = _.extend({}, MC_ORDER)
       }
       this._DB_saveQuestion()
-      // TODO multi select
     })
   }
 
