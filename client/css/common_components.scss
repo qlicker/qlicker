@@ -1,3 +1,4 @@
+@import './main.scss';
 @import './bootstrap-style.scss';
 
 .ql-answer-distribution {
@@ -111,13 +112,22 @@
 // labels
 .ql-page-container .label {
   background: transparent;
-  padding: 4px 6px;
+  padding: 2px 6px;
   border-radius: 6px;
   font-weight: normal;
 
   &.label-info {
     border: 1px solid $blue;
     color: $blue;
+  }
+
+  &.label-correct {
+    border: 1px solid $correct-color;
+    color: $correct-color;
+  }
+  &.label-incorrect {
+    border: 1px solid $incorrect-color;
+    color: $incorrect-color;
   }
 
 }

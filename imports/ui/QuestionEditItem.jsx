@@ -292,8 +292,8 @@ export class QuestionEditItem extends Component {
             Option <span className='answer-key'>{ a.answer }</span>
             <span className='correct' onClick={() => this.markCorrect(a.answer)}>
               { a.correct
-                ? <span className='correct-color'>Correct</span>
-                : <span className='incorrect-color'>Incorrect</span> }
+                ? <span className='label label-correct'>Correct</span>
+                : <span className='label label-incorrect'>Incorrect</span> }
             </span>
           </span>
           <Editor
@@ -303,8 +303,15 @@ export class QuestionEditItem extends Component {
             />
         </div>)
 
-      const noWysiwygAnswer = (<div className='answer-no-wysiwyg'>
-        <span className={a.answer === 'TRUE' ? 'correct-color' : 'incorrect-color'}>{ a.answer }</span>
+      const noWysiwygAnswer = (<div className='answer-option'>
+        <span className='correct' onClick={() => this.markCorrect(a.answer)}>
+          { a.correct
+            ? <span className='label label-correct'>Correct</span>
+            : <span className='label label-incorrect'>Incorrect</span> }
+        </span>
+        <div className='answer-no-wysiwyg'>
+          <span>{ a.answer }</span>
+        </div>
       </div>)
 
       return (<div className='col-md-6 small-editor-wrapper' key={'answer_' + a.answer}>
