@@ -72,7 +72,7 @@ export const StudentDashboard = createContainer(() => {
   const cArr = user.profile.courses || []
 
   return {
-    courses: Courses.find({ _id: { $in: cArr } }).fetch(),
+    courses: Courses.find({ _id: { $in: cArr }, inactive: { $in: [null, false] } }).fetch(),
     loading: !handle.ready(),
     handle: handle
   }

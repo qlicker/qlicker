@@ -97,9 +97,18 @@ class _PageContainer extends Component {
 
 export const PageContainer = createContainer(() => {
   const handle = Meteor.subscribe('courses')
+  let courses
+  const user = Meteor.user()
+
+  if (user.hasRole('professor')) {
+    courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
+  } else {
+    const cArr = user.profile.courses || []
+    courses = Courses.find({ _id: { $in: cArr }, inactive: { $in: [null, false] } })
+  }
 
   return {
-    courses: Courses.find({ inactive: { $in: [null, false] } }).fetch(),
+    courses: courses.fetch(),
     loading: !handle.ready()
   }
 }, _PageContainer)

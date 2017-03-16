@@ -40,7 +40,7 @@ class _ManageCourse extends Component {
   }
 
   setActive () {
-    Meteor.call('courses.setActive', this.courseId, this.props.course.inactive, (error) => {
+    Meteor.call('courses.setActive', this.courseId, this.props.course.inactive || false, (error) => {
       if (error) return alertify.error('Error: could not set course property')
       alertify.success('Course set to: ' + (this.props.course.inactive ? 'Archived' : 'Active'))
     })
