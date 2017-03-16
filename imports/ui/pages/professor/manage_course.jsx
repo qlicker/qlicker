@@ -26,6 +26,7 @@ class _ManageCourse extends Component {
     this.deleteSession = this.deleteSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
     this.deleteCourse = this.deleteCourse.bind(this)
+    this.setActive = this.setActive.bind(this)
   }
 
   deleteCourse () {
@@ -38,11 +39,18 @@ class _ManageCourse extends Component {
     }
   }
 
+  setActive () {
+    Meteor.call('courses.setActive', this.courseId, this.props.course.inactive, (error) => {
+      if (error) return alertify.error('Error: could not set course property')
+      alertify.success('Course set to: ' + (this.props.course.inactive ? 'Archived' : 'Active'))
+    })
+  }
+
   deleteSession (sessionId) {
     if (confirm('Are you sure?')) {
       Meteor.call('courses.deleteSession', this.courseId, sessionId, (error) => {
         if (error) return alertify.error('Couldn\'t delete session')
-        alertify.success('Delete session')
+        alertify.success('Session deleted')
       })
     }
   }
@@ -99,6 +107,7 @@ class _ManageCourse extends Component {
   render () {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
 
+    const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
     return (
       <div className='container ql-manage-course'>
         <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
@@ -108,6 +117,7 @@ class _ManageCourse extends Component {
             <br />
             <h3>Course Details</h3>
             <button className='btn btn-default' onClick={this.deleteCourse}>Delete</button>
+            <button className='btn btn-default' onClick={this.setActive}>{strActive}</button>
             <div className='ql-course-details'>
               <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -
               <span className='ql-course-semester'> { this.props.course.semester }</span>

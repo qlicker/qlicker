@@ -188,6 +188,8 @@ if (Meteor.isServer) {
           expect(Meteor.users.findOne({ _id: studentUserId }).profile.courses.length).to.equal(1)
         })
       })
+
+      it('can toggle course inactive attribute')
     }) // end describe('course<=>user methods')
   }) // end describe('Courses')
 } // end Meteor.isServer

@@ -23,8 +23,8 @@ const coursePattern = {
   enrollmentCode: Helpers.NEString,
   semester: Helpers.NEString, // F17, W16, S15, FW16 etc.
   inactive: Match.Maybe(Boolean),
-  students: Match.Maybe([Helpers.MongoID]), // TODO pluck out to just array if ids
-  sessions: Match.Maybe([Helpers.MongoID]), // TODO pluck out to just array if ids
+  students: Match.Maybe([Helpers.MongoID]),
+  sessions: Match.Maybe([Helpers.MongoID]),
   createdAt: Date
 }
 
@@ -248,6 +248,25 @@ Meteor.methods({
   'courses.getCourseCodeTag' (courseId) {
     const c = Courses.findOne(courseId).courseCode().toUpperCase()
     return { value: c, label: c }
+  },
+
+
+  /**
+   * courses.setActive(String (mongoid): courseId, Boolean active)
+   * set inactive attribute based on bool
+   */
+  'courses.setActive' (courseId, active) {
+    check(courseId, Helpers.MongoID)
+    check(active, Boolean)
+
+    profHasCoursePermission(courseId)
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        inactive: !active
+      }
+    })
   }
+
 }) // end Meteor.methods
 
