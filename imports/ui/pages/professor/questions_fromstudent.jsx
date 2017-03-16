@@ -23,6 +23,8 @@ class _QuestionsFromStudent extends Component {
     this.state = { edits: {}, selected: null }
 
     this.copyPublicQuestion = this.copyPublicQuestion.bind(this)
+    this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.questionDeleted = this.questionDeleted.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
   }
 
@@ -36,6 +38,18 @@ class _QuestionsFromStudent extends Component {
       alertify.success('Question Copied to Library')
       Router.go('questions', { _id: newQuestionId })
     })
+  }
+
+  deleteQuestion (questionId) {
+    Meteor.call('questions.delete', questionId, (error) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Deleted')
+      this.questionDeleted()
+    })
+  }
+
+  questionDeleted () {
+    this.setState({ selected: null })
   }
 
   componentDidMount () {
@@ -66,6 +80,12 @@ class _QuestionsFromStudent extends Component {
                   data-placement='left'
                   title='Create a copy to use in your own sessions'>
                     Copy to Library
+                  </button>
+                <button className='btn btn-default'
+                  onClick={() => { this.deleteQuestion(this.props.questionMap[this.state.selected]._id) }}
+                  data-toggle='tooltip'
+                  data-placement='left'>
+                    Delete
                   </button>
                 <div className='ql-preview-item-container'>
                   <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />

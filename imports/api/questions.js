@@ -196,7 +196,11 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const question = Questions.findOne({ _id: questionId })
-    if (question.submittedBy !== Meteor.userId()) throw Error('Not authorized to delete question')
+    const yourCourses = _(Courses.find({ owner: Meteor.userId() }).fetch()).pluck('_id')
+
+    const ownQuestion = question.submittedBy === Meteor.userId()
+    const fromYourStudent = question.courseId && yourCourses.indexOf(question.courseId) > -1
+    if (!ownQuestion && !fromYourStudent) throw Error('Not authorized to delete question')
 
     return Questions.remove({ _id: questionId })
   },
