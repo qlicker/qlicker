@@ -99,7 +99,7 @@ export const PageContainer = createContainer(() => {
   const handle = Meteor.subscribe('courses')
 
   return {
-    courses: Courses.find({}).fetch(),
+    courses: Courses.find({ inactive: { $in: [null, false] } }).fetch(),
     loading: !handle.ready()
   }
 }, _PageContainer)

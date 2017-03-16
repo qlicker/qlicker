@@ -57,7 +57,7 @@ class _ProfessorDashboard extends Component {
 export const ProfessorDashboard = createContainer(() => {
   const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')
 
-  const courses = Courses.find({ owner: Meteor.userId() }).fetch()
+  const courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } }).fetch()
   const sessions = Sessions.find({
     courseId: { $in: _(courses).pluck('_id') },
     $or: [{ status: 'visible' }, { status: 'running' }]

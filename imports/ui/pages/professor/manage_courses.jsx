@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// professor_dashboard.jsx: professor overview page
+// manage_courses.jsx: all courses (active & inactive) page
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
@@ -41,8 +41,8 @@ class _ManageCourses extends Component {
     this.setState({ creatingCourse: false })
   }
 
-  renderCourseList () {
-    return this.props.courses.map((course) => (
+  renderCourseList (cList) {
+    return cList.map((course) => (
       <CourseListItem
         key={course._id}
         course={course}
@@ -56,8 +56,15 @@ class _ManageCourses extends Component {
       <div className='container ql-professor-page'>
         <h1>Courses</h1>
         <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
-        { <div className='ql-courselist'>{this.renderCourseList()}</div> }
+        <div className='ql-courselist'>
+          { this.renderCourseList(this.props.courses.filter((c) => !c.inactive)) }
+        </div>
 
+        <h2>Inactive Courses</h2>
+        <div className='ql-courselist'>
+          { this.renderCourseList(this.props.courses.filter((c) => c.inactive)) }
+        </div>
+        
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
       </div>)
   }
