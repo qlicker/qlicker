@@ -8,6 +8,7 @@ import _ from 'underscore'
 
 import { ControlledForm } from './ControlledForm'
 
+import { Creatable } from 'react-select'
 import { QuestionListItem } from './QuestionListItem'
 import { StudentQuestionListItem } from './StudentQuestionListItem'
 
@@ -17,12 +18,24 @@ export class QuestionSidebar extends ControlledForm {
 
   constructor (props) {
     super(props)
-    this.state = { questionPool: this.props.questions.slice(), questionType: -1 }
+    this.state = { questionPool: this.props.questions.slice(), questionType: -1, tags: [] }
 
     this.setQuestion = this.setQuestion.bind(this)
     this.setSearchString = this.setSearchString.bind(this)
     this.setType = this.setType.bind(this)
+    this.setTags = this.setTags.bind(this)
     this.filterPool = this.filterPool.bind(this)
+    this._DB_filterPool = _.debounce(this.filterPool, 200)
+
+    // populate tagging suggestions
+    this.tagSuggestions = []
+    Meteor.call('questions.possibleTags', (e, tags) => {
+      // non-critical, if e: silently fail
+      tags.forEach((t) => {
+        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.forceUpdate()
+    })
   }
 
   /**
@@ -39,8 +52,10 @@ export class QuestionSidebar extends ControlledForm {
    * set selected question to add
    */
   setQuestion (questionId) {
-    this.setState({ questionId: questionId })
-    this.props.onSelect(questionId)
+    this.setState({ questionId: questionId }, () => {
+      this.props.onSelect(questionId)
+      // this._DB_filterPool()
+    })
   }
 
   /**
@@ -49,7 +64,7 @@ export class QuestionSidebar extends ControlledForm {
    */
   setSearchString (e) {
     this.setState({ searchString: e.target.value }, () => {
-      this.filterPool()
+      this._DB_filterPool()
     })
   }
 
@@ -59,7 +74,17 @@ export class QuestionSidebar extends ControlledForm {
    */
   setType (e) {
     this.setState({ questionType: parseInt(e.target.value) }, () => {
-      this.filterPool()
+      this._DB_filterPool()
+    })
+  }
+
+  /**
+   * setTags(Event: e)
+   * udpate state tags array
+   */
+  setTags (tags) {
+    this.setState({ tags: tags }, () => {
+      this._DB_filterPool()
     })
   }
 
@@ -77,14 +102,20 @@ export class QuestionSidebar extends ControlledForm {
 
       const correctType = (this.state.questionType === -1) || (q.type === this.state.questionType)
 
-      return (inQuestion || inAnswers) && correctType
+      const hasTag = this.state.tags.length > 0
+        ? _.intersection(_(q.tags).pluck('value'), _(this.state.tags).pluck('value')).length > 0
+        : true
+
+      return (inQuestion || inAnswers) && correctType && hasTag
     })
 
     this.setState({ questionPool: pool })
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice() })
+    this.setState({ questionPool: nextProps.questions.slice() }, () => {
+      this.filterPool()
+    })
   }
 
   render () {
@@ -92,7 +123,7 @@ export class QuestionSidebar extends ControlledForm {
       <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
 
-          <input type='text' className='form-control search-field' onChange={_.throttle(this.setSearchString, 500)} />
+          <input type='text' className='form-control search-field' placeholder='Search Term' onChange={_.throttle(this.setSearchString, 500)} />
 
           <select defaultValue={this.state.type} onChange={this.setType} className='ql-header-button question-type form-control'>
             <option key={-1} value={-1}>Any Type</option>
@@ -104,6 +135,15 @@ export class QuestionSidebar extends ControlledForm {
             }
           </select>
 
+          <Creatable
+            name='tag-input'
+            placeholder='Search by Tag'
+            multi
+            value={this.state.tags}
+            options={this.tagSuggestions}
+            onChange={this.setTags}
+            />
+          <br />
           { /* list questions */
             this.state.questionPool.map(q => {
               return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
