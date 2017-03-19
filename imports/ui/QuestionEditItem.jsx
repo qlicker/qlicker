@@ -80,8 +80,7 @@ export class QuestionEditItem extends Component {
     if (this.props.courseId) {
       // add course code tag
       Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
-        if (this.state.tags) this.state.tags.push(tag)
-        else this.state.tags = [tag]
+        this.setState({ tags: [tag] })
       })
     }
   } // end constructor
