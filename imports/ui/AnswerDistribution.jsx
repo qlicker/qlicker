@@ -60,7 +60,7 @@ export const AnswerDistribution = createContainer((props) => {
     delete a.values
   })
   const kOptions = _(options).indexBy('answer')
-  console.log(kOptions)
+
   // split up multi-select responses
   const arrayKeys = _(options).chain().pluck('answer').filter((k) => k instanceof Array).value()
   arrayKeys.forEach((k) => {

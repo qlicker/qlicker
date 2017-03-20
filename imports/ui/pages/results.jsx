@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// grades.jsx: page for displaying student results for specific course
+// results.jsx: page for displaying student results for specific course
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
@@ -12,9 +12,9 @@ import $ from 'jquery'
 import { Courses } from '../../api/courses'
 import { Sessions } from '../../api/sessions'
 
-import { SessionGrades } from '../SessionGrades'
+import { SessionResults } from '../SessionResults'
 
-class _Grades extends Component {
+class _Results extends Component {
 
   constructor (props) {
     super(props)
@@ -27,11 +27,15 @@ class _Grades extends Component {
 
     const sessionList = this.props.course.sessions || []
     return (
-      <div className='container ql-grades-page'>
-        <h2>Grades: {this.props.course.name}</h2>
+      <div className='container ql-results-page'>
+        <h2>Student Response Results: {this.props.course.name}</h2>
         {
           sessionList.map(sessionId => {
-            return <SessionGrades key={sessionId} session={this.props.sessions[sessionId]} />
+            const s = this.props.sessions[sessionId]
+            return <div className='session-group'>
+              <h3>{s.name}</h3>
+              <SessionResults key={sessionId} session={s} />
+            </div>
           })
         }
       </div>
@@ -41,7 +45,7 @@ class _Grades extends Component {
 }
 
 // meteor reactive data container
-export const GradesPage = createContainer((props) => {
+export const ResultsPage = createContainer((props) => {
   const handle = Meteor.subscribe('userData') &&
     Meteor.subscribe('courses') &&
     Meteor.subscribe('sessions')
@@ -59,5 +63,5 @@ export const GradesPage = createContainer((props) => {
     sessions: _(sessions).indexBy('_id'),
     loading: !handle.ready()
   }
-}, _Grades)
+}, _Results)
 

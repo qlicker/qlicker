@@ -168,6 +168,22 @@ Meteor.methods({
   },
 
   /**
+   * sessions.join(MongoId (string) sessionId, MongoId (string) studentUserId)
+   * track number of students that are participating in session
+   */
+  'sessions.join' (sessionId, studentUserId) {
+    check(sessionId, Helpers.MongoID)
+    check(studentUserId, Helpers.MongoID)
+
+    // const session = Sessions.findOne({ _id: sessionId })
+    // TODO only allow students enrolled in course to join a session
+
+    return Sessions.update({ _id: sessionId }, {
+      $addToSet: { joined: studentUserId }
+    })
+  },
+
+  /**
    * sessions.setCurrent(MongoId (string) sessionId, MongoId (string) questionId)
    * set currently running question
    */
