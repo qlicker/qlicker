@@ -1,11 +1,16 @@
 @import './main.scss';
 @import './bootstrap-style.scss';
+@import './mixins.scss';
 
 .ql-answer-distribution {
   display: inline-block;
   float: left;
   background: white;
   border: 1px solid #ccc;
+}
+
+.ql-list-item {
+  @include list-item();
 }
 
 

@@ -2,7 +2,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// grade_overview.jsx: page for navigating to specific course grades pages
+// results_overview.jsx: page for navigating to specific course participation result pages
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
@@ -13,7 +13,7 @@ import { Courses } from '../../api/courses'
 
 import { CourseListItem } from '../CourseListItem'
 
-class _GradesOverview extends Component {
+class _ResultsOverview extends Component {
 
   constructor (props) {
     super(props)
@@ -24,10 +24,10 @@ class _GradesOverview extends Component {
   render () {
     return (
       <div className='container ql-grades-overview'>
-        <h2>Grades</h2>
+        <h2>Student Response Results</h2>
         {
           this.props.courses.map((c) => {
-            return <CourseListItem key={c._id} course={c} click={() => { Router.go('course.grades', { _id: c._id }) }} />
+            return <CourseListItem key={c._id} course={c} click={() => { Router.go('course.results', { _id: c._id }) }} />
           })
         }
       </div>)
@@ -35,7 +35,7 @@ class _GradesOverview extends Component {
 
 }
 
-export const GradesOverview = createContainer((props) => {
+export const ResultsOverview = createContainer((props) => {
   const handle = Meteor.subscribe('courses')
 
   const user = Meteor.user()
@@ -52,5 +52,5 @@ export const GradesOverview = createContainer((props) => {
     courses: courses.fetch(),
     loading: !handle.ready()
   }
-}, _GradesOverview)
+}, _ResultsOverview)
 

@@ -192,29 +192,29 @@ Router.route('/course/:_id', {
   }
 })
 
-import { GradesOverview } from '../../ui/pages/grades_overview'
-Router.route('/courses/grades', {
-  name: 'grades.overview',
+import { ResultsOverview } from '../../ui/pages/results_overview'
+Router.route('/courses/results', {
+  name: 'results.overview',
   waitOn: function () {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
     const u = Meteor.user()
     if (u) {
-      mount(AppLayout, { content: <PageContainer> <GradesOverview /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer> <ResultsOverview /> </PageContainer> })
     } else Router.go('login')
   }
 })
 
-import { GradesPage } from '../../ui/pages/grades'
-Router.route('/course/:_id/grades', {
-  name: 'course.grades',
+import { ResultsPage } from '../../ui/pages/results'
+Router.route('/course/:_id/results', {
+  name: 'course.results',
   waitOn: function () {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
   },
   action: function () {
     if (Meteor.user()) {
-      mount(AppLayout, { content: <PageContainer> <GradesPage courseId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer> <ResultsPage courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
