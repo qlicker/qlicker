@@ -19,6 +19,8 @@ class _Session extends Component {
     super(props)
 
     this.state = { submittingQuestion: false }
+
+    if (this.props.user.hasRole('student')) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
   }
 
 
@@ -45,7 +47,7 @@ export const Session = createContainer((props) => {
     Meteor.subscribe('questions.inSession', props.sessionId)
 
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
-  let user = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
+  let user = Meteor.user()
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
   return {

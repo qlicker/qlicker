@@ -10,6 +10,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
+import { Responses } from '../../../api/responses'
 
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
@@ -226,6 +227,9 @@ class _RunSession extends Component {
     const strAttemptEnabled = currentAttempt.closed ? 'Allow Responses' : 'Disallow Responses'
     const strAttemptOpen = currentAttempt.closed ? 'Closed for Responses' : 'Open for Responses'
 
+    const numAnswered = this.props.responses.length
+    const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
+
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
@@ -239,12 +243,14 @@ class _RunSession extends Component {
           <div className='ql-sidebar-container'>
             <div className={'ql-session-sidebar' + (this.state.presenting ? ' presenting' : '')}>
               <h2>Session: { this.state.session.name }</h2>
+              <div className='student-counts'>Students in session: {numJoined}</div>
               <div className='btn-group btn-group-justified _display' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={togglePresenting}>Presentation <span className='glyphicon glyphicon-fullscreen' /></a>
                 <a href='#' className='btn btn-default btn-sm' onClick={secondDisplay}>2nd Display <span className='glyphicon glyphicon-blackboard' /></a>
               </div>
               <hr />
               <h3>Current Question</h3>
+              <div className='student-counts'>Responses recieved: {numAnswered}</div>
               <div className='btn-group btn-group-justified _questions' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
@@ -311,14 +317,22 @@ class _RunSession extends Component {
 export const RunSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
-    Meteor.subscribe('questions.library')
+    Meteor.subscribe('questions.library') &&
+    Meteor.subscribe('responses.forSession', props.sessionId)
 
-  const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
+  const session = Sessions.findOne(props.sessionId)
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
+  const questions = _.indexBy(questionsInSession, '_id')
+
+  let responses = []
+  if (session.currentQuestion && questions[session.currentQuestion]) {
+    const maxAttempt = questions[session.currentQuestion].sessionOptions.attempts.length
+    responses = Responses.find({ attempt: maxAttempt, questionId: session.currentQuestion }).fetch()
+  }
 
   return {
-    questions: _.indexBy(questionsInSession, '_id'),
-    questionPool: Questions.find({ sessionId: {$exists: false} }).fetch(),
+    questions: questions,
+    responses: responses,
     session: session,
     loading: !handle.ready()
   }
