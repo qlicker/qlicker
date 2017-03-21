@@ -69,7 +69,9 @@ class _PageContainer extends Component {
                     </li>
                     : ''
                 }
-                <li><a className='bootstrap-overrides' href={Router.routes['grades.overview'].path()}>Grades</a></li>
+                {
+                  this.state.user.hasRole('professor') ? <li><a className='bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
+                  : '' }
               </ul>
 
               <ul className='nav navbar-nav navbar-right'>
