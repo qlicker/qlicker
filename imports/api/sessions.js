@@ -23,7 +23,8 @@ const sessionPattern = {
   dueDate: Match.Optional(Match.OneOf(undefined, null, Date)), // quiz due date
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
-  currentQuestion: Match.Maybe(Helpers.MongoID)
+  currentQuestion: Match.Maybe(Helpers.MongoID),
+  joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ])
 }
 
 // Create Session class
