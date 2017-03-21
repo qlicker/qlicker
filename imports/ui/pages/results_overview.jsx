@@ -2,6 +2,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
+// grade_overview.jsx: page for navigating to specific course grades pages
 // results_overview.jsx: page for navigating to specific course participation result pages
 
 import React, { Component } from 'react'
@@ -21,15 +22,24 @@ class _ResultsOverview extends Component {
     this.state = {}
   }
 
+  renderCourseList (cList) {
+    return cList.map((c) => (
+      <CourseListItem key={c._id} course={c} click={() => { Router.go('course.results', { _id: c._id }) }} />
+    ))
+  }
+
   render () {
     return (
       <div className='container ql-grades-overview'>
-        <h2>Student Response Results</h2>
-        {
-          this.props.courses.map((c) => {
-            return <CourseListItem key={c._id} course={c} click={() => { Router.go('course.results', { _id: c._id }) }} />
-          })
-        }
+        <h2>Grades</h2>
+        <div className='ql-courselist'>
+          { this.renderCourseList(this.props.courses.filter((c) => !c.inactive)) }
+        </div>
+
+        <h2>Inactive Courses</h2>
+        <div className='ql-courselist'>
+          { this.renderCourseList(this.props.courses.filter((c) => c.inactive)) }
+        </div>
       </div>)
   }
 

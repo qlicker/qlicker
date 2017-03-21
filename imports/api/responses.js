@@ -72,13 +72,8 @@ if (Meteor.isServer) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const course = Courses.findOne({ _id: courseId })
 
-      const questionIds = []
-      const sessions = Sessions.find({ _id: (course.sessions || []).pluck('sessionId') }).fetch()
-      sessions.forEach((s) => {
-        Questions.find().fetch().forEach((q) => {
-          questionIds.push(q._id)
-        })
-      })
+      const sessions = Sessions.find({ courseId: courseId }).fetch()
+      const questionIds = _.flatten(_(sessions).pluck('questions'))
 
       if (user.hasRole('professor') && course.owner === this.userId) {
         return Responses.find({ questionId: { $in: questionIds } })

@@ -206,9 +206,22 @@ Router.route('/courses/results', {
   }
 })
 
-import { ResultsPage } from '../../ui/pages/results'
+import { ClasslistParticipationPage } from '../../ui/pages/classlist_participation'
 Router.route('/course/:_id/results', {
   name: 'course.results',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user()) {
+      mount(AppLayout, { content: <PageContainer> <ClasslistParticipationPage courseId={this.params._id} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { ResultsPage } from '../../ui/pages/results'
+Router.route('/course/:_id/results/sessions', {
+  name: 'course.results.sessions',
   waitOn: function () {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
   },
