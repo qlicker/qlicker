@@ -1,8 +1,8 @@
 # User Manual - Administrators
 
-1. [Creating an Account](#Creating-an-Account)
-2. [Enrolling in Courses](#Enrolling-in-Courses)
-3. [Sessions](#Sessions)
+1. [Creating an Account](#creating-an-account)
+2. [Enrolling in Courses](#enrolling-in-courses)
+3. [Sessions](#sessions)
 
 ## Creating an Account
 
