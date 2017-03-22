@@ -32,7 +32,7 @@ export class ChangeEmailModal extends ControlledForm {
 
   /**
    * handleSubmit(Event: e)
-   * onSubmit handler for enroll form. Calls courses.checkAndEnroll
+   * onSubmit handler for enroll form. Calls users.changeEmail
    */
   handleSubmit (e) {
     super.handleSubmit(e)
@@ -53,15 +53,14 @@ export class ChangeEmailModal extends ControlledForm {
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
       <div className='ql-modal ql-modal-newemail container' onClick={this.preventPropagation}>
-        <h2>Enroll In Course</h2>
-        <form ref='newEmailForm' className='ql-form-enrollcourse' onSubmit={this.handleSubmit}>
+        <h2>Change Email Address</h2>
+        <form ref='newEmailForm' onSubmit={this.handleSubmit}>
           <div>Old email: {this.props.oldEmail}</div>
 
           <label>New Email Address:</label>
           <input type='email' className='form-control' onChange={this.newEmailOnChange} /><br />
 
           <div className='ql-buttongroup'>
-            <a className='btn btn-default' onClick={this.done}>Cancel</a>
             <input className='btn btn-default' type='submit' id='submit' />
           </div>
         </form>

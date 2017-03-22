@@ -159,6 +159,10 @@ $incorrect-color: #A72526;
   font-size: 140%;
 }
 
+.center-text {
+  text-align: center;
+}
+
 @media (max-width: 480px) {
   .ql-child-container > .container {
     padding-top:0;

@@ -17,3 +17,7 @@ Accounts.emailTemplates.verifyEmail = {
     return emailBody
   }
 }
+
+Accounts.urls.resetPassword = function (token) {
+  return Meteor.absoluteUrl('reset/' + token)
+}

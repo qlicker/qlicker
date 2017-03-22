@@ -11,6 +11,8 @@ import { AppLayout } from '../../ui/layouts/app_layout'
 import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
 
+import { ResetPasswordPage } from '../../ui/pages/reset_password'
+
 import { PageContainer } from '../../ui/pages/page_container'
 
 Router.configure({
@@ -32,6 +34,13 @@ Router.route('/login', function () {
 }, {
   name: 'login'
 })
+
+Router.route('/reset/:token', function () {
+  mount(AppLayout, { content: <ResetPasswordPage token={this.params.token} /> })
+}, {
+  name: 'reset-password'
+})
+
 
 import { ProfilePage } from '../../ui/pages/profile'
 Router.route('/profile', {

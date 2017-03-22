@@ -10,6 +10,7 @@ import { _ } from 'underscore'
 import $ from 'jquery'
 
 import { ChangeEmailModal } from '../modals/ChangeEmailModal'
+import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 
 import { ProfileImages } from '../../api/users'
 
@@ -23,7 +24,7 @@ class _Profile extends Component {
       uploadActive: false,
       user: this.props.user,
       changingEmail: false,
-      changingName: false
+      changingPassword: false
     }
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
   }
@@ -76,7 +77,7 @@ class _Profile extends Component {
 
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
-    const toggleChangeNameModal = () => { this.setState({ changingName: !this.state.changingEmail }) }
+    const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
 
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
@@ -115,8 +116,9 @@ class _Profile extends Component {
             <h2>{user.getName()}</h2>
             <div className='btn-group' role='group' aria-label='...'>
               <button type='button' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</button>
-              {/*<button type='button' className='btn btn-default' onClick={toggleChangeNameModal} >Change Name</button>*/}
+              <button type='button' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</button>
             </div>
+            <br /><br />
             <div className='ql-profile-container'>
               Email: {user.getEmail()} - {spanVerified}<br />
               Role: {user.profile.roles[0]}
@@ -126,6 +128,10 @@ class _Profile extends Component {
 
         { this.state.changingEmail
           ? <ChangeEmailModal oldEmail={this.state.user.getEmail()} done={toggleChangeEmailModal} />
+          : '' }
+
+        { this.state.changingPassword
+          ? <ChangePasswordModal done={toggleChangePasswordModal} />
           : '' }
 
       </div>
