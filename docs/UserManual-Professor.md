@@ -2,11 +2,11 @@
 
 1. [Starting Up](#starting-up)
 2. [Creating Courses](#creating-courses)
-3. [Creating Courses](#Creating-Courses)
-4. [Creating Questions](#Creating-Questions)
-5. [Creating Sessions](#Creating-Sessions)
-6. [Running Sessions](#Running-Sessions)
-7. [Viewing Responses](#Viewing-Responses)
+3. [Creating Courses](#creating-courses)
+4. [Creating Questions](#creating-questions)
+5. [Creating Sessions](#creating-sessions)
+6. [Running Sessions](#running-sessions)
+7. [Viewing Responses](#viewing-responses)
 
 ## Starting Up
 To obtain an account with professor privileges, another professor or administrator must created your account. Contact a fellow professor or your system administrator.
