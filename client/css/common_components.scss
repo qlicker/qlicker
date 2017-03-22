@@ -115,22 +115,22 @@
 }
 
 // labels
-.ql-page-container .label {
+.ql-page-container .ql-label {
   background: transparent;
   padding: 2px 6px;
   border-radius: 6px;
   font-weight: normal;
 
-  &.label-info {
+  &.ql-label-info {
     border: 1px solid $blue;
     color: $blue;
   }
 
-  &.label-correct {
+  &.ql-label-correct {
     border: 1px solid $correct-color;
     color: $correct-color;
   }
-  &.label-incorrect {
+  &.ql-label-incorrect {
     border: 1px solid $incorrect-color;
     color: $incorrect-color;
   }

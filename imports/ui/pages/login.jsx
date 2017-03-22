@@ -3,27 +3,52 @@
 //
 // login.jsx: login page
 
-import React from 'react'
+import React, { Component } from 'react'
 
 import { LoginBox } from '../LoginBox.jsx'
 
-export const Loginpage = () => (
-  <div className='ql-login-page'>
-    <div className='ql-outside-header'><h1 className='ql-wordmark'>Qlicker</h1></div>
+import { ResetPasswordModal } from '../modals/ResetPasswordModal'
 
-    <div className='container'>
+export class Loginpage extends Component {
 
-      <div className='row'>
-        <div className='col-md-4'>&nbsp;
+  constructor (props) {
+    super(props)
+
+    this.state = { resetPassword: false }
+  }
+
+  render () {
+    const togglePasswordResetModal = () => { this.setState({ resetPassword: !this.state.resetPassword }) }
+    return (
+      <div className='ql-login-page'>
+        <div className='ql-outside-header'><h1 className='ql-wordmark'>Qlicker</h1></div>
+
+        <div className='container'>
+
+          <div className='row'>
+            <div className='col-md-4'>&nbsp;
+            </div>
+
+            <div className='col-md-4 login-container'>
+              <LoginBox />
+              <br />
+              <div className='center-text'>
+                <a href='#' onClick={togglePasswordResetModal} >Forgot your password?</a>
+              </div>
+            </div>
+
+            <div className='col-md-4'>&nbsp;
+            </div>
+
+          </div>
         </div>
 
-        <div className='col-md-4 login-container'>
-          <LoginBox />
-        </div>
-
-        <div className='col-md-4'>&nbsp;
-        </div>
-
+        { this.state.resetPassword
+          ? <ResetPasswordModal done={togglePasswordResetModal} />
+          : '' }
       </div>
-    </div>
-  </div>)
+    )
+  }
+
+}
+
