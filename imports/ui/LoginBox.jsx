@@ -119,14 +119,11 @@ export class LoginBox extends Component {
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
     const topMessage = this.state.login ? 'Login to Qlicker' : 'Register for Qlicker'
     const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'
-    const fillOutInfoMessage = this.state.login ? '' : 'Fill out the information below to get started'
     return (
       <form className='ql-login-box' onSubmit={this.handleSubmit}>
         <div className='header-container'>
           <h4 className='header'>{topMessage}</h4>
         </div>
-        <div className='top-account-message'>{fillOutInfoMessage}</div>
-
         <div className='inputs-container'>
 
           { !this.state.login
@@ -148,7 +145,7 @@ export class LoginBox extends Component {
           <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
 
           <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-          { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /> </div> : ''}
+          { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div> : ''}
 
           { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
           { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}

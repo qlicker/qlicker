@@ -151,9 +151,7 @@
   width: 100%;
   background: #676A6C;
   padding: 5px;
-  position: fixed;
-  top: 0;
-  left: 0;
+  margin-top: -50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,12 +177,7 @@
 input[type=text], input[type=email], input[type=password] {
   border: 1px solid #ccc;
   border-radius: 2px;
-  padding: 10px;
-
-}
-
-textarea:focus, input:focus{
-    outline: none;
+  padding: 8px;
 }
 
 // buttons
