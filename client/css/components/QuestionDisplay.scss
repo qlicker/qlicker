@@ -1,4 +1,5 @@
 @import '../bootstrap-style.scss';
+@import '../main.scss';
 
 // Do something with these
 $blue-bar: rgba(47,176,232, 0.4);
@@ -102,6 +103,18 @@ $red-bar: rgba(167,37,38, 0.3);
           color: $main-text;
         }
       }
+    }
+
+    .q-submitted {
+      border: 1px solid $blue;
+      color: $blue;
+        .stat-bar {
+          &.show-stats {
+            background-color: $blue-bar;
+            color: $blue;
+            // fix this colour
+          }
+        }
     }
   }
 
