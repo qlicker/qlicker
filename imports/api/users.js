@@ -26,6 +26,9 @@ _.extend(User.prototype, {
   getEmail: function () {
     return this.emails[0].address
   },
+  getRole: function (role) {
+    return this.profile.roles[0]
+  },
   hasRole: function (role) {
     return this.profile.roles.indexOf(role) !== -1
   },
@@ -61,7 +64,9 @@ if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && user.hasGreaterRole('professor')) {
+    if (user && user.hasGreaterRole('admin')) {
+      return Meteor.users.find()
+    } else if (user && user.hasGreaterRole('professor')) {
       let studentRefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])

@@ -3,27 +3,44 @@
 //
 // admin_dashboard.jsx: admin overview page
 
-import React from 'react'
-import { LogoutButton } from '../../Buttons'
-import ProfileCard from '../../ProfileCard'
+import React, { Component } from 'react'
+import { createContainer } from 'meteor/react-meteor-data'
 
-export const AdminDashboard = function () {
-  return (
-    <div className='ql-page-container'>
-
-      <div className='ql-top-bar'>
-        <a href={Router.routes['admin'].path()} className='ql-wordmark'><h1>Qlicker</h1></a>
-
-        <div className='ql-button-bar'>
-          <ProfileCard />
-          <LogoutButton redirect='login' />
+class _AdminDashboard extends Component {
+  render () {
+    return (
+      <div className='ql-page-container'>
+        <div className='container ql-admin-page'>
+          <h2>Admin Page</h2>
+          <table className='table table-bordered'>
+            <thead>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+            </thead>
+            <tbody>
+              {
+                this.props.users.map((u) => {
+                  return (<tr><td>{u.getName()}</td><td>{u.getEmail()}</td><td>{u.getRole()}</td></tr>)
+                })
+              }
+            </tbody>
+          </table>
         </div>
-      </div>
 
-      <div className='container ql-admin-page'>
-        <h2>Admin Page</h2>
-
-      </div>
-
-    </div>)
+      </div>)
+  }
 }
+
+
+
+export const AdminDashboard = createContainer(() => {
+  const handle = Meteor.subscribe('userData')
+
+  const users = Meteor.users.find({ 'profile.roles': { $in: ['professor', 'admin'] } }).fetch()
+  console.log(users)
+  return {
+    users: users,
+    loading: !handle.ready()
+  }
+}, _AdminDashboard)
