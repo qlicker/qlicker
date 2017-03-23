@@ -138,6 +138,8 @@ if (Meteor.isServer) {
         })
       })
 
+      it('can copy session')
+
       it('can start session and end session (sessions.startSession & sessions.endSession)', () => {
         prepQuestionAndSession((sessionId, questionId) => {
           Meteor.call('questions.copyToSession', sessionId, questionId)

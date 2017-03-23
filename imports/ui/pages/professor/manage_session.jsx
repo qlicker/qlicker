@@ -35,6 +35,7 @@ class _ManageSession extends Component {
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
+    this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
@@ -256,7 +257,7 @@ class _ManageSession extends Component {
           <div className='ql-main-content' >
 
             <div className='ql-session-child-container'>
-              <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='status' onChange={this.setValue} />
+              <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
             </div>
             {
               questionList.map((questionId) => {
