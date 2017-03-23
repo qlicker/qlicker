@@ -291,8 +291,8 @@ export class QuestionEditItem extends Component {
             Option <span className='answer-key'>{ a.answer }</span>
             <span className='correct' onClick={() => this.markCorrect(a.answer)}>
               { a.correct
-                ? <span className='label label-correct'>Correct</span>
-                : <span className='label label-incorrect'>Incorrect</span> }
+                ? <span className='ql-label ql-label-correct'>Correct</span>
+                : <span className='ql-label ql-label-incorrect'>Incorrect</span> }
             </span>
           </span>
           <Editor
@@ -305,8 +305,8 @@ export class QuestionEditItem extends Component {
       const noWysiwygAnswer = (<div className='answer-option'>
         <span className='correct' onClick={() => this.markCorrect(a.answer)}>
           { a.correct
-            ? <span className='label label-correct'>Correct</span>
-            : <span className='label label-incorrect'>Incorrect</span> }
+            ? <span className='ql-label ql-label-correct'>Correct</span>
+            : <span className='ql-label ql-label-incorrect'>Incorrect</span> }
         </span>
         <div className='answer-no-wysiwyg'>
           <span>{ a.answer }</span>
