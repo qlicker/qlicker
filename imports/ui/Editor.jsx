@@ -6,6 +6,8 @@
 
 import React, { Component } from 'react'
 
+import { QuestionImages } from '../api/questions'
+
 export class Editor extends Component {
 
   constructor (p) {
@@ -17,6 +19,11 @@ export class Editor extends Component {
 
   setupCKEditor () {
     CKEDITOR.plugins.addExternal('confighelper', '/ckeditor/plugins/confighelper/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('notification', '/ckeditor/plugins/notification/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('notificationaggregator', '/ckeditor/plugins/notificationaggregator/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('filetools', '/ckeditor/plugins/filetools/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('uploadwidget', '/ckeditor/plugins/uploadwidget/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('uploadimage', '/ckeditor/plugins/uploadimage/', 'plugin.js')
 
     // if (this.editor) {
     //   this.editor.destroy()
@@ -30,10 +37,17 @@ export class Editor extends Component {
     this.editor.on('change', () => {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
+
+    this.editor.on('fileUploadResponse', () => {
+      setTimeout(() => {
+        this.props.change(this.editor.getData(), this.editor.editable().getText())
+      }, 200)
+    })
   }
 
   componentDidMount () {
     this.setupCKEditor()
+    this.componentDidUpdate()
   }
 
   componentWillReceiveProps (nextProps) {
@@ -48,7 +62,9 @@ export class Editor extends Component {
   render () {
     const plchldr = this.props.placeholder || ''
     return (<div className={'editor-wrapper ' + this.props.className}>
-      <textarea ref='theEditor' className='wysiwyg-editor' value={this.state.val} placeholder={plchldr} />
+      <div className='ckeditor-wrapper'>
+        <textarea ref='theEditor' className='wysiwyg-editor' value={this.state.val} placeholder={plchldr} />
+      </div>
     </div>)
   } //  end render
 
