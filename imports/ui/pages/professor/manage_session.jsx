@@ -65,6 +65,17 @@ class _ManageSession extends Component {
   }
 
   /**
+   * duplicateQuestion(MongoId (string): questionId)
+   * creates a copy of the question and attached the new copy to the same session
+   */
+  duplicateQuestion (questionId) {
+    Meteor.call('questions.copyToSession', this.sessionId, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Duplicate Added')
+    })
+  }
+
+  /**
    * changeQuestionPool(Event: e)
    * select onchange handler for changing question list
    */
@@ -178,7 +189,12 @@ class _ManageSession extends Component {
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
-        content: <QuestionListItem question={q} controls={[{ label: 'Remove', click: () => this.removeQuestion(questionId) }]} />,
+        content: <QuestionListItem
+          question={q}
+          controls={[
+            { label: 'Remove', click: () => this.removeQuestion(questionId) },
+            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) }
+          ]} />,
         id: questionId
       })
     })

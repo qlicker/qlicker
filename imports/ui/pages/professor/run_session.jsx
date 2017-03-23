@@ -325,7 +325,8 @@ export const RunSession = createContainer((props) => {
   const questions = _.indexBy(questionsInSession, '_id')
 
   let responses = []
-  if (session.currentQuestion && questions[session.currentQuestion]) {
+  const q = questions[session.currentQuestion]
+  if (session.currentQuestion && q && q.sessionOptions) {
     const maxAttempt = questions[session.currentQuestion].sessionOptions.attempts.length
     responses = Responses.find({ attempt: maxAttempt, questionId: session.currentQuestion }).fetch()
   }
