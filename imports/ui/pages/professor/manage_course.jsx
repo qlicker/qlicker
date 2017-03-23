@@ -12,6 +12,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
+import { PickCourseModal } from '../../modals/PickCourseModal'
 
 import { SessionListItem } from '../../SessionListItem'
 import { StudentListItem } from '../../StudentListItem'
@@ -21,12 +22,30 @@ class _ManageCourse extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { creatingSession: false }
+    this.state = { creatingSession: false, copySessionModal: false, sessionToCopy: null }
+    this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
+
     this.courseId = this.props.courseId
+    this.copySession = this.copySession.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
     this.deleteCourse = this.deleteCourse.bind(this)
     this.setActive = this.setActive.bind(this)
+  }
+
+  toggleCopySessionModal (sessionId = null) {
+    this.setState({ copySessionModal: !this.state.copySessionModal, sessionToCopy: sessionId })
+  }
+
+  copySession (sessionId, courseId = null) {
+    Meteor.call('sessions.copy', sessionId, courseId, (error) => {
+      if (error) return alertify.error('Error copying session')
+      alertify.success('Session copied')
+      if (courseId) {
+        this.toggleCopySessionModal()
+        Router.go('course', { _id: courseId })
+      }
+    })
   }
 
   deleteCourse () {
@@ -80,7 +99,11 @@ class _ManageCourse extends Component {
             key={sId}
             session={ses}
             click={nav}
-            controls={[{ label: 'Delete', click: () => this.deleteSession(sId) }]} />)
+            controls={[
+              { label: 'Delete', click: () => this.deleteSession(sId) },
+              { label: 'Duplicate', click: () => this.copySession(sId) },
+              { label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) }
+            ]} />)
         })
       }
     </div>)
@@ -91,14 +114,16 @@ class _ManageCourse extends Component {
 
     return (<div>
       {
-        students.map((s) => {
-          const stu = this.props.students[s]
+        students.map((sId) => {
+          const stu = this.props.students[sId]
           if (!stu) return
           return (<StudentListItem
-            key={s}
+            key={sId}
             courseId={this.courseId}
             student={stu}
-            controls={[{ label: 'Delete', click: () => this.removeStudent(s) }]} />)
+            controls={[
+              { label: 'Delete', click: () => this.removeStudent(sId) }
+            ]} />)
         })
       }
     </div>)
@@ -148,6 +173,11 @@ class _ManageCourse extends Component {
         {/* modals */}
         { this.state.creatingSession
           ? <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} />
+          : '' }
+        { this.state.copySessionModal
+          ? <PickCourseModal
+            selected={(courseId) => this.copySession(this.state.sessionToCopy, courseId)}
+            done={this.toggleCopySessionModal} />
           : '' }
       </div>)
   }

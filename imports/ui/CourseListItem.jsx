@@ -29,6 +29,7 @@ export class CourseListItem extends ListItem {
 }
 
 CourseListItem.propTypes = {
-  course: PropTypes.object.isRequired
+  course: PropTypes.object.isRequired,
+  click: PropTypes.func
 }
 

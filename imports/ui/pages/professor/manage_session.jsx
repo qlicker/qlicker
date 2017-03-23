@@ -35,6 +35,7 @@ class _ManageSession extends Component {
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
+    this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
@@ -61,6 +62,17 @@ class _ManageSession extends Component {
     Meteor.call('sessions.removeQuestion', this.sessionId, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
+    })
+  }
+
+  /**
+   * duplicateQuestion(MongoId (string): questionId)
+   * creates a copy of the question and attached the new copy to the same session
+   */
+  duplicateQuestion (questionId) {
+    Meteor.call('questions.copyToSession', this.sessionId, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Duplicate Added')
     })
   }
 
@@ -178,7 +190,12 @@ class _ManageSession extends Component {
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
       qlItems.push({
-        content: <QuestionListItem question={q} controls={[{ label: 'Remove', click: () => this.removeQuestion(questionId) }]} />,
+        content: <QuestionListItem
+          question={q}
+          controls={[
+            { label: 'Remove', click: () => this.removeQuestion(questionId) },
+            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) }
+          ]} />,
         id: questionId
       })
     })
@@ -240,7 +257,7 @@ class _ManageSession extends Component {
           <div className='ql-main-content' >
 
             <div className='ql-session-child-container'>
-              <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='status' onChange={this.setValue} />
+              <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
             </div>
             {
               questionList.map((questionId) => {

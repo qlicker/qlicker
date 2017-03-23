@@ -149,6 +149,43 @@ Meteor.methods({
   },
 
   /**
+   * sessions.batchEdit(MongoId (string) sessionId, MongoId (string) targetCourseId)
+   * duplicate a session to same course or different course
+   */
+  'sessions.copy' (sessionId, targetCourseId = null) {
+    check(sessionId, Helpers.MongoID)
+    check(targetCourseId, Match.Maybe(Helpers.MongoID))
+
+    const session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+    if (targetCourseId) {
+      profHasCoursePermission(targetCourseId)
+      session.courseId = targetCourseId
+    }
+
+    // modify session
+    session.status = 'hidden'
+    session.name += ' (copy)'
+
+    // keep a copy of the questions
+    const questions = session.questions.slice()
+    session.questions = []
+
+    // insert new session and update course object
+    const newSessionId = Sessions.insert(_(session).omit(['_id', 'currentQuestion', 'joined']))
+    Courses.update({ _id: session.courseId }, {
+      $addToSet: { sessions: newSessionId }
+    })
+
+    // create a copy of each question to new session
+    questions.forEach((qId) => {
+      Meteor.call('questions.copyToSession', newSessionId, qId)
+    })
+
+    return newSessionId
+  },
+
+  /**
    * sessions.startSession(MongoId (string) sessionId)
    * mark session as active and set first question to current
    */
