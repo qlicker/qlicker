@@ -19,8 +19,9 @@ p {
   margin-bottom: 0px;
 }
 
-$correct-color: #2AA786;
-$incorrect-color: #A72526;
+$correct-color: #5ACE5F;
+$incorrect-color: #F74E4E;
+$neutral-color: #DDDDDD;
 
 .spacer1 {
   height:10px;
@@ -112,33 +113,6 @@ $incorrect-color: #A72526;
   border: none;
 }
 
-
-.ql-outside-header {
-  width: 100%;
-  background: $blue;
-  padding: 5px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .ql-wordmark {
-    color: white;
-  }
-}
-
-.ql-wordmark {
-  text-decoration: none;
-  display: inline-block;
-  color: black;
-  font-family: $font-stack;
-
-  h1 {
-    margin:0;
-  }
-}
 
 .clear {
   clear: both;

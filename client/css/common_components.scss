@@ -144,3 +144,78 @@
     // display: inline-block;
   }
 }
+
+
+// header on login page
+.ql-outside-header {
+  width: 100%;
+  background: #676A6C;
+  padding: 5px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80%;
+
+  .ql-wordmark {
+    color: white;
+  }
+}
+
+.ql-wordmark {
+  text-decoration: none;
+  display: inline-block;
+  color: black;
+  font-family: $font-stack;
+
+  h1 {
+    margin:0;
+  }
+}
+
+// text input style
+input[type=text], input[type=email], input[type=password] {
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 10px;
+
+}
+
+textarea:focus, input:focus{
+    outline: none;
+}
+
+// buttons
+.btn {
+  border-color: $blue;
+  color: $blue;
+  border-radius: 3px;
+
+  &:hover {
+    border-color: $blue;
+    color: $blue;
+  }
+
+  &:active, &:focus {
+    border-color: $blue;
+    color: $blue!important;
+  }
+
+  &.btn-primary {
+    background: $blue;
+    color: white;
+
+    &:hover {
+      background-color: darken($blue, 8%);
+      border-color: darken($blue, 8%);
+      color: white;
+    }
+
+    &:active, &:focus {
+      border-color: darken($blue, 8%);
+      color: white!important;
+    }
+  }
+}

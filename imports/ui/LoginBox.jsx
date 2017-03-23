@@ -122,34 +122,41 @@ export class LoginBox extends Component {
     const fillOutInfoMessage = this.state.login ? '' : 'Fill out the information below to get started'
     return (
       <form className='ql-login-box' onSubmit={this.handleSubmit}>
-        <h4>{topMessage}</h4>
+        <div className='header-container'>
+          <h4 className='header'>{topMessage}</h4>
+        </div>
         <div className='top-account-message'>{fillOutInfoMessage}</div>
-        <br />
 
-        { !this.state.login
-          ? (
-            <div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
-              <div className='dz-default dz-message'>
-                <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-                Upload profile picture
-              </div>
-            </div>)
-          : '' }
+        <div className='inputs-container'>
 
-        { !this.state.login ? <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' /> : '' }
-        { !this.state.login ? <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' /> : '' }
+          { !this.state.login
+            ? (
+              <div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
+                <div className='dz-default dz-message'>
+                  <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                  Upload profile picture
+                </div>
+              </div>)
+            : '' }
 
-        <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
+          { !this.state.login
+            ? <div className='input-group'>
+              <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
+              <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+            </div> : '' }
 
-        <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-        { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /> </div> : ''}
+          <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
 
-        { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
-        { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
-        <div className='spacer1'>&nbsp;</div>
-        <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
-        <div className='bottom-account-message'>{haveAccountMessage}</div>
-        <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
+          <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
+          { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /> </div> : ''}
+
+          { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
+          { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
+          <div className='spacer1'>&nbsp;</div>
+          <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
+          <div className='bottom-account-message'>{haveAccountMessage}</div>
+          <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
+        </div>
       </form>
     )
   } //  end render
