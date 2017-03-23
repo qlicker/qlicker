@@ -37,6 +37,12 @@ export class Editor extends Component {
     this.editor.on('change', () => {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
+
+    this.editor.on('fileUploadResponse', () => {
+      setTimeout(() => {
+        this.props.change(this.editor.getData(), this.editor.editable().getText())
+      }, 200)
+    })
   }
 
   componentDidMount () {
@@ -51,16 +57,6 @@ export class Editor extends Component {
   componentDidUpdate () {
     // this.setupCKEditor()
     // if (this.editor) this.editor.setData(this.state.val)
-
-    // new Dropzone('#question-image-uploader', {
-    //   url: '/some/random/url',
-    //   accept: (file, done) => {
-    //     QuestionImages.insert(file, (err, fileObj) => {
-    //       console.log(err, fileObj)
-    //       alertify.success('Image Uploaded')
-    //     })
-    //   }
-    // })<div id='question-image-uploader' className='dropzone question-image-dropzone'>&nbsp;</div>
   }
 
   render () {
@@ -69,9 +65,6 @@ export class Editor extends Component {
       <div className='ckeditor-wrapper'>
         <textarea ref='theEditor' className='wysiwyg-editor' value={this.state.val} placeholder={plchldr} />
       </div>
-      {/*<div className='image-button-wrapper'>
-        <span className='glyphicon glyphicon-picture' />
-      </div>*/}
     </div>)
   } //  end render
 

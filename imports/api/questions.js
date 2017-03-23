@@ -137,7 +137,16 @@ Router.route('/upload/images', { where: 'server',
     newFile.name(req.files[0]['dataId'] + '.png')
     QuestionImages.insert(newFile, (err, fileObj) => {
       if (err) res.end('Error uploading image')
-      else res.end('/cfs/files/images/' + fileObj._id)
+      else {
+        const response = {
+          uploaded: 1,
+          fileName: '/cfs/files/images/' + fileObj._id,
+          url: '/cfs/files/images/' + fileObj._id
+        }
+        setTimeout(() => { // wait for cfs to make image available
+          res.end(JSON.stringify(response))
+        }, 500)
+      }
     })
   })
 })
