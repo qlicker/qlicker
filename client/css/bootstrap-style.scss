@@ -2,15 +2,7 @@
 // Variables
 
 // colors
-$main-text: #212121;
-$blue: #30B0E7;
-$background: #F3F3F4;
-$hover-color: #676A6C;
-$inactive-color: #989898;
-
-
-
-$font-stack: "Avenir", Helvetica, Arial, sans-serif;
+@import './variables.scss';
 
 // Mixins
 @mixin respond-to($media) {
@@ -64,6 +56,18 @@ body > .container {
 
 .container .text-muted {
   margin: 20px 0;
+}
+
+.navbar-toggle {
+  border: none;
+
+  &:hover, &:focus {
+    background-color: darken($blue, 8%)!important;
+  }
+
+  > span.icon-bar {
+    background-color: white!important;
+  }
 }
 
 #navbar {

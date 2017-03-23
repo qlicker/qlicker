@@ -9,7 +9,7 @@ import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 import '../api/courses.js'
-import { SESSION_STATUS_STRINGS } from '../configs'
+import { SESSION_STATUS_STRINGS, formatDate } from '../configs'
 
 export class SessionListItem extends ListItem {
 
@@ -32,14 +32,14 @@ export class SessionListItem extends ListItem {
     return (
       <div className='ql-session-list-item' onClick={this.click}>
         <div className='row'>
-          <div className='col-md-2'>
+          <div className='col-md-2 col-xs-4 col-sm-3 status-col'>
             <span className={'ql-session-status ' + ('ql-' + status)}>{strStatus} </span>
           </div>
-          <div className={this.props.controls ? 'col-md-5' : 'col-md-6'}>
+          <div className={this.props.controls ? 'col-md-5 col-sm-5 col-xs-8' : 'col-md-6 col-sm-6 col-xs-8'}>
             <span className='ql-session-name'>{ session.name }</span>
-            <span className='active-time'>{session.createdAt.toString()}</span>
+            <span className='active-time'>{formatDate(session.createdAt)}</span>
           </div>
-          <div className={this.props.controls ? 'col-md-3' : 'col-md-4'}>
+          <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
             <span className='completion'>Question: {index + 1}/{length}</span>
             <div className='ql-progress'>
               <div className='ql-progress-bar' style={{ width: completion + '%' }}>&nbsp;</div>

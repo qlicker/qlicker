@@ -47,7 +47,6 @@ class _StudentDashboard extends Component {
     const needsEmailVerification = !Meteor.user().emails[0].verified
     return (
       <div className='container ql-student-page'>
-        <h2>My Courses</h2>
         <div className='messages'>
           { needsEmailVerification
             ? <div className='alert alert-warning' role='alert' >
@@ -56,7 +55,7 @@ class _StudentDashboard extends Component {
             </div>
             : '' }
         </div>
-        <button className='btn btn-default' onClick={this.promptForCode}>Enroll in Course</button>
+        <button className='btn btn-primary' onClick={this.promptForCode}>Enroll in Course</button>
         <div className='ql-courselist'>
           { this.renderCourseList() }
         </div>

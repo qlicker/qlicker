@@ -139,6 +139,9 @@ $neutral-color: #DDDDDD;
 
 @media (max-width: 480px) {
   .ql-child-container > .container {
-    padding-top:0;
-  }
+
+    &.ql-session-display {
+      padding-top:0;
+    }
+  }  
 }

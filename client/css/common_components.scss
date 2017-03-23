@@ -77,19 +77,27 @@
 .ql-session-status {
   color: white;
   padding: 4px 12px;
-  border-radius: 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  width: 70px;
+  text-align: center;
+  text-transform: uppercase;
 
   &.ql-hidden {
-    background: $inactive-color;
+    border: $inactive-color 1px solid;
+    color: $inactive-color;
   }
   &.ql-visible {
-    background: $inactive-color;
+    border: $inactive-color 1px solid;
+    color: $inactive-color;
   }
   &.ql-running {
-    background: $blue;
+    border: $blue 1px solid;
+    color: $blue;
   }
   &.ql-done {
-    background: $inactive-color;
+    border: $inactive-color 1px solid;
+    color: $inactive-color;
   }
 
 }

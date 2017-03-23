@@ -22,14 +22,27 @@ export const QUESTION_TYPE = {
 
 export const QUESTION_TYPE_STRINGS = ['Multiple Choice', 'True/False', 'Short Answer', 'Multi Select']
 
-
 export const MC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 export const TF_ORDER = ['TRUE', 'FALSE']
-
 
 export const SESSION_STATUS_STRINGS = {
   hidden: 'Draft',
   visible: 'Upcoming',
-  running: 'Active',
+  running: '• Live',
   done: 'Inactive'
+}
+
+export const formatDate = (date) => {
+  var monthNames = [
+    'January', 'February', 'March',
+    'April', 'May', 'June', 'July',
+    'August', 'September', 'October',
+    'November', 'December'
+  ]
+
+  var day = date.getDate()
+  var monthIndex = date.getMonth()
+  var year = date.getFullYear()
+
+  return monthNames[monthIndex] + ' ' + day + ', ' + year
 }
