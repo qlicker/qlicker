@@ -30,7 +30,7 @@ export class SessionListItem extends ListItem {
       completion = ((index + 1) / length) * 100
     }
     return (
-      <div className='ql-session-list-item' onClick={this.click}>
+      <div className='ql-session-list-item ql-list-item' onClick={this.click}>
         <div className='row'>
           <div className='col-md-2 col-xs-4 col-sm-3 status-col'>
             <span className={'ql-session-status ' + ('ql-' + status)}>{strStatus} </span>

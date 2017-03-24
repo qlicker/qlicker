@@ -1,7 +1,6 @@
 @import '../mixins.scss';
 
 .ql-session-list-item {
-  @include list-item();
   cursor: pointer;
 
   .row {
