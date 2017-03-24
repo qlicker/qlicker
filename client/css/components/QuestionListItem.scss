@@ -1,7 +1,6 @@
 @import '../mixins.scss';
 
 .ql-question-list-item {
-  @include list-item();
 
   .new-question-placeholder {
     font-style: italic;

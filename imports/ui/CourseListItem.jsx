@@ -15,7 +15,7 @@ export class CourseListItem extends ListItem {
   render () {
     const controls = this.makeControls()
     return (
-      <div className={'ql-course-list-item ' + (this.props.click ? 'click' : '')} onClick={this.click}>
+      <div className={'ql-course-list-item ql-list-item ' + (this.props.click ? 'click' : '')} onClick={this.click}>
         <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
 
         <span className='ql-course-name'>{ this.props.course.name }</span>

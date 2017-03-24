@@ -3,8 +3,8 @@
 @mixin list-item() {
   padding: 16px;
   background: white;
-  border: 1px solid #ddd;
   font-size: 120%;
+  border-bottom: 1px solid #ddd;
   position: relative;
 
   &.click {

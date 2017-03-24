@@ -136,34 +136,45 @@ class _ManageCourse extends Component {
     return (
       <div className='container ql-manage-course'>
         <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
-
+        <br />
         <div className='row'>
           <div className='col-md-4'>
-            <br />
-            <h3>Course Details</h3>
-            <button className='btn btn-default' onClick={this.deleteCourse}>Delete</button>
-            <button className='btn btn-default' onClick={this.setActive}>{strActive}</button>
-            <div className='ql-course-details'>
-              <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -
-              <span className='ql-course-semester'> { this.props.course.semester }</span>
-              <br />
-              Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
+
+            <div className='ql-card'>
+              <div className='ql-header-bar'>
+                <h4>Course Details</h4>
+              </div>
+              <div className='ql-card-content'>
+                <div className='btn-group btn-group-justified details-button-group'>
+                  <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
+                  <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
+                </div>
+                <div className='ql-course-details'>
+                  <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -
+                  <span className='ql-course-semester'> { this.props.course.semester }</span>
+                  <br />
+                  Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
+                </div>
+              </div>
             </div>
 
-            <br />
-
-            <h3>Class List</h3>
-            <div className='ql-course-classlist'>
-              { this.renderClassList() }
+            <div className='ql-card'>
+              <div className='ql-header-bar'>
+                <h4>Classlist</h4>
+              </div>
+              <div>
+                <div className='ql-course-classlist'>
+                  { this.renderClassList() }
+                </div>
+              </div>
             </div>
 
           </div>
 
           <div className='col-md-8'>
-            <br />
             <h3>Sessions</h3>
             <div className='ql-session-list'>
-              <button className='btn btn-default' onClick={toggleCreatingSession}>Create Session</button>
+              <button className='btn btn-primary create-button' onClick={toggleCreatingSession}>Create Session</button>
 
               { this.renderSessionList() }
             </div>

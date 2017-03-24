@@ -144,15 +144,17 @@ export class QuestionSidebar extends ControlledForm {
             onChange={this.setTags}
             />
           <br />
-          { /* list questions */
-            this.state.questionPool.map(q => {
-              return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
-                { !q.courseId
-                  ? <QuestionListItem question={q} click={() => this.setQuestion(q._id)} />
-                  : <StudentQuestionListItem question={q} click={() => this.setQuestion(q._id)} /> }
-              </div>)
-            })
-          }
+          <div className='ql-question-list'>
+            { /* list questions */
+              this.state.questionPool.map(q => {
+                return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
+                  { !q.courseId
+                    ? <QuestionListItem question={q} click={() => this.setQuestion(q._id)} />
+                    : <StudentQuestionListItem question={q} click={() => this.setQuestion(q._id)} /> }
+                </div>)
+              })
+            }
+          </div>
 
         </form>
       </div>)

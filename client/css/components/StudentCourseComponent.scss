@@ -8,13 +8,19 @@
     background: $blue;
     color: white;
     border: none;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    &:hover {
+      background: darken($blue, 8%);
+    }
   }
 
   .ql-session-list-item {
     border: none;
     
     .status-col {
-      align-items: left!important;
+      // align-items: left!important;
     }
 
     .row {
@@ -44,6 +50,11 @@
 
 @media (max-width: 480px) {
 .ql-student-course-component {
+  .ql-course-list-item {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
   .ql-session-list-item {
     .row {
       padding-left: 0;

@@ -3,7 +3,10 @@
 .ql-professor-page {
 
   .ql-courselist {
-    list-style: none
+    list-style: none;
+    .ql-list-item:last-child {
+      border-bottom: none;
+    }
   }
 
   .ql-session-list {

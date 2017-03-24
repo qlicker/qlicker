@@ -17,4 +17,15 @@
 
   }
 
+  .create-button, .details-button-group {
+    margin-bottom: 10px;
+  }
+
+  .ql-course-classlist {
+    .ql-student-list-item {
+      border: 0;
+      border-top: 1px solid #ddd;
+    }
+  }
+
 }

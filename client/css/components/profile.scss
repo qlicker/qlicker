@@ -1,11 +1,26 @@
 
+@import '../variables.scss';
 
 // Component
 .ql-profile-page {
 
+  .ql-profile-card {
+    background: white;
+
+    .profile-header {
+
+    }
+
+  }
+
+
   .ql-profile-image-container {
     position: relative;
-    
+    width: 70%;
+    margin: auto;  
+    margin-top: 10px;    
+    margin-bottom: 20px;
+
     .ql-profile-image {
       width: 100%;
     }

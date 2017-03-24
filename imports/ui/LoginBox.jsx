@@ -120,11 +120,11 @@ export class LoginBox extends Component {
     const topMessage = this.state.login ? 'Login to Qlicker' : 'Register for Qlicker'
     const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'
     return (
-      <form className='ql-login-box' onSubmit={this.handleSubmit}>
-        <div className='header-container'>
+      <form className='ql-login-box ql-card' onSubmit={this.handleSubmit}>
+        <div className='header-container ql-header-bar'>
           <h4 className='header'>{topMessage}</h4>
         </div>
-        <div className='inputs-container'>
+        <div className='ql-card-content inputs-container'>
 
           { !this.state.login
             ? (

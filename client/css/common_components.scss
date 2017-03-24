@@ -79,7 +79,7 @@
   padding: 4px 12px;
   border-radius: 2px;
   white-space: nowrap;
-  width: 70px;
+  min-width: 70px;
   text-align: center;
   text-transform: uppercase;
 
@@ -218,5 +218,27 @@ input[type=text], input[type=email], input[type=password] {
       border-color: darken($blue, 8%);
       color: white!important;
     }
+  }
+}
+
+.ql-list-item {
+  @include list-item();
+}
+
+// blue header bar and card
+.ql-header-bar {
+  padding: 10px;
+  background: $blue;
+  text-align: center;
+  color: white;
+}
+
+.ql-card {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  background: white;
+  
+  .ql-card-content {
+    padding: 15px;
   }
 }
