@@ -64,7 +64,7 @@ class _AdminDashboard extends Component {
           <tr>
             <th>Name</th>
             <th>Email</th>
-            <th>Role</th>
+            <th>Change Role</th>
           </tr>
           <tbody>
             {
