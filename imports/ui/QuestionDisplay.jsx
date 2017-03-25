@@ -23,7 +23,8 @@ export class _QuestionDisplay extends Component {
       submittedAnswer: '',
       questionId: this.props.question._id,
       isSubmitted: false,
-      attempt: 1
+      attempt: this.props.question.sessionOptions.attempts[this.props.question.sessionOptions.attempts.length - 1],
+      wasVisited: false
     }
 
     this.readonly = false
@@ -32,6 +33,7 @@ export class _QuestionDisplay extends Component {
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
     this.setAnswer = this.setAnswer.bind(this)
+    this.resetState = this.resetState.bind(this)
   }
 
   componentDidMount () {
@@ -41,22 +43,47 @@ export class _QuestionDisplay extends Component {
   componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
 
+    this.resetState()
+  }
+
+  resetState () {
     const l = this.props.question.sessionOptions.attempts.length
     const attempt = this.props.question.sessionOptions.attempts[l - 1]
 
+    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId()})
+
     if (this.state.questionId !== this.props.question._id || 
-      (this.state.questionId === this.props.question._id && this.state.attempt !== attempt)) {
-      this.setState({
-        btnDisabled: true,
-        submittedAnswer: '',
-        questionId: this.props.question._id,
-        isSubmitted: false,
-        attempt: attempt
-      })
+      (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) ||
+      (this.state.questionId === this.props.question._id && this.state.attempt === attempt && myResponses.length > 0)) {
+
+      if (myResponses.length > 0 && (!this.state.wasVisited)) {
+        this.setState({
+          btnDisabled: true,
+          submittedAnswer: myResponses[0].answer,
+          questionId: this.props.question._id,
+          isSubmitted: true,
+          attempt: attempt,
+          wasVisited: true
+        })
+
+        this.readonly = true
+
+      } else if (myResponses.length <= 0 ) {
+
+        this.setState({
+          btnDisabled: true,
+          submittedAnswer: '',
+          questionId: this.props.question._id,
+          isSubmitted: false,
+          attempt: attempt,
+          wasVisited: false
+        })
     
-      this.readonly = false
-      if (this.props.readonly) this.readonly = this.props.readonly
-    }
+        this.readonly = false
+        if (this.props.readonly) this.readonly = this.props.readonly
+
+      }
+    } 
   }
 
   disallowResponses () {
@@ -247,7 +274,10 @@ export class _QuestionDisplay extends Component {
           {content}
         </div>
 
-        <button className='btn btn-default' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>{this.state.isSubmitted ? 'Submitted' : 'Submit'}</button>
+        {(!this.props.readonly) ? <button className='btn btn-default' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+          {this.state.isSubmitted ? 'Submitted' : 'Submit'}
+        </button> : ''}
+
       </div>
     )
   } // end render
