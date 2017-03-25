@@ -33,3 +33,10 @@ export const SESSION_STATUS_STRINGS = {
   running: 'Active',
   done: 'Inactive'
 }
+
+
+export const ROLES = { // NOTE usage of constants is not fully implmented, some code still hardcodes role strings
+  student: 'student',
+  prof: 'professor',
+  admin: 'admin'
+}

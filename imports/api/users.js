@@ -5,6 +5,10 @@
 // users.js: JS related to user collection
 
 import { Meteor } from 'meteor/meteor'
+import { check } from 'meteor/check'
+
+import { ROLES } from '../configs'
+import Helpers from './helpers'
 
 /*
  * profile: {
@@ -26,12 +30,15 @@ _.extend(User.prototype, {
   getEmail: function () {
     return this.emails[0].address
   },
+  getRole: function (role) {
+    return this.profile.roles[0]
+  },
   hasRole: function (role) {
     return this.profile.roles.indexOf(role) !== -1
   },
   hasGreaterRole: function (role) {
     if (this.profile.roles.indexOf(role) !== -1) return true
-    else if (role === 'professor' && this.profile.roles.indexOf('admin') !== -1) return true
+    else if (role === ROLES.prof && this.profile.roles.indexOf(ROLES.admin) !== -1) return true
     else return false
   },
   getImageUrl: function () {
@@ -61,7 +68,9 @@ if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && user.hasGreaterRole('professor')) {
+    if (user && user.hasGreaterRole(ROLES.admin)) {
+      return Meteor.users.find()
+    } else if (user && user.hasGreaterRole(ROLES.prof)) {
       let studentRefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])
@@ -108,6 +117,33 @@ Meteor.methods({
       '$set': { 'emails': [ { address: newEmail, verified: false } ] }
     })
     return Meteor.call('users.sendVerificationEmail')
+  },
+
+
+  /**
+   * users.changeRole(MongoId (String) uId, String newRole)
+   * change user role
+   */
+  'users.changeRole' (uId, newRole) {
+    check(uId, Helpers.MongoID)
+    check(newRole, Helpers.NEString)
+    if (!Meteor.user().hasRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    return Meteor.users.update({ _id: uId }, {
+      '$set': { 'profile.roles': [ newRole ] } // system only supports users having one role at a time
+    })
+  },
+
+  /**
+   * users.changeRoleByEmail(String email, String newRole)
+   * find user by email and call user.changeRole
+   */
+  'users.changeRoleByEmail' (email, newRole) {
+    check(email, Helpers.Email)
+    if (!Meteor.user().hasRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    return Meteor.call('users.changeRole', user._id, newRole)
   }
+
 
 })

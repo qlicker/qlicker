@@ -46,7 +46,7 @@ class _PageContainer extends Component {
                 <li className='dropdown'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
                   <ul className='dropdown-menu' >
-                    <li><a href={coursesPage}>All Courses</a></li>
+                    {this.state.user.hasRole('professor') ? <li><a href={coursesPage}>All Courses</a></li> : '' }
                     <li role='separator' className='divider' >&nbsp;</li>
                     <li className='dropdown-header'>My Active Courses</li>
                     {
@@ -81,7 +81,7 @@ class _PageContainer extends Component {
                   </a>
                   <ul className='dropdown-menu'>
                     <li><a href={Router.routes['profile'].path()}>Profile</a></li>
-                    <li><a href='#'>Settings</a></li>
+                    {/* <li><a href='#'>Settings</a></li> */}
                     <li role='separator' className='divider' />
                     <li><a href='#' onClick={logout} >Logout</a></li>
                   </ul>

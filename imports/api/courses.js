@@ -11,6 +11,7 @@ import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
 // import { Sessions } from './sessions.js'
+import { ROLES } from '../configs'
 
 // expected collection pattern
 const coursePattern = {
@@ -48,7 +49,7 @@ if (Meteor.isServer) {
   Meteor.publish('courses', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole('professor')) {
+      if (user.hasGreaterRole(ROLES.prof)) {
         return Courses.find({ owner: this.userId })
       } else {
         // const coursesArray = user.profile.courses || [] // TODO fix enrollment bug
@@ -62,8 +63,8 @@ if (Meteor.isServer) {
 export const profHasCoursePermission = (courseId) => {
   let courseOwner = Courses.findOne({ _id: courseId }).owner
 
-  if (Meteor.user().hasRole('admin') ||
-      (Meteor.user().hasRole('professor') && Meteor.userId() === courseOwner)) {
+  if (Meteor.user().hasRole(ROLES.admin) ||
+      (Meteor.user().hasRole(ROLES.prof) && Meteor.userId() === courseOwner)) {
     return
   } else {
     throw new Meteor.Error('not-authorized')
@@ -81,8 +82,8 @@ Meteor.methods({
     course.enrollmentCode = Helpers.RandomEnrollmentCode()
 
     check(course, coursePattern)
-    if (!Meteor.user().hasRole('admin') &&
-      !Meteor.user().hasRole('professor')) {
+    if (!Meteor.user().hasRole(ROLES.admin) &&
+      !Meteor.user().hasRole(ROLES.prof)) {
       throw new Meteor.Error('not-authorized')
     }
 

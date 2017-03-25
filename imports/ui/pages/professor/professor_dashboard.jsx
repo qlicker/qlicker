@@ -8,8 +8,6 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
-import { CourseListItem } from '../../CourseListItem'
-import { SessionListItem } from '../../SessionListItem'
 import { StudentCourseComponent } from '../../StudentCourseComponent'
 import { CreateCourseModal } from '../../modals/CreateCourseModal'
 

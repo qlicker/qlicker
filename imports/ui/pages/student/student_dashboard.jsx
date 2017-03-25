@@ -51,8 +51,8 @@ class _StudentDashboard extends Component {
         <div className='messages'>
           { needsEmailVerification
             ? <div className='alert alert-warning' role='alert' >
-              To enroll in some courses, you may need to verify your email. &nbsp;&nbsp;&nbsp;
-              { this.state.showResendLink ? <a href='#' onClick={this.sendVerificationEmail}>Resend Email</a> : 'Check your email' }
+              To enroll in some courses, you may need to verify your email. &nbsp;&nbsp;
+              { this.state.showResendLink ? <span>If you didn't recieve an email: <a href='#' onClick={this.sendVerificationEmail}>Click to Resend Email</a></span> : 'Check your email' }
             </div>
             : '' }
         </div>
