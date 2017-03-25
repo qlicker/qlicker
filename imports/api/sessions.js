@@ -12,6 +12,8 @@ import { _ } from 'underscore'
 import { Courses, profHasCoursePermission } from './courses.js'
 import Helpers from './helpers.js'
 
+import { ROLES } from '../configs'
+
 // expected collection pattern
 const sessionPattern = {
   _id: Match.Maybe(Helpers.MongoID), // mongo db id
@@ -40,10 +42,10 @@ if (Meteor.isServer) {
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole('professor')) {
+      if (user.hasGreaterRole(ROLES.prof)) {
         const courseIdArray = _(Courses.find({ owner: user._id }).fetch()).pluck('_id') || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
-      } else if (user.hasRole('student')) {
+      } else if (user.hasRole(ROLES.student)) {
         const courseIdArray = user.profile.courses || []
         return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } })
       }

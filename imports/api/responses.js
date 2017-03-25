@@ -16,6 +16,8 @@ import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
 
+import { ROLES } from '../configs'
+
 // expected collection pattern
 const responsePattern = {
   _id: Match.Maybe(Helpers.MongoID),
@@ -45,9 +47,9 @@ if (Meteor.isServer) {
       if (!question.sessionId) return this.ready()
       const course = Courses.findOne({ _id: session.courseId })
 
-      if (user.hasRole('professor') && course.owner === this.userId) {
+      if (user.hasRole(ROLES.prof) && course.owner === this.userId) {
         return Responses.find({ questionId: questionId })
-      } else if (user.hasRole('student')) {
+      } else if (user.hasRole(ROLES.student)) {
         return Responses.find({ questionId: questionId }) // TODO
       }
     } else this.ready()

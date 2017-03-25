@@ -5,9 +5,6 @@
 // questions.js: JS related to question collection
 
 import Busboy from 'busboy'
-import fs from 'fs'
-import os from 'os'
-import path from 'path'
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
@@ -19,7 +16,7 @@ import { Sessions } from './sessions'
 import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
-import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
+import { ROLES } from '../configs'
 
 // expected collection pattern
 const questionPattern = {
@@ -157,9 +154,9 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
       const course = Courses.findOne(courseId)
-      if (user.hasRole('professor')) return Questions.find({ sessionId: { $in: course.sessions || [] } })
+      if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
-      if (user.hasRole('student')) {
+      if (user.hasRole(ROLES.student)) {
         return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } }) // TODO
       }
     } else this.ready()
@@ -169,9 +166,9 @@ if (Meteor.isServer) {
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
-      if (user.hasRole('professor')) return Questions.find({ sessionId: sessionId })
+      if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: sessionId })
 
-      if (user.hasRole('student')) {
+      if (user.hasRole(ROLES.student)) {
         return Questions.find({ sessionId: sessionId }) // TODO
       }
     } else this.ready()
@@ -181,7 +178,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.library', function () {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
-      if (!user.hasRole('professor')) return this.ready()
+      if (!user.hasRole(ROLES.prof)) return this.ready()
 
       return Questions.find({ submittedBy: this.userId, sessionId: {$exists: false} })
     } else this.ready()
@@ -224,7 +221,7 @@ Meteor.methods({
     question.submittedBy = Meteor.userId()
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (user.hasRole('student')) {
+    if (user.hasRole(ROLES.student)) {
       question.public = true
 
       // if student, can only add question to enrolled courses
@@ -361,7 +358,7 @@ Meteor.methods({
    */
   'questions.startAttempt' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     if (q.sessionOptions) { // add another attempt (if first is closed)
       const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
@@ -383,7 +380,7 @@ Meteor.methods({
    */
   'questions.setAttemptStatus' (questionId, bool) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     if (q.sessionOptions) { // add another attempt (if first is closed)
       q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed = bool
@@ -399,7 +396,7 @@ Meteor.methods({
    */
   'questions.showStats' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.stats': true }
@@ -412,7 +409,7 @@ Meteor.methods({
    */
   'questions.hideStats' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.stats': false }
@@ -424,7 +421,7 @@ Meteor.methods({
    */
   'questions.showQuestion' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.hidden': false }
@@ -436,7 +433,7 @@ Meteor.methods({
    */
   'questions.hideQuestion' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.hidden': true }
@@ -448,7 +445,7 @@ Meteor.methods({
    */
   'questions.showCorrect' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.correct': true }
@@ -460,7 +457,7 @@ Meteor.methods({
    */
   'questions.hideCorrect' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole('professor')) throw Error('Not authorized')
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.correct': false }
