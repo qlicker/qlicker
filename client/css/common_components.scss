@@ -235,9 +235,14 @@ input[type=text], input[type=email], input[type=password] {
 .btn-group:not(.dropdown) {
   .btn {
     border-right-width: 0;
-    &:hover {
-      border-right-width: 1px;
+    // &:hover {
+    //   border-right-width: 1px;
+    // }
+
+    &.btn-primary {
+      border-left-color: darken($blue, 8%);
     }
+
   }
   .btn:last-child {
     border-right-width: 1px!important;
@@ -265,4 +270,12 @@ input[type=text], input[type=email], input[type=password] {
   .ql-card-content {
     padding: 15px;
   }
+}
+
+// profile image
+.ql-profile-image {
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: inline-block;
 }

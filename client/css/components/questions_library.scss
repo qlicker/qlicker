@@ -1,4 +1,6 @@
 
+@import '../variables.scss';
+
 .ql-questions-library {
 
   .ql-edit-item-container {
@@ -18,8 +20,6 @@
     border: 1px solid #ccc;
     padding: 10px 0px;
   }
-
-
 
   .ql-question-list {
     margin-top: 15px;

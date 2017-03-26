@@ -36,7 +36,7 @@ class _Profile extends Component {
         alertify.success('Profile image updated')
         this.setState({ uploadActive: false })
         $('.dz-success.dz-complete').remove()
-      }, 500)
+      }, 800)
     })
   }
 
@@ -106,7 +106,7 @@ class _Profile extends Component {
                 <div className='ql-profile-image-container'>
                   { !this.state.uploadActive
                     ? (<div>
-                      <img src={user.getImageUrl()} alt='Profile Image' className='ql-profile-image' />
+                      <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
                       <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>
                     </div>
                     )

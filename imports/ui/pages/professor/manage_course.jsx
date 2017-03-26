@@ -122,7 +122,7 @@ class _ManageCourse extends Component {
             courseId={this.courseId}
             student={stu}
             controls={[
-              { label: 'Delete', click: () => this.removeStudent(sId) }
+              { label: 'Remove from Course', click: () => this.removeStudent(sId) }
             ]} />)
         })
       }
@@ -174,8 +174,10 @@ class _ManageCourse extends Component {
           <div className='col-md-8'>
             <h3>Sessions</h3>
             <div className='ql-session-list'>
-              <button className='btn btn-primary create-button' onClick={toggleCreatingSession}>Create Session</button>
-
+              <div className='btn-group session-button-group'>
+                <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
+                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { _id: this.courseId }) }}>Review Session Results</button>
+              </div>
               { this.renderSessionList() }
             </div>
           </div>

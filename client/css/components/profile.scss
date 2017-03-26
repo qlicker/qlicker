@@ -11,19 +11,20 @@
 
     }
 
+    .ql-profile-image {
+      width: 250px;
+      height: 250px;
+    }
+
   }
 
 
   .ql-profile-image-container {
     position: relative;
-    width: 70%;
+    width: 250px;
     margin: auto;  
     margin-top: 10px;    
     margin-bottom: 20px;
-
-    .ql-profile-image {
-      width: 100%;
-    }
 
     .ql-image-upload-new-button {
       position: absolute;
