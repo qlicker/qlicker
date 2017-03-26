@@ -88,7 +88,7 @@ class _PageContainer extends Component {
                     <img src={this.state.user.getImageUrl()} className='nav-profile img-circle' /> {this.state.user.getName()} <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
-                    <li><a href={Router.routes['profile'].path()}>Profile</a></li>
+                    <li><a className='close-nav' href={Router.routes['profile'].path()}>Profile</a></li>
                     {/* <li><a href='#'>Settings</a></li> */}
                     <li role='separator' className='divider' />
                     <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>

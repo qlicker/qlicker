@@ -44,8 +44,8 @@ class _Course extends Component {
       <div className='container ql-manage-course'>
         <h2>Course: {this.props.course.name} </h2>
 
-        <button className='btn btn-default' onClick={toggleSubmittingQuestion}>Submit Question</button>
-        <br />
+        <button className='submit-question-button btn btn-default' onClick={toggleSubmittingQuestion}>Submit Question</button>
+
         { this.renderSessionList() }
 
         <br />

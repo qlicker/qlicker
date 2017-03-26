@@ -92,7 +92,6 @@ class _Profile extends Component {
             </div>
             : '' }
         </div>
-        <br />
 
         <div className='row'>
           <div className='col-md-4' />

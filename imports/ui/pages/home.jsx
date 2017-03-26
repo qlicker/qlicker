@@ -7,7 +7,8 @@ import React from 'react'
 
 // TODO: should pull static HTML page from file in client/
 export const Homepage = () => (
-  <div className='container'>
-    <h1>Qlicker</h1>
-    <a href='/login'>Login</a>
+  <div className='container ql-home-page'>
+    <a className='btn btn-default pull-right' href='/login'>Login/Create Account</a>
+    <br />
+    <img className='home-page-poster' src='/images/poster.jpg' alt='poster' />
   </div>)

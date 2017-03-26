@@ -1,6 +1,7 @@
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700');
 @import './bootstrap-style.scss';
+@import './variables.scss';
 
 body {
   font-family: 'Open Sans', sans-serif;
@@ -19,12 +20,11 @@ p {
   margin-bottom: 0px;
 }
 
-$correct-color: #5ACE5F;
-$incorrect-color: #F74E4E;
-$neutral-color: #DDDDDD;
-$incorrect-fill: #FEEDED;
-$correct-fill: #DDEADD;
-$neutral-fill: #F8F8F8;
+.ql-home-page {
+  .home-page-poster{
+    width: 100%;
+  }
+}
 
 .spacer1 {
   height:10px;

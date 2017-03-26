@@ -208,6 +208,16 @@ input[type=text], input[type=email], input[type=password] {
     background: $blue;
     color: white;
 
+    &:disabled {
+      background: $disabled;
+      border-color: $disabled;
+
+      &:hover {
+        background: $disabled;
+        border-color: $disabled;
+      }
+    }
+
     &:hover {
       background-color: darken($blue, 8%);
       border-color: darken($blue, 8%);
@@ -219,7 +229,18 @@ input[type=text], input[type=email], input[type=password] {
       color: white!important;
     }
   }
+
 }
+
+.btn-group:not(.dropup) {
+  .btn {
+    border-right-width: 0;
+  }
+  .btn:last-child {
+    border-right-width: 1px;
+  }
+}
+
 
 .ql-list-item {
   @include list-item();
