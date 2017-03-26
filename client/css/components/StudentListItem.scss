@@ -1,8 +1,6 @@
 @import '../mixins.scss';
 
 .ql-student-list-item {
-  @include list-item();
-
 
   .ql-student-name {
     font-weight: bold;
@@ -11,7 +9,9 @@
   .ql-student-email {
     margin-left:10px; 
   }
- 
-
+  
+  .btn-group.dropdown {
+    margin-top: -8px;
+  }
 
 }

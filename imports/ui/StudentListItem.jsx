@@ -15,7 +15,7 @@ export class StudentListItem extends ListItem {
   render () {
     const controls = this.makeControls()
     return (
-      <div className='ql-student-list-item'>
+      <div className='ql-student-list-item ql-list-item'>
         <span className='ql-student-name'>{ this.props.student.getName() }</span>
         <span className='ql-student-email'>{ this.props.student.getEmail() } </span>
         {controls}

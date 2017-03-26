@@ -35,7 +35,7 @@ export class SessionListItem extends ListItem {
           <div className='col-md-2 col-xs-4 col-sm-3 status-col'>
             <span className={'ql-session-status ' + ('ql-' + status)}>{strStatus} </span>
           </div>
-          <div className={this.props.controls ? 'col-md-5 col-sm-5 col-xs-8' : 'col-md-6 col-sm-6 col-xs-8'}>
+          <div className={this.props.controls ? 'col-md-6 col-sm-5 col-xs-8' : 'col-md-7 col-sm-6 col-xs-8'}>
             <span className='ql-session-name'>{ session.name }</span>
             <span className='active-time'>{formatDate(session.createdAt)}</span>
           </div>
@@ -46,7 +46,7 @@ export class SessionListItem extends ListItem {
             </div>
           </div>
           { this.props.controls
-            ? <div className='col-md-2'>
+            ? <div className='col-md-1'>
               {controls}
             </div>
             : '' }
