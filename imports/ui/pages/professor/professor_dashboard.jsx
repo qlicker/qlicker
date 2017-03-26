@@ -36,11 +36,11 @@ class _ProfessorDashboard extends Component {
   render () {
     return (
       <div className='container ql-professor-page'>
-        <h1>Welcome to Qlicker</h1>
-
-        <hr />
         <h2>Active Courses</h2>
-        <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
+        <div className='btn-group'>
+          <button className='btn btn-primary' onClick={this.promptCreateCourse}>Create Course</button>
+          <button className='btn btn-primary' onClick={() => Router.go('courses')}>Manage All Courses</button>
+        </div>
         <div className='ql-courselist'>
           {this.props.courses.map((course) => (<StudentCourseComponent key={course._id} course={course} sessionRoute='session.edit' />))}
         </div>

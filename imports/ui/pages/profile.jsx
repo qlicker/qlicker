@@ -36,7 +36,7 @@ class _Profile extends Component {
         alertify.success('Profile image updated')
         this.setState({ uploadActive: false })
         $('.dz-success.dz-complete').remove()
-      }, 500)
+      }, 800)
     })
   }
 
@@ -93,37 +93,46 @@ class _Profile extends Component {
             : '' }
         </div>
 
-        <hr />
-
         <div className='row'>
-          <div className='col-md-3'>
-            <div className='ql-profile-image-container'>
-              { !this.state.uploadActive
-                ? (<div>
-                  <img src={user.getImageUrl()} alt='Profile Image' className='ql-profile-image' />
-                  <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>
+          <div className='col-md-4' />
+          <div className='col-md-4'>
+
+            <div className='ql-profile-card ql-card'>
+              <div className='profile-header ql-header-bar'>
+                <h4>Edit User Profile</h4>
+              </div>
+
+              <div className='ql-card-content'>
+                <div className='ql-profile-image-container'>
+                  { !this.state.uploadActive
+                    ? (<div>
+                      <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
+                      <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>
+                    </div>
+                    )
+                    : (<div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
+                      <div className='dz-default dz-message'>
+                        <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                        Drag and Drop a new picture
+                      </div>
+                    </div>) }
                 </div>
-                )
-                : (<div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
-                  <div className='dz-default dz-message'>
-                    <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-                    Drag and Drop a new picture
-                  </div>
-                </div>) }
+
+                <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                  <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a>
+                  <a href='#' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</a>
+                </div>
+                <br />
+                <h2>{user.getName()}</h2>
+                <div className='ql-profile-container'>
+                  Email: {user.getEmail()} - {spanVerified}<br />
+                  Role: {user.profile.roles[0]}
+                </div>
+              </div>
+
             </div>
           </div>
-          <div className='col-md-9'>
-            <h2>{user.getName()}</h2>
-            <div className='btn-group' role='group' aria-label='...'>
-              <button type='button' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</button>
-              <button type='button' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</button>
-            </div>
-            <br /><br />
-            <div className='ql-profile-container'>
-              Email: {user.getEmail()} - {spanVerified}<br />
-              Role: {user.profile.roles[0]}
-            </div>
-          </div>
+          <div className='col-md-4' />
         </div>
 
         { this.state.changingEmail

@@ -3,8 +3,8 @@
 @mixin list-item() {
   padding: 16px;
   background: white;
-  border: 1px solid #ddd;
   font-size: 120%;
+  border-bottom: 1px solid #ddd;
   position: relative;
 
   &.click {
@@ -27,9 +27,17 @@
 
   }
 
+  .btn-group.dropdown {
+    float: right;
+  }
+
+  .btn-group.dropdown {
+    margin-top: -8px;
+  }
+
   .controls {
     z-index:10;
-    float: right;
+    // float: left;
     margin-top: -5px;
 
 

@@ -2,7 +2,6 @@
 @import '../mixins.scss';
 
 .ql-course-list-item {
-  @include list-item();
 
   .ql-course-code {
     font-weight: bold;

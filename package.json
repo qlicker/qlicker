@@ -37,6 +37,7 @@
     "react-select": "^1.0.0-rc.3",
     "react-tools": "^0.13.3",
     "recharts": "^0.21.0",
+    "streamsearch": "^0.1.2",
     "syntastic-react": "^1.0.3",
     "underscore": "^1.8.3"
   },

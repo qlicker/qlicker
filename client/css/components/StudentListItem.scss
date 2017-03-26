@@ -1,17 +1,30 @@
 @import '../mixins.scss';
 
 .ql-student-list-item {
-  @include list-item();
+  padding-top: 4px;
+  padding-bottom: 4px;
 
-
-  .ql-student-name {
-    font-weight: bold;
+  .ql-profile-image {
+    width: 35px;
+    height: 35px;
   }
 
-  .ql-student-email {
-    margin-left:10px; 
-  }
- 
+  .student-details {
+    margin-left: 14px;
+    display: inline-block;
 
+    .student-name {
+      font-weight: bold;
+      display: block;
+    }
+
+    .student-email {
+      display: block;
+    }
+  }
+  
+  .btn-group.dropdown {
+    margin-top: 0px!important;
+  }
 
 }

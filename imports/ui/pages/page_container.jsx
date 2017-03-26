@@ -6,6 +6,8 @@
 import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
+import $ from 'jquery'
+
 import { Courses } from '../../api/courses'
 
 class _PageContainer extends Component {
@@ -16,6 +18,12 @@ class _PageContainer extends Component {
     this.state.user = Meteor.user() || this.props.user
 
     alertify.logPosition('bottom right')
+  }
+
+  componentDidMount () {
+    $('.navbar-collapse a.close-nav').click(function () {
+      $('.navbar-collapse').collapse('hide')
+    })
   }
 
   render () {
@@ -51,7 +59,7 @@ class _PageContainer extends Component {
                     <li className='dropdown-header'>My Active Courses</li>
                     {
                       this.props.courses.map((c) => {
-                        return (<li key={c._id}><a className='uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
+                        return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
                       })
                     }
                   </ul>
@@ -61,10 +69,10 @@ class _PageContainer extends Component {
                     ? <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
                       <ul className='dropdown-menu' >
-                        <li><a href={Router.routes['questions'].path()}>My Question Library</a></li>
+                        <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
                         <li role='separator' className='divider' >&nbsp;</li>
-                        <li><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
-                        <li><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+                        <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a></li>
+                        <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
                       </ul>
                     </li>
                     : ''
@@ -80,10 +88,10 @@ class _PageContainer extends Component {
                     <img src={this.state.user.getImageUrl()} className='nav-profile img-circle' /> {this.state.user.getName()} <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
-                    <li><a href={Router.routes['profile'].path()}>Profile</a></li>
+                    <li><a className='close-nav' href={Router.routes['profile'].path()}>Profile</a></li>
                     {/* <li><a href='#'>Settings</a></li> */}
                     <li role='separator' className='divider' />
-                    <li><a href='#' onClick={logout} >Logout</a></li>
+                    <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
                   </ul>
                 </li>
               </ul>

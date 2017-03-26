@@ -18,12 +18,17 @@ export class _QuestionDisplay extends Component {
   constructor (p) {
     super(p)
 
+    const q = this.props.question
+    const attempt = q.sessionOptions
+      ? q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+      : 0
+
     this.state = {
       btnDisabled: true,
       submittedAnswer: '',
       questionId: this.props.question._id,
       isSubmitted: false,
-      attempt: this.props.question.sessionOptions.attempts[this.props.question.sessionOptions.attempts.length - 1],
+      attempt: attempt,
       wasVisited: false
     }
 
@@ -50,12 +55,11 @@ export class _QuestionDisplay extends Component {
     const l = this.props.question.sessionOptions.attempts.length
     const attempt = this.props.question.sessionOptions.attempts[l - 1]
 
-    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId()})
+    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
 
-    if (this.state.questionId !== this.props.question._id || 
+    if (this.state.questionId !== this.props.question._id ||
       (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) ||
       (this.state.questionId === this.props.question._id && this.state.attempt === attempt && myResponses.length > 0)) {
-
       if (myResponses.length > 0 && (!this.state.wasVisited)) {
         this.setState({
           btnDisabled: true,
@@ -67,9 +71,7 @@ export class _QuestionDisplay extends Component {
         })
 
         this.readonly = true
-
-      } else if (myResponses.length <= 0 ) {
-
+      } else if (myResponses.length <= 0) {
         this.setState({
           btnDisabled: true,
           submittedAnswer: '',
@@ -78,12 +80,11 @@ export class _QuestionDisplay extends Component {
           attempt: attempt,
           wasVisited: false
         })
-    
+
         this.readonly = false
         if (this.props.readonly) this.readonly = this.props.readonly
-
       }
-    } 
+    }
   }
 
   disallowResponses () {
@@ -95,13 +96,13 @@ export class _QuestionDisplay extends Component {
   setAnswer (answer) {
     if (this.disallowResponses() || this.readonly) return
     this.setState({
-      btnDisabled: false, 
+      btnDisabled: false,
       submittedAnswer: answer
     })
   }
 
   submitResponse () {
-    if (this.disallowResponses() || this.readonly || (this.state.submittedAnswer == '')) return
+    if (this.disallowResponses() || this.readonly || (this.state.submittedAnswer === '')) return
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
     this.readonly = true
@@ -274,9 +275,13 @@ export class _QuestionDisplay extends Component {
           {content}
         </div>
 
-        {(!this.props.readonly) ? <button className='btn btn-default' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
-          {this.state.isSubmitted ? 'Submitted' : 'Submit'}
-        </button> : ''}
+        <div className='bottom-buttons'>
+          { !this.props.readonly
+            ? <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+              {this.state.isSubmitted ? 'Submitted' : 'Submit'}
+            </button>
+          : ''}
+        </div>
 
       </div>
     )

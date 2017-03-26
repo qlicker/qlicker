@@ -9,29 +9,43 @@ $red-bar: rgba(167,37,38, 0.3);
 .ql-question-display {
 
   &.interactive {
-      .ql-answer-content-container:hover {
-        border: 1px solid $blue;
-        color: $blue;
-        cursor: pointer;
+    .ql-answer-content-container:hover {
+      border: 1px solid $blue;
+      color: $blue;
+      cursor: pointer;
 
-        .ql-checkbox {
-          border-color: $blue;
-          &:after {
-            content: '\2713';
-            position: absolute;
-            font-size: 18px;
-            top: 0px;
-            left: 3px;
-            color: $blue;
-          }
+      .ql-checkbox {
+        border-color: $blue;
+        &:after {
+          content: '\2713';
+          position: absolute;
+          font-size: 18px;
+          top: 0px;
+          left: 3px;
+          color: $blue;
         }
       }
+    }
   }
 
   .ql-question-content {
     font-size: 3em;
     background: white;
     padding: 20px;
+  }
+  
+  .bottom-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding-left: 25px;
+    padding-right: 25px;
+    margin-top: 20px;
+
+    .submit-button {
+      width: 100%;      
+    }
   }
 
   .ql-answers {
@@ -40,9 +54,11 @@ $red-bar: rgba(167,37,38, 0.3);
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    padding-left: 25px;
+    padding-right: 25px;
 
     .ql-answer-content-container {
-      width: 90%;
+      width: 100%;
       max-width: 400px;
       font-size: 2em;
       background: white;

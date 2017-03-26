@@ -15,9 +15,16 @@ export class StudentListItem extends ListItem {
   render () {
     const controls = this.makeControls()
     return (
-      <div className='ql-student-list-item'>
-        <span className='ql-student-name'>{ this.props.student.getName() }</span>
-        <span className='ql-student-email'>{ this.props.student.getEmail() } </span>
+      <div className='ql-student-list-item ql-list-item'>
+        <div
+          className='img-circle ql-profile-image'
+          style={{
+            backgroundImage: 'url(' + this.props.student.getImageUrl() + ')'
+          }} />
+        <div className='student-details'>
+          <span className='student-name'>{ this.props.student.getName() }</span>
+          <span className='student-email'>{ this.props.student.getEmail() } </span>
+        </div>
         {controls}
       </div>)
   } //  end render

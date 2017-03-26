@@ -12,9 +12,31 @@
     }
 
     .ql-enrollment-code {
-      font-size: 120%;
+      font-size: 130%;
+      font-weight: bold;
     }
 
+  }
+
+  .session-button-group, .details-button-group {
+    margin-bottom: 10px;
+  }
+
+  .ql-course-classlist {
+    .ql-student-list-item {
+      border: 0;
+      border-top: 1px solid #ddd;
+    }
+  }
+
+  .ql-session-list {
+    .ql-list-item:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .submit-question-button {
+    margin: 10px 0;
   }
 
 }

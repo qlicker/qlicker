@@ -1,13 +1,66 @@
 
+@import '../variables.scss';
+
 .ql-student-course-component {
   margin-bottom: 20px;
 
-  .ql-session-list-item {
-    border-bottom: none;
+  .ql-course-list-item {
+    background: $blue;
+    color: white;
+    border: none;
+    padding-left: 20px;
+    padding-right: 20px;
 
-    &:last-child {
-      border: 1px solid #ddd;
+    &:hover {
+      background: darken($blue, 8%);
     }
   }
+
+  .ql-session-list-item {
+    border: none;
+    
+    .status-col {
+      // align-items: left!important;
+    }
+
+    .row {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    &:before {
+      content : "";
+      position: absolute;
+      left    : 50%;
+      bottom  : 0;
+      transform: translate(-50%, 0);
+      height  : 1px;
+      width   : 100%;
+      border-bottom:1px solid #ddd;
+    }
+
+    &:last-child {
+      &:before {
+        border: none;
+      }
+    }
+  }
+
+}
+
+@media (max-width: 480px) {
+.ql-student-course-component {
+  .ql-course-list-item {
+    // padding-left: 0px;
+    // padding-right: 0px;
+  }
+
+  .ql-session-list-item {
+    .row {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+}
 
 }

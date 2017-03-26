@@ -1,11 +1,8 @@
 /* Custom page CSS */
 // Variables
-$main-text: #212121;
-$blue: #2FB0E8;
-$background: #F3F3F4;
-$hover-color: #676A6C;
-$inactive-color: #989898;
-$font-stack: "Avenir", Helvetica, Arial, sans-serif;
+
+// colors
+@import './variables.scss';
 
 // Mixins
 @mixin respond-to($media) {
@@ -61,10 +58,28 @@ body > .container {
   margin: 20px 0;
 }
 
+.navbar-toggle {
+  border: none;
+
+  &:hover, &:focus {
+    background-color: darken($blue, 8%)!important;
+  }
+
+  > span.icon-bar {
+    background-color: white!important;
+  }
+}
+
 #navbar {
  background-color: #fff;
  font-size: 15px;
  font-weight: 500;
+
+ &.in {
+    -webkit-box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.30);
+    -moz-box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.30);
+    box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.30);
+ }
 }
 
 .bootstrap-overrides.navbar-brand {

@@ -117,37 +117,41 @@ export class LoginBox extends Component {
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
     const topMessage = this.state.login ? 'Login to Qlicker' : 'Register for Qlicker'
     const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'
-    const fillOutInfoMessage = this.state.login ? '' : 'Fill out the information below to get started'
     return (
-      <form className='ql-login-box' onSubmit={this.handleSubmit}>
-        <h4>{topMessage}</h4>
-        <div className='top-account-message'>{fillOutInfoMessage}</div>
-        <br />
+      <form className='ql-login-box ql-card' onSubmit={this.handleSubmit}>
+        <div className='header-container ql-header-bar'>
+          <h4 className='header'>{topMessage}</h4>
+        </div>
+        <div className='ql-card-content inputs-container'>
 
-        { !this.state.login
-          ? (
-            <div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
-              <div className='dz-default dz-message'>
-                <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-                Upload profile picture
-              </div>
-            </div>)
-          : '' }
+          { !this.state.login
+            ? (
+              <div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
+                <div className='dz-default dz-message'>
+                  <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                  Upload profile picture
+                </div>
+              </div>)
+            : '' }
 
-        { !this.state.login ? <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' /> : '' }
-        { !this.state.login ? <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' /> : '' }
+          { !this.state.login
+            ? <div className='input-group'>
+              <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
+              <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+            </div> : '' }
 
-        <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
+          <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
 
-        <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-        { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /> </div> : ''}
+          <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
+          { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div> : ''}
 
-        { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
-        { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
-        <div className='spacer1'>&nbsp;</div>
-        <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
-        <div className='bottom-account-message'>{haveAccountMessage}</div>
-        <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
+          { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
+          { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
+          <div className='spacer1'>&nbsp;</div>
+          <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
+          <div className='bottom-account-message'>{haveAccountMessage}</div>
+          <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
+        </div>
       </form>
     )
   } //  end render

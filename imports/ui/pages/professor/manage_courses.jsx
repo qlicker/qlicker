@@ -55,11 +55,11 @@ class _ManageCourses extends Component {
     return (
       <div className='container ql-professor-page'>
         <h1>Courses</h1>
-        <button className='btn btn-default' onClick={this.promptCreateCourse}>Create Course</button>
+        <button className='btn btn-primary' onClick={this.promptCreateCourse}>Create Course</button>
         <div className='ql-courselist'>
           { this.renderCourseList(this.props.courses.filter((c) => !c.inactive)) }
         </div>
-
+        <br /><br />
         <h2>Inactive Courses</h2>
         <div className='ql-courselist'>
           { this.renderCourseList(this.props.courses.filter((c) => c.inactive)) }

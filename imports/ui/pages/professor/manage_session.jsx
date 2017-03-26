@@ -162,6 +162,13 @@ class _ManageSession extends Component {
     })
   }
 
+  cursorMoveWorkaround () {
+    // workaround for https://github.com/taye/interact.js/issues/497
+    setTimeout(() => {
+      $('html').removeAttr('style')
+    }, 500)
+  }
+
   /**
    * componentWillReceiveProps(Props (Object) nP)
    * update state from props
@@ -191,6 +198,7 @@ class _ManageSession extends Component {
       const q = this.props.questions[questionId]
       qlItems.push({
         content: <QuestionListItem
+          click={this.cursorMoveWorkaround}
           question={q}
           controls={[
             { label: 'Remove', click: () => this.removeQuestion(questionId) },

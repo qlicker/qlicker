@@ -1,6 +1,7 @@
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700');
 @import './bootstrap-style.scss';
+@import './variables.scss';
 
 body {
   font-family: 'Open Sans', sans-serif;
@@ -19,8 +20,11 @@ p {
   margin-bottom: 0px;
 }
 
-$correct-color: #2AA786;
-$incorrect-color: #A72526;
+.ql-home-page {
+  .home-page-poster{
+    width: 100%;
+  }
+}
 
 .spacer1 {
   height:10px;
@@ -113,33 +117,6 @@ $incorrect-color: #A72526;
 }
 
 
-.ql-outside-header {
-  width: 100%;
-  background: $blue;
-  padding: 5px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .ql-wordmark {
-    color: white;
-  }
-}
-
-.ql-wordmark {
-  text-decoration: none;
-  display: inline-block;
-  color: black;
-  font-family: $font-stack;
-
-  h1 {
-    margin:0;
-  }
-}
-
 .clear {
   clear: both;
 }
@@ -165,6 +142,9 @@ $incorrect-color: #A72526;
 
 @media (max-width: 480px) {
   .ql-child-container > .container {
-    padding-top:0;
-  }
+
+    &.ql-session-display {
+      padding-top:0;
+    }
+  }  
 }

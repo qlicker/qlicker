@@ -74,7 +74,7 @@ class _QuestionsLibrary extends Component {
         <div className='row'>
           <div className='col-md-4'>
             <br />
-            <button className='btn btn-default' onClick={() => this.editQuestion(-1)}>New Question</button>
+            <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
             <QuestionSidebar questions={this.props.library} onSelect={this.editQuestion} />
           </div>
           <div className='col-md-8'>

@@ -1,12 +1,40 @@
 
-
+@import '../bootstrap-style.scss';
 
 // Components
 .ql-login-box {
   text-align: center;
   color: #888;
+  background: white;
+  -webkit-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.1);
+  -moz-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.1);
+  box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.1);
 
-  input[type=text], input[type=password] {
+  .header-container {
+
+    .header {
+    
+    }
+  }
+
+  .inputs-container {
+    padding: 35px;
+    padding-bottom: 45px;
+
+    .input-group {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+
+      .form-control {
+        display: inline-block;
+        width: 48%;
+
+        &:last-child {
+          float: right;
+        }
+      }
+    }
   }
 
   .bottom-account-message, .top-account-message {
@@ -27,7 +55,7 @@
 
   .ql-profile-image-dropzone {
     margin-bottom: 10px;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 2px dashed rgba(0, 0, 0, 0.3);
     background: transparent;
     padding: 5px;
@@ -49,3 +77,5 @@
   }
 
 }
+
+
