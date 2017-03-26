@@ -18,14 +18,22 @@ export class _QuestionDisplay extends Component {
   constructor (p) {
     super(p)
 
+    this.state = {
+      btnDisabled: true,
+      submittedAnswer: '',
+      questionId: this.props.question._id,
+      isSubmitted: false,
+      attempt: this.props.question.sessionOptions.attempts[this.props.question.sessionOptions.attempts.length - 1],
+      wasVisited: false
+    }
+
     this.readonly = false
     if (this.props.readonly) this.readonly = this.props.readonly
 
-    this.isQuiz = false
-    if (this.props.isQuiz) this.isQuiz = this.props.isQuiz
-
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
+    this.setAnswer = this.setAnswer.bind(this)
+    this.resetState = this.resetState.bind(this)
   }
 
   componentDidMount () {
@@ -34,6 +42,48 @@ export class _QuestionDisplay extends Component {
 
   componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+
+    this.resetState()
+  }
+
+  resetState () {
+    const l = this.props.question.sessionOptions.attempts.length
+    const attempt = this.props.question.sessionOptions.attempts[l - 1]
+
+    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId()})
+
+    if (this.state.questionId !== this.props.question._id || 
+      (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) ||
+      (this.state.questionId === this.props.question._id && this.state.attempt === attempt && myResponses.length > 0)) {
+
+      if (myResponses.length > 0 && (!this.state.wasVisited)) {
+        this.setState({
+          btnDisabled: true,
+          submittedAnswer: myResponses[0].answer,
+          questionId: this.props.question._id,
+          isSubmitted: true,
+          attempt: attempt,
+          wasVisited: true
+        })
+
+        this.readonly = true
+
+      } else if (myResponses.length <= 0 ) {
+
+        this.setState({
+          btnDisabled: true,
+          submittedAnswer: '',
+          questionId: this.props.question._id,
+          isSubmitted: false,
+          attempt: attempt,
+          wasVisited: false
+        })
+    
+        this.readonly = false
+        if (this.props.readonly) this.readonly = this.props.readonly
+
+      }
+    } 
   }
 
   disallowResponses () {
@@ -42,8 +92,25 @@ export class _QuestionDisplay extends Component {
     return disallowResponses
   }
 
-  submitResponse (answer) {
+  setAnswer (answer) {
     if (this.disallowResponses() || this.readonly) return
+    this.setState({
+      btnDisabled: false, 
+      submittedAnswer: answer
+    })
+  }
+
+  submitResponse () {
+    if (this.disallowResponses() || this.readonly || (this.state.submittedAnswer == '')) return
+    // Can't choose responses after submission
+    const answer = this.state.submittedAnswer
+    this.readonly = true
+
+    this.setState({
+      btnDisabled: true,
+      isSubmitted: true
+    })
+
     const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
     const oldAnswer = myResponses.length > 0 ? myResponses[0] : null
 
@@ -144,7 +211,7 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div key={'question_' + a.answer} onClick={() => this.submitResponse(a.answer)} className='ql-answer-content-container'>
+          <div key={'question_' + a.answer} onClick={() => this.setAnswer(a.answer)} className={this.state.submittedAnswer === a.answer ? 'ql-answer-content-container q-submitted' : 'ql-answer-content-container'}>
             <div className={statClass} style={widthStyle}>
               { classSuffixStr === 'mc' ? <div className='ql-mc'>{a.answer}.</div> : '' }
               { classSuffixStr === 'ms' ? <input type='checkbox' className='ql-checkbox' /> : '' }
@@ -207,9 +274,11 @@ export class _QuestionDisplay extends Component {
           {content}
         </div>
 
-        {buttons}
+        {(!this.props.readonly) ? <button className='btn btn-default' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+          {this.state.isSubmitted ? 'Submitted' : 'Submit'}
+        </button> : ''}
+
       </div>
-        // add next (and prev?) button for quiz mode
     )
   } // end render
 }
@@ -252,7 +321,6 @@ export const QuestionDisplay = createContainer((props) => {
 
   return {
     question: props.question,
-    isQuiz: props.isQuiz,
     readonly: props.readonly,
     totalAnswered: total,
     distribution: data,
@@ -263,7 +331,6 @@ export const QuestionDisplay = createContainer((props) => {
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
-  isQuiz: PropTypes.bool,
   readonly: PropTypes.bool,
   noStats: PropTypes.bool,
   prof: PropTypes.bool

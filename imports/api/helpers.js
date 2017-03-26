@@ -20,7 +20,6 @@ const Helpers = {
     return _(MC_ORDER).contains(a)
   }),
 
-
   // checkers
   NEString: Match.Where(function (x) {
     check(x, String)
@@ -29,6 +28,10 @@ const Helpers = {
   MongoID: Match.Where(function (id) {
     check(id, Helpers.NEString)
     return /[0-9a-fA-F]/.test(id)
+  }),
+  Email: Match.Where(function (x) {
+    check(x, String)
+    return x.length <= 254 && /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(x)
   }),
   QuestionType: Match.Where(function (n) {
     check(n, Number)

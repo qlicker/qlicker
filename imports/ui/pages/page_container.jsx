@@ -54,7 +54,7 @@ class _PageContainer extends Component {
                 <li className='dropdown'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
                   <ul className='dropdown-menu' >
-                    <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
+                    {this.state.user.hasRole('professor') ? <li><a href={coursesPage}>All Courses</a></li> : '' }
                     <li role='separator' className='divider' >&nbsp;</li>
                     <li className='dropdown-header'>My Active Courses</li>
                     {
@@ -88,8 +88,8 @@ class _PageContainer extends Component {
                     <img src={this.state.user.getImageUrl()} className='nav-profile img-circle' /> {this.state.user.getName()} <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
-                    <li><a className='close-nav' href={Router.routes['profile'].path()}>Profile</a></li>
-                    { /* <li><a className='close-nav' href='#'>Settings</a></li> */ }
+                    <li><a href={Router.routes['profile'].path()}>Profile</a></li>
+                    {/* <li><a href='#'>Settings</a></li> */}
                     <li role='separator' className='divider' />
                     <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
                   </ul>

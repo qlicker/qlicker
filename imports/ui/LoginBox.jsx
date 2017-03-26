@@ -100,13 +100,11 @@ export class LoginBox extends Component {
       url: '/some/random/url',
       accept: (file, done) => {
         ProfileImages.insert(file, (err, fileObj) => {
-          console.log(fileObj)
           if (err) {
             alertify.error('Error: ' + JSON.stringify(err))
           } else {
             done()
             const imageId = fileObj._id
-            console.log(imageId)
             this.setState({ profileImage: imageId })
           }
         })

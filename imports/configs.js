@@ -22,6 +22,7 @@ export const QUESTION_TYPE = {
 
 export const QUESTION_TYPE_STRINGS = ['Multiple Choice', 'True/False', 'Short Answer', 'Multi Select']
 
+
 export const MC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 export const TF_ORDER = ['TRUE', 'FALSE']
 
@@ -31,6 +32,7 @@ export const SESSION_STATUS_STRINGS = {
   running: '• Live',
   done: 'Inactive'
 }
+
 
 export const formatDate = (date) => {
   var monthNames = [
@@ -45,4 +47,10 @@ export const formatDate = (date) => {
   var year = date.getFullYear()
 
   return monthNames[monthIndex] + ' ' + day + ', ' + year
+}
+
+export const ROLES = { // NOTE usage of constants is not fully implmented, some code still hardcodes role strings
+  student: 'student',
+  prof: 'professor',
+  admin: 'admin'
 }
