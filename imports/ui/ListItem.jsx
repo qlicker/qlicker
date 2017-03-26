@@ -44,7 +44,7 @@ export class ListItem extends Component {
           aria-expanded='false'>
           <span className='caret' />
         </button>
-        <ul className='dropdown-menu'>
+        <ul className='dropdown-menu dropdown-menu-right'>
           {controls}
         </ul>
       </div>
