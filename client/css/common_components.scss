@@ -235,9 +235,12 @@ input[type=text], input[type=email], input[type=password] {
 .btn-group:not(.dropdown) {
   .btn {
     border-right-width: 0;
+    &:hover {
+      border-right-width: 1px;
+    }
   }
   .btn:last-child {
-    border-right-width: 1px;
+    border-right-width: 1px!important;
   }
 }
 

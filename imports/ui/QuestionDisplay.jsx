@@ -18,12 +18,17 @@ export class _QuestionDisplay extends Component {
   constructor (p) {
     super(p)
 
+    const q = this.props.question
+    const attempt = q.sessionOptions
+      ? q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+      : 0
+
     this.state = {
       btnDisabled: true,
       submittedAnswer: '',
       questionId: this.props.question._id,
       isSubmitted: false,
-      attempt: this.props.question.sessionOptions.attempts[this.props.question.sessionOptions.attempts.length - 1],
+      attempt: attempt,
       wasVisited: false
     }
 

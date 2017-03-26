@@ -30,7 +30,7 @@
   }
 
   .ql-session-list {
-    .ql-list-item {
+    .ql-list-item:last-child {
       border-bottom: none;
     }
   }

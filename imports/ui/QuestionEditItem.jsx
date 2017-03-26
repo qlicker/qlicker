@@ -276,7 +276,7 @@ export class QuestionEditItem extends Component {
   }
 
   componentDidUpdate () {
-    $('[data-toggle="tooltip"]').tooltip()
+    // $('[data-toggle="tooltip"]').tooltip()
   }
 
   render () {
