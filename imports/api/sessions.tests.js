@@ -90,7 +90,7 @@ if (Meteor.isServer) {
         editedSession.description = 'description edited'
         editedSession.status = 'visible' // hidden -> visible
         editedSession.quiz = true // false -> true
-        editedSession.dueDate = new Date() // undefined -> new Date()
+        editedSession.date = new Date() // undefined -> new Date()
 
         Meteor.call('sessions.edit', editedSession) // method test
 
@@ -100,7 +100,7 @@ if (Meteor.isServer) {
         expect(sessionFromDb.description).to.equal(editedSession.description)
         expect(sessionFromDb.status).to.equal(editedSession.status)
         expect(sessionFromDb.quiz).to.equal(editedSession.quiz)
-        expect(sessionFromDb.dueDate.toString()).to.equal(editedSession.dueDate.toString())
+        expect(sessionFromDb.date.toString()).to.equal(editedSession.date.toString())
       })
 
       it('can add question to session (session.addQuestion)', () => {
