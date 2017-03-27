@@ -34,7 +34,7 @@ class _ManageSession extends Component {
     }
 
     this.sessionId = this.props.sessionId
-    
+
     this.addTag = this.addTag.bind(this)
     this.setDate = this.setDate.bind(this)
     this.setValue = this.setValue.bind(this)
@@ -47,6 +47,16 @@ class _ManageSession extends Component {
     this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
+
+    // populate tagging suggestions
+    this.tagSuggestions = []
+    Meteor.call('sessions.possibleTags', (e, tags) => {
+      // non-critical, if e: silently fail
+      tags.forEach((t) => {
+        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.forceUpdate()
+    })
   }
 
   runSession () {
@@ -321,10 +331,10 @@ class _ManageSession extends Component {
                       name='tag-input'
                       placeholder='Session Tags'
                       multi
+                      options={this.tagSuggestions}
                       value={this.state.session.tags}
                       onChange={this.addTag}
                   />
-                  {/*options={this.tagSuggestions}*/}
                   </div>
                 </div>
               </div>
