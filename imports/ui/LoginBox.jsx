@@ -98,6 +98,7 @@ export class LoginBox extends Component {
     if (Meteor.isTest) return
     new Dropzone('#profile-image-uploader', {
       url: '/some/random/url',
+      acceptedFiles: 'image/jpeg,image/png,image/gif',
       accept: (file, done) => {
         ProfileImages.insert(file, (err, fileObj) => {
           if (err) {
