@@ -8,8 +8,6 @@ import React from 'react'
 import { ControlledForm } from '../ControlledForm'
 
 export const DEFAULT_STATE = {
-  deptCode: '',
-  courseNumber: '',
   enrollmentCode: ''
 }
 
