@@ -87,12 +87,10 @@ class _ManageCourse extends Component {
   }
 
   renderSessionList () {
-    let sessions = this.props.course.sessions || []
-
     return (<div>
       {
-        sessions.map((sId) => {
-          const ses = this.props.sessions[sId]
+        this.props.sessions.map((ses) => {
+          const sId = ses._id
           const nav = () => { Router.go('session.edit', { _id: sId }) }
           if (!ses) return
           return (<SessionListItem
@@ -208,11 +206,11 @@ export const ManageCourse = createContainer((props) => {
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
   const sessionIds = course.sessions || []
-  const sessions = Sessions.find({ _id: { $in: sessionIds } }).fetch()
+  const sessions = Sessions.find({ _id: { $in: sessionIds } }, { sort: { date: 1 } }).fetch()
 
   return {
     course: course,
-    sessions: _(sessions).indexBy('_id'),
+    sessions: sessions,
     students: _(students).indexBy('_id'),
     loading: !handle.ready()
   }

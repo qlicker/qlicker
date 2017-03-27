@@ -268,6 +268,7 @@ class _ManageSession extends Component {
             focused={this.state.focused}
             numberOfMonths={1}
             showClearDate
+            isOutsideRange={() => false}
             onFocusChange={({ focused }) => this.setState({ focused })} />
           <span className='divider'>&nbsp;</span>
           <div id='ckeditor-toolbar' />

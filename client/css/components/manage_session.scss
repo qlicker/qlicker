@@ -41,36 +41,6 @@
       display: inline-block;
     }
 
-    .SingleDatePicker {
-
-      .DateInput {
-        font-size: 14px;
-        padding: 4px;
-        width: 98px;
-
-        .DateInput__display-text {
-          padding: 2px 8px;
-        }
-
-        .DateInput--with-caret::before {
-          top: 37px;
-        }
-        .DateInput--with-caret::after {
-          top: 38px;
-        }
-        .SingleDatePicker__picker {
-          top: 40px;
-        }
-      }
-      .SingleDatePickerInput__clear-date {
-        padding: 4px;
-        margin: 0;
-        &.SingleDatePickerInput__clear-date--hide {
-          display: none!important;
-        }
-      }
-    }
-
     #ckeditor-toolbar {
       display: inline-block;
 
@@ -255,5 +225,37 @@
     padding: 10px 0px;
     max-width: 700px;
   }
+
+  .SingleDatePicker {
+
+    .DateInput {
+      font-size: 14px;
+      padding: 4px;
+      width: 98px;
+
+      .DateInput__display-text {
+        padding: 2px 8px;
+      }
+    }
+    .DateInput--with-caret::before {
+      // top: 37px;
+      display: none;
+    }
+    .DateInput--with-caret::after {
+      // top: 38px;
+      display: none;
+    }
+    .SingleDatePicker__picker {
+      top: 40px;
+    }
+    .SingleDatePickerInput__clear-date {
+      padding: 4px;
+      margin: 0;
+      &.SingleDatePickerInput__clear-date--hide {
+        display: none!important;
+      }
+    }
+  }
+
 
 }
