@@ -22,6 +22,7 @@ export class Editor extends Component {
     CKEDITOR.plugins.addExternal('filetools', '/ckeditor/plugins/filetools/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadwidget', '/ckeditor/plugins/uploadwidget/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadimage', '/ckeditor/plugins/uploadimage/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('sharedspace', '/ckeditor/plugins/sharedspace/', 'plugin.js')
     CKEDITOR.plugins.addExternal('sourcedialog', '/ckeditor/plugins/sourcedialog/', 'plugin.js')
 
     // if (this.editor) {
@@ -31,8 +32,14 @@ export class Editor extends Component {
 
     this.editor = CKEDITOR.inline(this.refs.theEditor, {
       placeholder: this.props.placeholder || '',
-      customConfig: '/ckeditor/config.js'
+      customConfig: '/ckeditor/config.js',
+      extraPlugins: 'sharedspace,confighelper,mathjax,uploadwidget,uploadimage,sourcedialog',
+      removePlugins: 'floatingspace,resize',
+      sharedSpaces: {
+        top: 'ckeditor-toolbar'
+      }
     })
+
     this.editor.on('change', () => {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })

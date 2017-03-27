@@ -96,7 +96,7 @@ Meteor.methods({
         description: session.description,
         status: session.status,
         quiz: session.quiz,
-        dueDate: session.dueDate || undefined
+        date: session.date || undefined
       }
     })
   },

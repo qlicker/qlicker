@@ -11,7 +11,6 @@ CKEDITOR.editorConfig = function (config) {
     { name: 'forms', groups: [ 'forms' ] },
     { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
     { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
-    '/',
     { name: 'links', groups: [ 'links' ] },
     { name: 'insert', groups: [ 'insert' ] },
     { name: 'styles', groups: [ 'styles' ] },
@@ -27,4 +26,5 @@ CKEDITOR.editorConfig = function (config) {
   config.extraPlugins = 'confighelper,mathjax,uploadwidget,uploadimage,sourcedialog'
   config.line_height = '1em'
   config.uploadUrl = '/upload/images'
+
 }
