@@ -216,26 +216,32 @@ class _ManageSession extends Component {
 
     return (
       <div className='ql-manage-session'>
-
+        <div className='ql-session-toolbar'>
+          <span className='run-button' onClick={this.runSession}>
+            <span className='glyphicon glyphicon-play' />&nbsp;
+            Run Session
+          </span>
+          <span className='divider'>&nbsp;</span>
+          <select className='form-control status-select' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
+            <option value='hidden'>Draft (Hidden)</option>
+            <option value='visible'>Visible</option>
+            <option value='running'>Active</option>
+            <option value='done'>Done</option>
+          </select>
+          <span className='divider'>&nbsp;</span>
+          <div id='ckeditor-toolbar'></div>
+        </div>
         <div className='ql-row-container'>
           <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
               <div className='tab-content'>
                 <div role='tabpanel' className='tab-pane active' id='session'>
-                  <h2>Session: { this.state.session.name }</h2>
-
-                  <button className='btn btn-default' onClick={this.runSession}>Run Session</button>
 
                   <textarea className='form-control' data-name='description'
                     onChange={this.setValue}
                     placeholder='Description'
                     value={this.state.session.description} /><br />
-                  <select className='form-control' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
-                    <option value='hidden'>Draft (Hidden)</option>
-                    <option value='visible'>Visible</option>
-                    <option value='running'>Active</option>
-                    <option value='done'>Done</option>
-                  </select>
+
                   <hr />
                   <h3>Question Order</h3>
                   <div className='ql-session-question-list'>
@@ -280,8 +286,8 @@ class _ManageSession extends Component {
                 </div>)
               })
             }
-            <div className='ql-session-child-container'>
-              <button className='btn btn-default' onClick={this.addNewQuestion}>New Question</button>
+            <div className='ql-session-child-container new-question-item' onClick={this.addNewQuestion}>
+              <span>New Question <span className='glyphicon glyphicon-plus' /></span>
             </div>
 
           </div>

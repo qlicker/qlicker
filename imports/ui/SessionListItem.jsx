@@ -37,7 +37,7 @@ export class SessionListItem extends ListItem {
           </div>
           <div className={this.props.controls ? 'col-md-6 col-sm-5 col-xs-8' : 'col-md-7 col-sm-6 col-xs-8'}>
             <span className='ql-session-name'>{ session.name }</span>
-            <span className='active-time'>{formatDate(session.createdAt)}</span>
+            <span className='active-time'>{session.date ? formatDate(session.date) : ''}</span>
           </div>
           <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
             <span className='completion'>Question: {index + 1}/{length}</span>

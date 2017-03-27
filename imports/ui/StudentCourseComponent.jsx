@@ -36,7 +36,7 @@ export class _StudentCourseComponent extends Component {
 
 export const StudentCourseComponent = createContainer((props) => {
   const handle = Meteor.subscribe('sessions')
-  const sessions = Sessions.find({ courseId: props.course._id }).fetch()
+  const sessions = Sessions.find({ courseId: props.course._id, $or: [{ status: 'visible' }, { status: 'running' }] }).fetch()
 
   return {
     sessions: sessions,
