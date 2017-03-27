@@ -26,7 +26,8 @@ const sessionPattern = {
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
-  joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ])
+  joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
+  tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ])
 }
 
 // Create Session class
@@ -96,7 +97,8 @@ Meteor.methods({
         description: session.description,
         status: session.status,
         quiz: session.quiz,
-        date: session.date || undefined
+        date: session.date || undefined,
+        tags: session.tags || undefined
       }
     })
   },

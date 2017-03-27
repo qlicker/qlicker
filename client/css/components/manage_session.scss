@@ -24,6 +24,7 @@
       padding-right: 12px;
       display: inline-block;
       cursor: pointer;
+      white-space: nowrap;
 
       &:hover {
         background: #d7d7d7;
@@ -32,6 +33,36 @@
     .status-select {
       width: 200px;
       display: inline-block;
+    }
+
+    .SingleDatePicker {
+
+      .DateInput {
+        font-size: 14px;
+        padding: 4px;
+        width: 98px;
+
+        .DateInput__display-text {
+          padding: 2px 8px;
+        }
+
+        .DateInput--with-caret::before {
+          top: 37px;
+        }
+        .DateInput--with-caret::after {
+          top: 38px;
+        }
+        .SingleDatePicker__picker {
+          top: 40px;
+        }
+      }
+      .SingleDatePickerInput__clear-date {
+        padding: 4px;
+        margin: 0;
+        &.SingleDatePickerInput__clear-date--hide {
+          display: none!important;
+        }
+      }
     }
 
     #ckeditor-toolbar {
@@ -170,6 +201,25 @@
     .ql-header-text-input {
       width: 100%;
     }
+
+    &.session-details-container {
+      .left-column {
+        padding-right: 5px;
+        margin-top: 10px;  
+      }
+      .right-column {
+        padding-left: 5px;
+        margin-top: 10px;
+      }
+      .session-description {
+
+      }
+
+      .session-tags {
+
+      }
+    }
+
 
     &.ql-add-question-prompt {
       text-align: center;

@@ -128,7 +128,12 @@ export class QuestionEditItem extends Component {
    * add tag to state
    */
   addTag (tags) {
-    this.setState({ tags: tags }, () => {
+    const _tags = tags
+    _tags.forEach((t) => {
+      t.label = t.label.toUpperCase()
+      t.value = t.value.toUpperCase()
+    })
+    this.setState({ tags: _tags }, () => {
       this._DB_saveQuestion()
     })
   }

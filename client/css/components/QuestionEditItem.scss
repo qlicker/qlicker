@@ -15,12 +15,14 @@
     
     .cke_textarea_inline {
       padding: 8px;      
-      padding-bottom: 2px;
+      // padding-bottom: 2px;
+      line-height: 1.4em;
 
       &.cke_focus {
-        line-height: 1em;
+        outline: #ccc 2px solid;
       }
     }
+
   }
 
   .header {
