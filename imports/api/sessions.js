@@ -22,7 +22,7 @@ const sessionPattern = {
   courseId: Helpers.MongoID, // parent course, mongo db id reference
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
-  dueDate: Match.Optional(Match.OneOf(undefined, null, Date)), // quiz due date
+  date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),

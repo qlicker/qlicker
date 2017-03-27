@@ -6,8 +6,6 @@
 
 import React, { Component } from 'react'
 
-import { QuestionImages } from '../api/questions'
-
 export class Editor extends Component {
 
   constructor (p) {
@@ -24,6 +22,7 @@ export class Editor extends Component {
     CKEDITOR.plugins.addExternal('filetools', '/ckeditor/plugins/filetools/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadwidget', '/ckeditor/plugins/uploadwidget/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadimage', '/ckeditor/plugins/uploadimage/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('sourcedialog', '/ckeditor/plugins/sourcedialog/', 'plugin.js')
 
     // if (this.editor) {
     //   this.editor.destroy()

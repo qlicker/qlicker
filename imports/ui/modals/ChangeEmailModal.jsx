@@ -62,7 +62,7 @@ export class ChangeEmailModal extends ControlledForm {
 
           <div className='ql-buttongroup'>
             <a className='btn btn-default' onClick={this.done}>Cancel</a>
-            <input className='btn btn-default' type='submit' id='submit' />
+            <input className='btn btn-primary' type='submit' id='submit' />
           </div>
         </form>
       </div>

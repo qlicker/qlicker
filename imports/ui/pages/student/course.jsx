@@ -42,9 +42,9 @@ class _Course extends Component {
 
     return (
       <div className='container ql-manage-course'>
-        <h2>Course: {this.props.course.name} </h2>
+        <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
 
-        <button className='submit-question-button btn btn-default' onClick={toggleSubmittingQuestion}>Submit Question</button>
+        <button className='submit-question-button btn btn-primary' onClick={toggleSubmittingQuestion}>Submit Question</button>
 
         { this.renderSessionList() }
 

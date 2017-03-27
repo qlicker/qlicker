@@ -21,7 +21,7 @@ export class CreateQuestionModal extends Component {
   }
 
   render () {
-    return (<div className='ql-modal-container' onClick={this.done}>
+    return (<div className='ql-modal-container' onClick={this.props.done}>
       <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
         <div className='ql-modal-header'><h2>Add a Question</h2></div>
 
@@ -31,7 +31,10 @@ export class CreateQuestionModal extends Component {
           courseId={this.props.courseId}
           tags />
 
-        <button className='btn btn-default' onClick={this.saveAndClose}>Submit Question</button>
+        <div className='ql-buttongroup'>
+          <a className='btn btn-default' onClick={this.props.done}>Cancel</a>
+          <button className='btn btn-primary' onClick={this.saveAndClose}>Submit Question</button>
+        </div>
       </div>
     </div>)
   } //  end render

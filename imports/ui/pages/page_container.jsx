@@ -54,7 +54,7 @@ class _PageContainer extends Component {
                 <li className='dropdown'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
                   <ul className='dropdown-menu' >
-                    {this.state.user.hasRole('professor') ? <li><a href={coursesPage}>All Courses</a></li> : '' }
+                    {!this.state.user.hasRole('admin') ? <li><a href={coursesPage}>All Courses</a></li> : '' }
                     <li role='separator' className='divider' >&nbsp;</li>
                     <li className='dropdown-header'>My Active Courses</li>
                     {
