@@ -7,7 +7,7 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../../api/courses.js'
-import { EnrollCourseModal } from '../../modals/EnrollCourseModal'
+
 import { StudentCourseComponent } from '../../StudentCourseComponent'
 
 class _StudentDashboard extends Component {
@@ -16,8 +16,7 @@ class _StudentDashboard extends Component {
 
     this.state = { enrollingInCourse: false, showResendLink: true }
 
-    this.promptForCode = this.promptForCode.bind(this)
-    this.closeModal = this.closeModal.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
     this.renderCourseList = this.renderCourseList.bind(this)
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
   }
@@ -29,14 +28,25 @@ class _StudentDashboard extends Component {
     })
   }
 
-  promptForCode () {
-    this.setState({ enrollingInCourse: true })
+  /**
+   * handleSubmit(Event: e)
+   * onSubmit handler for enroll form. Calls courses.checkAndEnroll
+   */
+  handleSubmit (e) {
+    e.preventDefault()
+
+    if (!this.state.enrollmentCode) return alertify.error('Please enter a 6 digit enrollment code')
+
+    Meteor.call('courses.checkAndEnroll', this.state.enrollmentCode, (error) => {
+      if (error) alertify.error('Error: ' + error.message)
+      else {
+        alertify.success('Enrolled Sucessfully')
+        this.setState({ enrollmentCode: undefined })
+        this.refs.enrollCourseForm.reset()
+      }
+    })
   }
-  closeModal () {
-    this.setState({ enrollingInCourse: false })
-    this.forceUpdate()
-    // this.props.handle.invalidate()
-  }
+
 
   renderCourseList () {
     return this.props.courses.map((c) => (<StudentCourseComponent key={c._id} course={c} sessionRoute='session' />))
@@ -45,6 +55,8 @@ class _StudentDashboard extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const needsEmailVerification = !Meteor.user().emails[0].verified
+
+    const setEnrollmentCode = (e) => { this.setState({ enrollmentCode: e.target.value }) }
     return (
       <div className='container ql-student-page'>
         <div className='messages'>
@@ -55,12 +67,15 @@ class _StudentDashboard extends Component {
             </div>
             : '' }
         </div>
-        <button className='btn btn-primary' onClick={this.promptForCode}>Enroll in Course</button>
+        <form ref='enrollCourseForm' className='form-inline' onSubmit={this.handleSubmit}>
+          <div className='form-group'>
+            <input type='text' onChange={setEnrollmentCode} className='form-control uppercase' placeholder='Enrollment Code' />
+          </div>
+          <button type='submit' className='btn btn-primary'>Enroll in Course</button>
+        </form>
         <div className='ql-courselist'>
           { this.renderCourseList() }
         </div>
-        { this.state.enrollingInCourse ? <EnrollCourseModal done={this.closeModal} /> : '' }
-
       </div>)
   }
 }
