@@ -93,9 +93,9 @@
     position: relative;
     width: 100%;
 
-    .sidebar-container {
+    .ql-sidebar-container {
       position: absolute;
-      height: calc(100vh - 50px);
+      height: calc(100vh - 100px);
       left: 0;
       top: 0;
     }
@@ -176,7 +176,7 @@
       margin-left: 360px;
       padding: 20px;
       overflow: auto;
-      height: calc(100vh - 50px);
+      height: calc(100vh - 100px);
       max-width: 1000px;
 
       &.presenting {
