@@ -307,23 +307,30 @@ Meteor.methods({
    * returns a list of autocomplete tag sugguestions for the current user
    */
   'questions.possibleTags' () {
-    let tags = []
+    let tags = new Set()
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasGreaterRole('professor')) {
       const courses = Courses.find({ owner: Meteor.userId() }).fetch()
       courses.forEach(c => {
-        tags.push(c.courseCode().toUpperCase())
+        tags.add(c.courseCode().toUpperCase())
+      })
+
+      const profQuestions = Questions.find({ submittedBy: Meteor.userId() }).fetch()
+      profQuestions.forEach((q) => {
+        q.tags.forEach((t) => {
+          tags.add(t.label.toUpperCase())
+        })
       })
     } else {
       const coursesArray = user.profile.courses || []
       const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
       courses.forEach(c => {
-        tags.push(c.courseCode().toUpperCase())
+        tags.add(c.courseCode().toUpperCase())
       })
     }
 
-    return tags
+    return [...tags]
   },
 
   /**
