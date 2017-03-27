@@ -129,20 +129,18 @@ Meteor.methods({
   },
 
   /**
-   * courses.checkAndEnroll(String: deptCode, String: courseNumber, String: enrollmentCode)
+   * courses.checkAndEnroll(String: enrollmentCode)
    * verifies validity of code and enrolls student
    */
-  'courses.checkAndEnroll' (deptCode, courseNumber, enrollmentCode) {
-    check(deptCode, Helpers.NEString)
-    check(courseNumber, Helpers.NEString)
+  'courses.checkAndEnroll' (enrollmentCode) {
     check(enrollmentCode, Helpers.NEString)
     const c = Courses.findOne({
-      deptCode: deptCode.toLowerCase(),
-      courseNumber: courseNumber.toLowerCase(),
       enrollmentCode: enrollmentCode.toLowerCase()
     })
 
-    if (c) {
+    if (!c) throw new Meteor.Error('code-not-found', 'Couldn\'t enroll in course')
+
+    if (!c.inactive) {
       Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
         $addToSet: { 'profile.courses': c._id }
       })
@@ -151,7 +149,7 @@ Meteor.methods({
       })
       return c
     }
-    throw Error('Couldn\'t enroll in course')
+    throw new Meteor.Error('could-not-enroll', 'Couldn\'t enroll in course')
   },
 
   /**

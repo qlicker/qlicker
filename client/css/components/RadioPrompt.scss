@@ -1,11 +1,14 @@
 
-@import '../main.scss';
+@import '../variables.scss';
 
 // Components
 .ql-buttons-prompt {
   padding: 5px;
+  padding-left: 0px;
+  padding-right: 0px;
   display:flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: stretch;
 
   .ql-prompt-option {
     display: inline-block;
@@ -13,6 +16,8 @@
     border: 1px solid #ddd;
     padding: 14px;
     cursor: pointer;
+    width: 24%;
+    text-align: center;
 
     &:hover, &.prompt-selected {
       border: 1px solid $blue;

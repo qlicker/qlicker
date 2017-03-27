@@ -144,6 +144,10 @@ export class QuestionSidebar extends ControlledForm {
             onChange={this.setTags}
             />
           <br />
+          {
+            this.props.clickMessage
+            ? <div className='center-text'>{this.props.clickMessage}<br /></div> : ''
+          }
           <div className='ql-question-list'>
             { /* list questions */
               this.state.questionPool.map(q => {
@@ -165,5 +169,6 @@ export class QuestionSidebar extends ControlledForm {
 QuestionSidebar.propTypes = {
   session: PropTypes.object,
   questions: PropTypes.array.isRequired,
-  onSelect: PropTypes.func
+  onSelect: PropTypes.func,
+  clickMessage: PropTypes.string
 }

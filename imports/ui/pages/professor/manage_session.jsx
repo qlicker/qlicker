@@ -11,6 +11,9 @@ import $ from 'jquery'
 
 import { createContainer } from 'meteor/react-meteor-data'
 import DragSortableList from 'react-drag-sortable'
+import { SingleDatePicker } from 'react-dates'
+import moment from 'moment'
+import { Creatable } from 'react-select'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
@@ -32,6 +35,8 @@ class _ManageSession extends Component {
 
     this.sessionId = this.props.sessionId
 
+    this.addTag = this.addTag.bind(this)
+    this.setDate = this.setDate.bind(this)
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
@@ -42,6 +47,16 @@ class _ManageSession extends Component {
     this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
+
+    // populate tagging suggestions
+    this.tagSuggestions = []
+    Meteor.call('sessions.possibleTags', (e, tags) => {
+      // non-critical, if e: silently fail
+      tags.forEach((t) => {
+        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.forceUpdate()
+    })
   }
 
   runSession () {
@@ -51,6 +66,22 @@ class _ManageSession extends Component {
       this.saveSessionEdits(() => {
         Router.go('session.run', { _id: this.state.session._id })
       })
+    })
+  }
+
+  /**
+   * addTag (String: tag)
+   * add tag to session state
+   */
+  addTag (tags) {
+    const sessionEdits = this.state.session
+    sessionEdits.tags = tags
+    sessionEdits.tags.forEach((t) => {
+      t.label = t.label.toUpperCase()
+      t.value = t.value.toUpperCase()
+    })
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
     })
   }
 
@@ -101,6 +132,18 @@ class _ManageSession extends Component {
     })
   }
 
+  setDate (date) {
+    let stateEdits = this.state.session
+    stateEdits.date = date ? date.toDate() : null
+    this.setState({ session: stateEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+  }
+
+  /**
+   * setValue(Input Event: e)
+   * generate method to handle set state stuff
+   */
   setValue (e) {
     let stateEdits = this.state.session
     stateEdits[e.target.dataset.name] = e.target.value
@@ -229,49 +272,73 @@ class _ManageSession extends Component {
             <option value='done'>Done</option>
           </select>
           <span className='divider'>&nbsp;</span>
-          <div id='ckeditor-toolbar'></div>
+          <SingleDatePicker
+            date={this.state.session.date ? moment(this.state.session.date) : null}
+            onDateChange={this.setDate}
+            focused={this.state.focused}
+            numberOfMonths={1}
+            showClearDate
+            isOutsideRange={() => false}
+            onFocusChange={({ focused }) => this.setState({ focused })} />
+          <span className='divider'>&nbsp;</span>
+          <div id='ckeditor-toolbar' />
         </div>
         <div className='ql-row-container'>
           <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
+              <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
+                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
+                <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
+              </ul>
               <div className='tab-content'>
                 <div role='tabpanel' className='tab-pane active' id='session'>
-
-                  <textarea className='form-control' data-name='description'
-                    onChange={this.setValue}
-                    placeholder='Description'
-                    value={this.state.session.description} /><br />
-
-                  <hr />
                   <h3>Question Order</h3>
                   <div className='ql-session-question-list'>
                     {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
                   </div>
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
+                  <h3>Search and Filtering</h3>
                   <select className='form-control' onChange={this.changeQuestionPool}>
                     <option value='library'>My Question Library</option>
                     <option value='public'>Public Question Pool</option>
                     <option value='student'>Submitted by Students</option>
                   </select>
-                  <h3>Search and Filtering</h3>
                   <QuestionSidebar
                     session={this.state.session}
                     questions={getQuestionPool()}
-                    onSelect={this.addToSession} />
+                    onSelect={this.addToSession}
+                    clickMessage='Click on question to add to session' />
                 </div>
               </div>
-
-              <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
-                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
-                <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
-              </ul>
             </div>
           </div>
           <div className='ql-main-content' >
 
-            <div className='ql-session-child-container'>
+            <div className='ql-session-child-container session-details-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
+              <div className='row'>
+                <div className='col-md-6 left-column'>
+                  <textarea className='form-control session-description' data-name='description'
+                    onChange={this.setValue}
+                    rows={1}
+                    placeholder='Session Description'
+                    value={this.state.session.description} />
+                </div>
+                <div className='col-md-6 right-column'>
+                  <div className='session-tags'>
+                    <Creatable
+                      name='tag-input'
+                      placeholder='Session Tags'
+                      multi
+                      options={this.tagSuggestions}
+                      value={this.state.session.tags}
+                      onChange={this.addTag}
+                  />
+                  </div>
+                </div>
+              </div>
+
             </div>
             {
               questionList.map((questionId) => {

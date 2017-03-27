@@ -29,10 +29,19 @@ Router.route('/', function () {
   name: 'home'
 })
 
-Router.route('/login', function () {
-  mount(AppLayout, { content: <Loginpage /> })
-}, {
-  name: 'login'
+Router.route('/login', {
+  name: 'login',
+  waitOn: function () {
+    return Meteor.subscribe('userData')
+  },
+  action: function () {
+    if (Meteor.userId()) {
+      let user = Meteor.user()
+      if (user.hasRole('admin')) Router.go('admin')
+      if (user.hasRole('professor')) Router.go('professor')
+      if (user.hasRole('student')) Router.go('student')
+    } else mount(AppLayout, { content: <Loginpage /> })
+  }
 })
 
 Router.route('/reset/:token', function () {

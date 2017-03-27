@@ -26,7 +26,8 @@ const sessionPattern = {
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
-  joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ])
+  joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
+  tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ])
 }
 
 // Create Session class
@@ -96,7 +97,8 @@ Meteor.methods({
         description: session.description,
         status: session.status,
         quiz: session.quiz,
-        date: session.date || undefined
+        date: session.date || undefined,
+        tags: session.tags || undefined
       }
     })
   },
@@ -238,6 +240,32 @@ Meteor.methods({
         currentQuestion: questionId
       }
     })
+  },
+
+  /**
+   * sessions.possibleTags()
+   * returns a list of autocomplete tag sugguestions specific for session (different than questions)
+   */
+  'sessions.possibleTags' () {
+    let tags = new Set()
+
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (user.hasGreaterRole('professor')) {
+      const courses = Courses.find({ owner: Meteor.userId() }).fetch()
+      courses.forEach(c => {
+        tags.add(c.courseCode().toUpperCase())
+      })
+
+      const profSessions = Sessions.find({ courseId: { $in: _(courses).pluck('_id') } }).fetch()
+      profSessions.forEach((s) => {
+        const tList = s.tags || []
+        tList.forEach((t) => {
+          tags.add(t.label.toUpperCase())
+        })
+      })
+    }
+
+    return [...tags]
   }
 
 }) // end Meteor.methods

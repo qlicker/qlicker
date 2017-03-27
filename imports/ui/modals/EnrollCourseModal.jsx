@@ -8,8 +8,6 @@ import React from 'react'
 import { ControlledForm } from '../ControlledForm'
 
 export const DEFAULT_STATE = {
-  deptCode: '',
-  courseNumber: '',
   enrollmentCode: ''
 }
 
@@ -41,8 +39,8 @@ export class EnrollCourseModal extends ControlledForm {
       this.props.done()
     }
 
-    Meteor.call('courses.checkAndEnroll', this.state.deptCode, this.state.courseNumber, this.state.enrollmentCode, (error) => {
-      if (error) alertify.error('Error: could not enroll in course')
+    Meteor.call('courses.checkAndEnroll', this.state.enrollmentCode, (error) => {
+      if (error) alertify.error('Error: ' + error.message)
       else {
         alertify.success('Enrolled Sucessfully')
         this.done()
@@ -55,11 +53,6 @@ export class EnrollCourseModal extends ControlledForm {
       <div className='ql-modal ql-modal-enrollcourse container' onClick={this.preventPropagation}>
         <h2>Enroll In Course</h2>
         <form ref='enrollCourseForm' className='ql-form-enrollcourse' onSubmit={this.handleSubmit}>
-          <label>Department Code:</label>
-          <input type='text' className='form-control' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
-
-          <label>Course Number:</label>
-          <input type='text' className='form-control' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
 
           <label>Enrollment Code:</label>
           <input type='text' className='form-control' data-name='enrollmentCode' onChange={this.setValue} placeholder='TCDHLZ' /><br />

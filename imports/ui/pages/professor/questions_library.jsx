@@ -80,6 +80,7 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-8'>
             { this.state.selected
             ? <div>
+              <div id='ckeditor-toolbar' />
               <div className='ql-edit-item-container'>
                 <QuestionEditItem
                   question={this.props.questionMap[this.state.selected]}

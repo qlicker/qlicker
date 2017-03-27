@@ -1,3 +1,4 @@
+@import '../variables.scss';
 
 .ql-question-edit-item {
 
@@ -5,7 +6,7 @@
     
     &.question-editor {
       font-size: 2em;  
-      border-bottom: 2px solid #ccc;
+      border: 1px solid #ccc;
       margin-bottom: 5px;
     }
 
@@ -15,12 +16,14 @@
     
     .cke_textarea_inline {
       padding: 8px;      
-      padding-bottom: 2px;
+      // padding-bottom: 2px;
+      line-height: 1.4em;
 
       &.cke_focus {
-        line-height: 1em;
+        outline: $blue 2px solid;
       }
     }
+
   }
 
   .header {

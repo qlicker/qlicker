@@ -55,7 +55,12 @@ Meteor.users._transform = function (user) {
 var imageStore = new FS.Store.GridFS('profile_images')
 
 export const ProfileImages = new FS.Collection('profile_images', {
-  stores: [imageStore]
+  stores: [imageStore],
+  filter: {
+    allow: {
+      contentTypes: ['image/*']
+    }
+  }
 })
 // Images publishing
 if (Meteor.isServer) {
@@ -66,6 +71,7 @@ ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true
 
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
+    if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
     if (user && user.hasGreaterRole(ROLES.admin)) {

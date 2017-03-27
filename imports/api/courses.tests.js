@@ -182,7 +182,7 @@ if (Meteor.isServer) {
           createStubs(studentUserId)
           const course = Courses.findOne({ _id: courseId })
 
-          Meteor.call('courses.checkAndEnroll', course.deptCode, course.courseNumber, course.enrollmentCode)
+          Meteor.call('courses.checkAndEnroll', course.enrollmentCode)
 
           expect(Courses.findOne({ _id: courseId }).students.length).to.equal(1)
           expect(Meteor.users.findOne({ _id: studentUserId }).profile.courses.length).to.equal(1)

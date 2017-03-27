@@ -1,8 +1,13 @@
 
 .ql-manage-session {
+  overflow: hidden;
 
   .ql-session-toolbar {
-    // height: 20px;
+    height: 50px;
+    width: 100%;
+    top: 50px;
+    left: 0;
+    position: absolute;
     margin-top: 1px;
     background: #F8F8F8;
     padding: 4px;
@@ -10,6 +15,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    z-index: 99;
 
     .divider {
       border-left: 1px solid #d7d7d7;
@@ -24,6 +30,7 @@
       padding-right: 12px;
       display: inline-block;
       cursor: pointer;
+      white-space: nowrap;
 
       &:hover {
         background: #d7d7d7;
@@ -47,16 +54,18 @@
   }
 
   .ql-row-container {
-    // top: 100px;
-    // left: 0;
+    // margin-top: 50px;
+    top: 50px;
+    left: 0;
     // position: absolute;
-    // height: calc(100vh - 50px);
+    height: calc(100vh - 50px);
+    // height: 100%;
     position: relative;
     width: 100%;
 
-    .sidebar-container {
+    .ql-sidebar-container {
       position: absolute;
-      height: calc(100vh - 50px);
+      height: calc(100vh - 100px);
       left: 0;
       top: 0;
     }
@@ -68,7 +77,7 @@
       top: 0;
       left: 0;
       width: 360px;
-      height: calc(100vh - 50px);
+      height: calc(100vh - 100px);
       padding: 20px;
       overflow: auto;
 
@@ -119,8 +128,9 @@
       }
 
       #sidebar-tabs {
-        position: absolute;
-        bottom: 0;
+        // position: absolute;
+        // bottom: 0;
+        margin-bottom: 10px;
       }
 
       .bottom-group {
@@ -136,7 +146,7 @@
       margin-left: 360px;
       padding: 20px;
       overflow: auto;
-      height: calc(100vh - 50px);
+      height: calc(100vh - 100px);
       max-width: 1000px;
 
       &.presenting {
@@ -171,6 +181,25 @@
       width: 100%;
     }
 
+    &.session-details-container {
+      .left-column {
+        padding-right: 5px;
+        margin-top: 10px;  
+      }
+      .right-column {
+        padding-left: 5px;
+        margin-top: 10px;
+      }
+      .session-description {
+        resize: vertical;
+      }
+
+      .session-tags {
+
+      }
+    }
+
+
     &.ql-add-question-prompt {
       text-align: center;
     }
@@ -196,5 +225,37 @@
     padding: 10px 0px;
     max-width: 700px;
   }
+
+  .SingleDatePicker {
+
+    .DateInput {
+      font-size: 14px;
+      padding: 4px;
+      width: 98px;
+
+      .DateInput__display-text {
+        padding: 2px 8px;
+      }
+    }
+    .DateInput--with-caret::before {
+      // top: 37px;
+      display: none;
+    }
+    .DateInput--with-caret::after {
+      // top: 38px;
+      display: none;
+    }
+    .SingleDatePicker__picker {
+      top: 40px;
+    }
+    .SingleDatePickerInput__clear-date {
+      padding: 4px;
+      margin: 0;
+      &.SingleDatePickerInput__clear-date--hide {
+        display: none!important;
+      }
+    }
+  }
+
 
 }
