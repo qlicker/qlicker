@@ -275,6 +275,10 @@ class _ManageSession extends Component {
         <div className='ql-row-container'>
           <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
+              <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
+                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
+                <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
+              </ul>
               <div className='tab-content'>
                 <div role='tabpanel' className='tab-pane active' id='session'>
                   <h3>Question Order</h3>
@@ -283,23 +287,19 @@ class _ManageSession extends Component {
                   </div>
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
+                  <h3>Search and Filtering</h3>
                   <select className='form-control' onChange={this.changeQuestionPool}>
                     <option value='library'>My Question Library</option>
                     <option value='public'>Public Question Pool</option>
                     <option value='student'>Submitted by Students</option>
                   </select>
-                  <h3>Search and Filtering</h3>
                   <QuestionSidebar
                     session={this.state.session}
                     questions={getQuestionPool()}
-                    onSelect={this.addToSession} />
+                    onSelect={this.addToSession}
+                    clickMessage='Click on question to add to session' />
                 </div>
               </div>
-
-              <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
-                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
-                <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
-              </ul>
             </div>
           </div>
           <div className='ql-main-content' >
@@ -311,7 +311,6 @@ class _ManageSession extends Component {
                   <textarea className='form-control session-description' data-name='description'
                     onChange={this.setValue}
                     rows={1}
-                    resize='vertical'
                     placeholder='Session Description'
                     value={this.state.session.description} />
                 </div>
