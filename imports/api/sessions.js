@@ -132,6 +132,10 @@ Meteor.methods({
 
     // TODO if question was a copy attached to session (should be all), delete question from db
     // Currently orphans questions
+    // -- or --
+    // should deletion be flag based. Just keep everything incase we want to implement restore functionality
+
+    if (session.currentQuestion === questionId) session.currentQuestion = null
 
     return Sessions.update({ _id: sessionId }, {
       $pull: { questions: questionId }
