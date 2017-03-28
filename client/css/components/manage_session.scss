@@ -1,4 +1,6 @@
 
+@import '../variables.scss';
+
 .ql-manage-session {
   overflow: hidden;
 
@@ -11,6 +13,7 @@
     margin-top: 1px;
     background: #F8F8F8;
     padding: 4px;
+    padding-left: 8px;
     border-bottom: 2px solid #ccc;
     display: flex;
     flex-direction: row;
@@ -37,7 +40,7 @@
       }
     }
     .status-select {
-      width: 200px;
+      width: 120px;
       display: inline-block;
     }
 
@@ -227,14 +230,23 @@
   }
 
   .SingleDatePicker {
+    height: 34px;
 
     .DateInput {
       font-size: 14px;
       padding: 4px;
+      padding-top:2px;
+      padding-bottom:2px;
       width: 98px;
+      background: transparent;
 
       .DateInput__display-text {
         padding: 2px 8px;
+
+        &.DateInput__display-text--focused {
+          color: white;
+          background: transparentize($blue, 0.3);
+        }
       }
     }
     .DateInput--with-caret::before {
@@ -245,6 +257,10 @@
       // top: 38px;
       display: none;
     }
+    .SingleDatePickerInput {
+      background: transparent;
+      height: 34px;
+    }
     .SingleDatePicker__picker {
       top: 40px;
     }
@@ -254,6 +270,10 @@
       &.SingleDatePickerInput__clear-date--hide {
         display: none!important;
       }
+    }
+
+    .CalendarDay--selected-start, .CalendarDay--selected-end, .CalendarDay--selected {
+      background: $blue;
     }
   }
 

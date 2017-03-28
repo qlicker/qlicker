@@ -252,6 +252,14 @@ input[type=text], input[type=email], input[type=password], textarea.form-control
   }
 }
 
+select.ql-unstyled-select {
+  border-radius: 2px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  height: 34px;
+}
+
 
 .ql-list-item {
   @include list-item();
