@@ -44,7 +44,8 @@ $red-bar: rgba(167,37,38, 0.3);
     margin-top: 20px;
 
     .submit-button {
-      width: 100%;      
+      width: 100%;
+      max-width: 400px;     
     }
   }
 
@@ -57,6 +58,13 @@ $red-bar: rgba(167,37,38, 0.3);
     padding-left: 25px;
     padding-right: 25px;
 
+    .ql-short-answer {
+      width: 400px;
+      textarea {
+        resize: vertical;
+      }
+    }
+
     .ql-answer-content-container {
       width: 100%;
       max-width: 400px;
@@ -66,43 +74,54 @@ $red-bar: rgba(167,37,38, 0.3);
       margin-top: 10px;
       border: 1px solid #ccc;
 
-      .ql-mc {
-        float: left;
-        font-weight: bold;
-      }
-
-      .ql-wysiwyg-content {
-        margin-left: 40px;
-        overflow-x: visible;
-        white-space: nowrap;
-      }
-
-      .ql-tf-content {
-        margin-left: 150px;
-        // text-align: center;
-      }
-
-      .ql-ms-content {
-        margin-left: 40px;
-      }
-
-      .ql-checkbox {
-        float: left;
-        -webkit-appearance: none;
-        background-color: transparent;
-        border: 2px solid #cacece;
+      .answer-container {
         padding: 10px;
-        border-radius: 3px;
-        display: inline-block;
-        position: relative;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+
+        .ql-mc {
+          font-weight: bold;
+          margin-right: 8px;
+        }
+
+        .ql-wysiwyg-content {
+          overflow-x: visible;
+          white-space: nowrap;
+          flex: 1;
+        }
+
+        .ql-tf-content {
+          // margin-left: 140px;
+          text-align: center;
+          flex: 1;
+        }
+
+        .ql-ms-content {
+          // margin-left: 40px;
+        }
+
+        .ql-checkbox {
+          float: left;
+          -webkit-appearance: none;
+          background-color: transparent;
+          border: 2px solid #cacece;
+          padding: 10px;
+          border-radius: 3px;
+          display: inline-block;
+          position: relative;
+          margin-left: 4px;
+          margin-right: 8px;
+        }
       }
 
       .stat-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 0%;
         height: 100%;
-        padding: 10px;
-        padding-left: 15px;
-        padding-right: 15px;
         background-color: transparent;
         transition: 0.6s ease-out;
         transition-property: width, background-color;
@@ -124,13 +143,22 @@ $red-bar: rgba(167,37,38, 0.3);
     .q-submitted {
       border: 1px solid $blue;
       color: $blue;
-        .stat-bar {
-          &.show-stats {
-            background-color: $blue-bar;
-            color: $blue;
-            // fix this colour
-          }
+
+      .ql-checkbox:after {
+        content: '✓';
+        position: absolute;
+        top: -3px;
+        left: 2px;
+        font-size: 22px;
+      }
+
+      .stat-bar {
+        &.show-stats {
+          background-color: $blue-bar;
+          color: $blue;
+          // fix this colour
         }
+      }
     }
   }
 

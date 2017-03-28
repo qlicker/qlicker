@@ -193,7 +193,7 @@ class _RunSession extends Component {
     Meteor.call('sessions.endSession', this.state.session._id, (error) => {
       if (error) return alertify.error('Error: could not end session ')
       alertify.success('Session Ended')
-      Router.go('professor') // TODO go to grades overview page for that session
+      Router.go('course', { _id: this.state.session.courseId }) // TODO go to grades overview page for that session
     })
   }
 
@@ -242,7 +242,7 @@ class _RunSession extends Component {
         <div className='ql-row-container'>
           <div className='ql-sidebar-container'>
             <div className={'ql-session-sidebar' + (this.state.presenting ? ' presenting' : '')}>
-              <h2>Session: { this.state.session.name }</h2>
+              <h2>{ this.state.session.name }</h2>
               <div className='student-counts'>Students in session: {numJoined}</div>
               <div className='btn-group btn-group-justified _display' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={togglePresenting}>Presentation <span className='glyphicon glyphicon-fullscreen' /></a>
