@@ -99,9 +99,10 @@ export class QuestionEditItem extends Component {
     if (!retainOptions) {
       if (oldType === QUESTION_TYPE.SA || oldType === QUESTION_TYPE.TF) {
         stateUpdater.options = []
-      } else if (confirm('You are about to clear your answer options for this question. Do you want to proceed?')) {
-        stateUpdater.options = []
-      } else return
+      } else if (this.state.options && this.state.options.length > 0) {
+        const c = confirm('You are about to clear your answer options for this question. Do you want to proceed?')
+        if (c) stateUpdater.options = []
+      }
     } else {
       const options = this.state.options
       options.forEach((a, i) => {

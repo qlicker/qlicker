@@ -38,6 +38,7 @@ export class _QuestionDisplay extends Component {
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
     this.setAnswer = this.setAnswer.bind(this)
+    this.setShortAnswer = this.setShortAnswer.bind(this)
     this.resetState = this.resetState.bind(this)
   }
 
@@ -93,16 +94,38 @@ export class _QuestionDisplay extends Component {
     return disallowResponses
   }
 
-  setAnswer (answer) {
-    if (this.disallowResponses() || this.readonly) return
+  setShortAnswer (e) {
     this.setState({
       btnDisabled: false,
-      submittedAnswer: answer
+      submittedAnswer: e.target.value
+    })
+  }
+
+  setAnswer (answer) {
+    if (this.disallowResponses() || this.readonly) return
+
+    let answerToSubmit = answer
+
+    if (this.props.question.type === QUESTION_TYPE.MS) {
+      if (!this.state.submittedAnswer) answerToSubmit = [answer]
+      else {
+        const i = this.state.submittedAnswer.indexOf(answer)
+        if (i > -1) {
+          const arrayWithoutAnswer = this.state.submittedAnswer
+          arrayWithoutAnswer.splice(i, 1)
+          answerToSubmit = arrayWithoutAnswer
+        } else answerToSubmit = this.state.submittedAnswer.concat([answer])
+      }
+    }
+
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: answerToSubmit
     })
   }
 
   submitResponse () {
-    if (this.disallowResponses() || this.readonly || (this.state.submittedAnswer === '')) return
+    if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
     this.readonly = true
@@ -124,7 +147,9 @@ export class _QuestionDisplay extends Component {
       attempt: attempt.number,
       questionId: this.props.question._id
     }
+    console.log(answerObject)
 
+    /* // no longer needed cause can only submit once with button
     // remove or add options to MS response
     if (this.props.question.type === QUESTION_TYPE.MS) {
       if (oldAnswer && oldAnswer.answer.length > 0) {
@@ -136,6 +161,7 @@ export class _QuestionDisplay extends Component {
       } else answerObject.answer = [answer] // create new answer array
       answerObject.answer = _(answerObject.answer).uniq() // in theory, this is not needed
     }
+    */
 
     Meteor.call('responses.add', answerObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
@@ -212,10 +238,16 @@ export class _QuestionDisplay extends Component {
         }
 
         return (
-          <div key={'question_' + a.answer} onClick={() => this.setAnswer(a.answer)} className={this.state.submittedAnswer === a.answer ? 'ql-answer-content-container q-submitted' : 'ql-answer-content-container'}>
-            <div className={statClass} style={widthStyle}>
-              { classSuffixStr === 'mc' ? <div className='ql-mc'>{a.answer}.</div> : '' }
+          <div key={'question_' + a.answer}
+            onClick={() => this.setAnswer(a.answer)}
+            className={'ql-answer-content-container ' +
+              (this.state.submittedAnswer === a.answer || this.state.submittedAnswer.indexOf(a.answer) > -1
+              ? 'q-submitted' : '')} >
+            <div className={statClass} style={widthStyle}>&nbsp;</div>
+            <div className='answer-container'>
               { classSuffixStr === 'ms' ? <input type='checkbox' className='ql-checkbox' /> : '' }
+              { classSuffixStr === 'mc' || classSuffixStr === 'ms'
+                ? <span className='ql-mc'>{a.answer}.</span> : '' }
               {content}
             </div>
           </div>)
@@ -226,10 +258,14 @@ export class _QuestionDisplay extends Component {
   // Refine this
   renderShortAnswer (q) {
     return (
-      <div className='ql-answer-content-container'>
-        <div className='ql-short-answer'>
-          <input type='text' />
-        </div>
+      <div className='ql-short-answer'>
+        <textarea
+          disabled={this.readonly}
+          placeholder='Type your answer here'
+          className='form-control'
+          rows='3'
+          onChange={this.setShortAnswer}
+          value={this.state.submittedAnswer} />
       </div>
     )
   }
@@ -241,7 +277,7 @@ export class _QuestionDisplay extends Component {
 
     const q = this.props.question
     const type = q.type
-    let content, buttons
+    let content
 
     switch (type) {
       case QUESTION_TYPE.MC:
@@ -252,10 +288,6 @@ export class _QuestionDisplay extends Component {
         break
       case QUESTION_TYPE.SA:
         content = this.renderShortAnswer(q)
-        // add onclick for reset
-        buttons = (<div className='sa-buttons'>
-          <button className='btn btn-default'>Submit</button>
-          <button className='btn btn-default'>Reset</button> </div>)
         break
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)
