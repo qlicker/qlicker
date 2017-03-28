@@ -60,6 +60,7 @@ body > .container {
 
 .navbar-toggle {
   border: none;
+  z-index: 10;
 
   &:hover, &:focus {
     background-color: darken($blue, 8%)!important;
@@ -207,7 +208,7 @@ code {
 
 .bootstrap-overrides.navbar-brand {
   @include respond-to(767px) {
-    z-index: -1;
+    z-index: 1;
     position: absolute;
     background-color: $blue;
     color: #fff;
