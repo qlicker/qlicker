@@ -48,12 +48,34 @@ export const Courses = new Mongo.Collection('courses',
 if (Meteor.isServer) {
   Meteor.publish('courses', function () {
     if (this.userId) {
-      const user = Meteor.users.findOne({ _id: this.userId })
+      let user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.prof)) {
         return Courses.find({ owner: this.userId })
       } else {
-        // const coursesArray = user.profile.courses || [] // TODO fix enrollment bug
-        return Courses.find({ }, { fields: { students: false } })
+        // manually add courses to array
+        // When student is enrolling in a course,
+        //  regular cursor find depends on user object which doesn't always trigger an update
+        let coursesArray = user.profile.courses || []
+        const courses = Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } }).fetch()
+        courses.forEach((c) => {
+          this.added('courses', c._id, c)
+        })
+        this.ready()
+
+        // manually observe changes on the student user object
+        const userCursor = Meteor.users.find({ _id: this.userId })
+        const handle = userCursor.observeChanges({
+          changed: (id, fields) => {
+            const updatedCoursesArray = fields.profile.courses
+            const newCourseIds = _.difference(updatedCoursesArray, coursesArray)
+
+            newCourseIds.forEach((cId) => {
+              const newCourse = Courses.findOne({ _id: cId }, { fields: { students: false } })
+              this.added('courses', cId, newCourse) // add newly enrolled course to subscription
+            })
+            this.ready()
+          }
+        })
       }
     } else this.ready()
   })
