@@ -183,7 +183,7 @@ Router.route('/student', {
   name: 'student',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('courses') && Meteor.subscribe('userData')
+    return Meteor.subscribe('userData')
   },
   action: function () {
     let user = Meteor.user()
@@ -214,7 +214,7 @@ import { ResultsOverview } from '../../ui/pages/results_overview'
 Router.route('/courses/results', {
   name: 'results.overview',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData')
   },
   action: function () {
     const u = Meteor.user()
@@ -228,7 +228,7 @@ import { ClasslistParticipationPage } from '../../ui/pages/classlist_participati
 Router.route('/course/:_id/results', {
   name: 'course.results',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData')
   },
   action: function () {
     if (Meteor.user()) {

@@ -52,6 +52,16 @@ if (Meteor.isServer) {
       if (user.hasGreaterRole(ROLES.prof)) {
         return Courses.find({ owner: this.userId })
       } else {
+        let coursesArray = user.profile.courses || []
+        return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
+      }
+    } else this.ready()
+  })
+
+  Meteor.publish('courses.userObserveChanges', function () {
+    if (this.userId) {
+      let user = Meteor.users.findOne({ _id: this.userId })
+      if (user.hasGreaterRole(ROLES.student)) {
         // manually add courses to array
         // When student is enrolling in a course,
         //  regular cursor find depends on user object which doesn't always trigger an update
