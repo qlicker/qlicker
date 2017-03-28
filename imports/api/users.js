@@ -2,7 +2,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// users.js: JS related to user collection
+// users.js: methods and publications to supplement the meteor accounts collection Meteor.users
 
 import { Meteor } from 'meteor/meteor'
 import { check } from 'meteor/check'
@@ -69,24 +69,33 @@ if (Meteor.isServer) {
 ProfileImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
 ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
 
+
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
+    if (this.userId) return Meteor.users.find({ _id: this.userId })
+    else this.ready()
+  })
+
+  Meteor.publish('users.myStudents', function () {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && user.hasGreaterRole(ROLES.admin)) {
-      return Meteor.users.find()
-    } else if (user && user.hasGreaterRole(ROLES.prof)) {
+    if (user && user.hasGreaterRole(ROLES.prof)) {
       let studentRefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({ _id: { $in: studentRefs } }, { fields: { services: false } })
-    } else if (user._id) {
-      return Meteor.users.find({_id: this.userId})
-    } else {
-      this.ready()
-    }
+    } else return this.ready()
+  })
+
+  Meteor.publish('users.all', function () {
+    if (!this.userId) return this.ready()
+    const user = Meteor.users.findOne({ _id: this.userId })
+
+    if (user && user.hasGreaterRole(ROLES.admin)) {
+      return Meteor.users.find()
+    } else return this.ready()
   })
 }
 

@@ -330,7 +330,7 @@ export const QuestionDisplay = createContainer((props) => {
     const l = props.question.sessionOptions.attempts.length
 
     responses = Responses.find({ questionId: props.question._id, attempt: l }).fetch()
-
+    console.log(responses)
     const validOptions = _(props.question.options).pluck('answer')
     total = responses.length
 

@@ -83,7 +83,7 @@ class _ClasslistParticipation extends Component {
 
 // meteor reactive data container
 export const ClasslistParticipationPage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData') &&
+  const handle = Meteor.subscribe('users.myStudents') &&
     Meteor.subscribe('courses') &&
     Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inCourse', props.courseId) &&

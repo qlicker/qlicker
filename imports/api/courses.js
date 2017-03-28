@@ -86,6 +86,7 @@ if (Meteor.isServer) {
             this.ready()
           }
         })
+        // TODO implement this to improve perf http://stackoverflow.com/a/21148698
       }
     } else this.ready()
   })
