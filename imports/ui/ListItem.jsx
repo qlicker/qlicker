@@ -35,15 +35,14 @@ export class ListItem extends Component {
     if (!this.props.controls) return ''
     return (
       <div className='btn-group dropdown'>
-        <button
+        <div
           onClick={this.wrapFunc}
-          type='button'
-          className='btn btn-default dropdown-toggle'
+          className='dropdown-toggle'
           data-toggle='dropdown'
           aria-haspopup='true'
           aria-expanded='false'>
-          <span className='caret' />
-        </button>
+          <span className='glyphicon glyphicon-option-vertical' />
+        </div>
         <ul className='dropdown-menu dropdown-menu-right'>
           {controls}
         </ul>

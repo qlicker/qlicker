@@ -156,7 +156,7 @@ class _ManageCourse extends Component {
               </div>
             </div>
 
-            <div className='ql-card'>
+            <div className='ql-card hidden-xs'>
               <div className='ql-header-bar'>
                 <h4>Classlist</h4>
               </div>
