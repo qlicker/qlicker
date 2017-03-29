@@ -73,6 +73,7 @@ $red-bar: rgba(167,37,38, 0.3);
       display: inline-block;
       margin-top: 10px;
       border: 1px solid #ccc;
+      position: relative;
 
       .answer-container {
         padding: 10px;
@@ -80,6 +81,7 @@ $red-bar: rgba(167,37,38, 0.3);
         flex-direction: row;
         align-items: flex-start;
         justify-content: flex-start;
+        z-index: 20;
 
         .ql-mc {
           font-weight: bold;
@@ -125,6 +127,8 @@ $red-bar: rgba(167,37,38, 0.3);
         background-color: transparent;
         transition: 0.6s ease-out;
         transition-property: width, background-color;
+        z-index: 10;
+
         &.show-stats {
           background-color: $blue-bar;
           color: $main-text;

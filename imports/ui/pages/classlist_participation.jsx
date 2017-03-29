@@ -83,7 +83,7 @@ class _ClasslistParticipation extends Component {
 
 // meteor reactive data container
 export const ClasslistParticipationPage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData') &&
+  const handle = Meteor.subscribe('users.myStudents') &&
     Meteor.subscribe('courses') &&
     Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inCourse', props.courseId) &&
@@ -93,22 +93,25 @@ export const ClasslistParticipationPage = createContainer((props) => {
 
   const course = Courses.findOne(props.courseId)
 
-  const students = Meteor.users.find({ _id: { $in: course.students } }, { sort: { 'profile.lastname': 1 } }).fetch()
+  let questionsInSession, students, sessions, responses, groupedResponses
+  if (course) {
+    students = Meteor.users.find({ _id: { $in: course.students } }, { sort: { 'profile.lastname': 1 } }).fetch()
 
-  const sessionQuery = { courseId: course._id }
-  if (user.hasRole('student')) sessionQuery.status = { $ne: 'hidden' }
-  const sessions = Sessions.find(sessionQuery).fetch()
+    const sessionQuery = { courseId: course._id }
+    if (user.hasRole('student')) sessionQuery.status = { $ne: 'hidden' }
+    sessions = Sessions.find(sessionQuery).fetch()
 
-  const questionIds = _.flatten(_(sessions).pluck('questions'))
-  const responses = Responses.find({ questionId: { $in: questionIds } }).fetch()
+    const questionIds = _.flatten(_(sessions).pluck('questions'))
+    responses = Responses.find({ questionId: { $in: questionIds } }).fetch()
 
-  const groupedResponses = dl.groupby('studentUserId').execute(responses)
+    groupedResponses = dl.groupby('studentUserId').execute(responses)
 
-  groupedResponses.forEach(r => {
-    r.questions = dl.groupby('questionId').execute(r.values)
-  })
+    groupedResponses.forEach(r => {
+      r.questions = dl.groupby('questionId').execute(r.values)
+    })
 
-  const questionsInSession = Questions.find({ _id: { $in: questionIds } }).fetch()
+    questionsInSession = Questions.find({ _id: { $in: questionIds } }).fetch()
+  }
 
   return {
     questions: _.indexBy(questionsInSession, '_id'), // question map

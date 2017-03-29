@@ -102,6 +102,7 @@ export class QuestionEditItem extends Component {
       } else if (this.state.options && this.state.options.length > 0) {
         const c = confirm('You are about to clear your answer options for this question. Do you want to proceed?')
         if (c) stateUpdater.options = []
+        else return
       }
     } else {
       const options = this.state.options

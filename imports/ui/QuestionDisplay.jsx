@@ -7,11 +7,13 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { Responses } from '../api/responses'
+import { Questions } from '../api/questions'
 import dl from 'datalib'
 import { _ } from 'underscore'
 import { $ } from 'jquery'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
+
 
 export class _QuestionDisplay extends Component {
 
@@ -326,12 +328,14 @@ export const QuestionDisplay = createContainer((props) => {
   let total
   let responses
 
+  const question = props.question
+  console.log(question)
   if (!props.noStats) {
-    const l = props.question.sessionOptions.attempts.length
+    const l = question.sessionOptions.attempts.length
 
-    responses = Responses.find({ questionId: props.question._id, attempt: l }).fetch()
+    responses = Responses.find({ questionId: question._id, attempt: l }).fetch()
 
-    const validOptions = _(props.question.options).pluck('answer')
+    const validOptions = _(question.options).pluck('answer')
     total = responses.length
 
     let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
@@ -357,7 +361,7 @@ export const QuestionDisplay = createContainer((props) => {
   }
 
   return {
-    question: props.question,
+    question: question,
     readonly: props.readonly,
     totalAnswered: total,
     distribution: data,

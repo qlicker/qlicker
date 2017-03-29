@@ -22,6 +22,8 @@ import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
 
+import { SESSION_STATUS_STRINGS } from '../../../configs'
+
 class _ManageSession extends Component {
 
   constructor (props) {
@@ -196,6 +198,7 @@ class _ManageSession extends Component {
    * save current session state to db
    */
   saveSessionEdits (optCallback) {
+    if (!this.state.session.name) return alertify.error('Please enter a session name')
     Meteor.call('sessions.edit', this.state.session, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else {
@@ -265,11 +268,11 @@ class _ManageSession extends Component {
             Run Session
           </span>
           <span className='divider'>&nbsp;</span>
-          <select className='form-control status-select' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
-            <option value='hidden'>Draft (Hidden)</option>
-            <option value='visible'>Visible</option>
-            <option value='running'>Active</option>
-            <option value='done'>Done</option>
+          <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
+            <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
+            <option value='visible'>{SESSION_STATUS_STRINGS['visible']}</option>
+            <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
+            <option value='done'>{SESSION_STATUS_STRINGS['done']}</option>
           </select>
           <span className='divider'>&nbsp;</span>
           <SingleDatePicker

@@ -50,7 +50,8 @@ if (Meteor.isServer) {
       if (user.hasRole(ROLES.prof) && course.owner === this.userId) {
         return Responses.find({ questionId: questionId })
       } else if (user.hasRole(ROLES.student)) {
-        return Responses.find({ questionId: questionId }) // TODO
+        const findCriteria = { questionId: questionId }
+        return Responses.find(findCriteria)
       }
     } else this.ready()
   })
@@ -61,9 +62,9 @@ if (Meteor.isServer) {
       const session = Sessions.findOne({ _id: sessionId })
       const course = Courses.findOne({ _id: session.courseId })
 
-      if (user.hasRole('professor') && course.owner === this.userId) {
+      if (user.hasRole(ROLES.prof) && course.owner === this.userId) {
         return Responses.find({ questionId: { $in: session.questions } })
-      } else if (user.hasRole('student')) {
+      } else if (user.hasRole(ROLES.student)) {
         return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
       }
     } else this.ready()
@@ -77,9 +78,9 @@ if (Meteor.isServer) {
       const sessions = Sessions.find({ courseId: courseId }).fetch()
       const questionIds = _.flatten(_(sessions).pluck('questions'))
 
-      if (user.hasRole('professor') && course.owner === this.userId) {
+      if (user.hasRole(ROLES.prof) && course.owner === this.userId) {
         return Responses.find({ questionId: { $in: questionIds } })
-      } else if (user.hasRole('student')) {
+      } else if (user.hasRole(ROLES.student)) {
         return Responses.find({ questionId: { $in: questionIds }, studentUserId: this.userId })
       }
     } else this.ready()

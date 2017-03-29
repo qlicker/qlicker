@@ -7,11 +7,13 @@
     &.question-editor {
       font-size: 2em;  
       border: 1px solid #ccc;
+      border-radius: 2px;
       margin-bottom: 5px;
     }
 
     &.answer-editor {
       border: 1px solid #ccc;
+      border-radius: 2px;
     }
     
     .cke_textarea_inline {
@@ -20,7 +22,9 @@
       line-height: 1.4em;
 
       &.cke_focus {
-        outline: $blue 2px solid;
+        // outline: $blue 2px solid;
+        outline: none;
+        box-shadow: 0 0 1px 2px $blue;
       }
     }
 

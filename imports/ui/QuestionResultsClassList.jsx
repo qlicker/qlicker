@@ -37,7 +37,7 @@ export class _QuestionResultsClassList extends Component {
 
 export const QuestionResultsClassList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id) &&
-    Meteor.subscribe('userData')
+    Meteor.subscribe('users.myStudents')
 
   const responses = Responses.find({ attempt: 1, questionId: props.question._id }).fetch()
   const students = Meteor.users.find({ _id: { $in: _(responses).pluck('studentUserId') } }).fetch()

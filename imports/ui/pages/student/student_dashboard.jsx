@@ -81,7 +81,7 @@ class _StudentDashboard extends Component {
 }
 
 export const StudentDashboard = createContainer(() => {
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('userData')
+  const handle = Meteor.subscribe('courses.userObserveChanges') && Meteor.subscribe('userData')
   const user = Meteor.users.findOne(Meteor.userId())
   const cArr = user.profile.courses || []
 
