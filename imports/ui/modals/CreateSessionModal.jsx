@@ -81,14 +81,6 @@ export class CreateSessionModal extends ControlledForm {
           <label>Description:</label>
           <textarea type='text' data-name='description' className='form-control' onChange={this.setValue} placeholder='Quiz on topic 3' /><br />
 
-          <label>Format:</label>
-          <select data-name='quiz' className='form-control' onChange={this.setValue} >
-            <option value='false' default>Lecture Poll</option>
-            <option value='true'>Online Quiz</option>
-          </select><br />
-
-          { this.state.quiz ? 'Deadline: <datepicker here><br />' : '' }
-
           <div className='ql-buttongroup'>
             <a className='btn btn-default' onClick={this.done}>Cancel</a>
             <input className='btn btn-default' type='submit' id='submit' />
