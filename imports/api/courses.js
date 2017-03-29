@@ -86,6 +86,10 @@ if (Meteor.isServer) {
             this.ready()
           }
         })
+
+        this.onStop(function () {
+          handle.stop()
+        })
         // TODO implement this to improve perf http://stackoverflow.com/a/21148698
       }
     } else this.ready()
@@ -281,7 +285,6 @@ Meteor.methods({
     const c = Courses.findOne(courseId).courseCode().toUpperCase()
     return { value: c, label: c }
   },
-
 
   /**
    * courses.setActive(String (mongoid): courseId, Boolean active)

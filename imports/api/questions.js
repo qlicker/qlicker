@@ -157,7 +157,7 @@ if (Meteor.isServer) {
       if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
       if (user.hasRole(ROLES.student)) {
-        return Questions.find({ sessionId: { $in: course.sessions || [] }, status: { $ne: 'hidden' } }) // TODO
+        return Questions.find({ sessionId: { $in: course.sessions || [] } }, { fields: { 'options.correct': false } })
       }
     } else this.ready()
   })
@@ -169,7 +169,47 @@ if (Meteor.isServer) {
       if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole(ROLES.student)) {
-        return Questions.find({ sessionId: sessionId }) // TODO
+        // by default fetch all Qs without correct indicator
+        const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } }).fetch()
+
+        initialQs.forEach(q => {
+          const qToAdd = q
+          // if prof has marked Q with correct visible, refetch answer options
+          if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne(q._id).options
+          this.added('questions', qToAdd._id, qToAdd)
+        })
+
+        this.ready()
+
+        // need to monitor for changes on sessionOptions.correct
+        // and expose options.correct based on that
+        const questionsCursor = Questions.find({ sessionId: sessionId })
+        const handle = questionsCursor.observeChanges({
+          added: (id, fields) => {
+            this.added('questions', id, fields)
+          },
+          changed: (id, fields) => {
+            const newFields = fields
+
+            const so = newFields.sessionOptions
+            if (so && so.correct) { // correct should be visible
+              const q = Questions.findOne(id)
+              newFields['options'] = q.options
+            } else if (so && !so.correct) { // correct should be hidden
+              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false } })
+              newFields['options'] = q.options
+            }
+
+            this.changed('questions', id, newFields)
+          },
+          removed: (id) => {
+            this.removed('questions', id)
+          }
+        })
+
+        this.onStop(function () {
+          handle.stop()
+        })
       }
     } else this.ready()
   })
