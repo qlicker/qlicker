@@ -172,7 +172,7 @@ export class QuestionEditItem extends Component {
 
   /**
    * addAnswer(Event _, Event e, Boolean wysiwyg, Callback done = null)
-   * add answer to MC, MS, and TF questions
+   * add answer option to MC, MS, and TF questions
    */
   addAnswer (_, e, wysiwyg = true, done = null) {
     const answerKey = this.answerOrder[this.currentAnswer]
@@ -191,6 +191,14 @@ export class QuestionEditItem extends Component {
 
       if (done) done()
     })
+  } // end addAnswer
+
+  /**
+   * addAnswer(String answerKey)
+   * remove answer option to MC, MS, and TF questions
+   */
+  removeAnswer (answerKey) {
+    // TODO implement this
   } // end addAnswer
 
   /**
@@ -283,64 +291,63 @@ export class QuestionEditItem extends Component {
     this.setState(nextProps.question)
   }
 
-  componentDidMount () {
-    this.componentDidUpdate()
-  }
+  /**
+   * answerEditor(Answer: a)
+   * generate a answer option element row
+   */
+  answerEditor (a) {
+    const changeHandler = (content, plainText) => {
+      this.setOptionState(a.answer, content, plainText)
+    }
 
-  componentDidUpdate () {
-    // $('[data-toggle="tooltip"]').tooltip()
-  }
-
-  render () {
-    const answerEditor = (a) => {
-      const changeHandler = (content, plainText) => {
-        this.setOptionState(a.answer, content, plainText)
-      }
-
-      const wysiwygAnswer = (
-        <div>
-          <span className='answer-option'>
-            Option <span className='answer-key'>{ a.answer }</span>
-            <span className='correct' onClick={() => this.markCorrect(a.answer)}>
-              { a.correct
-                ? <span className='ql-label ql-label-correct'>Correct</span>
-                : <span className='ql-label ql-label-incorrect'>Incorrect</span> }
-            </span>
+    const wysiwygAnswer = (
+      <div>
+        <div className='answer-option'>
+          <span className='correct' onClick={() => this.markCorrect(a.answer)}>
+            { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
           </span>
+          <span className='answer-key'>{ a.answer }</span>
           <Editor
             change={changeHandler}
             val={a.content}
             className='answer-editor'
             />
-        </div>)
 
-      const noWysiwygAnswer = (<div className='answer-option'>
-        <span className='correct' onClick={() => this.markCorrect(a.answer)}>
-          { a.correct
-            ? <span className='ql-label ql-label-correct'>Correct</span>
-            : <span className='ql-label ql-label-incorrect'>Incorrect</span> }
-        </span>
-        <div className='answer-no-wysiwyg'>
-          <span>{ a.answer }</span>
+          <span
+            onClick={() => this.removeAnswer(a.answer)}
+            className='trash-icon glyphicon glyphicon-trash' />
         </div>
       </div>)
 
-      return (<div className='col-md-6 small-editor-wrapper' key={'answer_' + a.answer}>
-        { !a.wysiwyg ? noWysiwygAnswer : wysiwygAnswer }
-      </div>)
-    }
+    const noWysiwygAnswer = (<div className='answer-option'>
+      <span className='correct' onClick={() => this.markCorrect(a.answer)}>
+        { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
+      </span>
+      <div className='answer-no-wysiwyg answer-editor'>
+        <span>{ a.answer }</span>
+      </div>
+    </div>)
 
-    // generate rows with up to 2 editors on each row
+    return (<div className={'small-editor-wrapper ' + (a.wysiwyg ? 'col-md-12' : 'col-md-6')} key={'answer_' + a.answer}>
+      { !a.wysiwyg ? noWysiwygAnswer : wysiwygAnswer }
+    </div>)
+  } // end answerEditor
+
+  render () {
     let editorRows = []
-    const len = this.state.options ? this.state.options.length : 0
-    for (let i = 0; i < len; i = i + 2) {
-      let gaurunteed = this.state.options[i]
-      let possiblyUndefined = i < len ? this.state.options[i + 1] : undefined
 
-      editorRows.push(<div key={'row_' + i + '-' + i + 1} className='row'>
-        { answerEditor(gaurunteed) }
-        { possiblyUndefined ? answerEditor(possiblyUndefined) : '' }
-      </div>)
+    if (this.state.type === QUESTION_TYPE.TF) {
+      const row = <div key='row_0' className='row'>
+        {this.answerEditor(this.state.options[0])}
+        {this.answerEditor(this.state.options[1])}
+      </div>
+      editorRows.push(row)
+    } else {
+      this.state.options.forEach((option, i) => {
+        editorRows.push(<div key={'row_' + i} className='row'>
+          { this.answerEditor(option) }
+        </div>)
+      })
     }
 
     const radioOptions = [
@@ -355,7 +362,7 @@ export class QuestionEditItem extends Component {
       <div className='ql-question-edit-item'>
         <div className='header'>
           { this.props.metadata
-            ? <div className='row'>
+            ? <div className='row metadata-row'>
               <div className='col-md-6'>
                 <div className='btn-group'>
                   <button className='btn btn-default'
@@ -410,7 +417,13 @@ export class QuestionEditItem extends Component {
         {editorRows}
 
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
-          ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
+          ? <div className='row' onClick={this.addAnswer}>
+            <div className='col-md-12'>
+              <div className='add-question-row-item'>
+                <span className='glyphicon glyphicon-plus' /> Add Option
+              </div>
+            </div>
+          </div>
           : '' }
 
       </div>)

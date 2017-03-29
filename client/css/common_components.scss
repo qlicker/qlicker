@@ -128,6 +128,8 @@
   padding: 0px 6px;
   border-radius: 6px;
   font-weight: normal;
+  white-space: nowrap;
+  display: inline-block;
 
   &.ql-label-info {
     border: 1px solid $blue;
@@ -193,13 +195,14 @@ input[type=text], input[type=email], input[type=password], textarea.form-control
 
 // buttons
 .btn {
-  border-color: $blue;
-  color: $blue;
+  border-color: #ccc;
+  color: #666;
   border-radius: 3px;
 
   &:hover {
     border-color: $blue;
     color: $blue;
+    border-right-width: 1px;
   }
 
   &:active, &:focus {
@@ -237,7 +240,7 @@ input[type=text], input[type=email], input[type=password], textarea.form-control
 
 .btn-group:not(.dropdown) {
   .btn {
-    border-right-width: 0;
+    // border-right-width: 0;
     // &:hover {
     //   border-right-width: 1px;
     // }

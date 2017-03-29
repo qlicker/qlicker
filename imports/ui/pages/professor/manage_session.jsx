@@ -96,6 +96,7 @@ class _ManageSession extends Component {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
     })
+    this.cursorMoveWorkaround()
   }
 
   /**
@@ -107,6 +108,7 @@ class _ManageSession extends Component {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Duplicate Added')
     })
+    this.cursorMoveWorkaround()
   }
 
   /**
