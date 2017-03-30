@@ -1,24 +1,45 @@
 
 @import '../variables.scss';
 
+@mixin session-toolbar() {
+  height: 50px;
+  background: #F8F8F8;
+  padding: 4px;
+  padding-left: 8px;
+  border-bottom: 2px solid #ccc;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  z-index: 99;
+}
+
+@mixin toolbar-button() {
+  padding: 8px;
+  padding-left: 12px;
+  padding-right: 12px;
+  display: inline-block;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 2px;
+  color: $main-text;
+
+  &:hover {
+    background: #d7d7d7;
+    color: $main-text;
+    text-decoration: none;
+  }
+}
+
 .ql-manage-session {
   overflow: hidden;
 
   .ql-session-toolbar {
-    height: 50px;
     width: 100%;
     top: 50px;
     left: 0;
     position: absolute;
     margin-top: 1px;
-    background: #F8F8F8;
-    padding: 4px;
-    padding-left: 8px;
-    border-bottom: 2px solid #ccc;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    z-index: 99;
+    @include session-toolbar();
 
     .divider {
       border-left: 1px solid #d7d7d7;
@@ -27,17 +48,14 @@
       margin-right: 8px;
     }
 
-    .run-button {
-      padding: 8px;
-      padding-left: 12px;
-      padding-right: 12px;
-      display: inline-block;
-      cursor: pointer;
-      white-space: nowrap;
-      border-radius: 2px;
+    .toolbar-button {
+      @include toolbar-button();
 
-      &:hover {
-        background: #d7d7d7;
+      &.next {
+        padding-right:6px;
+      }
+      &.prev {
+        padding-left:6px;
       }
     }
     .status-select {
@@ -55,15 +73,19 @@
         }
       }
     }
+
+    .session-title {
+      font-weight: bold;
+      font-size: 120%;
+      padding-left: 10px;
+      padding-right: 8px;
+    }
   }
 
   .ql-row-container {
-    // margin-top: 50px;
     top: 50px;
     left: 0;
-    // position: absolute;
     height: calc(100vh - 50px);
-    // height: 100%;
     position: relative;
     width: 100%;
 
@@ -72,6 +94,35 @@
       height: calc(100vh - 100px);
       left: 0;
       top: 0;
+
+      &.presenting {
+        width: 100%;
+
+        .ql-session-sidebar {
+          width: 100%;
+          @include session-toolbar();
+         
+          .btn-group-justified {
+            width: unset;
+            margin-right: 8px;
+          }
+          a.btn {
+            @include toolbar-button();
+            width: unset;
+          }
+          .question-number {
+            font-size: 140%;
+            margin-right: 8px;
+            margin-left: 8px;
+          }
+          h2, .attempt-message {
+            display: none;
+          }
+
+        }
+
+      }
+
     }
 
     .ql-session-sidebar {
@@ -84,42 +135,6 @@
       height: calc(100vh - 100px);
       padding: 20px;
       overflow: auto;
-
-      &.presenting {
-        width: 100%;
-        height: 85px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 5px;
-        flex-wrap: wrap;
-
-        // left: -300px;
-        // transition: left 0.6s;
-
-        &:hover {
-          // left: 0;
-          // transition: left 0.6s;
-        }
-
-        h2, h3, .attempt-message {
-          display: none;
-        }
-
-        ._display {
-          width: 230px;
-        }
-        ._questions {
-          width: 275px;
-        }
-        ._attempts {
-          width: 220px;
-        }
-        ._nav {
-          width: 250px;
-        }
-
-      }
       
       .list-item-selected {
         font-weight: normal;

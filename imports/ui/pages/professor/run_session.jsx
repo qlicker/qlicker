@@ -240,36 +240,45 @@ class _RunSession extends Component {
       <div className='ql-manage-session'>
 
         <div className='ql-session-toolbar'>
-          <span className='run-button' onClick={this.endSession}>
+          <span className='session-title'>{ this.state.session.name }</span>
+          <span className='divider'>&nbsp;</span>
+          <span className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <span className='divider'>&nbsp;</span>
+          <span className='toolbar-button' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
             Finish Session
           </span>
+          <span className='toolbar-button' onClick={togglePresenting}>
+            <span className='glyphicon glyphicon-fullscreen' />&nbsp;
+            Presentation Mode
+          </span>
+          <span className='toolbar-button' onClick={secondDisplay}>
+            <span className='glyphicon glyphicon-blackboard' />&nbsp;
+            2nd Display
+          </span>
           <span className='divider'>&nbsp;</span>
+          <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
+          <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>
+          <span className='divider'>&nbsp;</span>
+
         </div>
 
         <div className='ql-row-container'>
-          <div className='ql-sidebar-container'>
-            <div className={'ql-session-sidebar' + (this.state.presenting ? ' presenting' : '')}>
-              <h2>{ this.state.session.name }</h2>
-              <div className='student-counts'>Students in session: {numJoined}</div>
-              <div className='btn-group btn-group-justified _display' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={togglePresenting}>Presentation <span className='glyphicon glyphicon-fullscreen' /></a>
-                <a href='#' className='btn btn-default btn-sm' onClick={secondDisplay}>2nd Display <span className='glyphicon glyphicon-blackboard' /></a>
-              </div>
-              <hr />
-              <h3>Current Question</h3>
-              <div className='student-counts'>Responses recieved: {numAnswered}</div>
-              <div className='btn-group btn-group-justified _questions' role='group'>
+          <div className={'ql-sidebar-container' + (this.state.presenting ? ' presenting' : '')}>
+            <div className='ql-session-sidebar'>
+              <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
+              <div className='btn-group btn-group-justified' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
               </div>
               <br />
-              <div className='btn-group btn-group-justified _attempts' role='group'>
+              <div className='btn-group btn-group-justified' role='group'>
                 <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
                 <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
               </div>
               <br />
+              <div className='student-counts'>Responses recieved: {numAnswered}</div>
               <div className='attempt-message'>
                 Current Attempt ({currentAttempt.number}): {strAttemptOpen}
               </div>
@@ -293,12 +302,6 @@ class _RunSession extends Component {
                 </div>
                 : ''
               }
-
-              <div className='btn-group btn-group-justified bottom-group _nav' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.endSession}>End session</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next <span className='glyphicon glyphicon-arrow-right' /></a>
-              </div>
             </div>
           </div>
 
