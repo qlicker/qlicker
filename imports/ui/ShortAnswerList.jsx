@@ -5,16 +5,18 @@
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
-import { _ } from 'underscore'
 
 import { Responses } from '../api/responses'
 
-export class _ShortAnswerList extends Component {
-
+class _ShortAnswerList extends Component {
 
   render () {
-    return (<div>
-      {JSON.stringify(this.props.responses)}
+    if (this.props.loading) return <div>Loading</div>
+    return (<div className='ql-short-answer-list'>
+      <h3>Reponses</h3>
+      {
+        this.props.responses.map(r => <div className='ql-short-answer-item'>{r.answer}</div>)
+      }
     </div>)
   } //  end render
 
@@ -22,7 +24,7 @@ export class _ShortAnswerList extends Component {
 
 export const ShortAnswerList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
-  const responses = Responses.find({ questionId: props.question._id }).fetch()
+  const responses = Responses.find({ questionId: props.question._id }, { sort: { createdAt: -1 } }).fetch()
 
   return {
     responses: responses,

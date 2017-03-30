@@ -305,14 +305,14 @@ class _RunSession extends Component {
           <div className={'ql-main-content ' + (this.state.presenting ? 'presenting' : '')}>
             {
               !this.state.presenting && q && q.type !== QUESTION_TYPE.SA // option based questions
-              ? <div>{<AnswerDistribution question={q} title='Responses' />}<div className='clear' /></div>
+              ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div>
               : ''
             }
-            {/*{
+            {
               !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
-              ? <div>{<ShortAnswerList question={q} />}</div>
+              ? <div><ShortAnswerList question={q} /></div>
               : ''
-            }*/}
+            }
 
             <div className='ql-question-preview'>
               { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }

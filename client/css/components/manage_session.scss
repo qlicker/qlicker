@@ -160,6 +160,11 @@
       height: calc(100vh - 100px);
       max-width: 1000px;
 
+      .ql-short-answer-list {
+        max-width: 500px;
+        margin-bottom: 10px;
+      }
+
       &.presenting {
         margin: 0;
 
