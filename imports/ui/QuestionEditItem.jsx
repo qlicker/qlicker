@@ -421,12 +421,18 @@ export class QuestionEditItem extends Component {
             </div>
             : '' }
           <div className='row'>
-            <div className='col-md-12'>
+            <div className='col-md-12 question-row'>
               <Editor
                 change={this.onEditorStateChange}
                 val={this.state.content}
                 className='question-editor'
                 placeholder='Question?' />
+
+              { this.props.onDeleteThis
+                ? <span
+                  onClick={this.props.onDeleteThis}
+                  className='trash-icon glyphicon glyphicon-trash' />
+                  : '' }
             </div>
           </div>
         </div>

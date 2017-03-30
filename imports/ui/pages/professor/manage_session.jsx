@@ -190,8 +190,12 @@ class _ManageSession extends Component {
     }
 
     Meteor.call('questions.copyToSession', this.state.session._id, questionId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else alertify.success('Question Added')
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Added')
+
+      $('#ql-main-content').stop().animate({
+        scrollTop: $('#ql-main-content')[0].scrollHeight
+      }, 800)
     })
   }
 
@@ -248,6 +252,7 @@ class _ManageSession extends Component {
         content: <QuestionListItem
           click={this.cursorMoveWorkaround}
           question={q}
+          controlsTriggered={this.cursorMoveWorkaround}
           controls={[
             { label: 'Remove', click: () => this.removeQuestion(questionId) },
             { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) }
@@ -292,18 +297,16 @@ class _ManageSession extends Component {
           <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
               <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
-                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Session</a></li>
+                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Question Order</a></li>
                 <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
               </ul>
               <div className='tab-content'>
                 <div role='tabpanel' className='tab-pane active' id='session'>
-                  <h3>Question Order</h3>
                   <div className='ql-session-question-list'>
                     {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
                   </div>
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
-                  <h3>Search and Filtering</h3>
                   <select className='form-control' onChange={this.changeQuestionPool}>
                     <option value='library'>My Question Library</option>
                     <option value='public'>Public Question Pool</option>
@@ -318,7 +321,7 @@ class _ManageSession extends Component {
               </div>
             </div>
           </div>
-          <div className='ql-main-content' >
+          <div className='ql-main-content' id='ql-main-content'>
 
             <div className='ql-session-child-container session-details-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
@@ -351,6 +354,7 @@ class _ManageSession extends Component {
 
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
+                    onDeleteThis={() => this.removeQuestion(questionId)}
                     question={q}
                     sessionId={this.state.session._id}
                     onNewQuestion={this.newQuestionSaved}

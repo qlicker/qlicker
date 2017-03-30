@@ -239,6 +239,14 @@ class _RunSession extends Component {
     return (
       <div className='ql-manage-session'>
 
+        <div className='ql-session-toolbar'>
+          <span className='run-button' onClick={this.endSession}>
+            <span className='glyphicon glyphicon-stop' />&nbsp;
+            Finish Session
+          </span>
+          <span className='divider'>&nbsp;</span>
+        </div>
+
         <div className='ql-row-container'>
           <div className='ql-sidebar-container'>
             <div className={'ql-session-sidebar' + (this.state.presenting ? ' presenting' : '')}>

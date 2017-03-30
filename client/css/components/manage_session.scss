@@ -119,10 +119,14 @@
         }
 
       }
+      
+      .list-item-selected {
+        font-weight: normal;
+      }
 
       .ql-session-question-list {
         .ql-question-list-item {
-          cursor: grab;
+          cursor: move;
         }
 
         // > div:last-child .ql-list-item {
@@ -277,5 +281,14 @@
     }
   }
 
-
+  @media (max-width: 1000px) {
+    .session-details-container {
+      .left-column {
+        padding-right: 15px!important;
+      }
+      .right-column {
+        padding-left: 15px!important;
+      }
+    }
+  }
 }
