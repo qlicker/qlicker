@@ -8,13 +8,14 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import $ from 'jquery'
 
+import { PromoteAccountModal } from '../modals/PromoteAccountModal'
 import { Courses } from '../../api/courses'
 
 class _PageContainer extends Component {
 
   constructor (props) {
     super(props)
-    this.state = {}
+    this.state = { promotingAccount: false }
     this.state.user = Meteor.user() || this.props.user
 
     alertify.logPosition('bottom right')
@@ -28,9 +29,11 @@ class _PageContainer extends Component {
 
   render () {
     const logout = () => {
-      Router.go('login')
       Meteor.logout()
+      Router.go('login')
     }
+
+    const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }
 
     const homePath = Router.routes[this.state.user.profile.roles[0]].path()
     const coursesPage = this.state.user.hasRole('professor')
@@ -90,6 +93,7 @@ class _PageContainer extends Component {
                   <ul className='dropdown-menu'>
                     <li><a className='close-nav' href={Router.routes['profile'].path()}>Profile</a></li>
                     {/* <li><a href='#'>Settings</a></li> */}
+                    {this.state.user.hasRole('professor') ? <li><a className='close-nav' href={coursesPage} onClick={togglePromotingAccount}>Promote Account</a></li> : ''}
                     <li role='separator' className='divider' />
                     <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
                   </ul>
@@ -99,7 +103,12 @@ class _PageContainer extends Component {
           </div>
         </nav>
 
-        <div className='ql-child-container'>{ this.props.children }</div>
+        <div className='ql-child-container'>
+          { this.props.children }
+          { this.state.user.hasRole('professor') && this.state.promotingAccount
+            ? <PromoteAccountModal done={togglePromotingAccount} />
+            : '' }
+        </div>
       </div>)
   }
 

@@ -1,14 +1,14 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// ChangeEmailModal.jsx: popup dialog to prompt for new email addresss
+// PromoteAccountModal.jsx: modal for profs to make new prof accounts
 
 import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 
 
-export class ChangeEmailModal extends ControlledForm {
+export class PromoteAccountModal extends ControlledForm {
 
   constructor (props) {
     super(props)
@@ -32,7 +32,7 @@ export class ChangeEmailModal extends ControlledForm {
 
   /**
    * handleSubmit(Event: e)
-   * onSubmit handler for enroll form. Calls users.changeEmail
+   * onSubmit handler for enroll form. Calls users.promote
    */
   handleSubmit (e) {
     super.handleSubmit(e)
@@ -41,23 +41,22 @@ export class ChangeEmailModal extends ControlledForm {
       this.props.done()
     }
 
-    Meteor.call('users.changeEmail', this.state.newEmail, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else {
-        alertify.success('Verification Email Sent')
-        this.done()
-      }
+    Meteor.call('users.promote', this.state.newEmail, (error) => {
+      if (error) return alertify.error('Error: ' + error.message)
+      alertify.success('Account promoted')
+      this.done()
     })
   }
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
       <div className='ql-modal ql-modal-newemail ql-card' onClick={this.preventPropagation}>
-        <div className='ql-modal-header ql-header-bar'><h3>Change Email</h3></div>
+        <div className='ql-modal-header ql-header-bar'><h3>Give someone a professor account</h3></div>
         <form ref='newEmailForm' className='ql-card-content' onSubmit={this.handleSubmit}>
-          <div className='text'>Old email: {this.props.oldEmail}</div>
 
-          <label>New Email Address:</label>
+          <div className='text'>Know someone who wants to use Qlicker in their own classes? Submit their Qlicker account email address to give them access to a professor account.</div>
+
+          <label>Email:</label>
           <input type='email' className='form-control' onChange={this.newEmailOnChange} /><br />
 
           <div className='ql-buttongroup'>
@@ -69,6 +68,6 @@ export class ChangeEmailModal extends ControlledForm {
     </div>)
   } //  end render
 
-} // end ChangeEmailModal
+} // end PromoteAccountModal
 
 
