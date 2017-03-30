@@ -318,40 +318,44 @@ export class QuestionEditItem extends Component {
    * generate a answer option element row
    */
   answerEditor (a) {
+    if (!a) return <div>Loading</div>
     const changeHandler = (content, plainText) => {
       this.setOptionState(a.answer, content, plainText)
     }
+    let item
 
-    const wysiwygAnswer = (
-      <div>
-        <div className='answer-option'>
-          <span className='correct' onClick={() => this.markCorrect(a.answer)}>
-            { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
-          </span>
-          <span className='answer-key'>{ a.answer }</span>
-          <Editor
-            change={changeHandler}
-            val={a.content}
-            className='answer-editor'
-            />
+    if (a.wysiwyg) {
+      item = (
+        <div>
+          <div className='answer-option'>
+            <span className='correct' onClick={() => this.markCorrect(a.answer)}>
+              { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
+            </span>
+            <span className='answer-key'>{ a.answer }</span>
+            <Editor
+              change={changeHandler}
+              val={a.content}
+              className='answer-editor'
+              />
 
-          <span
-            onClick={() => this.removeAnswer(a.answer)}
-            className='trash-icon glyphicon glyphicon-trash' />
+            <span
+              onClick={() => this.removeAnswer(a.answer)}
+              className='trash-icon glyphicon glyphicon-trash' />
+          </div>
+        </div>)
+    } else {
+      item = (<div className='answer-option'>
+        <span className='correct' onClick={() => this.markCorrect(a.answer)}>
+          { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
+        </span>
+        <div className='answer-no-wysiwyg answer-editor'>
+          <span>{ a.answer }</span>
         </div>
       </div>)
-
-    const noWysiwygAnswer = (<div className='answer-option'>
-      <span className='correct' onClick={() => this.markCorrect(a.answer)}>
-        { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
-      </span>
-      <div className='answer-no-wysiwyg answer-editor'>
-        <span>{ a.answer }</span>
-      </div>
-    </div>)
+    }
 
     return (<div className={'small-editor-wrapper ' + (a.wysiwyg ? 'col-md-12' : 'col-md-6')} key={'answer_' + a.answer}>
-      { !a.wysiwyg ? noWysiwygAnswer : wysiwygAnswer }
+      { item }
     </div>)
   } // end answerEditor
 
@@ -448,7 +452,7 @@ export class QuestionEditItem extends Component {
           ? <div className='row' onClick={this.addAnswer}>
             <div className='col-md-12'>
               <div className='add-question-row-item'>
-                <span className='glyphicon glyphicon-plus' /> Add Option
+                New Option <span className='glyphicon glyphicon-plus' />
               </div>
             </div>
           </div>

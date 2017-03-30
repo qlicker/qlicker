@@ -161,10 +161,22 @@ class _ManageSession extends Component {
    * add a blank question edit item to create a new question
    */
   addNewQuestion () {
-    if (this.state.session.questions) {
-      this.state.session.questions.push(-1)
-    } else this.state.session.questions = [-1]
-    this.forceUpdate()
+    // if (this.state.session.questions) {
+    //   this.state.session.questions.push(-1)
+    // } else this.state.session.questions = [-1]
+
+    const blankQuestion = {
+      plainText: '', // plain text version of question
+      type: -1,
+      content: '', // wysiwyg display content
+      options: [],
+      tags: []
+    }
+    Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
+      if (e) return alertify.error('Error: couldn\'t add new question')
+      alertify.success('New Blank Question Added')
+      this.addToSession(newQuestion._id)
+    })
   }
 
   /**
