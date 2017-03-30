@@ -55,9 +55,8 @@ export class SessionListItem extends ListItem {
               <div className='ql-progress-bar' style={{ width: completion + '%' }}>&nbsp;</div>
             </div>
           </div>
-          { this.props.controls ? <div className='controls'>{controls}</div> : '' }
         </div>
-
+        { this.props.controls ? <div className='controls'>{controls}</div> : '' }
       </div>)
   } //  end render
 

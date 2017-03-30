@@ -9,8 +9,9 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { Courses } from '../../api/courses'
 
 import { CourseListItem } from '../CourseListItem'
+import { ControlledForm } from '../ControlledForm'
 
-export class _PickCourseModal extends Component {
+export class _PickCourseModal extends ControlledForm {
 
   // constructor (p) {
   //   super(p)
@@ -22,20 +23,20 @@ export class _PickCourseModal extends Component {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-selectcourse container' onClick={this.preventPropagation}>
-        <div className='ql-modal-header'><h2>Select a Course</h2></div>
-        {
-          this.props.courses.map((c) => {
-            return <CourseListItem course={c} click={() => this.props.selected(c._id)} />
-          })
-        }
+      <div className='ql-modal ql-modal-selectcourse ql-card' onClick={this.preventPropagation}>
+        <div className='ql-modal-header ql-header-bar'><h3>Select a Course</h3></div>
+        <div className='ql-card-content'>
+          {
+            this.props.courses.map((c) => {
+              return <CourseListItem course={c} click={() => this.props.selected(c._id)} />
+            })
+          }
+        </div>
       </div>
     </div>)
   } //  end render
 
 } // end PickCourseModal
-
-
 
 export const PickCourseModal = createContainer((props) => {
   const handle = Meteor.subscribe('courses')
@@ -47,5 +48,4 @@ export const PickCourseModal = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _PickCourseModal)
-
 
