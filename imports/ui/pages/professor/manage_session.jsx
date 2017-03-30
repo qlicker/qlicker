@@ -314,7 +314,7 @@ class _ManageSession extends Component {
               </ul>
               <div className='tab-content'>
                 <div role='tabpanel' className='tab-pane active' id='session'>
-                  <div className='ql-session-question-list'>
+                  <div className='ql-session-question-list reorder'>
                     {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
                   </div>
                 </div>

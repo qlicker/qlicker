@@ -11,6 +11,13 @@
   flex-direction: row;
   align-items: center;
   z-index: 99;
+
+  .divider {
+    border-left: 1px solid #d7d7d7;
+    width: 0;
+    margin-left: 8px;
+    margin-right: 8px;
+  }
 }
 
 @mixin toolbar-button() {
@@ -40,13 +47,6 @@
     position: absolute;
     margin-top: 1px;
     @include session-toolbar();
-
-    .divider {
-      border-left: 1px solid #d7d7d7;
-      width: 0;
-      margin-left: 8px;
-      margin-right: 8px;
-    }
 
     .toolbar-button {
       @include toolbar-button();
@@ -82,6 +82,28 @@
     }
   }
 
+  .ql-question-toolbar {
+    width: 100%;
+    @include session-toolbar();
+    padding-left: 12px;
+
+    .btn-group-justified {
+      width: unset;
+      margin-right: 10px;
+    }
+    .toolbar-button {
+      @include toolbar-button();
+      width: unset;
+    }
+    .question-number, .student-counts, .attempt-message {
+      font-size: 120%;
+      margin-right: 8px;
+      margin-left: 8px;
+      font-weight: bold;
+    }
+  }
+
+
   .ql-row-container {
     top: 50px;
     left: 0;
@@ -93,36 +115,12 @@
       position: absolute;
       height: calc(100vh - 100px);
       left: 0;
-      top: 0;
+      top: 0px;
 
-      &.presenting {
-        width: 100%;
-
-        .ql-session-sidebar {
-          width: 100%;
-          @include session-toolbar();
-         
-          .btn-group-justified {
-            width: unset;
-            margin-right: 8px;
-          }
-          a.btn {
-            @include toolbar-button();
-            width: unset;
-          }
-          .question-number {
-            font-size: 140%;
-            margin-right: 8px;
-            margin-left: 8px;
-          }
-          h2, .attempt-message {
-            display: none;
-          }
-
-        }
-
+      &.with-2nd-toolbar {
+        height: calc(100vh - 150px);
+        top: 50px;
       }
-
     }
 
     .ql-session-sidebar {
@@ -140,29 +138,19 @@
         font-weight: normal;
       }
 
-      .ql-session-question-list {
+      .ql-session-question-list.reorder {
         .ql-question-list-item {
           cursor: move;
         }
-
-        // > div:last-child .ql-list-item {
-        //   border-bottom: none;
-        // }
       }
 
       #sidebar-tabs {
-        // position: absolute;
-        // bottom: 0;
         margin-bottom: 10px;
       }
 
-      .bottom-group {
-        // position: absolute;
-        // bottom: 0;
-        // left: 0;
-        // padding: 10px;
+      &.presenting {
+        display: none;
       }
-
     }
     
     .ql-main-content {
@@ -173,16 +161,12 @@
       max-width: 1000px;
 
       &.presenting {
-        // margin-top: 60px;
-        // margin-left: 40px;
         margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
 
         .ql-question-preview {
-          width: 80%;
-          height: 75%;
+          width: 100%;
+          max-width: 100%;
+          height: 100%;
         }
       }
     }
@@ -246,7 +230,7 @@
   .ql-question-preview {
     border: 1px solid #ccc;
     padding: 10px 0px;
-    max-width: 700px;
+    max-width: 500px;
   }
 
   .SingleDatePicker {

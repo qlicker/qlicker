@@ -1,17 +1,16 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// QuestionStats.jsx: Component for attempt distributions for a question
+// AnswerDistribution.jsx: Component for attempt distributions for a question
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
 import dl from 'datalib'
-import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Legend, text } from 'recharts'
 
 import { Responses } from '../api/responses'
-
 
 export class _AnswerDistribution extends Component {
 
@@ -35,6 +34,7 @@ export class _AnswerDistribution extends Component {
       <BarChart className='ql-answer-distribution'
         height={190} width={500} data={this.props.distribution}
         margin={{top: 10, right: 10, left: -25, bottom: 5}}>
+        <text x={250} y={20} textAnchor='middle' style={{fontWeight: 'bold'}}>{this.props.title || ''}</text>
         <XAxis dataKey='answer' />
         <YAxis allowDecimals={false} />
         <Legend />
@@ -84,7 +84,6 @@ export const AnswerDistribution = createContainer((props) => {
     }
     data.push(kOptions[key])
   })
-
 
   return {
     responses: responses,
