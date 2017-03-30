@@ -28,30 +28,32 @@
   display: -ms-flexbox;
 	display: -webkit-flex;
 	display: flex;
+  flex-direction: row;
 	-ms-flex-align: center;
 	-webkit-align-items: center;
 	-webkit-box-align: center;
 	align-items: center;
+  justify-content: center;
   padding-top: 50px;
+  z-index: 98;
 
   .ql-modal {
     background: white;
-    padding: 20px;
     margin-top: auto;
+    top: -20px;
     margin-bottom: auto;
     position: relative;
-    
+    z-index: 99;
+    width: 60%;
+    max-width: 700px;
+    border-radius: 3px;
+
     .ql-modal-header {
       margin-bottom: 8px;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
+      text-align: center;
 
-      -ms-flex-align: center;
-      -webkit-align-items: center;
-      -webkit-box-align: center;
-
-      align-items: center;
+      border-top-right-radius: 3px;
+      border-top-left-radius: 3px;
 
       .ql-header-text {
         margin: 0;
@@ -65,13 +67,25 @@
     }
 
     .ql-buttongroup {
-        margin-top: 20px;
-        width: 100%;
-        text-align: center;
+      margin-top: 20px;
+      width: 100%;
+      text-align: center;
+
+      > * {
+        margin-left: 5px;
+        margin-right: 5px;
+      }
     }
   }
 }
 
+@media (max-width: 480px) {
+  .ql-modal-container {
+    .ql-modal {
+      width: 95%;
+    }
+  }  
+}
 
 // session status badges
 .ql-session-status {
@@ -203,6 +217,7 @@ input[type=text], input[type=email], input[type=password], textarea.form-control
     border-color: $blue;
     color: $blue;
     border-right-width: 1px;
+    background: white;
   }
 
   &:active, &:focus {

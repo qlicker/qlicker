@@ -72,9 +72,9 @@ export class CreateSessionModal extends ControlledForm {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-createsession container' onClick={this.preventPropagation}>
-        <h2>Create Session</h2>
-        <form ref='createSessionForm' className='ql-form-createsession' onSubmit={this.handleSubmit}>
+      <div className='ql-modal ql-modal-createsession ql-card' onClick={this.preventPropagation}>
+        <div className='ql-modal-header ql-header-bar'><h3>Create Session</h3></div>
+        <form ref='createSessionForm' className='ql-form-createsession ql-card-content' onSubmit={this.handleSubmit}>
           <label>Name:</label>
           <input type='text' data-name='name' className='form-control' onChange={this.setValue} placeholder='Week 2 Lecture 3' /><br />
 

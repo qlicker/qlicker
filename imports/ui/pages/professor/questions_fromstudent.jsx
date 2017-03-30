@@ -100,7 +100,7 @@ class _QuestionsFromStudent extends Component {
 }
 
 export const QuestionsFromStudent = createContainer(() => {
-  const handle = Meteor.subscribe('questions.fromStudent')
+  const handle = Meteor.subscribe('questions.fromStudent') && Meteor.subscribe('users.myStudents')
 
   const fromStudent = Questions.find({
     courseId: {$exists: true},

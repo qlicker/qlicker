@@ -53,9 +53,9 @@ export class ChangePasswordModal extends ControlledForm {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-newemail container' onClick={this.preventPropagation}>
-        <h2>Change Password</h2>
-        <form ref='newPasswordForm' onSubmit={this.handleSubmit}>
+      <div className='ql-modal ql-modal-newemail ql-card' onClick={this.preventPropagation}>
+        <div className='ql-modal-header ql-header-bar'><h3>Change Password</h3></div>
+        <form ref='newPasswordForm' className='ql-card-content' onSubmit={this.handleSubmit}>
 
           <label>Current Password:</label>
           <input type='password' className='form-control' data-name='current' onChange={this.setValue} /><br />

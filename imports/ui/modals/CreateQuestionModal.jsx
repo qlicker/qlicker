@@ -4,10 +4,10 @@
 // CreateQuestionModal.jsx: popup dialog to prompt for question details
 
 import React, { Component, PropTypes } from 'react'
-
+import { ControlledForm } from '../ControlledForm'
 import { QuestionEditItem } from '../QuestionEditItem'
 
-export class CreateQuestionModal extends Component {
+export class CreateQuestionModal extends ControlledForm {
 
   constructor (p) {
     super(p)
@@ -22,18 +22,20 @@ export class CreateQuestionModal extends Component {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.props.done}>
-      <div className='ql-modal ql-modal-createquestion container' onClick={this.preventPropagation}>
-        <div className='ql-modal-header'><h2>Add a Question</h2></div>
+      <div className='ql-modal ql-modal-createquestion ql-card' onClick={this.preventPropagation}>
+        <div className='ql-modal-header ql-header-bar'><h2>Add a Question</h2></div>
+        <div className='ql-card-content'>
+          <div id='ckeditor-toolbar' />
+          <QuestionEditItem
+            ref='editItem'
+            question={this.props.question}
+            courseId={this.props.courseId}
+            tags />
 
-        <QuestionEditItem
-          ref='editItem'
-          question={this.props.question}
-          courseId={this.props.courseId}
-          tags />
-
-        <div className='ql-buttongroup'>
-          <a className='btn btn-default' onClick={this.props.done}>Cancel</a>
-          <button className='btn btn-primary' onClick={this.saveAndClose}>Submit Question</button>
+          <div className='ql-buttongroup'>
+            <a className='btn btn-default' onClick={this.props.done}>Cancel</a>
+            <button className='btn btn-default' onClick={this.saveAndClose}>Submit Question</button>
+          </div>
         </div>
       </div>
     </div>)
