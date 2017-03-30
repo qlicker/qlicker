@@ -52,9 +52,9 @@ export class ChangeEmailModal extends ControlledForm {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-newemail container' onClick={this.preventPropagation}>
-        <h2>Change Email Address</h2>
-        <form ref='newEmailForm' onSubmit={this.handleSubmit}>
+      <div className='ql-modal ql-modal-newemail ql-card' onClick={this.preventPropagation}>
+        <div className='ql-modal-header ql-header-bar'><h3>Change Email</h3></div>
+        <form ref='newEmailForm' className='ql-card-content' onSubmit={this.handleSubmit}>
           <div>Old email: {this.props.oldEmail}</div>
 
           <label>New Email Address:</label>
@@ -62,7 +62,7 @@ export class ChangeEmailModal extends ControlledForm {
 
           <div className='ql-buttongroup'>
             <a className='btn btn-default' onClick={this.done}>Cancel</a>
-            <input className='btn btn-primary' type='submit' id='submit' />
+            <input className='btn btn-default' type='submit' id='submit' />
           </div>
         </form>
       </div>

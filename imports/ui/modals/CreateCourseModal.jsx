@@ -60,9 +60,9 @@ export class CreateCourseModal extends ControlledForm {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-createcourse container' onClick={this.preventPropagation}>
-        <div className='ql-modal-header'><h2>Create Course</h2></div>
-        <form ref='createcourseForm' className='ql-form-createcourse' onSubmit={this.handleSubmit}>
+      <div className='ql-modal ql-modal-createcourse ql-card' onClick={this.preventPropagation}>
+        <div className='ql-modal-header ql-header-bar'><h3>Create Course</h3></div>
+        <form ref='createcourseForm' className='ql-form-createcourse ql-card-content' onSubmit={this.handleSubmit}>
           <label>Name:</label>
           <input type='text' className='form-control' data-name='name' onChange={this.setValue} placeholder='Information Technology Project (2016-17)' /><br />
 

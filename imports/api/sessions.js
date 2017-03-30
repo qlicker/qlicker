@@ -84,6 +84,7 @@ Meteor.methods({
    */
   'sessions.edit' (session) {
     check(session._id, Helpers.MongoID)
+    if (!session.tags) session.tags = []
     check(session, sessionPattern)
 
     profHasCoursePermission(session.courseId)

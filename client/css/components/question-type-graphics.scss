@@ -1,0 +1,21 @@
+
+.prompt-graphic {
+  border: 1px solid #aaa;
+  padding: 4px;
+  text-align: center;
+
+  span {
+    display: inline-block;
+  }
+
+  span.bold {
+    font-weight: bold;
+  }
+
+  span.box {
+    border: 1px solid #aaa;
+    padding: 2px;
+    width: 10px;
+    height: 10px;
+  }
+}

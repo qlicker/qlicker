@@ -1,0 +1,22 @@
+
+.ql-short-answer-list {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 15px;
+
+  max-height: 400px;
+  overflow: auto;
+
+  .ql-short-answer-item {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+    font-size: 110%;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

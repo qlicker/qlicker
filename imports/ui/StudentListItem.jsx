@@ -25,7 +25,7 @@ export class StudentListItem extends ListItem {
           <span className='student-name'>{ this.props.student.getName() }</span>
           <span className='student-email'>{ this.props.student.getEmail() } </span>
         </div>
-        {controls}
+        <div className='controls'>{controls}</div>
       </div>)
   } //  end render
 

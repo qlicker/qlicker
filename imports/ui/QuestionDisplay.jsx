@@ -149,7 +149,6 @@ export class _QuestionDisplay extends Component {
       attempt: attempt.number,
       questionId: this.props.question._id
     }
-    console.log(answerObject)
 
     /* // no longer needed cause can only submit once with button
     // remove or add options to MS response
@@ -329,7 +328,6 @@ export const QuestionDisplay = createContainer((props) => {
   let responses
 
   const question = props.question
-  console.log(question)
   if (!props.noStats) {
     const l = question.sessionOptions.attempts.length
 

@@ -15,6 +15,9 @@ import { Responses } from '../../../api/responses'
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { AnswerDistribution } from '../../AnswerDistribution'
+import { ShortAnswerList } from '../../ShortAnswerList'
+
+import { QUESTION_TYPE } from '../../../configs'
 
 class _RunSession extends Component {
 
@@ -225,7 +228,6 @@ class _RunSession extends Component {
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
     const strAttemptEnabled = currentAttempt.closed ? 'Allow Responses' : 'Disallow Responses'
-    const strAttemptOpen = currentAttempt.closed ? 'Closed for Responses' : 'Open for Responses'
 
     const numAnswered = this.props.responses.length
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
@@ -234,39 +236,51 @@ class _RunSession extends Component {
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
 
-    // fragments
-    const questionPreview = <div className='ql-question-preview'>{ q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }</div>
     return (
       <div className='ql-manage-session'>
 
-        <div className='ql-row-container'>
-          <div className='ql-sidebar-container'>
-            <div className={'ql-session-sidebar' + (this.state.presenting ? ' presenting' : '')}>
-              <h2>{ this.state.session.name }</h2>
-              <div className='student-counts'>Students in session: {numJoined}</div>
-              <div className='btn-group btn-group-justified _display' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={togglePresenting}>Presentation <span className='glyphicon glyphicon-fullscreen' /></a>
-                <a href='#' className='btn btn-default btn-sm' onClick={secondDisplay}>2nd Display <span className='glyphicon glyphicon-blackboard' /></a>
-              </div>
-              <hr />
-              <h3>Current Question</h3>
-              <div className='student-counts'>Responses recieved: {numAnswered}</div>
-              <div className='btn-group btn-group-justified _questions' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
-              </div>
-              <br />
-              <div className='btn-group btn-group-justified _attempts' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.newAttempt}>New Attempt</a>
-              </div>
-              <br />
-              <div className='attempt-message'>
-                Current Attempt ({currentAttempt.number}): {strAttemptOpen}
-              </div>
-              <hr />
+        <div className='ql-session-toolbar'>
+          <h3 className='session-title'>{ this.state.session.name }</h3>
+          <span className='divider'>&nbsp;</span>
+          <span className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <span className='divider'>&nbsp;</span>
+          <span className='toolbar-button' onClick={this.endSession}>
+            <span className='glyphicon glyphicon-stop' />&nbsp;
+            Finish Session
+          </span>
+          <span className='toolbar-button' onClick={togglePresenting}>
+            <span className='glyphicon glyphicon-fullscreen' />&nbsp;
+            Presentation Mode
+          </span>
+          <span className='toolbar-button' onClick={secondDisplay}>
+            <span className='glyphicon glyphicon-blackboard' />&nbsp;
+            2nd Display
+          </span>
+          <span className='divider'>&nbsp;</span>
+          <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
+          <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>
+          <span className='divider'>&nbsp;</span>
 
+        </div>
+
+        <div className='ql-row-container'>
+          <div className='ql-question-toolbar'>
+            <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
+            <span className='divider'>&nbsp;</span>
+            <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
+            <span className='divider'>&nbsp;</span>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
+            <span className='divider'>&nbsp;</span>
+            <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
+            <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+            <span className='divider'>&nbsp;</span>
+          </div>
+
+          <div className='ql-sidebar-container with-2nd-toolbar'>
+            <div className={'ql-session-sidebar' + (this.state.presenting ? 'presenting' : '')}>
               {
                 !this.state.presenting
                 ? <div>
@@ -285,27 +299,24 @@ class _RunSession extends Component {
                 </div>
                 : ''
               }
-
-              <div className='btn-group btn-group-justified bottom-group _nav' role='group'>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' /> Previous</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.endSession}>End session</a>
-                <a href='#' className='btn btn-default btn-sm' onClick={this.nextQuestion}>Next <span className='glyphicon glyphicon-arrow-right' /></a>
-              </div>
             </div>
           </div>
 
-          <div className={'ql-main-content' + (this.state.presenting ? ' presenting' : '')}>
+          <div className={'ql-main-content ' + (this.state.presenting ? 'presenting' : '')}>
             {
-              !this.state.presenting
-              ? <div>
-                <h3>Results/Stats</h3>
-                {<AnswerDistribution question={q} />}
-                <div className='clear' />
-                <h3 className='m-margin-top'>Question Preview</h3>
-              </div>
+              !this.state.presenting && q && q.type !== QUESTION_TYPE.SA // option based questions
+              ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div>
               : ''
             }
-            {questionPreview}
+            {
+              !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
+              ? <div><ShortAnswerList question={q} /></div>
+              : ''
+            }
+
+            <div className='ql-question-preview'>
+              { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }
+            </div>
           </div>
 
         </div>

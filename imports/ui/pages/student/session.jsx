@@ -26,7 +26,16 @@ class _Session extends Component {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    if (this.props.session.status !== 'running') return <div className='ql-subs-loading'>Session not active</div>
+
+    const status = this.props.session.status
+    if (status !== 'running') {
+      let statusMessage
+
+      if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
+      if (status === 'done') statusMessage = 'This session has finished'
+
+      return <div className='ql-subs-loading'>{statusMessage}</div>
+    }
 
     const current = this.props.session.currentQuestion
     const q = current ? this.props.questions[current] : null

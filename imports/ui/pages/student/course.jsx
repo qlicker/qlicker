@@ -20,6 +20,15 @@ class _Course extends Component {
     super(props)
 
     this.state = { submittingQuestion: false }
+    this.sessionClickHandler = this.sessionClickHandler.bind(this)
+  }
+
+  sessionClickHandler (session) {
+    if (session.status === 'done') {
+      alert('// TODO: navigate to student results page')
+    } else {
+      Router.go('session', { _id: session._id })
+    }
   }
 
   renderSessionList () {
@@ -30,7 +39,7 @@ class _Course extends Component {
         sessions.map((s) => (<SessionListItem
           key={s._id}
           session={s}
-          click={() => { Router.go('session', { _id: s._id }) }} />))
+          click={() => this.sessionClickHandler(s)} />))
       }
     </div>)
   }

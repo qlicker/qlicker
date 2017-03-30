@@ -13,11 +13,18 @@ export class ListItem extends Component {
     super(props)
 
     this.click = this.click.bind(this)
+    this.controlClicked = this.controlClicked.bind(this)
     this.makeControls = this.makeControls.bind(this)
   }
 
   click () {
     if (this.props.click) this.props.click()
+  }
+
+  controlClicked (e) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (this.props.controlsTriggered) this.props.controlsTriggered()
   }
 
   wrapFunc (e, func) {
@@ -35,15 +42,14 @@ export class ListItem extends Component {
     if (!this.props.controls) return ''
     return (
       <div className='btn-group dropdown'>
-        <button
-          onClick={this.wrapFunc}
-          type='button'
-          className='btn btn-default dropdown-toggle'
+        <div
+          onClick={this.controlClicked}
+          className='dropdown-toggle'
           data-toggle='dropdown'
           aria-haspopup='true'
           aria-expanded='false'>
-          <span className='caret' />
-        </button>
+          <span className='glyphicon glyphicon-option-vertical' />
+        </div>
         <ul className='dropdown-menu dropdown-menu-right'>
           {controls}
         </ul>

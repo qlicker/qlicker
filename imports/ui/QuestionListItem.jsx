@@ -29,7 +29,7 @@ export class QuestionListItem extends ListItem {
             })
           }
         </div>
-        {controls}
+        <div className='controls'>{controls}</div>
       </div>)
   } //  end render
 

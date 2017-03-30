@@ -172,7 +172,7 @@ export class QuestionEditItem extends Component {
 
   /**
    * addAnswer(Event _, Event e, Boolean wysiwyg, Callback done = null)
-   * add answer to MC, MS, and TF questions
+   * add answer option to MC, MS, and TF questions
    */
   addAnswer (_, e, wysiwyg = true, done = null) {
     const answerKey = this.answerOrder[this.currentAnswer]
@@ -192,6 +192,36 @@ export class QuestionEditItem extends Component {
       if (done) done()
     })
   } // end addAnswer
+
+  /**
+   * removeAnswer(String answerKey)
+   * remove answer option to MC, MS, and TF questions
+   */
+  removeAnswer (answerKey) {
+    if (this.state.options.length === 1) return
+    const newOptions = []
+    let resetCorrect = false
+
+    this.currentAnswer--
+    this.state.options.forEach(o => {
+      if (answerKey !== o.answer) {
+        const option = _.extend({}, o)
+        newOptions.push(option)
+      } else if (o.correct) { // delete option was marked as correct
+        resetCorrect = true
+      }
+    })
+
+    // reletter options
+    newOptions.forEach((o, i) => {
+      if (i === 0 && resetCorrect) o.correct = true
+      o.answer = this.answerOrder[i]
+    })
+
+    this.setState({ options: [] }, () => {
+      this.setState({ options: newOptions }, this._DB_saveQuestion)
+    })
+  } // end removeAnswer
 
   /**
    * markCorrect(String: answerKey)
@@ -283,64 +313,67 @@ export class QuestionEditItem extends Component {
     this.setState(nextProps.question)
   }
 
-  componentDidMount () {
-    this.componentDidUpdate()
-  }
+  /**
+   * answerEditor(Answer: a)
+   * generate a answer option element row
+   */
+  answerEditor (a) {
+    if (!a) return <div>Loading</div>
+    const changeHandler = (content, plainText) => {
+      this.setOptionState(a.answer, content, plainText)
+    }
+    let item
 
-  componentDidUpdate () {
-    // $('[data-toggle="tooltip"]').tooltip()
-  }
-
-  render () {
-    const answerEditor = (a) => {
-      const changeHandler = (content, plainText) => {
-        this.setOptionState(a.answer, content, plainText)
-      }
-
-      const wysiwygAnswer = (
+    if (a.wysiwyg) {
+      item = (
         <div>
-          <span className='answer-option'>
-            Option <span className='answer-key'>{ a.answer }</span>
+          <div className='answer-option'>
             <span className='correct' onClick={() => this.markCorrect(a.answer)}>
-              { a.correct
-                ? <span className='ql-label ql-label-correct'>Correct</span>
-                : <span className='ql-label ql-label-incorrect'>Incorrect</span> }
+              { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
             </span>
-          </span>
-          <Editor
-            change={changeHandler}
-            val={a.content}
-            className='answer-editor'
-            />
-        </div>)
+            <span className='answer-key'>{ a.answer }</span>
+            <Editor
+              change={changeHandler}
+              val={a.content}
+              className='answer-editor'
+              />
 
-      const noWysiwygAnswer = (<div className='answer-option'>
+            <span
+              onClick={() => this.removeAnswer(a.answer)}
+              className='trash-icon glyphicon glyphicon-trash' />
+          </div>
+        </div>)
+    } else {
+      item = (<div className='answer-option'>
         <span className='correct' onClick={() => this.markCorrect(a.answer)}>
-          { a.correct
-            ? <span className='ql-label ql-label-correct'>Correct</span>
-            : <span className='ql-label ql-label-incorrect'>Incorrect</span> }
+          { a.correct ? <span className='glyphicon glyphicon-ok' /> : '' }
         </span>
-        <div className='answer-no-wysiwyg'>
+        <div className='answer-no-wysiwyg answer-editor'>
           <span>{ a.answer }</span>
         </div>
       </div>)
-
-      return (<div className='col-md-6 small-editor-wrapper' key={'answer_' + a.answer}>
-        { !a.wysiwyg ? noWysiwygAnswer : wysiwygAnswer }
-      </div>)
     }
 
-    // generate rows with up to 2 editors on each row
-    let editorRows = []
-    const len = this.state.options ? this.state.options.length : 0
-    for (let i = 0; i < len; i = i + 2) {
-      let gaurunteed = this.state.options[i]
-      let possiblyUndefined = i < len ? this.state.options[i + 1] : undefined
+    return (<div className={'small-editor-wrapper ' + (a.wysiwyg ? 'col-md-12' : 'col-md-6')} key={'answer_' + a.answer}>
+      { item }
+    </div>)
+  } // end answerEditor
 
-      editorRows.push(<div key={'row_' + i + '-' + i + 1} className='row'>
-        { answerEditor(gaurunteed) }
-        { possiblyUndefined ? answerEditor(possiblyUndefined) : '' }
-      </div>)
+  render () {
+    let editorRows = []
+
+    if (this.state.type === QUESTION_TYPE.TF) {
+      const row = <div key='row_0' className='row'>
+        {this.answerEditor(this.state.options[0])}
+        {this.answerEditor(this.state.options[1])}
+      </div>
+      editorRows.push(row)
+    } else {
+      this.state.options.forEach((option, i) => {
+        editorRows.push(<div key={'row_' + i} className='row'>
+          { this.answerEditor(option) }
+        </div>)
+      })
     }
 
     const radioOptions = [
@@ -355,7 +388,7 @@ export class QuestionEditItem extends Component {
       <div className='ql-question-edit-item'>
         <div className='header'>
           { this.props.metadata
-            ? <div className='row'>
+            ? <div className='row metadata-row'>
               <div className='col-md-6'>
                 <div className='btn-group'>
                   <button className='btn btn-default'
@@ -392,12 +425,18 @@ export class QuestionEditItem extends Component {
             </div>
             : '' }
           <div className='row'>
-            <div className='col-md-12'>
+            <div className='col-md-12 question-row'>
               <Editor
                 change={this.onEditorStateChange}
                 val={this.state.content}
                 className='question-editor'
                 placeholder='Question?' />
+
+              { this.props.onDeleteThis
+                ? <span
+                  onClick={this.props.onDeleteThis}
+                  className='trash-icon glyphicon glyphicon-trash' />
+                  : '' }
             </div>
           </div>
         </div>
@@ -410,7 +449,13 @@ export class QuestionEditItem extends Component {
         {editorRows}
 
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
-          ? <button className='btn btn-default' onClick={this.addAnswer}>Add Answer</button>
+          ? <div className='row' onClick={this.addAnswer}>
+            <div className='col-md-12'>
+              <div className='add-question-row-item'>
+                New Option <span className='glyphicon glyphicon-plus' />
+              </div>
+            </div>
+          </div>
           : '' }
 
       </div>)
