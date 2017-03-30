@@ -13,7 +13,7 @@ class _ShortAnswerList extends Component {
   render () {
     if (this.props.loading) return <div>Loading</div>
     return (<div className='ql-short-answer-list'>
-      <h3>Reponses</h3>
+      <h3>Responses</h3>
       {
         this.props.responses.map(r => <div className='ql-short-answer-item'>{r.answer}</div>)
       }
