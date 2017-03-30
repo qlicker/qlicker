@@ -158,6 +158,21 @@ Meteor.methods({
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
     return Meteor.call('users.changeRole', user._id, newRole)
+  },
+
+  /**
+   * users.promote(String email)
+   * allow profs to promote a student account to prof
+   */
+  'users.promote' (email) {
+    check(email, Helpers.Email)
+    if (!Meteor.user().hasRole(ROLES.prof)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    return Meteor.users.update({ _id: user._id }, {
+      '$set': { 'profile.roles': [ ROLES.prof ] }
+    })
   }
 
 
