@@ -194,12 +194,34 @@ export class QuestionEditItem extends Component {
   } // end addAnswer
 
   /**
-   * addAnswer(String answerKey)
+   * removeAnswer(String answerKey)
    * remove answer option to MC, MS, and TF questions
    */
   removeAnswer (answerKey) {
-    // TODO implement this
-  } // end addAnswer
+    if (this.state.options.length === 1) return
+    const newOptions = []
+    let resetCorrect = false
+
+    this.currentAnswer--
+    this.state.options.forEach(o => {
+      if (answerKey !== o.answer) {
+        const option = _.extend({}, o)
+        newOptions.push(option)
+      } else if (o.correct) { // delete option was marked as correct
+        resetCorrect = true
+      }
+    })
+
+    // reletter options
+    newOptions.forEach((o, i) => {
+      if (i === 0 && resetCorrect) o.correct = true
+      o.answer = this.answerOrder[i]
+    })
+
+    this.setState({ options: [] }, () => {
+      this.setState({ options: newOptions }, this._DB_saveQuestion)
+    })
+  } // end removeAnswer
 
   /**
    * markCorrect(String: answerKey)
