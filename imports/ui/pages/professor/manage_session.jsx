@@ -386,6 +386,16 @@ class _ManageSession extends Component {
 
           </div>
         </div>
+        {
+          this.state.session.status === 'done'
+          ? <div className='read-only-cover'>
+            <div className='message'>
+              Session has finished. To make edits, please set the status to Draft (or Upcoming). Qlicker recommends that you avoid editing sessions that students have subimitted reponses to.
+            </div>
+          </div>
+          : ''
+        }
+        
       </div>)
   }
 
