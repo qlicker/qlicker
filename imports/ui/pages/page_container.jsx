@@ -93,7 +93,7 @@ class _PageContainer extends Component {
                   <ul className='dropdown-menu'>
                     <li><a className='close-nav' href={Router.routes['profile'].path()}>Profile</a></li>
                     {/* <li><a href='#'>Settings</a></li> */}
-                    {this.state.user.hasRole('professor') ? <li><a className='close-nav' href={coursesPage} onClick={togglePromotingAccount}>Promote Account</a></li> : ''}
+                    {this.state.user.hasRole('professor') ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote Account</a></li> : ''}
                     <li role='separator' className='divider' />
                     <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
                   </ul>
