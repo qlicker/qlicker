@@ -161,21 +161,24 @@ class _ManageSession extends Component {
    * add a blank question edit item to create a new question
    */
   addNewQuestion () {
-    // if (this.state.session.questions) {
-    //   this.state.session.questions.push(-1)
-    // } else this.state.session.questions = [-1]
-
+    const sessionId = this.state.session._id
     const blankQuestion = {
       plainText: '', // plain text version of question
       type: -1,
       content: '', // wysiwyg display content
       options: [],
-      tags: []
+      tags: [],
+      sessionId: sessionId,
+      courseId: this.state.session.courseId
     }
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
       alertify.success('New Blank Question Added')
-      this.addToSession(newQuestion._id)
+      Meteor.call('sessions.addQuestion', sessionId, newQuestion._id)
+
+      $('#ql-main-content').stop().animate({
+        scrollTop: $('#ql-main-content')[0].scrollHeight
+      }, 800)
     })
   }
 
@@ -316,6 +319,9 @@ class _ManageSession extends Component {
                 <div role='tabpanel' className='tab-pane active' id='session'>
                   <div className='ql-session-question-list reorder'>
                     {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
+                    <div className='new-question-item' onClick={this.addNewQuestion}>
+                      <span>New Question <span className='glyphicon glyphicon-plus' /></span>
+                    </div>
                   </div>
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>

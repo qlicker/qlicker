@@ -138,9 +138,23 @@
         font-weight: normal;
       }
 
-      .ql-session-question-list.reorder {
-        .ql-question-list-item {
-          cursor: move;
+      .ql-session-question-list {
+        .new-question-item {
+          text-align: center;
+          font-size: 140%;
+          cursor: pointer;
+          padding: 20px;
+          color: #444;
+
+          &:hover {
+            background: #efefef;
+          }
+        }
+
+        &.reorder {
+          .ql-question-list-item {
+            cursor: move;
+          }
         }
       }
 
@@ -220,9 +234,13 @@
       text-align: center;
       cursor: pointer;
       font-size: 140%;
+      border: 1px dashed #ccc;
+      background: transparent;
 
       &:hover {
-        background: #efefef;
+        // background: #efefef;
+        border-color: $blue;
+        color: $blue;
       }
     }
   }
