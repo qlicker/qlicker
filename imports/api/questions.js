@@ -244,12 +244,16 @@ if (Meteor.isServer) {
   })
 }
 
-// data methods
+/**
+ * Meteor methods for questions object
+ * @module questions
+ */
 Meteor.methods({
 
   /**
-   * questions.insert(Question question)
    * inserts a new question
+   * @param {Question} question
+   * @returns {Question} new question
    */
   'questions.insert' (question) {
     if (question._id) { // if _id already exists, update the question
@@ -276,8 +280,9 @@ Meteor.methods({
   },
 
   /**
-   * questions.update(Question question)
    * updates all question details
+   * @param {Question} question
+   * @returns {MongoID} id of updated question
    */
   'questions.update' (question) {
     check(question._id, Helpers.MongoID)
@@ -294,8 +299,8 @@ Meteor.methods({
   },
 
   /**
-   * questions.delete(MongoId (string) questionId)
    * deletes question
+   * @param {MongoId} questionId
    */
   'questions.delete' (questionId) {
     check(questionId, Helpers.MongoID)
@@ -311,8 +316,9 @@ Meteor.methods({
   },
 
   /**
-   * questions.copyToSession(MongoId (string) sessionId, MongoId (string) questionId)
    * duplicates question and adds it to a question
+   * @param {MongoId} sessionId
+   * @param {MongoId} questionId
    */
   'questions.copyToSession' (sessionId, questionId) {
     const session = Sessions.findOne({ _id: sessionId })
@@ -328,8 +334,8 @@ Meteor.methods({
   },
 
   /**
-   * questions.copyToLibrary(MongoId (string) questionId)
    * duplicates a public question and adds it to your library
+   * @param {MongoId} questionId
    */
   'questions.copyToLibrary' (questionId) {
     const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
@@ -343,8 +349,8 @@ Meteor.methods({
   },
 
   /**
-   * questions.possibleTags()
    * returns a list of autocomplete tag sugguestions for the current user
+    * @returns {String[]} array of string tags
    */
   'questions.possibleTags' () {
     let tags = new Set()
@@ -374,8 +380,9 @@ Meteor.methods({
   },
 
   /**
-   * questions.addTag(MongoId (string) questionId, String tag)
    * adds a tag to the session tag set
+   * @param {MongoId} questionId
+   * @param {String} tag
    */
   'questions.addTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
@@ -387,8 +394,9 @@ Meteor.methods({
   },
 
   /**
-   * questions.removeTag(MongoId (string) questionId, String tag)
    * removes a tag from a question
+   * @param {MongoId} questionId
+   * @param {String} tag
    */
   'questions.removeTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
@@ -400,8 +408,8 @@ Meteor.methods({
   },
 
   /**
-   * questions.startAttempt(MongoId (string) questionId)
    * setup default .sessionOptions for a question and add an attempt
+   * @param {MongoId} questionId
    */
   'questions.startAttempt' (questionId) {
     const q = Questions.findOne({ _id: questionId })
@@ -422,8 +430,9 @@ Meteor.methods({
   },
 
   /**
-   * questions.setAttemptStatus(MongoId (string) questionId, Boolean bool)
    * close or open the latest attempt
+   * @param {MongoId} questionId
+   * @param {Boolean} bool
    */
   'questions.setAttemptStatus' (questionId, bool) {
     const q = Questions.findOne({ _id: questionId })
@@ -438,8 +447,8 @@ Meteor.methods({
   },
 
   /**
-   * questions.showQuestion(MongoId (string) questionId)
    * enable stats/answer distribution visibility for students
+   * @param {MongoId} questionId
    */
   'questions.showStats' (questionId) {
     const q = Questions.findOne({ _id: questionId })
@@ -451,8 +460,8 @@ Meteor.methods({
   },
 
   /**
-   * questions.hideStats(MongoId (string) questionId)
    * disables stats/answer distribution visibility for students
+   * @param {MongoId} questionId
    */
   'questions.hideStats' (questionId) {
     const q = Questions.findOne({ _id: questionId })

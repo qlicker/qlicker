@@ -1,13 +1,17 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// ChangeEmailModal.jsx: popup dialog to prompt for new email addresss
+// ChangeEmailModal.jsx
 
 import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 
-
+/**
+ * modal dialog to prompt for new email addresss
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class ChangeEmailModal extends ControlledForm {
 
   constructor (props) {

@@ -6,6 +6,15 @@
 
 import React, { Component } from 'react'
 
+
+/**
+ * React component wrapper for CKEditor.
+ * Note: This component is not fully controlled. Do not resuse component by setting a new props.val. Destroy and rebuild component if new props.val is set.
+ * @prop {String} [placeholder] - textarea placeholder
+ * @prop {String} val - component editor value
+ * @prop {Func} change - onChange callback
+ * @prop {String} className - class to append to top level dom element
+ */
 export class Editor extends Component {
 
   constructor (p) {

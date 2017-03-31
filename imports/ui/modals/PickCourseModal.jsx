@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// PickCourseModal.jsx: modal with list of your courses
+// PickCourseModal.jsx
 
 import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
@@ -11,6 +11,11 @@ import { Courses } from '../../api/courses'
 import { CourseListItem } from '../CourseListItem'
 import { ControlledForm } from '../ControlledForm'
 
+/**
+ * modal to pick a course from a list of your own courses
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class _PickCourseModal extends ControlledForm {
 
   // constructor (p) {

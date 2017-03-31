@@ -1,12 +1,17 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// CreateQuestionModal.jsx: popup dialog to prompt for question details
+// CreateQuestionModal.jsx
 
 import React, { Component, PropTypes } from 'react'
 import { ControlledForm } from '../ControlledForm'
 import { QuestionEditItem } from '../QuestionEditItem'
 
+/**
+ * modal dialog to prompt for question details
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class CreateQuestionModal extends ControlledForm {
 
   constructor (p) {

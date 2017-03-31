@@ -108,12 +108,16 @@ export const profHasCoursePermission = (courseId) => {
   }
 }
 
-// data methods
+/**
+ * Meteor methods for courses object
+ * @module courses
+ */
 Meteor.methods({
 
   /**
-   * courses.insert(Course: course)
    * insert new course object into Courses mongodb Collection
+   * @param {Course} course
+   * @returns {MongoId} id of new course
    */
   'courses.insert' (course) {
     course.enrollmentCode = Helpers.RandomEnrollmentCode()
@@ -132,8 +136,8 @@ Meteor.methods({
   },
 
   /**
-   * courses.delete(String (mongoid): courseId)
    * deletes course object Courses mongodb Collection
+   * @param {MongoID} courseId
    */
   'courses.delete' (courseId) {
     profHasCoursePermission(courseId)
@@ -149,8 +153,9 @@ Meteor.methods({
   },
 
   /**
-   * courses.regenerateCode(String (mongoid): courseId)
    * generates and sets a new enrollment code for the course
+   * @param {MongoID} courseId
+   * @returns {Course} the course in question
    */
   'courses.regenerateCode' (courseId) {
     profHasCoursePermission(courseId)
@@ -166,8 +171,8 @@ Meteor.methods({
   },
 
   /**
-   * courses.checkAndEnroll(String: enrollmentCode)
    * verifies validity of code and enrolls student
+   * @param {String} enrollmentCode
    */
   'courses.checkAndEnroll' (enrollmentCode) {
     check(enrollmentCode, Helpers.NEString)
@@ -190,8 +195,8 @@ Meteor.methods({
   },
 
   /**
-   * courses.edit(Course: course)
    * edits and updates all valid attributes of the course
+   * @param {Course} course
    */
   'courses.edit' (course) {
     check(course._id, Helpers.MongoID)
@@ -215,8 +220,9 @@ Meteor.methods({
   // course<=>user methods
 
   /**
-   * courses.addStudent(String (mongoid): courseId, String (mongoid): studentUserId)
    * adds a student to course
+   * @param {MongoID} courseId
+   * @param {MongoId} studentUserId
    */
   'courses.addStudent' (courseId, studentUserId) { // TODO enforce permission
     check(courseId, Helpers.MongoID)
@@ -234,8 +240,9 @@ Meteor.methods({
   },
 
   /**
-   * courses.removeStudent(String (mongoid): courseId, String (mongoid): studentUserId)
    * removes a student to course
+   * @param {MongoID} courseId
+   * @param {MongoId} studentUserId
    */
   'courses.removeStudent' (courseId, studentUserId) {
     check(courseId, Helpers.MongoID)
@@ -254,8 +261,10 @@ Meteor.methods({
   // course<=>session methods
 
   /**
-   * courses.createSession(String (mongoid): courseId, Session session)
    * inserts a session into the Session collection and adds it to the course
+   * @param {MongoID} courseId
+   * @param {Session} session
+   * @returns {MongoId} id new session
    */
   'courses.createSession' (courseId, session) {
     session.courseId = courseId
@@ -267,8 +276,9 @@ Meteor.methods({
   },
 
   /**
-   * courses.deleteSession(String (mongoid): courseId, Session session)
    * deletes the session from collection and removes link from course
+   * @param {MongoID} courseId
+   * @param {Session} session
    */
   'courses.deleteSession' (courseId, sessionId) {
     Courses.update({ _id: courseId }, {
@@ -278,8 +288,10 @@ Meteor.methods({
   },
 
   /**
-   * courses.getCourseCodeTag(String (mongoid): courseId)
    * get tag object for a specific courseid for react multi select component
+   * @param {MongoID} courseId
+   * @returns {String} tag.value
+   * @returns {String} tag.label
    */
   'courses.getCourseCodeTag' (courseId) {
     const c = Courses.findOne(courseId).courseCode().toUpperCase()
@@ -287,8 +299,9 @@ Meteor.methods({
   },
 
   /**
-   * courses.setActive(String (mongoid): courseId, Boolean active)
    * set inactive attribute based on bool
+   * @param {MongoID} courseId
+   * @param {Boolean} active
    */
   'courses.setActive' (courseId, active) {
     check(courseId, Helpers.MongoID)

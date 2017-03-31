@@ -99,11 +99,13 @@ if (Meteor.isServer) {
   })
 }
 
-// data methods
+/**
+ * Meteor methods for responses object
+ * @module users
+ */
 Meteor.methods({
 
   /**
-   * users.sendVerificationEmail()
    * send verification email
    */
   'users.sendVerificationEmail' () {
@@ -114,8 +116,8 @@ Meteor.methods({
   },
 
   /**
-   * users.updateProfileImage(MongoId (string) profileImageId)
    * update profile image with new image in ProfileImages collection
+   * @param {MongoId} profileImageId
    */
   'users.updateProfileImage' (profileImageId) {
     return Meteor.users.update({ _id: Meteor.userId() }, {
@@ -124,8 +126,8 @@ Meteor.methods({
   },
 
   /**
-   * users.changeEmail(String newEmail)
    * change to new email
+   * @param {String} newEmail
    */
   'users.changeEmail' (newEmail) {
     Meteor.users.update({ _id: Meteor.userId() }, {
@@ -134,10 +136,10 @@ Meteor.methods({
     return Meteor.call('users.sendVerificationEmail')
   },
 
-
   /**
-   * users.changeRole(MongoId (String) uId, String newRole)
    * change user role
+   * @param {MongoId} uId
+   * @param {String} newRole
    */
   'users.changeRole' (uId, newRole) {
     check(uId, Helpers.MongoID)
@@ -149,8 +151,9 @@ Meteor.methods({
   },
 
   /**
-   * users.changeRoleByEmail(String email, String newRole)
    * find user by email and call user.changeRole
+   * @param {String} email
+   * @param {String} newRole
    */
   'users.changeRoleByEmail' (email, newRole) {
     check(email, Helpers.Email)
@@ -161,8 +164,8 @@ Meteor.methods({
   },
 
   /**
-   * users.promote(String email)
    * allow profs to promote a student account to prof
+   * @param {String} email
    */
   'users.promote' (email) {
     check(email, Helpers.Email)

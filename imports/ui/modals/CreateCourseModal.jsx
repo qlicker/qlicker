@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// CreateCourseModal.jsx: popup dialog to prompt for course details
+// CreateCourseModal.jsx
 
 import React from 'react'
 import _ from 'underscore'
@@ -16,6 +16,11 @@ export const DEFAULT_STATE = {
   semester: ''
 }
 
+/**
+ * modal dialog to prompt for course details
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class CreateCourseModal extends ControlledForm {
 
   constructor (props) {

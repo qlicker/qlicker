@@ -87,41 +87,49 @@ if (Meteor.isServer) {
   })
 }
 
-// data methods
+/**
+ * Meteor methods for responses object
+ * @module responses
+ */
 Meteor.methods({
 
   /**
-   * responses.add(Reponse responseObject)
    * add a student result to question (that is attached to session)
+   * @param {Response} responseObject
    */
-  'responses.add' (answerObject) {
-    answerObject.createdAt = new Date()
-    check(answerObject, responsePattern)
+  'responses.add' (responseObject) {
+    responseObject.createdAt = new Date()
+    check(responseObject, responsePattern)
 
-    const q = Questions.findOne({ _id: answerObject.questionId })
+    const q = Questions.findOne({ _id: responseObject.questionId })
     if (!q.sessionId) throw Error('Question not attached to session')
-    if (Meteor.userId() !== answerObject.studentUserId) throw Error('Cannot submit answer')
+    if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit answer')
 
     // TODO check if attempt number is current in question
 
     const c = Responses.find({
-      attempt: answerObject.attempt,
-      questionId: answerObject.questionId,
-      studentUserId: answerObject.studentUserId
+      attempt: responseObject.attempt,
+      questionId: responseObject.questionId,
+      studentUserId: responseObject.studentUserId
     }).count()
-    if (c > 0) return Meteor.call('responses.update', answerObject)
+    if (c > 0) return Meteor.call('responses.update', responseObject)
 
-    return Responses.insert(answerObject)
+    return Responses.insert(responseObject)
   },
 
-  'responses.update' (answerObject) {
-    check(answerObject, responsePattern)
+
+  /**
+   * add a student result to question (that is attached to session)
+   * @param {Response} responseObject
+   */
+  'responses.update' (responseObject) {
+    check(responseObject, responsePattern)
 
     return Responses.update({
-      attempt: answerObject.attempt,
-      questionId: answerObject.questionId,
-      studentUserId: answerObject.studentUserId
-    }, { $set: { answer: answerObject.answer } })
+      attempt: responseObject.attempt,
+      questionId: responseObject.questionId,
+      studentUserId: responseObject.studentUserId
+    }, { $set: { answer: responseObject.answer } })
   }
 
 }) // end Meteor.methods

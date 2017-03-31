@@ -1,13 +1,17 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// ResetPasswordModal.jsx: prompt for email address to send password set email
+// ResetPasswordModal.jsx
 
 import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 
-
+/**
+ * modal to prompt for email address to send password set email
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class ResetPasswordModal extends ControlledForm {
 
   constructor (props) {

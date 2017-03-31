@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ui/QuestionEditItem.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ui/QuestionEditItem.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// QLICKER
+// Author: Enoch T &lt;me@enocht.am>
+//
+// QuestionEditItem.jsx: component for editing/create used in session creation
+
+import React, { PropTypes, Component } from 'react'
+import _ from 'underscore'
+import $ from 'jquery'
+
+import { Creatable } from 'react-select'
+
+import { Editor } from './Editor'
+import { RadioPrompt } from './RadioPrompt'
+import { QuestionImages } from '../api/questions'
+
+// constants
+import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
+
+export const DEFAULT_STATE = {
+  plainText: '',
+  type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
+  content: null,
+  options: [], // { correct: false, answer: 'A', content: editor content }
+  submittedBy: '',
+  tags: []
+}
+
+export class QuestionEditItem extends Component {
+
+  constructor (props) {
+    super(props)
+
+    // binding methods for calling within react context
+    this.onEditorStateChange = this.onEditorStateChange.bind(this)
+    this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
+    this.addAnswer = this.addAnswer.bind(this)
+    this.setOptionState = this.setOptionState.bind(this)
+    this.markCorrect = this.markCorrect.bind(this)
+    this.addTag = this.addTag.bind(this)
+    this.changeType = this.changeType.bind(this)
+    this.saveQuestion = this.saveQuestion.bind(this)
+    this.togglePublic = this.togglePublic.bind(this)
+    this.deleteQuestion = this.deleteQuestion.bind(this)
+    this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
+
+    // if editing pre-exsiting question
+    if (this.props.question) {
+      this.state = _.extend({}, this.props.question)
+
+      this.currentAnswer = this.state.options ? this.state.options.length : 0
+      switch (this.state.type) {
+        case QUESTION_TYPE.MC:
+          this.answerOrder = MC_ORDER
+          break
+        case QUESTION_TYPE.MS:
+          this.answerOrder = MC_ORDER
+          break
+        case QUESTION_TYPE.TF:
+          this.answerOrder = TF_ORDER
+          break
+      }
+    } else { // if adding new question
+      this.state = _.extend({}, DEFAULT_STATE)
+      this.state.submittedBy = Meteor.userId()
+      // tracking for adding new mulitple choice answers
+      this.currentAnswer = 0
+      this.answerOrder = MC_ORDER
+    }
+
+    // populate tagging suggestions
+    this.tagSuggestions = []
+    Meteor.call('questions.possibleTags', (e, tags) => {
+      // non-critical, if e: silently fail
+      tags.forEach((t) => {
+        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.forceUpdate()
+    })
+
+    if (this.props.courseId) {
+      // add course code tag
+      Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
+        this.setState({ tags: [tag] })
+      })
+    }
+  } // end constructor
+
+  /**
+   * changeType (Number: newValue)
+   * change question type to MC, TF or SA
+   */
+  changeType (newValue) {
+    let type = parseInt(newValue)
+    const oldType = this.state.type
+    const retainOptions = (oldType === QUESTION_TYPE.MC &amp;&amp; type === QUESTION_TYPE.MS) ||
+      (type === QUESTION_TYPE.MC &amp;&amp; oldType === QUESTION_TYPE.MS)
+
+    const stateUpdater = { type: type }
+    if (!retainOptions) {
+      if (oldType === QUESTION_TYPE.SA || oldType === QUESTION_TYPE.TF) {
+        stateUpdater.options = []
+      } else if (this.state.options &amp;&amp; this.state.options.length > 0) {
+        const c = confirm('You are about to clear your answer options for this question. Do you want to proceed?')
+        if (c) stateUpdater.options = []
+        else return
+      }
+    } else {
+      const options = this.state.options
+      options.forEach((a, i) => {
+        if (i === 0) options[i].correct = true
+        else options[i].correct = false
+      })
+    }
+
+    this.setState(stateUpdater, () => {
+      if (type === QUESTION_TYPE.TF) {
+        this.currentAnswer = 0
+        this.answerOrder = _.extend({}, TF_ORDER)
+        this.addAnswer(null, null, false, () => {
+          this.addAnswer(null, null, false)
+        })
+      } else if (type === QUESTION_TYPE.SA) {
+        this.currentAnswer = -1
+        this.answerOrder = []
+      } else if (!retainOptions) {
+        this.currentAnswer = 0
+        this.answerOrder = _.extend({}, MC_ORDER)
+      }
+      this._DB_saveQuestion()
+    })
+  }
+
+  /**
+   * addTag (String: tag)
+   * add tag to state
+   */
+  addTag (tags) {
+    const _tags = tags
+    _tags.forEach((t) => {
+      t.label = t.label.toUpperCase()
+      t.value = t.value.toUpperCase()
+    })
+    this.setState({ tags: _tags }, () => {
+      this._DB_saveQuestion()
+    })
+  }
+
+  /**
+   * onEditorStateChange(Object: content)
+   * Update wysiwyg contents for actual question in state
+   */
+  onEditorStateChange (content, plainText) {
+    let stateEdits = { content: content, plainText: plainText }
+    this.setState(stateEdits, () => {
+      this._DB_saveQuestion()
+    })
+  }
+
+  /**
+   * setOptionState(String: answerKey, Object: content)
+   * Update wysiwyg content in the state based on the answer
+   */
+  setOptionState (answerKey, content, plainText) {
+    let options = this.state.options
+    const i = _(options).findIndex({ answer: answerKey })
+    options[i].content = content
+    options[i].plainText = plainText
+    this.setState({ options: options }, () => {
+      this._DB_saveQuestion()
+    })
+  } // end setOptionState
+
+  /**
+   * addAnswer(Event _, Event e, Boolean wysiwyg, Callback done = null)
+   * add answer option to MC, MS, and TF questions
+   */
+  addAnswer (_, e, wysiwyg = true, done = null) {
+    const answerKey = this.answerOrder[this.currentAnswer]
+    if (this.currentAnswer >= this.answerOrder.length) return
+    this.setState({
+      options: this.state.options.concat([{
+        correct: this.currentAnswer === 0,
+        answer: answerKey,
+        wysiwyg: wysiwyg
+      }])
+    }, () => {
+      this.currentAnswer++
+
+      if (wysiwyg) this.setOptionState(answerKey, '', '')
+      else this.setOptionState(answerKey, answerKey, answerKey)
+
+      if (done) done()
+    })
+  } // end addAnswer
+
+  /**
+   * removeAnswer(String answerKey)
+   * remove answer option to MC, MS, and TF questions
+   */
+  removeAnswer (answerKey) {
+    if (this.state.options.length === 1) return
+    const newOptions = []
+    let resetCorrect = false
+
+    this.currentAnswer--
+    this.state.options.forEach(o => {
+      if (answerKey !== o.answer) {
+        const option = _.extend({}, o)
+        newOptions.push(option)
+      } else if (o.correct) { // delete option was marked as correct
+        resetCorrect = true
+      }
+    })
+
+    // reletter options
+    newOptions.forEach((o, i) => {
+      if (i === 0 &amp;&amp; resetCorrect) o.correct = true
+      o.answer = this.answerOrder[i]
+    })
+
+    this.setState({ options: [] }, () => {
+      this.setState({ options: newOptions }, this._DB_saveQuestion)
+    })
+  } // end removeAnswer
+
+  /**
+   * markCorrect(String: answerKey)
+   * Set answer as correct in stae
+   */
+  markCorrect (answerKey) {
+    let options = this.state.options
+
+    if (this.state.type === QUESTION_TYPE.MS) {
+      options.forEach((a, i) => {
+        if (a.answer === answerKey) options[i].correct = !options[i].correct
+      })
+    } else {
+      options.forEach((a, i) => {
+        if (a.answer === answerKey) options[i].correct = true
+        else options[i].correct = false
+      })
+    }
+
+    this.setState({ options: options }, () => {
+      this._DB_saveQuestion()
+    })
+  }
+
+  togglePublic () {
+    this.setState({ public: !this.state.public }, () => {
+      this.saveQuestion()
+    })
+  }
+
+  /**
+   * saveQuestion ()
+   * Calls questions.insert to save question to db
+   */
+  saveQuestion () {
+    let question = _.extend({ createdAt: new Date() }, this.state)
+
+    if (question.options.length === 0 &amp;&amp; question.type !== QUESTION_TYPE.SA) return
+
+    if (this.props.sessionId) question.sessionId = this.props.sessionId
+    if (this.props.courseId) question.courseId = this.props.courseId
+
+    // insert (or edit)
+    Meteor.call('questions.insert', question, (error, newQuestion) => {
+      if (error) {
+        alertify.error('Error: ' + error.error)
+      } else {
+        if (!this.state._id) {
+          alertify.success('Question Saved')
+          if (this.props.onNewQuestion) this.props.onNewQuestion(newQuestion._id)
+        } else {
+          alertify.success('Edits Saved')
+        }
+        this.setState(newQuestion)
+      }
+    })
+  } // end saveQuestion
+
+  deleteQuestion () {
+    Meteor.call('questions.delete', this.state._id, (error) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Deleted')
+      if (this.props.deleted) this.props.deleted()
+    })
+  }
+
+  /**
+   * uploadImage(File: file)
+   * Handle image uploaded through wysiwyg editor. Uploads images to QuestionImages GridFS store
+   */
+  uploadImageCallBack (file) {
+    return new Promise(
+      (resolve, reject) => {
+        QuestionImages.insert(file, function (err, fileObj) {
+          console.log(err, fileObj)
+          if (err) {
+            reject('hmm shit') // TODO
+          } else {
+            setTimeout(function () {
+              resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
+            }, 500)
+          }
+        }) // .insert
+      } // (resolve, reject)
+    )
+  } // end uploadImageCallBack
+
+  componentWillReceiveProps (nextProps) {
+    this.setState(nextProps.question)
+  }
+
+  /**
+   * answerEditor(Answer: a)
+   * generate a answer option element row
+   */
+  answerEditor (a) {
+    if (!a) return &lt;div>Loading&lt;/div>
+    const changeHandler = (content, plainText) => {
+      this.setOptionState(a.answer, content, plainText)
+    }
+    let item
+
+    if (a.wysiwyg) {
+      item = (
+        &lt;div>
+          &lt;div className='answer-option'>
+            &lt;span className='correct' onClick={() => this.markCorrect(a.answer)}>
+              { a.correct ? &lt;span className='glyphicon glyphicon-ok' /> : '' }
+            &lt;/span>
+            &lt;span className='answer-key'>{ a.answer }&lt;/span>
+            &lt;Editor
+              change={changeHandler}
+              val={a.content}
+              className='answer-editor'
+              />
+
+            &lt;span
+              onClick={() => this.removeAnswer(a.answer)}
+              className='trash-icon glyphicon glyphicon-trash' />
+          &lt;/div>
+        &lt;/div>)
+    } else {
+      item = (&lt;div className='answer-option'>
+        &lt;span className='correct' onClick={() => this.markCorrect(a.answer)}>
+          { a.correct ? &lt;span className='glyphicon glyphicon-ok' /> : '' }
+        &lt;/span>
+        &lt;div className='answer-no-wysiwyg answer-editor'>
+          &lt;span>{ a.answer }&lt;/span>
+        &lt;/div>
+      &lt;/div>)
+    }
+
+    return (&lt;div className={'small-editor-wrapper ' + (a.wysiwyg ? 'col-md-12' : 'col-md-6')} key={'answer_' + a.answer}>
+      { item }
+    &lt;/div>)
+  } // end answerEditor
+
+  render () {
+    let editorRows = []
+
+    if (this.state.type === QUESTION_TYPE.TF) {
+      const row = &lt;div key='row_0' className='row'>
+        {this.answerEditor(this.state.options[0])}
+        {this.answerEditor(this.state.options[1])}
+      &lt;/div>
+      editorRows.push(row)
+    } else {
+      this.state.options.forEach((option, i) => {
+        editorRows.push(&lt;div key={'row_' + i} className='row'>
+          { this.answerEditor(option) }
+        &lt;/div>)
+      })
+    }
+
+    const radioOptions = [
+      { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },
+      { value: QUESTION_TYPE.MS, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MS] },
+      { value: QUESTION_TYPE.TF, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.TF] },
+      { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
+    ]
+
+    const strMakePublic = this.state.public ? 'Make Private' : 'Make Public'
+    return (
+      &lt;div className='ql-question-edit-item'>
+        &lt;div className='header'>
+          { this.props.metadata
+            ? &lt;div className='row metadata-row'>
+              &lt;div className='col-md-6'>
+                &lt;div className='btn-group'>
+                  &lt;button className='btn btn-default'
+                    data-toggle='tooltip'
+                    data-placement='top'
+                    title='Create a copy of this question'>
+                    Duplicate
+                  &lt;/button>
+                  &lt;button
+                    className='btn btn-default'
+                    onClick={this.deleteQuestion}>
+                    Delete
+                  &lt;/button>
+                  &lt;button
+                    className='btn btn-default'
+                    onClick={this.togglePublic}
+                    data-toggle='tooltip'
+                    data-placement='top'
+                    title={!this.state.public ? 'Allow others to view and copy this question' : ''}>
+                    {strMakePublic}
+                  &lt;/button>
+                &lt;/div>
+              &lt;/div>
+              &lt;div className='col-md-6'>
+                &lt;Creatable
+                  name='tag-input'
+                  placeholder='Question Tags'
+                  multi
+                  value={this.state.tags}
+                  options={this.tagSuggestions}
+                  onChange={this.addTag}
+                  />
+              &lt;/div>
+            &lt;/div>
+            : '' }
+          &lt;div className='row'>
+            &lt;div className='col-md-12 question-row'>
+              &lt;Editor
+                change={this.onEditorStateChange}
+                val={this.state.content}
+                className='question-editor'
+                placeholder='Question?' />
+
+              { this.props.onDeleteThis
+                ? &lt;span
+                  onClick={this.props.onDeleteThis}
+                  className='trash-icon glyphicon glyphicon-trash' />
+                  : '' }
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+
+        &lt;RadioPrompt
+          options={radioOptions}
+          value={this.state.type}
+          onChange={this.changeType} />
+
+        {editorRows}
+
+        { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
+          ? &lt;div className='row' onClick={this.addAnswer}>
+            &lt;div className='col-md-12'>
+              &lt;div className='add-question-row-item'>
+                New Option &lt;span className='glyphicon glyphicon-plus' />
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+          : '' }
+
+      &lt;/div>)
+  } //  end render
+
+} // end QuestionEditItem
+
+QuestionEditItem.propTypes = {
+  done: PropTypes.func,
+  question: PropTypes.object,
+  onNewQuestion: PropTypes.func,
+  metadata: PropTypes.bool,
+  deleted: PropTypes.func,
+  autoSave: PropTypes.bool
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a></li><li><a href="module-questions.html">questions</a></li><li><a href="module-responses.html">responses</a></li><li><a href="module-sessions.html">sessions</a></li><li><a href="module-users.html">users</a></li></ul><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_PickCourseModal.html">_PickCourseModal</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a></li><li><a href="ChangeEmailModal.html">ChangeEmailModal</a></li><li><a href="ChangePasswordModal.html">ChangePasswordModal</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="CreateCourseModal.html">CreateCourseModal</a></li><li><a href="CreateQuestionModal.html">CreateQuestionModal</a></li><li><a href="CreateSessionModal.html">CreateSessionModal</a></li><li><a href="Editor.html">Editor</a></li><li><a href="EnrollCourseModal.html">EnrollCourseModal</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="PromoteAccountModal.html">PromoteAccountModal</a></li><li><a href="ResetPasswordModal.html">ResetPasswordModal</a></li><li><a href="setup%2520Question%2520display%2520inital%2520state..html">setup Question display inital state.</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 31 2017 18:18:06 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

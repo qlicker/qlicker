@@ -5,6 +5,9 @@
 
 import { Component, PropTypes } from 'react'
 
+/**
+ * super class for make component with react 'controlled' form. Provided methods for setting and storing value fo controlled form elements usind the data-id attribute.
+ */
 export class ControlledForm extends Component {
 
   constructor (props) {

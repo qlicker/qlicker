@@ -14,9 +14,19 @@ import { $ } from 'jquery'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
 
-
+/**
+ * React Component to display Question object and send question reponses.
+ * @prop {Question} question - question object
+ * @prop {Boolean} [readonly] - turn off all interactivity
+ * @prop {Boolean} [noStats] - turn off response stats fetching
+ * @prop {Boolean} [prof] - pass true if component used by professor account
+ */
 export class _QuestionDisplay extends Component {
 
+  /**
+   * @constructor
+   * setup Question display inital state.
+   */
   constructor (p) {
     super(p)
 
@@ -54,6 +64,9 @@ export class _QuestionDisplay extends Component {
     this.resetState()
   }
 
+  /**
+   * reset the state of component and prep for different Question
+   */
   resetState () {
     const l = this.props.question.sessionOptions.attempts.length
     const attempt = this.props.question.sessionOptions.attempts[l - 1]
@@ -90,12 +103,20 @@ export class _QuestionDisplay extends Component {
     }
   }
 
+  /**
+   * helper to determine in responses should be allowed
+   * @returns {Boolean} status of whether component should allow reponse submission
+   */
   disallowResponses () {
     const q = this.props.question
     const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
     return disallowResponses
   }
 
+  /**
+   * set answer in state for short answer questions
+   * @param {Event} e - form event object
+   */
   setShortAnswer (e) {
     this.setState({
       btnDisabled: false,
@@ -103,6 +124,10 @@ export class _QuestionDisplay extends Component {
     })
   }
 
+  /**
+   * set answer in state for option based questions
+   * @param {String} answer - the answer key
+   */
   setAnswer (answer) {
     if (this.disallowResponses() || this.readonly) return
 
@@ -126,6 +151,9 @@ export class _QuestionDisplay extends Component {
     })
   }
 
+  /**
+   * send response in state to server. Calls {@link module:responses~"responses.add" responses.add}
+   */
   submitResponse () {
     if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
     // Can't choose responses after submission
@@ -170,6 +198,10 @@ export class _QuestionDisplay extends Component {
     })
   }
 
+  /**
+   * calculate percentages for specific answer key
+   * @param {String} answer
+   */
   calculateStats (answer) {
     const stats = this.props.distribution
     const total = this.props.totalAnswered
@@ -186,6 +218,12 @@ export class _QuestionDisplay extends Component {
     return answerStat
   }
 
+  /**
+   * generate dom elements for a wysiwyg answer option
+   * @param {String} answer - answer key
+   * @param {String} content - HTML content
+   * @param {String} correct - whether of not this option is correct
+   */
   wysiwygContent (answer, content, correct) {
     let classContent = 'ql-wysiwyg-content'
 
@@ -199,6 +237,13 @@ export class _QuestionDisplay extends Component {
       </div>)
   }
 
+  /**
+   * generate dom elements for plain text answer option
+   * @param {String} typeStr - 2 char string representing question type
+   * @param {String} answer - answer key
+   * @param {String} content - HTML content
+   * @param {String} correct - whether of not this option is correct
+   */
   commonContent (typeStr, answer, content, correct) {
     let classContent = ''
     if (!this.props.noStats && this.props.question.sessionOptions.correct) {
@@ -256,7 +301,6 @@ export class _QuestionDisplay extends Component {
     )
   }
 
-  // Refine this
   renderShortAnswer (q) {
     return (
       <div className='ql-short-answer'>

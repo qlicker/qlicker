@@ -54,12 +54,16 @@ if (Meteor.isServer) {
   })
 }
 
-// data methods
+/**
+ * Meteor methods for session object
+ * @module sessions
+ */
 Meteor.methods({
 
   /**
-   * sessions.insert(Session: session)
    * insert new session object into Sessions mongodb Collection
+   * @param {Session} session
+   * @returns {MongoId} new session id 
    */
   'sessions.insert' (session) {
     session.status = 'hidden'
@@ -70,8 +74,9 @@ Meteor.methods({
   },
 
   /**
-   * sessions.delete(MongoId (string) courseId, MongoId (string) sessionId)
    * Delete session from Sessions collection (use course.deleteSession to delete from course)
+   * @param {MongoId} courseId
+   * @param {MongoId} sessionId
    */
   'sessions.delete' (courseId, sessionId) {
     profHasCoursePermission(courseId)
@@ -79,8 +84,8 @@ Meteor.methods({
   },
 
   /**
-   * sessions.edit(Session: session)
    * edit all valid attributes is session object
+   * @param {Session} session
    */
   'sessions.edit' (session) {
     check(session._id, Helpers.MongoID)
@@ -105,8 +110,9 @@ Meteor.methods({
   },
 
   /**
-   * sessions.addQuestion(MongoId (string) sessionId, MongoId (string) questionId)
    * copy question from library and attach to session
+   * @param {MongoId} sessionId
+   * @param {MongoId} questionId
    */
   'sessions.addQuestion' (sessionId, questionId) {
     check(sessionId, Helpers.MongoID)
@@ -121,8 +127,9 @@ Meteor.methods({
   },
 
   /**
-   * sessions.removeQuestion(MongoId (string) sessionId, MongoId (string) questionId)
    * remove question from a session
+   * @param {MongoId} sessionId
+   * @param {MongoId} questionId
    */
   'sessions.removeQuestion' (sessionId, questionId) {
     check(sessionId, Helpers.MongoID)
@@ -144,8 +151,9 @@ Meteor.methods({
   },
 
   /**
-   * sessions.batchEdit(MongoId (string) sessionId, [MongoId (string)] questionIdList)
    * replaces list of attached questions with supplied list (use for reordering questions)
+   * @param {MongoId} sessionId
+   * @param {MongoId[]} questionIdList
    */
   'sessions.batchEdit' (sessionId, questionIdList) {
     check(sessionId, Helpers.MongoID)
@@ -158,8 +166,10 @@ Meteor.methods({
   },
 
   /**
-   * sessions.batchEdit(MongoId (string) sessionId, MongoId (string) targetCourseId)
    * duplicate a session to same course or different course
+   * @param {MongoId} sessionId
+   * @param {MongoId} targetCourseId
+   * @returns {MongoId} new session id
    */
   'sessions.copy' (sessionId, targetCourseId = null) {
     check(sessionId, Helpers.MongoID)
@@ -195,8 +205,8 @@ Meteor.methods({
   },
 
   /**
-   * sessions.startSession(MongoId (string) sessionId)
    * mark session as active and set first question to current
+   * @param {MongoId} sessionId
    */
   'sessions.startSession' (sessionId) {
     const s = Sessions.findOne({ _id: sessionId })
@@ -205,8 +215,8 @@ Meteor.methods({
   },
 
   /**
-   * sessions.endSession(MongoId (string) sessionId)
    * mark session as done
+   * @param {MongoId} sessionId
    */
   'sessions.endSession' (sessionId) {
     const s = Sessions.findOne({ _id: sessionId })
@@ -215,8 +225,9 @@ Meteor.methods({
   },
 
   /**
-   * sessions.join(MongoId (string) sessionId, MongoId (string) studentUserId)
    * track number of students that are participating in session
+   * @param {MongoId} sessionId
+   * @param {MongoId} studentUserId
    */
   'sessions.join' (sessionId, studentUserId) {
     check(sessionId, Helpers.MongoID)
@@ -231,8 +242,9 @@ Meteor.methods({
   },
 
   /**
-   * sessions.setCurrent(MongoId (string) sessionId, MongoId (string) questionId)
    * set currently running question
+   * @param {MongoId} sessionId
+   * @param {MongoId} questionId
    */
   'sessions.setCurrent' (sessionId, questionId) {
     check(questionId, Helpers.MongoID)
@@ -248,8 +260,8 @@ Meteor.methods({
   },
 
   /**
-   * sessions.possibleTags()
    * returns a list of autocomplete tag sugguestions specific for session (different than questions)
+   * @returns {String[]} array of string tags
    */
   'sessions.possibleTags' () {
     let tags = new Set()
