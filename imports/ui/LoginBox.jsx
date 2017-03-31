@@ -19,6 +19,10 @@ export const DEFAULT_STATE = {
   lastname: ''
 }
 
+/**
+ * React component (controlled) with login and signup form. Calls Accounts.createUser and Meteor.loginWithPassword
+ * @prop {Question} question - question object
+ */
 export class LoginBox extends Component {
 
   constructor (props) {

@@ -1,13 +1,17 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// PromoteAccountModal.jsx: modal for profs to make new prof accounts
+// PromoteAccountModal.jsx
 
 import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 
-
+/**
+ * modal for profs to make new prof accounts
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class PromoteAccountModal extends ControlledForm {
 
   constructor (props) {

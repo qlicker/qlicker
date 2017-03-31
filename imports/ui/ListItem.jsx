@@ -7,6 +7,11 @@ import React, { Component, PropTypes } from 'react'
 
 import '../api/courses.js'
 
+/**
+ * Listitem super class for various list items in Qlicker (Session, Question, Course)
+ * @prop {Object[]} [controls] - array of more dropdown options to be displayed at right side of list item. [{ click: func, label: String }]
+ * @prop {Func} [click] - list item click handler callback
+ */
 export class ListItem extends Component {
 
   constructor (props) {

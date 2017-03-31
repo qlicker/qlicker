@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// AnswerDistribution.jsx: Component for attempt distributions for a question
+// AnswerDistribution.jsx
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
@@ -12,6 +12,10 @@ import { BarChart, Bar, XAxis, YAxis, Legend, text } from 'recharts'
 
 import { Responses } from '../api/responses'
 
+/**
+ * Component for attempt distributions for a question
+ * @prop {Question} question - question object
+ */
 export class _AnswerDistribution extends Component {
 
   getRandomColor () {

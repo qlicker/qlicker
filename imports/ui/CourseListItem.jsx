@@ -2,14 +2,21 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// CourseListItem.jsx: React component list item for each course
-// typically used on student and professor overview page
+// CourseListItem.jsx
 
 import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 import '../api/courses.js'
 
+/**
+ * React component list item for each course.
+ * typically used on student and professor overview page.
+ * @class
+ * @augments ListItem
+ * @prop {Course} course - course object
+ * @prop {Func} [click] - list item click handler
+ */
 export class CourseListItem extends ListItem {
 
   render () {

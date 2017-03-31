@@ -1,13 +1,17 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// ChangePasswordModal.jsx: modal for password change
+// ChangePasswordModal.jsx
 
 import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 
-
+/**
+ * modal for password change
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class ChangePasswordModal extends ControlledForm {
 
   constructor (props) {

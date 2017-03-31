@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// EnrollCourseModal.jsx: popup dialog to prompt for course Enrollment details
+// EnrollCourseModal.jsx
 
 import React from 'react'
 
@@ -11,6 +11,11 @@ export const DEFAULT_STATE = {
   enrollmentCode: ''
 }
 
+/**
+ * modal dialog to prompt for course Enrollment details
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
 export class EnrollCourseModal extends ControlledForm {
 
   constructor (props) {
