@@ -1,10 +1,20 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// RadioPrompt.jsx: custom "radio button" style group of buttons
+// RadioPrompt.jsx
 
 import React, { Component, PropTypes } from 'react'
 
+
+/**
+ * Controlled React component. custom "radio button" style group of buttons. horizontal set of buttons that allows for one selection
+ * @class
+ * @prop {Object[]} options - array of button options
+ * @prop {String} options[].label - array of button options
+ * @prop {String} options[].value - array of button options
+ * @prop {String} value - initial value/selected
+ * @prop {Func} onChange - onChange callback
+ */
 export class RadioPrompt extends Component {
 
   constructor (props) {

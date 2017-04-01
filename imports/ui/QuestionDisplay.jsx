@@ -15,7 +15,7 @@ import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
 
 /**
- * React Component to display Question object and send question reponses.
+ * React Component (meteor reactive) to display Question object and send question reponses.
  * @prop {Question} question - question object
  * @prop {Boolean} [readonly] - turn off all interactivity
  * @prop {Boolean} [noStats] - turn off response stats fetching
@@ -24,7 +24,6 @@ import { QUESTION_TYPE } from '../configs'
 export class _QuestionDisplay extends Component {
 
   /**
-   * @constructor
    * setup Question display inital state.
    */
   constructor (p) {

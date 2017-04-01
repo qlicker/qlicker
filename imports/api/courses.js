@@ -116,7 +116,7 @@ Meteor.methods({
 
   /**
    * insert new course object into Courses mongodb Collection
-   * @param {Course} course
+   * @param {Course} course - course object without id
    * @returns {MongoId} id of new course
    */
   'courses.insert' (course) {

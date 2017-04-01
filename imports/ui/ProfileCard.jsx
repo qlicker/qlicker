@@ -1,8 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// ProfileCard.jsx: React component for diaplying profile info
-// button UI with hover dropdown functionality to display details
+// ProfileCard.jsx
 
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
@@ -10,6 +9,9 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import '../api/users.js'
 
+/**
+ * React component for diaplying profile info. button UI with hover dropdown functionality to display details
+ */
 export class ProfileCard extends Component {
 
   constructor (props) {

@@ -14,6 +14,13 @@ import { StudentQuestionListItem } from './StudentQuestionListItem'
 
 import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
+/**
+ * React Component for displaying a list of Questions with text and tag based search and filtering.
+ * Question click callback can be defined. Component often used to find and select a question
+ * @param {Question[]} questions - array of questions
+ * @param {Func} [onSelect] - call back for when question list item is click
+ * @param {String} [clickMessage] - info message on what happens when you click on a question
+ */
 export class QuestionSidebar extends ControlledForm {
 
   constructor (props) {
@@ -39,8 +46,8 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   /**
-   * done(Event: e)
    * Overrided done handler
+   * @param {Event} e
    */
   done (e) {
     this.refs.addQuestionForm.reset()
@@ -48,8 +55,8 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   /**
-   * setQuestion(MongoId (String): questionId)
    * set selected question to add
+   * @param {MongoId} questionId
    */
   setQuestion (questionId) {
     this.setState({ questionId: questionId }, () => {
@@ -59,8 +66,8 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   /**
-   * setSearchString(Event: e)
    * Set search term for plain text search & invoke filter
+   * @param {Event} e
    */
   setSearchString (e) {
     this.setState({ searchString: e.target.value }, () => {
@@ -69,8 +76,8 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   /**
-   * setType(Event: e)
    * Set search term for plain text search & invoke filter
+   * @param {Event} e
    */
   setType (e) {
     this.setState({ questionType: parseInt(e.target.value) }, () => {
@@ -79,8 +86,8 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   /**
-   * setTags(Event: e)
    * udpate state tags array
+   * @param {Event} e
    */
   setTags (tags) {
     this.setState({ tags: tags }, () => {
@@ -89,8 +96,8 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   /**
-   * filterPool(String: str)
    * filters items from the this.state.questionPool
+   * @param {String} str
    */
   filterPool () {
     const pool = _(this.props.questions.slice()).filter((q) => {

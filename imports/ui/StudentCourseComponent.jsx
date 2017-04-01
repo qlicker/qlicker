@@ -11,6 +11,12 @@ import { Sessions } from '../api/sessions'
 import { CourseListItem } from './CourseListItem'
 import { SessionListItem } from './SessionListItem'
 
+
+/**
+ * React component (meteor reactive) that combines a CourseListItem and SessionListItem for active sessions.
+ * @prop {Course} course - course object
+ * @prop {String} sessionRoute - route to navigate to for each session
+ */
 export class _StudentCourseComponent extends Component {
 
   constructor (p) {

@@ -13,7 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, Legend, text } from 'recharts'
 import { Responses } from '../api/responses'
 
 /**
- * Component for attempt distributions for a question
+ * React Component (meteor reactive) for attempt distributions for a question
  * @prop {Question} question - question object
  */
 export class _AnswerDistribution extends Component {

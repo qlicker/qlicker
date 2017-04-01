@@ -2,10 +2,14 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// SessionDetails.jsx: component for displaying and editing session details
+// SessionDetails.jsx
 
 import React, { Component } from 'react'
 
+/**
+ * component for displaying and editing session details
+ * @param {Session} session - session object
+ */
 export class SessionDetails extends Component {
 
   constructor (props) {

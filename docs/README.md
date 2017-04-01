@@ -2,6 +2,8 @@
 
 Documentation and User Manual
 
+Qlicker Repo: [https://github.com/etenoch/qlicker](https://github.com/etenoch/qlicker)
+
 ## JSDocs
 All meteor methods and React components are documented using JSDoc.
 You can view the HTML version hosted at: 

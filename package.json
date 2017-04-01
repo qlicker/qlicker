@@ -2,6 +2,7 @@
   "name": "qlicker",
   "private": true,
   "scripts": {
+    "doc": "jsdoc imports/* docs/README.md -d docs/jsdocs -t node_modules/docdash/",
     "start": "meteor run",
     "lint": "node_modules/.bin/standard",
     "fix": "node_modules/.bin/standard --fix",
@@ -18,6 +19,7 @@
     "bcrypt": "^0.8.7",
     "busboy": "^0.2.14",
     "datalib": "^1.7.3",
+    "docdash": "^0.4.0",
     "draft-js": "^0.10.0",
     "draft-js-export-html": "^0.5.2",
     "draftjs-to-html": "^0.6.0",
