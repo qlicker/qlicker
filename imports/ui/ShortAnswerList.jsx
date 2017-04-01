@@ -1,13 +1,17 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// ShortAnswerList.jsx: display list of short answer reponses for a question
+// ShortAnswerList.jsx
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Responses } from '../api/responses'
 
+/**
+ * React component (meteor reactive) that displays a list of short answer reponses for a question
+ * @prop {Question} question - question object
+ */
 class _ShortAnswerList extends Component {
 
   render () {

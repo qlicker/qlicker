@@ -2,14 +2,20 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// SessionListItem.jsx: React component list item for each course
-// typically used on student and professor overview page
+// SessionListItem.jsx
 
 import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 import '../api/courses.js'
 
+/**
+ * React component list item for each student in a course.
+ * typically used in professor course screen
+ * @augments ListItem
+ * @prop {User} student - user object
+ * @prop {MongoId} courseId - id of course this component is being used in
+ */
 export class StudentListItem extends ListItem {
 
   render () {

@@ -10,6 +10,12 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { QuestionListItem } from './QuestionListItem'
 
+/**
+ * List item wrapper for QuestionListItem.
+ * Used to fetch reactive data for student's name
+ * @augments ListItem
+ * @prop {Question} question - question object
+ */
 export class _StudentQuestionListItem extends QuestionListItem {
   // render in super class
 }

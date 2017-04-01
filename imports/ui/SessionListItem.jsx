@@ -2,8 +2,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// SessionListItem.jsx: React component list item for each course
-// typically used on student and professor overview page
+// SessionListItem.jsx
 
 import React, { PropTypes } from 'react'
 
@@ -11,6 +10,14 @@ import { ListItem } from './ListItem'
 import '../api/courses.js'
 import { SESSION_STATUS_STRINGS, formatDate } from '../configs'
 
+/**
+ * React component list item for each session.
+ * typically used in course page and embedded in StudentCourseComponent.
+ * @class
+ * @augments ListItem
+ * @prop {Session} session - session object
+ * @prop {Func} [click] - list item click handler
+ */
 export class SessionListItem extends ListItem {
 
   render () {

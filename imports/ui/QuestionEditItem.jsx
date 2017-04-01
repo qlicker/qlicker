@@ -25,6 +25,14 @@ export const DEFAULT_STATE = {
   tags: []
 }
 
+/**
+ * React Component for editing an individual question
+ * @prop {Question} question - question object
+ * @prop {Func} [onNewQuestion] - callback when a new question is save to database
+ * @prop {Boolean} [metadata] - wether element should display top metadata (tags, make public buttons) row
+ * @prop {Func} [deleted] - callback when delete button pressed
+ * @prop {Boolean} [autoSave] - should component save change automatically
+ */
 export class QuestionEditItem extends Component {
 
   constructor (props) {
@@ -86,8 +94,8 @@ export class QuestionEditItem extends Component {
   } // end constructor
 
   /**
-   * changeType (Number: newValue)
    * change question type to MC, TF or SA
+   * @param {Number} newValue
    */
   changeType (newValue) {
     let type = parseInt(newValue)
@@ -131,8 +139,8 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * addTag (String: tag)
    * add tag to state
+   * @param {String} tag
    */
   addTag (tags) {
     const _tags = tags
@@ -146,8 +154,8 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * onEditorStateChange(Object: content)
    * Update wysiwyg contents for actual question in state
+   * @param {Object} content
    */
   onEditorStateChange (content, plainText) {
     let stateEdits = { content: content, plainText: plainText }
@@ -157,8 +165,9 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * setOptionState(String: answerKey, Object: content)
    * Update wysiwyg content in the state based on the answer
+   * @param {String} answerKey
+   * @param {Object} content
    */
   setOptionState (answerKey, content, plainText) {
     let options = this.state.options
@@ -171,8 +180,11 @@ export class QuestionEditItem extends Component {
   } // end setOptionState
 
   /**
-   * addAnswer(Event _, Event e, Boolean wysiwyg, Callback done = null)
    * add answer option to MC, MS, and TF questions
+   * @param {Event} _ - form event
+   * @param {Event} e - form event
+   * @param {Boolean} [wysiwyg = true] - answer option has wysiwyg content
+   * @param {Callback} [done = null] - callback when done
    */
   addAnswer (_, e, wysiwyg = true, done = null) {
     const answerKey = this.answerOrder[this.currentAnswer]
@@ -194,8 +206,8 @@ export class QuestionEditItem extends Component {
   } // end addAnswer
 
   /**
-   * removeAnswer(String answerKey)
    * remove answer option to MC, MS, and TF questions
+   * @param {String} answerKey
    */
   removeAnswer (answerKey) {
     if (this.state.options.length === 1) return
@@ -224,8 +236,8 @@ export class QuestionEditItem extends Component {
   } // end removeAnswer
 
   /**
-   * markCorrect(String: answerKey)
    * Set answer as correct in stae
+   * @param {String} answerKey
    */
   markCorrect (answerKey) {
     let options = this.state.options
@@ -253,8 +265,7 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * saveQuestion ()
-   * Calls questions.insert to save question to db
+   * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
   saveQuestion () {
     let question = _.extend({ createdAt: new Date() }, this.state)
@@ -289,8 +300,8 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * uploadImage(File: file)
    * Handle image uploaded through wysiwyg editor. Uploads images to QuestionImages GridFS store
+   * @param {File} file
    */
   uploadImageCallBack (file) {
     return new Promise(
@@ -314,8 +325,8 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * answerEditor(Answer: a)
    * generate a answer option element row
+   * @param {Answer} a
    */
   answerEditor (a) {
     if (!a) return <div>Loading</div>

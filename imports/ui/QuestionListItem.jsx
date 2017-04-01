@@ -3,12 +3,19 @@
 // Author: Enoch T <me@enocht.am>
 //
 // QuestionListItem.jsx: React component list item for each course
-// typically used on student and professor overview page
 
 import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 
+
+/**
+ * React component list item for each question.
+ * typically used in session screens.
+ * @augments ListItem
+ * @prop {Question} question - question object
+ * @prop {Func} [click] - list item click handler
+ */
 export class QuestionListItem extends ListItem {
 
 
@@ -37,6 +44,6 @@ export class QuestionListItem extends ListItem {
 
 QuestionListItem.propTypes = {
   question: PropTypes.object,
-  detailsKey: PropTypes.string
+  click: PropTypes.func
 }
 
