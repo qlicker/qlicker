@@ -11,5 +11,5 @@ Qlicker uses 5 mongo collections for storing persistent data. A strict schema is
 As well, several GridFS collections are used for storing uploaded images.
 
  - `images` - for images uploaded via CKEditor for questions and answer options. This collection defined in [imports/api/questions.js](../imports/api/questions.js)
- - `profile_images` - for user profile images. This collection defined in [../imports/api/users.js](imports/api/users.js)
+ - `profile_images` - for user profile images. This collection defined in [imports/api/users.js](../imports/api/users.js)
 
