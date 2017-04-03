@@ -46,7 +46,7 @@ The question edit form will show up, and you can enter or toggle the following:
 Each edit created will automatically save the question.
 
 #### Question Types 
-There are four question types to choose from; multiple choice, multi-select, true or false, and short answer. For multiple choice and multi-select, there can be a max of 6 answers to choose from. Like question text, the answers can be modified using the toollbar. Correct and Incorrect options can be toggled by clicking on "correct" or "incorrect".
+There are four question types to choose from; multiple choice, multi-select, true or false, and short answer. For multiple choice and multi-select, there can be a max of 6 answers to choose from. Like question text, the answers can be modified using the toollbar. Correct and Incorrect options can be toggled by clicking on the checkbox to the right of each answer.
 
 ### Using the Question Library
 The Question Library can be found via the 'Questions' dropdown menu. This page contains all questions saved to the library, for all courses you own. On this page, you can create new questions, search for questions using keywords, type, or tags, and access Public and Student-submitted questions.
@@ -83,29 +83,36 @@ Once sessions are populated in the "Sessions" section, you can delete the sessio
 ## Running Sessions
 Running a session means that students are able to interact with and contribute responses to the session. To run the session, go to the Edit Session page and click 'Run Session'.
 
-The current view shows an aggregation of response results and stats, and a question preview of the current session on the right, with a toolbar and an indication of how many students are active in the session, and how many students responded to the current question on the left. The results will auto-update once students submit responses. 
+The current view shows an aggregation of response results and a question preview of the current session underneath a toolbar. The toolbar includes an indication of how many students are active in the session, how many students responded to the current question, and various actions. The results will auto-update once students submit responses. 
 
-In the toolbar, you can toggle the following:
+The current question can be toggled either by selecting the desired question in the question list, or by clicking 'Previous' or 'Next' to move one question ahead or behind the current question.
+
+In order from left to right starting at the top, the toolbar contains:
++ **Session Name**
++ **Participants:** Current number of students active in the session.
++ **Finish Session:** This closes the session. Session results can now be viewed. 
++ **Presentation Mode:** See below.
++ **2nd Display:** See below.
++ **Previous:** Displays the question before the current question.
++ **Next:** Displays the question after the current question.
++ **Question:** Displays the current question, out of all questions listed in the session.
++ **Answered:** Current number of submissions to the current question, out of all students active in the session. 
 + **Hide Question:** Students will be unable to see the current question.
 + **Show Correct:** The question display, both on your screen and the students, will display the correct answer(s) in green text and the incorrect answer(s) in red text. 
 + **Show Stats:** The question display, both on your screen and the students, will display the current statistics (percentage answered for each option) of the current question
++ **Attempt:** Displays the current attempt for the current question.
 + **Disallow Responses:** This disallows students to submit any more answers to the current question. 
 + **New Attempt:** This allows you to ask the same question again, with a new set of responses.
-+ **Questions:** This shows the list and order of questions in the session. You can click on a question to display it in the session.
-+ **Hide Question:** Students will be unable to see the current question.
-+ **Previous:** Displays the question before the current question.
-+ **End Session:** This closes the session. Session results can now be viewed. 
-+ **Next:** Displays the question after the current question.
 
-'Presentation' and '2nd Display' are covered below.
-
-To end the session select 'End Session' at the bottom of the toolbar. This changes the session to be Inactive, and results and statstics from the session can be viewed either by clicking 'Review Session Results' under the "Sessions" section in the course's main page, or by selecting 'Response Results' in the nagivation bar and choosing the desired course. 
+To end the session select 'Finish Session'. This changes the session to Finished, and results and statstics from the session can be viewed either by clicking 'Review Session Results' under the "Sessions" section in the course's main page, or by selecting 'Response Results' in the nagivation bar and choosing the desired course. 
 
 ### Presentation Mode
+Presentation Mode is for when your current display is visible by the students. This mode hides the Question sidebar and the results of the current question. To toggle this mode, select 'Presentation Mode' in the toolbar. 
 
 ### Dual Display Mode
-
-### Mobile Only Mode
-
+Dual Display Mode is to be used when there is a second screen used to display information. To toggle this mode, select '2nd Display'. A second window will open with only the current question displayed. You can then use this on a second display.
 
 ## Viewing Responses
+There are two ways to review session results; one is to select 'Response Results' from the navigation bar, then select the course. The second way is to go to the course home page and select 'Review Session Results'. 
+
+The current view showcases the percentage of questions answered by each student per session. To see the results per session, click 'Participation by Session'. This view displays each session that has results with the number of students that were active in the session, and a list of questions and the number of responses each question received. Clicking on each individual question shows a table with all students that answered the question and a graph showing the distribution of the answers received. 
