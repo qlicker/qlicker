@@ -90,18 +90,31 @@ class _ManageCourse extends Component {
     return (<div>
       {
         this.props.sessions.map((ses) => {
-          const sId = ses._id
-          const nav = () => { Router.go('session.edit', { _id: sId }) }
           if (!ses) return
+          const sId = ses._id
+          const nav = () => {
+            if (ses.status === 'running') Router.go('session.run', { _id: sId })
+            else Router.go('session.edit', { _id: sId })
+          }
+          const controls = []
+          if (ses.status === 'running') {
+            controls.push({
+              label: 'Open Session Display',
+              click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') }
+            })
+            controls.push({ divider: true })
+          }
+
+          controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
+          controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
+          controls.push({ divider: true })
+          controls.push({ label: 'Delete', click: () => this.deleteSession(sId) })
+
           return (<SessionListItem
             key={sId}
             session={ses}
             click={nav}
-            controls={[
-              { label: 'Delete', click: () => this.deleteSession(sId) },
-              { label: 'Duplicate', click: () => this.copySession(sId) },
-              { label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) }
-            ]} />)
+            controls={controls} />)
         })
       }
     </div>)

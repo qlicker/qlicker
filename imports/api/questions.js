@@ -299,7 +299,7 @@ Meteor.methods({
   },
 
   /**
-   * deletes question
+   * Deletes a question by id
    * @param {MongoId} questionId
    */
   'questions.delete' (questionId) {
@@ -316,7 +316,7 @@ Meteor.methods({
   },
 
   /**
-   * duplicates question and adds it to a question
+   * Duplicates question and attach to a session
    * @param {MongoId} sessionId
    * @param {MongoId} questionId
    */
@@ -408,7 +408,7 @@ Meteor.methods({
   },
 
   /**
-   * setup default .sessionOptions for a question and add an attempt
+   * setup default .sessionOptions for a question and add an attempt. Used to start a question during a session
    * @param {MongoId} questionId
    */
   'questions.startAttempt' (questionId) {
@@ -446,8 +446,10 @@ Meteor.methods({
     }
   },
 
+  // Refactor methods below. can reduce code duplication //
+
   /**
-   * enable stats/answer distribution visibility for students
+   * enable stats/answer distribution visibility for students for a question
    * @param {MongoId} questionId
    */
   'questions.showStats' (questionId) {
@@ -460,7 +462,7 @@ Meteor.methods({
   },
 
   /**
-   * disables stats/answer distribution visibility for students
+   * disables stats/answer distribution visibility for students for a question
    * @param {MongoId} questionId
    */
   'questions.hideStats' (questionId) {
@@ -473,7 +475,7 @@ Meteor.methods({
   },
 
   /**
-   * questions.showQuestion(MongoId (string) questionId)
+   * enables visibility of entire question in session
    */
   'questions.showQuestion' (questionId) {
     const q = Questions.findOne({ _id: questionId })
@@ -485,7 +487,7 @@ Meteor.methods({
   },
 
   /**
-   * questions.hideQuestion(MongoId (string) questionId)
+   * disables visibility of entire question in session
    */
   'questions.hideQuestion' (questionId) {
     const q = Questions.findOne({ _id: questionId })
@@ -496,8 +498,8 @@ Meteor.methods({
     })
   },
 
-    /**
-   * questions.showCorrect(MongoId (string) questionId)
+  /**
+   * enables visibility of correct answer for a question
    */
   'questions.showCorrect' (questionId) {
     const q = Questions.findOne({ _id: questionId })
@@ -509,7 +511,7 @@ Meteor.methods({
   },
 
   /**
-   * questions.hideCorrect(MongoId (string) questionId)
+   * disables visibility of correct answer for a question
    */
   'questions.hideCorrect' (questionId) {
     const q = Questions.findOne({ _id: questionId })

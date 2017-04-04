@@ -63,7 +63,7 @@ Meteor.methods({
   /**
    * insert new session object into Sessions mongodb Collection
    * @param {Session} session
-   * @returns {MongoId} new session id 
+   * @returns {MongoId} new session id
    */
   'sessions.insert' (session) {
     session.status = 'hidden'
@@ -84,7 +84,7 @@ Meteor.methods({
   },
 
   /**
-   * edit all valid attributes is session object
+   * edit specific attributes in a sessionr record
    * @param {Session} session
    */
   'sessions.edit' (session) {
@@ -110,7 +110,7 @@ Meteor.methods({
   },
 
   /**
-   * copy question from library and attach to session
+   * Copies a question from your library and attach to session
    * @param {MongoId} sessionId
    * @param {MongoId} questionId
    */
@@ -166,7 +166,7 @@ Meteor.methods({
   },
 
   /**
-   * duplicate a session to same course or different course
+   * Duplicate a session and attach to a different (or same) course
    * @param {MongoId} sessionId
    * @param {MongoId} targetCourseId
    * @returns {MongoId} new session id
@@ -205,7 +205,7 @@ Meteor.methods({
   },
 
   /**
-   * mark session as active and set first question to current
+   * Mark session as running and set first question to current
    * @param {MongoId} sessionId
    */
   'sessions.startSession' (sessionId) {
@@ -215,7 +215,7 @@ Meteor.methods({
   },
 
   /**
-   * mark session as done
+   * Mark session as done
    * @param {MongoId} sessionId
    */
   'sessions.endSession' (sessionId) {
@@ -225,7 +225,7 @@ Meteor.methods({
   },
 
   /**
-   * track number of students that are participating in session
+   * track each student that joins a session. Used to track all students that have participated in a session
    * @param {MongoId} sessionId
    * @param {MongoId} studentUserId
    */

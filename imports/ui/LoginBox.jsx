@@ -151,7 +151,7 @@ export class LoginBox extends Component {
           { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div> : ''}
 
           { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
-          { this.state.submit_error ? <div className='ql-login-box-error-msg'>Please try again</div> : ''}
+          { this.state.submit_error ? <div className='ql-login-box-error-msg'>An error occurred</div> : ''}
           <div className='spacer1'>&nbsp;</div>
           <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
           <div className='bottom-account-message'>{haveAccountMessage}</div>
