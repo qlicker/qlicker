@@ -34,7 +34,7 @@ export class _AnswerDistribution extends Component {
       const color = colorSeq[i] || this.getRandomColor()
       bars.push(<Bar key={i} dataKey={'attempt_' + (i + 1)} maxBarSize={45} fill={color} label isAnimationActive={false} />)
     })
-    return (<div>
+    return (<div className='ql-center-answer-distribution'>
       <BarChart className='ql-answer-distribution'
         height={190} width={500} data={this.props.distribution}
         margin={{top: 10, right: 10, left: -25, bottom: 5}}>
