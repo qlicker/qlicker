@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>api/courses.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a><ul class='methods'><li data-type='method'><a href="-_QuestionDisplay.html#calculateStats">calculateStats</a></li><li data-type='method'><a href="-_QuestionDisplay.html#commonContent">commonContent</a></li><li data-type='method'><a href="-_QuestionDisplay.html#disallowResponses">disallowResponses</a></li><li data-type='method'><a href="-_QuestionDisplay.html#resetState">resetState</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setAnswer">setAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setShortAnswer">setShortAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#submitResponse">submitResponse</a></li><li data-type='method'><a href="-_QuestionDisplay.html#wysiwygContent">wysiwygContent</a></li></ul></li><li><a href="-_ShortAnswerList.html">_ShortAnswerList</a></li><li><a href="-_StudentCourseComponent.html">_StudentCourseComponent</a></li><li><a href="-_StudentQuestionListItem.html">_StudentQuestionListItem</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="Editor.html">Editor</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="ProfileCard.html">ProfileCard</a></li><li><a href="QuestionEditItem.html">QuestionEditItem</a><ul class='methods'><li data-type='method'><a href="QuestionEditItem.html#addAnswer">addAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#addTag">addTag</a></li><li data-type='method'><a href="QuestionEditItem.html#answerEditor">answerEditor</a></li><li data-type='method'><a href="QuestionEditItem.html#changeType">changeType</a></li><li data-type='method'><a href="QuestionEditItem.html#markCorrect">markCorrect</a></li><li data-type='method'><a href="QuestionEditItem.html#onEditorStateChange">onEditorStateChange</a></li><li data-type='method'><a href="QuestionEditItem.html#removeAnswer">removeAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#saveQuestion">saveQuestion</a></li><li data-type='method'><a href="QuestionEditItem.html#setOptionState">setOptionState</a></li><li data-type='method'><a href="QuestionEditItem.html#uploadImageCallBack">uploadImageCallBack</a></li></ul></li><li><a href="QuestionListItem.html">QuestionListItem</a></li><li><a href="QuestionSidebar.html">QuestionSidebar</a><ul class='methods'><li data-type='method'><a href="QuestionSidebar.html#done">done</a></li><li data-type='method'><a href="QuestionSidebar.html#filterPool">filterPool</a></li><li data-type='method'><a href="QuestionSidebar.html#setQuestion">setQuestion</a></li><li data-type='method'><a href="QuestionSidebar.html#setSearchString">setSearchString</a></li><li data-type='method'><a href="QuestionSidebar.html#setTags">setTags</a></li><li data-type='method'><a href="QuestionSidebar.html#setType">setType</a></li></ul></li><li><a href="RadioPrompt.html">RadioPrompt</a></li><li><a href="SessionDetails.html">SessionDetails</a><ul class='methods'><li data-type='method'><a href="SessionDetails.html#handleSubmit">handleSubmit</a></li><li data-type='method'><a href="SessionDetails.html#setValue">setValue</a></li></ul></li><li><a href="SessionListItem.html">SessionListItem</a></li><li><a href="StudentListItem.html">StudentListItem</a></li></ul><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a><ul class='methods'><li data-type='method'><a href="module-courses.html#~%2522courses.addStudent%2522">"courses.addStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.checkAndEnroll%2522">"courses.checkAndEnroll"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.createSession%2522">"courses.createSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.delete%2522">"courses.delete"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.deleteSession%2522">"courses.deleteSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.edit%2522">"courses.edit"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.getCourseCodeTag%2522">"courses.getCourseCodeTag"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.insert%2522">"courses.insert"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.regenerateCode%2522">"courses.regenerateCode"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.removeStudent%2522">"courses.removeStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.setActive%2522">"courses.setActive"</a></li></ul></li><li><a href="module-questions.html">questions</a><ul class='methods'><li data-type='method'><a href="module-questions.html#~%2522questions.addTag%2522">"questions.addTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToLibrary%2522">"questions.copyToLibrary"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToSession%2522">"questions.copyToSession"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.delete%2522">"questions.delete"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideCorrect%2522">"questions.hideCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideQuestion%2522">"questions.hideQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideStats%2522">"questions.hideStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.insert%2522">"questions.insert"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.possibleTags%2522">"questions.possibleTags"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.removeTag%2522">"questions.removeTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.setAttemptStatus%2522">"questions.setAttemptStatus"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showCorrect%2522">"questions.showCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showQuestion%2522">"questions.showQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showStats%2522">"questions.showStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.startAttempt%2522">"questions.startAttempt"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.update%2522">"questions.update"</a></li></ul></li><li><a href="module-responses.html">responses</a><ul class='methods'><li data-type='method'><a href="module-responses.html#~%2522responses.add%2522">"responses.add"</a></li><li data-type='method'><a href="module-responses.html#~%2522responses.update%2522">"responses.update"</a></li></ul></li><li><a href="module-sessions.html">sessions</a><ul class='methods'><li data-type='method'><a href="module-sessions.html#~%2522sessions.addQuestion%2522">"sessions.addQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.batchEdit%2522">"sessions.batchEdit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.copy%2522">"sessions.copy"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.delete%2522">"sessions.delete"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.edit%2522">"sessions.edit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.endSession%2522">"sessions.endSession"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.insert%2522">"sessions.insert"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.join%2522">"sessions.join"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.possibleTags%2522">"sessions.possibleTags"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.removeQuestion%2522">"sessions.removeQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.setCurrent%2522">"sessions.setCurrent"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.startSession%2522">"sessions.startSession"</a></li></ul></li><li><a href="module-users.html">users</a><ul class='methods'><li data-type='method'><a href="module-users.html#~%2522users.changeEmail%2522">"users.changeEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRole%2522">"users.changeRole"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRoleByEmail%2522">"users.changeRoleByEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.promote%2522">"users.promote"</a></li><li data-type='method'><a href="module-users.html#~%2522users.sendVerificationEmail%2522">"users.sendVerificationEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.updateProfileImage%2522">"users.updateProfileImage"</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">api/courses.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// QLICKER
+// Author: Enoch T &lt;me@enocht.am>
+//
+// courses.js: JS related to course collection
+
+import { Meteor } from 'meteor/meteor'
+import { Mongo } from 'meteor/mongo'
+import { check, Match } from 'meteor/check'
+
+import { _ } from 'underscore'
+
+import Helpers from './helpers.js'
+// import { Sessions } from './sessions.js'
+import { ROLES } from '../configs'
+
+// expected collection pattern
+const coursePattern = {
+  _id: Match.Maybe(Helpers.NEString), // mongo db id
+  name: Helpers.NEString, // Information Technology Project (2016-17)
+  deptCode: Helpers.NEString, // CISC
+  courseNumber: Helpers.NEString, // 498
+  section: Helpers.NEString, // 001
+  owner: Helpers.MongoID, // mongo db id reference
+  enrollmentCode: Helpers.NEString,
+  semester: Helpers.NEString, // F17, W16, S15, FW16 etc.
+  inactive: Match.Maybe(Boolean),
+  students: Match.Maybe([Helpers.MongoID]),
+  sessions: Match.Maybe([Helpers.MongoID]),
+  createdAt: Date
+}
+
+// Create course class
+export const Course = function (doc) { _.extend(this, doc) }
+_.extend(Course.prototype, {
+  courseCode: function () {
+    return this.deptCode.toLowerCase() + this.courseNumber.toLowerCase()
+  },
+  fullCourseCode: function () {
+    return this.deptCode + ' ' + this.courseNumber + ' - ' + this.section
+  }
+})
+
+// Create course collection
+export const Courses = new Mongo.Collection('courses',
+  { transform: (doc) => { return new Course(doc) } })
+
+// data publishing
+if (Meteor.isServer) {
+  Meteor.publish('courses', function () {
+    if (this.userId) {
+      let user = Meteor.users.findOne({ _id: this.userId })
+      if (user.hasGreaterRole(ROLES.prof)) {
+        return Courses.find({ owner: this.userId })
+      } else {
+        let coursesArray = user.profile.courses || []
+        return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
+      }
+    } else this.ready()
+  })
+
+  Meteor.publish('courses.userObserveChanges', function () {
+    if (this.userId) {
+      let user = Meteor.users.findOne({ _id: this.userId })
+      if (user.hasGreaterRole(ROLES.student)) {
+        // manually add courses to array
+        // When student is enrolling in a course,
+        //  regular cursor find depends on user object which doesn't always trigger an update
+        let coursesArray = user.profile.courses || []
+        const courses = Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } }).fetch()
+        courses.forEach((c) => {
+          this.added('courses', c._id, c)
+        })
+        this.ready()
+
+        // manually observe changes on the student user object
+        const userCursor = Meteor.users.find({ _id: this.userId })
+        const handle = userCursor.observeChanges({
+          changed: (id, fields) => {
+            const updatedCoursesArray = fields.profile.courses
+            const newCourseIds = _.difference(updatedCoursesArray, coursesArray)
+
+            newCourseIds.forEach((cId) => {
+              const newCourse = Courses.findOne({ _id: cId }, { fields: { students: false } })
+              this.added('courses', cId, newCourse) // add newly enrolled course to subscription
+            })
+            this.ready()
+          }
+        })
+
+        this.onStop(function () {
+          handle.stop()
+        })
+        // TODO implement this to improve perf http://stackoverflow.com/a/21148698
+      }
+    } else this.ready()
+  })
+}
+
+// course permissions helper
+export const profHasCoursePermission = (courseId) => {
+  let courseOwner = Courses.findOne({ _id: courseId }).owner
+
+  if (Meteor.user().hasRole(ROLES.admin) ||
+      (Meteor.user().hasRole(ROLES.prof) &amp;&amp; Meteor.userId() === courseOwner)) {
+    return
+  } else {
+    throw new Meteor.Error('not-authorized')
+  }
+}
+
+/**
+ * Meteor methods for courses object
+ * @module courses
+ */
+Meteor.methods({
+
+  /**
+   * insert new course object into Courses mongodb Collection
+   * @param {Course} course - course object without id
+   * @returns {MongoId} id of new course
+   */
+  'courses.insert' (course) {
+    course.enrollmentCode = Helpers.RandomEnrollmentCode()
+
+    check(course, coursePattern)
+    if (!Meteor.user().hasRole(ROLES.admin) &amp;&amp;
+      !Meteor.user().hasRole(ROLES.prof)) {
+      throw new Meteor.Error('not-authorized')
+    }
+
+    course.deptCode = course.deptCode.toLowerCase()
+    course.courseNumber = course.courseNumber.toLowerCase()
+    course.semester = course.semester.toLowerCase()
+
+    return Courses.insert(course)
+  },
+
+  /**
+   * deletes course object Courses mongodb Collection
+   * @param {MongoID} courseId
+   */
+  'courses.delete' (courseId) {
+    profHasCoursePermission(courseId)
+
+    const course = Courses.find({ _id: courseId }).fetch()[0]
+    if (course.students) {
+      course.students.forEach((sId) => {
+        Meteor.call('courses.removeStudent', courseId, sId)
+      })
+    }
+
+    return Courses.remove({ _id: courseId })
+  },
+
+  /**
+   * generates and sets a new enrollment code for the course
+   * @param {MongoID} courseId
+   * @returns {Course} the course in question
+   */
+  'courses.regenerateCode' (courseId) {
+    profHasCoursePermission(courseId)
+
+    const enrollmentCode = Helpers.RandomEnrollmentCode()
+    Courses.update({ _id: courseId }, {
+      $set: {
+        enrollmentCode: enrollmentCode
+      }
+    })
+
+    return Courses.find({ _id: courseId }).fetch()
+  },
+
+  /**
+   * verifies validity of code and enrolls student
+   * @param {String} enrollmentCode
+   */
+  'courses.checkAndEnroll' (enrollmentCode) {
+    check(enrollmentCode, Helpers.NEString)
+    const c = Courses.findOne({
+      enrollmentCode: enrollmentCode.toLowerCase()
+    })
+
+    if (!c) throw new Meteor.Error('code-not-found', 'Couldn\'t enroll in course')
+
+    if (!c.inactive) {
+      Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
+        $addToSet: { 'profile.courses': c._id }
+      })
+      Courses.update({ _id: c._id }, {
+        $addToSet: { students: Meteor.userId() }
+      })
+      return c
+    }
+    throw new Meteor.Error('could-not-enroll', 'Couldn\'t enroll in course')
+  },
+
+  /**
+   * edits and updates all valid attributes of the course
+   * @param {Course} course
+   */
+  'courses.edit' (course) {
+    check(course._id, Helpers.MongoID)
+    check(course, coursePattern)
+    let courseId = course._id
+
+    profHasCoursePermission(courseId)
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        name: course.name,
+        deptCode: course.deptCode.toLowerCase(),
+        courseNumber: course.courseNumber.toLowerCase(),
+        section: course.section,
+        semester: course.semester.toLowerCase(),
+        owner: course.owner // this method used to change course owner
+      }
+    })
+  },
+
+  // course&lt;=>user methods
+
+  /**
+   * adds a student to course
+   * @param {MongoID} courseId
+   * @param {MongoId} studentUserId
+   */
+  'courses.addStudent' (courseId, studentUserId) { // TODO enforce permission
+    check(courseId, Helpers.MongoID)
+    check(studentUserId, Helpers.MongoID)
+
+    profHasCoursePermission(courseId)
+
+    Meteor.users.update({ _id: studentUserId }, {
+      $addToSet: { 'profile.courses': courseId }
+    })
+
+    return Courses.update({ _id: courseId }, {
+      $addToSet: { students: studentUserId }
+    })
+  },
+
+  /**
+   * removes a student to course
+   * @param {MongoID} courseId
+   * @param {MongoId} studentUserId
+   */
+  'courses.removeStudent' (courseId, studentUserId) {
+    check(courseId, Helpers.MongoID)
+    check(studentUserId, Helpers.MongoID)
+
+    profHasCoursePermission(courseId)
+
+    Meteor.users.update({ _id: studentUserId }, {
+      $pull: { 'profile.courses': courseId }
+    })
+    return Courses.update({ _id: courseId }, {
+      $pull: { students: studentUserId }
+    })
+  },
+
+  // course&lt;=>session methods
+
+  /**
+   * inserts a session into the Session collection and adds it to the course
+   * @param {MongoID} courseId
+   * @param {Session} session
+   * @returns {MongoId} id new session
+   */
+  'courses.createSession' (courseId, session) {
+    session.courseId = courseId
+    const sessionId = Meteor.call('sessions.insert', session)
+    Courses.update({ _id: courseId }, {
+      $addToSet: { sessions: sessionId }
+    })
+    return sessionId
+  },
+
+  /**
+   * deletes the session from collection and removes link from course
+   * @param {MongoID} courseId
+   * @param {Session} session
+   */
+  'courses.deleteSession' (courseId, sessionId) {
+    Courses.update({ _id: courseId }, {
+      $pull: { sessions: sessionId }
+    })
+    return Meteor.call('sessions.delete', courseId, sessionId)
+  },
+
+  /**
+   * get tag object for a specific courseid for react multi select component
+   * @param {MongoID} courseId
+   * @returns {String} tag.value
+   * @returns {String} tag.label
+   */
+  'courses.getCourseCodeTag' (courseId) {
+    const c = Courses.findOne(courseId).courseCode().toUpperCase()
+    return { value: c, label: c }
+  },
+
+  /**
+   * set inactive attribute based on bool
+   * @param {MongoID} courseId
+   * @param {Boolean} active
+   */
+  'courses.setActive' (courseId, active) {
+    check(courseId, Helpers.MongoID)
+    check(active, Boolean)
+
+    profHasCoursePermission(courseId)
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        inactive: !active
+      }
+    })
+  }
+
+}) // end Meteor.methods
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sat Apr 01 2017 12:19:48 GMT-0400 (EDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

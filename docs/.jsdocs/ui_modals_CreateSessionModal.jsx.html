@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ui/modals/CreateSessionModal.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ui/modals/CreateSessionModal.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// QLICKER
+// Author: Enoch T &lt;me@enocht.am>
+//
+// CreateCourseModal.jsx
+
+import React from 'react'
+import _ from 'underscore'
+
+import { ControlledForm } from '../ControlledForm'
+
+export const DEFAULT_STATE = {
+  name: '',
+  description: '',
+  courseId: '',
+  quiz: false,
+  dueDate: undefined
+}
+
+/**
+ * modal dialog to prompt for course details
+ * @augments ControlledForm
+ * @prop {Func} done - done callback
+ */
+export class CreateSessionModal extends ControlledForm {
+
+  constructor (props) {
+    super(props)
+    this.state = _.extend({}, DEFAULT_STATE)
+  }
+
+  /**
+   * done(Event: e)
+   * Overrided onChange handler to update state with exception for session details
+   */
+  setValue (e) {
+    let stateEdits = {}
+    let key = e.target.dataset.name
+    if (key === 'quiz') stateEdits[e.target.dataset.name] = (e.target.value === 'true')
+    else stateEdits[e.target.dataset.name] = e.target.value
+    this.setState(stateEdits)
+  }
+
+  /**
+   * handleSubmit(Event: e)
+   * onSubmit handler for course form. Calls courses.createSession
+   */
+  handleSubmit (e) {
+    super.handleSubmit(e)
+
+    let session = _.extend({
+      createdAt: new Date(),
+      courseId: this.props.courseId
+    }, this.state)
+
+    if (Meteor.isTest) {
+      this.props.done(session)
+    }
+
+    Meteor.call('courses.createSession', this.props.courseId, session, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        alertify.success('Session Created')
+        this.done()
+      }
+    })
+  }
+
+  /**
+   * done(Event: e)
+   * Overrided done handler
+   */
+  done (e) {
+    this.refs.createSessionForm.reset()
+    this.setState(_.extend({}, DEFAULT_STATE))
+    super.done()
+  }
+
+  render () {
+    return (&lt;div className='ql-modal-container' onClick={this.done}>
+      &lt;div className='ql-modal ql-modal-createsession ql-card' onClick={this.preventPropagation}>
+        &lt;div className='ql-modal-header ql-header-bar'>&lt;h3>Create Session&lt;/h3>&lt;/div>
+        &lt;form ref='createSessionForm' className='ql-form-createsession ql-card-content' onSubmit={this.handleSubmit}>
+          &lt;label>Name:&lt;/label>
+          &lt;input type='text' data-name='name' className='form-control' onChange={this.setValue} placeholder='Week 2 Lecture 3' />&lt;br />
+
+          &lt;label>Description:&lt;/label>
+          &lt;textarea type='text' data-name='description' className='form-control' onChange={this.setValue} placeholder='Quiz on topic 3' />&lt;br />
+
+          &lt;div className='ql-buttongroup'>
+            &lt;a className='btn btn-default' onClick={this.done}>Cancel&lt;/a>
+            &lt;input className='btn btn-default' type='submit' id='submit' />
+          &lt;/div>
+        &lt;/form>
+      &lt;/div>
+    &lt;/div>)
+  } //  end render
+
+} // end CreateSessionForm
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a></li><li><a href="module-questions.html">questions</a></li><li><a href="module-responses.html">responses</a></li><li><a href="module-sessions.html">sessions</a></li><li><a href="module-users.html">users</a></li></ul><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_PickCourseModal.html">_PickCourseModal</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a></li><li><a href="ChangeEmailModal.html">ChangeEmailModal</a></li><li><a href="ChangePasswordModal.html">ChangePasswordModal</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="CreateCourseModal.html">CreateCourseModal</a></li><li><a href="CreateQuestionModal.html">CreateQuestionModal</a></li><li><a href="CreateSessionModal.html">CreateSessionModal</a></li><li><a href="Editor.html">Editor</a></li><li><a href="EnrollCourseModal.html">EnrollCourseModal</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="PromoteAccountModal.html">PromoteAccountModal</a></li><li><a href="ResetPasswordModal.html">ResetPasswordModal</a></li><li><a href="setup%2520Question%2520display%2520inital%2520state..html">setup Question display inital state.</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 31 2017 18:34:55 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

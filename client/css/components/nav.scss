@@ -1,0 +1,295 @@
+$main-text: #212121;
+
+$qlicker-blue: #2FB0E8;
+$pure-white: #FFFFFF;
+
+
+$blue-rgba: rgba(48, 176, 231, 0.14);
+$red: #F74E4E;
+$red-rgba: rgba(247, 78, 78, 0.17);
+$background: #F3F3F4;
+$hover-color: #676A6C;
+$inactive-color: #989898;
+$border-grey: #DCDCDC;
+$border-blue: #30B0E7;
+
+// Mixins
+@mixin respond-to($media) {
+  @if $media == 767px {
+    @media (max-width: 767px) { @content; }
+  }
+  @else if $media == 768px {
+    @media (min-width: 768px) { @content; }
+  }
+  @else if $media == 992px {
+    @media (min-width: 992px) { @content; }
+  }
+}
+
+// SCSS
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #fff;
+}
+
+#navbar{
+ background-color: $pure-white;
+ font-size: 15px;
+ font-weight: 600;
+}
+
+.bootstrap-overrides .navbar-brand {
+  background-color: $qlicker-blue;
+  color: $pure-white;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  width: 150px;
+}
+
+.bootstrap-overrides .navbar-toggle {
+	z-index: 100;
+}
+
+.bootstrap-overrides .navbar-brand:hover {
+  background-color: $qlicker-blue;
+  color: $pure-white;
+}
+
+.nav > li:hover > a.bootstrap-overrides  {
+	background-color: #F3F3F4;
+}
+
+.nav > li > a.bootstrap-overrides , 
+.nav > li > a:hover.bootstrap-overrides  {
+  color: $hover-color;
+  padding: 0 30px;
+  line-height: 50px;
+  height: 50px;
+}
+
+.bootstrap-overrides .navbar-default .navbar-nav>.open>a, 
+.bootstrap-overrides .navbar-default .navbar-nav>.open>a:focus, 
+.bootstrap-overrides .navbar-default .navbar-nav>.open>a:hover {
+	background-color: #F3F3F4;
+}
+
+// Form Styling
+
+.add-course-input {
+	padding: 25px 20px 5px 20px;
+}
+
+.add-course-button {
+	padding: 5px 20px 25px 20px;
+}
+
+.bootstrap-overrides .form-control {
+	border-radius: 0;
+	-webkit-box-shadow: none;
+    box-shadow: none;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 0 10px;
+    height: 30px;
+}
+
+.bootstrap-overrides .add-course-form:valid {
+	text-transform: uppercase;
+}
+
+// Button Styling
+
+.bootstrap-overrides .btn-qlicker-blue {
+	background-color: $qlicker-blue;
+	color: $pure-white;
+	padding: 8px 0;
+    width: 100%;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.bootstrap-overrides .btn-qlicker-blue:hover {
+	color: $pure-white;
+	background-color: #26A3DC;
+}
+
+.bootstrap-overrides .btn-qlicker-blue:focus {
+	color: $pure-white;
+	-webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+// Dropdown Overrides
+
+.bootstrap-overrides .dropdown-menu {
+	border-radius: 0px;
+	border: none;
+	left: -10px;
+	top: calc(100% + 1px);
+	font-size: 15px;
+	padding: 0;
+	-webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.bootstrap-overrides .dropdown-outer {
+	overflow: hidden;
+  background: transparent;
+}
+
+.bootstrap-overrides .dropdown-inner {
+	width: 270px;
+  background-color: $pure-white;
+	-webkit-box-shadow: 0 0px 15px rgba(0,0,0,.15);
+    box-shadow: 0 0px 15px rgba(0,0,0,.15);
+    margin: 0 10px 10px 10px;
+}
+
+.bootstrap-overrides .dropdown-menu > div > li > a {
+	font-weight: 500;
+	line-height: 3;
+	color: #676a6c;
+	padding: 0px 30px;
+	font-size: 14px;
+}
+
+.dropdown-menu > div > li > a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+}
+
+.dropdown-menu > div > li > a:hover,
+.dropdown-menu > div > li > a:focus {
+  color: #262626;
+  text-decoration: none;
+  background-color: #f5f5f5;
+}
+
+.bootstrap-overrides .dropdown-menu .divider {
+    margin: 0;
+}
+
+.bootstrap-overrides .caret {
+	margin-top: -5px;
+}
+
+// Profile Tab
+
+.user-profile-name {
+
+}
+
+.nav > li.bootstrap-overrides  > a {
+   text-align: center;
+}
+
+.nav-profile-image {
+	width: 35px;
+	height: 35px;
+	margin-right: 10px;
+}
+
+.navbar > .container {
+  @include respond-to(768px) {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+  @include respond-to(992px) {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+.navbar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
+  @include respond-to(768px) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  @include respond-to(992px) {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.user-profile-dropdown {
+  @include respond-to(768px) {
+    width: 250px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  @include respond-to(992px) {
+    width: 250px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+}
+
+.navbar-right {
+  @include respond-to(768px) {
+    margin-right: 0;
+  }
+  @include respond-to(992px) {
+    margin-right: 0;
+  }
+}
+
+.bootstrap-overrides .navbar-brand {
+  @include respond-to(767px) {
+    position: absolute;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.navbar-nav {
+  @include respond-to(767px) {
+  	margin: 0 -15px;
+  }
+}
+
+.bootstrap-overrides .dropdown-inner {
+ @include respond-to(767px) {
+    width: 100%;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    margin: 0;
+}
+}
+
+.nav > li.bootstrap-overrides  > a {
+	 @include respond-to(767px) {
+	text-align: left;
+}
+}
+
+.bootstrap-overrides .navbar-toggle{
+	@include respond-to(767px) {
+		border: none;
+
+	}
+}
+
+.bootstrap-overrides .navbar-toggle:hover,
+.bootstrap-overrides .navbar-toggle:focus {
+	@include respond-to(767px) {
+		background-color: initial;
+
+	}
+}
+
+.nav-profile-image {
+	@include respond-to(767px) {
+		display: none;
+	}
+}

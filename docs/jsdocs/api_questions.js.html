@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>api/questions.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a><ul class='methods'><li data-type='method'><a href="-_QuestionDisplay.html#calculateStats">calculateStats</a></li><li data-type='method'><a href="-_QuestionDisplay.html#commonContent">commonContent</a></li><li data-type='method'><a href="-_QuestionDisplay.html#disallowResponses">disallowResponses</a></li><li data-type='method'><a href="-_QuestionDisplay.html#resetState">resetState</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setAnswer">setAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setShortAnswer">setShortAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#submitResponse">submitResponse</a></li><li data-type='method'><a href="-_QuestionDisplay.html#wysiwygContent">wysiwygContent</a></li></ul></li><li><a href="-_ShortAnswerList.html">_ShortAnswerList</a></li><li><a href="-_StudentCourseComponent.html">_StudentCourseComponent</a></li><li><a href="-_StudentQuestionListItem.html">_StudentQuestionListItem</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="Editor.html">Editor</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="ProfileCard.html">ProfileCard</a></li><li><a href="QuestionEditItem.html">QuestionEditItem</a><ul class='methods'><li data-type='method'><a href="QuestionEditItem.html#addAnswer">addAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#addTag">addTag</a></li><li data-type='method'><a href="QuestionEditItem.html#answerEditor">answerEditor</a></li><li data-type='method'><a href="QuestionEditItem.html#changeType">changeType</a></li><li data-type='method'><a href="QuestionEditItem.html#markCorrect">markCorrect</a></li><li data-type='method'><a href="QuestionEditItem.html#onEditorStateChange">onEditorStateChange</a></li><li data-type='method'><a href="QuestionEditItem.html#removeAnswer">removeAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#saveQuestion">saveQuestion</a></li><li data-type='method'><a href="QuestionEditItem.html#setOptionState">setOptionState</a></li><li data-type='method'><a href="QuestionEditItem.html#uploadImageCallBack">uploadImageCallBack</a></li></ul></li><li><a href="QuestionListItem.html">QuestionListItem</a></li><li><a href="QuestionSidebar.html">QuestionSidebar</a><ul class='methods'><li data-type='method'><a href="QuestionSidebar.html#done">done</a></li><li data-type='method'><a href="QuestionSidebar.html#filterPool">filterPool</a></li><li data-type='method'><a href="QuestionSidebar.html#setQuestion">setQuestion</a></li><li data-type='method'><a href="QuestionSidebar.html#setSearchString">setSearchString</a></li><li data-type='method'><a href="QuestionSidebar.html#setTags">setTags</a></li><li data-type='method'><a href="QuestionSidebar.html#setType">setType</a></li></ul></li><li><a href="RadioPrompt.html">RadioPrompt</a></li><li><a href="SessionDetails.html">SessionDetails</a><ul class='methods'><li data-type='method'><a href="SessionDetails.html#handleSubmit">handleSubmit</a></li><li data-type='method'><a href="SessionDetails.html#setValue">setValue</a></li></ul></li><li><a href="SessionListItem.html">SessionListItem</a></li><li><a href="StudentListItem.html">StudentListItem</a></li></ul><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a><ul class='methods'><li data-type='method'><a href="module-courses.html#~%2522courses.addStudent%2522">"courses.addStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.checkAndEnroll%2522">"courses.checkAndEnroll"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.createSession%2522">"courses.createSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.delete%2522">"courses.delete"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.deleteSession%2522">"courses.deleteSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.edit%2522">"courses.edit"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.getCourseCodeTag%2522">"courses.getCourseCodeTag"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.insert%2522">"courses.insert"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.regenerateCode%2522">"courses.regenerateCode"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.removeStudent%2522">"courses.removeStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.setActive%2522">"courses.setActive"</a></li></ul></li><li><a href="module-questions.html">questions</a><ul class='methods'><li data-type='method'><a href="module-questions.html#~%2522questions.addTag%2522">"questions.addTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToLibrary%2522">"questions.copyToLibrary"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToSession%2522">"questions.copyToSession"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.delete%2522">"questions.delete"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideCorrect%2522">"questions.hideCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideQuestion%2522">"questions.hideQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideStats%2522">"questions.hideStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.insert%2522">"questions.insert"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.possibleTags%2522">"questions.possibleTags"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.removeTag%2522">"questions.removeTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.setAttemptStatus%2522">"questions.setAttemptStatus"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showCorrect%2522">"questions.showCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showQuestion%2522">"questions.showQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showStats%2522">"questions.showStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.startAttempt%2522">"questions.startAttempt"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.update%2522">"questions.update"</a></li></ul></li><li><a href="module-responses.html">responses</a><ul class='methods'><li data-type='method'><a href="module-responses.html#~%2522responses.add%2522">"responses.add"</a></li><li data-type='method'><a href="module-responses.html#~%2522responses.update%2522">"responses.update"</a></li></ul></li><li><a href="module-sessions.html">sessions</a><ul class='methods'><li data-type='method'><a href="module-sessions.html#~%2522sessions.addQuestion%2522">"sessions.addQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.batchEdit%2522">"sessions.batchEdit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.copy%2522">"sessions.copy"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.delete%2522">"sessions.delete"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.edit%2522">"sessions.edit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.endSession%2522">"sessions.endSession"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.insert%2522">"sessions.insert"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.join%2522">"sessions.join"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.possibleTags%2522">"sessions.possibleTags"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.removeQuestion%2522">"sessions.removeQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.setCurrent%2522">"sessions.setCurrent"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.startSession%2522">"sessions.startSession"</a></li></ul></li><li><a href="module-users.html">users</a><ul class='methods'><li data-type='method'><a href="module-users.html#~%2522users.changeEmail%2522">"users.changeEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRole%2522">"users.changeRole"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRoleByEmail%2522">"users.changeRoleByEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.promote%2522">"users.promote"</a></li><li data-type='method'><a href="module-users.html#~%2522users.sendVerificationEmail%2522">"users.sendVerificationEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.updateProfileImage%2522">"users.updateProfileImage"</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">api/questions.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* global FS */
+// QLICKER
+// Author: Enoch T &lt;me@enocht.am>
+//
+// questions.js: JS related to question collection
+
+import Busboy from 'busboy'
+
+import { Meteor } from 'meteor/meteor'
+import { Mongo } from 'meteor/mongo'
+import { check, Match } from 'meteor/check'
+
+import { Courses } from './courses'
+import { Sessions } from './sessions'
+
+import { _ } from 'underscore'
+
+import Helpers from './helpers.js'
+import { ROLES } from '../configs'
+
+// expected collection pattern
+const questionPattern = {
+  _id: Match.Maybe(Helpers.MongoID),
+  plainText: String, // plain text version of question
+  type: Helpers.QuestionType,
+  content: String, // wysiwyg display content
+  options: [ {
+    wysiwyg: Boolean,
+    correct: Boolean,
+    answer: Helpers.NEString,
+    content: String,
+    plainText: String
+  } ],
+  submittedBy: Helpers.MongoID,
+  // null if template, questionId of original once copied to question
+  originalQuestion: Match.Maybe(Helpers.MongoID),
+  // null if question template, sessionId if copy attached to question
+  sessionId: Match.Maybe(Helpers.MongoID),
+  // null if prof created, populated for students creating question for enrolled course
+  courseId: Match.Maybe(Helpers.MongoID),
+  // student submitted questions are always public, prof can mark question templates as public
+  public: Boolean,
+  createdAt: Date,
+  tags: [ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ],
+  // config stuff for use while running a session
+  sessionOptions: Match.Maybe({
+    hidden: Boolean, // temporarily hide question on screen
+    stats: Boolean, // students able to see distribution of answers
+    correct: Boolean, // students able to see which is correct
+    attempts: [{
+      number: Number,
+      closed: Boolean
+    }]
+  }),
+  imagePath: Match.Maybe(String)
+}
+
+const defaultSessionOptions = {
+  hidden: false,
+  stats: false,
+  correct: false,
+  attempts: [{
+    number: 1,
+    closed: false
+  }]
+}
+
+// Create Question class
+const Question = function (doc) { _.extend(this, doc) }
+_.extend(Question.prototype, {
+})
+
+// Create question collection
+export const Questions = new Mongo.Collection('questions',
+  { transform: (doc) => { return new Question(doc) } })
+
+var imageStore = new FS.Store.GridFS('images')
+
+export const QuestionImages = new FS.Collection('images', {
+  stores: [imageStore],
+  filter: {
+    allow: {
+      contentTypes: ['image/*']
+    }
+  }
+})
+// Images publishing
+if (Meteor.isServer) {
+  Meteor.publish('images', function () { return QuestionImages.find() })
+}
+QuestionImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
+QuestionImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
+
+// Post route for accepting image uploads (for ckeditor)
+if (Meteor.isserver) Router.use(Router.bodyParser())
+Router.route('/upload/images', { where: 'server',
+  onBeforeAction: function (req, res, next) {
+    // ref https://github.com/iron-meteor/iron-router/issues/909
+    var files = [] // Store files in an array and then pass them to request.
+    var image = {} // crate an image object
+
+    if (req.method === 'POST') {
+      var busboy = new Busboy({ headers: req.headers })
+      busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+        image.mimeType = mimetype
+        image.encoding = encoding
+
+        var buffers = []
+        file.on('data', function (data) {
+          buffers.push(data)
+        })
+        file.on('end', function () {
+          image.data = Buffer.concat(buffers)
+          files.push(image)
+        })
+      })
+      busboy.on('field', function (fieldname, value) {
+        req.body[fieldname] = value
+      })
+      busboy.on('finish', function () {
+        req.files = files
+        next()
+      })
+      req.pipe(busboy)
+    } else this.next()
+  }
+}) // TODO implement permissions for uploading
+.post(function (req, res, next) {
+  // ref https://github.com/CollectionFS/Meteor-CollectionFS/issues/246
+  var imageBuffer = new Buffer(req.files[0]['data'], 'base64')
+  var newFile = new FS.File()
+  newFile.attachData(imageBuffer, {type: 'image/png'}, function (error) {
+    if (error) throw error
+    newFile.name(req.files[0]['dataId'] + '.png')
+    QuestionImages.insert(newFile, (err, fileObj) => {
+      if (err) res.end('Error uploading image')
+      else {
+        const response = {
+          uploaded: 1,
+          fileName: '/cfs/files/images/' + fileObj._id,
+          url: '/cfs/files/images/' + fileObj._id
+        }
+        setTimeout(() => { // wait for cfs to make image available
+          res.end(JSON.stringify(response))
+        }, 500)
+      }
+    })
+  })
+})
+
+// data publishing
+if (Meteor.isServer) {
+  Meteor.publish('questions.inCourse', function (courseId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne(this.userId)
+      const course = Courses.findOne(courseId)
+      if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: { $in: course.sessions || [] } })
+
+      if (user.hasRole(ROLES.student)) {
+        return Questions.find({ sessionId: { $in: course.sessions || [] } }, { fields: { 'options.correct': false } })
+      }
+    } else this.ready()
+  })
+
+  // questions in a specific question
+  Meteor.publish('questions.inSession', function (sessionId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne(this.userId)
+      if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: sessionId })
+
+      if (user.hasRole(ROLES.student)) {
+        // by default fetch all Qs without correct indicator
+        const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } }).fetch()
+
+        initialQs.forEach(q => {
+          const qToAdd = q
+          // if prof has marked Q with correct visible, refetch answer options
+          if (q.sessionOptions &amp;&amp; q.sessionOptions.correct) qToAdd.options = Questions.findOne(q._id).options
+          this.added('questions', qToAdd._id, qToAdd)
+        })
+
+        this.ready()
+
+        // need to monitor for changes on sessionOptions.correct
+        // and expose options.correct based on that
+        const questionsCursor = Questions.find({ sessionId: sessionId })
+        const handle = questionsCursor.observeChanges({
+          added: (id, fields) => {
+            this.added('questions', id, fields)
+          },
+          changed: (id, fields) => {
+            const newFields = fields
+
+            const so = newFields.sessionOptions
+            if (so &amp;&amp; so.correct) { // correct should be visible
+              const q = Questions.findOne(id)
+              newFields['options'] = q.options
+            } else if (so &amp;&amp; !so.correct) { // correct should be hidden
+              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false } })
+              newFields['options'] = q.options
+            }
+
+            this.changed('questions', id, newFields)
+          },
+          removed: (id) => {
+            this.removed('questions', id)
+          }
+        })
+
+        this.onStop(function () {
+          handle.stop()
+        })
+      }
+    } else this.ready()
+  })
+
+  // questions owned by a professor
+  Meteor.publish('questions.library', function () {
+    if (this.userId) {
+      const user = Meteor.users.findOne(this.userId)
+      if (!user.hasRole(ROLES.prof)) return this.ready()
+
+      return Questions.find({ submittedBy: this.userId, sessionId: {$exists: false} })
+    } else this.ready()
+  })
+
+  // truly public questions
+  Meteor.publish('questions.public', function () {
+    if (this.userId) {
+      return Questions.find({ public: true, courseId: {$exists: false} })
+    } else this.ready()
+  })
+
+  // questions submitted to specific course
+  Meteor.publish('questions.fromStudent', function () {
+    if (this.userId) {
+      const cArr = _(Courses.find({ owner: this.userId }).fetch()).pluck('_id')
+      return Questions.find({
+        courseId: {$in: cArr},
+        sessionId: {$exists: false},
+        public: true
+      })
+    } else this.ready()
+  })
+}
+
+/**
+ * Meteor methods for questions object
+ * @module questions
+ */
+Meteor.methods({
+
+  /**
+   * inserts a new question
+   * @param {Question} question
+   * @returns {Question} new question
+   */
+  'questions.insert' (question) {
+    if (question._id) { // if _id already exists, update the question
+      return Meteor.call('questions.update', question)
+    }
+
+    question.createdAt = new Date()
+    question.public = false
+    question.submittedBy = Meteor.userId()
+
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (user.hasRole(ROLES.student)) {
+      question.public = true
+
+      // if student, can only add question to enrolled courses
+      const courses = Courses.find({ _id: { $in: (user.profile.courses || []) } }).fetch()
+      const courseIds = _(courses).pluck('_id')
+      if (courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add question to this course')
+    }
+
+    check(question, questionPattern)
+    const id = Questions.insert(question)
+    return Questions.findOne({ _id: id })
+  },
+
+  /**
+   * updates all question details
+   * @param {Question} question
+   * @returns {MongoID} id of updated question
+   */
+  'questions.update' (question) {
+    check(question._id, Helpers.MongoID)
+    check(question, questionPattern)
+
+    if (question.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
+
+    const r = Questions.update({ _id: question._id }, {
+      $set: _.omit(question, '_id')
+    })
+
+    if (r) return question._id
+    else throw Error('Unable to update')
+  },
+
+  /**
+   * deletes question
+   * @param {MongoId} questionId
+   */
+  'questions.delete' (questionId) {
+    check(questionId, Helpers.MongoID)
+
+    const question = Questions.findOne({ _id: questionId })
+    const yourCourses = _(Courses.find({ owner: Meteor.userId() }).fetch()).pluck('_id')
+
+    const ownQuestion = question.submittedBy === Meteor.userId()
+    const fromYourStudent = question.courseId &amp;&amp; yourCourses.indexOf(question.courseId) > -1
+    if (!ownQuestion &amp;&amp; !fromYourStudent) throw Error('Not authorized to delete question')
+
+    return Questions.remove({ _id: questionId })
+  },
+
+  /**
+   * duplicates question and adds it to a question
+   * @param {MongoId} sessionId
+   * @param {MongoId} questionId
+   */
+  'questions.copyToSession' (sessionId, questionId) {
+    const session = Sessions.findOne({ _id: sessionId })
+    const question = Questions.findOne({ _id: questionId })
+
+    question.originalQuestion = questionId
+    question.sessionId = sessionId
+    question.courseId = session.courseId
+
+    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
+    Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
+    return copiedQuestion._id
+  },
+
+  /**
+   * duplicates a public question and adds it to your library
+   * @param {MongoId} questionId
+   */
+  'questions.copyToLibrary' (questionId) {
+    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
+    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    question.public = false
+    question.submittedBy = Meteor.userId()
+    question.createdAt = new Date()
+
+    const id = Questions.insert(question)
+    return id
+  },
+
+  /**
+   * returns a list of autocomplete tag sugguestions for the current user
+    * @returns {String[]} array of string tags
+   */
+  'questions.possibleTags' () {
+    let tags = new Set()
+
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (user.hasGreaterRole('professor')) {
+      const courses = Courses.find({ owner: Meteor.userId() }).fetch()
+      courses.forEach(c => {
+        tags.add(c.courseCode().toUpperCase())
+      })
+
+      const profQuestions = Questions.find({ submittedBy: Meteor.userId() }).fetch()
+      profQuestions.forEach((q) => {
+        q.tags.forEach((t) => {
+          tags.add(t.label.toUpperCase())
+        })
+      })
+    } else {
+      const coursesArray = user.profile.courses || []
+      const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
+      courses.forEach(c => {
+        tags.add(c.courseCode().toUpperCase())
+      })
+    }
+
+    return [...tags]
+  },
+
+  /**
+   * adds a tag to the session tag set
+   * @param {MongoId} questionId
+   * @param {String} tag
+   */
+  'questions.addTag' (questionId, tag) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
+
+    return Questions.update({ _id: questionId }, {
+      $addToSet: { tags: tag }
+    })
+  },
+
+  /**
+   * removes a tag from a question
+   * @param {MongoId} questionId
+   * @param {String} tag
+   */
+  'questions.removeTag' (questionId, tag) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
+
+    return Questions.update({ _id: questionId }, {
+      $pull: { tags: tag }
+    })
+  },
+
+  /**
+   * setup default .sessionOptions for a question and add an attempt
+   * @param {MongoId} questionId
+   */
+  'questions.startAttempt' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    if (q.sessionOptions) { // add another attempt (if first is closed)
+      const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+      if (maxAttempt.closed) {
+        return Questions.update({ _id: questionId }, {
+          '$push': { 'sessionOptions.attempts': { number: maxAttempt.number + 1, closed: false } }
+        })
+      }
+    } else {
+      return Questions.update({ _id: questionId }, {
+        '$set': { 'sessionOptions': _.extend({}, defaultSessionOptions) }
+      })
+    }
+  },
+
+  /**
+   * close or open the latest attempt
+   * @param {MongoId} questionId
+   * @param {Boolean} bool
+   */
+  'questions.setAttemptStatus' (questionId, bool) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    if (q.sessionOptions) { // add another attempt (if first is closed)
+      q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed = bool
+      return Questions.update({ _id: questionId }, {
+        '$set': { 'sessionOptions.attempts': q.sessionOptions.attempts }
+      })
+    }
+  },
+
+  /**
+   * enable stats/answer distribution visibility for students
+   * @param {MongoId} questionId
+   */
+  'questions.showStats' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.stats': true }
+    })
+  },
+
+  /**
+   * disables stats/answer distribution visibility for students
+   * @param {MongoId} questionId
+   */
+  'questions.hideStats' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.stats': false }
+    })
+  },
+
+  /**
+   * questions.showQuestion(MongoId (string) questionId)
+   */
+  'questions.showQuestion' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.hidden': false }
+    })
+  },
+
+  /**
+   * questions.hideQuestion(MongoId (string) questionId)
+   */
+  'questions.hideQuestion' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.hidden': true }
+    })
+  },
+
+    /**
+   * questions.showCorrect(MongoId (string) questionId)
+   */
+  'questions.showCorrect' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.correct': true }
+    })
+  },
+
+  /**
+   * questions.hideCorrect(MongoId (string) questionId)
+   */
+  'questions.hideCorrect' (questionId) {
+    const q = Questions.findOne({ _id: questionId })
+    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+
+    return Questions.update({ _id: questionId }, {
+      '$set': { 'sessionOptions.correct': false }
+    })
+  }
+
+}) // end Meteor.methods
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sat Apr 01 2017 12:19:48 GMT-0400 (EDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

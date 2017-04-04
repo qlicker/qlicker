@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: imports/ui/AnswerDistribution.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: imports/ui/AnswerDistribution.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// QLICKER
+// Author: Enoch T &lt;me@enocht.am>
+//
+// AnswerDistribution.jsx
+
+import React, { Component, PropTypes } from 'react'
+import { createContainer } from 'meteor/react-meteor-data'
+import { _ } from 'underscore'
+
+import dl from 'datalib'
+import { BarChart, Bar, XAxis, YAxis, Legend, text } from 'recharts'
+
+import { Responses } from '../api/responses'
+
+/**
+ * React Component (meteor reactive) for attempt distributions for a question
+ * @prop {Question} question - question object
+ */
+export class _AnswerDistribution extends Component {
+
+  getRandomColor () {
+    let letters = '0123456789ABCDEF'
+    let color = '#'
+    for (let i = 0; i &lt; 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)]
+    }
+    return color
+  }
+
+  render () {
+    const colorSeq = ['#2FB0E8', '#FFC32A', '#27EE77', '#FF532A']
+    const bars = []
+    _(this.props.maxAttempt).times((i) => {
+      const color = colorSeq[i] || this.getRandomColor()
+      bars.push(&lt;Bar key={i} dataKey={'attempt_' + (i + 1)} maxBarSize={45} fill={color} label isAnimationActive={false} />)
+    })
+    return (&lt;div>
+      &lt;BarChart className='ql-answer-distribution'
+        height={190} width={500} data={this.props.distribution}
+        margin={{top: 10, right: 10, left: -25, bottom: 5}}>
+        &lt;text x={250} y={20} textAnchor='middle' style={{fontWeight: 'bold'}}>{this.props.title || ''}&lt;/text>
+        &lt;XAxis dataKey='answer' />
+        &lt;YAxis allowDecimals={false} />
+        &lt;Legend />
+        {bars}
+      &lt;/BarChart>
+      &lt;div className='clear'>&amp;nbsp;&lt;/div>
+    &lt;/div>)
+  } //  end render
+
+}
+
+export const AnswerDistribution = createContainer((props) => {
+  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
+  const responses = Responses.find({ questionId: props.question._id }).fetch()
+
+  const maxAttempt = props.question.sessionOptions.attempts.length
+  const validOptions = _(props.question.options).pluck('answer')
+
+  const data = []
+  let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
+  options.map((a) => {
+    a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
+    delete a.values
+  })
+  const kOptions = _(options).indexBy('answer')
+
+  // split up multi-select responses
+  const arrayKeys = _(options).chain().pluck('answer').filter((k) => k instanceof Array).value()
+  arrayKeys.forEach((k) => {
+    k.forEach((j) => {
+      kOptions[j] = _({}).extend(kOptions[k])
+      kOptions[j].answer = j
+    })
+  })
+
+  validOptions.forEach((key) => {
+    if (key in kOptions) {
+      const counts = _(kOptions[key].counts).indexBy('attempt')
+      _(maxAttempt).times((i) => {
+        kOptions[key]['attempt_' + (i + 1)] = counts[i + 1] ? counts[i + 1].count : 0
+      })
+    } else {
+      _(maxAttempt).times((i) => {
+        if (!(key in kOptions)) kOptions[key] = { answer: key }
+        kOptions[key]['attempt_' + (i + 1)] = 0
+      })
+    }
+    data.push(kOptions[key])
+  })
+
+  return {
+    responses: responses,
+    distribution: data,
+    maxAttempt: maxAttempt,
+    loading: !handle.ready()
+  }
+}, _AnswerDistribution)
+
+AnswerDistribution.propTypes = {
+  question: PropTypes.object.isRequired
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a></li><li><a href="module-questions.html">questions</a></li><li><a href="module-responses.html">responses</a></li><li><a href="module-sessions.html">sessions</a></li><li><a href="module-users.html">users</a></li></ul><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a></li><li><a href="-_ShortAnswerList.html">_ShortAnswerList</a></li><li><a href="-_StudentCourseComponent.html">_StudentCourseComponent</a></li><li><a href="-_StudentQuestionListItem.html">_StudentQuestionListItem</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="Editor.html">Editor</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="ProfileCard.html">ProfileCard</a></li><li><a href="QuestionEditItem.html">QuestionEditItem</a></li><li><a href="QuestionListItem.html">QuestionListItem</a></li><li><a href="QuestionSidebar.html">QuestionSidebar</a></li><li><a href="RadioPrompt.html">RadioPrompt</a></li><li><a href="SessionDetails.html">SessionDetails</a></li><li><a href="SessionListItem.html">SessionListItem</a></li><li><a href="StudentListItem.html">StudentListItem</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildNav">buildNav</a></li><li><a href="global.html#publish">publish</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 31 2017 21:21:21 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

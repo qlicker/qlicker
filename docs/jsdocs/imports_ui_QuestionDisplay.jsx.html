@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: imports/ui/QuestionDisplay.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: imports/ui/QuestionDisplay.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* global MathJax */
+// QLICKER
+// Author: Enoch T &lt;me@enocht.am>
+//
+// QuestionDisplay.jsx: Component for displaying question in session
+
+import React, { Component, PropTypes } from 'react'
+import { createContainer } from 'meteor/react-meteor-data'
+import { Responses } from '../api/responses'
+import { Questions } from '../api/questions'
+import dl from 'datalib'
+import { _ } from 'underscore'
+import { $ } from 'jquery'
+import { WysiwygHelper } from '../wysiwyg-helpers'
+import { QUESTION_TYPE } from '../configs'
+
+/**
+ * React Component (meteor reactive) to display Question object and send question reponses.
+ * @prop {Question} question - question object
+ * @prop {Boolean} [readonly] - turn off all interactivity
+ * @prop {Boolean} [noStats] - turn off response stats fetching
+ * @prop {Boolean} [prof] - pass true if component used by professor account
+ */
+export class _QuestionDisplay extends Component {
+
+  /**
+   * setup Question display inital state.
+   */
+  constructor (p) {
+    super(p)
+
+    const q = this.props.question
+    const attempt = q.sessionOptions
+      ? q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+      : 0
+
+    this.state = {
+      btnDisabled: true,
+      submittedAnswer: '',
+      questionId: this.props.question._id,
+      isSubmitted: false,
+      attempt: attempt,
+      wasVisited: false
+    }
+
+    this.readonly = false
+    if (this.props.readonly) this.readonly = this.props.readonly
+
+    this.submitResponse = this.submitResponse.bind(this)
+    this.disallowResponses = this.disallowResponses.bind(this)
+    this.setAnswer = this.setAnswer.bind(this)
+    this.setShortAnswer = this.setShortAnswer.bind(this)
+    this.resetState = this.resetState.bind(this)
+  }
+
+  componentDidMount () {
+    this.componentDidUpdate()
+  }
+
+  componentDidUpdate () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+
+    this.resetState()
+  }
+
+  /**
+   * reset the state of component and prep for different Question
+   */
+  resetState () {
+    const l = this.props.question.sessionOptions.attempts.length
+    const attempt = this.props.question.sessionOptions.attempts[l - 1]
+
+    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
+
+    if (this.state.questionId !== this.props.question._id ||
+      (this.state.questionId === this.props.question._id &amp;&amp; this.state.attempt !== attempt) ||
+      (this.state.questionId === this.props.question._id &amp;&amp; this.state.attempt === attempt &amp;&amp; myResponses.length > 0)) {
+      if (myResponses.length > 0 &amp;&amp; (!this.state.wasVisited)) {
+        this.setState({
+          btnDisabled: true,
+          submittedAnswer: myResponses[0].answer,
+          questionId: this.props.question._id,
+          isSubmitted: true,
+          attempt: attempt,
+          wasVisited: true
+        })
+
+        this.readonly = true
+      } else if (myResponses.length &lt;= 0) {
+        this.setState({
+          btnDisabled: true,
+          submittedAnswer: '',
+          questionId: this.props.question._id,
+          isSubmitted: false,
+          attempt: attempt,
+          wasVisited: false
+        })
+
+        this.readonly = false
+        if (this.props.readonly) this.readonly = this.props.readonly
+      }
+    }
+  }
+
+  /**
+   * helper to determine in responses should be allowed
+   * @returns {Boolean} status of whether component should allow reponse submission
+   */
+  disallowResponses () {
+    const q = this.props.question
+    const disallowResponses = q.sessionOptions &amp;&amp; q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
+    return disallowResponses
+  }
+
+  /**
+   * set answer in state for short answer questions
+   * @param {Event} e - form event object
+   */
+  setShortAnswer (e) {
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: e.target.value
+    })
+  }
+
+  /**
+   * set answer in state for option based questions
+   * @param {String} answer - the answer key
+   */
+  setAnswer (answer) {
+    if (this.disallowResponses() || this.readonly) return
+
+    let answerToSubmit = answer
+
+    if (this.props.question.type === QUESTION_TYPE.MS) {
+      if (!this.state.submittedAnswer) answerToSubmit = [answer]
+      else {
+        const i = this.state.submittedAnswer.indexOf(answer)
+        if (i > -1) {
+          const arrayWithoutAnswer = this.state.submittedAnswer
+          arrayWithoutAnswer.splice(i, 1)
+          answerToSubmit = arrayWithoutAnswer
+        } else answerToSubmit = this.state.submittedAnswer.concat([answer])
+      }
+    }
+
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: answerToSubmit
+    })
+  }
+
+  /**
+   * send response in state to server. Calls {@link module:responses~"responses.add" responses.add}
+   */
+  submitResponse () {
+    if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
+    // Can't choose responses after submission
+    const answer = this.state.submittedAnswer
+    this.readonly = true
+
+    this.setState({
+      btnDisabled: true,
+      isSubmitted: true
+    })
+
+    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
+    const oldAnswer = myResponses.length > 0 ? myResponses[0] : null
+
+    const l = this.props.question.sessionOptions.attempts.length
+    const attempt = this.props.question.sessionOptions.attempts[l - 1]
+
+    const answerObject = {
+      studentUserId: Meteor.userId(),
+      answer: answer,
+      attempt: attempt.number,
+      questionId: this.props.question._id
+    }
+
+    /* // no longer needed cause can only submit once with button
+    // remove or add options to MS response
+    if (this.props.question.type === QUESTION_TYPE.MS) {
+      if (oldAnswer &amp;&amp; oldAnswer.answer.length > 0) {
+        const index = oldAnswer.answer.indexOf(answer)
+        if (index > -1) { // if old answer array has new answer
+          oldAnswer.answer.splice(index, 1) // remove new answer
+          answerObject.answer = oldAnswer.answer
+        } else answerObject.answer = oldAnswer.answer.concat([answer]) // add new answer to old answer array
+      } else answerObject.answer = [answer] // create new answer array
+      answerObject.answer = _(answerObject.answer).uniq() // in theory, this is not needed
+    }
+    */
+
+    Meteor.call('responses.add', answerObject, (err, answerId) => {
+      if (err) return alertify.error('Error: ' + err.error)
+      alertify.success('Answer Submitted')
+    })
+  }
+
+  /**
+   * calculate percentages for specific answer key
+   * @param {String} answer
+   */
+  calculateStats (answer) {
+    const stats = this.props.distribution
+    const total = this.props.totalAnswered
+    let answerStat = 0
+
+    stats.forEach((a) => {
+      if (a) {
+        if (a.answer === answer &amp;&amp; a.counts) {
+          answerStat = Math.round(a.counts[0].count / total * 100, 2)
+        }
+      }
+    })
+
+    return answerStat
+  }
+
+  /**
+   * generate dom elements for a wysiwyg answer option
+   * @param {String} answer - answer key
+   * @param {String} content - HTML content
+   * @param {String} correct - whether of not this option is correct
+   */
+  wysiwygContent (answer, content, correct) {
+    let classContent = 'ql-wysiwyg-content'
+
+    if (!this.props.noStats &amp;&amp; this.props.question.sessionOptions.correct) {
+      classContent = correct ? 'ql-wysiwyg-content correct-color' : 'ql-wysiwyg-content incorrect-color'
+    }
+
+    return (
+      &lt;div className={classContent} key={'answer_' + answer} >
+        { WysiwygHelper.htmlDiv(content) }
+      &lt;/div>)
+  }
+
+  /**
+   * generate dom elements for plain text answer option
+   * @param {String} typeStr - 2 char string representing question type
+   * @param {String} answer - answer key
+   * @param {String} content - HTML content
+   * @param {String} correct - whether of not this option is correct
+   */
+  commonContent (typeStr, answer, content, correct) {
+    let classContent = ''
+    if (!this.props.noStats &amp;&amp; this.props.question.sessionOptions.correct) {
+      classContent = correct ? 'correct-color' : 'incorrect-color'
+    }
+    return (
+      &lt;div className={'ql-' + typeStr + '-content'} key={'answer_' + answer}>
+        &lt;span className={classContent}>{content}&lt;/span>
+      &lt;/div>
+    )
+  }
+
+  renderOptionQuestion (classSuffixStr, q) {
+    return (
+      q.options.map((a) => {
+        let content
+        let stats = 0
+        let statClass = 'stat-bar'
+        let widthStyle = { width: '0%' }
+
+        if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
+        else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
+
+        if (!this.props.noStats &amp;&amp; this.props.question.sessionOptions.stats) {
+          stats = this.calculateStats(a.answer)
+
+          if (stats > 0) {
+            statClass += ' show-stats'
+
+            if (this.props.question.sessionOptions.correct &amp;&amp; a.correct) {
+              statClass += ' show-stats-correct'
+            } else if (this.props.question.sessionOptions.correct &amp;&amp; !(a.correct)) {
+              statClass += ' show-stats-incorrect'
+            }
+          }
+
+          widthStyle = { width: stats + '%' }
+        }
+
+        return (
+          &lt;div key={'question_' + a.answer}
+            onClick={() => this.setAnswer(a.answer)}
+            className={'ql-answer-content-container ' +
+              (this.state.submittedAnswer === a.answer || this.state.submittedAnswer.indexOf(a.answer) > -1
+              ? 'q-submitted' : '')} >
+            &lt;div className={statClass} style={widthStyle}>&amp;nbsp;&lt;/div>
+            &lt;div className='answer-container'>
+              { classSuffixStr === 'ms' ? &lt;input type='checkbox' className='ql-checkbox' /> : '' }
+              { classSuffixStr === 'mc' || classSuffixStr === 'ms'
+                ? &lt;span className='ql-mc'>{a.answer}.&lt;/span> : '' }
+              {content}
+            &lt;/div>
+          &lt;/div>)
+      })
+    )
+  }
+
+  renderShortAnswer (q) {
+    return (
+      &lt;div className='ql-short-answer'>
+        &lt;textarea
+          disabled={this.readonly}
+          placeholder='Type your answer here'
+          className='form-control'
+          rows='3'
+          onChange={this.setShortAnswer}
+          value={this.state.submittedAnswer} />
+      &lt;/div>
+    )
+  }
+
+  render () {
+    if (this.props.loading) return &lt;div className='ql-subs-loading'>Loading&lt;/div>
+
+    if (!this.props.noStats &amp;&amp; this.props.question.sessionOptions.hidden) return &lt;div className='ql-subs-loading'>Waiting for a Question...&lt;/div>
+
+    const q = this.props.question
+    const type = q.type
+    let content
+
+    switch (type) {
+      case QUESTION_TYPE.MC:
+        content = this.renderOptionQuestion('mc', q)
+        break
+      case QUESTION_TYPE.TF:
+        content = this.renderOptionQuestion('tf', q)
+        break
+      case QUESTION_TYPE.SA:
+        content = this.renderShortAnswer(q)
+        break
+      case QUESTION_TYPE.MS:
+        content = this.renderOptionQuestion('ms', q)
+        break
+    }
+
+    return (
+      &lt;div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
+
+        &lt;div className='ql-question-content'>
+          {WysiwygHelper.htmlDiv(q.content)}
+        &lt;/div>
+
+        { this.disallowResponses() &amp;&amp; (!this.props.noStats) ? &lt;div className='ql-subs-loading'>Answering Disabled&lt;/div> : '' }
+
+        &lt;div className='ql-answers'>
+          {content}
+        &lt;/div>
+
+        &lt;div className='bottom-buttons'>
+          { !this.props.readonly
+            ? &lt;button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+              {this.state.isSubmitted ? 'Submitted' : 'Submit'}
+            &lt;/button>
+          : ''}
+        &lt;/div>
+
+      &lt;/div>
+    )
+  } // end render
+}
+
+export const QuestionDisplay = createContainer((props) => {
+  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
+  const data = []
+  let total
+  let responses
+
+  const question = props.question
+  if (!props.noStats) {
+    const l = question.sessionOptions.attempts.length
+
+    responses = Responses.find({ questionId: question._id, attempt: l }).fetch()
+
+    const validOptions = _(question.options).pluck('answer')
+    total = responses.length
+
+    let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
+
+    options.map((a) => {
+      a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
+      delete a.values
+    })
+    const keyedOptions = _(options).indexBy('answer')
+
+    // split up multi-select responses
+    const arrayKeys = _(options).chain().pluck('answer').filter((k) => k instanceof Array).value()
+    arrayKeys.forEach((k) => {
+      k.forEach((j) => {
+        keyedOptions[j] = _({}).extend(keyedOptions[k])
+        keyedOptions[j].answer = j
+      })
+    })
+
+    validOptions.forEach((key) => {
+      data.push(keyedOptions[key])
+    })
+  }
+
+  return {
+    question: question,
+    readonly: props.readonly,
+    totalAnswered: total,
+    distribution: data,
+    responses: responses,
+    loading: !handle.ready()
+  }
+}, _QuestionDisplay)
+
+QuestionDisplay.propTypes = {
+  question: PropTypes.object.isRequired,
+  readonly: PropTypes.bool,
+  noStats: PropTypes.bool,
+  prof: PropTypes.bool
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a></li><li><a href="module-questions.html">questions</a></li><li><a href="module-responses.html">responses</a></li><li><a href="module-sessions.html">sessions</a></li><li><a href="module-users.html">users</a></li></ul><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a></li><li><a href="-_ShortAnswerList.html">_ShortAnswerList</a></li><li><a href="-_StudentCourseComponent.html">_StudentCourseComponent</a></li><li><a href="-_StudentQuestionListItem.html">_StudentQuestionListItem</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="Editor.html">Editor</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="ProfileCard.html">ProfileCard</a></li><li><a href="QuestionEditItem.html">QuestionEditItem</a></li><li><a href="QuestionListItem.html">QuestionListItem</a></li><li><a href="QuestionSidebar.html">QuestionSidebar</a></li><li><a href="RadioPrompt.html">RadioPrompt</a></li><li><a href="SessionDetails.html">SessionDetails</a></li><li><a href="SessionListItem.html">SessionListItem</a></li><li><a href="StudentListItem.html">StudentListItem</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildNav">buildNav</a></li><li><a href="global.html#publish">publish</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 31 2017 21:21:21 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

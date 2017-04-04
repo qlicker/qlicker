@@ -2,7 +2,7 @@
   "name": "qlicker",
   "private": true,
   "scripts": {
-    "doc": "jsdoc imports/* docs/README.md -d docs/jsdocs -t node_modules/docdash/",
+    "doc": "jsdoc imports/* docs/README.md -d docs/.jsdocs -t node_modules/docdash/",
     "start": "meteor run",
     "lint": "node_modules/.bin/standard",
     "fix": "node_modules/.bin/standard --fix",

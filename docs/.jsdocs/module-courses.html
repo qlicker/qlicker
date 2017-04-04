@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>courses - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a><ul class='methods'><li data-type='method'><a href="-_QuestionDisplay.html#calculateStats">calculateStats</a></li><li data-type='method'><a href="-_QuestionDisplay.html#commonContent">commonContent</a></li><li data-type='method'><a href="-_QuestionDisplay.html#disallowResponses">disallowResponses</a></li><li data-type='method'><a href="-_QuestionDisplay.html#resetState">resetState</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setAnswer">setAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setShortAnswer">setShortAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#submitResponse">submitResponse</a></li><li data-type='method'><a href="-_QuestionDisplay.html#wysiwygContent">wysiwygContent</a></li></ul></li><li><a href="-_ShortAnswerList.html">_ShortAnswerList</a></li><li><a href="-_StudentCourseComponent.html">_StudentCourseComponent</a></li><li><a href="-_StudentQuestionListItem.html">_StudentQuestionListItem</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="Editor.html">Editor</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="ProfileCard.html">ProfileCard</a></li><li><a href="QuestionEditItem.html">QuestionEditItem</a><ul class='methods'><li data-type='method'><a href="QuestionEditItem.html#addAnswer">addAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#addTag">addTag</a></li><li data-type='method'><a href="QuestionEditItem.html#answerEditor">answerEditor</a></li><li data-type='method'><a href="QuestionEditItem.html#changeType">changeType</a></li><li data-type='method'><a href="QuestionEditItem.html#markCorrect">markCorrect</a></li><li data-type='method'><a href="QuestionEditItem.html#onEditorStateChange">onEditorStateChange</a></li><li data-type='method'><a href="QuestionEditItem.html#removeAnswer">removeAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#saveQuestion">saveQuestion</a></li><li data-type='method'><a href="QuestionEditItem.html#setOptionState">setOptionState</a></li><li data-type='method'><a href="QuestionEditItem.html#uploadImageCallBack">uploadImageCallBack</a></li></ul></li><li><a href="QuestionListItem.html">QuestionListItem</a></li><li><a href="QuestionSidebar.html">QuestionSidebar</a><ul class='methods'><li data-type='method'><a href="QuestionSidebar.html#done">done</a></li><li data-type='method'><a href="QuestionSidebar.html#filterPool">filterPool</a></li><li data-type='method'><a href="QuestionSidebar.html#setQuestion">setQuestion</a></li><li data-type='method'><a href="QuestionSidebar.html#setSearchString">setSearchString</a></li><li data-type='method'><a href="QuestionSidebar.html#setTags">setTags</a></li><li data-type='method'><a href="QuestionSidebar.html#setType">setType</a></li></ul></li><li><a href="RadioPrompt.html">RadioPrompt</a></li><li><a href="SessionDetails.html">SessionDetails</a><ul class='methods'><li data-type='method'><a href="SessionDetails.html#handleSubmit">handleSubmit</a></li><li data-type='method'><a href="SessionDetails.html#setValue">setValue</a></li></ul></li><li><a href="SessionListItem.html">SessionListItem</a></li><li><a href="StudentListItem.html">StudentListItem</a></li></ul><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a><ul class='methods'><li data-type='method'><a href="module-courses.html#~%2522courses.addStudent%2522">"courses.addStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.checkAndEnroll%2522">"courses.checkAndEnroll"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.createSession%2522">"courses.createSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.delete%2522">"courses.delete"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.deleteSession%2522">"courses.deleteSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.edit%2522">"courses.edit"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.getCourseCodeTag%2522">"courses.getCourseCodeTag"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.insert%2522">"courses.insert"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.regenerateCode%2522">"courses.regenerateCode"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.removeStudent%2522">"courses.removeStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.setActive%2522">"courses.setActive"</a></li></ul></li><li><a href="module-questions.html">questions</a><ul class='methods'><li data-type='method'><a href="module-questions.html#~%2522questions.addTag%2522">"questions.addTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToLibrary%2522">"questions.copyToLibrary"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToSession%2522">"questions.copyToSession"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.delete%2522">"questions.delete"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideCorrect%2522">"questions.hideCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideQuestion%2522">"questions.hideQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideStats%2522">"questions.hideStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.insert%2522">"questions.insert"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.possibleTags%2522">"questions.possibleTags"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.removeTag%2522">"questions.removeTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.setAttemptStatus%2522">"questions.setAttemptStatus"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showCorrect%2522">"questions.showCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showQuestion%2522">"questions.showQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showStats%2522">"questions.showStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.startAttempt%2522">"questions.startAttempt"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.update%2522">"questions.update"</a></li></ul></li><li><a href="module-responses.html">responses</a><ul class='methods'><li data-type='method'><a href="module-responses.html#~%2522responses.add%2522">"responses.add"</a></li><li data-type='method'><a href="module-responses.html#~%2522responses.update%2522">"responses.update"</a></li></ul></li><li><a href="module-sessions.html">sessions</a><ul class='methods'><li data-type='method'><a href="module-sessions.html#~%2522sessions.addQuestion%2522">"sessions.addQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.batchEdit%2522">"sessions.batchEdit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.copy%2522">"sessions.copy"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.delete%2522">"sessions.delete"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.edit%2522">"sessions.edit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.endSession%2522">"sessions.endSession"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.insert%2522">"sessions.insert"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.join%2522">"sessions.join"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.possibleTags%2522">"sessions.possibleTags"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.removeQuestion%2522">"sessions.removeQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.setCurrent%2522">"sessions.setCurrent"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.startSession%2522">"sessions.startSession"</a></li></ul></li><li><a href="module-users.html">users</a><ul class='methods'><li data-type='method'><a href="module-users.html#~%2522users.changeEmail%2522">"users.changeEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRole%2522">"users.changeRole"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRoleByEmail%2522">"users.changeRoleByEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.promote%2522">"users.promote"</a></li><li data-type='method'><a href="module-users.html#~%2522users.sendVerificationEmail%2522">"users.sendVerificationEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.updateProfileImage%2522">"users.updateProfileImage"</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">courses</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Meteor methods for courses object</div>
+        
+
+        
+            
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line111">line 111</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.addStudent%22"><span class="type-signature">(inner) </span>"courses.addStudent"<span class="signature">(courseId, studentUserId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line227">line 227</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    adds a student to course
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>studentUserId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoId</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.checkAndEnroll%22"><span class="type-signature">(inner) </span>"courses.checkAndEnroll"<span class="signature">(enrollmentCode)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line177">line 177</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    verifies validity of code and enrolls student
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>enrollmentCode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.createSession%22"><span class="type-signature">(inner) </span>"courses.createSession"<span class="signature">(courseId, session)</span><span class="type-signature"> &rarr; {MongoId}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line269">line 269</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    inserts a session into the Session collection and adds it to the course
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>session</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Session</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    id new session
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">MongoId</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.delete%22"><span class="type-signature">(inner) </span>"courses.delete"<span class="signature">(courseId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line142">line 142</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    deletes course object Courses mongodb Collection
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.deleteSession%22"><span class="type-signature">(inner) </span>"courses.deleteSession"<span class="signature">(courseId, session)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line283">line 283</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    deletes the session from collection and removes link from course
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>session</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Session</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.edit%22"><span class="type-signature">(inner) </span>"courses.edit"<span class="signature">(course)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line201">line 201</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    edits and updates all valid attributes of the course
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>course</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Course</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.getCourseCodeTag%22"><span class="type-signature">(inner) </span>"courses.getCourseCodeTag"<span class="signature">(courseId)</span><span class="type-signature"> &rarr; {String|String}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line296">line 296</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    get tag object for a specific courseid for react multi select component
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    tag.value
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    tag.label
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.insert%22"><span class="type-signature">(inner) </span>"courses.insert"<span class="signature">(course)</span><span class="type-signature"> &rarr; {MongoId}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line122">line 122</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    insert new course object into Courses mongodb Collection
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>course</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Course</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">course object without id</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    id of new course
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">MongoId</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.regenerateCode%22"><span class="type-signature">(inner) </span>"courses.regenerateCode"<span class="signature">(courseId)</span><span class="type-signature"> &rarr; {Course}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line160">line 160</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    generates and sets a new enrollment code for the course
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the course in question
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Course</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.removeStudent%22"><span class="type-signature">(inner) </span>"courses.removeStudent"<span class="signature">(courseId, studentUserId)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line247">line 247</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    removes a student to course
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>studentUserId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoId</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="~%22courses.setActive%22"><span class="type-signature">(inner) </span>"courses.setActive"<span class="signature">(courseId, active)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_courses.js.html">api/courses.js</a>, <a href="api_courses.js.html#line306">line 306</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    set inactive attribute based on bool
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>courseId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MongoID</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>active</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Apr 03 2017 20:54:43 GMT-0400 (EDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
