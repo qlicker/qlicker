@@ -6,7 +6,7 @@ Open Source Clicker - CISC498
 [![GNU GPL v3](https://img.shields.io/badge/license-GNU%20GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
-[![JSDocs](https://img.shields.io/badge/Documentation-JSDocs-green.svg)](https://rawgit.com/etenoch/qlicker/master/docs/jsdocs/index.html)
+[![JSDocs](https://img.shields.io/badge/Documentation-JSDocs-green.svg)](https://rawgit.com/etenoch/qlicker/master/docs/.jsdocs/index.html)
 [![Documentation](https://img.shields.io/badge/Documentation-User%20Manual-green.svg)](https://github.com/etenoch/qlicker/tree/master/docs)
 
 

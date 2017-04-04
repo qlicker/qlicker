@@ -5,14 +5,14 @@ Documentation and User Manual
 Qlicker Repo: [https://github.com/etenoch/qlicker](https://github.com/etenoch/qlicker)
 
 ## JSDocs
-All meteor methods and React components are documented using JSDoc.
+All meteor methods and React components are documented using JSDoc. Generated JSDocs (HTML files) are stored in `docs/.jsdocs`
 You can view the HTML version hosted at: 
-[https://rawgit.com/etenoch/qlicker/master/docs/jsdocs/index.html](https://rawgit.com/etenoch/qlicker/master/docs/jsdocs/index.html)
+[https://rawgit.com/etenoch/qlicker/master/docs/.jsdocs/index.html](https://rawgit.com/etenoch/qlicker/master/docs/.jsdocs/index.html)
 
 ### To update the JSDocs
 ```
 npm install jsdoc -g # install jsdoc
-jsdoc imports/* docs/README.md -d docs/jsdocs # generate jsdoc and put in this folder
+npm run doc
 ```
 
 ## Documentation
