@@ -14,10 +14,12 @@ export class _QuestionResultsClassList extends Component {
 
   render () {
     return (<div className='ql-student-results-list'>
-      <table>
+      <table className='ql-student-results-table'>
         <thead>
+          <tr>
           <th>Student</th>
           <th>Participation</th>
+          </tr>
         </thead>
         <tbody>
           {
