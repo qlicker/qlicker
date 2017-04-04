@@ -1,5 +1,7 @@
 # Application Architecture Overview
 
+Qlicker is a Meteor application using React as the frontend templating framework.
+
 ```
 QLICKER
 ├── app-test (scripts for meteor full app testing, out of date)

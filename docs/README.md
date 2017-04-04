@@ -15,19 +15,19 @@ npm install jsdoc -g # install jsdoc
 jsdoc imports/* docs/README.md -d docs/jsdocs # generate jsdoc and put in this folder
 ```
 
-## Other Documentation
+## Documentation
 All other documentation including user manuals are in the markdown files below.
 ### Qlicker User Manual
-* [Student User Manual](/etenoch/qlicker/blob/master/docs/UserManual-Student.md)
-* [Professor User Manual](/etenoch/qlicker/blob/master/docs/UserManual-Professor.md)
-* [Admin User Manual](/etenoch/qlicker/blob/master/docs/UserManual-Admin.md)
+* [Student User Manual](https://github.com/etenoch/qlicker/blob/master/docs/UserManual-Student.md)
+* [Professor User Manual](https://github.com/etenoch/qlicker/blob/master/docs/UserManual-Professor.md)
+* [Admin User Manual](https://github.com/etenoch/qlicker/blob/master/docs/UserManual-Admin.md)
 
 ### Developing Qlicker
-* [Architecture Overview](/etenoch/qlicker/blob/master/docs/Development-Architecture-Overview.md)
-* [Database and Data Structure](/etenoch/qlicker/blob/master/docs/Development-Data.md)
-* [Development Guide](/etenoch/qlicker/blob/master/docs/Development-Guide.md)
-* [Meteor Method API List](/etenoch/qlicker/blob/master/docs/Development-Meteor-Methods.md)
+* [Architecture Overview](https://github.com/etenoch/qlicker/blob/master/docs/Development-Architecture-Overview.md)
+* [Database and Data Structure](https://github.com/etenoch/qlicker/blob/master/docs/Development-Data.md)
+* [Development Guide](https://github.com/etenoch/qlicker/blob/master/docs/Development-Guide.md)
+* [Meteor Method API List](https://github.com/etenoch/qlicker/blob/master/docs/Development-Meteor-Methods.md)
 
 ### Deploying Qlicker
-* [Deploying Manually](/etenoch/qlicker/blob/master/docs/Deploying.md)
-* [Docker Deployment](/etenoch/qlicker/blob/master/docs/Docker.md)
+* [Deploying Manually](https://github.com/etenoch/qlicker/blob/master/docs/Deploying.md)
+* [Docker Deployment](https://github.com/etenoch/qlicker/blob/master/docs/Docker.md)
