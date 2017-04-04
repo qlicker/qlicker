@@ -83,6 +83,15 @@ body > .container {
  }
 }
 
+@media (max-width: 800px) {
+  #navbar {
+    li > a.bootstrap-overrides {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+}
+
 .bootstrap-overrides.navbar-brand {
   background-color: $blue;
   color: #fff;
