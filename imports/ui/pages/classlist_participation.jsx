@@ -53,15 +53,26 @@ class _ClasslistParticipation extends Component {
     console.log(this.props.students, this.props.responses)
     return (
       <div className='container ql-results-page'>
-        <h2>Class list participation</h2>
+
+      <div class='col-md-4'>
+
+        <div className='ql-card'>
+
+        <div className='ql-header-bar'>
+          <h2>Class Participation List</h2>
+        </div>
+
+        <div className='ql-card-content'>
+
         <a className='btn btn-default' href={Router.routes['course.results.sessions'].path({ _id: this.props.course._id })}>Participation by Session</a>
         <br />
-        <h3>Percentanges represent questions answered (not correctness)</h3>
-        <table className='table table-bordered'>
+        <table className='table table-bordered table-padding'>
+        <thead>
           <tr>
             <th>Last, First</th>
             { sessionList.map((sId) => <th>{this.props.sessions[sId].name}</th>) }
           </tr>
+          </thead>
           <tbody>
             {
               this.props.students.map((s) => {
@@ -75,6 +86,13 @@ class _ClasslistParticipation extends Component {
             }
           </tbody>
         </table>
+
+      </div>
+
+      </div>
+
+      </div>
+
       </div>
     )
   }
