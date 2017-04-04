@@ -28,7 +28,13 @@ class _Results extends Component {
     const sessionList = this.props.course.sessions || []
     return (
       <div className='container ql-results-page'>
-        <h2>Student Response Results: {this.props.course.name}</h2>
+
+      <div className='ql-card'>
+        <div className='ql-header-bar'>
+           <h4>Student Response Results: {this.props.course.name}</h4>
+        </div>
+        <div className='ql-card-content'>
+
         {
           sessionList.map(sessionId => {
             const s = this.props.sessions[sessionId]
@@ -38,6 +44,9 @@ class _Results extends Component {
             </div>
           })
         }
+
+        </div>
+      </div>
       </div>
     )
   }

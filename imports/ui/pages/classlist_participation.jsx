@@ -52,30 +52,45 @@ class _ClasslistParticipation extends Component {
 
     console.log(this.props.students, this.props.responses)
     return (
-      <div className='container ql-results-page'>
-        <h2>Class list participation</h2>
-        <a className='btn btn-default' href={Router.routes['course.results.sessions'].path({ _id: this.props.course._id })}>Participation by Session</a>
-        <br />
-        <h3>Percentanges represent questions answered (not correctness)</h3>
-        <table className='table table-bordered'>
-          <tr>
-            <th>Last, First</th>
-            { sessionList.map((sId) => <th>{this.props.sessions[sId].name}</th>) }
-          </tr>
-          <tbody>
-            {
-              this.props.students.map((s) => {
-                return (
-                  <tr>
-                    <td>{s.getName()}</td>
-                    { sessionList.map((sId) => <td>{ (this.calculatePercentage(sId, s._id) * 100).toFixed(0) }%</td>) }
-                  </tr>
-                )
-              })
-            }
-          </tbody>
-        </table>
+
+<div className='container ql-results-page'>
+   <div className='ql-card'>
+
+      <div className='ql-header-bar'>
+         <h4>Class Participation List</h4>
       </div>
+
+      <div className='ql-card-content'>
+         <a className='btn btn-default session-btn-padding' href={Router.routes['course.results.sessions'].path({ _id: this.props.course._id })}>Participation by Session</a>
+         <table className='table table-bordered'>
+            <thead>
+               <tr>
+                  <th>Last, First</th>
+                  { sessionList.map((sId) => 
+                  <th>{this.props.sessions[sId].name}</th>
+                  ) }
+               </tr>
+            </thead>
+            <tbody>
+               {
+               this.props.students.map((s) => {
+               return (
+               <tr>
+                  <td>{s.getName()}</td>
+                  { sessionList.map((sId) => 
+                  <td>{ (this.calculatePercentage(sId, s._id) * 100).toFixed(0) }%</td>
+                  ) }
+               </tr>
+               )
+               })
+               }
+            </tbody>
+         </table>
+      </div>
+
+   </div>
+</div>
+
     )
   }
 
