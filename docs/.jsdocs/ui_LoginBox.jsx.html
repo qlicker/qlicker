@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ui/LoginBox.jsx - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_AnswerDistribution.html">_AnswerDistribution</a></li><li><a href="-_QuestionDisplay.html">_QuestionDisplay</a><ul class='methods'><li data-type='method'><a href="-_QuestionDisplay.html#calculateStats">calculateStats</a></li><li data-type='method'><a href="-_QuestionDisplay.html#commonContent">commonContent</a></li><li data-type='method'><a href="-_QuestionDisplay.html#disallowResponses">disallowResponses</a></li><li data-type='method'><a href="-_QuestionDisplay.html#resetState">resetState</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setAnswer">setAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#setShortAnswer">setShortAnswer</a></li><li data-type='method'><a href="-_QuestionDisplay.html#submitResponse">submitResponse</a></li><li data-type='method'><a href="-_QuestionDisplay.html#wysiwygContent">wysiwygContent</a></li></ul></li><li><a href="-_ShortAnswerList.html">_ShortAnswerList</a></li><li><a href="-_StudentCourseComponent.html">_StudentCourseComponent</a></li><li><a href="-_StudentQuestionListItem.html">_StudentQuestionListItem</a></li><li><a href="ControlledForm.html">ControlledForm</a></li><li><a href="CourseListItem.html">CourseListItem</a></li><li><a href="Editor.html">Editor</a></li><li><a href="ListItem.html">ListItem</a></li><li><a href="LoginBox.html">LoginBox</a></li><li><a href="LogoutButton.html">LogoutButton</a></li><li><a href="ProfileCard.html">ProfileCard</a></li><li><a href="QuestionEditItem.html">QuestionEditItem</a><ul class='methods'><li data-type='method'><a href="QuestionEditItem.html#addAnswer">addAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#addTag">addTag</a></li><li data-type='method'><a href="QuestionEditItem.html#answerEditor">answerEditor</a></li><li data-type='method'><a href="QuestionEditItem.html#changeType">changeType</a></li><li data-type='method'><a href="QuestionEditItem.html#markCorrect">markCorrect</a></li><li data-type='method'><a href="QuestionEditItem.html#onEditorStateChange">onEditorStateChange</a></li><li data-type='method'><a href="QuestionEditItem.html#removeAnswer">removeAnswer</a></li><li data-type='method'><a href="QuestionEditItem.html#saveQuestion">saveQuestion</a></li><li data-type='method'><a href="QuestionEditItem.html#setOptionState">setOptionState</a></li><li data-type='method'><a href="QuestionEditItem.html#uploadImageCallBack">uploadImageCallBack</a></li></ul></li><li><a href="QuestionListItem.html">QuestionListItem</a></li><li><a href="QuestionSidebar.html">QuestionSidebar</a><ul class='methods'><li data-type='method'><a href="QuestionSidebar.html#done">done</a></li><li data-type='method'><a href="QuestionSidebar.html#filterPool">filterPool</a></li><li data-type='method'><a href="QuestionSidebar.html#setQuestion">setQuestion</a></li><li data-type='method'><a href="QuestionSidebar.html#setSearchString">setSearchString</a></li><li data-type='method'><a href="QuestionSidebar.html#setTags">setTags</a></li><li data-type='method'><a href="QuestionSidebar.html#setType">setType</a></li></ul></li><li><a href="RadioPrompt.html">RadioPrompt</a></li><li><a href="SessionDetails.html">SessionDetails</a><ul class='methods'><li data-type='method'><a href="SessionDetails.html#handleSubmit">handleSubmit</a></li><li data-type='method'><a href="SessionDetails.html#setValue">setValue</a></li></ul></li><li><a href="SessionListItem.html">SessionListItem</a></li><li><a href="StudentListItem.html">StudentListItem</a></li></ul><h3>Modules</h3><ul><li><a href="module-courses.html">courses</a><ul class='methods'><li data-type='method'><a href="module-courses.html#~%2522courses.addStudent%2522">"courses.addStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.checkAndEnroll%2522">"courses.checkAndEnroll"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.createSession%2522">"courses.createSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.delete%2522">"courses.delete"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.deleteSession%2522">"courses.deleteSession"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.edit%2522">"courses.edit"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.getCourseCodeTag%2522">"courses.getCourseCodeTag"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.insert%2522">"courses.insert"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.regenerateCode%2522">"courses.regenerateCode"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.removeStudent%2522">"courses.removeStudent"</a></li><li data-type='method'><a href="module-courses.html#~%2522courses.setActive%2522">"courses.setActive"</a></li></ul></li><li><a href="module-questions.html">questions</a><ul class='methods'><li data-type='method'><a href="module-questions.html#~%2522questions.addTag%2522">"questions.addTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToLibrary%2522">"questions.copyToLibrary"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.copyToSession%2522">"questions.copyToSession"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.delete%2522">"questions.delete"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideCorrect%2522">"questions.hideCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideQuestion%2522">"questions.hideQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.hideStats%2522">"questions.hideStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.insert%2522">"questions.insert"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.possibleTags%2522">"questions.possibleTags"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.removeTag%2522">"questions.removeTag"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.setAttemptStatus%2522">"questions.setAttemptStatus"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showCorrect%2522">"questions.showCorrect"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showQuestion%2522">"questions.showQuestion"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.showStats%2522">"questions.showStats"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.startAttempt%2522">"questions.startAttempt"</a></li><li data-type='method'><a href="module-questions.html#~%2522questions.update%2522">"questions.update"</a></li></ul></li><li><a href="module-responses.html">responses</a><ul class='methods'><li data-type='method'><a href="module-responses.html#~%2522responses.add%2522">"responses.add"</a></li><li data-type='method'><a href="module-responses.html#~%2522responses.update%2522">"responses.update"</a></li></ul></li><li><a href="module-sessions.html">sessions</a><ul class='methods'><li data-type='method'><a href="module-sessions.html#~%2522sessions.addQuestion%2522">"sessions.addQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.batchEdit%2522">"sessions.batchEdit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.copy%2522">"sessions.copy"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.delete%2522">"sessions.delete"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.edit%2522">"sessions.edit"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.endSession%2522">"sessions.endSession"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.insert%2522">"sessions.insert"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.join%2522">"sessions.join"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.possibleTags%2522">"sessions.possibleTags"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.removeQuestion%2522">"sessions.removeQuestion"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.setCurrent%2522">"sessions.setCurrent"</a></li><li data-type='method'><a href="module-sessions.html#~%2522sessions.startSession%2522">"sessions.startSession"</a></li></ul></li><li><a href="module-users.html">users</a><ul class='methods'><li data-type='method'><a href="module-users.html#~%2522users.changeEmail%2522">"users.changeEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRole%2522">"users.changeRole"</a></li><li data-type='method'><a href="module-users.html#~%2522users.changeRoleByEmail%2522">"users.changeRoleByEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.promote%2522">"users.promote"</a></li><li data-type='method'><a href="module-users.html#~%2522users.sendVerificationEmail%2522">"users.sendVerificationEmail"</a></li><li data-type='method'><a href="module-users.html#~%2522users.updateProfileImage%2522">"users.updateProfileImage"</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">ui/LoginBox.jsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// QLICKER
+// Author: Enoch T &lt;me@enocht.am>
+//
+// LoginBox.jsx: React component for login and signup,
+// calls account creation method and redirects after login
+
+import React, { Component } from 'react'
+import { _ } from 'underscore'
+import { ProfileImages } from '../api/users'
+
+export const DEFAULT_STATE = {
+  login: true,
+  email: '',
+  password: '',
+  password_verify: '',
+  form_error: false,
+  submit_error: false,
+  firstname: '',
+  lastname: ''
+}
+
+/**
+ * React component (controlled) with login and signup form. Calls Accounts.createUser and Meteor.loginWithPassword
+ * @prop {Question} question - question object
+ */
+export class LoginBox extends Component {
+
+  constructor (props) {
+    super(props)
+    this.state = _.extend({}, DEFAULT_STATE)
+
+    this.setValue = this.setValue.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.changeForm = this.changeForm.bind(this)
+    this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
+  }
+
+  sendVerificationEmail () {
+    Meteor.call('users.sendVerificationEmail', (e) => {
+      if (e) alertify.error('Error sending email')
+      else this.setState({ showResendLink: false })
+    })
+  }
+
+  handleSubmit (e) {
+    e.preventDefault()
+
+    if (this.state.login) {
+      Meteor.loginWithPassword(this.state.email, this.state.password, function (error) {
+        if (error) {
+          console.log(error)
+          this.setState({ submit_error: true })
+        } else this.navigateAfterLogin(Meteor.user())
+      }.bind(this))
+    } else {
+      // signup
+      if (this.state.password !== this.state.password_verify) {
+        this.setState({ form_error: true })
+      } else {
+        Accounts.createUser({
+          email: this.state.email,
+          password: this.state.password,
+          profile: {
+            firstname: this.state.firstname,
+            lastname: this.state.lastname,
+            profileImage: this.state.profileImage,
+            roles: ['student']
+          }
+        }, function (error) {
+          if (error) {
+            console.log(error)
+            this.setState({ submit_error: true })
+          } else {
+            this.sendVerificationEmail()
+            this.navigateAfterLogin(Meteor.user())
+          }
+        }.bind(this))
+      }
+    } // end else
+  } // end handleSubmit
+
+  navigateAfterLogin (user) {
+    if (user.hasRole('admin')) Router.go('admin')
+    if (user.hasRole('professor')) Router.go('professor')
+    if (user.hasRole('student')) Router.go('student')
+  }
+
+  // input bounded methods
+  changeForm (e) {
+    e.preventDefault()
+    this.setState({ login: !this.state.login })
+  }
+
+  setValue (e) {
+    let stateEdits = {}
+    stateEdits[e.target.dataset.name] = e.target.value
+    this.setState(stateEdits)
+  }
+
+  componentDidUpdate () {
+    if (this.state.login) return
+    if (Meteor.isTest) return
+    new Dropzone('#profile-image-uploader', {
+      url: '/some/random/url',
+      acceptedFiles: 'image/jpeg,image/png,image/gif',
+      accept: (file, done) => {
+        ProfileImages.insert(file, (err, fileObj) => {
+          if (err) {
+            alertify.error('Error: ' + JSON.stringify(err))
+          } else {
+            done()
+            const imageId = fileObj._id
+            this.setState({ profileImage: imageId })
+          }
+        })
+      }
+    })
+  }
+
+  render () {
+    const switchFormString = this.state.login ? 'Create an Account' : 'Login'
+    const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
+    const topMessage = this.state.login ? 'Login to Qlicker' : 'Register for Qlicker'
+    const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'
+    return (
+      &lt;form className='ql-login-box ql-card' onSubmit={this.handleSubmit}>
+        &lt;div className='header-container ql-header-bar'>
+          &lt;h4 className='header'>{topMessage}&lt;/h4>
+        &lt;/div>
+        &lt;div className='ql-card-content inputs-container'>
+
+          { !this.state.login
+            ? (
+              &lt;div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
+                &lt;div className='dz-default dz-message'>
+                  &lt;span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                  Upload profile picture
+                &lt;/div>
+              &lt;/div>)
+            : '' }
+
+          { !this.state.login
+            ? &lt;div className='input-group'>
+              &lt;input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
+              &lt;input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+            &lt;/div> : '' }
+
+          &lt;input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' />&lt;br />
+
+          &lt;input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' />&lt;br />
+          { !this.state.login ? &lt;div>&lt;input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' />&lt;br />&lt;/div> : ''}
+
+          { this.state.form_error ? &lt;div className='ql-login-box-error-msg'>Please enter a valid email and password&lt;/div> : ''}
+          { this.state.submit_error ? &lt;div className='ql-login-box-error-msg'>Please try again&lt;/div> : ''}
+          &lt;div className='spacer1'>&amp;nbsp;&lt;/div>
+          &lt;input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
+          &lt;div className='bottom-account-message'>{haveAccountMessage}&lt;/div>
+          &lt;button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}&lt;/button>
+        &lt;/div>
+      &lt;/form>
+    )
+  } //  end render
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Apr 03 2017 20:45:35 GMT-0400 (EDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

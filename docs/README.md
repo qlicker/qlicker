@@ -7,7 +7,7 @@ Qlicker Repo: [https://github.com/etenoch/qlicker](https://github.com/etenoch/ql
 ## JSDocs
 All meteor methods and React components are documented using JSDoc.
 You can view the HTML version hosted at: 
-[https://rawgit.com/etenoch/qlicker/master/docs/jsdocs/index.html](https://rawgit.com/etenoch/qlicker/master/docs/jsdocs/index.html)
+[https://rawgit.com/etenoch/qlicker/master/docs/.jsdocs/index.html](https://rawgit.com/etenoch/qlicker/master/docs/.jsdocs/index.html)
 
 ### To update the JSDocs
 ```
