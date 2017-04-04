@@ -40,6 +40,8 @@ export class ResetPasswordModal extends ControlledForm {
       this.props.done()
     }
 
+    if (!this.state.email) return alertify.error('Error: please enter an email')
+
     Accounts.forgotPassword({ email: this.state.email }, (e) => {
       this.done()
       if (e) return alertify.error('Error: couldn\'t send password reset email')
@@ -49,9 +51,9 @@ export class ResetPasswordModal extends ControlledForm {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-newemail container' onClick={this.preventPropagation}>
-        <h2>Reset Password</h2>
-        <form ref='requestPasswordResetForm' onSubmit={this.handleSubmit}>
+      <div className='ql-modal ql-modal-newemail ql-card' onClick={this.preventPropagation}>
+        <div className='ql-modal-header ql-header-bar'><h3>Reset Password</h3></div>
+        <form ref='requestPasswordResetForm' className='ql-card-content' onSubmit={this.handleSubmit}>
           <label>Email Address: </label>
           <input type='email' className='form-control' data-name='email' onChange={this.setValue} /><br />
 
@@ -65,5 +67,4 @@ export class ResetPasswordModal extends ControlledForm {
   } //  end render
 
 } // end ResetPasswordModal
-
 

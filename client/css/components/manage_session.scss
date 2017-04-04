@@ -11,6 +11,7 @@
   flex-direction: row;
   align-items: center;
   z-index: 99;
+  flex-flow: row wrap;
 
   .divider {
     border-left: 1px solid #d7d7d7;
@@ -322,6 +323,41 @@
 
     .CalendarDay--selected-start, .CalendarDay--selected-end, .CalendarDay--selected {
       background: $blue;
+    }
+  }
+
+  @media (max-width: 518px) {
+
+
+    .ql-session-toolbar, .ql-question-toolbar {
+      height: 150px;
+    }
+    .ql-session-toolbar {
+    }
+    .ql-row-container {
+      top: 150px!important;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .ql-row-container {
+      top: 100px!important;
+      .ql-sidebar-container {
+        display: none!important;
+      }
+      .ql-main-content {
+        margin-left: 0px!important;
+      }
+    }
+
+    .ql-session-toolbar, .ql-question-toolbar {
+      height: 100px;
+    }
+    .ql-session-toolbar {
+
+    }
+    .ql-question-toolbar {
+      top: 100px;
     }
   }
 
