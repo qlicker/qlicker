@@ -25,6 +25,7 @@
     "draftjs-to-html": "^0.6.0",
     "dropzone": "^4.3.0",
     "eslint": "^3.11.1",
+    "fixed-data-table": "^0.6.3",
     "immutable": "^3.8.1",
     "jquery": "^2.2.0",
     "jshint": "^2.9.4",

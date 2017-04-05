@@ -6,6 +6,8 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
+import { Table, Column, Cell } from 'fixed-data-table'
+
 import { _ } from 'underscore'
 import $ from 'jquery'
 import dl from 'datalib'
@@ -50,46 +52,55 @@ class _ClasslistParticipation extends Component {
 
     const sessionList = this.props.course.sessions || []
 
-    console.log(this.props.students, this.props.responses)
+    const getTextWidth = (text) => {
+      let element = document.createElement('canvas')
+      let context = element.getContext('2d')
+      return context.measureText(text).width + 30
+    }
+
+    const NameCell = ({rowIndex}) => <Cell>{ this.props.students[rowIndex].getName() }</Cell>
+    const PercentageCell = ({rowIndex, sId}) => (
+      <Cell>
+        { (this.calculatePercentage(sId, this.props.students[rowIndex]._id) * 100).toFixed(0) }%
+      </Cell>
+    )
+
     return (
 
-<div className='container ql-results-page'>
-   <div className='ql-card'>
+      <div className='container ql-results-page'>
 
-      <div className='ql-header-bar'>
-         <h4>Class Participation List</h4>
+        <div className='ql-card'>
+
+          <div className='ql-header-bar'>
+            <h4><span className='uppercase'>{this.props.course.fullCourseCode()}</span>: Class Participation List</h4>
+          </div>
+
+          <div className='ql-card-content'>
+            <Table
+              rowHeight={35}
+              rowsCount={this.props.students.length}
+              width={window.innerWidth - 110}
+              height={window.innerHeight - 250}
+              headerHeight={50}>
+              <Column
+                header={<Cell>First, Last</Cell>}
+                cell={<NameCell />}
+                fixed
+                width={170}
+              />
+              { sessionList.map((sId) =>
+                <Column
+                  header={<Cell onClick={_ => Router.go('session.results', { sessionId: sId })}><a href='#'>{this.props.sessions[sId].name}</a></Cell>}
+                  cell={<PercentageCell sId={sId} />}
+                  width={getTextWidth(this.props.sessions[sId].name)}
+                />
+              ) }
+
+            </Table>
+          </div>
+
+        </div>
       </div>
-
-      <div className='ql-card-content'>
-         <a className='btn btn-default session-btn-padding' href={Router.routes['course.results.sessions'].path({ _id: this.props.course._id })}>Participation by Session</a>
-         <table className='table table-bordered'>
-            <thead>
-               <tr>
-                  <th>Last, First</th>
-                  { sessionList.map((sId) => 
-                  <th>{this.props.sessions[sId].name}</th>
-                  ) }
-               </tr>
-            </thead>
-            <tbody>
-               {
-               this.props.students.map((s) => {
-               return (
-               <tr>
-                  <td>{s.getName()}</td>
-                  { sessionList.map((sId) => 
-                  <td>{ (this.calculatePercentage(sId, s._id) * 100).toFixed(0) }%</td>
-                  ) }
-               </tr>
-               )
-               })
-               }
-            </tbody>
-         </table>
-      </div>
-
-   </div>
-</div>
 
     )
   }

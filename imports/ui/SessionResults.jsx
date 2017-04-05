@@ -11,6 +11,9 @@ import { Questions } from '../api/questions'
 import { AnswerDistribution } from './AnswerDistribution'
 import { QuestionResultsClassList } from './QuestionResultsClassList'
 import { QuestionResultsListItem } from './QuestionResultsListItem'
+import { ShortAnswerList } from './ShortAnswerList'
+
+import { QUESTION_TYPE } from '../configs'
 
 export class _SessionResults extends Component {
 
@@ -29,7 +32,16 @@ export class _SessionResults extends Component {
             <div className='collapse' id={'collapse_' + qId}>
               <div className='row'>
                 <div className='col-md-5'><QuestionResultsClassList question={q} session={this.props.session} /></div>
-                <div className='col-md-7'><AnswerDistribution question={q} /></div>
+                <div className='col-md-7'>
+                  {
+                    q && q.type !== QUESTION_TYPE.SA // option based questions
+                    ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div> : ''
+                  }
+                  {
+                    q && q.type === QUESTION_TYPE.SA // short answer
+                    ? <ShortAnswerList question={q} /> : ''
+                  }
+                </div>
               </div>
             </div>
           </div>)
