@@ -51,7 +51,7 @@ class _StudentResultsPage extends Component {
               height={window.innerHeight - (window.innerHeight * 0.30)}
               headerHeight={50}>
               <Column
-                header={<Cell>First, Last</Cell>}
+                header={<Cell>Session Name</Cell>}
                 cell={({rowIndex}) => <Cell>{sessionNameList[rowIndex]}</Cell>}
                 fixed
                 width={250}
