@@ -124,7 +124,7 @@ Router.route('/upload/images', { where: 'server',
       req.pipe(busboy)
     } else this.next()
   }
-}) // TODO implement permissions for uploading
+})
 .post(function (req, res, next) {
   // ref https://github.com/CollectionFS/Meteor-CollectionFS/issues/246
   var imageBuffer = new Buffer(req.files[0]['data'], 'base64')

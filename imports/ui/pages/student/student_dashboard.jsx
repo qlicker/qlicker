@@ -47,7 +47,6 @@ class _StudentDashboard extends Component {
     })
   }
 
-
   renderCourseList () {
     return this.props.courses.map((c) => (<StudentCourseComponent key={c._id} course={c} sessionRoute='session' />))
   }
@@ -67,11 +66,11 @@ class _StudentDashboard extends Component {
             </div>
             : '' }
         </div>
-        <form ref='enrollCourseForm' className='form-inline' onSubmit={this.handleSubmit}>
-          <div className='form-group'>
+        <form ref='enrollCourseForm' onSubmit={this.handleSubmit}>
+          <div className='form-flex'>
             <input type='text' onChange={setEnrollmentCode} className='form-control uppercase' placeholder='Enrollment Code' />
+            <button type='submit' className='btn btn-primary'>Enroll in Course</button>
           </div>
-          <button type='submit' className='btn btn-primary'>Enroll in Course</button>
         </form>
         <div className='ql-courselist'>
           { this.renderCourseList() }

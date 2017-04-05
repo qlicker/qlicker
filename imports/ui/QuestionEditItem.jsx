@@ -309,7 +309,7 @@ export class QuestionEditItem extends Component {
         QuestionImages.insert(file, function (err, fileObj) {
           console.log(err, fileObj)
           if (err) {
-            reject('hmm shit') // TODO
+            reject('Error: could not upload image')
           } else {
             setTimeout(function () {
               resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })

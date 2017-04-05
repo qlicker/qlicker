@@ -22,7 +22,12 @@ class _ManageCourse extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { creatingSession: false, copySessionModal: false, sessionToCopy: null }
+    this.state = {
+      creatingSession: false,
+      copySessionModal: false,
+      sessionToCopy: null,
+      expandedClasslist: false
+    }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
     this.courseId = this.props.courseId
@@ -123,6 +128,13 @@ class _ManageCourse extends Component {
   renderClassList () {
     let students = this.props.course.students || []
 
+    const maxNum = 8
+    const totalStudents = students.length
+
+    if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
+    const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
+    const expandText = !this.state.expandedClasslist ? 'Show More' : 'Show Less'
+
     return (<div>
       {
         students.map((sId) => {
@@ -137,6 +149,10 @@ class _ManageCourse extends Component {
             ]} />)
         })
       }
+      { totalStudents > maxNum
+        ? <a href='#' className='show-more-item' onClick={toggleExpandedClasslist}>
+          <div className='ql-list-item'>{expandText}</div>
+        </a> : '' }
     </div>)
   }
 

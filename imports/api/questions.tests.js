@@ -129,7 +129,7 @@ if (Meteor.isServer) {
       })
 
       it('can get tags as student (questions.possibleTags)', () => {
-        prepStudentCourse((courseId, studentUserId) => { // TODO
+        prepStudentCourse((courseId, studentUserId) => {
           Meteor.call('courses.addStudent', courseId, studentUserId)
           restoreStubs()
           createStubs(studentUserId)

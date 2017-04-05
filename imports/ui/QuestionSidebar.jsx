@@ -105,7 +105,7 @@ export class QuestionSidebar extends ControlledForm {
         ? q.plainText.toLowerCase().includes(this.state.searchString.toLowerCase())
         : true
 
-      const inAnswers = false // TODO or in any of the answers
+      const inAnswers = false
 
       const correctType = (this.state.questionType === -1) || (q.type === this.state.questionType)
 

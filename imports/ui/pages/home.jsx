@@ -5,7 +5,6 @@
 
 import React from 'react'
 
-// TODO: should pull static HTML page from file in client/
 export const Homepage = () => (
   <div className='container ql-home-page'>
     <a className='btn btn-default pull-right' href='/login'>Login/Create Account</a>

@@ -31,12 +31,12 @@ class _ResultsOverview extends Component {
   render () {
     return (
       <div className='container ql-grades-overview'>
-        <h2>Grades</h2>
+        <h2>Response Results</h2>
         <div className='ql-courselist'>
           { this.renderCourseList(this.props.courses.filter((c) => !c.inactive)) }
         </div>
-
-        <h2>Inactive Courses</h2>
+        <br />
+        <h2 className='m-margin-top'>Inactive Courses</h2>
         <div className='ql-courselist'>
           { this.renderCourseList(this.props.courses.filter((c) => c.inactive)) }
         </div>

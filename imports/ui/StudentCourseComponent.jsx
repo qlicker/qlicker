@@ -33,7 +33,7 @@ export class _StudentCourseComponent extends Component {
         {
           this.props.sessions.map((s) => {
             return <SessionListItem key={s._id} session={s} click={() => Router.go(this.props.sessionRoute, { _id: s._id })} />
-          }) // TODO limit num session on student home page
+          })
         }
       </div>
     </div>)

@@ -1,6 +1,18 @@
 
-.ql-courselist {
 
-  margin-top: 20px;
+
+.ql-student-page {
+
+  .form-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .ql-courselist {
+
+    margin-top: 20px;
+
+  }
 
 }

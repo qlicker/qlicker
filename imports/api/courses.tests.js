@@ -177,7 +177,7 @@ if (Meteor.isServer) {
       })
 
       it('can enroll using code (courses.checkAndEnroll)', () => {
-        prepStudentCourse((courseId, studentUserId) => { // TODO
+        prepStudentCourse((courseId, studentUserId) => {
           restoreStubs()
           createStubs(studentUserId)
           const course = Courses.findOne({ _id: courseId })
