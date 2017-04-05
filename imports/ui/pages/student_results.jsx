@@ -9,6 +9,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 import $ from 'jquery'
 import dl from 'datalib'
+import { Table, Column, Cell } from 'fixed-data-table'
 
 import { Courses } from '../../api/courses'
 import { Sessions } from '../../api/sessions'
@@ -30,6 +31,10 @@ class _StudentResultsPage extends Component {
 
     const participation = new Participation(this.props.sessionMap, this.props.questions, this.props.responses)
     const sessionList = _(this.props.sessionList).pluck('_id')
+
+    const sessionNameList = sessionList.map(sId => this.props.sessionMap[sId].name)
+    const percentageList = sessionList.map(sId => (participation.percentage(sId, this.props.student._id) * 100).toFixed(0))
+
     return (
       <div className='container ql-results-page'>
 
@@ -38,10 +43,27 @@ class _StudentResultsPage extends Component {
             <h4>{this.props.student.getName()} (<span className='uppercase'>{this.props.course.fullCourseCode()}</span>)</h4>
           </div>
           <div className='ql-card-content'>
-            { sessionList.map(sId => <div>
-              {this.props.sessionMap[sId].name}
-              {(participation.percentage(sId, this.props.student._id) * 100).toFixed(0)}%
-            </div>) }
+
+            <Table
+              rowHeight={40}
+              rowsCount={sessionList.length}
+              width={window.innerWidth - (window.innerWidth * 0.20)}
+              height={window.innerHeight - (window.innerHeight * 0.30)}
+              headerHeight={50}>
+              <Column
+                header={<Cell>First, Last</Cell>}
+                cell={({rowIndex}) => <Cell>{sessionNameList[rowIndex]}</Cell>}
+                fixed
+                width={250}
+              />
+              <Column
+                header={<Cell>Percentage Answered</Cell>}
+                cell={({rowIndex}) => <Cell>{percentageList[rowIndex]}%</Cell>}
+                width={100}
+              />
+
+            </Table>
+
           </div>
         </div>
       </div>
