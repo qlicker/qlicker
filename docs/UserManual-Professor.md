@@ -11,17 +11,25 @@
 ## Starting Up
 To obtain an account with professor privileges, another professor or administrator must created your account. Contact a fellow professor or your system administrator.
 
+### Giving others access to a professor account
+Access the account promotion menu from the top right of the nav bar. 
+
+![Promote account](images/prof/promote_1.png)
+
+Enter an email address of someone with a student account. Their account will be converted to a professor account.
+
 An professor account can create courses and run sessions within their course.
+
 
 ## Creating Courses
 There are two ways to create a course; first is by going to the Qlicker Home page and clicking 'Create Course', and second is by selecting 'Courses' in the navigation bar, then 'All Courses', and clicking 'Create Course'.
 
 Enter the following information in the prompt:
 + **Name:** The name of the course
-+ **Department Code:** The course's department code
-+ **Course Number:** The number of the course
-+ **Section:** The course's section
-+ **Semester:** The current semester
++ **Department Code:** The course's department code (ex. PHYS)
++ **Course Number:** The number of the course (ex. 106)
++ **Section:** The course's section (ex. 001)
++ **Semester:** The current semester (ex F16)
 
 The course should show up on both the Qlicker Home page, and the Courses page.  
 
