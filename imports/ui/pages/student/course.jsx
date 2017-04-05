@@ -25,7 +25,7 @@ class _Course extends Component {
 
   sessionClickHandler (session) {
     if (session.status === 'done') {
-      alert('// TODO: navigate to student results page')
+      Router.go('student.results', { studentId: Meteor.userId(), courseId: this.props.course._id })
     } else {
       Router.go('session', { _id: session._id })
     }

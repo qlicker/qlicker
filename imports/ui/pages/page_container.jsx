@@ -29,8 +29,8 @@ class _PageContainer extends Component {
 
   render () {
     const logout = () => {
-      Meteor.logout()
       Router.go('login')
+      Meteor.logout()
     }
 
     const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }

@@ -238,14 +238,29 @@ Router.route('/course/:_id/results', {
 })
 
 import { ResultsPage } from '../../ui/pages/results'
-Router.route('/course/:_id/results/sessions', {
-  name: 'course.results.sessions',
+Router.route('/results/session/:sessionId', {
+  name: 'session.results',
   waitOn: function () {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
   },
   action: function () {
     if (Meteor.user()) {
-      mount(AppLayout, { content: <PageContainer> <ResultsPage courseId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { StudentResultsPage } from '../../ui/pages/student_results'
+Router.route('/results/:studentId/:courseId', {
+  name: 'student.results',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user()) {
+      mount(AppLayout, { content: <PageContainer>
+        <StudentResultsPage studentId={this.params.studentId} courseId={this.params.courseId} />
+      </PageContainer> })
     } else Router.go('login')
   }
 })
