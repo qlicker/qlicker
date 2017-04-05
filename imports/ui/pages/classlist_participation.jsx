@@ -17,55 +17,38 @@ import { Sessions } from '../../api/sessions'
 import { Responses } from '../../api/responses'
 import { Questions } from '../../api/questions'
 
+import { Participation } from '../../stats'
+
 class _ClasslistParticipation extends Component {
 
   constructor (props) {
     super(props)
 
     this.state = {}
-    this.calculatePercentage = this.calculatePercentage.bind(this)
-  }
-
-  calculatePercentage (sId, studentUserId) {
-    const session = this.props.sessions[sId]
-    if ((session.joined || []).indexOf(studentUserId) === -1) return 0
-
-    let max = 0 // questions * attempts for that question
-    ;(session.questions || []).forEach(qId => {
-      const q = this.props.questions[qId]
-      max += q && q.sessionOptions ? q.sessionOptions.attempts.length : 0
-    })
-
-    let answered = 0 // number that this student has answered
-
-    const res = this.props.responses[studentUserId]
-    if (!res || !res.questions) return 0
-
-    res.questions.forEach(q => {
-      answered += q.values.length
-    })
-    return max > 0 ? answered / max : 0
   }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    const sessionList = this.props.course.sessions || []
+    const sessionList = _(this.props.sessionList).pluck('_id')
+
+    const participation = new Participation(this.props.sessionMap, this.props.questions, this.props.responses)
 
     const getTextWidth = (text) => {
       let element = document.createElement('canvas')
       let context = element.getContext('2d')
-      return context.measureText(text).width + 30
+      const width = (context.measureText(text).width + 30)
+      return width > 300 ? 300 : width
     }
 
     const NameCell = ({rowIndex}) => <Cell>{ this.props.students[rowIndex].getName() }</Cell>
     const PercentageCell = ({rowIndex, sId}) => {
-      const session = this.props.sessions[sId]
+      const session = this.props.sessionMap[sId]
       const student = this.props.students[rowIndex]
       const joined = session.joined || []
       return <Cell>
         { joined.indexOf(student._id) > -1 ? '✓' : '✗' }&nbsp;
-        { (this.calculatePercentage(sId, student._id) * 100).toFixed(0) }%
+        { (participation.percentage(sId, student._id) * 100).toFixed(0) }%
       </Cell>
     }
 
@@ -83,8 +66,8 @@ class _ClasslistParticipation extends Component {
             <Table
               rowHeight={35}
               rowsCount={this.props.students.length}
-              width={window.innerWidth - 110}
-              height={window.innerHeight - 250}
+              width={window.innerWidth - (window.innerWidth * 0.20)}
+              height={window.innerHeight - (window.innerHeight * 0.30)}
               headerHeight={50}>
               <Column
                 header={<Cell>First, Last</Cell>}
@@ -95,9 +78,9 @@ class _ClasslistParticipation extends Component {
               { sessionList.map((sId) =>
                 <Column
                   key={sId}
-                  header={<Cell onClick={_ => Router.go('session.results', { sessionId: sId })}><a href='#'>{this.props.sessions[sId].name}</a></Cell>}
+                  header={<Cell onClick={_ => Router.go('session.results', { sessionId: sId })}><a href='#'>{this.props.sessionMap[sId].name}</a></Cell>}
                   cell={<PercentageCell sId={sId} />}
-                  width={getTextWidth(this.props.sessions[sId].name)}
+                  width={getTextWidth(this.props.sessionMap[sId].name)}
                 />
               ) }
 
@@ -124,32 +107,27 @@ export const ClasslistParticipationPage = createContainer((props) => {
 
   const course = Courses.findOne(props.courseId)
 
-  let questionsInSession, students, sessions, responses, groupedResponses
+  let questionsInSession, students, sessions, responses
   if (course) {
     students = Meteor.users.find({ _id: { $in: course.students } }, { sort: { 'profile.lastname': 1 } }).fetch()
 
     const sessionQuery = { courseId: course._id }
     if (user.hasRole('student')) sessionQuery.status = { $ne: 'hidden' }
-    sessions = Sessions.find(sessionQuery).fetch()
+    sessions = Sessions.find(sessionQuery, { sort: { date: 1 } }).fetch()
 
     const questionIds = _.flatten(_(sessions).pluck('questions'))
     responses = Responses.find({ questionId: { $in: questionIds } }).fetch()
-
-    groupedResponses = dl.groupby('studentUserId').execute(responses)
-
-    groupedResponses.forEach(r => {
-      r.questions = dl.groupby('questionId').execute(r.values)
-    })
 
     questionsInSession = Questions.find({ _id: { $in: questionIds } }).fetch()
   }
 
   return {
-    questions: _.indexBy(questionsInSession, '_id'), // question map
+    questions: questionsInSession,
     students: students,
     course: course,
-    sessions: _(sessions).indexBy('_id'),
-    responses: _(groupedResponses).indexBy('studentUserId'),
+    sessionList: sessions,
+    sessionMap: _(sessions).indexBy('_id'),
+    responses: responses,
     loading: !handle.ready()
   }
 }, _ClasslistParticipation)

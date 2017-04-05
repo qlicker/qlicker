@@ -250,6 +250,21 @@ Router.route('/results/session/:sessionId', {
   }
 })
 
+import { StudentResultsPage } from '../../ui/pages/student_results'
+Router.route('/results/:studentId/:courseId', {
+  name: 'student.results',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user()) {
+      mount(AppLayout, { content: <PageContainer>
+        <StudentResultsPage studentId={this.params.studentId} courseId={this.params.courseId} />
+      </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {
