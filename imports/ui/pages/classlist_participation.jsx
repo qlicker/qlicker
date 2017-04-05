@@ -59,11 +59,15 @@ class _ClasslistParticipation extends Component {
     }
 
     const NameCell = ({rowIndex}) => <Cell>{ this.props.students[rowIndex].getName() }</Cell>
-    const PercentageCell = ({rowIndex, sId}) => (
-      <Cell>
-        { (this.calculatePercentage(sId, this.props.students[rowIndex]._id) * 100).toFixed(0) }%
+    const PercentageCell = ({rowIndex, sId}) => {
+      const session = this.props.sessions[sId]
+      const student = this.props.students[rowIndex]
+      const joined = session.joined || []
+      return <Cell>
+        { joined.indexOf(student._id) > -1 ? '✓' : '✗' }&nbsp;
+        { (this.calculatePercentage(sId, student._id) * 100).toFixed(0) }%
       </Cell>
-    )
+    }
 
     return (
 
@@ -90,6 +94,7 @@ class _ClasslistParticipation extends Component {
               />
               { sessionList.map((sId) =>
                 <Column
+                  key={sId}
                   header={<Cell onClick={_ => Router.go('session.results', { sessionId: sId })}><a href='#'>{this.props.sessions[sId].name}</a></Cell>}
                   cell={<PercentageCell sId={sId} />}
                   width={getTextWidth(this.props.sessions[sId].name)}

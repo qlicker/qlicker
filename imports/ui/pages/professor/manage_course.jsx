@@ -219,7 +219,7 @@ export const ManageCourse = createContainer((props) => {
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
   const sessionIds = course.sessions || []
-  const sessions = Sessions.find({ _id: { $in: sessionIds } }, { sort: { date: 1 } }).fetch()
+  const sessions = Sessions.find({ _id: { $in: sessionIds } }, { sort: { date: -1 } }).fetch()
 
   return {
     course: course,
