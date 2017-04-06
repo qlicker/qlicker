@@ -1,6 +1,6 @@
 # Application Architecture Overview
 
-Qlicker is a Meteor application using React as the frontend templating framework.
+Qlicker is a Meteor application using React as the frontend templating framework. The `react-meteor-data` package is used to provide reactive data to the React components. All interaction is sent to the server via Meteor methods. Meteor methods are documented with JSDoc and are defined in js files in `/imports/api`.
 
 ```
 QLICKER
