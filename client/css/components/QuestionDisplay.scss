@@ -31,7 +31,7 @@ $red-bar: rgba(167,37,38, 0.3);
   .ql-question-content {
     font-size: 3em;
     background: white;
-    padding: 20px;
+    padding: 16px;
   }
   
   .ql-subs-loading {
@@ -46,6 +46,7 @@ $red-bar: rgba(167,37,38, 0.3);
     padding-left: 25px;
     padding-right: 25px;
     margin-top: 20px;
+    margin-bottom: 40px;
 
     .submit-button {
       width: 100%;
@@ -59,8 +60,8 @@ $red-bar: rgba(167,37,38, 0.3);
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    padding-left: 25px;
-    padding-right: 25px;
+    padding-left: 20px;
+    padding-right: 20px;
 
     .ql-short-answer {
       width: 400px;
@@ -148,8 +149,13 @@ $red-bar: rgba(167,37,38, 0.3);
     }
 
     .q-submitted {
-      border: 1px solid $blue;
+      outline: 2px solid $blue;
       color: $blue;
+      font-weight: bold;
+
+      &:hover {
+        outline: 2px solid $blue;
+      }
 
       .ql-checkbox:after {
         content: '✓';

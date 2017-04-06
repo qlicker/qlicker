@@ -31,3 +31,4 @@ cfs:gridfs
 twbs:bootstrap
 xolvio:cleaner
 email
+255kb:meteor-status
