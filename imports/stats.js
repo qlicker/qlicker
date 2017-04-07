@@ -23,7 +23,6 @@ class Participation {
     this.indexedResponses = _(groupedResponses).indexBy('studentUserId')
     this.indexedQuestions = _.indexBy(this.questions, '_id')
 
-    console.log(this.sessions, sId)
     // calculate percentage answered
     const session = this.sessions[sId]
     if ((session.joined || []).indexOf(studentUserId) === -1) return 0
@@ -40,7 +39,8 @@ class Participation {
     const res = this.indexedResponses[studentUserId]
     if (!res || !res.questions) return 0
 
-    res.questions.forEach(q => {
+    const groupedQsInSession = res.questions.filter(q => session.questions.indexOf(q.questionId) > -1)
+    groupedQsInSession.forEach(q => {
       answered += q.values.length
     })
     return max > 0 ? answered / max : 0
