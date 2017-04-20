@@ -9,7 +9,7 @@ checkout:
 
 test:
   override:
-    - npm run test:unit-coverage
+    - npm run test:unit-no-coverage
 
 deployment:
   staging:
