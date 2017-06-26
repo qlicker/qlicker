@@ -64,6 +64,7 @@ class _ManageSession extends Component {
   runSession () {
     const sessionEdits = this.state.session
     sessionEdits.status = 'running'
+    this.setDate(moment())
     this.setState({ session: sessionEdits }, () => {
       this.saveSessionEdits(() => {
         Router.go('session.run', { _id: this.state.session._id })
