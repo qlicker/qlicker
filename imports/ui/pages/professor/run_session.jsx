@@ -117,7 +117,15 @@ class _RunSession extends Component {
       if (error) return alertify.error('Error: ' + error.error)
       Meteor.call('questions.startAttempt', qId, (error) => {
         if (error) alertify.error('Error: ' + error.error)
-        else alertify.success('New Attempt')
+        else {
+          Meteor.call('questions.hideCorrect', qId, (error) => {
+            if (error) return alertify.error('Error: ' + error.error)
+          })
+          Meteor.call('questions.hideStats', qId, (error) => {
+            if (error) return alertify.error('Error: ' + error.error)
+          })
+          alertify.success('New Attempt')
+        }
       })
     })
   }
