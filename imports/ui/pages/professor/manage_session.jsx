@@ -64,6 +64,7 @@ class _ManageSession extends Component {
   runSession () {
     const sessionEdits = this.state.session
     sessionEdits.status = 'running'
+    this.setDate(moment())
     this.setState({ session: sessionEdits }, () => {
       this.saveSessionEdits(() => {
         Router.go('session.run', { _id: this.state.session._id })
@@ -281,19 +282,17 @@ class _ManageSession extends Component {
       if (this.state.questionPool === 'public') return this.props.questionPublic
       return this.props.questionLibrary
     }
-
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
           <span className='toolbar-button' onClick={this.runSession}>
             <span className='glyphicon glyphicon-play' />&nbsp;
-            Run Session
+            {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
           </span>
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
             <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
             <option value='visible'>{SESSION_STATUS_STRINGS['visible']}</option>
-            <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
             <option value='done'>{SESSION_STATUS_STRINGS['done']}</option>
           </select>
           <span className='divider'>&nbsp;</span>
