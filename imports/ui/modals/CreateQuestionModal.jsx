@@ -21,6 +21,7 @@ export class CreateQuestionModal extends ControlledForm {
   }
 
   saveAndClose () {
+    this.refs.editItem.addTagString('Student')
     this.refs.editItem.saveQuestion()
     this.props.done()
   }
