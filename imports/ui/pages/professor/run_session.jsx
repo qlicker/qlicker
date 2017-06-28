@@ -100,10 +100,9 @@ class _RunSession extends Component {
     const current = this.state.session.currentQuestion
     const q = this.props.questions[current]
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
-
     Meteor.call('questions.setAttemptStatus', questionId, !currentAttempt.closed, (error) => {
       if (error) alertify.error('Error: ' + error.error)
-      else alertify.success(!currentAttempt.closed ? 'Answering Enabled' : 'Answering Disabled')
+      else alertify.success(currentAttempt.closed ? 'Answering Enabled' : 'Answering Disabled')
     })
   }
 

@@ -45,6 +45,7 @@ export class QuestionEditItem extends Component {
     this.setOptionState = this.setOptionState.bind(this)
     this.markCorrect = this.markCorrect.bind(this)
     this.addTag = this.addTag.bind(this)
+    this.addTagString = this.addTagString.bind(this)
     this.changeType = this.changeType.bind(this)
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
@@ -139,8 +140,8 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * add tag to state
-   * @param {String} tag
+   * save tags to the DB
+   * @param {Array} tags
    */
   addTag (tags) {
     const _tags = tags
@@ -151,6 +152,18 @@ export class QuestionEditItem extends Component {
     this.setState({ tags: _tags }, () => {
       this._DB_saveQuestion()
     })
+  }
+
+  /**
+   * add tag to state
+   * @param {String} tag
+   */
+  addTagString (tag) {
+    const newTag = {label: tag,
+      value: tag}
+    let tags = this.state.tags
+    tags.push(newTag)
+    this.addTag(tags)
   }
 
   /**
@@ -269,7 +282,6 @@ export class QuestionEditItem extends Component {
    */
   saveQuestion () {
     let question = _.extend({ createdAt: new Date() }, this.state)
-
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId

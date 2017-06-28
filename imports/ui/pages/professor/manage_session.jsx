@@ -61,14 +61,22 @@ class _ManageSession extends Component {
     })
   }
 
+  // starts the session if there are questions
   runSession () {
     const sessionEdits = this.state.session
-    sessionEdits.status = 'running'
-    this.setState({ session: sessionEdits }, () => {
-      this.saveSessionEdits(() => {
-        Router.go('session.run', { _id: this.state.session._id })
+    if (typeof sessionEdits.questions !== 'undefined' && sessionEdits.questions.length > 0) {
+      let prevStatus = sessionEdits.status
+      sessionEdits.status = 'running'
+      this.setState({ session: sessionEdits }, () => {
+        this.saveSessionEdits(() => {
+          Router.go('session.run', { _id: this.state.session._id })
+          if (prevStatus !== 'running') {
+            Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+            Meteor.call('questions.hideQuestion', this.state.session.currentQuestion)
+          }
+        })
       })
-    })
+    }
   }
 
   /**
