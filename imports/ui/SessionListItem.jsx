@@ -19,6 +19,17 @@ import { SESSION_STATUS_STRINGS, formatDate } from '../configs'
  * @prop {Func} [click] - list item click handler
  */
 export class SessionListItem extends ListItem {
+  toggleReview (evt) {
+    evt.stopPropagation()
+    const sessionId = this.props.session._id
+    Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else {
+        const status = this.props.session.reviewable ? 'enabled' : 'disabled'
+        alertify.success('Review ' + status)
+      }
+    })
+  }
 
   render () {
     const session = this.props.session
@@ -26,6 +37,8 @@ export class SessionListItem extends ListItem {
 
     const status = session.status
     const strStatus = SESSION_STATUS_STRINGS[status]
+
+    const strAllowReview = this.props.session.reviewable ? 'Disable Review' : 'Allow Review'
 
     let completion = 0
     let index = 0
@@ -55,6 +68,9 @@ export class SessionListItem extends ListItem {
                   : ''}
               </span>
             </span>
+          </div>
+          <div>
+            {Meteor.user().hasRole('professor') ? <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a> : ''}
           </div>
           <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
             <span className='completion'>Question: {index + 1}/{length}</span>

@@ -27,7 +27,8 @@ const sessionPattern = {
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
   joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
-  tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ])
+  tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ]),
+  reviewable: Match.Maybe(Boolean)
 }
 
 // Create Session class
@@ -103,6 +104,7 @@ Meteor.methods({
         description: session.description,
         status: session.status,
         quiz: session.quiz,
+        reviewable: session.reviewable,
         date: session.date || undefined,
         tags: session.tags || undefined
       }
@@ -255,6 +257,21 @@ Meteor.methods({
     return Sessions.update({ _id: sessionId }, {
       $set: {
         currentQuestion: questionId
+      }
+    })
+  },
+
+  /**
+   * toggles the ability for students to review previous sessions
+   * @param {MongoId} sessionId
+   */
+  'sessions.toggleReviewable' (sessionId) {
+    const session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, {
+      $set: {
+        reviewable: !session.reviewable
       }
     })
   },
