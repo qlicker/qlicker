@@ -31,6 +31,15 @@ export class SessionListItem extends ListItem {
     })
   }
 
+  reviewSession (evt) {
+    evt.stopPropagation()
+    const sessionId = this.props.session._id
+    const courseId = this.props.session.courseId
+    Router.go('student.session.results', { studentId: Meteor.userId(),
+      courseId: courseId,
+      sessionId: sessionId })
+  }
+
   render () {
     const session = this.props.session
     const controls = this.makeControls()
@@ -48,6 +57,13 @@ export class SessionListItem extends ListItem {
       index = session.questions.indexOf(session.currentQuestion)
       completion = ((index + 1) / length) * 100
     }
+    let link = ''
+    if (Meteor.user().hasRole('professor')) {
+      link = <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a>
+    } else if (Meteor.user().hasRole('student') && session.reviewable) {
+      link = <a href='#' className='toolbar-button' onClick={(evt) => this.reviewSession(evt)}>Review</a>
+    }
+
     return (
       <div className='ql-session-list-item ql-list-item' onClick={this.click}>
         <div className='row'>
@@ -70,7 +86,7 @@ export class SessionListItem extends ListItem {
             </span>
           </div>
           <div>
-            {Meteor.user().hasRole('professor') ? <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a> : ''}
+            {link}
           </div>
           <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
             <span className='completion'>Question: {index + 1}/{length}</span>

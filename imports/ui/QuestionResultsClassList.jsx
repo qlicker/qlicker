@@ -43,7 +43,6 @@ export const QuestionResultsClassList = createContainer((props) => {
 
   const responses = Responses.find({ attempt: 1, questionId: props.question._id }).fetch()
   const students = Meteor.users.find({ _id: { $in: _(responses).pluck('studentUserId') } }).fetch()
-  console.log(students)
   return {
     responses: responses,
     students: _(students).indexBy('_id'),

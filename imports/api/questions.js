@@ -162,6 +162,12 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
+  Meteor.publish('questions.forReview', function (sessionId) {
+    if (this.userId) {
+      return Questions.find({ sessionId: sessionId })
+    } else this.ready()
+  })
+
   // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {

@@ -229,7 +229,6 @@ export class _QuestionDisplay extends Component {
     if (!this.props.noStats && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'ql-wysiwyg-content correct-color' : 'ql-wysiwyg-content incorrect-color'
     }
-
     return (
       <div className={classContent} key={'answer_' + answer} >
         { WysiwygHelper.htmlDiv(content) }
@@ -281,7 +280,6 @@ export class _QuestionDisplay extends Component {
 
           widthStyle = { width: stats + '%' }
         }
-
         return (
           <div key={'question_' + a.answer}
             onClick={() => this.setAnswer(a.answer)}
@@ -290,10 +288,10 @@ export class _QuestionDisplay extends Component {
               ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
-              { classSuffixStr === 'ms' ? <input type='checkbox' className='ql-checkbox' /> : '' }
+              { (classSuffixStr === 'ms' && !this.props.forReview) ? <input type='checkbox' className='ql-checkbox' /> : '' }
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content}
+              {content} {a.correct ? '✓' : ''}
             </div>
           </div>)
       })
@@ -331,7 +329,7 @@ export class _QuestionDisplay extends Component {
         content = this.renderOptionQuestion('tf', q)
         break
       case QUESTION_TYPE.SA:
-        content = this.renderShortAnswer(q)
+        content = this.props.forReview ? '' : this.renderShortAnswer(q)
         break
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)
@@ -415,5 +413,6 @@ QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
   readonly: PropTypes.bool,
   noStats: PropTypes.bool,
-  prof: PropTypes.bool
+  prof: PropTypes.bool,
+  forReview: PropTypes.bool
 }
