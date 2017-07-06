@@ -113,6 +113,17 @@ class _ManageSession extends Component {
   }
 
   /**
+   * addToLibrary(MongoId (string): questionId)
+   * adds the question to the library
+   */
+  addToLibrary (questionId) {
+    Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Copied to Library')
+    })
+  }
+
+  /**
    * changeQuestionPool(Event: e)
    * select onchange handler for changing question list
    */
@@ -271,7 +282,8 @@ class _ManageSession extends Component {
           controlsTriggered={this.cursorMoveWorkaround}
           controls={[
             { label: 'Remove', click: () => this.removeQuestion(questionId) },
-            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) }
+            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) },
+            { label: 'Add to library', click: () => this.addToLibrary(questionId) }
           ]} />,
         id: questionId
       })
