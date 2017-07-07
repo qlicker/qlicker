@@ -290,10 +290,10 @@ export class _QuestionDisplay extends Component {
               ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
-              { classSuffixStr === 'ms' ? <input type='checkbox' className='ql-checkbox' /> : '' }
+              { (classSuffixStr === 'ms' && !this.props.forReview) ? <input type='checkbox' className='ql-checkbox' /> : '' }
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content}
+              {content} {(this.props.forReview && a.correct) ? '✓' : ''}
             </div>
           </div>)
       })

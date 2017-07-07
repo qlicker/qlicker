@@ -300,7 +300,7 @@ Router.route('/session/present/:_id', {
   },
   action: function () {
     if (Meteor.user()) {
-      mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
     } else Router.go('login')
   }
 })
