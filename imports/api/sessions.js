@@ -213,6 +213,7 @@ Meteor.methods({
   'sessions.startSession' (sessionId) {
     const s = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(s.courseId)
+    if (s.status === 'running') return
     return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0] } })
   },
 
