@@ -29,6 +29,8 @@ export class Editor extends Component {
     CKEDITOR.plugins.addExternal('notification', '/ckeditor/plugins/notification/', 'plugin.js')
     CKEDITOR.plugins.addExternal('notificationaggregator', '/ckeditor/plugins/notificationaggregator/', 'plugin.js')
     CKEDITOR.plugins.addExternal('filetools', '/ckeditor/plugins/filetools/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('image2', '/ckeditor/plugins/image2/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('mathjax', '/ckeditor/plugins/mathjax/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadwidget', '/ckeditor/plugins/uploadwidget/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadimage', '/ckeditor/plugins/uploadimage/', 'plugin.js')
     CKEDITOR.plugins.addExternal('sharedspace', '/ckeditor/plugins/sharedspace/', 'plugin.js')
@@ -42,7 +44,7 @@ export class Editor extends Component {
     this.editor = CKEDITOR.inline(this.refs.theEditor, {
       placeholder: this.props.placeholder || '',
       customConfig: '/ckeditor/config.js',
-      extraPlugins: 'sharedspace,confighelper,mathjax,uploadwidget,uploadimage,sourcedialog',
+      extraPlugins: 'sharedspace,confighelper,mathjax,uploadwidget,uploadimage,sourcedialog,image2',
       removePlugins: 'floatingspace,resize',
       sharedSpaces: {
         top: 'ckeditor-toolbar'
