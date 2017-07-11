@@ -13,6 +13,7 @@ import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
 import { PickCourseModal } from '../../modals/PickCourseModal'
+import { AddTAModal } from '../../modals/AddTAModal'
 
 import { SessionListItem } from '../../SessionListItem'
 import { StudentListItem } from '../../StudentListItem'
@@ -25,6 +26,7 @@ class _ManageCourse extends Component {
     this.state = {
       creatingSession: false,
       copySessionModal: false,
+      addTAModal: false,
       sessionToCopy: null,
       expandedClasslist: false
     }
@@ -158,6 +160,7 @@ class _ManageCourse extends Component {
 
   render () {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
+    const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
 
     const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
     return (
@@ -175,6 +178,11 @@ class _ManageCourse extends Component {
                 <div className='btn-group btn-group-justified details-button-group'>
                   <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
                   <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
+                </div>
+                <div className='btn-group btn-group-justified details-button-group'>
+                  <div className='btn btn-default' onClick={toggleAddTA}>Add TA
+                    { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
+                  </div>
                 </div>
                 <div className='ql-course-details'>
                   <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -

@@ -25,6 +25,7 @@ const coursePattern = {
   semester: Helpers.NEString, // F17, W16, S15, FW16 etc.
   inactive: Match.Maybe(Boolean),
   students: Match.Maybe([Helpers.MongoID]),
+  TAs: Match.Maybe([Helpers.MongoID]),
   sessions: Match.Maybe([Helpers.MongoID]),
   createdAt: Date
 }
@@ -192,6 +193,22 @@ Meteor.methods({
       return c
     }
     throw new Meteor.Error('could-not-enroll', 'Couldn\'t enroll in course')
+  },
+
+  /**
+   * adds a TA to a course
+   * @param {String} enrollmentCode
+   */
+  'courses.addTA' (courseId, userId) {
+    check(userId, Helpers.NEString)
+    const c = Courses.findOne({
+      _id: courseId
+    })
+    console.log(courseId)
+    Courses.update({ _id: c._id }, {
+      $addToSet: { TAs: Meteor.userId() }
+    })
+    return c
   },
 
   /**
