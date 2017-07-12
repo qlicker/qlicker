@@ -69,7 +69,6 @@ if (Meteor.isServer) {
 ProfileImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
 ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
 
-
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     if (this.userId) return Meteor.users.find({ _id: this.userId })
@@ -86,6 +85,19 @@ if (Meteor.isServer) {
         studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({ _id: { $in: studentRefs } }, { fields: { services: false } })
+    } else return this.ready()
+  })
+
+  Meteor.publish('users.myTAs', function () {
+    if (!this.userId) return this.ready()
+    const user = Meteor.users.findOne({ _id: this.userId })
+
+    if (user && user.hasGreaterRole(ROLES.prof)) {
+      let TARefs = []
+      Courses.find({ owner: user._id }).fetch().forEach((c) => {
+        TARefs = TARefs.concat(c.TAs || [])
+      })
+      return Meteor.users.find({ _id: { $in: TARefs } }, { fields: { services: false } })
     } else return this.ready()
   })
 

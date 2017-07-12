@@ -93,6 +93,18 @@ class _ManageCourse extends Component {
     }
   }
 
+  removeTA (TAUserId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.removeTA',
+        this.courseId,
+        TAUserId,
+        (error) => {
+          if (error) return alertify.error('Error: couldn\'t remove TA')
+          alertify.success('Removed TA')
+        })
+    }
+  }
+
   renderSessionList () {
     return (<div>
       {
@@ -129,9 +141,10 @@ class _ManageCourse extends Component {
 
   renderClassList () {
     let students = this.props.course.students || []
+    let TAs = this.props.course.TAs || []
 
     const maxNum = 8
-    const totalStudents = students.length
+    const totalStudents = students.length + TAs.length
 
     if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
@@ -146,8 +159,23 @@ class _ManageCourse extends Component {
             key={sId}
             courseId={this.courseId}
             student={stu}
+            role='Student'
             controls={[
               { label: 'Remove from Course', click: () => this.removeStudent(sId) }
+            ]} />)
+        })
+      }
+      {
+        TAs.map((sId) => {
+          const TA = this.props.TAs[sId]
+          if (!TA) return
+          return (<StudentListItem
+            key={sId}
+            courseId={this.courseId}
+            student={TA}
+            role='TA'
+            controls={[
+              { label: 'Remove from Course', click: () => this.removeTA(sId) }
             ]} />)
         })
       }
@@ -235,9 +263,13 @@ class _ManageCourse extends Component {
 export const ManageCourse = createContainer((props) => {
   const handle = Meteor.subscribe('courses') &&
     Meteor.subscribe('sessions') &&
-    Meteor.subscribe('users.myStudents')
+    Meteor.subscribe('users.myStudents') &&
+    Meteor.subscribe('users.myTAs')
 
   const course = Courses.find({ _id: props.courseId }).fetch()[0]
+
+  const TAIds = course.TAs || []
+  const TAs = Meteor.users.find({ _id: { $in: TAIds } }).fetch()
 
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
@@ -249,6 +281,7 @@ export const ManageCourse = createContainer((props) => {
     course: course,
     sessions: sessions,
     students: _(students).indexBy('_id'),
+    TAs: _(TAs).indexBy('_id'),
     loading: !handle.ready()
   }
 }, _ManageCourse)

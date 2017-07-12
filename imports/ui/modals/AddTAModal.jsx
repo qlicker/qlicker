@@ -38,7 +38,7 @@ export class AddTAModal extends ControlledForm {
 
   /**
    * handleSubmit(Event: e)
-   * onSubmit handler for enroll form. Calls users.promote
+   * onSubmit handler for add TA form. Calls courses.addTA
    */
   handleSubmit (e) {
     super.handleSubmit(e)
@@ -46,15 +46,12 @@ export class AddTAModal extends ControlledForm {
     if (Meteor.isTest) {
       this.props.done()
     }
-    const sId = Meteor.users.findOne({'emails.address': this.state.newEmail})._id
-    console.log(this.props)
-    console.log(this.state)
-    Meteor.call('courses.addTA', this.props.courseId, sId, (error) => {
+
+    Meteor.call('courses.addTA', this.state.newEmail, this.props.courseId, (error) => {
       if (error) return alertify.error('Error: ' + error.message)
-      alertify.success('TA Added to Course')
+      alertify.success('TA added to course')
       this.done()
     })
-    this.done()
   }
 
   render () {

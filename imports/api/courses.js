@@ -196,22 +196,6 @@ Meteor.methods({
   },
 
   /**
-   * adds a TA to a course
-   * @param {String} enrollmentCode
-   */
-  'courses.addTA' (courseId, userId) {
-    check(userId, Helpers.NEString)
-    const c = Courses.findOne({
-      _id: courseId
-    })
-    console.log(courseId)
-    Courses.update({ _id: c._id }, {
-      $addToSet: { TAs: Meteor.userId() }
-    })
-    return c
-  },
-
-  /**
    * edits and updates all valid attributes of the course
    * @param {Course} course
    */
@@ -257,6 +241,30 @@ Meteor.methods({
   },
 
   /**
+   * adds a TA to a course
+   * @param {String} email
+   * @param {String} courseId
+   */
+  'courses.addTA' (email, courseId) {
+    check(email, Helpers.Email)
+    if (!Meteor.user().hasRole(ROLES.prof)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    if (!user) {
+      throw new Meteor.Error('user-not-found', 'User not found')
+    }
+
+    Meteor.users.update({ _id: user._id }, {
+      $addToSet: { 'profile.courses': courseId }
+    })
+    Courses.update({ _id: courseId }, {
+      $pull: { students: user._id }
+    })
+    return Courses.update({ _id: courseId }, {
+      '$addToSet': { TAs: user._id }
+    })
+  },
+
+  /**
    * removes a student to course
    * @param {MongoID} courseId
    * @param {MongoId} studentUserId
@@ -272,6 +280,25 @@ Meteor.methods({
     })
     return Courses.update({ _id: courseId }, {
       $pull: { students: studentUserId }
+    })
+  },
+
+  /**
+   * removes a student to course
+   * @param {MongoID} courseId
+   * @param {MongoId} TAUserId
+   */
+  'courses.removeTA' (courseId, TAUserId) {
+    check(courseId, Helpers.MongoID)
+    check(TAUserId, Helpers.MongoID)
+
+    profHasCoursePermission(courseId)
+
+    Meteor.users.update({ _id: TAUserId }, {
+      $pull: { 'profile.courses': courseId }
+    })
+    return Courses.update({ _id: courseId }, {
+      $pull: { TAs: TAUserId }
     })
   },
 
