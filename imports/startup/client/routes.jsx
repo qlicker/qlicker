@@ -203,7 +203,9 @@ Router.route('/course/:_id', {
   },
   action: function () {
     if (Meteor.user().hasGreaterRole('professor')) {
-      mount(AppLayout, { content: <PageContainer> <ManageCourse courseId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, {content: <PageContainer> <ManageCourse courseId={this.params._id}/> </PageContainer>})
+    } else if (_.contains(Meteor.user().profile.TA, this.params._id)) {
+      mount(AppLayout, {content: <PageContainer> <ManageCourse isTA courseId={this.params._id}/> </PageContainer>})
     } else if (Meteor.user().hasRole('student')) {
       mount(AppLayout, { content: <PageContainer> <Course courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')

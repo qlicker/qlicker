@@ -38,13 +38,15 @@ _.extend(Session.prototype, {})
 // Create course collection
 export const Sessions = new Mongo.Collection('sessions',
   { transform: (doc) => { return new Session(doc) } })
-
 // data publishing
 if (Meteor.isServer) {
-  Meteor.publish('sessions', function () {
+  Meteor.publish('sessions', function (params) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole(ROLES.prof)) {
+      if (params && params.isTA) {
+        const courseIdArray = user.profile.courses || []
+        return Sessions.find({ courseId: { $in: courseIdArray },})
+      } else if (user.hasGreaterRole(ROLES.prof)) {
         const courseIdArray = _(Courses.find({ owner: user._id }).fetch()).pluck('_id') || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasRole(ROLES.student)) {

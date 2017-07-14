@@ -203,15 +203,18 @@ class _ManageCourse extends Component {
                 <h4>Course Details</h4>
               </div>
               <div className='ql-card-content'>
-                <div className='btn-group btn-group-justified details-button-group'>
-                  <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
-                  <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
-                </div>
-                <div className='btn-group btn-group-justified details-button-group'>
-                  <div className='btn btn-default' onClick={toggleAddTA}>Add TA
-                    { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
+                {this.props.isTA ? '' : <div>
+                  <div className='btn-group btn-group-justified details-button-group'>
+                    <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
+                    <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
+                  </div>
+                  <div className='btn-group btn-group-justified details-button-group'>
+                    <div className='btn btn-default' onClick={toggleAddTA}>Add TA
+                      { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
+                    </div>
                   </div>
                 </div>
+                }
                 <div className='ql-course-details'>
                   <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -
                   <span className='ql-course-semester'> { this.props.course.semester }</span>
@@ -248,7 +251,7 @@ class _ManageCourse extends Component {
 
         {/* modals */}
         { this.state.creatingSession
-          ? <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} />
+          ? <CreateSessionModal isTA={this.props.isTA} courseId={this.courseId} done={toggleCreatingSession} />
           : '' }
         { this.state.copySessionModal
           ? <PickCourseModal
@@ -261,10 +264,10 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses') &&
-    Meteor.subscribe('sessions') &&
-    Meteor.subscribe('users.myStudents') &&
-    Meteor.subscribe('users.myTAs')
+  const handle = Meteor.subscribe('courses', {isTA: props.isTA}) &&
+    Meteor.subscribe('sessions', {isTA: props.isTA}) &&
+    Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
+    Meteor.subscribe('users.myTAs', {cId: props.courseId})
 
   const course = Courses.find({ _id: props.courseId }).fetch()[0]
 

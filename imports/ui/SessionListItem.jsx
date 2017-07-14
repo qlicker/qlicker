@@ -85,7 +85,7 @@ export class SessionListItem extends ListItem {
               </span>
             </span>
           </div>
-          <div>
+          <div className='col-md-2 col-xs-4 col-sm-3'>
             {link}
           </div>
           <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
