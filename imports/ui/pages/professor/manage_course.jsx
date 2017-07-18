@@ -15,6 +15,8 @@ import { CreateSessionModal } from '../../modals/CreateSessionModal'
 import { PickCourseModal } from '../../modals/PickCourseModal'
 import { AddTAModal } from '../../modals/AddTAModal'
 
+import { ROLES } from '../../../configs'
+
 import { SessionListItem } from '../../SessionListItem'
 import { StudentListItem } from '../../StudentListItem'
 
@@ -203,7 +205,7 @@ class _ManageCourse extends Component {
                 <h4>Course Details</h4>
               </div>
               <div className='ql-card-content'>
-                {this.props.isTA ? '' : <div>
+                {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
                     <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
@@ -213,7 +215,7 @@ class _ManageCourse extends Component {
                       { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
                     </div>
                   </div>
-                </div>
+                </div> : ''
                 }
                 <div className='ql-course-details'>
                   <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -

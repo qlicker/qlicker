@@ -36,7 +36,6 @@ class _QuestionsFromStudent extends Component {
     Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question Copied to Library')
-      Router.go('questions', { _id: newQuestionId })
     })
   }
 

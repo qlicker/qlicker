@@ -13,10 +13,16 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { QuestionSidebar } from '../../QuestionSidebar'
 
 import { Questions } from '../../../api/questions'
+import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
+  const TAs = Meteor.user().profile.TA || []
+  const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
   return (<ul className='nav nav-pills'>
-    <li role='presentation' className={active === 'library' ? 'active' : ''}><a href={Router.routes['questions'].path()}>Question Library</a></li>
+    {isTA ? '' : <li role='presentation' className={active === 'library' ? 'active' : ''}>
+      <a href={Router.routes['questions'].path()}>Question Library</a>
+    </li>
+    }
     <li role='presentation' className={active === 'public' ? 'active' : ''}><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
     <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
   </ul>)
