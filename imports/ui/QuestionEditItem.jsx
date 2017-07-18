@@ -40,7 +40,7 @@ export class QuestionEditItem extends Component {
 
     // binding methods for calling within react context
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
-    this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
+    // this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
     this.setOptionState = this.setOptionState.bind(this)
     this.markCorrect = this.markCorrect.bind(this)
@@ -315,7 +315,8 @@ export class QuestionEditItem extends Component {
    * Handle image uploaded through wysiwyg editor. Uploads images to QuestionImages GridFS store
    * @param {File} file
    */
-  uploadImageCallBack (file) {
+  /*uploadImageCallBack (file) {
+    console.log('UPLOADING')
     return new Promise(
       (resolve, reject) => {
         QuestionImages.insert(file, function (err, fileObj) {
@@ -330,7 +331,7 @@ export class QuestionEditItem extends Component {
         }) // .insert
       } // (resolve, reject)
     )
-  } // end uploadImageCallBack
+  } // end uploadImageCallBack*/
 
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)

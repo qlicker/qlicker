@@ -6,7 +6,6 @@
 
 import React, { Component } from 'react'
 
-
 /**
  * React component wrapper for CKEditor.
  * Note: This component is not fully controlled. Do not resuse component by setting a new props.val. Destroy and rebuild component if new props.val is set.
@@ -20,6 +19,7 @@ export class Editor extends Component {
   constructor (p) {
     super(p)
 
+    this.fileURLs = []
     this.state = { val: this.props.val }
     this.editor = null
   }
@@ -53,16 +53,52 @@ export class Editor extends Component {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
 
-    this.editor.on('fileUploadResponse', () => {
+    /* this.editor.on('fileUploadResponse', () => {
+      console.log('FILE UPLOAD')
       setTimeout(() => {
         this.props.change(this.editor.getData(), this.editor.editable().getText())
       }, 200)
-    })
+    }) */
   }
 
   componentDidMount () {
     this.setupCKEditor()
     this.componentDidUpdate()
+
+    this.editor.on('fileUploadRequest', function (evt) {
+      let upload = evt.data.requestData.upload
+      let file = upload.file
+      var reader = new FileReader()
+      evt.stop() // otherwise it will get automatically posted
+      reader.addEventListener('loadend', function (e) {
+        const fileURL = reader.result
+        this.fileURLs.push(fileURL)
+
+        var slingshotUpload = new Slingshot.Upload('QuestionImages')
+        slingshotUpload.send(file, function (error, downloadUrl) {
+          // uploader.set()
+          if (error) {
+            console.error('Error uploading')
+          } else {
+            console.log('Success!')
+          }
+        })
+      }.bind(this))
+      reader.readAsDataURL(file)
+    }.bind(this))
+
+    this.editor.on('fileUploadResponse', function (evt) {
+      // Prevent the default response handler.
+      evt.stop()
+      console.log('In resp')
+      console.log('URL from FS: ' + this.lastFileURL)
+      if (this.fileURLs[this.fileURLs.length - 1]) {
+        evt.data.url = this.lastFileURL
+      } else {
+        console.log('canceled in response')
+        evt.cancel()
+      }
+    }.bind(this))
   }
 
   componentWillReceiveProps (nextProps) {
