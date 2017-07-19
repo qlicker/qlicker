@@ -53,8 +53,7 @@ export class _AnswerDistribution extends Component {
 export const AnswerDistribution = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const responses = Responses.find({ questionId: props.question._id }).fetch()
-
-  const maxAttempt = props.question.sessionOptions.attempts.length
+  const maxAttempt = props.question.sessionOptions ? props.question.sessionOptions.attempts.length : 0
   const validOptions = _(props.question.options).pluck('answer')
 
   const data = []
