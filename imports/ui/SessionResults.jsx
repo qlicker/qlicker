@@ -41,7 +41,7 @@ export class _SessionResults extends Component {
       <div className='row'>
         <div className='col-md-3'>Number of students in session: { total }</div>
         <div className='col-md-2 pull-right'>
-          <span onClick={() => this.exportCSV()} className='btn pull-right'>Export as .csv <div id='download'></div> </span>
+          <SessionResultsDownloader session={this.props.session} />
         </div>
       </div>
       {

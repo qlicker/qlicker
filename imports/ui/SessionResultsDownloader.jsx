@@ -6,7 +6,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
-import { CSVDownload } from 'react-csv'
+import { CSVLink } from 'react-csv'
 
 import { Questions } from '../api/questions'
 import { Courses } from '../api/courses'
@@ -26,16 +26,19 @@ export class _SessionResultsDownloader extends Component {
       const row = [student.getName(), participation, mark]
       return row
     })
-    return (<CSVDownload data={data} headers={headers} />)
+    const filename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
+    return (<CSVLink data={data} headers={headers} filename={filename}>
+      <span className='btn pull-right'>Export as .csv</span>
+    </CSVLink>)
   } //  end render
 
 }
 
 export const SessionResultsDownloader = createContainer((props) => {
-  const handle = Meteor.subscribe('questions.inSession', props.session._id) &&
+  const handle = Meteor.subscribe('courses', {isTA: Meteor.user().isTA(props.session.courseId)}) &&
+    Meteor.subscribe('questions.inSession', props.session._id) &&
     Meteor.subscribe('responses.forSession', props.session._id) &&
-    Meteor.subscribe('users.myStudents') &&
-    Meteor.subscribe('courses')
+    Meteor.subscribe('users.myStudents', {cId: props.session.courseId})
 
   const course = Courses.find({ _id: props.session.courseId }).fetch()[0]
 
