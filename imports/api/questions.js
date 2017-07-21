@@ -362,6 +362,23 @@ Meteor.methods({
   },
 
   /**
+   * duplicates a public question and adds it to your library
+   * @param {MongoId} questionId
+   * * @param {MongoId} courseId
+   */
+  'questions.copyToCourse' (questionId, courseId) {
+    const course = Courses.find(courseId).fetch()[0]
+    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
+    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    question.public = false
+    question.submittedBy = course.owner
+    question.createdAt = new Date()
+
+    const id = Questions.insert(question)
+    return id
+  },
+
+  /**
    * returns a list of autocomplete tag sugguestions for the current user
     * @returns {String[]} array of string tags
    */

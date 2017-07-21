@@ -21,8 +21,8 @@ export class _StudentQuestionListItem extends QuestionListItem {
 }
 
 export const StudentQuestionListItem = createContainer((props) => {
-  const handle = Meteor.subscribe('users.myStudents') &&
-    Meteor.subscribe('users.myTAs')
+  const handle = Meteor.subscribe('users.myStudents', {cId: props.question.courseId}) &&
+    Meteor.subscribe('users.myTAs', {cId: props.question.courseId})
   const user = Meteor.users.findOne(props.question.submittedBy)
   const name = user ? user.getName() : 'Unknown'
   return {

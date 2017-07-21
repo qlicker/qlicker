@@ -33,10 +33,18 @@ class _QuestionsFromStudent extends Component {
   }
 
   copyPublicQuestion (questionId) {
-    Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
-      if (error) return alertify.error('Error: ' + error.error)
-      alertify.success('Question Copied to Library')
-    })
+    const cId = this.props.questionMap[questionId].courseId
+    if (Meteor.user().isTA(cId)) {
+      Meteor.call('questions.copyToCourse', questionId, cId, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question Copied to Library')
+      })
+    } else {
+      Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question Copied to Library')
+      })
+    }
   }
 
   deleteQuestion (questionId) {
