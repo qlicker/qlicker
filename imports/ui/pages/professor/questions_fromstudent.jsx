@@ -78,8 +78,8 @@ class _QuestionsFromStudent extends Component {
                   data-toggle='tooltip'
                   data-placement='left'
                   title='Create a copy to use in your own sessions'>
-                    Copy to Library
-                  </button>
+                  {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
+                </button>
                 <button className='btn btn-default'
                   onClick={() => { this.deleteQuestion(this.props.questionMap[this.state.selected]._id) }}
                   data-toggle='tooltip'

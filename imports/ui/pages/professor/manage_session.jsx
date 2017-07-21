@@ -392,19 +392,18 @@ class _ManageSession extends Component {
           this.state.session.status === 'done'
           ? <div className='read-only-cover'>
             <div className='message'>
-              Session has finished. To make edits, please set the status to Draft (or Upcoming). Qlicker recommends that you avoid editing sessions that students have subimitted reponses to.
+              Session has finished. To make edits, please set the status to Draft (or Upcoming). Qlicker recommends that you avoid editing sessions that students have submitted responses to.
             </div>
           </div>
           : ''
         }
-        
       </div>)
   }
 
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions') &&
+  const handle = Meteor.subscribe('sessions', {isTA: props.isTA} ) &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('questions.public') &&

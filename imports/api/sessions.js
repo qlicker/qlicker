@@ -45,7 +45,7 @@ if (Meteor.isServer) {
       const user = Meteor.users.findOne({ _id: this.userId })
       if (params && params.isTA) {
         const courseIdArray = user.profile.courses || []
-        return Sessions.find({ courseId: { $in: courseIdArray },})
+        return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasGreaterRole(ROLES.prof)) {
         const courseIdArray = _(Courses.find({ owner: user._id }).fetch()).pluck('_id') || []
         return Sessions.find({ courseId: { $in: courseIdArray } })

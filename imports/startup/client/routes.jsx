@@ -296,8 +296,10 @@ Router.route('/session/edit/:_id', {
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
   },
   action: function () {
-    if (Meteor.user().hasGreaterRole('professor') || Meteor.user().isTA(Sessions.findOne(this.params._id).courseId)) {
-      mount(AppLayout, { content: <PageContainer> <ManageSession sessionId={this.params._id} /> </PageContainer> })
+    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    const isTA = Meteor.user().isTA(cId)
+    if (Meteor.user().hasGreaterRole('professor') || isTA) {
+      mount(AppLayout, { content: <PageContainer> <ManageSession isTA={isTA} sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -309,7 +311,8 @@ Router.route('/session/run/:_id', {
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
   },
   action: function () {
-    if (Meteor.user().hasGreaterRole('professor') || Meteor.user().isTA(Sessions.findOne(this.params._id).courseId)) {
+    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    if (Meteor.user().hasGreaterRole('professor') || Meteor.user().isTA(cId)) {
       mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
