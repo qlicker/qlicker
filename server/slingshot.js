@@ -1,19 +1,17 @@
 import { Meteor } from 'meteor/meteor'
+import { Slingshot } from 'meteor/edgee:slingshot'
 
 Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
-  maxSize: 2 * 500 * 500,
+  maxSize: 1 * 1024 * 1024, // 1MB
   bucket: Meteor.settings.bucket,
   acl: 'public-read',
 
   authorize: function (file, metaContext) {
-    console.log('HERE')
-    return true
+    return Meteor.user().hasGreaterRole('professor')
   },
 
   key: function (file, metaContext) {
-    // User's image url with ._id attached:
-    console.log('THERE')
-    return 'test'
+    return file.name + '_' + (new Date()).getTime()
   }
 })

@@ -315,7 +315,7 @@ export class QuestionEditItem extends Component {
    * Handle image uploaded through wysiwyg editor. Uploads images to QuestionImages GridFS store
    * @param {File} file
    */
-  /*uploadImageCallBack (file) {
+  /* uploadImageCallBack (file) {
     console.log('UPLOADING')
     return new Promise(
       (resolve, reject) => {
@@ -331,7 +331,7 @@ export class QuestionEditItem extends Component {
         }) // .insert
       } // (resolve, reject)
     )
-  } // end uploadImageCallBack*/
+  } // end uploadImageCallBack */
 
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
@@ -360,6 +360,7 @@ export class QuestionEditItem extends Component {
               change={changeHandler}
               val={a.content}
               className='answer-editor'
+              question={this.state}
               />
 
             <span
@@ -454,7 +455,8 @@ export class QuestionEditItem extends Component {
                 change={this.onEditorStateChange}
                 val={this.state.content}
                 className='question-editor'
-                placeholder='Question?' />
+                placeholder='Question?' 
+                question={this.state}/>
 
               { this.props.onDeleteThis
                 ? <span

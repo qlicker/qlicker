@@ -5,6 +5,7 @@
 // Editor.jsx: react wrapper for ckeditor
 
 import React, { Component } from 'react'
+import { Slingshot } from 'meteor/edgee:slingshot'
 
 /**
  * React component wrapper for CKEditor.
@@ -69,35 +70,23 @@ export class Editor extends Component {
       let upload = evt.data.requestData.upload
       let file = upload.file
       var reader = new FileReader()
+      reader.readAsDataURL(file)
       evt.stop() // otherwise it will get automatically posted
       reader.addEventListener('loadend', function (e) {
         const fileURL = reader.result
         this.fileURLs.push(fileURL)
-
+        let editor = this.editor
         var slingshotUpload = new Slingshot.Upload('QuestionImages')
         slingshotUpload.send(file, function (error, downloadUrl) {
-          // uploader.set()
           if (error) {
             console.error('Error uploading')
           } else {
             console.log('Success!')
+            const img = '<img src=' + downloadUrl + ' />'
+            editor.insertHtml(img)
           }
         })
       }.bind(this))
-      reader.readAsDataURL(file)
-    }.bind(this))
-
-    this.editor.on('fileUploadResponse', function (evt) {
-      // Prevent the default response handler.
-      evt.stop()
-      console.log('In resp')
-      console.log('URL from FS: ' + this.lastFileURL)
-      if (this.fileURLs[this.fileURLs.length - 1]) {
-        evt.data.url = this.lastFileURL
-      } else {
-        console.log('canceled in response')
-        evt.cancel()
-      }
     }.bind(this))
   }
 

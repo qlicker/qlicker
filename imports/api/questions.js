@@ -304,7 +304,7 @@ Meteor.methods({
       $set: _.omit(question, '_id')
     })
 
-    if (r) return question._id
+    if (r) return question
     else throw Error('Unable to update')
   },
 
