@@ -46,9 +46,9 @@ Meteor.methods({
    * @returns {Image} new image
    */
   'images.insert' (image) {
-    const exists = !!Images.findOne({ dataURL: image.dataURL })
+    const exists = !!Images.findOne(image._id)
     if (exists) {
-      return null//Meteor.call('images.update', image)
+      return Meteor.call('images.update', image)
     }
     return Images.insert(image)
   },
@@ -59,6 +59,7 @@ Meteor.methods({
    * @returns {MongoID} id of updated image
    */
   'images.update' (image) {
+    return Images.update(image._id, image)
   },
 
   /**

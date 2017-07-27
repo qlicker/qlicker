@@ -6,6 +6,10 @@
 
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
+import { Images } from '../api/images'
+import $ from 'jquery'
+
+let UUID = require('uuid-1345')
 
 /**
  * React component wrapper for CKEditor.
@@ -23,6 +27,7 @@ export class Editor extends Component {
     this.fileURLs = []
     this.state = { val: this.props.val }
     this.editor = null
+    this.attachRemoveHandler = this.attachRemoveHandler.bind(this)
   }
 
   setupCKEditor () {
@@ -62,6 +67,15 @@ export class Editor extends Component {
     }) */
   }
 
+  attachRemoveHandler (img, ID) {
+    $('#' + ID).on('DOMNodeRemovedFromDocument', function (e) {
+      img.count -= 1
+      Meteor.call('images.update', img, (e) => {
+        if (e) return alertify.error('Error updating image')
+      })
+    })
+  }
+
   componentDidMount () {
     this.setupCKEditor()
     this.componentDidUpdate()
@@ -74,18 +88,38 @@ export class Editor extends Component {
       evt.stop() // otherwise it will get automatically posted
       reader.addEventListener('loadend', function (e) {
         const fileURL = reader.result
-        this.fileURLs.push(fileURL)
+        const UID = UUID.v5({
+          namespace: '00000000-0000-0000-0000-000000000000',
+          name: fileURL})
+        let image = {UID: UID}
+        const existing = Images.find(image).fetch()[0]
         let editor = this.editor
-        var slingshotUpload = new Slingshot.Upload('QuestionImages')
-        slingshotUpload.send(file, function (error, downloadUrl) {
-          if (error) {
-            console.error('Error uploading')
-          } else {
-            console.log('Success!')
-            const img = '<img src=' + downloadUrl + ' />'
-            editor.insertHtml(img)
-          }
-        })
+        if (existing) {
+          existing.count += 1
+          const imgID = existing.UID + '_' + existing.count
+          const elem = '<img src=' + existing.url +
+            ' onLoad=console.log(\'test\')' +
+            ' id=' + imgID + ' />'
+          const img = CKEDITOR.dom.element.createFromHtml(elem)
+          editor.insertElement(img)
+          this.attachRemoveHandler(existing, imgID)
+          Meteor.call('images.update', existing, (e) => {
+            if (e) return alertify.error('Error updating image')
+          })
+        } else {
+          image.count = 1
+          var slingshotUpload = new Slingshot.Upload('QuestionImages', {UID: UID})
+          slingshotUpload.send(file, function (e, downloadUrl) {
+            if (e) return alertify.error('Error uploading')
+            else {
+              image.url = downloadUrl
+              const imgID = image.UID + '_' + image.count
+              const img = CKEDITOR.dom.element.createFromHtml('<img src=' + image.url + ' id=' + imgID + ' />')
+              editor.insertElement(img)
+            }
+          })
+        }
+        this.fileURLs.push(fileURL)
       }.bind(this))
     }.bind(this))
   }

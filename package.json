@@ -46,7 +46,8 @@
     "recharts": "^0.21.0",
     "streamsearch": "^0.1.2",
     "syntastic-react": "^1.0.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "uuid-1345": "^0.99.6"
   },
   "devDependencies": {
     "codecov": "^1.0.1",

@@ -26,5 +26,6 @@ CKEDITOR.editorConfig = function (config) {
   config.extraPlugins = 'confighelper,mathjax,uploadwidget,uploadimage,sourcedialog'
   config.line_height = '1em'
   config.uploadUrl = '/upload/images'
+  config.allowedContent = 'img[*]'
 
 }

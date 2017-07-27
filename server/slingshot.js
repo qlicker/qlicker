@@ -12,6 +12,6 @@ Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
   },
 
   key: function (file, metaContext) {
-    return file.name + '_' + (new Date()).getTime()
+    return metaContext.UID
   }
 })
