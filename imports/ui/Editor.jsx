@@ -27,7 +27,7 @@ export class Editor extends Component {
     this.fileURLs = []
     this.state = { val: this.props.val }
     this.editor = null
-    this.attachRemoveHandler = this.attachRemoveHandler.bind(this)
+    this.addImage = this.addImage.bind(this)
   }
 
   setupCKEditor () {
@@ -35,6 +35,8 @@ export class Editor extends Component {
     CKEDITOR.plugins.addExternal('notification', '/ckeditor/plugins/notification/', 'plugin.js')
     CKEDITOR.plugins.addExternal('notificationaggregator', '/ckeditor/plugins/notificationaggregator/', 'plugin.js')
     CKEDITOR.plugins.addExternal('filetools', '/ckeditor/plugins/filetools/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('image2', '/ckeditor/plugins/image2/', 'plugin.js')
+    CKEDITOR.plugins.addExternal('mathjax', '/ckeditor/plugins/mathjax/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadwidget', '/ckeditor/plugins/uploadwidget/', 'plugin.js')
     CKEDITOR.plugins.addExternal('uploadimage', '/ckeditor/plugins/uploadimage/', 'plugin.js')
     CKEDITOR.plugins.addExternal('sharedspace', '/ckeditor/plugins/sharedspace/', 'plugin.js')
@@ -48,7 +50,7 @@ export class Editor extends Component {
     this.editor = CKEDITOR.inline(this.refs.theEditor, {
       placeholder: this.props.placeholder || '',
       customConfig: '/ckeditor/config.js',
-      extraPlugins: 'sharedspace,confighelper,mathjax,uploadwidget,uploadimage,sourcedialog',
+      extraPlugins: 'sharedspace,confighelper,mathjax,uploadwidget,uploadimage,sourcedialog,image2',
       removePlugins: 'floatingspace,resize',
       sharedSpaces: {
         top: 'ckeditor-toolbar'
@@ -58,21 +60,16 @@ export class Editor extends Component {
     this.editor.on('change', () => {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
-
-    /* this.editor.on('fileUploadResponse', () => {
-      console.log('FILE UPLOAD')
-      setTimeout(() => {
-        this.props.change(this.editor.getData(), this.editor.editable().getText())
-      }, 200)
-    }) */
   }
 
-  attachRemoveHandler (img, ID) {
-    $('#' + ID).on('DOMNodeRemovedFromDocument', function (e) {
-      img.count -= 1
-      Meteor.call('images.update', img, (e) => {
-        if (e) return alertify.error('Error updating image')
-      })
+  addImage (image) {
+    const imgID = image.UID + '_' + image.count
+    var element = this.editor.document.createElement('img')
+    this.editor.insertElement(element)
+    this.editor.widgets.initOn(element, 'image', {src: image.url,
+      id: imgID})
+    Meteor.call('images.insert', image, (e) => {
+      if (e) return alertify.error('Error updating image')
     })
   }
 
@@ -85,7 +82,7 @@ export class Editor extends Component {
       let file = upload.file
       var reader = new FileReader()
       reader.readAsDataURL(file)
-      evt.stop() // otherwise it will get automatically posted
+      evt.stop()
       reader.addEventListener('loadend', function (e) {
         const fileURL = reader.result
         const UID = UUID.v5({
@@ -93,29 +90,19 @@ export class Editor extends Component {
           name: fileURL})
         let image = {UID: UID}
         const existing = Images.find(image).fetch()[0]
-        let editor = this.editor
         if (existing) {
-          existing.count += 1
-          const imgID = existing.UID + '_' + existing.count
-          const elem = '<img src=' + existing.url +
-            ' onLoad=console.log(\'test\')' +
-            ' id=' + imgID + ' />'
-          const img = CKEDITOR.dom.element.createFromHtml(elem)
-          editor.insertElement(img)
-          this.attachRemoveHandler(existing, imgID)
-          Meteor.call('images.update', existing, (e) => {
-            if (e) return alertify.error('Error updating image')
-          })
+          image = existing
+          image.count += 1
+          this.addImage(image)
         } else {
           image.count = 1
+          const ref = this
           var slingshotUpload = new Slingshot.Upload('QuestionImages', {UID: UID})
           slingshotUpload.send(file, function (e, downloadUrl) {
             if (e) return alertify.error('Error uploading')
             else {
               image.url = downloadUrl
-              const imgID = image.UID + '_' + image.count
-              const img = CKEDITOR.dom.element.createFromHtml('<img src=' + image.url + ' id=' + imgID + ' />')
-              editor.insertElement(img)
+              ref.addImage(image)
             }
           })
         }

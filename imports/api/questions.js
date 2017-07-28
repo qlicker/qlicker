@@ -89,8 +89,8 @@ if (Meteor.isServer) {
   Meteor.publish('images', function () { return QuestionImages.find() })
 }
 QuestionImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
-QuestionImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true }) */
-/*
+QuestionImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
+
 // Post route for accepting image uploads (for ckeditor)
 if (Meteor.isserver) Router.use(Router.bodyParser())
 Router.route('/upload/images', { where: 'server',

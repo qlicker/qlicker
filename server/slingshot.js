@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { Slingshot } from 'meteor/edgee:slingshot'
 
 Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
-  allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+  allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
   maxSize: 1 * 1024 * 1024, // 1MB
   bucket: Meteor.settings.bucket,
   acl: 'public-read',

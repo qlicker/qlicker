@@ -5,6 +5,7 @@
 
 import React, { Component } from 'react'
 import { _ } from 'underscore'
+import ReactTooltip from 'react-tooltip'
 
 import { createContainer } from 'meteor/react-meteor-data'
 
@@ -245,6 +246,8 @@ class _RunSession extends Component {
     const numAnswered = this.props.responses.length
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
+    const students = Meteor.users.find({ _id: { $in: this.state.session.joined } }, { sort: { 'profile.lastname': 1 } }).fetch()
+
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
@@ -259,7 +262,14 @@ class _RunSession extends Component {
             Edit Session
           </span>
           <span className='divider'>&nbsp;</span>
-          <span className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <span data-tip data-for='global' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <ReactTooltip id='global' place='bottom' type='dark' effect='solid'>
+            {students.map((student) =>
+              <div key={student._id}>
+                <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>
+              </div>
+            )}
+          </ReactTooltip>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
@@ -346,7 +356,8 @@ export const RunSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
-    Meteor.subscribe('responses.forSession', props.sessionId)
+    Meteor.subscribe('responses.forSession', props.sessionId) &&
+    Meteor.subscribe('users.myStudents')
 
   const session = Sessions.findOne(props.sessionId)
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()

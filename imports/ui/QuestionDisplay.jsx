@@ -291,7 +291,7 @@ export class _QuestionDisplay extends Component {
               { (classSuffixStr === 'ms' && !this.props.forReview) ? <input type='checkbox' className='ql-checkbox' /> : '' }
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content} {a.correct ? '✓' : ''}
+              {content} {(this.props.forReview && a.correct) ? '✓' : ''}
             </div>
           </div>)
       })

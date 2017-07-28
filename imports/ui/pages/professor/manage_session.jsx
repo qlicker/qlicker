@@ -17,6 +17,7 @@ import { Creatable } from 'react-select'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
+import { Courses } from '../../../api/courses'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
@@ -163,12 +164,16 @@ class _ManageSession extends Component {
    */
   addNewQuestion () {
     const sessionId = this.state.session._id
+    let tags = []
+    const code = Courses.findOne(this.state.session.courseId).courseCode().toUpperCase()
+    tags.push({ value: code, label: code })
+
     const blankQuestion = {
       plainText: '', // plain text version of question
       type: -1,
       content: '', // wysiwyg display content
       options: [],
-      tags: [],
+      tags: tags,
       sessionId: sessionId,
       courseId: this.state.session.courseId
     }
@@ -287,6 +292,8 @@ class _ManageSession extends Component {
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
+          <h3 className='session-title'>Session Editor</h3>
+          <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={this.runSession}>
             <span className='glyphicon glyphicon-play' />&nbsp;
             {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
@@ -371,7 +378,6 @@ class _ManageSession extends Component {
             {
               questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
-
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
                     onDeleteThis={() => this.removeQuestion(questionId)}
