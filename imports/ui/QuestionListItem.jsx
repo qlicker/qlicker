@@ -7,7 +7,7 @@
 import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
-
+import LinesEllipsis from 'react-lines-ellipsis'
 
 /**
  * React component list item for each question.
@@ -30,7 +30,11 @@ export class QuestionListItem extends ListItem {
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item ql-list-item'}
         onClick={this.click} >
-        <span className='ql-question-name'>{content || <span className='new-question-placeholder'>New Question</span> }</span>
+        <span className='ql-question-name'>{<LinesEllipsis
+          text={content}
+          maxLine='3'
+          trimRight
+          basedOn='words' /> || <span className='new-question-placeholder'>New Question</span> }</span>
         { this.props.details ? <span className='ql-question-details'>{this.props.details}</span> : '' }
         <div className='ql-label-list'>
           {
