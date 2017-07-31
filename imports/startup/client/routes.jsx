@@ -322,11 +322,15 @@ import { Session } from '../../ui/pages/student/session'
 Router.route('/session/present/:_id', {
   name: 'session',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses')
   },
   action: function () {
-    if (Meteor.user()) {
+    const user = Meteor.user()
+    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    if (user && (user.hasRole('professor') || user.isTA(cId))) {
       mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
+    } else if (user) {
+      mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })

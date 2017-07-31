@@ -21,7 +21,7 @@ export const DEFAULT_STATE = {
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
   options: [], // { correct: false, answer: 'A', content: editor content }
-  submittedBy: '',
+  creator: '',
   tags: []
 }
 
@@ -55,6 +55,7 @@ export class QuestionEditItem extends Component {
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
+      this.state.owner = Meteor.userId()
 
       this.currentAnswer = this.state.options ? this.state.options.length : 0
       switch (this.state.type) {
@@ -70,7 +71,8 @@ export class QuestionEditItem extends Component {
       }
     } else { // if adding new question
       this.state = _.extend({}, DEFAULT_STATE)
-      this.state.submittedBy = Meteor.userId()
+      this.state.creator = Meteor.userId()
+      this.state.owner = Meteor.userId()
       // tracking for adding new mulitple choice answers
       this.currentAnswer = 0
       this.answerOrder = MC_ORDER

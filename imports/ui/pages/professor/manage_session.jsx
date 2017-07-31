@@ -419,7 +419,7 @@ export const ManageSession = createContainer((props) => {
 
   return {
     questions: _.indexBy(questionsInSession, '_id'),
-    questionLibrary: Questions.find({ submittedBy: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
+    questionLibrary: Questions.find({ owner: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
     questionPublic: Questions.find({ public: true, courseId: {$exists: false} }).fetch(),
     questionFromStudents: Questions.find({ courseId: session.courseId, sessionId: {$exists: false}, public: true }).fetch(),
     session: session,

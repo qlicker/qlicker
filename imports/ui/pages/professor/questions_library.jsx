@@ -109,7 +109,7 @@ export const QuestionsLibrary = createContainer(() => {
   const handle = Meteor.subscribe('questions.library')
 
   const library = Questions.find({
-    submittedBy: Meteor.userId(),
+    owner: Meteor.userId(),
     sessionId: {$exists: false}
   }, { sort: { createdAt: -1 } })
   .fetch()

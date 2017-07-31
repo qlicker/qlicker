@@ -13,7 +13,7 @@ export const DEFAULT_STATE = {
   description: '',
   courseId: '',
   quiz: false,
-  dueDate: undefined
+  date: undefined
 }
 
 /**

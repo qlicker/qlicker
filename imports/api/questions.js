@@ -31,7 +31,8 @@ const questionPattern = {
     content: String,
     plainText: String
   } ],
-  submittedBy: Helpers.MongoID,
+  creator: Helpers.MongoID,
+  owner: Match.Maybe(Helpers.MongoID),
   // null if template, questionId of original once copied to question
   originalQuestion: Match.Maybe(Helpers.MongoID),
   // null if question template, sessionId if copy attached to question
@@ -227,7 +228,7 @@ if (Meteor.isServer) {
       const user = Meteor.users.findOne(this.userId)
       if (!user.hasRole(ROLES.prof)) return this.ready()
 
-      return Questions.find({ submittedBy: this.userId, sessionId: {$exists: false} })
+      return Questions.find({ owner: this.userId, sessionId: {$exists: false} })
     } else this.ready()
   })
 
@@ -271,7 +272,7 @@ Meteor.methods({
 
     question.createdAt = new Date()
     question.public = false
-    question.submittedBy = Meteor.userId()
+    question.creator = Meteor.userId()
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasRole(ROLES.student)) {
@@ -298,7 +299,7 @@ Meteor.methods({
     check(question, questionPattern)
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (question.submittedBy !== Meteor.userId() && !user.hasGreaterRole('professor') && !user.isTA(question.courseId)) throw Error('Not authorized to update question')
+    if (question.owner !== Meteor.userId() && !user.hasGreaterRole('professor') && !user.isTA(question.courseId)) throw Error('Not authorized to update question')
 
     const r = Questions.update({ _id: question._id }, {
       $set: _.omit(question, '_id')
@@ -321,7 +322,7 @@ Meteor.methods({
 
     yourCourses = yourCourses.concat(TACourses)
 
-    const ownQuestion = question.submittedBy === Meteor.userId()
+    const ownQuestion = question.owner === Meteor.userId()
     const fromYourStudent = question.courseId && yourCourses.indexOf(question.courseId) > -1
     if (!ownQuestion && !fromYourStudent) throw Error('Not authorized to delete question')
 
@@ -340,6 +341,7 @@ Meteor.methods({
     question.originalQuestion = questionId
     question.sessionId = sessionId
     question.courseId = session.courseId
+    question.owner = Meteor.userId()
 
     const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
@@ -354,7 +356,7 @@ Meteor.methods({
     const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
     const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     question.public = false
-    question.submittedBy = Meteor.userId()
+    question.owner = Meteor.userId()
     question.createdAt = new Date()
 
     const id = Questions.insert(question)
@@ -362,7 +364,7 @@ Meteor.methods({
   },
 
   /**
-   * duplicates a public question and adds it to your library
+   * duplicates a public question and adds it to the profs library
    * @param {MongoId} questionId
    * * @param {MongoId} courseId
    */
@@ -371,7 +373,7 @@ Meteor.methods({
     const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
     const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     question.public = false
-    question.submittedBy = course.owner
+    question.owner = course.owner
     question.createdAt = new Date()
 
     const id = Questions.insert(question)
@@ -391,7 +393,7 @@ Meteor.methods({
         tags.add(c.courseCode().toUpperCase())
       })
 
-      const profQuestions = Questions.find({ submittedBy: Meteor.userId() }).fetch()
+      const profQuestions = Questions.find({ owner: Meteor.userId() }).fetch()
       profQuestions.forEach((q) => {
         q.tags.forEach((t) => {
           tags.add(t.label.toUpperCase())
@@ -415,7 +417,7 @@ Meteor.methods({
    */
   'questions.addTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() && !Meteor.user().isTA(q.courseId)) throw Error('Not authorized to update question')
+    if (q.owner !== Meteor.userId() && !Meteor.user().isTA(q.courseId)) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $addToSet: { tags: tag }
@@ -429,7 +431,7 @@ Meteor.methods({
    */
   'questions.removeTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() && !Meteor.user().isTA(q.courseId)) throw Error('Not authorized to update question')
+    if (q.owner !== Meteor.userId() && !Meteor.user().isTA(q.courseId)) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $pull: { tags: tag }
