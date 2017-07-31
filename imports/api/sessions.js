@@ -27,7 +27,8 @@ const sessionPattern = {
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
   joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
-  tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ])
+  tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ]),
+  reviewable: Match.Maybe(Boolean)
 }
 
 // Create Session class
@@ -37,13 +38,15 @@ _.extend(Session.prototype, {})
 // Create course collection
 export const Sessions = new Mongo.Collection('sessions',
   { transform: (doc) => { return new Session(doc) } })
-
 // data publishing
 if (Meteor.isServer) {
-  Meteor.publish('sessions', function () {
+  Meteor.publish('sessions', function (params) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole(ROLES.prof)) {
+      if (params && params.isTA) {
+        const courseIdArray = user.profile.courses || []
+        return Sessions.find({ courseId: { $in: courseIdArray } })
+      } else if (user.hasGreaterRole(ROLES.prof)) {
         const courseIdArray = _(Courses.find({ owner: user._id }).fetch()).pluck('_id') || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasRole(ROLES.student)) {
@@ -103,6 +106,7 @@ Meteor.methods({
         description: session.description,
         status: session.status,
         quiz: session.quiz,
+        reviewable: session.reviewable,
         date: session.date || undefined,
         tags: session.tags || undefined
       }
@@ -211,6 +215,7 @@ Meteor.methods({
   'sessions.startSession' (sessionId) {
     const s = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(s.courseId)
+    if (s.status === 'running') return
     return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0] } })
   },
 
@@ -255,6 +260,21 @@ Meteor.methods({
     return Sessions.update({ _id: sessionId }, {
       $set: {
         currentQuestion: questionId
+      }
+    })
+  },
+
+  /**
+   * toggles the ability for students to review previous sessions
+   * @param {MongoId} sessionId
+   */
+  'sessions.toggleReviewable' (sessionId) {
+    const session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, {
+      $set: {
+        reviewable: !session.reviewable
       }
     })
   },

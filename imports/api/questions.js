@@ -74,7 +74,7 @@ _.extend(Question.prototype, {
 export const Questions = new Mongo.Collection('questions',
   { transform: (doc) => { return new Question(doc) } })
 
-var imageStore = new FS.Store.GridFS('images')
+/* var imageStore = new FS.Store.GridFS('images')
 
 export const QuestionImages = new FS.Collection('images', {
   stores: [imageStore],
@@ -146,7 +146,7 @@ Router.route('/upload/images', { where: 'server',
       }
     })
   })
-})
+}) */
 
 // data publishing
 if (Meteor.isServer) {
@@ -162,11 +162,18 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
+  Meteor.publish('questions.forReview', function (sessionId) {
+    if (this.userId) {
+      return Questions.find({ sessionId: sessionId })
+    } else this.ready()
+  })
+
   // questions in a specific question
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
-      if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: sessionId })
+      const course = Courses.findOne({'sessions': sessionId})
+      if (user.hasRole(ROLES.prof) || user.isTA(course._id)) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole(ROLES.student)) {
         // by default fetch all Qs without correct indicator
@@ -234,7 +241,9 @@ if (Meteor.isServer) {
   // questions submitted to specific course
   Meteor.publish('questions.fromStudent', function () {
     if (this.userId) {
-      const cArr = _(Courses.find({ owner: this.userId }).fetch()).pluck('_id')
+      const user = Meteor.users.findOne(this.userId)
+      let cArr = user.profile.TA || []
+      cArr = cArr.concat(_(Courses.find({ owner: this.userId }).fetch()).pluck('_id'))
       return Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
@@ -288,13 +297,14 @@ Meteor.methods({
     check(question._id, Helpers.MongoID)
     check(question, questionPattern)
 
-    if (question.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (question.submittedBy !== Meteor.userId() && !user.hasGreaterRole('professor') && !user.isTA(question.courseId)) throw Error('Not authorized to update question')
 
     const r = Questions.update({ _id: question._id }, {
       $set: _.omit(question, '_id')
     })
 
-    if (r) return question._id
+    if (r) return question
     else throw Error('Unable to update')
   },
 
@@ -306,7 +316,10 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const question = Questions.findOne({ _id: questionId })
-    const yourCourses = _(Courses.find({ owner: Meteor.userId() }).fetch()).pluck('_id')
+    let yourCourses = _(Courses.find({ owner: Meteor.userId() }).fetch()).pluck('_id')
+    const TACourses = Meteor.users.findOne({ _id: Meteor.userId() }).profile.TA
+
+    yourCourses = yourCourses.concat(TACourses)
 
     const ownQuestion = question.submittedBy === Meteor.userId()
     const fromYourStudent = question.courseId && yourCourses.indexOf(question.courseId) > -1
@@ -349,12 +362,28 @@ Meteor.methods({
   },
 
   /**
+   * duplicates a public question and adds it to your library
+   * @param {MongoId} questionId
+   * * @param {MongoId} courseId
+   */
+  'questions.copyToCourse' (questionId, courseId) {
+    const course = Courses.find(courseId).fetch()[0]
+    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
+    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    question.public = false
+    question.submittedBy = course.owner
+    question.createdAt = new Date()
+
+    const id = Questions.insert(question)
+    return id
+  },
+
+  /**
    * returns a list of autocomplete tag sugguestions for the current user
     * @returns {String[]} array of string tags
    */
   'questions.possibleTags' () {
     let tags = new Set()
-
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasGreaterRole('professor')) {
       const courses = Courses.find({ owner: Meteor.userId() }).fetch()
@@ -386,7 +415,7 @@ Meteor.methods({
    */
   'questions.addTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
+    if (q.submittedBy !== Meteor.userId() && !Meteor.user().isTA(q.courseId)) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $addToSet: { tags: tag }
@@ -400,7 +429,7 @@ Meteor.methods({
    */
   'questions.removeTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId()) throw Error('Not authorized to update question')
+    if (q.submittedBy !== Meteor.userId() && !Meteor.user().isTA(q.courseId)) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $pull: { tags: tag }
@@ -413,7 +442,7 @@ Meteor.methods({
    */
   'questions.startAttempt' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().hasRole(ROLES.prof) && !Meteor.user().isTA(q.courseId)) throw Error('Not authorized')
 
     if (q.sessionOptions) { // add another attempt (if first is closed)
       const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
@@ -436,7 +465,7 @@ Meteor.methods({
    */
   'questions.setAttemptStatus' (questionId, bool) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().isTA(q.courseId) && !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     if (q.sessionOptions) { // add another attempt (if first is closed)
       q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed = bool
@@ -454,7 +483,7 @@ Meteor.methods({
    */
   'questions.showStats' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().isTA(q.courseId) && !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.stats': true }
@@ -467,7 +496,7 @@ Meteor.methods({
    */
   'questions.hideStats' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().isTA(q.courseId) && !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.stats': false }
@@ -479,7 +508,7 @@ Meteor.methods({
    */
   'questions.showQuestion' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().isTA(q.courseId) && !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.hidden': false }
@@ -491,7 +520,7 @@ Meteor.methods({
    */
   'questions.hideQuestion' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().isTA(q.courseId) && !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.hidden': true }
@@ -503,7 +532,7 @@ Meteor.methods({
    */
   'questions.showCorrect' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().isTA(q.courseId) && !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.correct': true }
@@ -515,7 +544,7 @@ Meteor.methods({
    */
   'questions.hideCorrect' (questionId) {
     const q = Questions.findOne({ _id: questionId })
-    if (q.submittedBy !== Meteor.userId() || !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
+    if (!Meteor.user().isTA(q.courseId) && !Meteor.user().hasRole(ROLES.prof)) throw Error('Not authorized')
 
     return Questions.update({ _id: questionId }, {
       '$set': { 'sessionOptions.correct': false }

@@ -201,11 +201,17 @@ class _RunSession extends Component {
    * close session, set to inactive
    */
   endSession () {
-    Meteor.call('sessions.endSession', this.state.session._id, (error) => {
+    const sessionId = this.state.session._id
+    Meteor.call('sessions.endSession', sessionId, (error) => {
       if (error) return alertify.error('Error: could not end session ')
       alertify.success('Session Ended')
       Router.go('course', { _id: this.state.session.courseId }) // TODO go to grades overview page for that session
     })
+    if (!this.state.session.reviewable) {
+      Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+      })
+    }
   }
 
   componentWillReceiveProps (nextProps) {
@@ -245,7 +251,6 @@ class _RunSession extends Component {
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
-
     return (
       <div className='ql-manage-session'>
 

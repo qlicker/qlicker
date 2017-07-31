@@ -33,11 +33,18 @@ class _QuestionsFromStudent extends Component {
   }
 
   copyPublicQuestion (questionId) {
-    Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
-      if (error) return alertify.error('Error: ' + error.error)
-      alertify.success('Question Copied to Library')
-      Router.go('questions', { _id: newQuestionId })
-    })
+    const cId = this.props.questionMap[questionId].courseId
+    if (Meteor.user().isTA(cId)) {
+      Meteor.call('questions.copyToCourse', questionId, cId, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question Copied to Library')
+      })
+    } else {
+      Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question Copied to Library')
+      })
+    }
   }
 
   deleteQuestion (questionId) {
@@ -79,8 +86,8 @@ class _QuestionsFromStudent extends Component {
                   data-toggle='tooltip'
                   data-placement='left'
                   title='Create a copy to use in your own sessions'>
-                    Copy to Library
-                  </button>
+                  {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
+                </button>
                 <button className='btn btn-default'
                   onClick={() => { this.deleteQuestion(this.props.questionMap[this.state.selected]._id) }}
                   data-toggle='tooltip'

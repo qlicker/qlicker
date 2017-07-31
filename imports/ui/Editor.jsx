@@ -5,7 +5,11 @@
 // Editor.jsx: react wrapper for ckeditor
 
 import React, { Component } from 'react'
+import { Slingshot } from 'meteor/edgee:slingshot'
+import { Images } from '../api/images'
+import $ from 'jquery'
 
+let UUID = require('uuid-1345')
 
 /**
  * React component wrapper for CKEditor.
@@ -20,8 +24,10 @@ export class Editor extends Component {
   constructor (p) {
     super(p)
 
+    this.fileURLs = []
     this.state = { val: this.props.val }
     this.editor = null
+    this.addImage = this.addImage.bind(this)
   }
 
   setupCKEditor () {
@@ -54,17 +60,55 @@ export class Editor extends Component {
     this.editor.on('change', () => {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
+  }
 
-    this.editor.on('fileUploadResponse', () => {
-      setTimeout(() => {
-        this.props.change(this.editor.getData(), this.editor.editable().getText())
-      }, 200)
+  addImage (image) {
+    const imgID = image.UID + '_' + image.count
+    var element = this.editor.document.createElement('img')
+    this.editor.insertElement(element)
+    this.editor.widgets.initOn(element, 'image', {src: image.url,
+      id: imgID})
+    Meteor.call('images.insert', image, (e) => {
+      if (e) return alertify.error('Error updating image')
     })
   }
 
   componentDidMount () {
     this.setupCKEditor()
     this.componentDidUpdate()
+
+    this.editor.on('fileUploadRequest', function (evt) {
+      let upload = evt.data.requestData.upload
+      let file = upload.file
+      var reader = new FileReader()
+      reader.readAsDataURL(file)
+      evt.stop()
+      reader.addEventListener('loadend', function (e) {
+        const fileURL = reader.result
+        const UID = UUID.v5({
+          namespace: '00000000-0000-0000-0000-000000000000',
+          name: fileURL})
+        let image = {UID: UID}
+        const existing = Images.find(image).fetch()[0]
+        if (existing) {
+          image = existing
+          image.count += 1
+          this.addImage(image)
+        } else {
+          image.count = 1
+          const ref = this
+          var slingshotUpload = new Slingshot.Upload('QuestionImages', {UID: UID})
+          slingshotUpload.send(file, function (e, downloadUrl) {
+            if (e) return alertify.error('Error uploading')
+            else {
+              image.url = downloadUrl
+              ref.addImage(image)
+            }
+          })
+        }
+        this.fileURLs.push(fileURL)
+      }.bind(this))
+    }.bind(this))
   }
 
   componentWillReceiveProps (nextProps) {

@@ -25,6 +25,7 @@ const coursePattern = {
   semester: Helpers.NEString, // F17, W16, S15, FW16 etc.
   inactive: Match.Maybe(Boolean),
   students: Match.Maybe([Helpers.MongoID]),
+  TAs: Match.Maybe([Helpers.MongoID]),
   sessions: Match.Maybe([Helpers.MongoID]),
   createdAt: Date
 }
@@ -46,11 +47,13 @@ export const Courses = new Mongo.Collection('courses',
 
 // data publishing
 if (Meteor.isServer) {
-  Meteor.publish('courses', function () {
+  Meteor.publish('courses', function (params) {
     if (this.userId) {
       let user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.prof)) {
-        return Courses.find({ owner: this.userId })
+        return Courses.find({owner: this.userId}) // finds all the course owned
+      } else if (params && params.isTA) {
+        return Courses.find({ _id: { $in: user.profile.TA } })
       } else {
         let coursesArray = user.profile.courses || []
         return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
@@ -101,7 +104,8 @@ export const profHasCoursePermission = (courseId) => {
   let courseOwner = Courses.findOne({ _id: courseId }).owner
 
   if (Meteor.user().hasRole(ROLES.admin) ||
-      (Meteor.user().hasRole(ROLES.prof) && Meteor.userId() === courseOwner)) {
+      (Meteor.user().hasRole(ROLES.prof) && Meteor.userId() === courseOwner) ||
+      _.contains(Meteor.user().profile.TA, courseId)) {
     return
   } else {
     throw new Meteor.Error('not-authorized')
@@ -240,6 +244,29 @@ Meteor.methods({
   },
 
   /**
+   * adds a TA to a course
+   * @param {String} email
+   * @param {String} courseId
+   */
+  'courses.addTA' (email, courseId) {
+    check(email, Helpers.Email)
+    if (!Meteor.user().hasRole(ROLES.prof)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    Meteor.users.update({ _id: user._id }, {
+      $addToSet: { 'profile.courses': courseId,
+        'profile.TA': courseId}
+    })
+    Courses.update({ _id: courseId }, {
+      $pull: { students: user._id }
+    })
+    return Courses.update({ _id: courseId }, {
+      '$addToSet': { TAs: user._id }
+    })
+  },
+
+  /**
    * removes a student to course
    * @param {MongoID} courseId
    * @param {MongoId} studentUserId
@@ -255,6 +282,26 @@ Meteor.methods({
     })
     return Courses.update({ _id: courseId }, {
       $pull: { students: studentUserId }
+    })
+  },
+
+  /**
+   * removes a student to course
+   * @param {MongoID} courseId
+   * @param {MongoId} TAUserId
+   */
+  'courses.removeTA' (courseId, TAUserId) {
+    check(courseId, Helpers.MongoID)
+    check(TAUserId, Helpers.MongoID)
+
+    profHasCoursePermission(courseId)
+
+    Meteor.users.update({ _id: TAUserId }, {
+      $pull: { 'profile.courses': courseId,
+        'profile.TA': courseId }
+    })
+    return Courses.update({ _id: courseId }, {
+      $pull: { TAs: TAUserId }
     })
   },
 

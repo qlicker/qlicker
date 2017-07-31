@@ -28,6 +28,9 @@ class _PageContainer extends Component {
   }
 
   render () {
+    const TAs = this.state.user.profile.TA || []
+    const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
+
     const logout = () => {
       Router.go('login')
       Meteor.logout()
@@ -68,12 +71,14 @@ class _PageContainer extends Component {
                   </ul>
                 </li>
                 {
-                  this.state.user.hasRole('professor')
+                  this.state.user.hasRole('professor') || isTA
                     ? <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
                       <ul className='dropdown-menu' >
+                        {this.state.user.hasRole('professor') ?
                         <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
-                        <li role='separator' className='divider' >&nbsp;</li>
+                        : '' }
+                        {this.state.user.hasRole('professor') ? <li role='separator' className='divider' >&nbsp;</li> : ''}
                         <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a></li>
                         <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
                       </ul>
@@ -81,7 +86,7 @@ class _PageContainer extends Component {
                     : ''
                 }
                 {
-                  this.state.user.hasRole('professor') ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
+                  this.state.user.hasRole('professor') || isTA ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
                   : '' }
               </ul>
 

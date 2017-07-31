@@ -36,6 +36,9 @@ _.extend(User.prototype, {
   hasRole: function (role) {
     return this.profile.roles.indexOf(role) !== -1
   },
+  isTA: function (courseId) {
+    return _.contains(this.profile.TA, courseId)
+  },
   hasGreaterRole: function (role) {
     if (this.profile.roles.indexOf(role) !== -1) return true
     else if (role === ROLES.prof && this.profile.roles.indexOf(ROLES.admin) !== -1) return true
@@ -69,23 +72,46 @@ if (Meteor.isServer) {
 ProfileImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
 ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
 
-
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     if (this.userId) return Meteor.users.find({ _id: this.userId })
     else this.ready()
   })
 
-  Meteor.publish('users.myStudents', function () {
+  Meteor.publish('users.myStudents', function (params) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && user.hasGreaterRole(ROLES.prof)) {
+    if (user && (user.hasGreaterRole(ROLES.prof))) {
       let studentRefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])
       })
-      return Meteor.users.find({ _id: { $in: studentRefs } }, { fields: { services: false } })
+      return Meteor.users.find({_id: {$in: studentRefs}}, {fields: {services: false}})
+    } else if (params && user.isTA(params.cId)) {
+      let studentRefs = []
+      Courses.find({_id: params.cId}).fetch().forEach((c) => {
+        studentRefs = studentRefs.concat(c.students || [])
+      })
+      return Meteor.users.find({_id: {$in: studentRefs}}, {fields: {services: false}})
+    } else return this.ready()
+  })
+
+  Meteor.publish('users.myTAs', function (params) {
+    if (!this.userId) return this.ready()
+    const user = Meteor.users.findOne({ _id: this.userId })
+    if (user && (user.hasGreaterRole(ROLES.prof))) {
+      let TARefs = []
+      Courses.find({ owner: user._id }).fetch().forEach((c) => {
+        TARefs = TARefs.concat(c.TAs || [])
+      })
+      return Meteor.users.find({_id: {$in: TARefs}}, {fields: {services: false}})
+    } else if (params && user.isTA(params.cId)) {
+      let TARefs = []
+      Courses.find({_id: params.cId}).fetch().forEach((c) => {
+        TARefs = TARefs.concat(c.TAs || [])
+      })
+      return Meteor.users.find({_id: {$in: TARefs}}, {fields: {services: false}})
     } else return this.ready()
   })
 
