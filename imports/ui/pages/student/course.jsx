@@ -60,7 +60,7 @@ class _Course extends Component {
         <br />
 
         { this.state.submittingQuestion
-          ? <CreateQuestionModal courseId={this.props.course._id} done={toggleSubmittingQuestion} />
+          ? <CreateQuestionModal courseId={this.props.course._id} semester={this.props.course.semester} done={toggleSubmittingQuestion} />
           : '' }
 
       </div>)

@@ -1,4 +1,5 @@
 /* global confirm  */
+/* global MathJax */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -7,7 +8,10 @@
 import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
+import { WysiwygHelper } from '../wysiwyg-helpers'
+
 import LinesEllipsis from 'react-lines-ellipsis'
+
 
 /**
  * React component list item for each question.
@@ -18,6 +22,9 @@ import LinesEllipsis from 'react-lines-ellipsis'
  */
 export class QuestionListItem extends ListItem {
 
+  componentDidUpdate () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
 
   render () {
     const s = this.props.session
@@ -25,16 +32,13 @@ export class QuestionListItem extends ListItem {
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
     const isCurrent = s && s.status === 'running' && (s.currentQuestion === q._id)
-    const content = isCurrent ? <div className='current-question-list-item'>{q.plainText}</div> : q.plainText
+    const truncated = WysiwygHelper.htmlDiv(q.content) // <LinesEllipsis text={''} maxLine='3' trimRight basedOn='words' />
+    const content = <div className={isCurrent ? 'current-question-list-item' : ''}>{truncated}</div>
     const tags = q.tags || []
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item ql-list-item'}
         onClick={this.click} >
-        <span className='ql-question-name'>{<LinesEllipsis
-          text={content}
-          maxLine='3'
-          trimRight
-          basedOn='words' /> || <span className='new-question-placeholder'>New Question</span> }</span>
+        <span className='ql-question-name'>{content || <span className='new-question-placeholder'>New Question</span> }</span>
         { this.props.details ? <span className='ql-question-details'>{this.props.details}</span> : '' }
         <div className='ql-label-list'>
           {

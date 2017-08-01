@@ -20,18 +20,6 @@ import { QUESTION_TYPE } from '../configs'
 export class _SessionResults extends Component {
   constructor (props) {
     super(props)
-
-    this.exportCSV = this.exportCSV.bind(this)
-  }
-
-  /**
-   * exportCSV()
-   * saves the data from the session as a .csv file
-   */
-  exportCSV () {
-    const element = (<SessionResultsDownloader session={this.props.session} />)
-    ReactDOM.render(element, document.getElementById('download'))
-    ReactDOM.unmountComponentAtNode(document.getElementById('download'))
   }
 
   render () {

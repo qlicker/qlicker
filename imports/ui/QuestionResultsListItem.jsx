@@ -1,3 +1,4 @@
+/* global MathJax */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -5,17 +6,24 @@
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
+import { WysiwygHelper } from '../wysiwyg-helpers'
 
 import { Responses } from '../api/responses'
+import { _ } from 'underscore'
 
 export class _QuestionResultsListItem extends Component {
+
+  componentWillMount () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
 
   render () {
     const q = this.props.question
     const total = this.props.session.joined ? this.props.session.joined.length : 0
+    const unique = _.uniq(this.props.responses, 'questionId')
     return (<div className='ql-results-list-item ql-list-item'>
-      <span className='title'>{q.plainText}</span>
-      <span className='details'># Responses: { this.props.responses.length }/{ total }</span>
+      <span className='title'>{WysiwygHelper.htmlDiv(q.content)}</span>
+      <span className='details'># Responses: { unique.length }/{ total }</span>
     </div>)
   } //  end render
 

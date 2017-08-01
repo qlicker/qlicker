@@ -22,6 +22,7 @@ export class CreateQuestionModal extends ControlledForm {
 
   saveAndClose () {
     this.refs.editItem.addTagString('Student')
+    this.refs.editItem.addTagString(this.props.semester)
     this.refs.editItem.saveQuestion()
     this.props.done()
   }
@@ -52,5 +53,6 @@ export class CreateQuestionModal extends ControlledForm {
 CreateQuestionModal.propTypes = {
   done: PropTypes.func,
   question: PropTypes.object,
-  courseId: PropTypes.string
+  courseId: PropTypes.string,
+  semester: PropTypes.string
 }
