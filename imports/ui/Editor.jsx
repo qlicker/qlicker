@@ -63,11 +63,9 @@ export class Editor extends Component {
   }
 
   addImage (image) {
-    const imgID = image.UID + '_' + image.count
     var element = this.editor.document.createElement('img')
     this.editor.insertElement(element)
-    this.editor.widgets.initOn(element, 'image', {src: image.url,
-      id: imgID})
+    this.editor.widgets.initOn(element, 'image', {src: image.url})
     Meteor.call('images.insert', image, (e) => {
       if (e) return alertify.error('Error updating image')
     })
@@ -92,10 +90,8 @@ export class Editor extends Component {
         const existing = Images.find(image).fetch()[0]
         if (existing) {
           image = existing
-          image.count += 1
           this.addImage(image)
         } else {
-          image.count = 1
           const ref = this
           var slingshotUpload = new Slingshot.Upload('QuestionImages', {UID: UID})
           slingshotUpload.send(file, function (e, downloadUrl) {
