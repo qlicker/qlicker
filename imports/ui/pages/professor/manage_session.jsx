@@ -33,13 +33,14 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: _.extend({}, this.props.session),
-      questionPool: 'library'
+      questionPool: Meteor.user().hasRole('professor') ? 'library' : 'public'
     }
 
     this.sessionId = this.props.sessionId
 
     this.addTag = this.addTag.bind(this)
     this.setDate = this.setDate.bind(this)
+    this.checkReview = this.checkReview.bind(this)
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
@@ -147,6 +148,22 @@ class _ManageSession extends Component {
   }
 
   /**
+   * checkReview(Input Event: e)
+   * method to hide a session from review
+   */
+  checkReview (e) {
+    const status = e.target.value
+    let stateEdits = this.state.session
+    if (status === 'hidden' || status === 'visible') {
+      stateEdits[e.target.dataset.name] = e.target.value
+      stateEdits['reviewable'] = false
+      this.setState({ session: stateEdits }, () => {
+        this._DB_saveSessionEdits()
+      })
+    } else this.setValue(e)
+  }
+
+  /**
    * setValue(Input Event: e)
    * generate method to handle set state stuff
    */
@@ -165,8 +182,11 @@ class _ManageSession extends Component {
   addNewQuestion () {
     const sessionId = this.state.session._id
     let tags = []
-    const code = Courses.findOne(this.state.session.courseId).courseCode().toUpperCase()
+    const course = Courses.findOne(this.state.session.courseId)
+    const code = course.courseCode().toUpperCase()
+    const semester = course.semester.toUpperCase()
     tags.push({ value: code, label: code })
+    tags.push({ value: semester, label: semester })
 
     const blankQuestion = {
       plainText: '', // plain text version of question
@@ -175,7 +195,8 @@ class _ManageSession extends Component {
       options: [],
       tags: tags,
       sessionId: sessionId,
-      courseId: this.state.session.courseId
+      courseId: this.state.session.courseId,
+      owner: course.owner
     }
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
@@ -299,7 +320,7 @@ class _ManageSession extends Component {
             {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
           </span>
           <span className='divider'>&nbsp;</span>
-          <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
+          <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
             <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
             <option value='visible'>{SESSION_STATUS_STRINGS['visible']}</option>
             <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
@@ -335,7 +356,8 @@ class _ManageSession extends Component {
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
                   <select className='form-control' onChange={this.changeQuestionPool}>
-                    <option value='library'>My Question Library</option>
+                    { Meteor.user().hasRole('professor') ?
+                    <option value='library'>My Question Library</option> : ''}
                     <option value='public'>Public Question Pool</option>
                     <option value='student'>Submitted by Students</option>
                   </select>

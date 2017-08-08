@@ -71,7 +71,7 @@ class _PageContainer extends Component {
                   </ul>
                 </li>
                 {
-                  this.state.user.hasRole('professor') || isTA
+                  this.state.user.hasRole('professor')
                     ? <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
                       <ul className='dropdown-menu' >
@@ -83,7 +83,9 @@ class _PageContainer extends Component {
                         <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
                       </ul>
                     </li>
-                    : ''
+                    : (isTA ?
+                      <li><a className='close-nav bootstrap-overrides' href={Router.routes['questions.fromStudent'].path()}>Student Questions</a></li>
+                      : '')
                 }
                 {
                   this.state.user.hasRole('professor') || isTA ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>

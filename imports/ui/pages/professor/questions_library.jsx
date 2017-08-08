@@ -18,11 +18,11 @@ import { Courses } from '../../../api/courses'
 export const createNav = (active) => {
   const TAs = Meteor.user().profile.TA || []
   const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
+  if (isTA) return ''
   return (<ul className='nav nav-pills'>
-    {isTA ? '' : <li role='presentation' className={active === 'library' ? 'active' : ''}>
+    <li role='presentation' className={active === 'library' ? 'active' : ''}>
       <a href={Router.routes['questions'].path()}>Question Library</a>
     </li>
-    }
     <li role='presentation' className={active === 'public' ? 'active' : ''}><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
     <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
   </ul>)
@@ -50,7 +50,8 @@ class _QuestionsLibrary extends Component {
         type: -1,
         content: '', // wysiwyg display content
         options: [],
-        tags: []
+        tags: [],
+        owner: Meteor.userId()
       }
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')

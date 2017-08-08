@@ -8,6 +8,7 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { Responses } from '../api/responses'
 import { Questions } from '../api/questions'
+import { Sessions } from '../api/sessions'
 import dl from 'datalib'
 import { _ } from 'underscore'
 import { $ } from 'jquery'
@@ -291,7 +292,7 @@ export class _QuestionDisplay extends Component {
               { (classSuffixStr === 'ms' && !this.props.forReview) ? <input type='checkbox' className='ql-checkbox' /> : '' }
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content} {(this.props.forReview && a.correct) ? '✓' : ''}
+              {content} {((this.props.forReview || this.props.question.sessionOptions.correct) && a.correct) ? '✓' : ''}
             </div>
           </div>)
       })
