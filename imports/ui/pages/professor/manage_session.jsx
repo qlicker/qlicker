@@ -67,6 +67,7 @@ class _ManageSession extends Component {
     if (typeof sessionEdits.questions !== 'undefined' && sessionEdits.questions.length > 0) {
       let prevStatus = sessionEdits.status
       sessionEdits.status = 'running'
+      this.setDate(moment())
       this.setState({ session: sessionEdits }, () => {
         this.saveSessionEdits(() => {
           Router.go('session.run', { _id: this.state.session._id })
@@ -295,7 +296,7 @@ class _ManageSession extends Component {
         <div className='ql-session-toolbar'>
           <span className='toolbar-button' onClick={this.runSession}>
             <span className='glyphicon glyphicon-play' />&nbsp;
-            Run Session
+            {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
           </span>
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
