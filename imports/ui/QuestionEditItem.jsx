@@ -459,12 +459,21 @@ export class QuestionEditItem extends Component {
                 val={this.state.content}
                 className='question-editor'
                 placeholder='Question?' />
-
               { this.props.onDeleteThis
                 ? <span
                   onClick={this.props.onDeleteThis}
                   className='trash-icon glyphicon glyphicon-trash' />
                   : '' }
+            </div>
+            <div className='col-md-12'>
+              <Creatable
+                name='tag-input'
+                placeholder='Tags'
+                multi
+                value={this.state.tags}
+                options={this.tagSuggestions}
+                onChange={this.addTag}
+              />
             </div>
           </div>
         </div>
