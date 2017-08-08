@@ -20,14 +20,17 @@ export class QuestionListItem extends ListItem {
 
 
   render () {
+    const s = this.props.session
     const controls = this.makeControls()
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
+    const isCurrent = s && s.status === 'running' && (s.currentQuestion === q._id)
+    const content = isCurrent ? <div className='current-question-list-item'>{q.plainText}</div> : q.plainText
     const tags = q.tags || []
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item ql-list-item'}
         onClick={this.click} >
-        <span className='ql-question-name'>{q.plainText || <span className='new-question-placeholder'>New Question</span> }</span>
+        <span className='ql-question-name'>{content || <span className='new-question-placeholder'>New Question</span> }</span>
         { this.props.details ? <span className='ql-question-details'>{this.props.details}</span> : '' }
         <div className='ql-label-list'>
           {
@@ -44,6 +47,7 @@ export class QuestionListItem extends ListItem {
 
 QuestionListItem.propTypes = {
   question: PropTypes.object,
+  session: PropTypes.object,
   click: PropTypes.func
 }
 

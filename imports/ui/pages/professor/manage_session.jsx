@@ -276,6 +276,7 @@ class _ManageSession extends Component {
         content: <QuestionListItem
           click={this.cursorMoveWorkaround}
           question={q}
+          session={this.state.session}
           controlsTriggered={this.cursorMoveWorkaround}
           controls={[
             { label: 'Remove', click: () => this.removeQuestion(questionId) },

@@ -242,12 +242,16 @@ class _RunSession extends Component {
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
-
     return (
       <div className='ql-manage-session'>
 
         <div className='ql-session-toolbar'>
           <h3 className='session-title'>{ this.state.session.name }</h3>
+          <span className='divider'>&nbsp;</span>
+          <span className='toolbar-button' onClick={() => Router.go('session.edit', { _id: this.state.session._id })}>
+            <span className='glyphicon glyphicon-edit' />&nbsp;
+            Edit Session
+          </span>
           <span className='divider'>&nbsp;</span>
           <span className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
           <span className='divider'>&nbsp;</span>
