@@ -109,9 +109,13 @@ export class QuestionEditItem extends Component {
       if (oldType === QUESTION_TYPE.SA || oldType === QUESTION_TYPE.TF) {
         stateUpdater.options = []
       } else if (this.state.options && this.state.options.length > 0) {
-        const c = confirm('You are about to clear your answer options for this question. Do you want to proceed?')
-        if (c) stateUpdater.options = []
-        else return
+        if (this.state.options.length === 1 && this.state.options[0].content === '') {
+          stateUpdater.options = []
+        } else {
+          const c = confirm('You are about to clear your answer options for this question. Do you want to proceed?')
+          if (c) stateUpdater.options = []
+          else return
+        }
       }
     } else {
       const options = this.state.options
@@ -134,6 +138,7 @@ export class QuestionEditItem extends Component {
       } else if (!retainOptions) {
         this.currentAnswer = 0
         this.answerOrder = _.extend({}, MC_ORDER)
+        this.addAnswer(null, null, true)
       }
       this._DB_saveQuestion()
     })
