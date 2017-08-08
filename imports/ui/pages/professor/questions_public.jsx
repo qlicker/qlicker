@@ -32,11 +32,19 @@ class _QuestionsPublic extends Component {
   }
 
   copyPublicQuestion (questionId) {
-    Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
-      if (error) return alertify.error('Error: ' + error.error)
-      alertify.success('Question Copied to Library')
-      Router.go('questions', { _id: newQuestionId })
-    })
+    const cId = this.props.questionMap[questionId].courseId
+    if (Meteor.user().isTA(cId)) {
+      Meteor.call('questions.copyToCourse', questionId, cId, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question Copied to Library')
+      })
+    } else {
+      Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question Copied to Library')
+        Router.go('questions', {_id: newQuestionId})
+      })
+    }
   }
 
   componentDidMount () {
@@ -84,7 +92,7 @@ export const QuestionsPublic = createContainer(() => {
   const handle = Meteor.subscribe('questions.public')
 
   const publicQuestions = Questions
-    .find({ public: true, submittedBy: { $not: Meteor.userId() }, courseId: { $exists: false } }, { sort: { createdAt: -1 } })
+    .find({ public: true, courseId: { $exists: false } }, { sort: { createdAt: -1 } })
     .fetch()
 
   return {

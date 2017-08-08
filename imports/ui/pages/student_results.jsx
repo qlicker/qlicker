@@ -52,7 +52,12 @@ class _StudentResultsPage extends Component {
               headerHeight={50}>
               <Column
                 header={<Cell>Session Name</Cell>}
-                cell={({rowIndex}) => <Cell>{sessionNameList[rowIndex]}</Cell>}
+                cell={({rowIndex}) =>
+                  <Cell onClick={_ => Router.go('student.session.results', { studentId: Meteor.userId(),
+                    courseId: this.props.courseId,
+                    sessionId: sessionList[rowIndex] })}>
+                    <a href='#'>{sessionNameList[rowIndex]}</a>
+                  </Cell>}
                 fixed
                 width={250}
               />

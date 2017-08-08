@@ -17,6 +17,7 @@ import { Creatable } from 'react-select'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
+import { Courses } from '../../../api/courses'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
@@ -32,13 +33,14 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: _.extend({}, this.props.session),
-      questionPool: 'library'
+      questionPool: Meteor.user().hasRole('professor') ? 'library' : 'public'
     }
 
     this.sessionId = this.props.sessionId
 
     this.addTag = this.addTag.bind(this)
     this.setDate = this.setDate.bind(this)
+    this.checkReview = this.checkReview.bind(this)
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
@@ -165,6 +167,22 @@ class _ManageSession extends Component {
   }
 
   /**
+   * checkReview(Input Event: e)
+   * method to hide a session from review
+   */
+  checkReview (e) {
+    const status = e.target.value
+    let stateEdits = this.state.session
+    if (status === 'hidden' || status === 'visible') {
+      stateEdits[e.target.dataset.name] = e.target.value
+      stateEdits['reviewable'] = false
+      this.setState({ session: stateEdits }, () => {
+        this._DB_saveSessionEdits()
+      })
+    } else this.setValue(e)
+  }
+
+  /**
    * setValue(Input Event: e)
    * generate method to handle set state stuff
    */
@@ -182,14 +200,22 @@ class _ManageSession extends Component {
    */
   addNewQuestion () {
     const sessionId = this.state.session._id
+    let tags = []
+    const course = Courses.findOne(this.state.session.courseId)
+    const code = course.courseCode().toUpperCase()
+    const semester = course.semester.toUpperCase()
+    tags.push({ value: code, label: code })
+    tags.push({ value: semester, label: semester })
+
     const blankQuestion = {
       plainText: '', // plain text version of question
       type: -1,
       content: '', // wysiwyg display content
       options: [],
-      tags: [],
+      tags: tags,
       sessionId: sessionId,
-      courseId: this.state.session.courseId
+      courseId: this.state.session.courseId,
+      owner: course.owner
     }
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
@@ -307,12 +333,14 @@ class _ManageSession extends Component {
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
+          <h3 className='session-title'>Session Editor</h3>
+          <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={this.runSession}>
             <span className='glyphicon glyphicon-play' />&nbsp;
             {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
           </span>
           <span className='divider'>&nbsp;</span>
-          <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.setValue} defaultValue={this.state.session.status}>
+          <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
             <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
             <option value='visible'>{SESSION_STATUS_STRINGS['visible']}</option>
             <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
@@ -348,7 +376,8 @@ class _ManageSession extends Component {
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
                   <select className='form-control' onChange={this.changeQuestionPool}>
-                    <option value='library'>My Question Library</option>
+                    { Meteor.user().hasRole('professor') ?
+                    <option value='library'>My Question Library</option> : ''}
                     <option value='public'>Public Question Pool</option>
                     <option value='student'>Submitted by Students</option>
                   </select>
@@ -391,7 +420,6 @@ class _ManageSession extends Component {
             {
               questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
-
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
                     onDeleteThis={() => this.removeQuestion(questionId)}
@@ -412,19 +440,18 @@ class _ManageSession extends Component {
           this.state.session.status === 'done'
           ? <div className='read-only-cover'>
             <div className='message'>
-              Session has finished. To make edits, please set the status to Draft (or Upcoming). Qlicker recommends that you avoid editing sessions that students have subimitted reponses to.
+              Session has finished. To make edits, please set the status to Draft (or Upcoming). Qlicker recommends that you avoid editing sessions that students have submitted responses to.
             </div>
           </div>
           : ''
         }
-        
       </div>)
   }
 
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions') &&
+  const handle = Meteor.subscribe('sessions', {isTA: props.isTA} ) &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('questions.public') &&
@@ -434,7 +461,7 @@ export const ManageSession = createContainer((props) => {
 
   return {
     questions: _.indexBy(questionsInSession, '_id'),
-    questionLibrary: Questions.find({ submittedBy: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
+    questionLibrary: Questions.find({ owner: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
     questionPublic: Questions.find({ public: true, courseId: {$exists: false} }).fetch(),
     questionFromStudents: Questions.find({ courseId: session.courseId, sessionId: {$exists: false}, public: true }).fetch(),
     session: session,

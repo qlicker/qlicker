@@ -13,7 +13,7 @@ export const DEFAULT_STATE = {
   description: '',
   courseId: '',
   quiz: false,
-  dueDate: undefined
+  date: undefined
 }
 
 /**
@@ -46,10 +46,10 @@ export class CreateSessionModal extends ControlledForm {
    */
   handleSubmit (e) {
     super.handleSubmit(e)
-
     let session = _.extend({
       createdAt: new Date(),
-      courseId: this.props.courseId
+      courseId: this.props.courseId,
+      reviewable: false
     }, this.state)
 
     if (Meteor.isTest) {

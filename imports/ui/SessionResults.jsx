@@ -4,6 +4,7 @@
 // QuestionStats.jsx: Component for attempt distributions for a question
 
 import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
@@ -12,16 +13,25 @@ import { AnswerDistribution } from './AnswerDistribution'
 import { QuestionResultsClassList } from './QuestionResultsClassList'
 import { QuestionResultsListItem } from './QuestionResultsListItem'
 import { ShortAnswerList } from './ShortAnswerList'
+import { SessionResultsDownloader } from './SessionResultsDownloader'
 
 import { QUESTION_TYPE } from '../configs'
 
 export class _SessionResults extends Component {
+  constructor (props) {
+    super(props)
+  }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const total = this.props.session.joined ? this.props.session.joined.length : 0
     return (<div>
-      Number of students in session: { total }
+      <div className='row'>
+        <div className='col-md-3'>Number of students in session: { total }</div>
+        <div className='col-md-2 pull-right'>
+          <SessionResultsDownloader session={this.props.session} />
+        </div>
+      </div>
       {
         this.props.session.questions.map(qId => {
           const q = this.props.questions[qId]

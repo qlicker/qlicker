@@ -78,7 +78,7 @@ if (Meteor.isServer) {
       const sessions = Sessions.find({ courseId: courseId }).fetch()
       const questionIds = _.flatten(_(sessions).pluck('questions'))
 
-      if (user.hasRole(ROLES.prof) && course.owner === this.userId) {
+      if ((user.hasRole(ROLES.prof) && course.owner === this.userId) || user.isTA(courseId)) {
         return Responses.find({ questionId: { $in: questionIds } })
       } else if (user.hasRole(ROLES.student)) {
         return Responses.find({ questionId: { $in: questionIds }, studentUserId: this.userId })

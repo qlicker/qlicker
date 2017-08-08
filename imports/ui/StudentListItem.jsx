@@ -15,11 +15,16 @@ import '../api/courses.js'
  * @augments ListItem
  * @prop {User} student - user object
  * @prop {MongoId} courseId - id of course this component is being used in
+ * @prop {String} role - whether this user is a student or TA
  */
 export class StudentListItem extends ListItem {
 
   render () {
     const controls = this.makeControls()
+    let role = ''
+    if (this.props.role) {
+      role += ' (' + this.props.role + ')'
+    }
     return (
       <div className='ql-student-list-item ql-list-item'>
         <div
@@ -28,7 +33,7 @@ export class StudentListItem extends ListItem {
             backgroundImage: 'url(' + this.props.student.getImageUrl() + ')'
           }} />
         <div className='student-details'>
-          <span className='student-name'>{ this.props.student.getName() }</span>
+          <span className='student-name'>{ this.props.student.getName() + role }</span>
           <span className='student-email'>{ this.props.student.getEmail() } </span>
         </div>
         <div className='controls'>{controls}</div>
@@ -39,6 +44,7 @@ export class StudentListItem extends ListItem {
 
 StudentListItem.propTypes = {
   student: PropTypes.object.isRequired,
-  courseId: PropTypes.string.isRequired
+  courseId: PropTypes.string.isRequired,
+  role: PropTypes.string
 }
 

@@ -21,7 +21,7 @@ export const DEFAULT_STATE = {
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
   options: [], // { correct: false, answer: 'A', content: editor content }
-  submittedBy: '',
+  creator: '',
   tags: []
 }
 
@@ -40,7 +40,7 @@ export class QuestionEditItem extends Component {
 
     // binding methods for calling within react context
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
-    this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
+    // this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
     this.setOptionState = this.setOptionState.bind(this)
     this.markCorrect = this.markCorrect.bind(this)
@@ -55,6 +55,7 @@ export class QuestionEditItem extends Component {
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
+      this.state.owner = Meteor.userId()
 
       this.currentAnswer = this.state.options ? this.state.options.length : 0
       switch (this.state.type) {
@@ -70,7 +71,8 @@ export class QuestionEditItem extends Component {
       }
     } else { // if adding new question
       this.state = _.extend({}, DEFAULT_STATE)
-      this.state.submittedBy = Meteor.userId()
+      this.state.creator = Meteor.userId()
+      this.state.owner = Meteor.userId()
       // tracking for adding new mulitple choice answers
       this.currentAnswer = 0
       this.answerOrder = MC_ORDER
@@ -320,7 +322,8 @@ export class QuestionEditItem extends Component {
    * Handle image uploaded through wysiwyg editor. Uploads images to QuestionImages GridFS store
    * @param {File} file
    */
-  uploadImageCallBack (file) {
+  /* uploadImageCallBack (file) {
+    console.log('UPLOADING')
     return new Promise(
       (resolve, reject) => {
         QuestionImages.insert(file, function (err, fileObj) {
@@ -335,7 +338,7 @@ export class QuestionEditItem extends Component {
         }) // .insert
       } // (resolve, reject)
     )
-  } // end uploadImageCallBack
+  } // end uploadImageCallBack */
 
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
@@ -364,6 +367,7 @@ export class QuestionEditItem extends Component {
               change={changeHandler}
               val={a.content}
               className='answer-editor'
+              question={this.state}
               />
 
             <span
@@ -458,7 +462,8 @@ export class QuestionEditItem extends Component {
                 change={this.onEditorStateChange}
                 val={this.state.content}
                 className='question-editor'
-                placeholder='Question?' />
+                placeholder='Question?' 
+                question={this.state}/>
               { this.props.onDeleteThis
                 ? <span
                   onClick={this.props.onDeleteThis}

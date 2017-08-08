@@ -44,7 +44,6 @@ export class LoginBox extends Component {
 
   handleSubmit (e) {
     e.preventDefault()
-
     if (this.state.login) {
       Meteor.loginWithPassword(this.state.email, this.state.password, function (error) {
         if (error) {
@@ -57,24 +56,29 @@ export class LoginBox extends Component {
       if (this.state.password !== this.state.password_verify) {
         this.setState({ form_error: true })
       } else {
-        Accounts.createUser({
-          email: this.state.email,
-          password: this.state.password,
-          profile: {
-            firstname: this.state.firstname,
-            lastname: this.state.lastname,
-            profileImage: this.state.profileImage,
-            roles: ['student']
-          }
-        }, function (error) {
-          if (error) {
-            console.log(error)
-            this.setState({ submit_error: true })
-          } else {
-            this.sendVerificationEmail()
-            this.navigateAfterLogin(Meteor.user())
-          }
-        }.bind(this))
+        let role = 'student'
+        Meteor.call('users.count', (e, res) => {
+          if (e) console.log(e)
+          else if (res === 0) role = 'admin'
+          Accounts.createUser({
+            email: this.state.email,
+            password: this.state.password,
+            profile: {
+              firstname: this.state.firstname,
+              lastname: this.state.lastname,
+              profileImage: this.state.profileImage,
+              roles: [role]
+            }
+          }, function (error) {
+            if (error) {
+              console.log(error)
+              this.setState({ submit_error: true })
+            } else {
+              this.sendVerificationEmail()
+              this.navigateAfterLogin(Meteor.user())
+            }
+          }.bind(this))
+        })
       }
     } // end else
   } // end handleSubmit

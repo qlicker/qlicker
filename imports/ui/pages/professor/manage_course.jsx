@@ -13,6 +13,9 @@ import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
 import { PickCourseModal } from '../../modals/PickCourseModal'
+import { AddTAModal } from '../../modals/AddTAModal'
+
+import { ROLES } from '../../../configs'
 
 import { SessionListItem } from '../../SessionListItem'
 import { StudentListItem } from '../../StudentListItem'
@@ -25,6 +28,7 @@ class _ManageCourse extends Component {
     this.state = {
       creatingSession: false,
       copySessionModal: false,
+      addTAModal: false,
       sessionToCopy: null,
       expandedClasslist: false
     }
@@ -91,6 +95,18 @@ class _ManageCourse extends Component {
     }
   }
 
+  removeTA (TAUserId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.removeTA',
+        this.courseId,
+        TAUserId,
+        (error) => {
+          if (error) return alertify.error('Error: couldn\'t remove TA')
+          alertify.success('Removed TA')
+        })
+    }
+  }
+
   renderSessionList () {
     return (<div>
       {
@@ -127,9 +143,10 @@ class _ManageCourse extends Component {
 
   renderClassList () {
     let students = this.props.course.students || []
+    let TAs = this.props.course.TAs || []
 
     const maxNum = 8
-    const totalStudents = students.length
+    const totalStudents = students.length + TAs.length
 
     if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
@@ -144,8 +161,23 @@ class _ManageCourse extends Component {
             key={sId}
             courseId={this.courseId}
             student={stu}
+            role='Student'
             controls={[
               { label: 'Remove from Course', click: () => this.removeStudent(sId) }
+            ]} />)
+        })
+      }
+      {
+        TAs.map((sId) => {
+          const TA = this.props.TAs[sId]
+          if (!TA) return
+          return (<StudentListItem
+            key={sId}
+            courseId={this.courseId}
+            student={TA}
+            role='TA'
+            controls={[
+              { label: 'Remove from Course', click: () => this.removeTA(sId) }
             ]} />)
         })
       }
@@ -158,6 +190,7 @@ class _ManageCourse extends Component {
 
   render () {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
+    const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
 
     const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
     return (
@@ -172,10 +205,18 @@ class _ManageCourse extends Component {
                 <h4>Course Details</h4>
               </div>
               <div className='ql-card-content'>
-                <div className='btn-group btn-group-justified details-button-group'>
-                  <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
-                  <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
-                </div>
+                {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
+                  <div className='btn-group btn-group-justified details-button-group'>
+                    <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
+                    <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
+                  </div>
+                  <div className='btn-group btn-group-justified details-button-group'>
+                    <div className='btn btn-default' onClick={toggleAddTA}>Add TA
+                      { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
+                    </div>
+                  </div>
+                </div> : ''
+                }
                 <div className='ql-course-details'>
                   <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -
                   <span className='ql-course-semester'> { this.props.course.semester }</span>
@@ -212,7 +253,7 @@ class _ManageCourse extends Component {
 
         {/* modals */}
         { this.state.creatingSession
-          ? <CreateSessionModal courseId={this.courseId} done={toggleCreatingSession} />
+          ? <CreateSessionModal isTA={this.props.isTA} courseId={this.courseId} done={toggleCreatingSession} />
           : '' }
         { this.state.copySessionModal
           ? <PickCourseModal
@@ -225,11 +266,15 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses') &&
-    Meteor.subscribe('sessions') &&
-    Meteor.subscribe('users.myStudents')
+  const handle = Meteor.subscribe('courses', {isTA: props.isTA}) &&
+    Meteor.subscribe('sessions', {isTA: props.isTA}) &&
+    Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
+    Meteor.subscribe('users.myTAs', {cId: props.courseId})
 
   const course = Courses.find({ _id: props.courseId }).fetch()[0]
+
+  const TAIds = course.TAs || []
+  const TAs = Meteor.users.find({ _id: { $in: TAIds } }).fetch()
 
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
@@ -241,6 +286,7 @@ export const ManageCourse = createContainer((props) => {
     course: course,
     sessions: sessions,
     students: _(students).indexBy('_id'),
+    TAs: _(TAs).indexBy('_id'),
     loading: !handle.ready()
   }
 }, _ManageCourse)

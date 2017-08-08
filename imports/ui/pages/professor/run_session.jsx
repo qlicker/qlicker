@@ -5,6 +5,7 @@
 
 import React, { Component } from 'react'
 import { _ } from 'underscore'
+import ReactTooltip from 'react-tooltip'
 
 import { createContainer } from 'meteor/react-meteor-data'
 
@@ -200,11 +201,17 @@ class _RunSession extends Component {
    * close session, set to inactive
    */
   endSession () {
-    Meteor.call('sessions.endSession', this.state.session._id, (error) => {
+    const sessionId = this.state.session._id
+    Meteor.call('sessions.endSession', sessionId, (error) => {
       if (error) return alertify.error('Error: could not end session ')
       alertify.success('Session Ended')
       Router.go('course', { _id: this.state.session.courseId }) // TODO go to grades overview page for that session
     })
+    if (!this.state.session.reviewable) {
+      Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+      })
+    }
   }
 
   componentWillReceiveProps (nextProps) {
@@ -239,6 +246,8 @@ class _RunSession extends Component {
     const numAnswered = this.props.responses.length
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
+    const students = Meteor.users.find({ _id: { $in: this.state.session.joined || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
+
     // small methods
     const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
@@ -253,7 +262,14 @@ class _RunSession extends Component {
             Edit Session
           </span>
           <span className='divider'>&nbsp;</span>
-          <span className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <span data-tip data-for='students' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <ReactTooltip id='students' place='bottom' type='dark' effect='solid'>
+            {students.map((student) =>
+              <div key={student._id}>
+                <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>
+              </div>
+            )}
+          </ReactTooltip>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
@@ -340,7 +356,8 @@ export const RunSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
-    Meteor.subscribe('responses.forSession', props.sessionId)
+    Meteor.subscribe('responses.forSession', props.sessionId) &&
+    Meteor.subscribe('users.myStudents')
 
   const session = Sessions.findOne(props.sessionId)
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()

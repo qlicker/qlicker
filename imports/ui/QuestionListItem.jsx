@@ -8,6 +8,8 @@ import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 
+import LinesEllipsis from 'react-lines-ellipsis'
+
 
 /**
  * React component list item for each question.
@@ -18,14 +20,14 @@ import { ListItem } from './ListItem'
  */
 export class QuestionListItem extends ListItem {
 
-
   render () {
     const s = this.props.session
     const controls = this.makeControls()
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
     const isCurrent = s && s.status === 'running' && (s.currentQuestion === q._id)
-    const content = isCurrent ? <div className='current-question-list-item'>{q.plainText}</div> : q.plainText
+    const truncated = q.plainText ? <LinesEllipsis text={q.plainText} maxLine='3' trimRight basedOn='words' /> : ''
+    const content = q.plainText ? <div className={isCurrent ? 'current-question-list-item' : ''}>{truncated}</div> : ''
     const tags = q.tags || []
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item ql-list-item'}

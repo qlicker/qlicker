@@ -11,6 +11,9 @@ import { AppLayout } from '../../ui/layouts/app_layout'
 import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
 
+import { Sessions } from '../../api/sessions.js'
+import { Courses } from '../../api/courses.js'
+
 import { ResetPasswordPage } from '../../ui/pages/reset_password'
 
 import { PageContainer } from '../../ui/pages/page_container'
@@ -139,7 +142,9 @@ Router.route('/questions/public', {
   },
   action: function () {
     let user = Meteor.user()
-    if (user.hasRole('professor')) {
+    const TAs = user.profile.TA || []
+    const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
+    if (user.hasRole('professor') || isTA) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
   }
@@ -154,7 +159,9 @@ Router.route('/questions/submissions', {
   },
   action: function () {
     let user = Meteor.user()
-    if (user.hasRole('professor')) {
+    const TAs = user.profile.TA || []
+    const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
+    if (user.hasRole('professor') || isTA) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
     } else Router.go('login')
   }
@@ -203,7 +210,9 @@ Router.route('/course/:_id', {
   },
   action: function () {
     if (Meteor.user().hasGreaterRole('professor')) {
-      mount(AppLayout, { content: <PageContainer> <ManageCourse courseId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, {content: <PageContainer> <ManageCourse courseId={this.params._id}/> </PageContainer>})
+    } else if (Meteor.user().isTA(this.params._id)) {
+      mount(AppLayout, {content: <PageContainer> <ManageCourse isTA courseId={this.params._id}/> </PageContainer>})
     } else if (Meteor.user().hasRole('student')) {
       mount(AppLayout, { content: <PageContainer> <Course courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
@@ -265,16 +274,32 @@ Router.route('/results/:studentId/:courseId', {
   }
 })
 
+import { StudentSessionResultsPage } from '../../ui/pages/student_session_results'
+Router.route('/results/:studentId/:courseId/:sessionId', {
+  name: 'student.session.results',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  },
+  action: function () {
+    if (Meteor.user()) {
+      mount(AppLayout, { content: <PageContainer>
+        <StudentSessionResultsPage sessionId={this.params.sessionId} studentId={this.params.studentId} />
+      </PageContainer> })
+    } else Router.go('login')
+  }
+})
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {
   name: 'session.edit',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses') && Meteor.subscribe('images')
   },
   action: function () {
-    if (Meteor.user().hasGreaterRole('professor')) {
-      mount(AppLayout, { content: <PageContainer> <ManageSession sessionId={this.params._id} /> </PageContainer> })
+    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    const isTA = Meteor.user().isTA(cId)
+    if (Meteor.user().hasGreaterRole('professor') || isTA) {
+      mount(AppLayout, { content: <PageContainer> <ManageSession isTA={isTA} sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -286,7 +311,8 @@ Router.route('/session/run/:_id', {
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
   },
   action: function () {
-    if (Meteor.user().hasGreaterRole('professor')) {
+    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    if (Meteor.user().hasGreaterRole('professor') || Meteor.user().isTA(cId)) {
       mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
@@ -296,10 +322,14 @@ import { Session } from '../../ui/pages/student/session'
 Router.route('/session/present/:_id', {
   name: 'session',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses')
   },
   action: function () {
-    if (Meteor.user()) {
+    const user = Meteor.user()
+    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    if (user && (user.hasRole('professor') || user.isTA(cId))) {
+      mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
+    } else if (user) {
       mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
