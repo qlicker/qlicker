@@ -202,7 +202,10 @@ Meteor.methods({
     return Meteor.users.update({ _id: user._id }, {
       '$set': { 'profile.roles': [ ROLES.prof ] }
     })
-  }
+  },
 
+  'users.count' () {
+    return Meteor.users.find().count()
+  }
 
 })
