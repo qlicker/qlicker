@@ -262,8 +262,8 @@ class _RunSession extends Component {
             Edit Session
           </span>
           <span className='divider'>&nbsp;</span>
-          <span data-tip data-for='global' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
-          <ReactTooltip id='global' place='bottom' type='dark' effect='solid'>
+          <span data-tip data-for='students' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <ReactTooltip id='students' place='bottom' type='dark' effect='solid'>
             {students.map((student) =>
               <div key={student._id}>
                 <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>

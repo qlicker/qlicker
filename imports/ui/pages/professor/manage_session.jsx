@@ -63,15 +63,23 @@ class _ManageSession extends Component {
     })
   }
 
+  // starts the session if there are questions
   runSession () {
     const sessionEdits = this.state.session
-    sessionEdits.status = 'running'
-    this.setDate(moment())
-    this.setState({ session: sessionEdits }, () => {
-      this.saveSessionEdits(() => {
-        Router.go('session.run', { _id: this.state.session._id })
+    if (typeof sessionEdits.questions !== 'undefined' && sessionEdits.questions.length > 0) {
+      let prevStatus = sessionEdits.status
+      sessionEdits.status = 'running'
+      this.setDate(moment())
+      this.setState({ session: sessionEdits }, () => {
+        this.saveSessionEdits(() => {
+          Router.go('session.run', { _id: this.state.session._id })
+          if (prevStatus !== 'running') {
+            Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
+            Meteor.call('questions.hideQuestion', this.state.session.currentQuestion)
+          }
+        })
       })
-    })
+    }
   }
 
   /**
@@ -112,6 +120,17 @@ class _ManageSession extends Component {
       else alertify.success('Question Duplicate Added')
     })
     this.cursorMoveWorkaround()
+  }
+
+  /**
+   * addToLibrary(MongoId (string): questionId)
+   * adds the question to the library
+   */
+  addToLibrary (questionId) {
+    Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Copied to Library')
+    })
   }
 
   /**
@@ -298,7 +317,8 @@ class _ManageSession extends Component {
           controlsTriggered={this.cursorMoveWorkaround}
           controls={[
             { label: 'Remove', click: () => this.removeQuestion(questionId) },
-            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) }
+            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) },
+            { label: 'Add to library', click: () => this.addToLibrary(questionId) }
           ]} />,
         id: questionId
       })
