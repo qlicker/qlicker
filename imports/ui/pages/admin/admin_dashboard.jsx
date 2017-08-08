@@ -90,7 +90,6 @@ export const AdminDashboard = createContainer(() => {
   const handle = Meteor.subscribe('users.all')
 
   const users = Meteor.users.find({ 'profile.roles': { $in: [ROLES.prof, ROLES.admin] } }, { sort: { 'profile.roles.0': 1 } }).fetch()
-  console.log(users)
   return {
     users: users,
     loading: !handle.ready()
