@@ -32,8 +32,7 @@ class _PageContainer extends Component {
     const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
 
     const logout = () => {
-      Router.go('login')
-      Meteor.logout()
+      Meteor.logout(() => Router.go('login'))
     }
 
     const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }
@@ -75,10 +74,8 @@ class _PageContainer extends Component {
                     ? <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
                       <ul className='dropdown-menu' >
-                        {this.state.user.hasRole('professor') ?
                         <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
-                        : '' }
-                        {this.state.user.hasRole('professor') ? <li role='separator' className='divider' >&nbsp;</li> : ''}
+                        <li role='separator' className='divider' >&nbsp;</li>
                         <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a></li>
                         <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
                       </ul>

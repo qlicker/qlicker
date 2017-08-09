@@ -35,9 +35,7 @@ export class SessionListItem extends ListItem {
     evt.stopPropagation()
     const sessionId = this.props.session._id
     const courseId = this.props.session.courseId
-    Router.go('student.session.results', { studentId: Meteor.userId(),
-      courseId: courseId,
-      sessionId: sessionId })
+    Router.go('student.session.results', { sessionId: sessionId })
   }
 
   render () {

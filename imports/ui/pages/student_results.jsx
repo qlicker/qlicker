@@ -53,9 +53,7 @@ class _StudentResultsPage extends Component {
               <Column
                 header={<Cell>Session Name</Cell>}
                 cell={({rowIndex}) =>
-                  <Cell onClick={_ => Router.go('student.session.results', { studentId: Meteor.userId(),
-                    courseId: this.props.courseId,
-                    sessionId: sessionList[rowIndex] })}>
+                  <Cell onClick={_ => Router.go('student.session.results', { sessionId: sessionList[rowIndex] })}>
                     <a href='#'>{sessionNameList[rowIndex]}</a>
                   </Cell>}
                 fixed
