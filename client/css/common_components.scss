@@ -256,6 +256,25 @@ input[type=text], input[type=email], input[type=password], textarea.form-control
     }
   }
 
+  &.btn-secondary {
+    background: $grey;
+    color: $main-text;
+
+    &:active, &:focus {
+      border-color: $blue;
+      color: $main-text!important;
+    }
+
+    &:hover {
+      background-color: darken($grey, 8%);
+      border-color: darken($grey, 8%);
+    }
+
+    &:active, &:focus {
+      border-color: darken($grey, 8%);
+    }
+  }
+
 }
 
 .btn-group:not(.dropdown) {
