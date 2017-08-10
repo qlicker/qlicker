@@ -318,28 +318,6 @@ export class QuestionEditItem extends Component {
     })
   }
 
-  /**
-   * Handle image uploaded through wysiwyg editor. Uploads images to QuestionImages GridFS store
-   * @param {File} file
-   */
-  /* uploadImageCallBack (file) {
-    console.log('UPLOADING')
-    return new Promise(
-      (resolve, reject) => {
-        QuestionImages.insert(file, function (err, fileObj) {
-          console.log(err, fileObj)
-          if (err) {
-            reject('Error: could not upload image')
-          } else {
-            setTimeout(function () {
-              resolve({ data: { link: '/cfs/files/images/' + fileObj._id } })
-            }, 500)
-          }
-        }) // .insert
-      } // (resolve, reject)
-    )
-  } // end uploadImageCallBack */
-
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
   }

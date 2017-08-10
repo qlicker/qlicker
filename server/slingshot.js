@@ -8,7 +8,7 @@ Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
   acl: 'public-read',
 
   authorize: function (file, metaContext) {
-    return Meteor.user().hasGreaterRole('professor')
+    return Meteor.userId()
   },
 
   key: function (file, metaContext) {

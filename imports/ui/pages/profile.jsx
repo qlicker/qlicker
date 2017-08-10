@@ -4,6 +4,7 @@
 // profiile.jsx: page for user profile
 
 import React, { Component } from 'react'
+import { Slingshot } from 'meteor/edgee:slingshot'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
@@ -12,7 +13,9 @@ import $ from 'jquery'
 import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 
-import { ProfileImages } from '../../api/users'
+import { Images } from '../../api/images'
+
+let UUID = require('uuid-1345')
 
 class _Profile extends Component {
 
@@ -27,10 +30,18 @@ class _Profile extends Component {
       changingPassword: false
     }
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
+    this.addImage = this.addImage.bind(this)
+    this.saveProfileImage = this.saveProfileImage.bind(this)
   }
 
-  saveProfileImage (profileImageId) {
-    Meteor.call('users.updateProfileImage', profileImageId, (err) => {
+  addImage (image) {
+    Meteor.call('images.insert', image, (e) => {
+      if (e) return alertify.error('Error updating image')
+    })
+  }
+
+  saveProfileImage (profileImageUrl) {
+    Meteor.call('users.updateProfileImage', profileImageUrl, (err) => {
       if (err) return alertify.error('Error: could not save image')
       setTimeout(() => {
         alertify.success('Profile image updated')
@@ -54,16 +65,30 @@ class _Profile extends Component {
       url: '/some/random/url',
       acceptedFiles: 'image/jpeg,image/png,image/gif',
       accept: (file, done) => {
-        ProfileImages.insert(file, (err, fileObj) => {
-          console.log(fileObj)
-          if (err) {
-            alertify.error('Error: ' + JSON.stringify(err))
+        var reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.addEventListener('loadend', function (e) {
+          const fileURL = reader.result
+          const UID = UUID.v5({
+            namespace: '00000000-0000-0000-0000-000000000000',
+            name: fileURL})
+          let image = {UID: UID}
+          const existing = Images.find(image).fetch()[0]
+          if (existing) {
+            image = existing
           } else {
-            done()
-            const imageId = fileObj._id
-            this.saveProfileImage(imageId)
+            const ref = this
+            var slingshotUpload = new Slingshot.Upload('QuestionImages', {UID: UID})
+            slingshotUpload.send(file, function (e, downloadUrl) {
+              if (e) return alertify.error('Error uploading')
+              else {
+                done()
+                ref.saveProfileImage(downloadUrl)
+                ref.addImage(image)
+              }
+            })
           }
-        })
+        }.bind(this))
       }
     })
   }
