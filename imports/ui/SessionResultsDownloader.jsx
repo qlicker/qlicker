@@ -14,7 +14,6 @@ import { Responses } from '../api/responses'
 
 import { QUESTION_TYPE } from '../configs'
 
-
 export class _SessionResultsDownloader extends Component {
 
   render () {
@@ -44,7 +43,8 @@ export class _SessionResultsDownloader extends Component {
               break
             case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
               const intersection = _.intersection(correct, resp)
-              correctAnswers += (2 * intersection.length - resp.length) / correct.length
+              const percentage = (2 * intersection.length - resp.length) / correct.length
+              correctAnswers += percentage > 0 ? percentage : 0
               break
           }
         }
