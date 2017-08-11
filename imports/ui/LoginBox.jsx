@@ -6,7 +6,11 @@
 
 import React, { Component } from 'react'
 import { _ } from 'underscore'
-import { ProfileImages } from '../api/users'
+
+import { Slingshot } from 'meteor/edgee:slingshot'
+import { Images } from '../api/questions'
+
+let UUID = require('uuid-1345')
 
 export const DEFAULT_STATE = {
   login: true,
@@ -101,26 +105,6 @@ export class LoginBox extends Component {
     this.setState(stateEdits)
   }
 
-  componentDidUpdate () {
-    if (this.state.login) return
-    if (Meteor.isTest) return
-    new Dropzone('#profile-image-uploader', {
-      url: '/some/random/url',
-      acceptedFiles: 'image/jpeg,image/png,image/gif',
-      accept: (file, done) => {
-        ProfileImages.insert(file, (err, fileObj) => {
-          if (err) {
-            alertify.error('Error: ' + JSON.stringify(err))
-          } else {
-            done()
-            const imageId = fileObj._id
-            this.setState({ profileImage: imageId })
-          }
-        })
-      }
-    })
-  }
-
   render () {
     const switchFormString = this.state.login ? 'Create an Account' : 'Login'
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
@@ -132,17 +116,6 @@ export class LoginBox extends Component {
           <h4 className='header'>{topMessage}</h4>
         </div>
         <div className='ql-card-content inputs-container'>
-
-          { !this.state.login
-            ? (
-              <div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
-                <div className='dz-default dz-message'>
-                  <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-                  Upload profile picture
-                </div>
-              </div>)
-            : '' }
-
           { !this.state.login
             ? <div className='input-group'>
               <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />

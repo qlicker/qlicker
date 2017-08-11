@@ -45,32 +45,13 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    return this.profile.profileImage
-      ? '/cfs/files/profile_images/' + this.profile.profileImage
-      : '/images/avatar.png'
+    return this.profile.profileImage || '/images/avatar.png'
   }
 })
 
 Meteor.users._transform = function (user) {
   return new User(user)
 }
-
-var imageStore = new FS.Store.GridFS('profile_images')
-
-export const ProfileImages = new FS.Collection('profile_images', {
-  stores: [imageStore],
-  filter: {
-    allow: {
-      contentTypes: ['image/*']
-    }
-  }
-})
-// Images publishing
-if (Meteor.isServer) {
-  Meteor.publish('profile_images', function () { return ProfileImages.find() })
-}
-ProfileImages.deny({ insert: () => false, update: () => false, remove: () => false, download: () => false })
-ProfileImages.allow({ insert: () => true, update: () => true, remove: () => true, download: () => true })
 
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
@@ -142,12 +123,12 @@ Meteor.methods({
   },
 
   /**
-   * update profile image with new image in ProfileImages collection
-   * @param {MongoId} profileImageId
+   * update profile image with new image in S3 collection
+   * @param {String} profileImageUrl
    */
-  'users.updateProfileImage' (profileImageId) {
+  'users.updateProfileImage' (profileImageUrl) {
     return Meteor.users.update({ _id: Meteor.userId() }, {
-      '$set': { 'profile.profileImage': profileImageId }
+      '$set': { 'profile.profileImage': profileImageUrl }
     })
   },
 
