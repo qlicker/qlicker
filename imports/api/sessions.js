@@ -43,7 +43,7 @@ if (Meteor.isServer) {
   Meteor.publish('sessions', function (params) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (params && params.isTA) {
+      if (params && params.isInstructor) {
         const courseIdArray = user.profile.courses || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasGreaterRole(ROLES.prof)) {
@@ -121,7 +121,6 @@ Meteor.methods({
   'sessions.addQuestion' (sessionId, questionId) {
     check(sessionId, Helpers.MongoID)
     check(questionId, Helpers.MongoID)
-
     const session = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(session.courseId)
 

@@ -36,8 +36,9 @@ _.extend(User.prototype, {
   hasRole: function (role) {
     return this.profile.roles.indexOf(role) !== -1
   },
-  isTA: function (courseId) {
-    return _.contains(this.profile.TA, courseId)
+  isInstructor: function (courseId) {
+    const c = Courses.findOne(courseId)
+    return c ? _.contains(c.instructors, this._id) : false
   },
   hasGreaterRole: function (role) {
     if (this.profile.roles.indexOf(role) !== -1) return true
@@ -88,7 +89,7 @@ if (Meteor.isServer) {
         studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({_id: {$in: studentRefs}}, {fields: {services: false}})
-    } else if (params && user.isTA(params.cId)) {
+    } else if (params && user.isInstructor(params.cId)) {
       let studentRefs = []
       Courses.find({_id: params.cId}).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])
@@ -103,13 +104,13 @@ if (Meteor.isServer) {
     if (user && (user.hasGreaterRole(ROLES.prof))) {
       let TARefs = []
       Courses.find({ owner: user._id }).fetch().forEach((c) => {
-        TARefs = TARefs.concat(c.TAs || [])
+        TARefs = TARefs.concat(c.instructors || [])
       })
       return Meteor.users.find({_id: {$in: TARefs}}, {fields: {services: false}})
-    } else if (params && user.isTA(params.cId)) {
+    } else if (params && user.isInstructor(params.cId)) {
       let TARefs = []
       Courses.find({_id: params.cId}).fetch().forEach((c) => {
-        TARefs = TARefs.concat(c.TAs || [])
+        TARefs = TARefs.concat(c.instructors || [])
       })
       return Meteor.users.find({_id: {$in: TARefs}}, {fields: {services: false}})
     } else return this.ready()

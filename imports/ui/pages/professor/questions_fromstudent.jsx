@@ -34,7 +34,7 @@ class _QuestionsFromStudent extends Component {
 
   copyPublicQuestion (questionId) {
     const cId = this.props.questionMap[questionId].courseId
-    if (Meteor.user().isTA(cId)) {
+    if (Meteor.user().isInstructor(cId)) {
       Meteor.call('questions.copyToCourse', questionId, cId, (error, newQuestionId) => {
         if (error) return alertify.error('Error: ' + error.error)
         alertify.success('Question Copied to Library')

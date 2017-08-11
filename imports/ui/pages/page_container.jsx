@@ -28,8 +28,7 @@ class _PageContainer extends Component {
   }
 
   render () {
-    const TAs = this.state.user.profile.TA || []
-    const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
+    const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
 
     const logout = () => {
       Meteor.logout(() => Router.go('login'))
@@ -80,12 +79,12 @@ class _PageContainer extends Component {
                         <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
                       </ul>
                     </li>
-                    : (isTA ?
+                    : (isInstructor ?
                       <li><a className='close-nav bootstrap-overrides' href={Router.routes['questions.fromStudent'].path()}>Student Questions</a></li>
                       : '')
                 }
                 {
-                  this.state.user.hasRole('professor') || isTA ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
+                  this.state.user.hasRole('professor') || isInstructor ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
                   : '' }
               </ul>
 
