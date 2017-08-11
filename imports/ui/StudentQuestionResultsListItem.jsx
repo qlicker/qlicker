@@ -22,6 +22,7 @@ export class _StudentQuestionResultsListItem extends Component {
     const unique = _.uniq(q.studentResponses, 'questionId')
     const attempts = 'Attempts: ' + unique.length + '/' + (q.sessionOptions ? q.sessionOptions.attempts.length : 0)
     return (<div className='ql-results-list-item ql-list-item'>
+      <span>{(this.props.session.questions.indexOf(q._id) + 1) + '.'}</span>
       <span className='title'>{WysiwygHelper.htmlDiv(q.content)}</span>
       <span style={{float: 'right'}} className='title'>{attempts}</span>
     </div>)
