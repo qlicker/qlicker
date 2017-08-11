@@ -36,7 +36,7 @@ export class _SessionResults extends Component {
         this.props.session.questions.map(qId => {
           const q = this.props.questions[qId]
           return (<div>
-            <a role='button' data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId}>
+            <a role='button' data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
               <QuestionResultsListItem question={q} session={this.props.session} />
             </a>
             <div className='collapse' id={'collapse_' + qId}>

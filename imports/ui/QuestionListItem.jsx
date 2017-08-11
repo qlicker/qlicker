@@ -1,4 +1,5 @@
 /* global confirm  */
+/* global MathJax */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -8,8 +9,7 @@ import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 
-import LinesEllipsis from 'react-lines-ellipsis'
-
+import HTMLEllipsis from 'react-lines-ellipsis/lib/html'
 
 /**
  * React component list item for each question.
@@ -20,14 +20,25 @@ import LinesEllipsis from 'react-lines-ellipsis'
  */
 export class QuestionListItem extends ListItem {
 
+  componentWillMount () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+
+  componentWillUpdate () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+
   render () {
     const s = this.props.session
     const controls = this.makeControls()
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
+    // console.log(s.questions.indexOf(q._id) !== -1 ? q.content : '')
     const isCurrent = s && s.status === 'running' && (s.currentQuestion === q._id)
-    const truncated = q.plainText ? <LinesEllipsis text={q.plainText} maxLine='3' trimRight basedOn='words' /> : ''
-    const content = q.plainText ? <div className={isCurrent ? 'current-question-list-item' : ''}>{truncated}</div> : ''
+    const truncated = q.plainText ? <HTMLEllipsis unsafeHTML={q.content} maxLine='3' basedOn='words' /> : ''
+    const content = q.plainText ? <span className={isCurrent ? 'current-question-list-item' : ''}>
+      {s && s.questions.indexOf(q._id) !== -1 ? (s.questions.indexOf(q._id) + 1) + '. ' : ''}{truncated}
+    </span> : ''
     const tags = q.tags || []
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item ql-list-item'}
