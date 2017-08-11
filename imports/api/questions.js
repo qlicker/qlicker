@@ -178,7 +178,7 @@ if (Meteor.isServer) {
 
       if (user.hasRole(ROLES.student)) {
         // by default fetch all Qs without correct indicator
-        const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } }).fetch()
+        const initialQs = Questions.find({ sessionId: sessionId }).fetch()
 
         initialQs.forEach(q => {
           const qToAdd = q

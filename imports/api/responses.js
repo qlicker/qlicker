@@ -25,7 +25,8 @@ const responsePattern = {
   questionId: Helpers.MongoID,
   studentUserId: Helpers.MongoID,
   answer: Helpers.AnswerItem,
-  createdAt: Date
+  createdAt: Date,
+  mark: Number
 }
 
 // Create Response class
