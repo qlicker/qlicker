@@ -33,9 +33,12 @@ export class QuestionListItem extends ListItem {
     const controls = this.makeControls()
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
+    // console.log(s.questions.indexOf(q._id) !== -1 ? q.content : '')
     const isCurrent = s && s.status === 'running' && (s.currentQuestion === q._id)
     const truncated = q.plainText ? <HTMLEllipsis unsafeHTML={q.content} maxLine='3' basedOn='words' /> : ''
-    const content = q.plainText ? <div className={isCurrent ? 'current-question-list-item' : ''}>{truncated}</div> : ''
+    const content = q.plainText ? <span className={isCurrent ? 'current-question-list-item' : ''}>
+      {s && s.questions.indexOf(q._id) !== -1 ? (s.questions.indexOf(q._id) + 1) + '. ' : ''}{truncated}
+    </span> : ''
     const tags = q.tags || []
     return (
       <div className={(this.props.click ? 'cursor-pointer' : '') + ' ql-question-list-item ql-list-item'}
