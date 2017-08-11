@@ -77,7 +77,7 @@ Meteor.methods({
     })
 
     var s3 = new AWS.S3({
-      region: 'us-east-2'
+      region: Meteor.settings.AWSRegion
     })
 
     s3.listObjects({Bucket: Meteor.settings.bucket}, Meteor.bindEnvironment((err, data) => {
