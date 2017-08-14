@@ -128,10 +128,11 @@ Meteor.methods({
       throw new Meteor.Error('not-authorized')
     }
 
+    const admins = _.pluck(Meteor.users.find({'profile.roles': 'admin'}).fetch(), '_id')
     course.deptCode = course.deptCode.toLowerCase()
     course.courseNumber = course.courseNumber.toLowerCase()
     course.semester = course.semester.toLowerCase()
-    course.instructors = [Meteor.userId()]
+    course.instructors = [Meteor.userId()].concat(admins)
 
     const c = Courses.insert(course, (e, id) => {
       if (e) alertify.error('Error creating course')
@@ -265,8 +266,7 @@ Meteor.methods({
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
     Meteor.users.update({ _id: user._id }, {
-      $addToSet: { 'profile.courses': courseId,
-        'profile.TA': courseId}
+      $addToSet: { 'profile.courses': courseId }
     })
     Courses.update({ _id: courseId }, {
       $pull: { students: user._id }
@@ -307,8 +307,7 @@ Meteor.methods({
     profHasCoursePermission(courseId)
 
     Meteor.users.update({ _id: TAUserId }, {
-      $pull: { 'profile.courses': courseId,
-        'profile.TA': courseId }
+      $pull: { 'profile.courses': courseId }
     })
     return Courses.update({ _id: courseId }, {
       $pull: { instructors: TAUserId }

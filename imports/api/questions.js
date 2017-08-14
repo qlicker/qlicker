@@ -244,7 +244,7 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
       let cArr = user.profile.TA || []
-      cArr = cArr.concat(_(Courses.find({ owner: this.userId }).fetch()).pluck('_id'))
+      cArr = cArr.concat(_(Courses.find({ instructors: this.userId }).fetch()).pluck('_id'))
       return Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
@@ -317,14 +317,10 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const question = Questions.findOne({ _id: questionId })
-    let yourCourses = _(Courses.find({ owner: Meteor.userId() }).fetch()).pluck('_id')
-    const TACourses = Meteor.users.findOne({ _id: Meteor.userId() }).profile.TA
+    const yourCourses = _(Courses.find({ instructors: Meteor.userId() }).fetch()).pluck('_id')
 
-    yourCourses = yourCourses.concat(TACourses)
-
-    const ownQuestion = question.owner === Meteor.userId()
-    const fromYourStudent = question.courseId && yourCourses.indexOf(question.courseId) > -1
-    if (!ownQuestion && !fromYourStudent) throw Error('Not authorized to delete question')
+    const ownQuestion = yourCourses.indexOf(question.courseId) > -1
+    if (!ownQuestion) throw Error('Not authorized to delete question')
 
     return Questions.remove({ _id: questionId })
   },

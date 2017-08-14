@@ -172,6 +172,15 @@ Meteor.methods({
     check(uId, Helpers.MongoID)
     check(newRole, Helpers.NEString)
     if (!Meteor.user().hasRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    if (newRole === ROLES.admin) {
+      let courses = []
+      Courses.update({}, {$addToSet: {instructors: uId}}, {multi: true})
+      courses = _.pluck(Courses.find().fetch(), '_id')
+      return Meteor.users.update({ _id: uId }, {
+        '$set': { 'profile.roles': [ newRole ],
+          'courses': courses }
+      })
+    }
     return Meteor.users.update({ _id: uId }, {
       '$set': { 'profile.roles': [ newRole ] } // system only supports users having one role at a time
     })

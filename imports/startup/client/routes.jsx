@@ -158,7 +158,6 @@ Router.route('/questions/submissions', {
   },
   action: function () {
     let user = Meteor.user()
-    const TAs = user.profile.TA || []
     const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
     if (user.hasRole('professor') || isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })

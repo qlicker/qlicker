@@ -50,14 +50,8 @@ export const ResultsOverview = createContainer((props) => {
 
   const user = Meteor.user()
   let courses = []
-  if (user.hasGreaterRole('professor')) {
-    courses = Courses.find({owner: user._id})
-  } else if (user.profile.TA && user.profile.TA.length > 0) {
-    courses = Courses.find({ _id: { $in: user.profile.TA } })
-  } else {
-    const coursesArray = user.profile.courses || []
-    courses = Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
-  }
+  const coursesArray = user.profile.courses || []
+  courses = Courses.find({instructors: user._id}) || Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
 
   return {
     courses: courses.fetch(),
