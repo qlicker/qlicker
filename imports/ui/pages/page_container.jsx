@@ -123,7 +123,7 @@ export const PageContainer = createContainer(() => {
   const user = Meteor.user()
 
   if (user.hasRole('professor')) {
-    courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
+    courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } })
   } else {
     const cArr = user.profile.courses || []
     courses = Courses.find({ _id: { $in: cArr }, inactive: { $in: [null, false] } })

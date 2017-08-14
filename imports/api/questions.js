@@ -155,7 +155,7 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
       const course = Courses.findOne(courseId)
-      if (user.hasRole(ROLES.prof)) return Questions.find({ sessionId: { $in: course.sessions || [] } })
+      if (user.isInstructor(courseId)) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
       if (user.hasRole(ROLES.student)) {
         return Questions.find({ sessionId: { $in: course.sessions || [] } }, { fields: { 'options.correct': false } })
@@ -299,7 +299,7 @@ Meteor.methods({
     check(question, questionPattern)
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (question.owner !== Meteor.userId() && !user.hasGreaterRole('professor') && !user.isInstructor(question.courseId)) throw Error('Not authorized to update question')
+    if (!user.isInstructor(question.courseId)) throw Error('Not authorized to update question')
 
     const r = Questions.update({ _id: question._id }, {
       $set: _.omit(question, '_id')
@@ -384,7 +384,7 @@ Meteor.methods({
     let tags = new Set()
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasGreaterRole('professor')) {
-      const courses = Courses.find({ owner: Meteor.userId() }).fetch()
+      const courses = Courses.find({ instructors: Meteor.userId() }).fetch()
       courses.forEach(c => {
         tags.add(c.courseCode().toUpperCase())
       })

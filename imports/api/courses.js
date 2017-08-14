@@ -137,6 +137,7 @@ Meteor.methods({
     const c = Courses.insert(course, (e, id) => {
       if (e) alertify.error('Error creating course')
       else {
+        Meteor.users.update({'profile.roles': 'admin'}, {$addToSet: { 'profile.courses': id }}, {multi: true})
         Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
           $addToSet: { 'profile.courses': id }
         })
