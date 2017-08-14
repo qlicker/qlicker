@@ -176,7 +176,7 @@ Router.route('/courses', {
   },
   action: function () {
     let user = Meteor.user()
-    if (user.hasRole('professor')) {
+    if (user.hasGreaterRole('professor')) {
       mount(AppLayout, { content: <PageContainer user={user}> <ManageCourses /> </PageContainer> })
     } else Router.go('login')
   }

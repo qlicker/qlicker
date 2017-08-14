@@ -151,7 +151,6 @@ class _ManageCourse extends Component {
     if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const expandText = !this.state.expandedClasslist ? 'Show More' : 'Show Less'
-
     return (<div>
       {
         students.map((sId) => {
@@ -175,7 +174,7 @@ class _ManageCourse extends Component {
             key={sId}
             courseId={this.courseId}
             student={TA}
-            role='TA'
+            role={sId === this.props.course.owner ? 'Professor' : 'TA'}
             controls={[
               { label: 'Remove from Course', click: () => this.removeTA(sId) }
             ]} />)
@@ -274,7 +273,7 @@ export const ManageCourse = createContainer((props) => {
   const course = Courses.find({ _id: props.courseId }).fetch()[0]
 
   const TAIds = course.instructors || []
-  const TAs = Meteor.users.find({ _id: { $in: TAIds } }).fetch()
+  const TAs = Meteor.users.find({ _id: { $in: TAIds }, 'profile.roles': { $ne: 'admin' } }).fetch()
 
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
