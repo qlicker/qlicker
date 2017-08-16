@@ -21,6 +21,9 @@ class _AdminDashboard extends Component {
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
     this.saveUserRole = this.saveUserRole.bind(this)
+    this.setValue = this.setValue.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
   }
 
   saveRoleChange (uId, newRole) {
@@ -40,6 +43,43 @@ class _AdminDashboard extends Component {
       if (e) return alertify.error('Error: ' + e.message)
       alertify.success('Role changed')
       this.refs.setUserRoleForm.reset()
+    })
+  }
+
+  setValue (e) {
+    let stateEdits = {}
+    stateEdits[e.target.dataset.name] = e.target.value
+    this.setState(stateEdits)
+  }
+
+  handleSubmit (e) {
+    e.preventDefault()
+      // signup
+    if (this.state.password !== this.state.password_verify) {
+      alertify.error('Passwords don\'t match')
+    } else {
+      let role = 'student'
+      const user = {
+        email: this.state.email,
+        password: this.state.password,
+        profile: {
+          firstname: this.state.firstname,
+          lastname: this.state.lastname,
+          profileImage: this.state.profileImage,
+          roles: [role]
+        }
+      }
+      Meteor.call('users.createFromAdmin', user, (e, data) => {
+        if (e) alertify.error(e.reason)
+        else alertify.success('User created')
+      })
+    }
+  } // end handleSubmit
+
+  sendVerificationEmail () {
+    Meteor.call('users.sendVerificationEmail', (e) => {
+      if (e) alertify.error('Error sending email')
+      else this.setState({ showResendLink: false })
     })
   }
 
@@ -90,12 +130,30 @@ class _AdminDashboard extends Component {
             }
           </tbody>
         </table>
+
+        <h4>Add user manually</h4>
+        <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
+          <div className='ql-card-content inputs-container'>
+            <div className='input-group'>
+              <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
+              <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+            </div>
+
+            <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
+
+            <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
+            <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div>
+
+            <div className='spacer1'>&nbsp;</div>
+            <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
+          </div>
+        </form>
       </div>)
   }
 }
 
 export const AdminDashboard = createContainer(() => {
-  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings')
+  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings') && Meteor.subscribe('users')
   const settings = Settings.find().fetch()[0]
   const users = Meteor.users.find({ 'profile.roles': { $in: [ROLES.prof, ROLES.admin] } }, { sort: { 'profile.roles.0': 1 } }).fetch()
   return {

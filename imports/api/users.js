@@ -205,7 +205,7 @@ Meteor.methods({
    */
   'users.promote' (email) {
     check(email, Helpers.Email)
-    if (!Meteor.user().hasRole(ROLES.prof)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    if (!Meteor.user().hasGreaterRole(ROLES.prof)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
@@ -216,6 +216,11 @@ Meteor.methods({
 
   'users.count' () {
     return Meteor.users.find().count()
+  },
+
+  'users.createFromAdmin' (user) {
+    if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    return Accounts.createUser(user)
   }
 
 })
