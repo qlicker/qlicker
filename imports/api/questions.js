@@ -299,7 +299,7 @@ Meteor.methods({
     check(question, questionPattern)
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (!user.isInstructor(question.courseId)) throw Error('Not authorized to update question')
+    if (!user.isInstructor(question.courseId) && (question.owner !== user._id)) throw Error('Not authorized to update question')
 
     const r = Questions.update({ _id: question._id }, {
       $set: _.omit(question, '_id')
@@ -320,7 +320,7 @@ Meteor.methods({
     const yourCourses = _(Courses.find({ instructors: Meteor.userId() }).fetch()).pluck('_id')
 
     const ownQuestion = yourCourses.indexOf(question.courseId) > -1
-    if (!ownQuestion) throw Error('Not authorized to delete question')
+    if (!ownQuestion && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
 
     return Questions.remove({ _id: questionId })
   },
@@ -413,7 +413,7 @@ Meteor.methods({
    */
   'questions.addTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized to update question')
+    if (!Meteor.user().isInstructor(q.courseId) && (q.owner !== Meteor.userId())) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $addToSet: { tags: tag }
@@ -427,7 +427,7 @@ Meteor.methods({
    */
   'questions.removeTag' (questionId, tag) {
     const q = Questions.findOne({ _id: questionId })
-    if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized to update question')
+    if (!Meteor.user().isInstructor(q.courseId) && (q.owner !== Meteor.userId())) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $pull: { tags: tag }

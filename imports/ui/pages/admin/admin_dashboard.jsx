@@ -6,6 +6,10 @@
 import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
+import { RestrictDomainForm } from '../../RestrictDomainForm'
+
+import { Settings } from '../../../api/settings'
+
 import { ROLES } from '../../../configs'
 
 class _AdminDashboard extends Component {
@@ -42,7 +46,6 @@ class _AdminDashboard extends Component {
   render () {
     const setEmail = (e) => { this.setState({ email: e.target.value }) }
     const setUserRole = (e) => { this.setState({ role: e.target.value }) }
-
     return (
       <div className='container ql-admin-page'>
         <h2>Admin User Management</h2>
@@ -57,6 +60,11 @@ class _AdminDashboard extends Component {
           </select>
           <input type='submit' className='btn btn-primary' value='Set User Role' />
         </form>
+
+        <RestrictDomainForm
+          done={() => { return true }}
+          settings={this.props.settings}
+        />
 
         <br />
         <h4>Users with elevated privileges</h4>
@@ -87,10 +95,11 @@ class _AdminDashboard extends Component {
 }
 
 export const AdminDashboard = createContainer(() => {
-  const handle = Meteor.subscribe('users.all')
-
+  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings')
+  const settings = Settings.find().fetch()[0]
   const users = Meteor.users.find({ 'profile.roles': { $in: [ROLES.prof, ROLES.admin] } }, { sort: { 'profile.roles.0': 1 } }).fetch()
   return {
+    settings: settings,
     users: users,
     loading: !handle.ready()
   }

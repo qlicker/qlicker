@@ -11,7 +11,6 @@ import { AppLayout } from '../../ui/layouts/app_layout'
 import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
 
-import { Sessions } from '../../api/sessions.js'
 import { Courses } from '../../api/courses.js'
 
 import { ResetPasswordPage } from '../../ui/pages/reset_password'
@@ -92,7 +91,7 @@ import { AdminDashboard } from '../../ui/pages/admin/admin_dashboard'
 Router.route('/admin', {
   name: 'admin',
   waitOn: function () {
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('settings')
   },
   action: function () {
     let user = Meteor.user()
