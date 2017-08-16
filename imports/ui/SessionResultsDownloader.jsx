@@ -65,7 +65,7 @@ export class _SessionResultsDownloader extends Component {
 }
 
 export const SessionResultsDownloader = createContainer((props) => {
-  const handle = Meteor.subscribe('courses', {isTA: Meteor.user().isTA(props.session.courseId)}) &&
+  const handle = Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.session.courseId)}) &&
     Meteor.subscribe('questions.inSession', props.session._id) &&
     Meteor.subscribe('responses.forSession', props.session._id) &&
     Meteor.subscribe('users.myStudents', {cId: props.session.courseId})

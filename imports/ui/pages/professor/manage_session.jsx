@@ -451,7 +451,7 @@ class _ManageSession extends Component {
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions', {isTA: props.isTA} ) &&
+  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor} ) &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('questions.public') &&

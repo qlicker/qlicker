@@ -143,7 +143,7 @@ class _ManageCourse extends Component {
 
   renderClassList () {
     let students = this.props.course.students || []
-    let TAs = this.props.course.TAs || []
+    let TAs = this.props.course.instructors || []
 
     const maxNum = 8
     const totalStudents = students.length + TAs.length
@@ -151,7 +151,6 @@ class _ManageCourse extends Component {
     if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const expandText = !this.state.expandedClasslist ? 'Show More' : 'Show Less'
-
     return (<div>
       {
         students.map((sId) => {
@@ -175,7 +174,7 @@ class _ManageCourse extends Component {
             key={sId}
             courseId={this.courseId}
             student={TA}
-            role='TA'
+            role={sId === this.props.course.owner ? 'Professor' : 'TA'}
             controls={[
               { label: 'Remove from Course', click: () => this.removeTA(sId) }
             ]} />)
@@ -253,7 +252,7 @@ class _ManageCourse extends Component {
 
         {/* modals */}
         { this.state.creatingSession
-          ? <CreateSessionModal isTA={this.props.isTA} courseId={this.courseId} done={toggleCreatingSession} />
+          ? <CreateSessionModal isInstructor={this.props.isInstructor} courseId={this.courseId} done={toggleCreatingSession} />
           : '' }
         { this.state.copySessionModal
           ? <PickCourseModal
@@ -266,15 +265,15 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses', {isTA: props.isTA}) &&
-    Meteor.subscribe('sessions', {isTA: props.isTA}) &&
+  const handle = Meteor.subscribe('courses', {isInstructor: props.isInstructor}) &&
+    Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) &&
     Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
     Meteor.subscribe('users.myTAs', {cId: props.courseId})
 
   const course = Courses.find({ _id: props.courseId }).fetch()[0]
 
-  const TAIds = course.TAs || []
-  const TAs = Meteor.users.find({ _id: { $in: TAIds } }).fetch()
+  const TAIds = course.instructors || []
+  const TAs = Meteor.users.find({ _id: { $in: TAIds }, 'profile.roles': { $ne: 'admin' } }).fetch()
 
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()

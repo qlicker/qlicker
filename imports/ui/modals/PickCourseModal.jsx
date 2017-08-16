@@ -46,7 +46,7 @@ export class _PickCourseModal extends ControlledForm {
 export const PickCourseModal = createContainer((props) => {
   const handle = Meteor.subscribe('courses')
 
-  const courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } }).fetch()
+  const courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } }).fetch()
 
   return {
     courses: courses,

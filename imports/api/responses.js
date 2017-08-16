@@ -25,7 +25,8 @@ const responsePattern = {
   questionId: Helpers.MongoID,
   studentUserId: Helpers.MongoID,
   answer: Helpers.AnswerItem,
-  createdAt: Date
+  createdAt: Date,
+  mark: Number
 }
 
 // Create Response class
@@ -47,7 +48,7 @@ if (Meteor.isServer) {
       if (!question.sessionId) return this.ready()
       const course = Courses.findOne({ _id: session.courseId })
 
-      if (user.hasRole(ROLES.prof) && course.owner === this.userId) {
+      if (user.isInstructor(course._id)) {
         return Responses.find({ questionId: questionId })
       } else if (user.hasRole(ROLES.student)) {
         const findCriteria = { questionId: questionId }
@@ -62,7 +63,7 @@ if (Meteor.isServer) {
       const session = Sessions.findOne({ _id: sessionId })
       const course = Courses.findOne({ _id: session.courseId })
 
-      if (user.hasRole(ROLES.prof) && course.owner === this.userId) {
+      if (user.isInstructor(course._id)) {
         return Responses.find({ questionId: { $in: session.questions } })
       } else if (user.hasRole(ROLES.student)) {
         return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
@@ -78,7 +79,7 @@ if (Meteor.isServer) {
       const sessions = Sessions.find({ courseId: courseId }).fetch()
       const questionIds = _.flatten(_(sessions).pluck('questions'))
 
-      if ((user.hasRole(ROLES.prof) && course.owner === this.userId) || user.isTA(courseId)) {
+      if (user.isInstructor(courseId)) {
         return Responses.find({ questionId: { $in: questionIds } })
       } else if (user.hasRole(ROLES.student)) {
         return Responses.find({ questionId: { $in: questionIds }, studentUserId: this.userId })

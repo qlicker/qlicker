@@ -16,9 +16,7 @@ import { Questions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
-  const TAs = Meteor.user().profile.TA || []
-  const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
-  if (isTA) return ''
+  if (!Meteor.user().hasRole('professor')) return ''
   return (<ul className='nav nav-pills'>
     <li role='presentation' className={active === 'library' ? 'active' : ''}>
       <a href={Router.routes['questions'].path()}>Question Library</a>

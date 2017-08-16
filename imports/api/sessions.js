@@ -43,11 +43,11 @@ if (Meteor.isServer) {
   Meteor.publish('sessions', function (params) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (params && params.isTA) {
+      if (params && params.isInstructor) {
         const courseIdArray = user.profile.courses || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasGreaterRole(ROLES.prof)) {
-        const courseIdArray = _(Courses.find({ owner: user._id }).fetch()).pluck('_id') || []
+        const courseIdArray = _(Courses.find({ instructors: user._id }).fetch()).pluck('_id') || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasRole(ROLES.student)) {
         const courseIdArray = user.profile.courses || []
@@ -121,7 +121,6 @@ Meteor.methods({
   'sessions.addQuestion' (sessionId, questionId) {
     check(sessionId, Helpers.MongoID)
     check(questionId, Helpers.MongoID)
-
     const session = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(session.courseId)
 
@@ -286,21 +285,18 @@ Meteor.methods({
   'sessions.possibleTags' () {
     let tags = new Set()
 
-    const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (user.hasGreaterRole('professor')) {
-      const courses = Courses.find({ owner: Meteor.userId() }).fetch()
-      courses.forEach(c => {
-        tags.add(c.courseCode().toUpperCase())
-      })
+    const courses = Courses.find({ instructors: Meteor.userId() }).fetch() || []
+    courses.forEach(c => {
+      tags.add(c.courseCode().toUpperCase())
+    })
 
-      const profSessions = Sessions.find({ courseId: { $in: _(courses).pluck('_id') } }).fetch()
-      profSessions.forEach((s) => {
-        const tList = s.tags || []
-        tList.forEach((t) => {
-          tags.add(t.label.toUpperCase())
-        })
+    const profSessions = Sessions.find({ courseId: { $in: _(courses).pluck('_id') } }).fetch()
+    profSessions.forEach((s) => {
+      const tList = s.tags || []
+      tList.forEach((t) => {
+        tags.add(t.label.toUpperCase())
       })
-    }
+    })
 
     return [...tags]
   }

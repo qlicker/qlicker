@@ -28,8 +28,7 @@ class _PageContainer extends Component {
   }
 
   render () {
-    const TAs = this.state.user.profile.TA || []
-    const isTA = !!Courses.findOne({_id: {$in: TAs}, inactive: false})
+    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && !this.state.user.hasRole('admin')
 
     const logout = () => {
       Meteor.logout(() => Router.go('login'))
@@ -38,7 +37,7 @@ class _PageContainer extends Component {
     const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }
 
     const homePath = Router.routes[this.state.user.profile.roles[0]].path()
-    const coursesPage = this.state.user.hasRole('professor')
+    const coursesPage = this.state.user.hasGreaterRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
     return (
@@ -56,10 +55,12 @@ class _PageContainer extends Component {
             </div>
             <div id='navbar' className='collapse navbar-collapse'>
               <ul className='nav navbar-nav'>
-                <li className='dropdown'>
+                {this.state.user.hasRole('admin') ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li> : '' }
+                {this.state.user.hasRole('admin') ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
+                : <li className='dropdown'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
                   <ul className='dropdown-menu' >
-                    {!this.state.user.hasRole('admin') ? <li><a className='close-nav' href={coursesPage}>All Courses</a></li> : '' }
+                    <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
                     <li role='separator' className='divider' >&nbsp;</li>
                     <li className='dropdown-header'>My Active Courses</li>
                     {
@@ -69,6 +70,7 @@ class _PageContainer extends Component {
                     }
                   </ul>
                 </li>
+                }
                 {
                   this.state.user.hasRole('professor')
                     ? <li className='dropdown'>
@@ -80,12 +82,12 @@ class _PageContainer extends Component {
                         <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
                       </ul>
                     </li>
-                    : (isTA ?
+                    : (isInstructor ?
                       <li><a className='close-nav bootstrap-overrides' href={Router.routes['questions.fromStudent'].path()}>Student Questions</a></li>
                       : '')
                 }
                 {
-                  this.state.user.hasRole('professor') || isTA ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
+                  isInstructor ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
                   : '' }
               </ul>
 

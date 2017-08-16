@@ -74,7 +74,7 @@ export const ManageCourses = createContainer(() => {
   const handle = Meteor.subscribe('courses')
 
   return {
-    courses: Courses.find({ owner: Meteor.userId() }).fetch(),
+    courses: Courses.find({ instructors: Meteor.userId() }).fetch(),
     loading: !handle.ready()
   }
 }, _ManageCourses)
