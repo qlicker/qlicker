@@ -74,19 +74,42 @@ class _Profile extends Component {
             name: fileURL})
           let image = {UID: UID}
           const existing = Images.find(image).fetch()[0]
-          if (existing) {
-            image = existing
-          } else {
-            const ref = this
-            var slingshotUpload = new Slingshot.Upload('QuestionImages', {UID: UID})
+          if (!existing) {
+            const meta = {UID: UID, type: 'image'}
+            var slingshotUpload = new Slingshot.Upload('QuestionImages', meta)
             slingshotUpload.send(file, function (e, downloadUrl) {
               if (e) return alertify.error('Error uploading')
               else {
                 done()
-                ref.saveProfileImage(downloadUrl)
-                ref.addImage(image)
+                this.saveProfileImage(downloadUrl.slice(0, -(meta.type.length + 1)))
+                image.url = downloadUrl.slice(0, -(meta.type.length + 1))
+                this.addImage(image)
               }
-            })
+            }.bind(this))
+            // Makes a thumbnail
+            var img = new Image()
+            img.onload = function () {
+              const maxSize = 50
+              var width = img.width
+              var height = img.height
+              if (width > height && width > maxSize) {
+                height *= maxSize / width
+                width = maxSize
+              } else if (height > maxSize) {
+                width *= maxSize / height
+                height = maxSize
+              }
+              var canvas = document.createElement('canvas')
+              canvas.width = width
+              canvas.height = height
+              canvas.getContext('2d').drawImage(this, 0, 0, width, height)
+              const meta = {UID: UID, type: 'thumbnail'}
+              var slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
+              canvas.toBlob((blob) => {
+                slingshotThumbnail.send(blob)
+              })
+            }
+            img.src = e.target.result
           }
         }.bind(this))
       }

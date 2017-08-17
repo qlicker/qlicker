@@ -7,7 +7,6 @@
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { Questions } from './questions'
-import { Slingshot } from 'meteor/edgee:slingshot'
 
 import { _ } from 'underscore'
 

@@ -16,7 +16,8 @@ import { ROLES } from '../configs'
 const pattern = {
   _id: Match.Maybe(Helpers.NEString), // mongo db id
   restrict: Match.Maybe(Boolean), // Information Technology Project (2016-17)
-  allowed: Match.Maybe([Helpers.NEString])
+  allowed: Match.Maybe([Helpers.NEString]),
+  maxImageSize: Match.Maybe(Number)
 }
 
 // Create course class

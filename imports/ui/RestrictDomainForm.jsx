@@ -76,11 +76,11 @@ export class RestrictDomainForm extends Component {
 
     return (<div>
       <h4>Restrict signup by domain</h4>
-      <form onSubmit={this.handleSubmit}>
+      <form className='form-inline' onSubmit={this.handleSubmit}>
         <input type='checkbox' checked={this.state.restrict} onChange={this.handleChange} />
         { this.state.restrict ? <span>
-          <input ref='textInput' type='text' placeholder='example.com' onChange={this.textChange} />
-          <input type='submit' value='Submit' />
+          <input className='form-control' ref='textInput' type='text' placeholder='example.com' onChange={this.textChange} />
+          <input className='btn btn-primary' type='submit' value='Submit' />
           <br />
             Allowed domains (click to remove): {domains}
         </span> : ''}

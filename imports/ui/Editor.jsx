@@ -65,7 +65,7 @@ export class Editor extends Component {
   addImage (image) {
     var element = this.editor.document.createElement('img')
     this.editor.insertElement(element)
-    this.editor.widgets.initOn(element, 'image', {src: image.url})
+    this.editor.widgets.initOn(element, 'image', {src: image.url + '/image'})
     Meteor.call('images.insert', image, (e) => {
       if (e) return alertify.error('Error updating image')
     })
@@ -93,11 +93,12 @@ export class Editor extends Component {
           this.addImage(image)
         } else {
           const ref = this
-          var slingshotUpload = new Slingshot.Upload('QuestionImages', {UID: UID})
+          const meta = {UID: UID, type: 'image'}
+          var slingshotUpload = new Slingshot.Upload('QuestionImages', meta)
           slingshotUpload.send(file, function (e, downloadUrl) {
             if (e) return alertify.error('Error uploading')
             else {
-              image.url = downloadUrl
+              image.url = downloadUrl.slice(0, -(meta.type.length + 1))
               ref.addImage(image)
             }
           })
