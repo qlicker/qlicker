@@ -303,6 +303,7 @@ export class _QuestionDisplay extends Component {
 
           widthStyle = { width: stats + '%' }
         }
+        const sess = this.props.question.sessionOptions
         return (
           <div key={'question_' + a.answer}
             onClick={() => this.setAnswer(a.answer)}
@@ -314,7 +315,7 @@ export class _QuestionDisplay extends Component {
               { (classSuffixStr === 'ms' && !this.props.forReview) ? <input type='checkbox' className='ql-checkbox' /> : '' }
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content} {((this.props.forReview || this.props.question.sessionOptions.correct) && a.correct) ? '✓' : ''}
+              {content} {console.log(a)} {((this.props.forReview || (sess && sess.correct)) && a.correct) ? '✓' : ''}
             </div>
           </div>)
       })
