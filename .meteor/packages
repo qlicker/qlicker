@@ -26,8 +26,6 @@ practicalmeteor:mocha
 dburles:factory
 lmieulet:meteor-coverage
 practicalmeteor:mocha-console-runner
-cfs:standard-packages
-cfs:gridfs
 twbs:bootstrap
 xolvio:cleaner
 email
