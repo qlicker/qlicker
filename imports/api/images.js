@@ -78,7 +78,6 @@ Meteor.methods({
     var s3 = new AWS.S3({
       region: Meteor.settings.AWSRegion
     })
-
     s3.listObjects({Bucket: Meteor.settings.bucket}, Meteor.bindEnvironment((err, data) => {
       if (err) return
       const entries = _.pluck(data.Contents, 'Key')
@@ -86,14 +85,16 @@ Meteor.methods({
         return Images.findOne({UID: UID}) || {UID: UID}
       })
       _.each(local, (obj) => {
-        var inQuestion
-        var inAns
-        if (obj.url) {
-          const regex = '.*' + obj.url + '.*'
+        let inQuestion
+        let inAns
+        let asProfile
+        if (obj.UID) {
+          const regex = '.*' + obj.UID.substring(0, obj.UID.indexOf('/')) + '.*'
           inQuestion = Questions.findOne({'content': {$regex: regex}})
           inAns = Questions.findOne({'options.content': {$regex: regex}})
+          asProfile = Meteor.users.findOne({'profile.profileImage': {$regex: regex}})
         }
-        if (!inQuestion && !inAns) {
+        if (!inQuestion && !inAns && !asProfile) {
           Images.remove(obj)
           s3.deleteObject({Bucket: Meteor.settings.bucket, Key: obj.UID}, (error, data) => {
             if (error) console.log('Error deleting from S3:', error)

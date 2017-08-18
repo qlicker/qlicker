@@ -7,6 +7,7 @@
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
 import { Images } from '../api/images'
+import { Settings } from '../api/settings'
 import $ from 'jquery'
 
 let UUID = require('uuid-1345')
@@ -24,10 +25,10 @@ export class Editor extends Component {
   constructor (p) {
     super(p)
 
-    this.fileURLs = []
     this.state = { val: this.props.val }
     this.editor = null
     this.addImage = this.addImage.bind(this)
+    this.resizeImage = this.resizeImage.bind(this)
   }
 
   setupCKEditor () {
@@ -71,6 +72,30 @@ export class Editor extends Component {
     })
   }
 
+  resizeImage (size, img, meta, save) {
+    let width = img.width
+    let height = img.height
+    if (width > size) {
+      width = size
+      height = size * img.height / img.width
+    }
+    let canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+    let slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
+    canvas.toBlob((blob) => {
+      slingshotThumbnail.send(blob, (e, downloadUrl) => {
+        if (e) alertify.error('Error uploading')
+        else if (save) {
+          img.url = downloadUrl.slice(0, -(meta.type.length + 1))
+          img.UID = meta.UID
+          this.addImage(img)
+        }
+      })
+    })
+  }
+
   componentDidMount () {
     this.setupCKEditor()
     this.componentDidUpdate()
@@ -78,7 +103,7 @@ export class Editor extends Component {
     this.editor.on('fileUploadRequest', function (evt) {
       let upload = evt.data.requestData.upload
       let file = upload.file
-      var reader = new FileReader()
+      let reader = new FileReader()
       reader.readAsDataURL(file)
       evt.stop()
       reader.addEventListener('loadend', function (e) {
@@ -88,22 +113,25 @@ export class Editor extends Component {
           name: fileURL})
         let image = {UID: UID}
         const existing = Images.find(image).fetch()[0]
-        if (existing) {
-          image = existing
-          this.addImage(image)
-        } else {
-          const ref = this
-          const meta = {UID: UID, type: 'image'}
-          var slingshotUpload = new Slingshot.Upload('QuestionImages', meta)
-          slingshotUpload.send(file, function (e, downloadUrl) {
-            if (e) return alertify.error('Error uploading')
-            else {
-              image.url = downloadUrl.slice(0, -(meta.type.length + 1))
-              ref.addImage(image)
-            }
-          })
+        if (existing) this.addImage(existing)
+        else {
+          let img = new Image()
+          img.onload = function () {
+            const meta = {UID: UID, type: 'image'}
+            Meteor.call('settings.find', (e, obj) => {
+              if (obj) this.resizeImage(obj.maxImageWidth, img, meta, true)
+            })
+          }.bind(this)
+          img.src = fileURL
+
+          // Makes a thumbnail
+          let thumb = new Image()
+          thumb.onload = function () {
+            const meta = {UID: UID, type: 'thumbnail'}
+            this.resizeImage(50, thumb, meta, false)
+          }.bind(this)
+          thumb.src = e.target.result
         }
-        this.fileURLs.push(fileURL)
       }.bind(this))
     }.bind(this))
   }

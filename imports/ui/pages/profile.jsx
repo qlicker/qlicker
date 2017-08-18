@@ -14,6 +14,7 @@ import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 
 import { Images } from '../../api/images'
+import { Settings } from '../../api/settings'
 
 let UUID = require('uuid-1345')
 
@@ -32,6 +33,7 @@ class _Profile extends Component {
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.addImage = this.addImage.bind(this)
     this.saveProfileImage = this.saveProfileImage.bind(this)
+    this.resizeImage = this.resizeImage.bind(this)
   }
 
   addImage (image) {
@@ -47,6 +49,7 @@ class _Profile extends Component {
         alertify.success('Profile image updated')
         this.setState({ uploadActive: false })
         $('.dz-success.dz-complete').remove()
+        $('.dz-preview.dz-image-preview').remove()
       }, 800)
     })
   }
@@ -58,6 +61,31 @@ class _Profile extends Component {
     })
   }
 
+  resizeImage (size, img, meta, save) {
+    let width = img.width
+    let height = img.height
+    if (width > size) {
+      width = size
+      height = size * img.height / img.width
+    }
+    let canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+    let slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
+    canvas.toBlob((blob) => {
+      slingshotThumbnail.send(blob, (e, downloadUrl) => {
+        if (e) alertify.error('Error uploading')
+        else if (save) {
+          this.saveProfileImage(downloadUrl.slice(0, -(meta.type.length + 1)))
+          img.url = downloadUrl.slice(0, -(meta.type.length + 1))
+          img.UID = meta.UID
+          this.addImage(img)
+        }
+      })
+    })
+  }
+
   componentDidUpdate () {
     if (!this.state.uploadActive) return
     if (Meteor.isTest) return
@@ -65,7 +93,7 @@ class _Profile extends Component {
       url: '/some/random/url',
       acceptedFiles: 'image/jpeg,image/png,image/gif',
       accept: (file, done) => {
-        var reader = new FileReader()
+        let reader = new FileReader()
         reader.readAsDataURL(file)
         reader.addEventListener('loadend', function (e) {
           const fileURL = reader.result
@@ -74,42 +102,25 @@ class _Profile extends Component {
             name: fileURL})
           let image = {UID: UID}
           const existing = Images.find(image).fetch()[0]
-          if (!existing) {
-            const meta = {UID: UID, type: 'image'}
-            var slingshotUpload = new Slingshot.Upload('QuestionImages', meta)
-            slingshotUpload.send(file, function (e, downloadUrl) {
-              if (e) return alertify.error('Error uploading')
-              else {
-                done()
-                this.saveProfileImage(downloadUrl.slice(0, -(meta.type.length + 1)))
-                image.url = downloadUrl.slice(0, -(meta.type.length + 1))
-                this.addImage(image)
-              }
-            }.bind(this))
-            // Makes a thumbnail
-            var img = new Image()
+          if (existing) {
+            this.saveProfileImage(existing.url)
+          } else {
+            let img = new Image()
             img.onload = function () {
-              const maxSize = 50
-              var width = img.width
-              var height = img.height
-              if (width > height && width > maxSize) {
-                height *= maxSize / width
-                width = maxSize
-              } else if (height > maxSize) {
-                width *= maxSize / height
-                height = maxSize
-              }
-              var canvas = document.createElement('canvas')
-              canvas.width = width
-              canvas.height = height
-              canvas.getContext('2d').drawImage(this, 0, 0, width, height)
-              const meta = {UID: UID, type: 'thumbnail'}
-              var slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
-              canvas.toBlob((blob) => {
-                slingshotThumbnail.send(blob)
+              const meta = {UID: UID, type: 'image'}
+              Meteor.call('settings.find', (e, obj) => {
+                if (e) alertify.error('Error while getting settings')
+                if (obj) this.resizeImage(obj.maxImageWidth, img, meta, true)
               })
-            }
-            img.src = e.target.result
+            }.bind(this)
+            img.src = fileURL
+            // Makes a thumbnail
+            let thumb = new Image()
+            thumb.onload = function () {
+              const meta = {UID: UID, type: 'thumbnail'}
+              this.resizeImage(50, thumb, meta, false)
+            }.bind(this)
+            thumb.src = e.target.result
           }
         }.bind(this))
       }
@@ -200,7 +211,7 @@ class _Profile extends Component {
 
 // meteor reactive data container
 export const ProfilePage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData')
+  const handle = Meteor.subscribe('userData') && Meteor.subscribe('settings')
 
   return {
     user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
