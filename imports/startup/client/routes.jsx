@@ -57,7 +57,7 @@ import { ProfilePage } from '../../ui/pages/profile'
 Router.route('/profile', {
   name: 'profile',
   waitOn: function () {
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('images')
   },
   action: function () {
     let user = Meteor.user()

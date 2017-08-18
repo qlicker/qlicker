@@ -15,8 +15,10 @@ import { ROLES } from '../configs'
 
 const pattern = {
   _id: Match.Maybe(Helpers.NEString), // mongo db id
-  restrict: Match.Maybe(Boolean), // Information Technology Project (2016-17)
-  allowed: Match.Maybe([Helpers.NEString])
+  restrictDomain: Match.Maybe(Boolean), // Information Technology Project (2016-17)
+  allowedDomains: Match.Maybe([Helpers.NEString]),
+  maxImageSize: Match.Maybe(Number),
+  maxImageWidth: Match.Maybe(Number)
 }
 
 // Create course class
@@ -33,26 +35,26 @@ if (Meteor.isServer) {
       let user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin)) {
         return Settings.find()
-      } else this.ready()
-    } else this.ready()
+      }
+    } else return Settings.find({}, { fields: { _id: false, restrictDomain: false, allowedDomains: false } })
   })
 }
 
-/* Accounts.config({ restrictCreationByEmailDomain: (email) => {
+Accounts.config({ restrictCreationByEmailDomain: (email) => {
   const allowed = Meteor.call('confirmAccount', (email))
   if (!allowed) throw new Meteor.Error(403, 'Invalid email domain')
   else return true
-}}) */
+}})
 
 /**
- * Meteor methods for courses object
- * @module courses
+ * Meteor methods for setting object
+ * @module settings
  */
 Meteor.methods({
 
   /**
-   * insert new course object into Courses mongodb Collection
-   * @param {Course} course - course object without id
+   * insert new setting object into Settings mongodb Collection
+   * @param {Settings} course - setting object without id
    * @returns {MongoId} id of new course
    */
   'settings.insert' (settings) {
@@ -61,13 +63,10 @@ Meteor.methods({
       let user = Meteor.users.findOne({_id: this.userId})
       if (user.hasGreaterRole(ROLES.admin)) {
         const exists = Settings.findOne()
-        if (exists) {
-          Settings.update(exists._id, settings)
-        }
-        return Settings.insert(settings)
+        if (exists) Settings.update(exists._id, settings)
+        else return Settings.insert(settings)
       }
     }
-    return
   },
 
   'settings.update' (settings) {
@@ -78,15 +77,22 @@ Meteor.methods({
         return Settings.update(settings._id, settings)
       }
     }
-    return
+  },
+
+  'settings.find' () {
+    if (this.userId) {
+      let user = Meteor.users.findOne({_id: this.userId})
+      if (user.hasGreaterRole(ROLES.admin)) return Settings.findOne()
+      else return Settings.findOne({}, { fields: { restrictDomain: false, allowedDomains: false } })
+    }
   },
 
   'confirmAccount' (email) {
     var domain = email.substring(email.lastIndexOf('@') + 1)
     const settings = Settings.findOne()
     if (settings) { // (restrict) implies (domain in list) === not (restrict) || (domain in list)
-      const contains = _.find(settings.allowed, function (dom) { return domain === dom })
-      const approved = !settings.restrict || (contains !== undefined)
+      const contains = _.find(settings.allowedDomains, function (dom) { return domain === dom })
+      const approved = !settings.restrictDomain || (contains !== undefined)
       if (!approved) throw new Meteor.Error(403, 'Invalid email domain')
       return approved
     }

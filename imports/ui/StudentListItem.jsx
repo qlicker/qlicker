@@ -30,7 +30,7 @@ export class StudentListItem extends ListItem {
         <div
           className='img-circle ql-profile-image'
           style={{
-            backgroundImage: 'url(' + this.props.student.getImageUrl() + ')'
+            backgroundImage: 'url(' + this.props.student.getThumbnailUrl() + ')'
           }} />
         <div className='student-details'>
           <span className='student-name'>{ this.props.student.getName() + role }</span>

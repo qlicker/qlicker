@@ -17,13 +17,15 @@ class _AdminDashboard extends Component {
   constructor (p) {
     super(p)
 
-    this.state = { email: '', role: '' }
+    this.state = { email: '', role: '', size: p.settings.maxImageSize, width: p.settings.maxImageWidth }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
     this.saveUserRole = this.saveUserRole.bind(this)
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
+    this.saveImageSize = this.saveImageSize.bind(this)
+    this.saveImageWidth = this.saveImageWidth.bind(this)
   }
 
   saveRoleChange (uId, newRole) {
@@ -50,6 +52,28 @@ class _AdminDashboard extends Component {
     let stateEdits = {}
     stateEdits[e.target.dataset.name] = e.target.value
     this.setState(stateEdits)
+  }
+
+  saveImageSize (e) {
+    e.preventDefault()
+
+    let settings = Settings.findOne()
+    settings.maxImageSize = !isNaN(Number(this.state.size)) ? Number(this.state.size) : 0
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
+    })
+  }
+
+  saveImageWidth (e) {
+    e.preventDefault()
+
+    let settings = Settings.findOne()
+    settings.maxImageWidth = !isNaN(Number(this.state.width)) ? Number(this.state.width) : 0
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
+    })
   }
 
   handleSubmit (e) {
@@ -86,6 +110,8 @@ class _AdminDashboard extends Component {
   render () {
     const setEmail = (e) => { this.setState({ email: e.target.value }) }
     const setUserRole = (e) => { this.setState({ role: e.target.value }) }
+    const setImageSize = (e) => { this.setState({ size: e.target.value }) }
+    const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
     return (
       <div className='container ql-admin-page'>
         <h2>Admin User Management</h2>
@@ -99,6 +125,18 @@ class _AdminDashboard extends Component {
             { Object.keys(ROLES).map((r) => <option value={ROLES[r]}>{ROLES[r]}</option>)}
           </select>
           <input type='submit' className='btn btn-primary' value='Set User Role' />
+        </form>
+
+        <h4>Maximum image size (MB)</h4>
+        <form ref='setUserRoleForm' onSubmit={this.saveImageSize} className='form-inline'>
+          <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
+          <input type='submit' className='btn btn-primary' value='Set' />
+        </form>
+
+        <h4>Maximum image width (px)</h4>
+        <form ref='setUserRoleForm' onSubmit={this.saveImageWidth} className='form-inline'>
+          <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
+          <input type='submit' className='btn btn-primary' value='Set' />
         </form>
 
         <RestrictDomainForm
