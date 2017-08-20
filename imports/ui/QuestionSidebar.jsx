@@ -110,7 +110,8 @@ export class QuestionSidebar extends ControlledForm {
       const correctType = (this.state.questionType === -1) || (q.type === this.state.questionType)
 
       const hasTag = this.state.tags.length > 0
-        ? _.intersection(_(q.tags).pluck('value'), _(this.state.tags).pluck('value')).length > 0
+        //? _.intersection(_(q.tags).pluck('value'), _(this.state.tags).pluck('value')).length > 0//this would OR, below AND:
+        ? _.intersection(_(q.tags).pluck('value'), _(this.state.tags).pluck('value')).length === this.state.tags.length
         : true
 
       return (inQuestion || inAnswers) && correctType && hasTag
