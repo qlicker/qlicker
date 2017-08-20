@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/react-select/dist/react-select.css">
   <script src="https://cdn.rawgit.com/alertifyjs/alertify.js/v1.0.10/dist/js/alertify.js"></script>
   <script src="https://cdn.ckeditor.com/4.6.2/full-all/ckeditor.js"></script>
+  <!--<script src="ckeditor/ckeditor.js">-->
 </head>
 
 <body class="body-grey bootstrap-overrides">
@@ -17,7 +18,17 @@
 
   <div class="alertify-logs"></div>
   <!--<script src="/ckeditor/ckeditor.js"></script>-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML" async></script>
+
+  <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {
+        inlineMath: [ ['$$','$$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$$','$$$'], ["\\[","\\]"] ]
+      }
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_CHTML" async></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML" async></script>-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js"></script>
 </body>
 

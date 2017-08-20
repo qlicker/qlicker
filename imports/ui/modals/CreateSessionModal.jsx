@@ -13,7 +13,13 @@ export const DEFAULT_STATE = {
   description: '',
   courseId: '',
   quiz: false,
-  date: undefined
+  date: undefined,//Added the following to have all fields:
+  status: 'hidden',
+  questions: [],
+  currentQuestion: undefined,
+  joined : [],
+  tags: [],
+  reviewable: false
 }
 
 /**
