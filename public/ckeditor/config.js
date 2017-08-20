@@ -22,7 +22,8 @@ CKEDITOR.editorConfig = function (config) {
 
   config.removeButtons = 'Save,NewPage,Print,Preview,Templates,Cut,Copy,Redo,Undo,Paste,PasteText,PasteFromWord,Replace,Find,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,CopyFormatting,RemoveFormat,Outdent,Indent,CreateDiv,Blockquote,JustifyBlock,BidiLtr,BidiRtl,Language,Anchor,Unlink,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Maximize,ShowBlocks,About,FontSize,Font';
 
-  config.mathJaxLib = '//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML'
+  //config.mathJaxLib = '//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML'
+  config.mathJaxLib = '//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_CHTML'
   config.extraPlugins = 'confighelper,mathjax,uploadwidget,uploadimage,sourcedialog,image2'
   config.line_height = '1em'
   config.uploadUrl = '/upload/images'
