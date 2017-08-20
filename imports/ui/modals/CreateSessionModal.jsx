@@ -16,8 +16,6 @@ export const DEFAULT_STATE = {
   date: undefined,//Added the following to have all fields:
   status: 'hidden',
   questions: [],
-  currentQuestion: undefined,
-  joined : [],
   tags: [],
   reviewable: false
 }
