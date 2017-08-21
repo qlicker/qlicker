@@ -315,7 +315,7 @@ export class _QuestionDisplay extends Component {
               { (classSuffixStr === 'ms' && !this.props.forReview) ? <input type='checkbox' className='ql-checkbox' /> : '' }
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content} {console.log(a)} {((this.props.forReview || (sess && sess.correct)) && a.correct) ? '✓' : ''}
+              {content} {((this.props.forReview || (sess && sess.correct)) && a.correct) ? '✓' : ''}
             </div>
           </div>)
       })
@@ -331,7 +331,7 @@ export class _QuestionDisplay extends Component {
           className='form-control'
           rows='3'
           onChange={this.setShortAnswer}
-          value={this.state.submittedAnswer} />
+          value={this.props.prof ? q.options[0].plainText : this.state.submittedAnswer} />
       </div>
     )
   }
@@ -359,7 +359,6 @@ export class _QuestionDisplay extends Component {
         content = this.renderOptionQuestion('ms', q)
         break
     }
-
     return (
       <div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
 
