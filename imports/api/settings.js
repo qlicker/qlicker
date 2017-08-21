@@ -18,7 +18,8 @@ const pattern = {
   restrictDomain: Match.Maybe(Boolean), // Information Technology Project (2016-17)
   allowedDomains: Match.Maybe([Helpers.NEString]),
   maxImageSize: Match.Maybe(Number),
-  maxImageWidth: Match.Maybe(Number)
+  maxImageWidth: Match.Maybe(Number),
+  email: Match.Maybe(String)
 }
 
 // Create course class
@@ -74,6 +75,10 @@ Meteor.methods({
     if (this.userId) {
       let user = Meteor.users.findOne({_id: this.userId})
       if (user.hasGreaterRole(ROLES.admin)) {
+        if ((settings.email !== Settings.findOne().email) && process.env.QLICKER_MAIL_PASSWORD) {
+          const address = Settings.findOne() ? Settings.findOne().email : ''
+          process.env.MAIL_URL = 'smtp://' + address + ':' + process.env.QLICKER_MAIL_PASSWORD + '@smtp.mailgun.org:587'
+        }
         return Settings.update(settings._id, settings)
       }
     }
