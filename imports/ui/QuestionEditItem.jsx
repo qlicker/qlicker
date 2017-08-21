@@ -14,7 +14,7 @@ import { RadioPrompt } from './RadioPrompt'
 import { QuestionImages } from '../api/questions'
 
 // constants
-import { MC_ORDER, TF_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
+import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
 export const DEFAULT_STATE = {
   plainText: '',
@@ -67,6 +67,9 @@ export class QuestionEditItem extends Component {
           break
         case QUESTION_TYPE.TF:
           this.answerOrder = TF_ORDER
+          break
+        case QUESTION_TYPE.SA:
+          this.answerOrder = SA_ORDER
           break
       }
     } else { // if adding new question
@@ -135,8 +138,9 @@ export class QuestionEditItem extends Component {
           this.addAnswer(null, null, false)
         })
       } else if (type === QUESTION_TYPE.SA) {
-        this.currentAnswer = -1
-        this.answerOrder = []
+        this.currentAnswer = 0
+        this.answerOrder = SA_ORDER
+        this.addAnswer(null, null, true)
       } else if (!retainOptions) {
         this.currentAnswer = 0
         this.answerOrder = _.extend({}, MC_ORDER)
@@ -192,11 +196,13 @@ export class QuestionEditItem extends Component {
   setOptionState (answerKey, content, plainText) {
     let options = this.state.options
     const i = _(options).findIndex({ answer: answerKey })
-    options[i].content = content
-    options[i].plainText = plainText
-    this.setState({ options: options }, () => {
-      this._DB_saveQuestion()
-    })
+    if (i >= 0) {
+      options[i].content = content
+      options[i].plainText = plainText
+      this.setState({options: options}, () => {
+        this._DB_saveQuestion()
+      })
+    }
   } // end setOptionState
 
   /**
@@ -369,6 +375,24 @@ export class QuestionEditItem extends Component {
     </div>)
   } // end answerEditor
 
+  shortAnswerEditor (a) {
+    if (!a) return <div>Loading</div>
+    const changeHandler = (content, plainText) => {
+      this.setOptionState(a.answer, content, plainText)
+    }
+
+    return (<div className={'small-editor-wrapper col-md-12'} key={'answer_' + a.answer}>
+      <div className='answer-option'>
+        <Editor
+          change={changeHandler}
+          val={a.content}
+          className='answer-editor'
+          question={this.state}
+        />
+      </div>
+    </div>)
+  } // end shortAnswerEditor
+
   render () {
     let editorRows = []
 
@@ -377,6 +401,13 @@ export class QuestionEditItem extends Component {
         {this.answerEditor(this.state.options[0])}
         {this.answerEditor(this.state.options[1])}
       </div>
+      editorRows.push(row)
+    } else if (this.state.type === QUESTION_TYPE.SA) {
+      const row = this.state.options.forEach((option, i) => {
+        editorRows.push(<div key={'row_' + i} className='row'>
+          { this.shortAnswerEditor(option) }
+        </div>)
+      })
       editorRows.push(row)
     } else {
       this.state.options.forEach((option, i) => {
@@ -440,7 +471,7 @@ export class QuestionEditItem extends Component {
                 change={this.onEditorStateChange}
                 val={this.state.content}
                 className='question-editor'
-                placeholder='Question?' 
+                placeholder='Question?'
                 question={this.state}/>
               { this.props.onDeleteThis
                 ? <span
