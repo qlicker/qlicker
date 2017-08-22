@@ -13,7 +13,8 @@ export const DEFAULT_STATE = {
   deptCode: '',
   courseNumber: '',
   section: '',
-  semester: ''
+  semester: '',
+  requireVerified: true
 }
 
 /**

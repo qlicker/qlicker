@@ -27,7 +27,8 @@ const coursePattern = {
   students: Match.Maybe([Helpers.MongoID]),
   instructors: Match.Maybe([Helpers.MongoID]),
   sessions: Match.Maybe([Helpers.MongoID]),
-  createdAt: Date
+  createdAt: Date,
+  requireVerified: Match.Maybe(Boolean)
 }
 
 // Create course class
@@ -369,6 +370,24 @@ Meteor.methods({
     return Courses.update({ _id: courseId }, {
       $set: {
         inactive: !active
+      }
+    })
+  },
+
+  /**
+   * set requireVerified attribute based on bool
+   * @param {MongoID} courseId
+   * @param {Boolean} active
+   */
+  'courses.setVerification' (courseId, isRequired) {
+    check(courseId, Helpers.MongoID)
+    check(isRequired, Boolean)
+
+    profHasCoursePermission(courseId)
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        requireVerified: isRequired
       }
     })
   }
