@@ -23,11 +23,11 @@ export const DEFAULT_STATE = {
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
-  sessionOptions:{
-    hidden: false, 
-    stats: false, 
-    correct: false, 
-    attempts:[]
+  sessionOptions: {
+    hidden: false,
+    stats: false,
+    correct: false,
+    attempts: []
   }
 }
 
@@ -458,16 +458,6 @@ export class QuestionEditItem extends Component {
                     {strMakePublic}
                   </button>
                 </div>
-              </div>
-              <div className='col-md-6'>
-                <Creatable
-                  name='tag-input'
-                  placeholder='Question Tags'
-                  multi
-                  value={this.state.tags}
-                  options={this.tagSuggestions}
-                  onChange={this.addTag}
-                  />
               </div>
             </div>
             : '' }
