@@ -22,7 +22,13 @@ export const DEFAULT_STATE = {
   content: null,
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
-  tags: []
+  tags: [],
+  sessionOptions:{
+    hidden: false, 
+    stats: false, 
+    correct: false, 
+    attempts:[]
+  }
 }
 
 /**

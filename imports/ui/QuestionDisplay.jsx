@@ -68,8 +68,12 @@ export class _QuestionDisplay extends Component {
    * reset the state of component and prep for different Question
    */
   resetState () {
-    const l = this.props.question.sessionOptions.attempts.length
-    const attempt = this.props.question.sessionOptions.attempts[l - 1]
+   // const l = this.props.question.sessionOptions.attempts.length
+   // const attempt = this.props.question.sessionOptions.attempts[l - 1]
+   const q1=this.props.question;
+   const attempt = q1.sessionOptions
+      ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1]
+      : 0
 
     const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
 
