@@ -198,6 +198,10 @@ Meteor.methods({
     if (!c) throw new Meteor.Error('code-not-found', 'Couldn\'t enroll in course')
 
     if (!c.inactive) {
+      const hasVerified = _.some(Meteor.user().emails, (email) => email.verified)
+      if (c.requireVerified && !hasVerified) {
+        throw new Meteor.Error('could-not-enroll', 'Verified email required')
+      }
       Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
         $addToSet: { 'profile.courses': c._id }
       })

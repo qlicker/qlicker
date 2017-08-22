@@ -222,6 +222,11 @@ class _ManageCourse extends Component {
                       { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
                     </div>
                   </div>
+                  <div className='btn-group btn-group-justified details-button-group'>
+                    <div className='btn btn-default' onClick={this.toggleVerification}>
+                      {this.props.course.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
+                    </div>
+                  </div>
                 </div> : ''
                 }
                 <div className='btn-group btn-group-justified details-button-group'>

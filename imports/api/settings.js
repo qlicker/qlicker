@@ -19,7 +19,8 @@ const pattern = {
   allowedDomains: Match.Maybe([Helpers.NEString]),
   maxImageSize: Match.Maybe(Number),
   maxImageWidth: Match.Maybe(Number),
-  email: Match.Maybe(String)
+  email: Match.Maybe(String),
+  requireVerified: Match.Maybe(Boolean)
 }
 
 // Create course class
@@ -37,7 +38,17 @@ if (Meteor.isServer) {
       if (user.hasGreaterRole(ROLES.admin)) {
         return Settings.find()
       }
-    } else return Settings.find({}, { fields: { _id: false, restrictDomain: false, allowedDomains: false } })
+    } else return Settings.find()
+  })
+
+  Accounts.validateLoginAttempt((options) => {
+    if (!options.allowed) return false
+    const sett = Settings.findOne()
+    if (!sett.requireVerified || options.user.emails[0].verified === true) {
+      return true
+    } else {
+      throw new Meteor.Error('email-not-verified', 'You must verify your email address.')
+    }
   })
 }
 
@@ -84,11 +95,11 @@ Meteor.methods({
   },
 
   'settings.find' () {
-    if (this.userId) {
-      let user = Meteor.users.findOne({_id: this.userId})
+    if (Meteor.userId()) {
+      let user = Meteor.users.findOne({_id: Meteor.userId()})
       if (user.hasGreaterRole(ROLES.admin)) return Settings.findOne()
-      else return Settings.findOne({}, { fields: { restrictDomain: false, allowedDomains: false } })
     }
+    return Settings.findOne()
   },
 
   'confirmAccount' (email) {

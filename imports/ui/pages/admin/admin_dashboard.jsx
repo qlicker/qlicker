@@ -22,7 +22,8 @@ class _AdminDashboard extends Component {
       role: '',
       size: p.settings.maxImageSize,
       width: p.settings.maxImageWidth,
-      supportEmail: p.settings.email
+      supportEmail: p.settings.email,
+      requireVerified: p.settings.requireVerified
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -33,6 +34,7 @@ class _AdminDashboard extends Component {
     this.saveImageSize = this.saveImageSize.bind(this)
     this.saveImageWidth = this.saveImageWidth.bind(this)
     this.saveEmail = this.saveEmail.bind(this)
+    this.setVerified = this.setVerified.bind(this)
   }
 
   saveRoleChange (uId, newRole) {
@@ -88,6 +90,17 @@ class _AdminDashboard extends Component {
 
     let settings = Settings.findOne()
     settings.email = this.state.supportEmail
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
+    })
+  }
+
+  setVerified (e) {
+    e.preventDefault()
+    let settings = Settings.findOne()
+    this.setState({ requireVerified: e.target.checked })
+    settings.requireVerified = e.target.checked
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
       else alertify.success('Settings updated')
@@ -163,6 +176,9 @@ class _AdminDashboard extends Component {
           <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
           <input type='submit' className='btn btn-primary' value='Set' />
         </form>
+
+        <h4>Require verified email to login</h4>
+        <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
 
         <RestrictDomainForm
           done={() => { return true }}
