@@ -75,9 +75,8 @@ Meteor.methods({
     if (this.userId) {
       let user = Meteor.users.findOne({_id: this.userId})
       if (user.hasGreaterRole(ROLES.admin)) {
-        if ((settings.email !== Settings.findOne().email) && process.env.QLICKER_MAIL_PASSWORD) {
-          const address = Settings.findOne() ? Settings.findOne().email : ''
-          process.env.MAIL_URL = 'smtp://' + address + ':' + process.env.QLICKER_MAIL_PASSWORD + '@smtp.mailgun.org:587'
+        if (settings.email !== Settings.findOne().email && Meteor.isServer) {
+          Accounts.emailTemplates.from = settings.email || 'admin@' + process.env.ROOT_URL
         }
         return Settings.update(settings._id, settings)
       }

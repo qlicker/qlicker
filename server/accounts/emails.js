@@ -1,7 +1,8 @@
 import { Settings } from '../../imports/api/settings'
 
 Accounts.emailTemplates.siteName = 'Qlicker'
-Accounts.emailTemplates.from = Settings.findOne() ? Settings.findOne().email : ''
+const exists = Settings.findOne() && Settings.findOne().email
+Accounts.emailTemplates.from = exists ? Settings.findOne().email : ('admin@' + process.env.ROOT_URL)
 
 Accounts.emailTemplates.verifyEmail = {
 
