@@ -19,8 +19,7 @@ export class StudentQuestionResultsListItem extends Component {
 
   render () {
     const q = this.props.question
-    const unique = _.where(q.studentResponses, { studentUserId: Meteor.userId() })
-    const attempts = 'Attempts: ' + unique.length + '/' + (q.sessionOptions ? q.sessionOptions.attempts.length : 0)
+    const attempts = 'Attempts: ' + q.studentResponses.length + '/' + (q.sessionOptions ? q.sessionOptions.attempts.length : 0)
     return (<div className='ql-results-list-item ql-list-item'>
       <span>{(this.props.session.questions.indexOf(q._id) + 1) + '.'}</span>
       <span className='title'>{WysiwygHelper.htmlDiv(q.content)}</span>
