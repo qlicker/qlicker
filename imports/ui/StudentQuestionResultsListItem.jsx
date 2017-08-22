@@ -11,7 +11,7 @@ import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
 import { _ } from 'underscore'
 
-export class _StudentQuestionResultsListItem extends Component {
+export class StudentQuestionResultsListItem extends Component {
 
   componentWillMount () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
@@ -19,7 +19,7 @@ export class _StudentQuestionResultsListItem extends Component {
 
   render () {
     const q = this.props.question
-    const unique = _.uniq(q.studentResponses, 'questionId')
+    const unique = _.where(q.studentResponses, { studentUserId: Meteor.userId() })
     const attempts = 'Attempts: ' + unique.length + '/' + (q.sessionOptions ? q.sessionOptions.attempts.length : 0)
     return (<div className='ql-results-list-item ql-list-item'>
       <span>{(this.props.session.questions.indexOf(q._id) + 1) + '.'}</span>
@@ -29,16 +29,6 @@ export class _StudentQuestionResultsListItem extends Component {
   } //  end render
 
 }
-
-export const StudentQuestionResultsListItem = createContainer((props) => {
-  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
-  const responses = Responses.find({ questionId: props.question._id }).fetch()
-
-  return {
-    responses: responses,
-    loading: !handle.ready()
-  }
-}, _StudentQuestionResultsListItem)
 
 StudentQuestionResultsListItem.propTypes = {
   question: PropTypes.object.isRequired,

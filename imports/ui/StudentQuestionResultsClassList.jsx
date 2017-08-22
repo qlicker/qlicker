@@ -7,6 +7,8 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { QuestionDisplay } from './QuestionDisplay'
 
+import { QUESTION_TYPE } from '../configs'
+
 import _ from 'underscore'
 
 import { Responses } from '../api/responses'
@@ -14,11 +16,28 @@ import { Responses } from '../api/responses'
 export class _StudentQuestionResultsClassList extends Component {
   render () {
     const q = this.props.question
-
+    const correct = _.pluck(_.where(q.options, {correct: true}), 'answer')
     const attemptRow = q.studentResponses.map((row) => {
+      let inner
+
+      switch (q.type) {
+        case QUESTION_TYPE.MC:
+          inner = row.answer + (correct[0] === row.answer ? ' ✓' : ' ✗')
+          break
+        case QUESTION_TYPE.TF:
+          inner = row.answer + (correct[0] === row.answer ? ' ✓' : ' ✗')
+          break
+        case QUESTION_TYPE.SA:
+          inner = row.answer
+          break
+        case QUESTION_TYPE.MS:
+          const isSame = _.intersection(correct, row.answer).length === correct.length
+          inner = row.answer.sort().join(', ') + (isSame ? ' ✓' : ' ✗')
+          break
+      }
       return (<tr key={row.attempt}>
         <td>{row.attempt}</td>
-        <td> {typeof row.answer === 'string' ? row.answer : row.answer.join(', ')}</td>
+        <td>{inner}</td>
       </tr>)
     })
 
@@ -45,20 +64,16 @@ export class _StudentQuestionResultsClassList extends Component {
 }
 
 export const StudentQuestionResultsClassList = createContainer((props) => {
-  const handle = Meteor.subscribe('responses.forQuestion', props.question._id) &&
-    Meteor.subscribe('users.myStudents')
+  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
 
-  const responses = Responses.find({ attempt: 1, questionId: props.question._id }).fetch()
-  const students = Meteor.users.find({ _id: { $in: _(responses).pluck('studentUserId') } }).fetch()
+  const responses = Responses.find({ questionId: props.question._id, studentUserId: Meteor.userId() }).fetch()
   return {
     responses: responses,
-    students: _(students).indexBy('_id'),
     loading: !handle.ready()
   }
 }, _StudentQuestionResultsClassList)
 
 StudentQuestionResultsClassList.propTypes = {
-  question: PropTypes.object.isRequired,
-  session: PropTypes.object.isRequired
+  question: PropTypes.object.isRequired
 }
 
