@@ -113,7 +113,8 @@ export class _QuestionDisplay extends Component {
    */
   disallowResponses () {
     const q = this.props.question
-    const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
+    const disallowResponses = q.sessionOptions && q.sessionOptions.attempts.length && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
+    //const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
     return disallowResponses
   }
 
