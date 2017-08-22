@@ -18,8 +18,4 @@ Meteor.startup(() => {
       email: ''
     })
   }
-  if (process.env.QLICKER_MAIL_PASSWORD) {
-    process.env.MAIL_URL = 'smtp://admin%40qlicker.etdev.ca:' + process.env.QLICKER_MAIL_PASSWORD + '@smtp.mailgun.org:587'
-
-  }
 })
