@@ -18,7 +18,8 @@ const pattern = {
   restrictDomain: Match.Maybe(Boolean), // Information Technology Project (2016-17)
   allowedDomains: Match.Maybe([Helpers.NEString]),
   maxImageSize: Match.Maybe(Number),
-  maxImageWidth: Match.Maybe(Number)
+  maxImageWidth: Match.Maybe(Number),
+  email: Match.Maybe(String)
 }
 
 // Create course class
@@ -74,6 +75,9 @@ Meteor.methods({
     if (this.userId) {
       let user = Meteor.users.findOne({_id: this.userId})
       if (user.hasGreaterRole(ROLES.admin)) {
+        if (settings.email !== Settings.findOne().email && Meteor.isServer) {
+          Accounts.emailTemplates.from = settings.email || 'admin@' + process.env.ROOT_URL
+        }
         return Settings.update(settings._id, settings)
       }
     }
