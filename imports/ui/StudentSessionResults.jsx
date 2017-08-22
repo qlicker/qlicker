@@ -22,12 +22,12 @@ export class _StudentSessionResults extends Component {
         this.props.session.questions.map((qId, index) => {
           const q = this.props.questions[qId]
           return (<div>
-            <a role='button'  data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
+            <a role='button' data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
               <StudentQuestionResultsListItem question={q} session={this.props.session} index={index} />
             </a>
             <div className='collapse' id={'collapse_' + qId}>
               <div className='row'>
-                <StudentQuestionResultsClassList question={q} session={this.props.session} />
+                <StudentQuestionResultsClassList question={q} />
               </div>
             </div>
           </div>)
