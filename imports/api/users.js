@@ -148,6 +148,16 @@ Meteor.methods({
     return Meteor.call('users.sendVerificationEmail')
   },
 
+  'users.verifyEmail' (email) {
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    console.log(user)
+    if (user.hasRole(ROLES.admin)) {
+      let emailUser = Meteor.users.findOne({'emails.address': email})
+      if (!emailUser) throw new Meteor.Error('Couldn\'t find user')
+      return Meteor.users.update({_id: emailUser._id}, {'$set': {'emails.0.verified': true}})
+    }
+  },
+
   /**
    * change user role
    * @param {MongoId} uId
