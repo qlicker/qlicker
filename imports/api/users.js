@@ -37,6 +37,7 @@ _.extend(User.prototype, {
     return this.profile.roles.indexOf(role) !== -1
   },
   isInstructor: function (courseId) {
+    check(courseId, Helpers.NEString)
     const c = Courses.findOne(courseId)
     return c ? _.contains(c.instructors, this._id) : false
   },

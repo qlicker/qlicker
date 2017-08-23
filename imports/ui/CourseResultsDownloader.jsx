@@ -23,7 +23,7 @@ export class _CourseResultsDownloader extends Component {
     this.props.sessions.forEach((s, sIndex) => {
       s.questions.forEach((q, qIndex) => {
         const question = _.find(this.props.questions, ques => { return ques._id === q })
-        const len = question ? question.sessionOptions.attempts.length : 0
+        const len = (question && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
         for (var i = 1; i <= len; i++) {
           headers.push('S' + (sIndex + 1) + '- Q' + (s.questions.indexOf(q) + 1) + '- A' + i)
         }
@@ -37,7 +37,7 @@ export class _CourseResultsDownloader extends Component {
       this.props.sessions.forEach((s, sIndex) => {
         s.questions.forEach((q, qIndex) => {
           const question = _.find(this.props.questions, ques => { return ques._id === q })
-          const len = question ? question.sessionOptions.attempts.length : 0
+          const len = (question && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
           for (var i = 1; i <= len; i++) {
             const correct = _.map(_.filter(question.options, {correct: true}), (op) => op.answer) // correct responses
             let resp = _.findWhere(studentResponses, {questionId: q, attempt: i}) // student responses
@@ -86,7 +86,7 @@ export const CourseResultsDownloader = createContainer((props) => {
 
   const sessions = Sessions.find({ _id: { $in: props.course.sessions } }, { sort: { date: 1 } }).fetch()
 
-  const questions = Questions.find({ courseId: props.course._id, sessionOptions: { $exists: true } }).fetch()
+  const questions = Questions.find({ courseId: props.course._id, sessionId: { $exists: true } }).fetch()
 
   const responses = Responses.find().fetch()
 
