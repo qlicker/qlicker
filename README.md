@@ -40,7 +40,7 @@ Changes will be merged into master after PR review.
 
 Build and bundle using `meteor build`. Deploy node app and configure mongodb accordingly.
 
-Application currently deployed at [qlicker.etdev.ca](http://qlicker.etdev.ca).
+
 
 
 
