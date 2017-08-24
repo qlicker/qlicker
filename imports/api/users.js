@@ -123,7 +123,7 @@ Meteor.methods({
    */
   'users.sendVerificationEmail' () {
     let userId = Meteor.userId()
-    if (userId) {
+    if (userId && Meteor.isServer) {
       return Accounts.sendVerificationEmail(userId)
     }
   },
