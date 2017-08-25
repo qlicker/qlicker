@@ -59,6 +59,12 @@ Meteor.users._transform = function (user) {
   return new User(user)
 }
 
+Meteor.users.deny({
+  insert () { return true },
+  update () { return true },
+  remove () { return true }
+})
+
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
     if (this.userId) return Meteor.users.find({ _id: this.userId })
@@ -147,6 +153,15 @@ Meteor.methods({
       '$set': { 'emails': [ { address: newEmail, verified: false } ] }
     })
     return Meteor.call('users.sendVerificationEmail')
+  },
+
+  'users.verifyEmail' (email) {
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (user.hasRole(ROLES.admin)) {
+      let emailUser = Meteor.users.findOne({'emails.address': email})
+      if (!emailUser) throw new Meteor.Error('Couldn\'t find user')
+      return Meteor.users.update({_id: emailUser._id}, {'$set': {'emails.0.verified': true}})
+    }
   },
 
   /**

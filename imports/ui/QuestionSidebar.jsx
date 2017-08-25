@@ -127,6 +127,14 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   render () {
+    const showMore = !this.props.atMax ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.questions.length === 10 ? '12' : '6')} onClick={this.props.increase}>
+      <span className='ql-question-name'> <span className='glyphicon glyphicon-plus'></span> Show more</span>
+    </div> : ''
+
+    const showLess = this.props.questions.length > 10 ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.atMax ? '12' : '6')} onClick={this.props.decrease}>
+      <span className='ql-question-name'> <span className='glyphicon glyphicon-minus'></span> Show less</span>
+    </div> : ''
+
     return (
       <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
@@ -166,8 +174,12 @@ export class QuestionSidebar extends ControlledForm {
                 </div>)
               })
             }
+            <br />
+            <div className='row border-between'>
+              {showMore}
+              {showLess}
+            </div>
           </div>
-
         </form>
       </div>)
   } //  end render
@@ -178,5 +190,8 @@ QuestionSidebar.propTypes = {
   session: PropTypes.object,
   questions: PropTypes.array.isRequired,
   onSelect: PropTypes.func,
-  clickMessage: PropTypes.string
+  clickMessage: PropTypes.string,
+  increase: PropTypes.func,
+  decrease: PropTypes.func,
+  atMax: PropTypes.bool
 }

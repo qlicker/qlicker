@@ -15,7 +15,8 @@ Meteor.startup(() => {
       allowedDomains: [],
       maxImageSize: 3,
       maxImageWidth: 700,
-      email: ''
+      email: '',
+      requireVerified: false
     })
   }
 })

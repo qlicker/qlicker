@@ -31,7 +31,8 @@ export class _StudentQuestionResultsClassList extends Component {
           inner = row.answer
           break
         case QUESTION_TYPE.MS:
-          const isSame = _.intersection(correct, row.answer).length === correct.length
+          const intersection = _.intersection(correct, row.answer)
+          const isSame = (intersection.length === correct.length) && (correct.length === row.answer.length)
           inner = row.answer.sort().join(', ') + (isSame ? ' ✓' : ' ✗')
           break
       }
