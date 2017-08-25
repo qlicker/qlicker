@@ -21,7 +21,7 @@ class _QuestionsPublic extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {}, selected: null }
+    this.state = { edits: {}, selected: null, limit: 11 }
 
     this.copyPublicQuestion = this.copyPublicQuestion.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
@@ -56,13 +56,26 @@ class _QuestionsPublic extends Component {
   }
 
   render () {
+    let library = Questions.find({ public: true, courseId: { $exists: false } }, { sort: { createdAt: -1 }, limit: this.state.limit }).fetch()
+
+    const atMax = library.length !== this.state.limit
+    if (!atMax) library = library.slice(0, -1)
+
+    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
+    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+
     return (
       <div className='container ql-questions-library'>
         <h1>Public Question Pool</h1>
         {createNav('public')}
         <div className='row'>
           <div className='col-md-4'>
-            <QuestionSidebar questions={this.props.public} onSelect={this.selectQuestion} />
+            <QuestionSidebar
+              questions={library}
+              onSelect={this.selectQuestion}
+              increase={increase}
+              decrease={decrease}
+              atMax={atMax} />
           </div>
           <div className='col-md-8'>
             { this.state.selected

@@ -229,11 +229,6 @@ class _ManageCourse extends Component {
                   </div>
                 </div> : ''
                 }
-                <div className='btn-group btn-group-justified details-button-group'>
-                  <div className='btn btn-default' onClick={this.toggleVerification}>
-                    {this.props.course.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
-                  </div>
-                </div>
                 <div className='ql-course-details'>
                   <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span> -
                   <span className='ql-course-semester'> { this.props.course.semester }</span>
