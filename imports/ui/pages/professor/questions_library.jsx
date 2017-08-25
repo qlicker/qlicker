@@ -16,7 +16,6 @@ import { Questions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
-  if (!Meteor.user().hasRole('professor')) return ''
   return (<ul className='nav nav-pills'>
     <li role='presentation' className={active === 'library' ? 'active' : ''}>
       <a href={Router.routes['questions'].path()}>Question Library</a>
@@ -94,7 +93,10 @@ class _QuestionsLibrary extends Component {
                   metadata autoSave />
               </div>
               <div className='ql-preview-item-container'>
-                <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                {this.state.selected
+                  ? <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                  : ''
+                }
               </div>
             </div>
             : '' }
@@ -106,13 +108,14 @@ class _QuestionsLibrary extends Component {
 }
 
 export const QuestionsLibrary = createContainer(() => {
-  const handle = Meteor.subscribe('questions.library')
+  const handle = Meteor.subscribe('questions.library') && Meteor.subscribe('courses')
+
+  const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
 
   const library = Questions.find({
-    owner: Meteor.userId(),
+    '$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
     sessionId: {$exists: false}
-  }, { sort: { createdAt: -1 } })
-  .fetch()
+  }, { sort: { createdAt: -1 } }).fetch()
 
   return {
     library: library,

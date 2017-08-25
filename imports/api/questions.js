@@ -152,10 +152,12 @@ if (Meteor.isServer) {
   // questions owned by a professor
   Meteor.publish('questions.library', function () {
     if (this.userId) {
-      const user = Meteor.users.findOne(this.userId)
-      if (!user.hasRole(ROLES.prof)) return this.ready()
+      const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
+      if (courses.length === 0) return this.ready()
 
-      return Questions.find({ owner: this.userId, sessionId: {$exists: false} })
+      return Questions.find({
+        '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
+        sessionId: {$exists: false} })
     } else this.ready()
   })
 
@@ -175,7 +177,8 @@ if (Meteor.isServer) {
       return Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
-        public: true
+        public: true,
+        approved: false
       })
     } else this.ready()
   })
@@ -208,7 +211,7 @@ Meteor.methods({
       // if student, can only add question to enrolled courses
       const courses = Courses.find({ _id: { $in: (user.profile.courses || []) } }).fetch()
       const courseIds = _(courses).pluck('_id')
-      if (courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add question to this course')
+      if (question.courseId && courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add question to this course')
     }
 
     check(question, questionPattern)
@@ -276,28 +279,12 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.copyToLibrary' (questionId) {
-    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
+    const omittedFields = ['_id', 'originalQuestion', 'sessionId']
     const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
-
-    const id = Questions.insert(question)
-    return id
-  },
-
-  /**
-   * duplicates a public question and adds it to the profs library
-   * @param {MongoId} questionId
-   * * @param {MongoId} courseId
-   */
-  'questions.copyToCourse' (questionId, courseId) {
-    const course = Courses.find(courseId).fetch()[0]
-    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
-    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
-    question.public = false
-    question.owner = course.owner
-    question.createdAt = new Date()
+    question.approved = true
 
     const id = Questions.insert(question)
     return id

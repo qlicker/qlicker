@@ -33,18 +33,10 @@ class _QuestionsPublic extends Component {
 
   copyPublicQuestion (questionId) {
     const cId = this.props.questionMap[questionId].courseId
-    if (Meteor.user().isInstructor(cId)) {
-      Meteor.call('questions.copyToCourse', questionId, cId, (error, newQuestionId) => {
-        if (error) return alertify.error('Error: ' + error.error)
-        alertify.success('Question Copied to Library')
-      })
-    } else {
-      Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
-        if (error) return alertify.error('Error: ' + error.error)
-        alertify.success('Question Copied to Library')
-        Router.go('questions', {_id: newQuestionId})
-      })
-    }
+    Meteor.call('questions.copyToLibrary', questionId, cId, (error, newQuestionId) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Copied to Library')
+    })
   }
 
   componentDidMount () {
@@ -76,7 +68,10 @@ class _QuestionsPublic extends Component {
                     Copy to Library
                   </button>
                 <div className='ql-preview-item-container'>
-                  <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                  {this.state.selected
+                    ? <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                    : ''
+                  }
                 </div>
               </div>
             : '' }

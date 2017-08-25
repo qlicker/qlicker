@@ -356,6 +356,16 @@ Meteor.methods({
   },
 
   /**
+   * get course tags and _ids for use in course select componenet
+   * @returns {MongoID} obj._id
+   * @returns {String} obj.code
+   */
+  'courses.getCourseTags' () {
+    const courses = Courses.find({instructors: Meteor.userId, inactive: false}).fetch()
+    return _.map(courses, (course) => { return {_id: course._id, code: course.courseCode().toUpperCase()} })
+  },
+
+  /**
    * set inactive attribute based on bool
    * @param {MongoID} courseId
    * @param {Boolean} active
