@@ -300,7 +300,11 @@ export class QuestionEditItem extends Component {
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
   saveQuestion () {
-    let question = _.extend({ createdAt: new Date() }, this.state)
+    const user = Meteor.user()
+    let question = _.extend({
+      createdAt: new Date(),
+      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
+    }, this.state)
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId

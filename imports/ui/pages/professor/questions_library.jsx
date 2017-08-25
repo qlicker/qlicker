@@ -49,7 +49,8 @@ class _QuestionsLibrary extends Component {
         content: '', // wysiwyg display content
         options: [],
         tags: [],
-        owner: Meteor.userId()
+        owner: Meteor.userId(),
+        approved: true
       }
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')

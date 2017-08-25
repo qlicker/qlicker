@@ -215,7 +215,8 @@ class _ManageSession extends Component {
       tags: tags,
       sessionId: sessionId,
       courseId: this.state.session.courseId,
-      owner: course.owner
+      owner: course.owner,
+      approved: true
     }
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
