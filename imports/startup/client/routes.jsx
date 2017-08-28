@@ -124,12 +124,12 @@ Router.route('/questions/library/:_id?', {
   name: 'questions',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
-    let user = Meteor.user()
-    if (user.hasRole('professor')) {
-      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
+    const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
+    if (isInstructor) {
+      mount(AppLayout, { content: <PageContainer user={Meteor.user()}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -139,11 +139,11 @@ Router.route('/questions/public', {
   name: 'questions.public',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
     let user = Meteor.user()
-    const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
+    const isInstructor = !!Courses.findOne({instructors: user._id, inactive: false})
     if (user.hasRole('professor') || isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
@@ -155,12 +155,12 @@ Router.route('/questions/submissions', {
   name: 'questions.fromStudent',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
     let user = Meteor.user()
-    const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
-    if (user.hasRole('professor') || isInstructor) {
+    const isInstructor = !!Courses.findOne({instructors: user._id, inactive: false})
+    if (isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
     } else Router.go('login')
   }

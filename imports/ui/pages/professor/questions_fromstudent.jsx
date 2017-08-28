@@ -22,7 +22,7 @@ class _QuestionsFromStudent extends Component {
 
     this.state = { edits: {}, selected: null, limit: 11 }
 
-    this.copyPublicQuestion = this.copyPublicQuestion.bind(this)
+    this.approveQuestion = this.approveQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
@@ -32,19 +32,14 @@ class _QuestionsFromStudent extends Component {
     this.setState({ selected: questionId })
   }
 
-  copyPublicQuestion (questionId) {
-    const cId = this.props.questionMap[questionId].courseId
-    if (Meteor.user().isInstructor(cId)) {
-      Meteor.call('questions.copyToCourse', questionId, cId, (error, newQuestionId) => {
-        if (error) return alertify.error('Error: ' + error.error)
-        alertify.success('Question Copied to Library')
-      })
-    } else {
-      Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
-        if (error) return alertify.error('Error: ' + error.error)
-        alertify.success('Question Copied to Library')
-      })
-    }
+  approveQuestion (questionId) {
+    let question = this.props.questionMap[questionId]
+    question.approved = true
+    Meteor.call('questions.update', question, (error, newQuestionId) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question moved to library')
+    })
+    this.selectQuestion(null)
   }
 
   deleteQuestion (questionId) {
@@ -99,7 +94,7 @@ class _QuestionsFromStudent extends Component {
               ? <div>
                 <h3>Preview Question</h3>
                 <button className='btn btn-default'
-                  onClick={() => { this.copyPublicQuestion(this.props.questionMap[this.state.selected]._id) }}
+                  onClick={() => { this.approveQuestion(this.props.questionMap[this.state.selected]._id) }}
                   data-toggle='tooltip'
                   data-placement='left'
                   title='Create a copy to use in your own sessions'>
@@ -112,7 +107,10 @@ class _QuestionsFromStudent extends Component {
                     Delete
                   </button>
                 <div className='ql-preview-item-container'>
-                  <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                  {this.state.selected
+                    ? <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                    : ''
+                  }
                 </div>
               </div>
             : '' }
@@ -129,6 +127,7 @@ export const QuestionsFromStudent = createContainer(() => {
   const fromStudent = Questions.find({
     courseId: {$exists: true},
     sessionId: {$exists: false},
+    approved: false,
     public: true
   }, { sort: { createdAt: -1 } })
   .fetch()
