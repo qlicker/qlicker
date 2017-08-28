@@ -34,7 +34,8 @@ class _ManageSession extends Component {
       editing: false,
       session: _.extend({}, this.props.session),
       questionPool: Meteor.user().hasRole('professor') ? 'library' : 'public',
-      limit: 11
+      limit: 11,
+      query: {query: {}, options: {}}
     }
 
     this.sessionId = this.props.sessionId
@@ -51,6 +52,7 @@ class _ManageSession extends Component {
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
     this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
+    this.updateQuery = this.updateQuery.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
 
     // populate tagging suggestions
@@ -304,11 +306,29 @@ class _ManageSession extends Component {
     })
   }
 
+  updateQuery (childState) {
+    let params = this.state.query
+    params.options.limit = this.state.limit
+
+    if (childState.questionType > -1) params.query.type = childState.questionType
+    else params.query = _.omit(params.query, 'type')
+    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
+    else params.query = _.omit(params.query, 'plainText')
+    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
+    else params.query = _.omit(params.query, 'tags.value')
+
+    this.setState({query: params})
+  }
+
   render () {
     if (this.props.loading) return <div>Loading</div>
 
-    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
-    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+    const increase = (childState) => {
+      this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
+    }
+    const decrease = (childState) => {
+      this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
+    }
 
     let questionList = this.state.session.questions || []
     const qlItems = []
@@ -330,20 +350,19 @@ class _ManageSession extends Component {
     })
 
     const getQuestionPool = () => {
-      /*
-      questionLibrary: Questions.find({ owner: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
-      questionPublic: Questions.find({ public: true, courseId: {$exists: false} }).fetch(),
-      questionFromStudents: Questions.find({ courseId: session.courseId, sessionId: {$exists: false}, public: true }).fetch(),
-       */
+      let query = {}
+      let options = {}
       if (this.state.questionPool === 'student') {
-        return Questions.find({
-          courseId: this.props.session.courseId,
-          sessionId: {$exists: false},
-          public: true
-        }, {limit: this.state.limit}).fetch()
+        query = $.extend({}, this.props.studentParams.query, this.state.query.query)
+        options = $.extend({}, this.props.studentParams.options, this.state.query.options)
+      } else if (this.state.questionPool === 'public') {
+        query = $.extend({}, this.props.publicParams.query, this.state.query.query)
+        options = $.extend({}, this.props.publicParams.options, this.state.query.options)
+      } else {
+        query = $.extend({}, this.props.libraryParams.query, this.state.query.query)
+        options = $.extend({}, this.props.libraryParams.options, this.state.query.options)
       }
-      if (this.state.questionPool === 'public') return Questions.find({ public: true, courseId: {$exists: false} }, {limit: this.state.limit}).fetch()
-      return Questions.find({ owner: Meteor.userId(), sessionId: {$exists: false} }, {limit: this.state.limit}).fetch()
+      return Questions.find(query, options).fetch()
     }
 
     let library = getQuestionPool()
@@ -358,7 +377,8 @@ class _ManageSession extends Component {
       increase={increase}
       decrease={decrease}
       atMax={atMax}
-      clickMessage='Click on question to add to session'/>
+      updateQuery={_.throttle(this.updateQuery, 800)}
+      clickMessage='Click on question to add to session' />
 
     return (
       <div className='ql-manage-session'>
@@ -481,15 +501,36 @@ export const ManageSession = createContainer((props) => {
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('questions.public') &&
-    Meteor.subscribe('questions.fromStudent')
+    Meteor.subscribe('questions.fromStudent') &&
+    Meteor.subscribe('courses')
+
+  const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
+  let libraryParams = {
+    query: {'$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}], sessionId: {$exists: false}},
+    options: {sort: { createdAt: -1 }, limit: 11}
+  }
+
+  let studentParams = {
+    query: {courseId: {$exists: true}, sessionId: {$exists: false}, approved: false},
+    options: {sort: { createdAt: -1 }, limit: 11}
+  }
+
+  let publicParams = {
+    query: {public: true},
+    options: {sort: { createdAt: -1 }, limit: 11}
+  }
+
   return {
     questions: _.indexBy(questionsInSession, '_id'),
-    questionLibrary: Questions.find({ owner: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
-    questionPublic: Questions.find({ public: true, courseId: {$exists: false} }).fetch(),
-    questionFromStudents: Questions.find({ courseId: session.courseId, sessionId: {$exists: false}, public: true }).fetch(),
+    libraryParams: libraryParams,
+    studentParams: studentParams,
+    publicParams: publicParams,
+    questionLibrary: Questions.find(libraryParams.query, libraryParams.options).fetch(),
+    questionPublic: Questions.find(publicParams.query, publicParams.options).fetch(),
+    questionFromStudents: Questions.find(studentParams.query, studentParams.options).fetch(),
     session: session,
     loading: !handle.ready()
   }
