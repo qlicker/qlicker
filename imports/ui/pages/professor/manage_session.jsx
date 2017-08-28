@@ -377,7 +377,7 @@ class _ManageSession extends Component {
       increase={increase}
       decrease={decrease}
       atMax={atMax}
-      updateQuery={_.throttle(this.updateQuery, 800)}
+      updateQuery={(data) => this.setState({limit: 11}, () => this.updateQuery(data))}
       clickMessage='Click on question to add to session' />
 
     return (

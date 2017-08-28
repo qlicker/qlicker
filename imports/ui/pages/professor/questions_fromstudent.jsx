@@ -34,6 +34,7 @@ class _QuestionsFromStudent extends Component {
     this.questionDeleted = this.questionDeleted.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
+    this.limitAndUpdate = _.throttle(this.limitAndUpdate.bind(this), 800)
   }
 
   selectQuestion (questionId) {
@@ -90,6 +91,10 @@ class _QuestionsFromStudent extends Component {
     } else this.setState({questions: newQuestions})
   }
 
+  limitAndUpdate (data) {
+    this.setState({limit: 11}, () => this.updateQuery(data))
+  }
+
   componentWillReceiveProps () {
     const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
@@ -124,7 +129,7 @@ class _QuestionsFromStudent extends Component {
               increase={increase}
               decrease={decrease}
               atMax={atMax}
-              updateQuery={_.throttle(this.updateQuery, 800)} />
+              updateQuery={this.limitAndUpdate} />
           </div>
           <div className='col-md-8'>
             { this.state.selected

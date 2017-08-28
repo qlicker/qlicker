@@ -46,6 +46,7 @@ class _QuestionsLibrary extends Component {
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
+    this.limitAndUpdate = _.throttle(this.limitAndUpdate.bind(this), 800)
   }
 
   editQuestion (questionId) {
@@ -80,7 +81,6 @@ class _QuestionsLibrary extends Component {
   updateQuery (childState) {
     let params = this.state.query
     params.options.limit = this.state.limit
-
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
@@ -93,16 +93,19 @@ class _QuestionsLibrary extends Component {
     else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
   }
 
+  limitAndUpdate (data) {
+    this.setState({limit: 11}, () => this.updateQuery(data))
+  }
+
   componentWillReceiveProps () {
     const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
   }
 
   render () {
     let library = this.state.questions || []
-
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
 
@@ -129,7 +132,7 @@ class _QuestionsLibrary extends Component {
               increase={increase}
               decrease={decrease}
               atMax={atMax}
-              updateQuery={_.throttle(this.updateQuery, 800)} />
+              updateQuery={this.limitAndUpdate} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
