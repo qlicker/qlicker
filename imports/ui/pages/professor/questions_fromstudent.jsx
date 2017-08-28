@@ -20,12 +20,20 @@ class _QuestionsFromStudent extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {}, selected: null, limit: 11 }
+    this.state = {
+      edits: {},
+      selected: null,
+      questions: props.library,
+      limit: 11,
+      query: props.query,
+      questionMap: _(props.library).indexBy('_id')
+    }
 
     this.approveQuestion = this.approveQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
+    this.updateQuery = this.updateQuery.bind(this)
   }
 
   selectQuestion (questionId) {
@@ -33,8 +41,11 @@ class _QuestionsFromStudent extends Component {
   }
 
   approveQuestion (questionId) {
-    let question = this.props.questionMap[questionId]
+    let question = this.state.questionMap[questionId]
     question.approved = true
+    question.public = false
+    question.owner = Meteor.userId()
+    question.createdAt = new Date()
     Meteor.call('questions.update', question, (error, newQuestionId) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question moved to library')
@@ -62,19 +73,44 @@ class _QuestionsFromStudent extends Component {
     $('[data-toggle="tooltip"]').tooltip()
   }
 
+  updateQuery (childState) {
+    let params = this.state.query
+    params.options.limit = this.state.limit
+
+    if (childState.questionType > -1) params.query.type = childState.questionType
+    else params.query = _.omit(params.query, 'type')
+    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
+    else params.query = _.omit(params.query, 'plainText')
+    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
+    else params.query = _.omit(params.query, 'tags.value')
+
+    const newQuestions = Questions.find(params.query, params.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
+      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({questions: newQuestions})
+  }
+
+  componentWillReceiveProps () {
+    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
+      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+  }
+
   render () {
-    let library = Questions.find({
-      courseId: {$exists: true},
-      sessionId: {$exists: false},
-      public: true
-    }, { sort: { createdAt: -1 }, limit: this.state.limit }).fetch()
+    let library = this.state.questions || []
 
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
 
-    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
-    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+    const increase = (childState) => {
+      this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
+    }
+    const decrease = (childState) => {
+      this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
+    }
 
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
         <h1>Student Submitted Questions</h1>
@@ -87,28 +123,29 @@ class _QuestionsFromStudent extends Component {
               onSelect={this.selectQuestion}
               increase={increase}
               decrease={decrease}
-              atMax={atMax} />
+              atMax={atMax}
+              updateQuery={_.throttle(this.updateQuery, 800)} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
               ? <div>
                 <h3>Preview Question</h3>
                 <button className='btn btn-default'
-                  onClick={() => { this.approveQuestion(this.props.questionMap[this.state.selected]._id) }}
+                  onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
                   data-toggle='tooltip'
                   data-placement='left'
                   title='Create a copy to use in your own sessions'>
                   {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
                 </button>
                 <button className='btn btn-default'
-                  onClick={() => { this.deleteQuestion(this.props.questionMap[this.state.selected]._id) }}
+                  onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
                   data-toggle='tooltip'
                   data-placement='left'>
                     Delete
                   </button>
                 <div className='ql-preview-item-container'>
                   {this.state.selected
-                    ? <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} readonly noStats />
                     : ''
                   }
                 </div>
@@ -124,17 +161,23 @@ class _QuestionsFromStudent extends Component {
 export const QuestionsFromStudent = createContainer(() => {
   const handle = Meteor.subscribe('questions.fromStudent') && Meteor.subscribe('users.myStudents')
 
-  const fromStudent = Questions.find({
-    courseId: {$exists: true},
-    sessionId: {$exists: false},
-    approved: false,
-    public: true
-  }, { sort: { createdAt: -1 } })
-  .fetch()
+  let params = {
+    query: {
+      courseId: {$exists: true},
+      sessionId: {$exists: false},
+      approved: false
+    },
+    options: {sort:
+      { createdAt: -1 },
+      limit: 11
+    }
+  }
+
+  const library = Questions.find(params.query, params.options).fetch()
 
   return {
-    fromStudent: fromStudent,
-    questionMap: _(fromStudent).indexBy('_id'),
+    query: params,
+    library: library,
     loading: !handle.ready()
   }
 }, _QuestionsFromStudent)

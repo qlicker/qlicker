@@ -124,7 +124,7 @@ Router.route('/questions/library/:_id?', {
   name: 'questions',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
   },
   action: function () {
     const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
@@ -139,12 +139,12 @@ Router.route('/questions/public', {
   name: 'questions.public',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.public')
   },
   action: function () {
     let user = Meteor.user()
     const isInstructor = !!Courses.findOne({instructors: user._id, inactive: false})
-    if (user.hasRole('professor') || isInstructor) {
+    if (isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
   }
@@ -155,7 +155,7 @@ Router.route('/questions/submissions', {
   name: 'questions.fromStudent',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.fromStudent')
   },
   action: function () {
     let user = Meteor.user()
