@@ -27,7 +27,8 @@ const coursePattern = {
   students: Match.Maybe([Helpers.MongoID]),
   instructors: Match.Maybe([Helpers.MongoID]),
   sessions: Match.Maybe([Helpers.MongoID]),
-  createdAt: Date
+  createdAt: Date,
+  requireVerified: Match.Maybe(Boolean)
 }
 
 // Create course class
@@ -197,6 +198,10 @@ Meteor.methods({
     if (!c) throw new Meteor.Error('code-not-found', 'Couldn\'t enroll in course')
 
     if (!c.inactive) {
+      const hasVerified = _.some(Meteor.user().emails, (email) => email.verified)
+      if (c.requireVerified && !hasVerified) {
+        throw new Meteor.Error('could-not-enroll', 'Verified email required')
+      }
       Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
         $addToSet: { 'profile.courses': c._id }
       })
@@ -379,6 +384,24 @@ Meteor.methods({
     return Courses.update({ _id: courseId }, {
       $set: {
         inactive: !active
+      }
+    })
+  },
+
+  /**
+   * set requireVerified attribute based on bool
+   * @param {MongoID} courseId
+   * @param {Boolean} active
+   */
+  'courses.setVerification' (courseId, isRequired) {
+    check(courseId, Helpers.MongoID)
+    check(isRequired, Boolean)
+
+    profHasCoursePermission(courseId)
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        requireVerified: isRequired
       }
     })
   }

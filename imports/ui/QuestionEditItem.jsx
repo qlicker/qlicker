@@ -496,6 +496,16 @@ export class QuestionEditItem extends Component {
             </div>
             : '' }
           <div className='row'>
+            <div className='col-md-12 metadata-row'>
+              <Creatable
+                name='tag-input'
+                placeholder='Tags'
+                multi
+                value={this.state.tags}
+                options={this.tagSuggestions}
+                onChange={this.addTag}
+              />
+            </div>
             <div className='col-md-12 question-row'>
               <Editor
                 change={this.onEditorStateChange}
@@ -508,16 +518,6 @@ export class QuestionEditItem extends Component {
                   onClick={this.props.onDeleteThis}
                   className='trash-icon glyphicon glyphicon-trash' />
                   : '' }
-            </div>
-            <div className='col-md-12'>
-              <Creatable
-                name='tag-input'
-                placeholder='Tags'
-                multi
-                value={this.state.tags}
-                options={this.tagSuggestions}
-                onChange={this.addTag}
-              />
             </div>
           </div>
         </div>

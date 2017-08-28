@@ -30,7 +30,12 @@ class _QuestionsLibrary extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {}, selected: null }
+    this.state = {
+      edits: {},
+      selected: null,
+      questions: props.library,
+      limit: 11
+    }
 
     if (this.props.selected) {
       if (this.props.selected in this.props.questionMap) this.state.selected = this.props.selected
@@ -70,7 +75,19 @@ class _QuestionsLibrary extends Component {
   }
 
   render () {
+    let library = Questions.find({
+      owner: Meteor.userId(),
+      sessionId: {$exists: false}
+    }, { sort: { createdAt: -1 }, limit: this.state.limit }).fetch()
+
+    const atMax = library.length !== this.state.limit
+    if (!atMax) library = library.slice(0, -1)
+
+    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
+    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    const questionMap = _(library).indexBy('_id')
     return (
       <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
@@ -80,7 +97,12 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-4'>
             <br />
             <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
-            <QuestionSidebar questions={this.props.library} onSelect={this.editQuestion} />
+            <QuestionSidebar
+              questions={library}
+              onSelect={this.editQuestion}
+              increase={increase}
+              decrease={decrease}
+              atMax={atMax} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
@@ -88,13 +110,13 @@ class _QuestionsLibrary extends Component {
               <div id='ckeditor-toolbar' />
               <div className='ql-edit-item-container'>
                 <QuestionEditItem
-                  question={this.props.questionMap[this.state.selected]}
+                  question={questionMap[this.state.selected]}
                   deleted={this.questionDeleted}
                   metadata autoSave />
               </div>
               <div className='ql-preview-item-container'>
                 {this.state.selected
-                  ? <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                  ? <QuestionDisplay question={questionMap[this.state.selected]} readonly noStats />
                   : ''
                 }
               </div>
@@ -104,14 +126,12 @@ class _QuestionsLibrary extends Component {
         </div>
       </div>)
   }
-
 }
 
 export const QuestionsLibrary = createContainer(() => {
   const handle = Meteor.subscribe('questions.library') && Meteor.subscribe('courses')
 
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
-
   const library = Questions.find({
     '$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
     sessionId: {$exists: false}
@@ -119,7 +139,6 @@ export const QuestionsLibrary = createContainer(() => {
 
   return {
     library: library,
-    questionMap: _(library).indexBy('_id'),
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)

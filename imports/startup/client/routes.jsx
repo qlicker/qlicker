@@ -13,6 +13,8 @@ import { Loginpage } from '../../ui/pages/login'
 
 import { Courses } from '../../api/courses.js'
 
+import { Sessions } from '../../api/sessions.js'
+
 import { ResetPasswordPage } from '../../ui/pages/reset_password'
 
 import { PageContainer } from '../../ui/pages/page_container'
@@ -305,10 +307,11 @@ import { RunSession } from '../../ui/pages/professor/run_session'
 Router.route('/session/run/:_id', {
   name: 'session.run',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses')
   },
   action: function () {
-    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    const sess = Sessions.findOne(this.params._id)
+    const cId = sess ? sess.courseId : ''
     if (Meteor.user().isInstructor(cId)) {
       mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')

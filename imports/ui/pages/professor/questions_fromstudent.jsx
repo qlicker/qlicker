@@ -20,7 +20,7 @@ class _QuestionsFromStudent extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {}, selected: null }
+    this.state = { edits: {}, selected: null, limit: 11 }
 
     this.approveQuestion = this.approveQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
@@ -63,6 +63,18 @@ class _QuestionsFromStudent extends Component {
   }
 
   render () {
+    let library = Questions.find({
+      courseId: {$exists: true},
+      sessionId: {$exists: false},
+      public: true
+    }, { sort: { createdAt: -1 }, limit: this.state.limit }).fetch()
+
+    const atMax = library.length !== this.state.limit
+    if (!atMax) library = library.slice(0, -1)
+
+    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
+    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+
     return (
       <div className='container ql-questions-library'>
         <h1>Student Submitted Questions</h1>
@@ -70,7 +82,12 @@ class _QuestionsFromStudent extends Component {
 
         <div className='row'>
           <div className='col-md-4'>
-            <QuestionSidebar questions={this.props.fromStudent} onSelect={this.selectQuestion} />
+            <QuestionSidebar
+              questions={library}
+              onSelect={this.selectQuestion}
+              increase={increase}
+              decrease={decrease}
+              atMax={atMax} />
           </div>
           <div className='col-md-8'>
             { this.state.selected

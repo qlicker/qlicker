@@ -33,7 +33,8 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: _.extend({}, this.props.session),
-      questionPool: Meteor.user().hasRole('professor') ? 'library' : 'public'
+      questionPool: Meteor.user().hasRole('professor') ? 'library' : 'public',
+      limit: 11
     }
 
     this.sessionId = this.props.sessionId
@@ -138,7 +139,7 @@ class _ManageSession extends Component {
    * select onchange handler for changing question list
    */
   changeQuestionPool (e) {
-    this.setState({ questionPool: e.target.value })
+    this.setState({ questionPool: e.target.value, limit: 11 })
   }
 
   /**
@@ -306,6 +307,9 @@ class _ManageSession extends Component {
   render () {
     if (this.props.loading) return <div>Loading</div>
 
+    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
+    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+
     let questionList = this.state.session.questions || []
     const qlItems = []
     questionList.forEach((questionId) => {
@@ -326,10 +330,35 @@ class _ManageSession extends Component {
     })
 
     const getQuestionPool = () => {
-      if (this.state.questionPool === 'student') return this.props.questionFromStudents
-      if (this.state.questionPool === 'public') return this.props.questionPublic
-      return this.props.questionLibrary
+      /*
+      questionLibrary: Questions.find({ owner: Meteor.userId(), sessionId: {$exists: false} }).fetch(),
+      questionPublic: Questions.find({ public: true, courseId: {$exists: false} }).fetch(),
+      questionFromStudents: Questions.find({ courseId: session.courseId, sessionId: {$exists: false}, public: true }).fetch(),
+       */
+      if (this.state.questionPool === 'student') {
+        return Questions.find({
+          courseId: this.props.session.courseId,
+          sessionId: {$exists: false},
+          public: true
+        }, {limit: this.state.limit}).fetch()
+      }
+      if (this.state.questionPool === 'public') return Questions.find({ public: true, courseId: {$exists: false} }, {limit: this.state.limit}).fetch()
+      return Questions.find({ owner: Meteor.userId(), sessionId: {$exists: false} }, {limit: this.state.limit}).fetch()
     }
+
+    let library = getQuestionPool()
+
+    const atMax = library.length !== this.state.limit
+    if (!atMax) library = library.slice(0, -1)
+
+    const sidebar = <QuestionSidebar
+      session={this.state.session}
+      questions={library}
+      onSelect={this.addToSession}
+      increase={increase}
+      decrease={decrease}
+      atMax={atMax}
+      clickMessage='Click on question to add to session'/>
 
     return (
       <div className='ql-manage-session'>
@@ -382,11 +411,7 @@ class _ManageSession extends Component {
                     <option value='public'>Public Question Pool</option>
                     <option value='student'>Submitted by Students</option>
                   </select>
-                  <QuestionSidebar
-                    session={this.state.session}
-                    questions={getQuestionPool()}
-                    onSelect={this.addToSession}
-                    clickMessage='Click on question to add to session' />
+                  {sidebar}
                 </div>
               </div>
             </div>
@@ -452,7 +477,7 @@ class _ManageSession extends Component {
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor} ) &&
+  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('questions.public') &&
