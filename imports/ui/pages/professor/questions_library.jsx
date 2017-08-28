@@ -34,15 +34,19 @@ class _QuestionsLibrary extends Component {
       edits: {},
       selected: null,
       questions: props.library,
-      limit: 11
+      limit: 11,
+      query: props.query,
+      questionMap: _(props.library).indexBy('_id')
     }
 
     if (this.props.selected) {
-      if (this.props.selected in this.props.questionMap) this.state.selected = this.props.selected
+      if (this.props.selected in this.state.questionMap) this.state.selected = this.props.selected
     }
 
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
+    this.updateQuery = this.updateQuery.bind(this)
+    this.limitAndUpdate = _.throttle(this.limitAndUpdate.bind(this), 800)
   }
 
   editQuestion (questionId) {
@@ -74,20 +78,45 @@ class _QuestionsLibrary extends Component {
     this.setState({ selected: null })
   }
 
-  render () {
-    let library = Questions.find({
-      owner: Meteor.userId(),
-      sessionId: {$exists: false}
-    }, { sort: { createdAt: -1 }, limit: this.state.limit }).fetch()
+  updateQuery (childState) {
+    let params = this.state.query
+    params.options.limit = this.state.limit
+    if (childState.questionType > -1) params.query.type = childState.questionType
+    else params.query = _.omit(params.query, 'type')
+    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
+    else params.query = _.omit(params.query, 'plainText')
+    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
+    else params.query = _.omit(params.query, 'tags.value')
 
+    const newQuestions = Questions.find(params.query, params.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) this.setState({ selected: null, questions: newQuestions })
+    else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+  }
+
+  limitAndUpdate (data) {
+    this.setState({limit: 11}, () => this.updateQuery(data))
+  }
+
+  componentWillReceiveProps () {
+    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
+      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+  }
+
+  render () {
+    let library = this.state.questions || []
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
 
-    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
-    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+    const increase = (childState) => {
+      this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
+    }
+    const decrease = (childState) => {
+      this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
+    }
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    const questionMap = _(library).indexBy('_id')
     return (
       <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
@@ -102,7 +131,8 @@ class _QuestionsLibrary extends Component {
               onSelect={this.editQuestion}
               increase={increase}
               decrease={decrease}
-              atMax={atMax} />
+              atMax={atMax}
+              updateQuery={this.limitAndUpdate} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
@@ -110,13 +140,13 @@ class _QuestionsLibrary extends Component {
               <div id='ckeditor-toolbar' />
               <div className='ql-edit-item-container'>
                 <QuestionEditItem
-                  question={questionMap[this.state.selected]}
+                  question={this.state.questionMap[this.state.selected]}
                   deleted={this.questionDeleted}
                   metadata autoSave />
               </div>
               <div className='ql-preview-item-container'>
                 {this.state.selected
-                  ? <QuestionDisplay question={questionMap[this.state.selected]} readonly noStats />
+                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} readonly noStats />
                   : ''
                 }
               </div>
@@ -129,16 +159,24 @@ class _QuestionsLibrary extends Component {
 }
 
 export const QuestionsLibrary = createContainer(() => {
-  const handle = Meteor.subscribe('questions.library') && Meteor.subscribe('courses')
-
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
-  const library = Questions.find({
-    '$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
-    sessionId: {$exists: false}
-  }, { sort: { createdAt: -1 } }).fetch()
+  let params = {
+    query: {
+      '$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
+      sessionId: {$exists: false}
+    },
+    options: {
+      sort: { createdAt: -1 },
+      limit: 11
+    }
+  }
+  const library = Questions.find(params.query, params.options).fetch()
 
   return {
+    query: params,
     library: library,
+    courses: courses,
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)

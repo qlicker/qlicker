@@ -31,8 +31,6 @@ export class QuestionSidebar extends ControlledForm {
     this.setSearchString = this.setSearchString.bind(this)
     this.setType = this.setType.bind(this)
     this.setTags = this.setTags.bind(this)
-    this.filterPool = this.filterPool.bind(this)
-    this._DB_filterPool = _.debounce(this.filterPool, 200)
 
     // populate tagging suggestions
     this.tagSuggestions = []
@@ -61,7 +59,6 @@ export class QuestionSidebar extends ControlledForm {
   setQuestion (questionId) {
     this.setState({ questionId: questionId }, () => {
       this.props.onSelect(questionId)
-      // this._DB_filterPool()
     })
   }
 
@@ -71,7 +68,7 @@ export class QuestionSidebar extends ControlledForm {
    */
   setSearchString (e) {
     this.setState({ searchString: e.target.value }, () => {
-      this._DB_filterPool()
+      this.props.updateQuery(this.state)
     })
   }
 
@@ -81,7 +78,7 @@ export class QuestionSidebar extends ControlledForm {
    */
   setType (e) {
     this.setState({ questionType: parseInt(e.target.value) }, () => {
-      this._DB_filterPool()
+      this.props.updateQuery(this.state)
     })
   }
 
@@ -91,47 +88,20 @@ export class QuestionSidebar extends ControlledForm {
    */
   setTags (tags) {
     this.setState({ tags: tags }, () => {
-      this._DB_filterPool()
+      this.props.updateQuery(this.state)
     })
-  }
-
-  /**
-   * filters items from the this.state.questionPool
-   * @param {String} str
-   */
-  filterPool () {
-    const pool = _(this.props.questions.slice()).filter((q) => {
-      const inQuestion = this.state.searchString
-        ? q.plainText.toLowerCase().includes(this.state.searchString.toLowerCase())
-        : true
-
-      const inAnswers = false
-
-      const correctType = (this.state.questionType === -1) || (q.type === this.state.questionType)
-
-      const hasTag = this.state.tags.length > 0
-        //? _.intersection(_(q.tags).pluck('value'), _(this.state.tags).pluck('value')).length > 0//this would OR, below AND:
-        ? _.intersection(_(q.tags).pluck('value'), _(this.state.tags).pluck('value')).length === this.state.tags.length
-        : true
-
-      return (inQuestion || inAnswers) && correctType && hasTag
-    })
-
-    this.setState({ questionPool: pool })
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice() }, () => {
-      this.filterPool()
-    })
+    this.setState({ questionPool: nextProps.questions.slice() })
   }
 
   render () {
-    const showMore = !this.props.atMax ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.questions.length === 10 ? '12' : '6')} onClick={this.props.increase}>
+    const showMore = !this.props.atMax ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.questions.length === 10 ? '12' : '6')} onClick={() => this.props.increase(this.state)}>
       <span className='ql-question-name'> <span className='glyphicon glyphicon-plus'></span> Show more</span>
     </div> : ''
 
-    const showLess = this.props.questions.length > 10 ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.atMax ? '12' : '6')} onClick={this.props.decrease}>
+    const showLess = this.props.questions.length > 10 ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.atMax ? '12' : '6')} onClick={() => this.props.decrease(this.state)}>
       <span className='ql-question-name'> <span className='glyphicon glyphicon-minus'></span> Show less</span>
     </div> : ''
 
@@ -193,5 +163,6 @@ QuestionSidebar.propTypes = {
   clickMessage: PropTypes.string,
   increase: PropTypes.func,
   decrease: PropTypes.func,
+  updateQuery: PropTypes.func,
   atMax: PropTypes.bool
 }
