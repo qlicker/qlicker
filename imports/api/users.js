@@ -19,6 +19,7 @@ import Helpers from './helpers'
  *  courses: []
  * }
  */
+import { Settings } from './settings'
 import { Courses } from './courses'
 import { _ } from 'underscore'
 
@@ -131,6 +132,8 @@ Meteor.methods({
   'users.sendVerificationEmail' () {
     let userId = Meteor.userId()
     if (userId && Meteor.isServer) {
+      const fromEmail=Settings.findOne().email ? Settings.findOne().email : "admin@"+ process.env.ROOT_URL
+      Accounts.emailTemplates.from = "Qlicker Admin <"+fromEmail+">" 
       return Accounts.sendVerificationEmail(userId)
     }
   },
@@ -222,7 +225,17 @@ Meteor.methods({
 
   'users.createFromAdmin' (user) {
     if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
-    return Accounts.createUser(user)
+    const userId = Accounts.createUser(user)
+    if (Meteor.isServer){
+      Accounts.sendEnrollmentEmail(userId)
+    }
+    return userId;
   }
+
+
+//  'users.createFromAdmin' (user) {
+//    if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+//    return Accounts.createUser(user)
+//  }
 
 })
