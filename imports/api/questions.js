@@ -156,7 +156,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.library', function () {
     if (this.userId) {
       const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
-      if (courses.length === 0) return this.ready()
+      //if (courses.length === 0) return this.ready()
 
       return Questions.find({
         '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],

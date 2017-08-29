@@ -87,7 +87,8 @@ Meteor.methods({
       let user = Meteor.users.findOne({_id: this.userId})
       if (user.hasGreaterRole(ROLES.admin)) {
         if (settings.email !== Settings.findOne().email && Meteor.isServer) {
-          Accounts.emailTemplates.from = settings.email || 'admin@' + process.env.ROOT_URL
+          Accounts.emailTemplates.from = settings.email ? "Qlicker Admin <"+settings.email+">" :
+                                                          "Qlicker Admin <admin@"+ process.env.ROOT_URL+">"
         }
         return Settings.update(settings._id, settings)
       }
