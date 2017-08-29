@@ -17,7 +17,15 @@ class _AdminDashboard extends Component {
   constructor (p) {
     super(p)
 
-    this.state = { email: '', role: '', size: p.settings.maxImageSize, width: p.settings.maxImageWidth }
+    this.state = {
+      email: '',
+      role: '',
+      size: p.settings.maxImageSize,
+      width: p.settings.maxImageWidth,
+      supportEmail: p.settings.email,
+      requireVerified: p.settings.requireVerified,
+      verifyEmail: ''
+    }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
     this.saveUserRole = this.saveUserRole.bind(this)
@@ -26,6 +34,9 @@ class _AdminDashboard extends Component {
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.saveImageSize = this.saveImageSize.bind(this)
     this.saveImageWidth = this.saveImageWidth.bind(this)
+    this.saveEmail = this.saveEmail.bind(this)
+    this.setVerified = this.setVerified.bind(this)
+    this.verifyEmail = this.verifyEmail.bind(this)
   }
 
   saveRoleChange (uId, newRole) {
@@ -76,6 +87,38 @@ class _AdminDashboard extends Component {
     })
   }
 
+  saveEmail (e) {
+    e.preventDefault()
+
+    let settings = Settings.findOne()
+    settings.email = this.state.supportEmail
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
+    })
+  }
+
+  setVerified (e) {
+    e.preventDefault()
+    let settings = Settings.findOne()
+    this.setState({ requireVerified: e.target.checked })
+    settings.requireVerified = e.target.checked
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
+    })
+  }
+
+  verifyEmail (e) {
+    e.preventDefault()
+    if (!this.state.verifyEmail) return alertify.error('Please enter an email')
+    console.log(this.state.verifyEmail)
+    Meteor.call('users.verifyEmail', this.state.verifyEmail, (e, d) => {
+      if (e) alertify.error(e)
+      if (d) alertify.success('Email verified')
+    })
+  }
+
   handleSubmit (e) {
     e.preventDefault()
       // signup
@@ -112,6 +155,8 @@ class _AdminDashboard extends Component {
     const setUserRole = (e) => { this.setState({ role: e.target.value }) }
     const setImageSize = (e) => { this.setState({ size: e.target.value }) }
     const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
+    const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
+    const setVerifyEmail = (e) => { this.setState({ verifyEmail: e.target.value }) }
     return (
       <div className='container ql-admin-page'>
         <h2>Admin User Management</h2>
@@ -128,16 +173,31 @@ class _AdminDashboard extends Component {
         </form>
 
         <h4>Maximum image size (MB)</h4>
-        <form ref='setUserRoleForm' onSubmit={this.saveImageSize} className='form-inline'>
+        <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
           <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
           <input type='submit' className='btn btn-primary' value='Set' />
         </form>
 
         <h4>Maximum image width (px)</h4>
-        <form ref='setUserRoleForm' onSubmit={this.saveImageWidth} className='form-inline'>
+        <form ref='imageWidthForm' onSubmit={this.saveImageWidth} className='form-inline'>
           <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
           <input type='submit' className='btn btn-primary' value='Set' />
         </form>
+
+        <h4>Support email</h4>
+        <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
+          <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
+          <input type='submit' className='btn btn-primary' value='Set' />
+        </form>
+
+        <h4>Set user role by email</h4>
+        <form ref='verifyForm' onSubmit={this.verifyEmail} className='form-inline'>
+          <input className='form-control' type='email' onChange={setVerifyEmail} placeholder='Email' />
+          <input type='submit' className='btn btn-primary' value='Verify Email' />
+        </form>
+
+        <h4>Require verified email to login</h4>
+        <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
 
         <RestrictDomainForm
           done={() => { return true }}

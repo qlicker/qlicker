@@ -14,10 +14,9 @@ Meteor.startup(() => {
     Settings.insert({restrictDomain: false,
       allowedDomains: [],
       maxImageSize: 3,
-      maxImageWidth: 700
+      maxImageWidth: 700,
+      email: '',
+      requireVerified: false
     })
-  }
-  if (process.env.QLICKER_MAIL_PASSWORD) {
-    process.env.MAIL_URL = 'smtp://admin%40qlicker.etdev.ca:' + process.env.QLICKER_MAIL_PASSWORD + '@smtp.mailgun.org:587'
   }
 })

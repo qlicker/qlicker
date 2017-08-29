@@ -72,19 +72,19 @@ class _PageContainer extends Component {
                 </li>
                 }
                 {
-                  this.state.user.hasRole('professor')
+                  isInstructor
                     ? <li className='dropdown'>
-                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
-                      <ul className='dropdown-menu' >
+                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
+                         aria-haspopup='true' aria-expanded='false'>Questions <span className='caret'/></a>
+                      <ul className='dropdown-menu'>
                         <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
-                        <li role='separator' className='divider' >&nbsp;</li>
-                        <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a></li>
-                        <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+                        <li role='separator' className='divider'>&nbsp;</li>
+                        <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a>
+                        </li>
+                        <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student
+                          Submissions</a></li>
                       </ul>
-                    </li>
-                    : (isInstructor ?
-                      <li><a className='close-nav bootstrap-overrides' href={Router.routes['questions.fromStudent'].path()}>Student Questions</a></li>
-                      : '')
+                    </li> : ''
                 }
                 {
                   isInstructor ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>

@@ -26,8 +26,9 @@ export class _SessionResultsDownloader extends Component {
       let correctAnswers = 0
 
       this.props.questions.forEach((q) => {
-        totalQuestions += q.sessionOptions.attempts.length
-        for (var i = 1; i <= q.sessionOptions.attempts.length; i++) {
+        const len = q.sessionOptions.attempts ? q.sessionOptions.attempts.length : 0
+        totalQuestions += len
+        for (var i = 1; i <= len; i++) {
           const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
           let resp = _.findWhere(studentResponses, {questionId: q._id, attempt: i}) // student responses
           resp = resp ? resp.answer : ''
@@ -75,7 +76,7 @@ export const SessionResultsDownloader = createContainer((props) => {
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
-  const questions = Questions.find({ sessionId: props.session._id, sessionOptions: { $exists: true } }).fetch()
+  const questions = Questions.find({ sessionId: props.session._id }).fetch()
 
   const responses = Responses.find().fetch()
 

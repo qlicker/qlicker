@@ -329,7 +329,8 @@ export class _QuestionDisplay extends Component {
   }
 
   renderShortAnswer (q) {
-    let showAns = !this.props.prof && q.options[0].plainText && !q.sessionOptions.hidden
+    if (this.props.forReview) return <h4 style={{'align-self': 'left'}}>{q.options[0].plainText}</h4>
+    let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
     return (
       <div className='ql-short-answer'>
         { showAns ? <h4>Correct Answer: {q.options[0].plainText}</h4> : ''}
@@ -361,7 +362,7 @@ export class _QuestionDisplay extends Component {
         content = this.renderOptionQuestion('tf', q)
         break
       case QUESTION_TYPE.SA:
-        content = this.props.forReview ? '' : this.renderShortAnswer(q)
+        content = this.renderShortAnswer(q)
         break
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)

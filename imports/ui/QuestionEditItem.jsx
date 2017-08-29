@@ -23,11 +23,11 @@ export const DEFAULT_STATE = {
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
-  sessionOptions:{
-    hidden: false, 
-    stats: false, 
-    correct: false, 
-    attempts:[]
+  sessionOptions: {
+    hidden: false,
+    stats: false,
+    correct: false,
+    attempts: []
   }
 }
 
@@ -56,6 +56,7 @@ export class QuestionEditItem extends Component {
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.setCourse = this.setCourse.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
     // if editing pre-exsiting question
@@ -101,6 +102,12 @@ export class QuestionEditItem extends Component {
       // add course code tag
       Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
         this.setState({ tags: [tag] })
+      })
+    }
+
+    if (!this.props.courseId && !this.props.question.courseId) {
+      Meteor.call('courses.getCourseTags', (e, d) => {
+        this.setState({courses: d})
       })
     }
   } // end constructor
@@ -300,7 +307,11 @@ export class QuestionEditItem extends Component {
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
   saveQuestion () {
-    let question = _.extend({ createdAt: new Date() }, this.state)
+    const user = Meteor.user()
+    let question = _.extend({
+      createdAt: new Date(),
+      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
+    }, _.omit(this.state, 'courses'))
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
@@ -332,6 +343,14 @@ export class QuestionEditItem extends Component {
 
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
+  }
+
+  setCourse (e) {
+    if (e.target.value !== -1) {
+      this.setState({courseId: e.target.value}, () => {
+        this.saveQuestion()
+      })
+    }
   }
 
   /**
@@ -431,6 +450,7 @@ export class QuestionEditItem extends Component {
     ]
 
     const strMakePublic = this.state.public ? 'Make Private' : 'Make Public'
+
     return (
       <div className='ql-question-edit-item'>
         <div className='header'>
@@ -459,19 +479,33 @@ export class QuestionEditItem extends Component {
                   </button>
                 </div>
               </div>
-              <div className='col-md-6'>
-                <Creatable
-                  name='tag-input'
-                  placeholder='Question Tags'
-                  multi
-                  value={this.state.tags}
-                  options={this.tagSuggestions}
-                  onChange={this.addTag}
-                  />
-              </div>
+              { !this.props.courseId && !this.props.question.courseId
+                ? <div className='col-md-6'>
+                  <select className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
+                    <option key={-1} value={-1}>No course</option>
+                    { this.state.courses
+                      ? this.state.courses.map((obj) => {
+                        return <option key={obj._id} value={obj._id}>{ obj.code }</option>
+                      })
+                      : ''
+                    }
+                  </select>
+                </div>
+                : ''
+              }
             </div>
             : '' }
           <div className='row'>
+            <div className='col-md-12 metadata-row'>
+              <Creatable
+                name='tag-input'
+                placeholder='Tags'
+                multi
+                value={this.state.tags}
+                options={this.tagSuggestions}
+                onChange={this.addTag}
+              />
+            </div>
             <div className='col-md-12 question-row'>
               <Editor
                 change={this.onEditorStateChange}
@@ -484,16 +518,6 @@ export class QuestionEditItem extends Component {
                   onClick={this.props.onDeleteThis}
                   className='trash-icon glyphicon glyphicon-trash' />
                   : '' }
-            </div>
-            <div className='col-md-12'>
-              <Creatable
-                name='tag-input'
-                placeholder='Tags'
-                multi
-                value={this.state.tags}
-                options={this.tagSuggestions}
-                onChange={this.addTag}
-              />
             </div>
           </div>
         </div>

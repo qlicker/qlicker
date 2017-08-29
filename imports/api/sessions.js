@@ -190,7 +190,7 @@ Meteor.methods({
     session.name += ' (copy)'
 
     // keep a copy of the questions
-    const questions = session.questions.slice()
+    const questions = (session.questions || []).slice()
     session.questions = []
 
     // insert new session and update course object

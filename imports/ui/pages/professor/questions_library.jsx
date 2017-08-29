@@ -16,7 +16,6 @@ import { Questions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
-  if (!Meteor.user().hasRole('professor')) return ''
   return (<ul className='nav nav-pills'>
     <li role='presentation' className={active === 'library' ? 'active' : ''}>
       <a href={Router.routes['questions'].path()}>Question Library</a>
@@ -31,14 +30,23 @@ class _QuestionsLibrary extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {}, selected: null }
+    this.state = {
+      edits: {},
+      selected: null,
+      questions: props.library,
+      limit: 11,
+      query: props.query,
+      questionMap: _(props.library).indexBy('_id')
+    }
 
     if (this.props.selected) {
-      if (this.props.selected in this.props.questionMap) this.state.selected = this.props.selected
+      if (this.props.selected in this.state.questionMap) this.state.selected = this.props.selected
     }
 
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
+    this.updateQuery = this.updateQuery.bind(this)
+    this.limitAndUpdate = _.throttle(this.limitAndUpdate.bind(this), 800)
   }
 
   editQuestion (questionId) {
@@ -49,7 +57,8 @@ class _QuestionsLibrary extends Component {
         content: '', // wysiwyg display content
         options: [],
         tags: [],
-        owner: Meteor.userId()
+        owner: Meteor.userId(),
+        approved: true
       }
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')
@@ -69,7 +78,44 @@ class _QuestionsLibrary extends Component {
     this.setState({ selected: null })
   }
 
+  updateQuery (childState) {
+    let params = this.state.query
+    params.options.limit = this.state.limit
+    if (childState.questionType > -1) params.query.type = childState.questionType
+    else params.query = _.omit(params.query, 'type')
+    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
+    else params.query = _.omit(params.query, 'plainText')
+    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
+    else params.query = _.omit(params.query, 'tags.value')
+
+    const newQuestions = Questions.find(params.query, params.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) this.setState({ selected: null, questions: newQuestions })
+    else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+  }
+
+  limitAndUpdate (data) {
+    this.setState({limit: 11}, () => this.updateQuery(data))
+  }
+
+  componentWillReceiveProps () {
+    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
+      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+  }
+
   render () {
+    let library = this.state.questions || []
+    const atMax = library.length !== this.state.limit
+    if (!atMax) library = library.slice(0, -1)
+
+    const increase = (childState) => {
+      this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
+    }
+    const decrease = (childState) => {
+      this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
+    }
+
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
@@ -80,7 +126,13 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-4'>
             <br />
             <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
-            <QuestionSidebar questions={this.props.library} onSelect={this.editQuestion} />
+            <QuestionSidebar
+              questions={library}
+              onSelect={this.editQuestion}
+              increase={increase}
+              decrease={decrease}
+              atMax={atMax}
+              updateQuery={this.limitAndUpdate} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
@@ -88,12 +140,15 @@ class _QuestionsLibrary extends Component {
               <div id='ckeditor-toolbar' />
               <div className='ql-edit-item-container'>
                 <QuestionEditItem
-                  question={this.props.questionMap[this.state.selected]}
+                  question={this.state.questionMap[this.state.selected]}
                   deleted={this.questionDeleted}
                   metadata autoSave />
               </div>
               <div className='ql-preview-item-container'>
-                <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                {this.state.selected
+                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} readonly noStats />
+                  : ''
+                }
               </div>
             </div>
             : '' }
@@ -101,21 +156,27 @@ class _QuestionsLibrary extends Component {
         </div>
       </div>)
   }
-
 }
 
 export const QuestionsLibrary = createContainer(() => {
-  const handle = Meteor.subscribe('questions.library')
-
-  const library = Questions.find({
-    owner: Meteor.userId(),
-    sessionId: {$exists: false}
-  }, { sort: { createdAt: -1 } })
-  .fetch()
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
+  const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
+  let params = {
+    query: {
+      '$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
+      sessionId: {$exists: false}
+    },
+    options: {
+      sort: { createdAt: -1 },
+      limit: 11
+    }
+  }
+  const library = Questions.find(params.query, params.options).fetch()
 
   return {
+    query: params,
     library: library,
-    questionMap: _(library).indexBy('_id'),
+    courses: courses,
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)

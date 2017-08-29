@@ -13,6 +13,8 @@ import { Loginpage } from '../../ui/pages/login'
 
 import { Courses } from '../../api/courses.js'
 
+import { Sessions } from '../../api/sessions.js'
+
 import { ResetPasswordPage } from '../../ui/pages/reset_password'
 
 import { PageContainer } from '../../ui/pages/page_container'
@@ -122,12 +124,12 @@ Router.route('/questions/library/:_id?', {
   name: 'questions',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
   },
   action: function () {
-    let user = Meteor.user()
-    if (user.hasRole('professor')) {
-      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
+    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) || Meteor.user().hasRole('professor')
+    if (isInstructor) {
+      mount(AppLayout, { content: <PageContainer user={Meteor.user()}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -137,12 +139,12 @@ Router.route('/questions/public', {
   name: 'questions.public',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.public')
   },
   action: function () {
     let user = Meteor.user()
-    const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
-    if (user.hasRole('professor') || isInstructor) {
+    const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
+    if (isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
   }
@@ -153,12 +155,12 @@ Router.route('/questions/submissions', {
   name: 'questions.fromStudent',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.fromStudent')
   },
   action: function () {
     let user = Meteor.user()
-    const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
-    if (user.hasRole('professor') || isInstructor) {
+    const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
+    if (isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
     } else Router.go('login')
   }
@@ -290,7 +292,11 @@ import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {
   name: 'session.edit',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses') && Meteor.subscribe('images')
+    return Meteor.subscribe('userData') &&
+      Meteor.subscribe('sessions') &&
+      Meteor.subscribe('courses') &&
+      Meteor.subscribe('images') &&
+      Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
     const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
@@ -305,10 +311,11 @@ import { RunSession } from '../../ui/pages/professor/run_session'
 Router.route('/session/run/:_id', {
   name: 'session.run',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses')
   },
   action: function () {
-    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    const sess = Sessions.findOne(this.params._id)
+    const cId = sess ? sess.courseId : ''
     if (Meteor.user().isInstructor(cId)) {
       mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')

@@ -42,6 +42,7 @@ const questionPattern = {
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   createdAt: Date,
+  approved: Boolean,
   tags: [ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ],
   // config stuff for use while running a session
   sessionOptions: Match.Maybe({
@@ -77,6 +78,9 @@ export const Questions = new Mongo.Collection('questions',
 
 // data publishing
 if (Meteor.isServer) {
+  Questions._ensureIndex({
+    'plainText': 'text'
+  })
   Meteor.publish('questions.inCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
@@ -151,17 +155,19 @@ if (Meteor.isServer) {
   // questions owned by a professor
   Meteor.publish('questions.library', function () {
     if (this.userId) {
-      const user = Meteor.users.findOne(this.userId)
-      if (!user.hasRole(ROLES.prof)) return this.ready()
+      const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
+      if (courses.length === 0) return this.ready()
 
-      return Questions.find({ owner: this.userId, sessionId: {$exists: false} })
+      return Questions.find({
+        '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
+        sessionId: {$exists: false} })
     } else this.ready()
   })
 
   // truly public questions
   Meteor.publish('questions.public', function () {
     if (this.userId) {
-      return Questions.find({ public: true, courseId: {$exists: false} })
+      return Questions.find({ public: true })
     } else this.ready()
   })
 
@@ -174,8 +180,15 @@ if (Meteor.isServer) {
       return Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
-        public: true
+        approved: false
       })
+    } else this.ready()
+  })
+
+  // questions submitted to specific course
+  Meteor.publish('questions.withQuery', function (params) {
+    if (this.userId && params) {
+      return Questions.find(params.query, params.options)
     } else this.ready()
   })
 }
@@ -202,14 +215,12 @@ Meteor.methods({
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasRole(ROLES.student)) {
-      question.public = true
 
       // if student, can only add question to enrolled courses
       const courses = Courses.find({ _id: { $in: (user.profile.courses || []) } }).fetch()
       const courseIds = _(courses).pluck('_id')
-      if (courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add question to this course')
+      if (question.courseId && courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add question to this course')
     }
-
     check(question, questionPattern)
     const id = Questions.insert(question)
     return Questions.findOne({ _id: id })
@@ -275,28 +286,12 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.copyToLibrary' (questionId) {
-    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
+    const omittedFields = ['_id', 'originalQuestion', 'sessionId']
     const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
-
-    const id = Questions.insert(question)
-    return id
-  },
-
-  /**
-   * duplicates a public question and adds it to the profs library
-   * @param {MongoId} questionId
-   * * @param {MongoId} courseId
-   */
-  'questions.copyToCourse' (questionId, courseId) {
-    const course = Courses.find(courseId).fetch()[0]
-    const omittedFields = ['_id', 'originalQuestion', 'courseId', 'sessionId']
-    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
-    question.public = false
-    question.owner = course.owner
-    question.createdAt = new Date()
+    question.approved = true
 
     const id = Questions.insert(question)
     return id
@@ -474,5 +469,4 @@ Meteor.methods({
       '$set': { 'sessionOptions.correct': false }
     })
   }
-
 }) // end Meteor.methods

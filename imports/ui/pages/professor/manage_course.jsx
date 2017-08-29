@@ -40,6 +40,7 @@ class _ManageCourse extends Component {
     this.removeStudent = this.removeStudent.bind(this)
     this.deleteCourse = this.deleteCourse.bind(this)
     this.setActive = this.setActive.bind(this)
+    this.toggleVerification = this.toggleVerification.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -105,6 +106,13 @@ class _ManageCourse extends Component {
           alertify.success('Removed TA')
         })
     }
+  }
+
+  toggleVerification () {
+    Meteor.call('courses.setVerification', this.courseId, !this.props.course.requireVerified, (error) => {
+      if (error) return alertify.error('Error: could not set course property')
+      alertify.success('Email verification' + (this.props.course.requireVerified ? '' : ' not') + ' required')
+    })
   }
 
   renderSessionList () {
@@ -212,6 +220,11 @@ class _ManageCourse extends Component {
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add TA
                       { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
+                    </div>
+                  </div>
+                  <div className='btn-group btn-group-justified details-button-group'>
+                    <div className='btn btn-default' onClick={this.toggleVerification}>
+                      {this.props.course.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
                     </div>
                   </div>
                 </div> : ''

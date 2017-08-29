@@ -1,4 +1,24 @@
 
+.border-between {
+   padding-left: 15px;
+   padding-right: 15px;
+}
+
+.border-between > [class*='col-']:before {
+
+   background: #e3e3e3;
+   bottom: 0;
+   content: " ";
+   left: 0;
+   position: absolute;
+   width: 1px;
+   top: 0;
+}
+
+.border-between > [class*='col-']:first-child:before {
+   display: none;
+}
+
 .ql-question-sidebar {
   .ql-question-list > div:last-child {
     .ql-list-item {
