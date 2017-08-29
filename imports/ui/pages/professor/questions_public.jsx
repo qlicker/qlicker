@@ -21,10 +21,19 @@ class _QuestionsPublic extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { edits: {}, selected: null, limit: 11 }
+    this.state = {
+      edits: {},
+      selected: null,
+      questions: props.library,
+      limit: 11,
+      query: props.query,
+      questionMap: _(props.library).indexBy('_id')
+    }
 
     this.copyPublicQuestion = this.copyPublicQuestion.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
+    this.updateQuery = this.updateQuery.bind(this)
+    this.limitAndUpdate = _.throttle(this.limitAndUpdate.bind(this), 800)
   }
 
   selectQuestion (questionId) {
@@ -32,7 +41,7 @@ class _QuestionsPublic extends Component {
   }
 
   copyPublicQuestion (questionId) {
-    const cId = this.props.questionMap[questionId].courseId
+    const cId = this.state.questionMap[questionId].courseId
     Meteor.call('questions.copyToLibrary', questionId, cId, (error, newQuestionId) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question Copied to Library')
@@ -47,15 +56,48 @@ class _QuestionsPublic extends Component {
     $('[data-toggle="tooltip"]').tooltip()
   }
 
+  updateQuery (childState) {
+    let params = this.state.query
+    params.options.limit = this.state.limit
+
+    if (childState.questionType > -1) params.query.type = childState.questionType
+    else params.query = _.omit(params.query, 'type')
+    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
+    else params.query = _.omit(params.query, 'plainText')
+    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
+    else params.query = _.omit(params.query, 'tags.value')
+
+    const newQuestions = Questions.find(params.query, params.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
+      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+  }
+
+  limitAndUpdate (data) {
+    this.setState({limit: 11}, () => this.updateQuery(data))
+  }
+
+  componentWillReceiveProps () {
+    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
+      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({questions: newQuestions})
+  }
+
   render () {
-    let library = Questions.find({ public: true, courseId: { $exists: false } }, { sort: { createdAt: -1 }, limit: this.state.limit }).fetch()
+    let library = this.state.questions || []
 
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
 
-    const increase = () => { this.setState({ limit: this.state.limit + 10 }) }
-    const decrease = () => { this.setState({ limit: this.state.limit - 10 }) }
+    const increase = (childState) => {
+      this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
+    }
+    const decrease = (childState) => {
+      this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
+    }
 
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
         <h1>Public Question Pool</h1>
@@ -67,14 +109,15 @@ class _QuestionsPublic extends Component {
               onSelect={this.selectQuestion}
               increase={increase}
               decrease={decrease}
-              atMax={atMax} />
+              atMax={atMax}
+              updateQuery={this.limitAndUpdate} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
               ? <div>
                 <h3>Preview Question</h3>
                 <button className='btn btn-default'
-                  onClick={() => { this.copyPublicQuestion(this.props.questionMap[this.state.selected]._id) }}
+                  onClick={() => { this.copyPublicQuestion(this.state.questionMap[this.state.selected]._id) }}
                   data-toggle='tooltip'
                   data-placement='left'
                   title='Create a copy to use in your own sessions'>
@@ -82,7 +125,7 @@ class _QuestionsPublic extends Component {
                   </button>
                 <div className='ql-preview-item-container'>
                   {this.state.selected
-                    ? <QuestionDisplay question={this.props.questionMap[this.state.selected]} readonly noStats />
+                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} readonly noStats />
                     : ''
                   }
                 </div>
@@ -98,14 +141,21 @@ class _QuestionsPublic extends Component {
 
 export const QuestionsPublic = createContainer(() => {
   const handle = Meteor.subscribe('questions.public')
+  let params = {
+    query: {
+      public: true
+    },
+    options: {
+      sort: { createdAt: -1 },
+      limit: 11
+    }
+  }
 
-  const publicQuestions = Questions
-    .find({ public: true, courseId: { $exists: false } }, { sort: { createdAt: -1 } })
-    .fetch()
+  const library = Questions.find(params.query, params.options).fetch()
 
   return {
-    public: publicQuestions,
-    questionMap: _(publicQuestions).indexBy('_id'),
+    query: params,
+    library: library,
     loading: !handle.ready()
   }
 }, _QuestionsPublic)

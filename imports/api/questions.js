@@ -78,6 +78,9 @@ export const Questions = new Mongo.Collection('questions',
 
 // data publishing
 if (Meteor.isServer) {
+  Questions._ensureIndex({
+    'plainText': 'text'
+  })
   Meteor.publish('questions.inCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
@@ -164,7 +167,7 @@ if (Meteor.isServer) {
   // truly public questions
   Meteor.publish('questions.public', function () {
     if (this.userId) {
-      return Questions.find({ public: true, courseId: {$exists: false} })
+      return Questions.find({ public: true })
     } else this.ready()
   })
 
@@ -177,9 +180,15 @@ if (Meteor.isServer) {
       return Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
-        public: true,
         approved: false
       })
+    } else this.ready()
+  })
+
+  // questions submitted to specific course
+  Meteor.publish('questions.withQuery', function (params) {
+    if (this.userId && params) {
+      return Questions.find(params.query, params.options)
     } else this.ready()
   })
 }
@@ -206,14 +215,12 @@ Meteor.methods({
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasRole(ROLES.student)) {
-      question.public = true
 
       // if student, can only add question to enrolled courses
       const courses = Courses.find({ _id: { $in: (user.profile.courses || []) } }).fetch()
       const courseIds = _(courses).pluck('_id')
       if (question.courseId && courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add question to this course')
     }
-
     check(question, questionPattern)
     const id = Questions.insert(question)
     return Questions.findOne({ _id: id })
@@ -462,5 +469,4 @@ Meteor.methods({
       '$set': { 'sessionOptions.correct': false }
     })
   }
-
 }) // end Meteor.methods
