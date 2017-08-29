@@ -292,7 +292,11 @@ import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {
   name: 'session.edit',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses') && Meteor.subscribe('images')
+    return Meteor.subscribe('userData') &&
+      Meteor.subscribe('sessions') &&
+      Meteor.subscribe('courses') &&
+      Meteor.subscribe('images') &&
+      Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
     const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id

@@ -471,6 +471,7 @@ class _ManageSession extends Component {
                     onDeleteThis={() => this.removeQuestion(questionId)}
                     question={q}
                     sessionId={this.state.session._id}
+                    courseId={this.state.session.courseId}
                     onNewQuestion={this.newQuestionSaved}
                     autoSave />
                 </div>)
