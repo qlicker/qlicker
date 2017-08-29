@@ -127,7 +127,7 @@ Router.route('/questions/library/:_id?', {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses')
   },
   action: function () {
-    const isInstructor = !!Courses.findOne({instructors: Meteor.userId(), inactive: false})
+    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) || Meteor.user().hasRole('professor')
     if (isInstructor) {
       mount(AppLayout, { content: <PageContainer user={Meteor.user()}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
@@ -143,7 +143,7 @@ Router.route('/questions/public', {
   },
   action: function () {
     let user = Meteor.user()
-    const isInstructor = !!Courses.findOne({instructors: user._id, inactive: false})
+    const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
     if (user.hasRole('professor') || isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
@@ -159,7 +159,7 @@ Router.route('/questions/submissions', {
   },
   action: function () {
     let user = Meteor.user()
-    const isInstructor = !!Courses.findOne({instructors: user._id, inactive: false})
+    const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
     if (isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
     } else Router.go('login')
