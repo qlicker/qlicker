@@ -160,26 +160,6 @@ export class _QuestionDisplay extends Component {
    * send response in state to server. Calls {@link module:responses~"responses.add" responses.add}
    */
   submitResponse () {
-    const q = this.props.question
-    const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
-    let resp = this.state.submittedAnswer // student response
-    let c = 0
-    switch (this.props.question.type) {
-      case QUESTION_TYPE.MC:
-        c = correct[0] === resp ? 1 : 0
-        break
-      case QUESTION_TYPE.TF:
-        c = correct[0] === resp ? 1 : 0
-        break
-      case QUESTION_TYPE.SA:
-        c = resp ? 1 : 0
-        break
-      case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
-        const intersection = _.intersection(correct, resp)
-        const percentage = (2 * intersection.length - resp.length) / correct.length
-        c = percentage > 0 ? percentage : 0
-        break
-    }
 
     if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
     // Can't choose responses after submission
@@ -191,9 +171,6 @@ export class _QuestionDisplay extends Component {
       isSubmitted: true
     })
 
-    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
-    const oldAnswer = myResponses.length > 0 ? myResponses[0] : null
-
     const l = this.props.question.sessionOptions.attempts.length
     const attempt = this.props.question.sessionOptions.attempts[l - 1]
 
@@ -201,8 +178,7 @@ export class _QuestionDisplay extends Component {
       studentUserId: Meteor.userId(),
       answer: answer,
       attempt: attempt.number,
-      questionId: this.props.question._id,
-      mark: c
+      questionId: this.props.question._id
     }
 
     /* // no longer needed cause can only submit once with button
