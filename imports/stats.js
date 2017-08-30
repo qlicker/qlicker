@@ -47,7 +47,7 @@ class Stats {
   questionGrade (qId, studentId) {
     const responses = _.filter(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
     const response = _.max(responses, (resp) => { return resp.attempt })
-    return (response && response !== Number.NEGATIVE_INFINITY) ? (response.mark * 100).toFixed(0) : 0
+    return (response && response.mark) ? (response.mark * 100).toFixed(0) : 0
   }
 }
 
