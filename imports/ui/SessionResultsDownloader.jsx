@@ -13,20 +13,32 @@ import { Courses } from '../api/courses'
 import { Responses } from '../api/responses'
 import { Stats } from '../stats'
 
+import { QUESTION_TYPE } from '../configs'
+
 export class _SessionResultsDownloader extends Component {
 
   render () {
     const headers = ['Last name', 'First name', 'Email', 'Participation', 'Mark']
     const stats = new Stats(this.props.questions, this.props.responses)
+    const questionMap = _.indexBy(this.props.questions, '_id')
+
+    this.props.session.questions.forEach((qId, ind) => {
+      headers.push((ind + 1) + '. ' + questionMap[qId].plainText)
+    })
 
     let data = this.props.students.map((student) => {
-      return [
+      const row = [
         student.profile.lastname,
         student.profile.firstname,
         student.emails[0].address,
         stats.sessionParticipation(student._id),
         stats.sessionGrade(student._id)
       ]
+      this.props.session.questions.forEach((qId) => {
+        const cell = questionMap[qId].type === QUESTION_TYPE.SA ? 'N/A' : stats.questionGrade(qId, student._id)
+        row.push(cell)
+      })
+      return row
     })
     const filename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
     return (<CSVLink data={data} headers={headers} filename={filename}>

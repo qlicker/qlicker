@@ -40,14 +40,14 @@ class Stats {
   }
 
   questionParticipation (qId, studentId) {
-    const response = _.find(this.responses, (r) => { return r.questionId === qId })
+    const response = _.find(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
     return response ? 100 : 0
   }
 
   questionGrade (qId, studentId) {
-    const responses = _.filter(this.responses, (r) => { return r.questionId === qId })
+    const responses = _.filter(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
     const response = _.max(responses, (resp) => { return resp.attempt })
-    return response ? (response.mark * 100).toFixed(0) : 0
+    return (response && response !== Number.NEGATIVE_INFINITY) ? (response.mark * 100).toFixed(0) : 0
   }
 }
 
