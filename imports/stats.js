@@ -21,7 +21,7 @@ class Stats {
   }
 
   sessionParticipation (studentId) {
-    const numResponses = _.where(_.uniq(this.responses, 'questionId'), {studentUserId: studentId}).length || 0
+    const numResponses = _.uniq(_.where(this.responses, {studentUserId: studentId}), 'questionId').length || 0
     return this.numQuestions ? (numResponses / this.numQuestions * 100).toFixed(0) : 0
   }
 
