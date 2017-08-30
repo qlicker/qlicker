@@ -89,7 +89,7 @@ class _QuestionsLibrary extends Component {
     else params.query = _.omit(params.query, 'tags.value')
 
     const newQuestions = Questions.find(params.query, params.options).fetch()
-    if (!_.findWhere(newQuestions, {_id: this.state.selected})) this.setState({ selected: null, questions: newQuestions })
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
     else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
   }
 
