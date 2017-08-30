@@ -11,50 +11,33 @@ import { CSVLink } from 'react-csv'
 import { Questions } from '../api/questions'
 import { Courses } from '../api/courses'
 import { Responses } from '../api/responses'
+import { Stats } from '../stats'
 
 import { QUESTION_TYPE } from '../configs'
 
 export class _SessionResultsDownloader extends Component {
 
   render () {
-    const headers = ['Name', 'Participation mark', 'Answered', 'Correct']
-    const asked = _.uniq(_.pluck(this.props.responses, 'questionId'))
+    const headers = ['Last name', 'First name', 'Email', 'Participation', 'Mark']
+    const stats = new Stats(this.props.questions, this.props.responses)
+    const questionMap = _.indexBy(this.props.questions, '_id')
+
+    this.props.session.questions.forEach((qId, ind) => {
+      headers.push((ind + 1) + '. ' + questionMap[qId].plainText)
+    })
 
     let data = this.props.students.map((student) => {
-      const studentResponses = _.filter(this.props.responses, resp => { return resp.studentUserId === student._id })
-      let totalQuestions = 0
-      let correctAnswers = 0
-
-      this.props.questions.forEach((q) => {
-        const len = q.sessionOptions.attempts ? q.sessionOptions.attempts.length : 0
-        totalQuestions += len
-        for (var i = 1; i <= len; i++) {
-          const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
-          let resp = _.findWhere(studentResponses, {questionId: q._id, attempt: i}) // student responses
-          resp = resp ? resp.answer : ''
-          switch (q.type) {
-            case QUESTION_TYPE.MC:
-              correctAnswers += correct[0] === resp ? 1 : 0
-              break
-            case QUESTION_TYPE.TF:
-              correctAnswers += correct[0] === resp ? 1 : 0
-              break
-            case QUESTION_TYPE.SA:
-              correctAnswers += resp ? 1 : 0
-              break
-            case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
-              const intersection = _.intersection(correct, resp)
-              const percentage = (2 * intersection.length - resp.length) / correct.length
-              correctAnswers += percentage > 0 ? percentage : 0
-              break
-          }
-        }
+      const row = [
+        student.profile.lastname,
+        student.profile.firstname,
+        student.emails[0].address,
+        stats.sessionParticipation(student._id),
+        stats.sessionGrade(student._id)
+      ]
+      this.props.session.questions.forEach((qId) => {
+        const cell = questionMap[qId].type === QUESTION_TYPE.SA ? 'N/A' : stats.questionGrade(qId, student._id)
+        row.push(cell)
       })
-
-      const uniqueResponses = _.uniq(studentResponses, 'questionId')
-      const mark = (uniqueResponses.length / asked.length)
-      const participation = mark >= 0.5 ? 1 : 0
-      const row = [student.getName(), participation, mark, correctAnswers / totalQuestions]
       return row
     })
     const filename = this.props.session.name.replace(/ /g, '_') + '_results.csv'

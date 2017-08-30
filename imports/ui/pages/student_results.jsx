@@ -16,7 +16,7 @@ import { Sessions } from '../../api/sessions'
 import { Responses } from '../../api/responses'
 import { Questions } from '../../api/questions'
 
-import { Participation } from '../../stats'
+import { Stats } from '../../stats'
 
 class _StudentResultsPage extends Component {
 
@@ -29,11 +29,15 @@ class _StudentResultsPage extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    const participation = new Participation(this.props.sessionMap, this.props.questions, this.props.responses)
-    const sessionList = _(this.props.sessionList).pluck('_id')
+    const statsMap = _.mapObject(this.props.sessionMap, (val, key) => {
+      const q = _.where(this.props.questions, {sessionId: key})
+      const r = _.filter(this.props.responses, (resp) => { return val.questions.indexOf(resp.questionId) !== -1 })
+      return new Stats(q, r)
+    })
 
+    const sessionList = _(this.props.sessionList).pluck('_id')
     const sessionNameList = sessionList.map(sId => this.props.sessionMap[sId].name)
-    const percentageList = sessionList.map(sId => (participation.percentage(sId, this.props.student._id) * 100).toFixed(0))
+    const percentageList = sessionList.map(sId => statsMap[sId])
 
     return (
       <div className='container ql-results-page'>

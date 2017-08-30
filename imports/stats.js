@@ -3,50 +3,52 @@
 //
 // stats.js: various methods for calculating response and answer numbers
 import _ from 'underscore'
-import dl from 'datalib'
 
-class Participation {
+import { QUESTION_TYPE } from './configs'
 
-  constructor (sessions = {}, questions = [], responses = []) {
-    this.sessions = sessions
-    this.questions = questions
-    this.responses = responses
+class Stats {
+
+  constructor (questions = [], responses = []) {
+    // A question only counts as being asked if there is a response for it
+    const asked = _.filter(questions, (q) => { return _.findWhere(responses, {questionId: q._id}) })
+    // Short answer questions are not counted
+    const excludeSA = _.reject(asked, (q) => { return q.type === QUESTION_TYPE.SA })
+    this.questions = excludeSA
+    this.responses = _.filter(responses, (resp) => {
+      return _.find(excludeSA, (q) => { return q._id === resp.questionId })
+    })
+    this.numQuestions = excludeSA.length
   }
 
-
-  percentage (sId, studentUserId) {
-    // group and index question/response arrays
-    const groupedResponses = dl.groupby('studentUserId').execute(this.responses)
-    groupedResponses.forEach(r => {
-      r.questions = dl.groupby('questionId').execute(r.values)
-    })
-    this.indexedResponses = _(groupedResponses).indexBy('studentUserId')
-    this.indexedQuestions = _.indexBy(this.questions, '_id')
-
-    // calculate percentage answered
-    const session = this.sessions[sId]
-    if ((session.joined || []).indexOf(studentUserId) === -1) return 0
-
-    // count number of question * attemps
-    let max = 0
-    ;(session.questions || []).forEach(qId => {
-      const q = this.indexedQuestions[qId]
-      max += q && q.sessionOptions ? q.sessionOptions.attempts.length : 0
-    })
-
-    // count number that this student has answered
-    let answered = 0
-    const res = this.indexedResponses[studentUserId]
-    if (!res || !res.questions) return 0
-
-    const groupedQsInSession = res.questions.filter(q => session.questions.indexOf(q.questionId) > -1)
-    groupedQsInSession.forEach(q => {
-      answered += q.values.length
-    })
-    return max > 0 ? answered / max : 0
+  sessionParticipation (studentId) {
+    const numResponses = _.where(_.uniq(this.responses, 'questionId'), {studentUserId: studentId}).length || 0
+    return this.numQuestions ? (numResponses / this.numQuestions * 100).toFixed(0) : 0
   }
 
+  sessionGrade (studentId) {
+    const studentResponses = _.where(this.responses, {studentUserId: studentId})
+    const grouped = _.groupBy(studentResponses, (resp) => {
+      return resp.questionId
+    })
+    const responses = _.mapObject(grouped, (responses) => {
+      return _.max(responses, (resp) => { return resp.attempt })
+    })
+    const marks = _.pluck(responses, 'mark')
+    const mark = _.reduce(marks, (memo, num) => { return memo + num }, 0)
 
+    return this.numQuestions ? (mark / this.numQuestions * 100).toFixed(0) : 0
+  }
+
+  questionParticipation (qId, studentId) {
+    const response = _.find(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
+    return response ? 100 : 0
+  }
+
+  questionGrade (qId, studentId) {
+    const responses = _.filter(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
+    const response = _.max(responses, (resp) => { return resp.attempt })
+    return (response && response.mark) ? (response.mark * 100).toFixed(0) : 0
+  }
 }
 
-export { Participation }
+export { Stats }

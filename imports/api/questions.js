@@ -156,7 +156,6 @@ if (Meteor.isServer) {
   Meteor.publish('questions.library', function () {
     if (this.userId) {
       const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
-      if (courses.length === 0) return this.ready()
 
       return Questions.find({
         '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
@@ -295,6 +294,20 @@ Meteor.methods({
 
     const id = Questions.insert(question)
     return id
+  },
+
+  'questions.create1000' (qId) {
+    if (Meteor.userId() === 'Cxm8uqYmMEvijTnZF') {
+      for (var i = 0; i < 1000; i++) {
+        const omittedFields = ['_id', 'originalQuestion', 'sessionId']
+        const question = _(Questions.findOne({_id: qId})).omit(omittedFields)
+        question.public = false
+        question.owner = Meteor.userId()
+        question.createdAt = new Date()
+        question.approved = true
+        Questions.insert(question)
+      }
+    } else console.log('Cannot add questions')
   },
 
   /**
