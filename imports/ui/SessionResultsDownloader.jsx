@@ -23,7 +23,7 @@ export class _SessionResultsDownloader extends Component {
     const questionMap = _.indexBy(this.props.questions, '_id')
 
     this.props.session.questions.forEach((qId, ind) => {
-      headers.push((ind + 1) + '. ' + questionMap[qId].plainText)
+      headers.push('Q' + (ind + 1))
     })
 
     let data = this.props.students.map((student) => {

@@ -20,7 +20,7 @@ export class _QuestionResultsListItem extends Component {
   render () {
     const q = this.props.question
     const total = this.props.session.joined ? this.props.session.joined.length : 0
-    const unique = _.uniq(this.props.responses, 'questionId')
+    const unique = _.uniq(this.props.responses, 'studentUserId')
     return (<div className='ql-results-list-item ql-list-item'>
       <span>{(this.props.session.questions.indexOf(q._id) + 1) + '.'}</span>
       <span className='title'>{WysiwygHelper.htmlDiv(q.content)}</span>

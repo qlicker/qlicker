@@ -78,9 +78,6 @@ export const Questions = new Mongo.Collection('questions',
 
 // data publishing
 if (Meteor.isServer) {
-  Questions._ensureIndex({
-    'plainText': 'text'
-  })
   Meteor.publish('questions.inCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
@@ -103,12 +100,12 @@ if (Meteor.isServer) {
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne(this.userId)
-      const course = Courses.findOne({'sessions': sessionId})
-      if (user.isInstructor(course._id)) return Questions.find({ sessionId: sessionId })
+      const session = Sessions.findOne(sessionId)
+      if (user.isInstructor(session.courseId)) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole(ROLES.student)) {
         // by default fetch all Qs without correct indicator
-        const initialQs = Questions.find({ sessionId: sessionId }).fetch()
+        const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } }).fetch()
 
         initialQs.forEach(q => {
           const qToAdd = q
@@ -181,13 +178,6 @@ if (Meteor.isServer) {
         sessionId: {$exists: false},
         approved: false
       })
-    } else this.ready()
-  })
-
-  // questions submitted to specific course
-  Meteor.publish('questions.withQuery', function (params) {
-    if (this.userId && params) {
-      return Questions.find(params.query, params.options)
     } else this.ready()
   })
 }

@@ -16,7 +16,7 @@ import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
 
-import { ROLES } from '../configs'
+import { ROLES, QUESTION_TYPE } from '../configs'
 
 // expected collection pattern
 const responsePattern = {
@@ -25,8 +25,7 @@ const responsePattern = {
   questionId: Helpers.MongoID,
   studentUserId: Helpers.MongoID,
   answer: Helpers.AnswerItem,
-  createdAt: Date,
-  mark: Number
+  createdAt: Date
 }
 
 // Create Response class
@@ -103,6 +102,28 @@ Meteor.methods({
     check(responseObject, responsePattern)
 
     const q = Questions.findOne({ _id: responseObject.questionId })
+    const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
+    let resp = responseObject.answer
+
+    let mark = 0
+    switch (q.type) {
+      case QUESTION_TYPE.MC:
+        mark = correct[0] === resp ? 1 : 0
+        break
+      case QUESTION_TYPE.TF:
+        mark = correct[0] === resp ? 1 : 0
+        break
+      case QUESTION_TYPE.SA:
+        mark = resp ? 1 : 0
+        break
+      case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
+        const intersection = _.intersection(correct, resp)
+        const percentage = (2 * intersection.length - resp.length) / correct.length
+        mark = percentage > 0 ? percentage : 0
+        break
+    }
+
+    responseObject.mark = mark
     if (!q.sessionId) throw Error('Question not attached to session')
     if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit answer')
 
