@@ -8,58 +8,33 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 import { CSVLink } from 'react-csv'
 
+import { Stats } from '../stats'
+
 import { Questions } from '../api/questions'
-import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 import { Responses } from '../api/responses'
-
-import { QUESTION_TYPE } from '../configs'
 
 export class _CourseResultsDownloader extends Component {
 
   render () {
-    let headers = ['Name']
+    const statsMap = _.object(_.map(this.props.sessions, (s) => {
+      const q = _.where(this.props.questions, {sessionId: s._id})
+      const r = _.filter(this.props.responses, (resp) => { return s.questions.indexOf(resp.questionId) !== -1 })
+      return [s._id, new Stats(q, r)]
+    }))
 
-    this.props.sessions.forEach((s, sIndex) => {
-      s.questions.forEach((q, qIndex) => {
-        const question = _.find(this.props.questions, ques => { return ques._id === q })
-        const len = (question.sessionOptions && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
-        for (var i = 1; i <= len; i++) {
-          headers.push('S' + (sIndex + 1) + '- Q' + (s.questions.indexOf(q) + 1) + '- A' + i)
-        }
-      })
+    let headers = ['Last name', 'First name', 'Email']
+
+    this.props.sessions.forEach((s) => {
+      headers.push(s.name + ' Participation')
+      headers.push(s.name + ' Mark')
     })
 
     let data = this.props.students.map((student) => {
-      const studentResponses = _.filter(this.props.responses, resp => { return resp.studentUserId === student._id })
-      let row = [student.getName()]
-
-      this.props.sessions.forEach((s, sIndex) => {
-        s.questions.forEach((q, qIndex) => {
-          const question = _.find(this.props.questions, ques => { return ques._id === q })
-          const len = (question.sessionOptions && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
-          for (var i = 1; i <= len; i++) {
-            const correct = _.map(_.filter(question.options, {correct: true}), (op) => op.answer) // correct responses
-            let resp = _.findWhere(studentResponses, {questionId: q, attempt: i}) // student responses
-            resp = resp ? resp.answer : ''
-            switch (question.type) {
-              case QUESTION_TYPE.MC:
-                row.push(correct[0] === resp ? 1 : 0)
-                break
-              case QUESTION_TYPE.TF:
-                row.push(correct[0] === resp ? 1 : 0)
-                break
-              case QUESTION_TYPE.SA:
-                row.push(resp ? 1 : 0)
-                break
-              case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
-                const intersection = _.intersection(correct, resp)
-                const percentage = (2 * intersection.length - resp.length) / correct.length
-                row.push(percentage > 0 ? percentage : 0)
-                break
-            }
-          }
-        })
+      let row = [student.profile.lastname, student.profile.firstname, student.emails[0].address]
+      this.props.sessions.forEach((s) => {
+        row.push(statsMap[s._id].sessionParticipation(student._id))
+        row.push(statsMap[s._id].sessionGrade(student._id))
       })
       return row
     })

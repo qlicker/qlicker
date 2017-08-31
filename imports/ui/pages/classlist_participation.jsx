@@ -17,7 +17,7 @@ import { Sessions } from '../../api/sessions'
 import { Responses } from '../../api/responses'
 import { Questions } from '../../api/questions'
 
-import { Participation } from '../../stats'
+import { Stats } from '../../stats'
 import { CourseResultsDownloader } from '../CourseResultsDownloader'
 
 class _ClasslistParticipation extends Component {
@@ -33,7 +33,11 @@ class _ClasslistParticipation extends Component {
 
     const sessionList = _(this.props.sessionList).pluck('_id')
 
-    const participation = new Participation(this.props.sessionMap, this.props.questions, this.props.responses)
+    const statsMap = _.mapObject(this.props.sessionMap, (val, key) => {
+      const q = _.where(this.props.questions, {sessionId: key})
+      const r = _.filter(this.props.responses, (resp) => { return val.questions.indexOf(resp.questionId) !== -1 })
+      return new Stats(q, r)
+    })
 
     const getTextWidth = (text) => {
       let element = document.createElement('canvas')
@@ -49,7 +53,7 @@ class _ClasslistParticipation extends Component {
       const joined = session.joined || []
       return <Cell>
         { joined.indexOf(student._id) > -1 ? '✓' : '✗' }&nbsp;
-        { (participation.percentage(sId, student._id) * 100).toFixed(0) }%
+        { statsMap[sId].sessionParticipation(student._id) }% / { statsMap[sId].sessionGrade(student._id) }%
       </Cell>
     }
 

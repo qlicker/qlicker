@@ -29,7 +29,8 @@ class _PageContainer extends Component {
 
   render () {
     const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && !this.state.user.hasRole('admin')
-    const isProfOrAdmin = this.state.user.hasGreaterRole('professor') || this.state.user.hasRole('admin')
+    const isProfOrAdmin = this.state.user.hasGreaterRole("professor")
+
 
     const logout = () => {
       Meteor.logout(() => Router.go('login'))
@@ -73,7 +74,8 @@ class _PageContainer extends Component {
                 </li>
                 }
                 {
-                  isProfOrAdmin //isInstructor
+
+                  isProfOrAdmin
                     ? <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
                          aria-haspopup='true' aria-expanded='false'>Questions <span className='caret'/></a>
