@@ -80,8 +80,8 @@ export const Questions = new Mongo.Collection('questions',
 if (Meteor.isServer) {
   Meteor.publish('questions.inCourse', function (courseId) {
     if (this.userId) {
-      const user = Meteor.users.findOne(this.userId)
-      const course = Courses.findOne(courseId)
+      const user = Meteor.users.findOne({_id: this.userId})
+      const course = Courses.findOne({_id: courseId})
       if (user.isInstructor(courseId)) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
       if (user.hasRole(ROLES.student)) {
@@ -90,17 +90,18 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
+  // questions for reviewing a session
   Meteor.publish('questions.forReview', function (sessionId) {
     if (this.userId) {
       return Questions.find({ sessionId: sessionId })
     } else this.ready()
   })
 
-  // questions in a specific question
+  // questions in a specific session
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
-      const user = Meteor.users.findOne(this.userId)
-      const session = Sessions.findOne(sessionId)
+      const user = Meteor.users.findOne({_id: this.userId})
+      const session = Sessions.findOne({_id: sessionId})
       if (user.isInstructor(session.courseId)) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole(ROLES.student)) {
@@ -110,7 +111,7 @@ if (Meteor.isServer) {
         initialQs.forEach(q => {
           const qToAdd = q
           // if prof has marked Q with correct visible, refetch answer options
-          if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne(q._id).options
+          if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne({_id:q._id}).options
           this.added('questions', qToAdd._id, qToAdd)
         })
 
@@ -128,7 +129,7 @@ if (Meteor.isServer) {
 
             const so = newFields.sessionOptions
             if (so && so.correct) { // correct should be visible
-              const q = Questions.findOne(id)
+              const q = Questions.findOne({_id: id})
               newFields['options'] = q.options
             } else if (so && !so.correct) { // correct should be hidden
               const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false } })
@@ -170,7 +171,7 @@ if (Meteor.isServer) {
   // questions submitted to specific course
   Meteor.publish('questions.fromStudent', function () {
     if (this.userId) {
-      const user = Meteor.users.findOne(this.userId)
+      const user = Meteor.users.findOne({_id: this.userId})
       let cArr = user.profile.TA || []
       cArr = cArr.concat(_(Courses.find({ instructors: this.userId }).fetch()).pluck('_id'))
       return Questions.find({
@@ -201,6 +202,8 @@ Meteor.methods({
     question.createdAt = new Date()
     question.public = false
     question.creator = Meteor.userId()
+
+    check(question, questionPattern)
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasRole(ROLES.student)) {
@@ -257,6 +260,9 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.copyToSession' (sessionId, questionId) {
+    check(sessionId, Helpers.MongoID)
+    check(questionId, Helpers.MongoID)
+
     const session = Sessions.findOne({ _id: sessionId })
     const question = Questions.findOne({ _id: questionId })
 
@@ -275,6 +281,8 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.copyToLibrary' (questionId) {
+    check(questionId, Helpers.MongoID)
+
     const omittedFields = ['_id', 'originalQuestion', 'sessionId']
     const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     question.public = false
@@ -286,8 +294,9 @@ Meteor.methods({
     return id
   },
 
+  // Copies a question 1000 times, used for testing
   'questions.create1000' (qId) {
-    if (Meteor.userId() === 'Cxm8uqYmMEvijTnZF') {
+    if (Meteor.userId() === 'QFy2qK88Nj32LSrwf') {
       for (var i = 0; i < 1000; i++) {
         const omittedFields = ['_id', 'originalQuestion', 'sessionId']
         const question = _(Questions.findOne({_id: qId})).omit(omittedFields)
@@ -336,6 +345,7 @@ Meteor.methods({
    * @param {String} tag
    */
   'questions.addTag' (questionId, tag) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId) && (q.owner !== Meteor.userId())) throw Error('Not authorized to update question')
 
@@ -350,8 +360,11 @@ Meteor.methods({
    * @param {String} tag
    */
   'questions.removeTag' (questionId, tag) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
-    if (!Meteor.user().isInstructor(q.courseId) && (q.owner !== Meteor.userId())) throw Error('Not authorized to update question')
+    if (!Meteor.user().isInstructor(q.courseId) &&
+      (q.owner !== Meteor.userId()) &&
+      !Meteor.user.hasGreaterRole('professor')) throw Error('Not authorized to update question')
 
     return Questions.update({ _id: questionId }, {
       $pull: { tags: tag }
@@ -363,6 +376,7 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.startAttempt' (questionId) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 
@@ -386,6 +400,7 @@ Meteor.methods({
    * @param {Boolean} bool
    */
   'questions.setAttemptStatus' (questionId, bool) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 
@@ -404,6 +419,7 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.showStats' (questionId) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 
@@ -417,6 +433,7 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.hideStats' (questionId) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 
@@ -429,6 +446,7 @@ Meteor.methods({
    * enables visibility of entire question in session
    */
   'questions.showQuestion' (questionId) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 
@@ -441,6 +459,7 @@ Meteor.methods({
    * disables visibility of entire question in session
    */
   'questions.hideQuestion' (questionId) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 
@@ -453,6 +472,7 @@ Meteor.methods({
    * enables visibility of correct answer for a question
    */
   'questions.showCorrect' (questionId) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 
@@ -465,6 +485,7 @@ Meteor.methods({
    * disables visibility of correct answer for a question
    */
   'questions.hideCorrect' (questionId) {
+    check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
 

@@ -40,6 +40,7 @@ export const Responses = new Mongo.Collection('responses',
 if (Meteor.isServer) {
   // questions in a specific question
   Meteor.publish('responses.forQuestion', function (questionId) {
+    check(questionId, Helpers.MongoID)
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const question = Questions.findOne({ _id: questionId })
@@ -57,6 +58,7 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('responses.forSession', function (sessionId) {
+    check(sessionId, Helpers.MongoID)
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const session = Sessions.findOne({ _id: sessionId })
@@ -71,9 +73,9 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('responses.forCourse', function (courseId) {
+    check(courseId, Helpers.MongoID)
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      const course = Courses.findOne({ _id: courseId })
 
       const sessions = Sessions.find({ courseId: courseId }).fetch()
       const questionIds = _.flatten(_(sessions).pluck('questions'))

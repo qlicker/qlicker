@@ -8,7 +8,17 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { Questions } from './questions'
 
+import { check, Match } from 'meteor/check'
+import Helpers from './helpers.js'
+
 import { _ } from 'underscore'
+
+// expected collection pattern
+const imagePattern = {
+  _id: Match.Maybe(Helpers.MongoID),
+  url: String,
+  UID: String
+}
 
 // Create Image class
 const Image = function (doc) { _.extend(this, doc) }
@@ -40,7 +50,8 @@ Meteor.methods({
    * @returns {Image} new image
    */
   'images.insert' (image) {
-    const exists = !!Images.findOne(image._id)
+    check(image, imagePattern)
+    const exists = Images.findOne(image._id)
     if (exists) {
       return Meteor.call('images.update', image)
     }
@@ -53,6 +64,7 @@ Meteor.methods({
    * @returns {MongoID} id of updated image
    */
   'images.update' (image) {
+    check(image, imagePattern)
     return Images.update(image._id, image)
   },
 
@@ -61,13 +73,15 @@ Meteor.methods({
    * @param {MongoId} imageId
    */
   'images.delete' (imageId) {
-    return Images.delete(imageId)
+    check(imageId, Helpers.MongoID)
+    return Images.delete({_id: imageId})
   },
 
   /**
    * Cleans the S3 bucket and mongodb from unused images
    */
   'cleanDB' () {
+    if (!Meteor.user().hasRole('admin')) throw new Error('Not authorized')
     var AWS = require('aws-sdk')
 
     AWS.config.update({

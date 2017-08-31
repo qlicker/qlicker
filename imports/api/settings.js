@@ -14,13 +14,13 @@ import Helpers from './helpers.js'
 import { ROLES } from '../configs'
 
 const pattern = {
-  _id: Match.Maybe(Helpers.NEString), // mongo db id
-  restrictDomain: Match.Maybe(Boolean), // Information Technology Project (2016-17)
-  allowedDomains: Match.Maybe([Helpers.NEString]),
-  maxImageSize: Match.Maybe(Number),
-  maxImageWidth: Match.Maybe(Number),
-  email: Match.Maybe(String),
-  requireVerified: Match.Maybe(Boolean)
+  _id: Helpers.NEString, // mongo db id
+  restrictDomain: Boolean, // Information Technology Project (2016-17)
+  allowedDomains: [Helpers.NEString],
+  maxImageSize: Number,
+  maxImageWidth: Number,
+  email: String,
+  requireVerified: Boolean
 }
 
 // Create course class
@@ -38,7 +38,7 @@ if (Meteor.isServer) {
       if (user.hasGreaterRole(ROLES.admin)) {
         return Settings.find()
       }
-    } else return Settings.find()
+    } else return Settings.find() // Added in case anything sensitive is added to prof settings
   })
 
   Accounts.validateLoginAttempt((options) => {
@@ -73,7 +73,7 @@ Meteor.methods({
     check(settings, pattern)
     if (this.userId) {
       let user = Meteor.users.findOne({_id: this.userId})
-      if (user.hasGreaterRole(ROLES.admin)) {
+      if (user.hasRole(ROLES.admin)) {
         const exists = Settings.findOne()
         if (exists) Settings.update(exists._id, settings)
         else return Settings.insert(settings)
@@ -85,7 +85,7 @@ Meteor.methods({
     check(settings, pattern)
     if (this.userId) {
       let user = Meteor.users.findOne({_id: this.userId})
-      if (user.hasGreaterRole(ROLES.admin)) {
+      if (user.hasRole(ROLES.admin)) {
         if (settings.email !== Settings.findOne().email && Meteor.isServer) {
           Accounts.emailTemplates.from = settings.email || 'admin@' + process.env.ROOT_URL
         }
@@ -97,12 +97,13 @@ Meteor.methods({
   'settings.find' () {
     if (Meteor.userId()) {
       let user = Meteor.users.findOne({_id: Meteor.userId()})
-      if (user.hasGreaterRole(ROLES.admin)) return Settings.findOne()
+      if (user.hasRole(ROLES.admin)) return Settings.findOne()
     }
-    return Settings.findOne()
+    return Settings.findOne() // Added in case anything sensitive is added to prof settings
   },
 
   'confirmAccount' (email) {
+    check(email, String)
     var domain = email.substring(email.lastIndexOf('@') + 1)
     const settings = Settings.findOne()
     if (settings) { // (restrict) implies (domain in list) === not (restrict) || (domain in list)
