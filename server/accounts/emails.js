@@ -1,10 +1,8 @@
 import { Settings } from '../../imports/api/settings'
 
 Accounts.emailTemplates.siteName = 'Qlicker'
-// server/main.js creates a document with an initial default email, so the 
-// check below should not be necessary.
-const exists = Settings.findOne() && Settings.findOne().email
-const fromEmail=exists ? Settings.findOne().email : "admin@"+ process.env.ROOT_URL
+// server/main.js creates a document with an initial default email 
+const fromEmail= Settings.findOne().email
 Accounts.emailTemplates.from = "Qlicker Admin <"+fromEmail+">"
 
 Accounts.emailTemplates.verifyEmail = {
