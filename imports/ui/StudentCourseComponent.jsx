@@ -32,7 +32,14 @@ export class _StudentCourseComponent extends Component {
       <div>
         {
           this.props.sessions.map((s) => {
-            return <SessionListItem key={s._id} session={s} click={() => Router.go(this.props.sessionRoute, { _id: s._id })} />
+            if (!s) return
+            const sId = s._id
+            const nav = () => {
+              if (!Meteor.user().isInstructor(this.props.course._id)) Router.go(this.props.sessionRoute, { _id: s._id })
+              else if (s.status === 'running') Router.go('session.run', { _id: sId })
+              else Router.go('session.edit', { _id: sId })
+            }
+            return <SessionListItem key={s._id} session={s} click={nav} />
           })
         }
       </div>

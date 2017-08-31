@@ -80,6 +80,7 @@ if (Meteor.isServer) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
+
     if (user && (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id }))) {
       let studentRefs = []
       Courses.find({ instructors: user._id }).fetch().forEach((c) => {
