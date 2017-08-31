@@ -27,8 +27,12 @@ export const DEFAULT_STATE = {
     hidden: false,
     stats: false,
     correct: false,
-    attempts: []
+    attempts: [{
+      number: 1,
+      closed: false
+    }]
   }
+
 }
 
 /**

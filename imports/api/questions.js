@@ -171,9 +171,7 @@ if (Meteor.isServer) {
   // questions submitted to specific course
   Meteor.publish('questions.fromStudent', function () {
     if (this.userId) {
-      const user = Meteor.users.findOne({_id: this.userId})
-      let cArr = user.profile.TA || []
-      cArr = cArr.concat(_(Courses.find({ instructors: this.userId }).fetch()).pluck('_id'))
+      let cArr = _(Courses.find({ instructors: this.userId }).fetch()).pluck('_id')
       return Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
@@ -316,7 +314,7 @@ Meteor.methods({
   'questions.possibleTags' () {
     let tags = new Set()
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (user.hasGreaterRole('professor')) {
+    if (user.hasGreaterRole('professor') || Courses.findOne({ instructors: this.userId })) {
       const courses = Courses.find({ instructors: Meteor.userId() }).fetch()
       courses.forEach(c => {
         tags.add(c.courseCode().toUpperCase())
@@ -328,11 +326,30 @@ Meteor.methods({
           tags.add(t.label.toUpperCase())
         })
       })
+
+      let cArr = _(courses).pluck('_id')
+      const questions = Questions.find({
+        courseId: {$in: cArr},
+        sessionId: {$exists: false},
+        approved: false
+      })
+
+      questions.forEach((q) => {
+        q.tags.forEach((t) => {
+          tags.add(t.label.toUpperCase())
+        })
+      })
     } else {
       const coursesArray = user.profile.courses || []
       const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
       courses.forEach(c => {
         tags.add(c.courseCode().toUpperCase())
+      })
+      const profQuestions = Questions.find({ owner: Meteor.userId() }).fetch()
+      profQuestions.forEach((q) => {
+        q.tags.forEach((t) => {
+          tags.add(t.label.toUpperCase())
+        })
       })
     }
 
@@ -379,10 +396,9 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
-
     if (q.sessionOptions) { // add another attempt (if first is closed)
       const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
-      if (maxAttempt.closed) {
+      if (maxAttempt && maxAttempt.closed) {
         return Questions.update({ _id: questionId }, {
           '$push': { 'sessionOptions.attempts': { number: maxAttempt.number + 1, closed: false } }
         })
