@@ -205,7 +205,7 @@ import { Course } from '../../ui/pages/student/course'
 Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('users.myTAs')
   },
   action: function () {
     if (Meteor.user().hasGreaterRole('professor')) {
