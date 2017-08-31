@@ -26,7 +26,7 @@ export class _QuestionResultsClassList extends Component {
         </thead>
         <tbody>
           {
-            _.uniq(this.props.responses, 'questionId').map((row) => {
+            _.uniq(this.props.responses, 'studentUserId').map((row) => {
               const user = this.props.students[row.studentUserId]
               return (<tr key={row._id}>
                 <td>{user.getName()}</td>
