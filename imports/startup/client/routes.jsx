@@ -54,7 +54,6 @@ Router.route('/reset/:token', function () {
   name: 'reset-password'
 })
 
-
 import { ProfilePage } from '../../ui/pages/profile'
 Router.route('/profile', {
   name: 'profile',
@@ -311,13 +310,13 @@ import { RunSession } from '../../ui/pages/professor/run_session'
 Router.route('/session/run/:_id', {
   name: 'session.run',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
     const sess = Sessions.findOne(this.params._id)
     const cId = sess ? sess.courseId : ''
     if (Meteor.user().isInstructor(cId)) {
-      mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} courseId={cId} /> </PageContainer> })
     } else Router.go('login')
   }
 })

@@ -309,7 +309,7 @@ export class _QuestionDisplay extends Component {
     let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
     return (
       <div className='ql-short-answer'>
-        { showAns ? <h4>Correct Answer: {q.options[0].plainText}</h4> : ''}
+        { showAns ? <h4>Correct Answer: {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
         <textarea
           disabled={this.readonly}
           placeholder='Type your answer here'

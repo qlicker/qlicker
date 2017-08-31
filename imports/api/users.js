@@ -81,7 +81,7 @@ if (Meteor.isServer) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && (user.hasGreaterRole(ROLES.prof))) {
+    if ((user && (user.hasGreaterRole(ROLES.prof))) || (params && user.isInstructor(params.cId))) {
       let studentRefs = []
       Courses.find({ instructors: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])

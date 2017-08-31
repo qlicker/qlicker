@@ -357,7 +357,7 @@ export const RunSession = createContainer((props) => {
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('responses.forSession', props.sessionId) &&
-    Meteor.subscribe('users.myStudents')
+    Meteor.subscribe('users.myStudents', {cId: props.courseId})
 
   const session = Sessions.findOne(props.sessionId)
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
