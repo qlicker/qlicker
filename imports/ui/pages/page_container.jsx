@@ -29,7 +29,7 @@ class _PageContainer extends Component {
 
   render () {
     const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && !this.state.user.hasRole('admin')
-    const isProfOrAdmin = this.state.user.hasGreaterRole("professor")
+    const isProfOrAdmin = this.state.user.hasGreaterRole('professor') || isInstructor
 
     const logout = () => {
       Meteor.logout(() => Router.go('login'))
