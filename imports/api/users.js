@@ -19,7 +19,6 @@ import Helpers from './helpers'
  *  courses: []
  * }
  */
-import { Settings } from './settings'
 import { Courses } from './courses'
 import { _ } from 'underscore'
 
@@ -136,8 +135,6 @@ Meteor.methods({
   'users.sendVerificationEmail' () {
     let userId = Meteor.userId()
     if (userId && Meteor.isServer) {
-      const fromEmail=Settings.findOne().email ? Settings.findOne().email : "admin@"+ process.env.ROOT_URL
-      Accounts.emailTemplates.from = "Qlicker Admin <"+fromEmail+">" 
       return Accounts.sendVerificationEmail(userId)
     }
   },
