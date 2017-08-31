@@ -39,7 +39,7 @@ _.extend(User.prototype, {
   },
   isInstructor: function (courseId) {
     if (!courseId) return false
-    check(courseId, Helpers.NEString)
+    check(courseId, Helpers.MongoID)
     const c = Courses.findOne(courseId)
     return c ? _.contains(c.instructors, this._id) : false
   },
@@ -81,15 +81,9 @@ if (Meteor.isServer) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && (user.hasGreaterRole(ROLES.prof))) {
+    if (user && (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id }))) {
       let studentRefs = []
       Courses.find({ instructors: user._id }).fetch().forEach((c) => {
-        studentRefs = studentRefs.concat(c.students || [])
-      })
-      return Meteor.users.find({_id: {$in: studentRefs}}, {fields: {services: false}})
-    } else if (params && user.isInstructor(params.cId)) {
-      let studentRefs = []
-      Courses.find({_id: params.cId}).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({_id: {$in: studentRefs}}, {fields: {services: false}})
@@ -105,7 +99,7 @@ if (Meteor.isServer) {
         TARefs = TARefs.concat(c.instructors || [])
       })
       return Meteor.users.find({_id: {$in: TARefs}}, {fields: {services: false}})
-    } else if (params && user.isInstructor(params.cId)) {
+    } else if (Courses.findOne({ instructors: user._id })) {
       let TARefs = []
       Courses.find({_id: params.cId}).fetch().forEach((c) => {
         TARefs = TARefs.concat(c.instructors || [])
@@ -147,6 +141,7 @@ Meteor.methods({
    * @param {String} profileImageUrl
    */
   'users.updateProfileImage' (profileImageUrl) {
+    check(profileImageUrl, String)
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileImage': profileImageUrl }
     })
@@ -157,6 +152,7 @@ Meteor.methods({
    * @param {String} newEmail
    */
   'users.changeEmail' (newEmail) {
+    check(newEmail, Helpers.Email)
     Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'emails': [ { address: newEmail, verified: false } ] }
     })
@@ -164,6 +160,7 @@ Meteor.methods({
   },
 
   'users.verifyEmail' (email) {
+    check(email, Helpers.Email)
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasRole(ROLES.admin)) {
       let emailUser = Meteor.users.findOne({'emails.address': email})
@@ -202,6 +199,7 @@ Meteor.methods({
    */
   'users.changeRoleByEmail' (email, newRole) {
     check(email, Helpers.Email)
+    check(newRole, String)
     if (!Meteor.user().hasRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
