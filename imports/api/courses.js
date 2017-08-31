@@ -48,10 +48,10 @@ export const Courses = new Mongo.Collection('courses',
 
 // data publishing
 if (Meteor.isServer) {
-  Meteor.publish('courses', function (params) {
+  Meteor.publish('courses', function () {
     if (this.userId) {
       let user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole(ROLES.prof) || (params && params.isInstructor)) {
+      if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
         return Courses.find({ _id: { $in: user.profile.courses || [] } }) // finds all the course owned
       } else {
         let coursesArray = user.profile.courses || []
@@ -100,9 +100,11 @@ if (Meteor.isServer) {
 
 // course permissions helper
 export const profHasCoursePermission = (courseId) => {
+  check(courseId, Helpers.MongoID)
   let course = Courses.findOne({ _id: courseId }) || []
   if (Meteor.user().hasRole(ROLES.admin) ||
-      _.indexOf(course.instructors, Meteor.userId()) !== -1) {
+    _.indexOf(course.instructors, Meteor.userId()) !== -1 ||
+    Meteor.user().isInstructor(courseId)) {
     return
   } else {
     throw new Meteor.Error('not-authorized')
@@ -265,6 +267,7 @@ Meteor.methods({
    */
   'courses.addTA' (email, courseId) {
     check(email, Helpers.Email)
+    check(courseId, Helpers.MongoID)
 
     profHasCoursePermission(courseId)
 
@@ -329,6 +332,7 @@ Meteor.methods({
    * @returns {MongoId} id new session
    */
   'courses.createSession' (courseId, session) {
+    profHasCoursePermission(courseId)
     session.courseId = courseId
     const sessionId = Meteor.call('sessions.insert', session)
     Courses.update({ _id: courseId }, {
@@ -343,6 +347,8 @@ Meteor.methods({
    * @param {Session} session
    */
   'courses.deleteSession' (courseId, sessionId) {
+    check(sessionId, Helpers.MongoID)
+    profHasCoursePermission(courseId)
     Courses.update({ _id: courseId }, {
       $pull: { sessions: sessionId }
     })
@@ -356,6 +362,7 @@ Meteor.methods({
    * @returns {String} tag.label
    */
   'courses.getCourseCodeTag' (courseId) {
+    check(courseId, Helpers.MongoID)
     const c = Courses.findOne(courseId).courseCode().toUpperCase()
     return { value: c, label: c }
   },

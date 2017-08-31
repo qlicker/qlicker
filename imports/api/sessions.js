@@ -40,10 +40,10 @@ export const Sessions = new Mongo.Collection('sessions',
   { transform: (doc) => { return new Session(doc) } })
 // data publishing
 if (Meteor.isServer) {
-  Meteor.publish('sessions', function (params) {
+  Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (params && params.isInstructor) {
+      if (Courses.findOne({ instructors: user._id })) {
         const courseIdArray = user.profile.courses || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasGreaterRole(ROLES.prof)) {
@@ -252,6 +252,7 @@ Meteor.methods({
    */
   'sessions.setCurrent' (sessionId, questionId) {
     check(questionId, Helpers.MongoID)
+    check(sessionId, Helpers.MongoID)
 
     const session = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(session.courseId)
@@ -268,6 +269,7 @@ Meteor.methods({
    * @param {MongoId} sessionId
    */
   'sessions.toggleReviewable' (sessionId) {
+    check(sessionId, Helpers.MongoID)
     const session = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(session.courseId)
 
