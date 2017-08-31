@@ -208,9 +208,11 @@ class _RunSession extends Component {
       Router.go('course', { _id: this.state.session.courseId }) // TODO go to grades overview page for that session
     })
     if (!this.state.session.reviewable) {
-      Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
-        if (error) alertify.error('Error: ' + error.error)
-      })
+      //by default, do not change reviability, but do remind prof if not reviewable:
+      alertify.error('Warning: session not reviewable')
+      //Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
+        //if (error) alertify.error('Error: ' + error.error)
+      //})
     }
   }
 

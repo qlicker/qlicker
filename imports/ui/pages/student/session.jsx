@@ -32,8 +32,10 @@ class _Session extends Component {
       let statusMessage
 
       if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
-      if (status === 'done') statusMessage = 'This session has finished'
-
+      if (status === 'done'){
+        statusMessage = 'This session has finished'
+        Router.go("/course/"+this.props.session.courseId)
+      }
       return <div className='ql-subs-loading'>{statusMessage}</div>
     }
 
