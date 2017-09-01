@@ -40,8 +40,10 @@ export class ListItem extends Component {
 
   makeControls () {
     const controls = []
+    let divCount = 1
     ;(this.props.controls || []).forEach((c) => {
-      if (c.divider) controls.push(<li role='separator' className='divider' >&nbsp;</li>)
+      divCount += 1
+      if (c.divider) controls.push(<li key={'ctrl_' + divCount} role='separator' className='divider' >&nbsp;</li>)
       else controls.push(<li key={'ctrl_' + c.label}><a href='#' onClick={(e) => this.wrapFunc(e, c.click)}>{c.label}</a></li>)
     })
 
@@ -69,4 +71,3 @@ ListItem.propTypes = {
   controls: PropTypes.array, // [ { click: func, label: String } ]
   click: PropTypes.func
 }
-
