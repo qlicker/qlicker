@@ -60,7 +60,7 @@ export class AddTAModal extends ControlledForm {
         <div className='ql-modal-header ql-header-bar'><h3>Add a TA to this course</h3></div>
         <form ref='newEmailForm' className='ql-card-content' onSubmit={this.handleSubmit}>
 
-          <div className='text'>Enter a TA's Qlicker account email address to give them access to this course.</div>
+          <div className='text'>Enter a instructor's Qlicker account email address to give them access to this course.</div>
 
           <label>Email:</label>
           <input type='email' className='form-control' onChange={this.newEmailOnChange} /><br />

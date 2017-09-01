@@ -183,7 +183,7 @@ class _ManageCourse extends Component {
             key={sId}
             courseId={this.courseId}
             student={TA}
-            role={sId === this.props.course.owner ? 'Professor' : 'TA'}
+            role={sId === this.props.course.owner ? 'Owner' : 'Instructor'}
             controls={[
               { label: 'Remove from Course', click: () => this.removeTA(sId) }
             ]} />)
@@ -219,7 +219,7 @@ class _ManageCourse extends Component {
                     <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
-                    <div className='btn btn-default' onClick={toggleAddTA}>Add TA
+                    <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA
                       { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} done={toggleAddTA} /> : '' }
                     </div>
                   </div>
