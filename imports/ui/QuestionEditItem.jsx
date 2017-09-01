@@ -7,7 +7,8 @@ import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { Creatable, Select } from 'react-select'
+import { Creatable } from 'react-select'
+import Select from 'react-select'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
@@ -113,7 +114,7 @@ export class QuestionEditItem extends Component {
       })
 
     }
-    
+
 
     if (this.props.courseId) {
       // add course code tag
@@ -462,7 +463,7 @@ export class QuestionEditItem extends Component {
     user = Meteor.user()
     //For some reason, using the Select component gives an error about courseTags and possibleTags???
     //Disable for now
-    const selectOnly = false //( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse()) 
+    const selectOnly =  ( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
     const radioOptions = [
       { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },
