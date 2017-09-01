@@ -7,7 +7,7 @@ import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { Creatable } from 'react-select'
+import { Creatable, Select } from 'react-select'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
@@ -94,13 +94,26 @@ export class QuestionEditItem extends Component {
 
     // populate tagging suggestions
     this.tagSuggestions = []
-    Meteor.call('questions.possibleTags', (e, tags) => {
-      // non-critical, if e: silently fail
-      tags.forEach((t) => {
-        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+    user = Meteor.user()
+    if( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse() ){
+      Meteor.call('questions.possibleTags',this.props.courseId, (e, tags) => {
+        // non-critical, if e: silently fail
+        tags.forEach((t) => {
+          this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+        })
+        this.forceUpdate()
       })
-      this.forceUpdate()
-    })
+    }else{
+      Meteor.call('questions.possibleTags', (e, tags) => {
+        // non-critical, if e: silently fail
+        tags.forEach((t) => {
+          this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+        })
+        this.forceUpdate()
+      })
+
+    }
+    
 
     if (this.props.courseId) {
       // add course code tag
@@ -446,6 +459,11 @@ export class QuestionEditItem extends Component {
       })
     }
 
+    user = Meteor.user()
+    //For some reason, using the Select component gives an error about courseTags and possibleTags???
+    //Disable for now
+    const selectOnly = false //( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse()) 
+
     const radioOptions = [
       { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },
       { value: QUESTION_TYPE.MS, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MS] },
@@ -501,14 +519,23 @@ export class QuestionEditItem extends Component {
             : '' }
           <div className='row'>
             <div className='col-md-12 metadata-row'>
-              <Creatable
-                name='tag-input'
-                placeholder='Tags'
-                multi
-                value={this.state.tags}
-                options={this.tagSuggestions}
-                onChange={this.addTag}
-              />
+            {selectOnly ? <Select
+                  name='tag-input'
+                  placeholder='Tags'
+                  multi
+                  value={this.state.tags ? this.state.tags : [''] }
+                  options={this.tagSuggestions ? this.tagSuggestions : [{value:'',label:''}] }
+                  onChange={this.addTag}
+                /> : <Creatable
+                  name='tag-input'
+                  placeholder='Tags'
+                  multi
+                  value={this.state.tags}
+                  options={this.tagSuggestions}
+                  onChange={this.addTag}
+                />
+            }
+
             </div>
             <div className='col-md-12 question-row'>
               <Editor

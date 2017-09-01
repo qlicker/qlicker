@@ -309,9 +309,10 @@ Meteor.methods({
 
   /**
    * returns a list of autocomplete tag sugguestions for the current user
+   * if courseIdForStudent is passed, it limits tags to those from questions in that course
     * @returns {String[]} array of string tags
    */
-  'questions.possibleTags' () {
+  'questions.possibleTags' (courseIdForStudent) {
     let tags = new Set()
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasGreaterRole('professor') || Courses.findOne({ instructors: this.userId })) {
@@ -331,7 +332,7 @@ Meteor.methods({
       const questions = Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
-        approved: false
+        approved: true //false would find the tags that students created
       })
 
       questions.forEach((q) => {
@@ -339,18 +340,30 @@ Meteor.methods({
           tags.add(t.label.toUpperCase())
         })
       })
-    } else {
+    } else {//most likely a student contributing a question:
       const coursesArray = user.profile.courses || []
-      const courses = Courses.find({ _id: { $in: coursesArray } }).fetch()
+      const courses = courseIdForStudent ?  Courses.find({ _id: courseIdForStudent}) :
+                        Courses.find({ _id: { $in: coursesArray } }).fetch()
       courses.forEach(c => {
         tags.add(c.courseCode().toUpperCase())
       })
-      const profQuestions = Questions.find({ owner: Meteor.userId() }).fetch()
-      profQuestions.forEach((q) => {
+      /*
+      //tags that the student has created
+      const userQuestions = Questions.find({ owner: Meteor.userId() }).fetch()
+      userQuestions.forEach((q) => {
+        q.tags.forEach((t) => {
+          tags.add(t.label.toUpperCase())
+        })
+      })*/
+      //get tags related to the course (if specified), otherwise, tags for all courses in profile:
+      const courseQuestions = courseIdForStudent ?  Questions.find ( {courseId: courseIdForStudent, approved:true }).fetch():
+                                Questions.find ( {courseId:{$in: coursesArray}, approved:true }).fetch()
+      courseQuestions.forEach((q) => {
         q.tags.forEach((t) => {
           tags.add(t.label.toUpperCase())
         })
       })
+
     }
 
     return [...tags]
