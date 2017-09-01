@@ -35,14 +35,14 @@ export class _SessionResults extends Component {
       {
         this.props.session.questions.map(qId => {
           const q = this.props.questions[qId]
-          return (<div key = {'question_' + qId}>
+          return (<div key = {'questionResult_' + qId}>
             <a role='button' data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
-              <QuestionResultsListItem  key = {'qresult_' + qId} question={q} session={this.props.session} />
+              <QuestionResultsListItem question={q} session={this.props.session} />
             </a>
-            <div  key = {'collapsek_' + qId} className='collapse' id={'collapse_' + qId}>
-              <div  key = {'qrow_' + qId} className='row'>
-                <div  key = {'qdiv1_' + qId} className='col-md-5'><QuestionResultsClassList  key = {'qclassList_' + qId} question={q} session={this.props.session} /></div>
-                <div  key = {'qdiv2_' + qId} className='col-md-7'>
+            <div className='collapse' id={'collapse_' + qId}>
+              <div  className='row'>
+                <div  className='col-md-5'><QuestionResultsClassList question={q} session={this.props.session} /></div>
+                <div  className='col-md-7'>
                   {
                     q && q.type !== QUESTION_TYPE.SA // option based questions
                     ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div> : ''

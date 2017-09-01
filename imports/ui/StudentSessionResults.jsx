@@ -25,9 +25,9 @@ export class _StudentSessionResults extends Component {
             <a role='button' data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
               <StudentQuestionResultsListItem key = {'qresult_'+qId} question={q} session={this.props.session} index={index} />
             </a>
-            <div key = {'collapsek_' + qId} className='collapse' id={'collapse_' + qId}>
+            <div  className='collapse' id={'collapse_' + qId}>
               <div className='row'>
-                <StudentQuestionResultsClassList key = {'clist_'+qId} question={q} />
+                <StudentQuestionResultsClassList question={q} />
               </div>
             </div>
           </div>)
