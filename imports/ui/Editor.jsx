@@ -149,7 +149,7 @@ export class Editor extends Component {
     const plchldr = this.props.placeholder || ''
     return (<div className={'editor-wrapper ' + this.props.className}>
       <div className='ckeditor-wrapper'>
-        <textarea ref='theEditor' className='wysiwyg-editor' value={this.state.val || ''} placeholder={plchldr} />
+        <textarea ref='theEditor' className='wysiwyg-editor' defaultValue={this.state.val || ''} placeholder={plchldr} />
       </div>
     </div>)
   } //  end render
