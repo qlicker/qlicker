@@ -24,11 +24,12 @@ class _Course extends Component {
   }
 
   sessionClickHandler (session) {
-    if (session.status === 'done') {
-      Router.go('student.results', { studentId: Meteor.userId(), courseId: this.props.course._id })
-    } else {
+    //Disabled the student.results route for now:
+    //if (session.status === 'done') {
+    //  Router.go('student.results', { studentId: Meteor.userId(), courseId: this.props.course._id })
+    //} else {
       Router.go('session', { _id: session._id })
-    }
+    //}
   }
 
   renderSessionList () {
@@ -79,4 +80,3 @@ export const Course = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _Course)
-
