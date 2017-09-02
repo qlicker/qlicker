@@ -125,7 +125,8 @@ export class QuestionEditItem extends Component {
       })
     }
 
-    if (!this.props.courseId && !this.props.question.courseId) {
+    //if (!this.props.courseId && !this.props.question.courseId) {
+    if(user.isInstructorAnyCourse()){
       Meteor.call('courses.getCourseTags', (e, d) => {
         this.setState({courses: d})
       })
@@ -370,6 +371,10 @@ export class QuestionEditItem extends Component {
       this.setState({courseId: e.target.value}, () => {
         this.saveQuestion()
       })
+    }else{
+      this.setState({courseId: null}, () => {
+        this.saveQuestion()
+      })
     }
   }
 
@@ -462,6 +467,19 @@ export class QuestionEditItem extends Component {
       })
     }
 
+    //Useed to decide which course to select by default in dropdown
+    questionCourseId=-1
+    if(this.props.courseId || this.props.question.courseId){
+      if(this.props.courseId && this.props.question &&
+         this.props.question.courseId&& this.props.courseId === this.props.question.courseId){
+        questionCourseId = this.props.courseId
+      }else if(this.props.question && this.props.question.courseId){
+        questionCourseId = this.props.question.courseId
+      }else if(this.props.courseId){
+        questionCourseId = this.props.courseId
+      }else{}
+    }
+
     user = Meteor.user()
     //For some reason, using the Select component gives an error about courseTags and possibleTags???
     //Disable for now
@@ -504,20 +522,18 @@ export class QuestionEditItem extends Component {
                   </button>
                 </div>
               </div>
-              { !this.props.courseId && !this.props.question.courseId
-                ? <div className='col-md-6'>
-                  <select className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
-                    <option key={-1} value={-1}>No course</option>
-                    { this.state.courses
-                      ? this.state.courses.map((obj) => {
-                        return <option key={obj._id} value={obj._id}>{ obj.code }</option>
-                      })
-                      : ''
-                    }
-                  </select>
-                </div>
-                : ''
-              }
+              <div className='col-md-6'>
+                <select value = {questionCourseId} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
+                  <option key={-1} value={-1} >No course</option>
+                  { this.state.courses
+                   ? this.state.courses.map((obj) => {
+                      return <option key={obj._id} value={obj._id} >{ obj.code }</option>
+                     })
+                   : ''
+                  }
+                </select>
+              </div>
+
             </div>
             : '' }
           <div className='row'>
