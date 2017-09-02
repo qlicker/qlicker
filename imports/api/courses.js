@@ -373,7 +373,7 @@ Meteor.methods({
    * @returns {String} obj.code
    */
   'courses.getCourseTags' () {
-    const courses = Courses.find({ instructors: Meteor.userId}).fetch()
+    const courses = Courses.find({ instructors: Meteor.userId()}).fetch()
     return _.map(courses, (course) => { return {_id: course._id, code: course.courseCode().toUpperCase()} })
   },
 
@@ -414,4 +414,3 @@ Meteor.methods({
   }
 
 }) // end Meteor.methods
-

@@ -33,7 +33,7 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: _.extend({}, this.props.session),
-      questionPool: Meteor.user().hasRole('professor') ? 'library' : 'public',
+      questionPool: Meteor.user().isInstructorAnyCourse() ? 'library' : 'public',
       limit: 11,
       query: {query: {}, options: {}}
     }
@@ -536,4 +536,3 @@ export const ManageSession = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _ManageSession)
-

@@ -31,5 +31,3 @@ export const StudentQuestionListItem = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _StudentQuestionListItem)
-
-
