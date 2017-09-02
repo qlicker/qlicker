@@ -8,6 +8,8 @@ import _ from 'underscore'
 import $ from 'jquery'
 
 import { Creatable } from 'react-select'
+//The Select component has to be imported without {}
+//https://github.com/JedWatson/react-select/issues/741
 import Select from 'react-select'
 
 import { Editor } from './Editor'
