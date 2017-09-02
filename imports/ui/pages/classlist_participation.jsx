@@ -43,7 +43,9 @@ class _ClasslistParticipation extends Component {
       let element = document.createElement('canvas')
       let context = element.getContext('2d')
       const width = (context.measureText(text).width + 30)
-      return width > 300 ? 300 : width
+      if (width < 110 )return 110
+      else if (width > 300)return 300
+      else return width
     }
 
     const NameCell = ({rowIndex}) => <Cell>{ this.props.students[rowIndex].getName() }</Cell>
@@ -65,7 +67,7 @@ class _ClasslistParticipation extends Component {
 
           <div className='ql-header-bar'>
             <div className='row'>
-              <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.course.fullCourseCode()}</span>: Class Participation List</h4>
+              <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.course.fullCourseCode()}</span>: Results (participation/grade)</h4>
               </div>
               <div className='col-xs-2'>
                 <span className='pull-right'><CourseResultsDownloader course={this.props.course} /></span>
@@ -81,7 +83,7 @@ class _ClasslistParticipation extends Component {
               height={window.innerHeight - (window.innerHeight * 0.30)}
               headerHeight={50}>
               <Column
-                header={<Cell>First, Last</Cell>}
+                header={<Cell>Last, First</Cell>}
                 cell={<NameCell />}
                 fixed
                 width={170}
@@ -91,7 +93,7 @@ class _ClasslistParticipation extends Component {
                   key={sId}
                   header={<Cell onClick={_ => Router.go('session.results', { sessionId: sId })}><a href='#'>{this.props.sessionMap[sId].name}</a></Cell>}
                   cell={<PercentageCell sId={sId} />}
-                  width={getTextWidth(this.props.sessionMap[sId].name)}
+                  width={getTextWidth(this.props.sessionMap[sId].name) }
                 />
               ) }
 
@@ -143,4 +145,3 @@ export const ClasslistParticipationPage = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _ClasslistParticipation)
-
