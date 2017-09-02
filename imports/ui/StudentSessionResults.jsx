@@ -21,11 +21,11 @@ export class _StudentSessionResults extends Component {
       {
         this.props.session.questions.map((qId, index) => {
           const q = this.props.questions[qId]
-          return (<div>
+          return (<div  key = {'qdiv_' + qId}>
             <a role='button' data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
-              <StudentQuestionResultsListItem question={q} session={this.props.session} index={index} />
+              <StudentQuestionResultsListItem key = {'qresult_'+qId} question={q} session={this.props.session} index={index} />
             </a>
-            <div className='collapse' id={'collapse_' + qId}>
+            <div  className='collapse' id={'collapse_' + qId}>
               <div className='row'>
                 <StudentQuestionResultsClassList question={q} />
               </div>
@@ -57,4 +57,3 @@ export const StudentSessionResults = createContainer((props) => {
 StudentSessionResults.propTypes = {
   session: PropTypes.object.isRequired
 }
-

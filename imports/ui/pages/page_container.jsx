@@ -127,14 +127,20 @@ export const PageContainer = createContainer(() => {
   const handle = Meteor.subscribe('courses')
   let courses
   const user = Meteor.user()
-
+/*
+  const cArr = user.profile.courses || []
+  courses = Courses.find({$or: [ { instructors: Meteor.userId() , inactive: { $in: [null, false] } },
+                                 { _id: { $in: cArr }, inactive: { $in: [null, false] } } ] })
+*/
+ 
   if (user.hasRole('professor')) {
-    courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
+    //courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
+    courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } })
   } else {
     const cArr = user.profile.courses || []
     courses = Courses.find({ _id: { $in: cArr }, inactive: { $in: [null, false] } })
   }
-
+ 
   return {
     courses: courses.fetch(),
     loading: !handle.ready()

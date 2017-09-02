@@ -36,6 +36,9 @@ _.extend(User.prototype, {
   hasRole: function (role) {
     return this.profile.roles.indexOf(role) !== -1
   },
+  isInstructorAnyCourse: function(){
+    return Courses.findOne({ instructors: this._id }) ? true:false
+  },
   isInstructor: function (courseId) {
     if (!courseId) return false
     check(courseId, Helpers.MongoID)
