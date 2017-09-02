@@ -206,7 +206,7 @@ Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
     //could the myTAs be wrong for a TA???
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('users.myTAs')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') /*&& Meteor.subscribe('users.myTAs')*/
   },
   action: function () {
     if (Meteor.userId() && Meteor.user().hasGreaterRole('professor')) {
