@@ -205,6 +205,7 @@ import { Course } from '../../ui/pages/student/course'
 Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
+    //could the myTAs be wrong for a TA???
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('users.myTAs')
   },
   action: function () {
@@ -315,7 +316,7 @@ Router.route('/session/edit/:_id', {
   action: function () {
     const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
     const isInstructor = Meteor.user().isInstructor(cId)
-    if (Meteor.userId() && Meteor.user().hasGreaterRole('professor') || isInstructor) {
+    if (Meteor.userId() && isInstructor) {
       mount(AppLayout, { content: <PageContainer> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
