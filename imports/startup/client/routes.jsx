@@ -24,6 +24,7 @@ Router.configure({
 })
 Router.onBeforeAction(function () {
   this.render('blank') // workaround for mounting react without blaze template
+  if (!Meteor.userId()) Router.go('login')
   this.next()
 })
 
@@ -96,7 +97,7 @@ Router.route('/admin', {
   },
   action: function () {
     let user = Meteor.user()
-    if (user.hasRole('admin')) {
+    if (Meteor.userId() && user.hasRole('admin')) {
       mount(AppLayout, { content: <PageContainer user={user}> <AdminDashboard /> </PageContainer> })
     } else Router.go('login')
   }
@@ -112,7 +113,7 @@ Router.route('/manage', {
   },
   action: function () {
     let user = Meteor.user()
-    if (user.hasRole('professor')) {
+    if (Meteor.userId() && user.hasRole('professor')) {
       mount(AppLayout, { content: <PageContainer user={user}> <ProfessorDashboard /> </PageContainer> })
     } else Router.go('login')
   }
@@ -127,7 +128,7 @@ Router.route('/questions/library/:_id?', {
   },
   action: function () {
     const isInstructor = Courses.findOne({instructors: Meteor.userId()}) || Meteor.user().hasRole('professor')
-    if (isInstructor) {
+    if (Meteor.userId() && isInstructor) {
       mount(AppLayout, { content: <PageContainer user={Meteor.user()}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
@@ -143,7 +144,7 @@ Router.route('/questions/public', {
   action: function () {
     let user = Meteor.user()
     const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
-    if (isInstructor) {
+    if (Meteor.userId() && isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
   }
@@ -159,7 +160,7 @@ Router.route('/questions/submissions', {
   action: function () {
     let user = Meteor.user()
     const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
-    if (isInstructor) {
+    if (Meteor.userId() && isInstructor) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
     } else Router.go('login')
   }
@@ -176,7 +177,7 @@ Router.route('/courses', {
   },
   action: function () {
     let user = Meteor.user()
-    if (user.hasGreaterRole('professor')) {
+    if (Meteor.userId() && user.hasGreaterRole('professor')) {
       mount(AppLayout, { content: <PageContainer user={user}> <ManageCourses /> </PageContainer> })
     } else Router.go('login')
   }
@@ -192,7 +193,7 @@ Router.route('/student', {
   },
   action: function () {
     let user = Meteor.user()
-    if (user.hasGreaterRole('student')) {
+    if (Meteor.userId() && user.hasGreaterRole('student')) {
       mount(AppLayout, { content: <PageContainer user={user}> <StudentDashboard /> </PageContainer> })
     } else Router.go('login')
   }
@@ -207,7 +208,7 @@ Router.route('/course/:_id', {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('users.myTAs')
   },
   action: function () {
-    if (Meteor.user().hasGreaterRole('professor')) {
+    if (Meteor.userId() && Meteor.user().hasGreaterRole('professor')) {
       mount(AppLayout, {content: <PageContainer> <ManageCourse courseId={this.params._id}/> </PageContainer>})
     } else if (Meteor.user().isInstructor(this.params._id)) {
       mount(AppLayout, {content: <PageContainer> <ManageCourse isInstructor courseId={this.params._id}/> </PageContainer>})
@@ -225,7 +226,8 @@ Router.route('/courses/results', {
   },
   action: function () {
     const u = Meteor.user()
-    if (u) {
+    const isInstructorAnyCourse = u.isInstructorAnyCourse()
+    if (u && isInstructorAnyCourse) {
       mount(AppLayout, { content: <PageContainer> <ResultsOverview /> </PageContainer> })
     } else Router.go('login')
   }
@@ -238,7 +240,9 @@ Router.route('/course/:_id/results', {
     return Meteor.subscribe('userData')
   },
   action: function () {
-    if (Meteor.user()) {
+    const u = Meteor.user()
+    const isInstructorAnyCourse = u.isInstructorAnyCourse()
+    if (u && isInstructorAnyCourse) {
       mount(AppLayout, { content: <PageContainer> <ClasslistParticipationPage courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
@@ -251,11 +255,18 @@ Router.route('/results/session/:sessionId', {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
   },
   action: function () {
-    if (Meteor.user()) {
+    const sess = Sessions.findOne({_id:this.params.sessionId})
+    const cId = sess ? sess.courseId : 0
+    user = Meteor.user()
+    if (user && user.isInstructor(cId)) {
       mount(AppLayout, { content: <PageContainer> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
+/*
+//This route does not currently work, assume that StudentResultsPage is not working.
+//Should be able to handle this route from course/:id/results instead and reuse
+//the same component but with different subscrption.
 
 import { StudentResultsPage } from '../../ui/pages/student_results'
 Router.route('/results/:studentId/:courseId', {
@@ -270,7 +281,7 @@ Router.route('/results/:studentId/:courseId', {
       </PageContainer> })
     } else Router.go('login')
   }
-})
+})*/
 
 import { StudentSessionResultsPage } from '../../ui/pages/student_session_results'
 Router.route('/results/:sessionId', {
@@ -279,7 +290,11 @@ Router.route('/results/:sessionId', {
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
   },
   action: function () {
-    if (Meteor.user()) {
+    const user = Meteor.user()
+    const sess = Sessions.findOne({_id:this.params.sessionId})
+    const cId = sess ? sess.courseId : 0
+    const course = Courses.find({ cId: { $in: user.profile.courses}})
+    if(user && cId && course) {
       mount(AppLayout, { content: <PageContainer>
         <StudentSessionResultsPage sessionId={this.params.sessionId} studentId={Meteor.userId()} />
       </PageContainer> })
@@ -300,7 +315,7 @@ Router.route('/session/edit/:_id', {
   action: function () {
     const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
     const isInstructor = Meteor.user().isInstructor(cId)
-    if (Meteor.user().hasGreaterRole('professor') || isInstructor) {
+    if (Meteor.userId() && Meteor.user().hasGreaterRole('professor') || isInstructor) {
       mount(AppLayout, { content: <PageContainer> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
@@ -315,7 +330,7 @@ Router.route('/session/run/:_id', {
   action: function () {
     const sess = Sessions.findOne(this.params._id)
     const cId = sess ? sess.courseId : ''
-    if (Meteor.user().isInstructor(cId)) {
+    if (Meteor.userId() && Meteor.user().isInstructor(cId)) {
       mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} courseId={cId} /> </PageContainer> })
     } else Router.go('login')
   }

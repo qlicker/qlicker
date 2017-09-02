@@ -305,7 +305,7 @@ export class _QuestionDisplay extends Component {
   }
 
   renderShortAnswer (q) {
-    if (this.props.forReview) return <h4 style={{'align-self': 'left'}}>{q.options[0].plainText}</h4>
+    if (this.props.forReview) return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
     let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
     return (
       <div className='ql-short-answer'>
