@@ -129,9 +129,16 @@ class _ManageCourse extends Component {
     })
   }
   renderSessionList () {
+    let sessions = this.props.sessions
+    const statusSort = {hidden:2, visible:3, running:1, done:4}
+    sessions = _(sessions).chain().sortBy( function(ses){
+                   return ses.date
+                 }).reverse().sortBy( function(ses){
+                   return statusSort[ses.status]
+                 }).value()
     return (<div>
       {
-        this.props.sessions.map((ses) => {
+        sessions.map((ses) => {
           if (!ses) return
           const sId = ses._id
           const nav = () => {
@@ -197,7 +204,7 @@ class _ManageCourse extends Component {
             role='Student'
             controls={[
               { label: 'View details', click: () => this.toggleProfileViewModal(stu)},
-              { label: 'Remove from Course', click: () => this.removeStudent(sId) }
+              { label: 'Remove student from course', click: () => this.removeStudent(sId) }
             ]} />)
         })
       }
@@ -207,7 +214,7 @@ class _ManageCourse extends Component {
           if (!TA) return
           let controls = [{label: 'View details', click: () => this.toggleProfileViewModal(TA)}]
           if (sId !== this.props.course.owner && sId !== uid ) {
-            controls.push({ label: 'Remove from Course', click: () => this.removeTA(sId) })
+            controls.push({ label: 'Remove instructor from course', click: () => this.removeTA(sId) })
           }
 
           return (<StudentListItem
