@@ -14,6 +14,7 @@ import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
 import { PickCourseModal } from '../../modals/PickCourseModal'
 import { AddTAModal } from '../../modals/AddTAModal'
+import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
 import { ROLES } from '../../../configs'
 
@@ -28,6 +29,7 @@ class _ManageCourse extends Component {
     this.state = {
       creatingSession: false,
       copySessionModal: false,
+      profileViewModal: false,
       addTAModal: false,
       sessionToCopy: null,
       expandedClasslist: false
@@ -42,10 +44,15 @@ class _ManageCourse extends Component {
     this.setActive = this.setActive.bind(this)
     this.toggleVerification = this.toggleVerification.bind(this)
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
+    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
     this.setState({ copySessionModal: !this.state.copySessionModal, sessionToCopy: sessionId })
+  }
+
+  toggleProfileViewModal (userToView = null) {
+    this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
 
   copySession (sessionId, courseId = null) {
@@ -186,8 +193,10 @@ class _ManageCourse extends Component {
             key={sId}
             courseId={this.courseId}
             student={stu}
+            click={() => this.toggleProfileViewModal(stu)}
             role='Student'
             controls={[
+              { label: 'View details', click: () => this.toggleProfileViewModal(stu)},
               { label: 'Remove from Course', click: () => this.removeStudent(sId) }
             ]} />)
         })
@@ -196,14 +205,18 @@ class _ManageCourse extends Component {
         TAs.map((sId) => {
           const TA = this.props.TAs[sId]
           if (!TA) return
+          let controls = [{label: 'View details', click: () => this.toggleProfileViewModal(TA)}]
+          if (sId !== this.props.course.owner && sId !== uid ) {
+            controls.push({ label: 'Remove from Course', click: () => this.removeTA(sId) })
+          }
+
           return (<StudentListItem
             key={sId}
             courseId={this.courseId}
             student={TA}
+            click={() => this.toggleProfileViewModal(TA)}
             role={sId === this.props.course.owner ? 'Owner' : 'Instructor'}
-            controls={ (sId === this.props.course.owner) || (sId === uid ) ? []:
-              [{ label: 'Remove from Course', click: () => this.removeTA(sId) }]
-            } />)
+            controls={controls} />)
         })
       }
       { totalStudents > maxNum
@@ -291,6 +304,11 @@ class _ManageCourse extends Component {
             selected={(courseId) => this.copySession(this.state.sessionToCopy, courseId)}
             done={this.toggleCopySessionModal} />
           : '' }
+        { this.state.profileViewModal
+          ? <ProfileViewModal
+             user={this.state.userToView}
+             done={this.toggleProfileViewModal}/>
+        : '' }
       </div>)
   }
 

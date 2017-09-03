@@ -167,7 +167,7 @@ class _AdminDashboard extends Component {
           <input className='form-control' type='email' onChange={setEmail} placeholder='Email' />
           <select className='form-control' onChange={setUserRole} value={this.state.role}>
             <option value='' disabled>Select a role for the user</option>
-            { Object.keys(ROLES).map((r) => <option value={ROLES[r]}>{ROLES[r]}</option>)}
+            { Object.keys(ROLES).map((r) => <option key={"set_role_"+ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
           </select>
           <input type='submit' className='btn btn-primary' value='Set User Role' />
         </form>
@@ -190,7 +190,7 @@ class _AdminDashboard extends Component {
           <input type='submit' className='btn btn-primary' value='Set' />
         </form>
 
-        <h4>Set user role by email</h4>
+        <h4>Validate user's email</h4>
         <form ref='verifyForm' onSubmit={this.verifyEmail} className='form-inline'>
           <input className='form-control' type='email' onChange={setVerifyEmail} placeholder='Email' />
           <input type='submit' className='btn btn-primary' value='Verify Email' />
@@ -207,12 +207,13 @@ class _AdminDashboard extends Component {
         <br />
         <h4>Users with elevated privileges</h4>
         <table className='table table-bordered'>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Change Role</th>
-          </tr>
           <tbody>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Change Role</th>
+            </tr>
+          
             {
               this.props.users.map((u) => {
                 return (<tr key={u._id}>
@@ -220,7 +221,7 @@ class _AdminDashboard extends Component {
                   <td>{u.getEmail()}</td>
                   <td>
                     <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
-                      { Object.keys(ROLES).map((r) => <option value={ROLES[r]}>{ROLES[r]}</option>)}
+                      { Object.keys(ROLES).map((r) => <option key={"role_"+ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
                     </select>
                   </td>
                 </tr>)
