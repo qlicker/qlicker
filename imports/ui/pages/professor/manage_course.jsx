@@ -157,8 +157,19 @@ class _ManageCourse extends Component {
   }
 
   renderClassList () {
+    uid = Meteor.userId()
     let students = this.props.course.students || []
+    //then sort alphabetically
+    students = _(students).sortBy(function(id){
+            return (this.props.students[id] ?
+                    this.props.students[id].profile.lastname
+                   :'0') }.bind(this))
+
     let TAs = this.props.course.instructors || []
+    TAs = _(TAs).sortBy(function(id){
+            return (this.props.TAs[id] ?
+                    this.props.TAs[id].profile.lastname
+                   :'0') }.bind(this))
 
     const maxNum = 8
     const totalStudents = students.length + TAs.length
@@ -181,7 +192,7 @@ class _ManageCourse extends Component {
             ]} />)
         })
       }
-      {
+      { //TA cannot remove self, course owner cannot be removed by anyone
         TAs.map((sId) => {
           const TA = this.props.TAs[sId]
           if (!TA) return
@@ -190,9 +201,9 @@ class _ManageCourse extends Component {
             courseId={this.courseId}
             student={TA}
             role={sId === this.props.course.owner ? 'Owner' : 'Instructor'}
-            controls={[
-              { label: 'Remove from Course', click: () => this.removeTA(sId) }
-            ]} />)
+            controls={ (sId === this.props.course.owner) || (sId === uid ) ? []:
+              [{ label: 'Remove from Course', click: () => this.removeTA(sId) }]
+            } />)
         })
       }
       { totalStudents > maxNum
