@@ -33,21 +33,22 @@ export class ProfileViewModal extends ControlledForm {
     return ( this.props.user ?
       <div className='ql-modal-container' onClick={this.done}>
         <div className='row'>
-          <div className='col-md-4' />
-          <div className='col-md-4'>
-            <div className='ql-profile-card  ql-card' onClick={this.preventPropagation}>
+          <div className='col-md-3' />
+          <div className='col-md-6'>
+            <div className='ql-profile-card  ql-card' onClick={this.done}>
                <div className='profile-header ql-header-bar'><h3>{this.props.user.profile.lastname}, {this.props.user.profile.firstname}  </h3></div>
                <div className='ql-card-content'>
                   <div className='ql-profile-image-container'>
-                    <img className="img-responsive" src={this.props.user.getImageUrl() } />
+                    <img className="img-responsive center-block" src={this.props.user.getImageUrl() } />
                  </div>
+                 <br/>
                  <div className='btn-group btn-group-justified' role='group' aria-label='...'>
                     <a className='btn btn-default' onClick={this.done}>Close</a>
                  </div>
                </div>
             </div>
         </div>
-        <div className='col-md-4' />
+        <div className='col-md-3' />
       </div>
     </div>: 'Loading')
   } //  end render
