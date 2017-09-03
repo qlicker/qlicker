@@ -164,6 +164,7 @@ class _ManageCourse extends Component {
   }
 
   renderClassList () {
+<<<<<<< HEAD
     uid = Meteor.userId()
     let students = this.props.course.students || []
     //then sort alphabetically
@@ -172,6 +173,10 @@ class _ManageCourse extends Component {
                     this.props.students[id].profile.lastname
                    :'0') }.bind(this))
 
+=======
+    //let students = this.props.course.students || []
+    let students = this.props.students || []
+>>>>>>> d404d2d28fb6133ce8cfdfc863f2bb48ca92b2c0
     let TAs = this.props.course.instructors || []
     TAs = _(TAs).sortBy(function(id){
             return (this.props.TAs[id] ?
@@ -186,8 +191,9 @@ class _ManageCourse extends Component {
     const expandText = !this.state.expandedClasslist ? 'Show More' : 'Show Less'
     return (<div>
       {
-        students.map((sId) => {
-          const stu = this.props.students[sId]
+        students.map((stu) => {
+          //const stu = this.props.students[sId]
+          sId = stu._id
           if (!stu) return
           return (<StudentListItem
             key={sId}
@@ -334,7 +340,7 @@ export const ManageCourse = createContainer((props) => {
   return {
     course: course,
     sessions: sessions,
-    students: _(students).indexBy('_id'),
+    students: _( students).sortBy(function(st){return st.profile.lastname}),
     TAs: _(TAs).indexBy('_id'),
     loading: !handle.ready()
   }
