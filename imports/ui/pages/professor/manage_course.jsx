@@ -41,6 +41,7 @@ class _ManageCourse extends Component {
     this.deleteCourse = this.deleteCourse.bind(this)
     this.setActive = this.setActive.bind(this)
     this.toggleVerification = this.toggleVerification.bind(this)
+    this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -114,7 +115,12 @@ class _ManageCourse extends Component {
       alertify.success('Email verification' + (this.props.course.requireVerified ? '' : ' not') + ' required')
     })
   }
-
+  generateNewCourseCode (){
+    Meteor.call('courses.regenerateCode', this.courseId, (error) => {
+      if (error) return alertify.error('Error: could not update enrollment code')
+      alertify.success('Enrollment code updated')
+    })
+  }
   renderSessionList () {
     return (<div>
       {
@@ -235,6 +241,7 @@ class _ManageCourse extends Component {
                   <span className='ql-course-semester'> { this.props.course.semester }</span>
                   <br />
                   Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
+                  <a href="#" onClick={this.generateNewCourseCode}>&nbsp;&nbsp;new</a>
                 </div>
               </div>
             </div>
@@ -303,4 +310,3 @@ export const ManageCourse = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _ManageCourse)
-
