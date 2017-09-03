@@ -157,7 +157,8 @@ class _ManageCourse extends Component {
   }
 
   renderClassList () {
-    let students = this.props.course.students || []
+    //let students = this.props.course.students || []
+    let students = this.props.students || []
     let TAs = this.props.course.instructors || []
 
     const maxNum = 8
@@ -168,8 +169,9 @@ class _ManageCourse extends Component {
     const expandText = !this.state.expandedClasslist ? 'Show More' : 'Show Less'
     return (<div>
       {
-        students.map((sId) => {
-          const stu = this.props.students[sId]
+        students.map((stu) => {
+          //const stu = this.props.students[sId]
+          sId = stu._id
           if (!stu) return
           return (<StudentListItem
             key={sId}
@@ -305,7 +307,7 @@ export const ManageCourse = createContainer((props) => {
   return {
     course: course,
     sessions: sessions,
-    students: _(students).indexBy('_id'),
+    students: _( students).sortBy(function(st){return st.profile.lastname}),
     TAs: _(TAs).indexBy('_id'),
     loading: !handle.ready()
   }
