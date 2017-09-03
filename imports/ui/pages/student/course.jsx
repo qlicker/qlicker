@@ -35,6 +35,13 @@ class _Course extends Component {
   renderSessionList () {
     // let sessions = this.props.course.sessions || []
     let sessions = this.props.sessions || []
+    const statusSort = {hidden:2, visible:3, running:1, done:4}
+    sessions = _(sessions).chain().sortBy( function(ses){
+                   return ses.date
+                 }).reverse().sortBy( function(ses){
+                   return statusSort[ses.status]
+                 }).value()
+
     return (<div>
       {
         sessions.map((s) => (<SessionListItem

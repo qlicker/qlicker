@@ -272,7 +272,7 @@ class _ManageCourse extends Component {
                   <span className='ql-course-semester'> { this.props.course.semester }</span>
                   <br />
                   Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
-                  <a href="#" onClick={this.generateNewCourseCode}>&nbsp;&nbsp;new</a>
+                  &nbsp;&nbsp;<a href="#" onClick={this.generateNewCourseCode}>new</a>
                 </div>
               </div>
             </div>
