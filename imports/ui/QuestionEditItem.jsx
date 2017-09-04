@@ -7,10 +7,10 @@ import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 import $ from 'jquery'
 
-import { Creatable } from 'react-select'
+import  Select, { Creatable } from 'react-select'
 //The Select component has to be imported without {}
 //https://github.com/JedWatson/react-select/issues/741
-import Select from 'react-select'
+//import Select from 'react-select'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
@@ -121,7 +121,7 @@ export class QuestionEditItem extends Component {
     if (this.props.courseId) {
       // add course code tag
       Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
-        this.setState({ tags: [tag] })
+        if(tag) this.setState({ tags: [tag] })
       })
     }
 

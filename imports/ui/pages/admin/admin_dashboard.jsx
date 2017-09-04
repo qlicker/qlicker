@@ -26,7 +26,7 @@ class _AdminDashboard extends Component {
       size: p.settings.maxImageSize,
       width: p.settings.maxImageWidth,
       supportEmail: p.settings.email,
-      requireVerified: p.settings.requireVerified//,
+      requireVerified: p.settings.requireVerified
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -120,7 +120,7 @@ class _AdminDashboard extends Component {
         <h2>Admin User Management</h2>
         <br />
 
-        <h4>Maximum image size (MB)</h4>
+        <h4>Maximum image size (in MB, after rescaling to max width)</h4>
         <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
           <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
           <input type='submit' className='btn btn-primary' value='Set' />
@@ -212,7 +212,7 @@ class _AdminDashboard extends Component {
 
 export const AdminDashboard = createContainer(() => {
   const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings')
-                && Meteor.subscribe('users') &&  Meteor.subscribe('courses')
+                && Meteor.subscribe('courses')
   const courses = Courses.find().fetch()
   let courseNames = {}
   courses.map( (c)=>{

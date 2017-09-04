@@ -102,7 +102,7 @@ class _PageContainer extends Component {
                   <ul className='dropdown-menu'>
                     <li><a className='close-nav' href={Router.routes['profile'].path()}>Profile</a></li>
                     {/* <li><a href='#'>Settings</a></li> */}
-                    {this.state.user.hasRole('professor') ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote Account</a></li> : ''}
+                    {this.state.user.hasGreaterRole('professor') ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote Account</a></li> : ''}
                     <li role='separator' className='divider' />
                     <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
                   </ul>
@@ -114,7 +114,7 @@ class _PageContainer extends Component {
 
         <div className='ql-child-container'>
           { this.props.children }
-          { this.state.user.hasRole('professor') && this.state.promotingAccount
+          { this.state.user.hasGreaterRole('professor') && this.state.promotingAccount
             ? <PromoteAccountModal done={togglePromotingAccount} />
             : '' }
         </div>
@@ -132,15 +132,15 @@ export const PageContainer = createContainer(() => {
   courses = Courses.find({$or: [ { instructors: Meteor.userId() , inactive: { $in: [null, false] } },
                                  { _id: { $in: cArr }, inactive: { $in: [null, false] } } ] })
 */
- 
-  if (user.hasRole('professor')) {
+
+  if (user.hasGreaterRole('professor')) {
     //courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
     courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } })
   } else {
     const cArr = user.profile.courses || []
     courses = Courses.find({ _id: { $in: cArr }, inactive: { $in: [null, false] } })
   }
- 
+
   return {
     courses: courses.fetch(),
     loading: !handle.ready()
