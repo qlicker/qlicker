@@ -39,6 +39,7 @@ class _ManageCourses extends Component {
 
   doneCreatingCourse (e) {
     this.setState({ creatingCourse: false })
+    Meteor.setTimeout(this.forceUpdate,500)
   }
 
   renderCourseList (cList) {
@@ -64,7 +65,7 @@ class _ManageCourses extends Component {
         <div className='ql-courselist'>
           { this.renderCourseList(this.props.courses.filter((c) => c.inactive)) }
         </div>
-        
+
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
       </div>)
   }
@@ -78,4 +79,3 @@ export const ManageCourses = createContainer(() => {
     loading: !handle.ready()
   }
 }, _ManageCourses)
-

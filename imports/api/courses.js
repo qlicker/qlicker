@@ -51,7 +51,9 @@ if (Meteor.isServer) {
   Meteor.publish('courses', function () {
     if (this.userId) {
       let user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
+      if (user.hasGreaterRole(ROLES.admin)){
+        return Courses.find()
+      }else if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
         return Courses.find({ _id: { $in: user.profile.courses || [] } }) // finds all the course owned
       } else {
         let coursesArray = user.profile.courses || []
@@ -78,7 +80,7 @@ if (Meteor.isServer) {
         const userCursor = Meteor.users.find({ _id: this.userId })
         const handle = userCursor.observeChanges({
           changed: (id, fields) => {
-            const updatedCoursesArray = fields.profile.courses
+            const updatedCoursesArray = fields.profile && fields.profile.courses? fields.profile.courses: [] 
             const newCourseIds = _.difference(updatedCoursesArray, coursesArray)
 
             newCourseIds.forEach((cId) => {
@@ -363,10 +365,23 @@ Meteor.methods({
    */
   'courses.getCourseCodeTag' (courseId) {
     check(courseId, Helpers.MongoID)
-    const c = Courses.findOne(courseId).courseCode().toUpperCase()
-    return { value: c, label: c }
-  },
+    const course = Courses.findOne(courseId)
 
+    const c = course ? course.courseCode().toUpperCase() : null
+    const tag = c ? { value: c, label: c } : null
+    return tag
+  },
+  /**
+   * get course code for a specific courseid for react multi select component
+   * @param {MongoID} courseId
+   * @returns {String} courseCode
+   */
+  'courses.getCourseCode' (courseId) {
+    check(courseId, Helpers.MongoID)
+    const course = Courses.findOne(courseId)
+    const c = course ? course.courseCode().toUpperCase() : null
+    return c
+  },
   /**
    * get course tags and _ids for use in course select componenet
    * @returns {MongoID} obj._id

@@ -136,7 +136,17 @@ Meteor.methods({
       return Accounts.sendVerificationEmail(userId)
     }
   },
-
+  /**
+   * send verification to another user email
+   */
+  'users.sendVerificationEmailTo' (toUserId) {
+    let userId = Meteor.userId()
+    if (userId && Meteor.isServer && Meteor.user.hasGreaterRole(ROLES.admin)) {
+      return Accounts.sendVerificationEmail(toUserId)
+    }else{
+      throw new Meteor.Error('not-authorized', 'not-authorized')
+    }
+  },
   /**
    * update profile image with new image in S3 collection
    * @param {String} profileImageUrl
@@ -233,6 +243,15 @@ Meteor.methods({
       Accounts.sendEnrollmentEmail(userId)
     }
     return userId;
+  },
+
+  'users.delete' (user) {
+    if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    if (Meteor.isServer){
+      Meteor.users.remove({ _id: user._id}, function(e,r){
+        if(e) throw new  Meteor.Error(e,e)
+      })
+    }
   }
 
 
