@@ -70,19 +70,19 @@ export class CreateCourseModal extends ControlledForm {
         <div className='ql-modal-header ql-header-bar'><h3>Create Course</h3></div>
         <form ref='createcourseForm' className='ql-form-createcourse ql-card-content' onSubmit={this.handleSubmit}>
           <label>Name:</label>
-          <input type='text' className='form-control' data-name='name' onChange={this.setValue} placeholder='Information Technology Project (2016-17)' /><br />
+          <input type='text' className='form-control' data-name='name' onChange={this.setValue} placeholder='Calculus-based physics' /><br />
 
           <label>Department Code:</label>
-          <input type='text' className='form-control uppercase' data-name='deptCode' onChange={this.setValue} placeholder='CISC' /><br />
+          <input type='text' className='form-control uppercase' data-name='deptCode' onChange={this.setValue} placeholder='PHYS' /><br />
 
           <label>Course Number:</label>
-          <input type='text' className='form-control' data-name='courseNumber' onChange={this.setValue} placeholder='498' /><br />
+          <input type='text' className='form-control' data-name='courseNumber' onChange={this.setValue} placeholder='123' /><br />
 
           <label>Section:</label>
           <input type='text' className='form-control' data-name='section' onChange={this.setValue} placeholder='001' /><br />
 
           <label>Semester:</label>
-          <input type='text' className='form-control' data-name='semester' onChange={this.setValue} placeholder='W17' /><br />
+          <input type='text' className='form-control' data-name='semester' onChange={this.setValue} placeholder='F17' /><br />
 
           <div className='ql-buttongroup'>
             <a className='btn btn-default' onClick={this.done}>Cancel</a>

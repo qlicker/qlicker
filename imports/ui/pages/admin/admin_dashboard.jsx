@@ -10,7 +10,11 @@ import { RestrictDomainForm } from '../../RestrictDomainForm'
 
 import { Settings } from '../../../api/settings'
 
+import { Courses } from '../../../api/courses'
+
 import { ROLES } from '../../../configs'
+
+import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
 class _AdminDashboard extends Component {
 
@@ -18,25 +22,20 @@ class _AdminDashboard extends Component {
     super(p)
 
     this.state = {
-      email: '',
       role: '',
       size: p.settings.maxImageSize,
       width: p.settings.maxImageWidth,
       supportEmail: p.settings.email,
-      requireVerified: p.settings.requireVerified,
-      verifyEmail: ''
+      requireVerified: p.settings.requireVerified
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
-    this.saveUserRole = this.saveUserRole.bind(this)
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
-    this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.saveImageSize = this.saveImageSize.bind(this)
     this.saveImageWidth = this.saveImageWidth.bind(this)
-    this.saveEmail = this.saveEmail.bind(this)
-    this.setVerified = this.setVerified.bind(this)
-    this.verifyEmail = this.verifyEmail.bind(this)
+    this.verifyUserEmail = this.verifyUserEmail.bind(this)
+    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
 
   saveRoleChange (uId, newRole) {
@@ -46,17 +45,6 @@ class _AdminDashboard extends Component {
         alertify.success('Role changed')
       })
     }
-  }
-
-  saveUserRole (e) {
-    e.preventDefault()
-
-    if (!this.state.email || !this.state.role) return alertify.error('Please enter an email and select a role')
-    Meteor.call('users.changeRoleByEmail', this.state.email, this.state.role, (e) => {
-      if (e) return alertify.error('Error: ' + e.message)
-      alertify.success('Role changed')
-      this.refs.setUserRoleForm.reset()
-    })
   }
 
   setValue (e) {
@@ -87,36 +75,15 @@ class _AdminDashboard extends Component {
     })
   }
 
-  saveEmail (e) {
-    e.preventDefault()
-
-    let settings = Settings.findOne()
-    settings.email = this.state.supportEmail
-    Meteor.call('settings.update', settings, (e, d) => {
-      if (e) alertify.error('Error updating settings')
-      else alertify.success('Settings updated')
-    })
-  }
-
-  setVerified (e) {
-    e.preventDefault()
-    let settings = Settings.findOne()
-    this.setState({ requireVerified: e.target.checked })
-    settings.requireVerified = e.target.checked
-    Meteor.call('settings.update', settings, (e, d) => {
-      if (e) alertify.error('Error updating settings')
-      else alertify.success('Settings updated')
-    })
-  }
-
-  verifyEmail (e) {
-    e.preventDefault()
-    if (!this.state.verifyEmail) return alertify.error('Please enter an email')
-    console.log(this.state.verifyEmail)
-    Meteor.call('users.verifyEmail', this.state.verifyEmail, (e, d) => {
+  verifyUserEmail (email) {
+    Meteor.call('users.verifyEmail',email, (e, d) => {
       if (e) alertify.error(e)
       if (d) alertify.success('Email verified')
     })
+  }
+
+  toggleProfileViewModal (userToView = null) {
+    this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
 
   handleSubmit (e) {
@@ -143,36 +110,17 @@ class _AdminDashboard extends Component {
     }
   } // end handleSubmit
 
-  sendVerificationEmail () {
-    Meteor.call('users.sendVerificationEmail', (e) => {
-      if (e) alertify.error('Error sending email')
-      else this.setState({ showResendLink: false })
-    })
-  }
-
   render () {
-    const setEmail = (e) => { this.setState({ email: e.target.value }) }
-    const setUserRole = (e) => { this.setState({ role: e.target.value }) }
     const setImageSize = (e) => { this.setState({ size: e.target.value }) }
     const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
-    const setVerifyEmail = (e) => { this.setState({ verifyEmail: e.target.value }) }
+
     return (
       <div className='container ql-admin-page'>
         <h2>Admin User Management</h2>
         <br />
 
-        <h4>Set user role by email</h4>
-        <form ref='setUserRoleForm' onSubmit={this.saveUserRole} className='form-inline'>
-          <input className='form-control' type='email' onChange={setEmail} placeholder='Email' />
-          <select className='form-control' onChange={setUserRole} value={this.state.role}>
-            <option value='' disabled>Select a role for the user</option>
-            { Object.keys(ROLES).map((r) => <option value={ROLES[r]}>{ROLES[r]}</option>)}
-          </select>
-          <input type='submit' className='btn btn-primary' value='Set User Role' />
-        </form>
-
-        <h4>Maximum image size (MB)</h4>
+        <h4>Maximum image size (in MB, after rescaling to max width)</h4>
         <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
           <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
           <input type='submit' className='btn btn-primary' value='Set' />
@@ -190,12 +138,6 @@ class _AdminDashboard extends Component {
           <input type='submit' className='btn btn-primary' value='Set' />
         </form>
 
-        <h4>Set user role by email</h4>
-        <form ref='verifyForm' onSubmit={this.verifyEmail} className='form-inline'>
-          <input className='form-control' type='email' onChange={setVerifyEmail} placeholder='Email' />
-          <input type='submit' className='btn btn-primary' value='Verify Email' />
-        </form>
-
         <h4>Require verified email to login</h4>
         <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
 
@@ -205,23 +147,37 @@ class _AdminDashboard extends Component {
         />
 
         <br />
-        <h4>Users with elevated privileges</h4>
+        <h4>Users (with elevated permissions first)</h4>
         <table className='table table-bordered'>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Change Role</th>
-          </tr>
           <tbody>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Courses</th>
+              <th>Change Role</th>
+            </tr>
+
             {
-              this.props.users.map((u) => {
+              this.props.allUsers.map((u) => {
+                courseList=''
+                if( u.profile.courses && this.props ){
+                  u.profile.courses.forEach( function(cId){
+                    courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] +' ' : ''
+                  }.bind(this))
+                }
                 return (<tr key={u._id}>
-                  <td>{u.getName()}</td>
-                  <td>{u.getEmail()}</td>
+                  <td>
+                    <a href="#" onClick={(e) => this.toggleProfileViewModal(u)}>{u.getName()}</a>
+                  </td>
+                  <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)' :
+                   <a href="#" onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
+                   </td>
+                  <td>{courseList}</td>
                   <td>
                     <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
-                      { Object.keys(ROLES).map((r) => <option value={ROLES[r]}>{ROLES[r]}</option>)}
+                      { Object.keys(ROLES).map((r) => <option key={"role_"+ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
                     </select>
+                    &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)':''}
                   </td>
                 </tr>)
               })
@@ -246,17 +202,29 @@ class _AdminDashboard extends Component {
             <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
           </div>
         </form>
+        { this.state.profileViewModal
+          ? <ProfileViewModal
+             user={this.state.userToView}
+             done={this.toggleProfileViewModal}/>
+        : '' }
       </div>)
   }
 }
 
 export const AdminDashboard = createContainer(() => {
-  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings') && Meteor.subscribe('users')
+  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings')
+                && Meteor.subscribe('courses')
+  const courses = Courses.find().fetch()
+  let courseNames = {}
+  courses.map( (c)=>{
+    courseNames[c._id] = c.courseCode().toUpperCase()
+  })
   const settings = Settings.find().fetch()[0]
-  const users = Meteor.users.find({ 'profile.roles': { $in: [ROLES.prof, ROLES.admin] } }, { sort: { 'profile.roles.0': 1 } }).fetch()
+  const allUsers = Meteor.users.find({ }, { sort: { 'profile.roles.0': 1 , 'profile.lastname': 1, } }).fetch()
   return {
     settings: settings,
-    users: users,
+    allUsers: allUsers,
+    courseNames: courseNames,
     loading: !handle.ready()
   }
 }, _AdminDashboard)

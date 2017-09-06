@@ -8,7 +8,7 @@ import _ from 'underscore'
 
 import { ControlledForm } from './ControlledForm'
 
-import { Creatable } from 'react-select'
+import Select, { Creatable } from 'react-select'
 import { QuestionListItem } from './QuestionListItem'
 import { StudentQuestionListItem } from './StudentQuestionListItem'
 
@@ -121,7 +121,7 @@ export class QuestionSidebar extends ControlledForm {
             }
           </select>
 
-          <Creatable
+          <Select
             name='tag-input'
             placeholder='Search by Tag'
             multi
@@ -130,7 +130,7 @@ export class QuestionSidebar extends ControlledForm {
             onChange={this.setTags}
             />
           <br />
-          {
+          { 
             this.props.clickMessage
             ? <div className='center-text'>{this.props.clickMessage}<br /></div> : ''
           }

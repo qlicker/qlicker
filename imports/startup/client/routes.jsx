@@ -93,7 +93,7 @@ import { AdminDashboard } from '../../ui/pages/admin/admin_dashboard'
 Router.route('/admin', {
   name: 'admin',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('settings')
+    return Meteor.subscribe('users.all') && Meteor.subscribe('settings') && Meteor.subscribe('courses')
   },
   action: function () {
     let user = Meteor.user()

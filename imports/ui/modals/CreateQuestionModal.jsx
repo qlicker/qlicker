@@ -28,7 +28,7 @@ export class CreateQuestionModal extends ControlledForm {
   }
 
   render () {
-    return (<div className='ql-modal-container' onClick={this.props.done}>
+    return (<div className='ql-modal-container' >
       <div className='ql-modal ql-modal-createquestion ql-card' onClick={this.preventPropagation}>
         <div className='ql-modal-header ql-header-bar'><h2>Add a Question</h2></div>
         <div className='ql-card-content'>
