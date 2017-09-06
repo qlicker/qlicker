@@ -368,9 +368,18 @@ export class QuestionEditItem extends Component {
 
   setCourse (e) {
     if (e.target.value !== -1) {
-      this.setState({courseId: e.target.value}, () => {
+      //let tags = this.state.tags
+      let cId = e.target.value
+      //Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
+      //   if (tag && tags.indexOf(tag) === -1) this.addTag([tag])
+      //   })
+      this.setState({ courseId: cId }, () => {
         this.saveQuestion()
       })
+      /*
+      this.setState({courseId: e.target.value}, () => {
+        this.saveQuestion()
+      })*/
     }else{
       this.setState({courseId: null}, () => {
         this.saveQuestion()
@@ -542,7 +551,7 @@ export class QuestionEditItem extends Component {
                   name='tag-input'
                   placeholder='Tags'
                   multi
-                  value={this.state.tags ? this.state.tags : [''] }
+                  value={this.state.tags && this.state.tags.length ? this.state.tags : [''] }
                   options={this.tagSuggestions ? this.tagSuggestions : [{value:'',label:''}] }
                   onChange={this.addTag}
                 /> : <Creatable

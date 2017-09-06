@@ -169,7 +169,7 @@ class _AdminDashboard extends Component {
                   <td>
                     <a href="#" onClick={(e) => this.toggleProfileViewModal(u)}>{u.getName()}</a>
                   </td>
-                  <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? 'verified' :
+                  <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)' :
                    <a href="#" onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
                    </td>
                   <td>{courseList}</td>
@@ -177,6 +177,7 @@ class _AdminDashboard extends Component {
                     <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
                       { Object.keys(ROLES).map((r) => <option key={"role_"+ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
                     </select>
+                    &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)':''}
                   </td>
                 </tr>)
               })
