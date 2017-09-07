@@ -24,7 +24,7 @@ Router.configure({
 })
 Router.onBeforeAction(function () {
   this.render('blank') // workaround for mounting react without blaze template
-  if (!Meteor.userId()) Router.go('login')
+//  if (!Meteor.userId()) Router.go('login')
   this.next()
 })
 
