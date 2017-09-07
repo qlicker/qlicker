@@ -490,8 +490,6 @@ export class QuestionEditItem extends Component {
     }
 
     user = Meteor.user()
-    //For some reason, using the Select component gives an error about courseTags and possibleTags???
-    //Disable for now
     const selectOnly =  ( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
     const radioOptions = [
