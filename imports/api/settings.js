@@ -108,7 +108,8 @@ Meteor.methods({
     const settings = Settings.findOne()
     if (settings) { // (restrict) implies (domain in list) === not (restrict) || (domain in list)
       const contains = _.find(settings.allowedDomains, function (dom) { return domain === dom })
-      const approved = !settings.restrictDomain || (contains !== undefined)
+      let user = Meteor.users.findOne({_id: Meteor.userId()})
+      const approved = (user && user.hasRole(ROLES.admin)) || !settings.restrictDomain || (contains !== undefined)
       if (!approved) throw new Meteor.Error(403, 'Invalid email domain')
       return approved
     }
@@ -116,4 +117,3 @@ Meteor.methods({
   }
 
 }) // end Meteor.methods
-
