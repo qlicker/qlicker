@@ -70,7 +70,7 @@ export class RestrictDomainForm extends Component {
   render () {
     const domains = this.state.allowedDomains.map((domain, index) => {
       return (
-        <span onClick={this.domainClick}>{domain + (index === this.state.allowedDomains.length - 1 ? '' : ', ')}</span>
+        <span key={'restrict_'+domain} onClick={this.domainClick}>{domain + (index === this.state.allowedDomains.length - 1 ? '' : ', ')}</span>
       )
     })
 

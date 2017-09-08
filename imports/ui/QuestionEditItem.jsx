@@ -8,9 +8,6 @@ import _ from 'underscore'
 import $ from 'jquery'
 
 import  Select, { Creatable } from 'react-select'
-//The Select component has to be imported without {}
-//https://github.com/JedWatson/react-select/issues/741
-//import Select from 'react-select'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
@@ -366,20 +363,21 @@ export class QuestionEditItem extends Component {
     this.setState(nextProps.question)
   }
 
-  setCourse (e) {
+  /**
+   * Set CourseId and add corresponding tag (called from dropdown)
+   * @param {course} e
+   */
+   setCourse (e) {
     if (e.target.value !== -1) {
-      //let tags = this.state.tags
+      let tags = this.state.tags
       let cId = e.target.value
-      //Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
-      //   if (tag && tags.indexOf(tag) === -1) this.addTag([tag])
-      //   })
+      Meteor.call('courses.getCourseCode', cId, (error, tag) => {
+         if (tag && tags.indexOf(tag) === -1) this.addTagString(tag)
+         this.saveQuestion()
+         })
       this.setState({ courseId: cId }, () => {
         this.saveQuestion()
       })
-      /*
-      this.setState({courseId: e.target.value}, () => {
-        this.saveQuestion()
-      })*/
     }else{
       this.setState({courseId: null}, () => {
         this.saveQuestion()
@@ -490,8 +488,6 @@ export class QuestionEditItem extends Component {
     }
 
     user = Meteor.user()
-    //For some reason, using the Select component gives an error about courseTags and possibleTags???
-    //Disable for now
     const selectOnly =  ( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
     const radioOptions = [

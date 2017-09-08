@@ -14,7 +14,8 @@ export const DEFAULT_STATE = {
   courseNumber: '',
   section: '',
   semester: '',
-  requireVerified: true
+  requireVerified: true,
+  allowStudentQuestions: true
 }
 
 /**
