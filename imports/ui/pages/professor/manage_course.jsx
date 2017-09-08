@@ -44,6 +44,7 @@ class _ManageCourse extends Component {
     this.toggleVerification = this.toggleVerification.bind(this)
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
+    this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -122,9 +123,17 @@ class _ManageCourse extends Component {
     })
   }
   generateNewCourseCode (){
-    Meteor.call('courses.regenerateCode', this.props.course._id, (error) => {
-      if (error) return alertify.error('Error: could not update enrollment code')
-      alertify.success('Enrollment code updated')
+    if(confirm('Are sure?')){
+      Meteor.call('courses.regenerateCode', this.props.course._id, (error) => {
+        if (error) return alertify.error('Error: could not update enrollment code')
+        alertify.success('Enrollment code updated')
+      })
+    }
+  }
+  toggleAllowStudentQuestions () {
+    Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
+      if (error) return alertify.error('Error allowing/refusing student questions'+error)
+      alertify.success('Students' + (this.props.course.allowStudentQuestions ? 'can' : ' cannot') + ' submit questions')
     })
   }
   renderSessionList () {
@@ -263,6 +272,11 @@ class _ManageCourse extends Component {
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={this.toggleVerification}>
                       {this.props.course.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
+                    </div>
+                  </div>
+                  <div className='btn-group btn-group-justified details-button-group'>
+                    <div className='btn btn-default' onClick={this.toggleAllowStudentQuestions}>
+                      {this.props.course.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
                     </div>
                   </div>
                 </div> : ''

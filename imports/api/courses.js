@@ -28,7 +28,8 @@ const coursePattern = {
   instructors: Match.Maybe([Helpers.MongoID]),
   sessions: Match.Maybe([Helpers.MongoID]),
   createdAt: Date,
-  requireVerified: Match.Maybe(Boolean)
+  requireVerified: Match.Maybe(Boolean),
+  allowStudentQuestions: Match.Maybe(Boolean)
 }
 
 // Create course class
@@ -80,7 +81,7 @@ if (Meteor.isServer) {
         const userCursor = Meteor.users.find({ _id: this.userId })
         const handle = userCursor.observeChanges({
           changed: (id, fields) => {
-            const updatedCoursesArray = fields.profile && fields.profile.courses? fields.profile.courses: [] 
+            const updatedCoursesArray = fields.profile && fields.profile.courses? fields.profile.courses: []
             const newCourseIds = _.difference(updatedCoursesArray, coursesArray)
 
             newCourseIds.forEach((cId) => {
@@ -426,6 +427,20 @@ Meteor.methods({
         requireVerified: isRequired
       }
     })
-  }
-
+  },
+  /**
+   * generates and sets a new enrollment code for the course
+   * @param {MongoID} courseId
+   * @returns {Boolean}
+   */
+  'courses.toggleAllowStudentQuestions' (courseId) {
+    profHasCoursePermission(courseId)
+    course = Courses.findOne(courseId)
+    const previous = course.allowStudentQuestions
+    Courses.update({ _id: courseId }, {
+      $set: {
+        allowStudentQuestions: !previous
+      }
+    })
+  },
 }) // end Meteor.methods
