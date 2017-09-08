@@ -39,8 +39,8 @@ class _ManageCourse extends Component {
     this.copySession = this.copySession.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
-    this.deleteCourse = this.deleteCourse.bind(this)
-    this.setActive = this.setActive.bind(this)
+    //this.deleteCourse = this.deleteCourse.bind(this)
+    //this.setActive = this.setActive.bind(this)
     this.toggleVerification = this.toggleVerification.bind(this)
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
@@ -65,7 +65,7 @@ class _ManageCourse extends Component {
       }
     })
   }
-
+/*
   deleteCourse () {
     if (confirm('Are you sure?')) {
       Meteor.call('courses.delete', this.props.course._id, (error) => {
@@ -81,7 +81,7 @@ class _ManageCourse extends Component {
       if (error) return alertify.error('Error: could not set course property')
       alertify.success('Course set to: ' + (this.props.course.inactive ? 'Archived' : 'Active'))
     })
-  }
+  }*/
 
   deleteSession (sessionId) {
     if (confirm('Are you sure?')) {
@@ -133,7 +133,7 @@ class _ManageCourse extends Component {
   toggleAllowStudentQuestions () {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
       if (error) return alertify.error('Error allowing/refusing student questions'+error)
-      alertify.success('Students' + (this.props.course.allowStudentQuestions ? 'can' : ' cannot') + ' submit questions')
+      alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
   renderSessionList () {
@@ -260,10 +260,6 @@ class _ManageCourse extends Component {
               </div>
               <div className='ql-card-content'>
                 {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
-                  <div className='btn-group btn-group-justified details-button-group'>
-                    <a href='#' className='btn btn-default' onClick={this.deleteCourse}>Delete</a>
-                    <a href='#' className='btn btn-default' onClick={this.setActive}>{strActive}</a>
-                  </div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA
                       { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} courseName= {this.props.course.courseCode()} done={toggleAddTA} /> : '' }
