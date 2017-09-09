@@ -16,12 +16,15 @@ import { Questions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
+  const isInstructor = Meteor.user().isInstructorAnyCourse()
   return (<ul className='nav nav-pills'>
     <li role='presentation' className={active === 'library' ? 'active' : ''}>
       <a href={Router.routes['questions'].path()}>Question Library</a>
     </li>
     <li role='presentation' className={active === 'public' ? 'active' : ''}><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
-    <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+    { isInstructor ?
+      <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+      : '' }
   </ul>)
 }
 
@@ -108,6 +111,7 @@ class _QuestionsLibrary extends Component {
     let library = this.state.questions || []
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
+    const isInstructor = Meteor.user().isInstructorAnyCourse()
 
     const increase = (childState) => {
       this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
@@ -125,7 +129,9 @@ class _QuestionsLibrary extends Component {
         <div className='row'>
           <div className='col-md-4'>
             <br />
-            <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
+              {isInstructor ?
+                <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
+                : ''}
             <QuestionSidebar
               questions={library}
               onSelect={this.editQuestion}
@@ -138,15 +144,17 @@ class _QuestionsLibrary extends Component {
             { this.state.selected
             ? <div>
               <div id='ckeditor-toolbar' />
-              <div className='ql-edit-item-container'>
-                <QuestionEditItem
-                  question={this.state.questionMap[this.state.selected]}
-                  deleted={this.questionDeleted}
-                  metadata autoSave />
-              </div>
+              {isInstructor ?
+                <div className='ql-edit-item-container'>
+                  <QuestionEditItem
+                    question={this.state.questionMap[this.state.selected]}
+                    deleted={this.questionDeleted}
+                    metadata autoSave />
+                </div> :''
+              }
               <div className='ql-preview-item-container'>
                 {this.state.selected
-                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview={true} readonly noStats />
+                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly noStats />
                   : ''
                 }
               </div>
@@ -163,7 +171,7 @@ export const QuestionsLibrary = createContainer(() => {
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   let params = {
     query: {
-      '$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
+      '$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
       sessionId: {$exists: false}
     },
     options: {

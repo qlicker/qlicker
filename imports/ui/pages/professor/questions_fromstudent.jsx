@@ -31,6 +31,7 @@ class _QuestionsFromStudent extends Component {
 
     this.approveQuestion = this.approveQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.makeQuestionPublic = this.makeQuestionPublic.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
@@ -60,6 +61,19 @@ class _QuestionsFromStudent extends Component {
       alertify.success('Question Deleted')
       this.questionDeleted()
     })
+  }
+
+  makeQuestionPublic (questionId) {
+    let question = this.state.questionMap[questionId]
+    //question.approved = true
+    question.public = true
+    //question.owner = Meteor.userId()
+    question.createdAt = new Date()
+    Meteor.call('questions.update', question, (error, newQuestionId) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question moved to public area')
+    })
+    this.selectQuestion(null)
   }
 
   questionDeleted () {
@@ -143,6 +157,14 @@ class _QuestionsFromStudent extends Component {
                   {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
                 </button>
                 <button className='btn btn-default'
+                  onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
+                  data-toggle='tooltip'
+                  data-placement='left'
+                  title='Make the question public'>
+                  Make Public
+                </button>
+
+                <button className='btn btn-default'
                   onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
                   data-toggle='tooltip'
                   data-placement='left'>
@@ -150,7 +172,7 @@ class _QuestionsFromStudent extends Component {
                   </button>
                 <div className='ql-preview-item-container'>
                   {this.state.selected
-                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview={true} readonly noStats />
+                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly noStats />
                     : ''
                   }
                 </div>
@@ -170,7 +192,8 @@ export const QuestionsFromStudent = createContainer(() => {
     query: {
       courseId: {$exists: true},
       sessionId: {$exists: false},
-      approved: false
+      approved: false,
+      public: false
     },
     options: {sort:
       { createdAt: -1 },

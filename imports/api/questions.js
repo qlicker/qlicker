@@ -150,14 +150,21 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // questions owned by a professor
+  // question library for a user (student can see those they own or created)
   Meteor.publish('questions.library', function () {
     if (this.userId) {
-      const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
+      const user = Meteor.users.findOne({_id: this.userId})
 
-      return Questions.find({
-        '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
-        sessionId: {$exists: false} })
+      if( user.isInstructorAnyCourse() || user.hasRole(ROLES.admin) ){
+        const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
+        return Questions.find({
+          '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
+          sessionId: {$exists: false} })
+      } else{
+        return Questions.find({
+          '$or': [ {creator: this.userId}, {owner: this.userId}],
+          sessionId: {$exists: false} })
+      }
     } else this.ready()
   })
 
@@ -282,7 +289,13 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const omittedFields = ['_id', 'originalQuestion', 'sessionId']
-    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    //quetion below was const, but changed to let, right???
+    let question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    //Don't copy if we already own or created
+    userId = Meteor.userId()
+    if( question.owner === userId || question.creator === userId){
+      throw new Meteor.Error('Question already in library')
+    }
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
