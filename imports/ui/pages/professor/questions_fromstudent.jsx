@@ -94,6 +94,8 @@ class _QuestionsFromStudent extends Component {
 
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
+    if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
+    else params.query = _.omit(params.query, 'courseId')
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
     else params.query = _.omit(params.query, 'plainText')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }

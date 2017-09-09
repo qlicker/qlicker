@@ -154,13 +154,20 @@ if (Meteor.isServer) {
   Meteor.publish('questions.library', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-
-      if( user.isInstructorAnyCourse() || user.hasRole(ROLES.admin) ){
+      if( user.hasRole(ROLES.admin) ){
+        const courses = _.pluck(Courses.find({}).fetch(), '_id')
+        return Questions.find({
+          approved: true,
+          sessionId: {$exists: false} })
+      }
+      else if( user.isInstructorAnyCourse() ){
         const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
         return Questions.find({
           '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
           sessionId: {$exists: false} })
       } else{
+        //students. By checking for creator, they can see the questions they submitted
+        //that have been moved to a course library (which changes the owner w/o copying)
         return Questions.find({
           '$or': [ {creator: this.userId}, {owner: this.userId}],
           sessionId: {$exists: false} })

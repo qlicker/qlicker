@@ -25,11 +25,14 @@ export class QuestionSidebar extends ControlledForm {
 
   constructor (props) {
     super(props)
-    this.state = { questionPool: this.props.questions.slice(), questionType: -1, tags: [] }
+    this.state = { questionPool: this.props.questions.slice(),
+                   questionType: -1, courseId:-1, tags: [],
+                   reset : this.props.reset }
 
     this.setQuestion = this.setQuestion.bind(this)
     this.setSearchString = this.setSearchString.bind(this)
     this.setType = this.setType.bind(this)
+    this.setCourseId = this.setCourseId.bind(this)
     this.setTags = this.setTags.bind(this)
 
     // populate tagging suggestions
@@ -40,6 +43,10 @@ export class QuestionSidebar extends ControlledForm {
         this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
       this.forceUpdate()
+    })
+
+    Meteor.call('courses.getCourseTagsProfile', (e, d) => {
+      this.setState({courses: d})
     })
   }
 
@@ -81,19 +88,33 @@ export class QuestionSidebar extends ControlledForm {
       this.props.updateQuery(this.state)
     })
   }
-
+  /**
+   * Set course id & invoke filter
+   * @param {Event} e
+   */
+  setCourseId(e) {
+    this.setState({courseId: e.target.value}, () => {
+      this.props.updateQuery(this.state)
+    })
+  }
   /**
    * udpate state tags array
    * @param {Event} e
    */
   setTags (tags) {
+
     this.setState({ tags: tags }, () => {
       this.props.updateQuery(this.state)
     })
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice() })
+    if(nextProps.reset !== this.state.reset ){
+      this.setState({ questionPool: nextProps.questions.slice(),
+                      questionType: -1, courseId:-1, tags: [], })  
+    } else{
+      this.setState({ questionPool: nextProps.questions.slice() })
+    }
   }
 
   render () {
@@ -120,6 +141,18 @@ export class QuestionSidebar extends ControlledForm {
               })
             }
           </select>
+          {this.state.courses && this.state.courses.length>1 ?
+            <select value = {this.state.courseId}  onChange={this.setCourseId} className='ql-header-button question-type form-control'>
+              <option key={-1} value={-1} >Any course</option>
+              { this.state.courses
+               ? this.state.courses.map((obj) => {
+                  return <option key={obj._id} value={obj._id} >{ obj.code }</option>
+                 })
+               : ''
+              }
+            </select>
+            : ''
+          }
 
           <Select
             name='tag-input'
@@ -130,7 +163,7 @@ export class QuestionSidebar extends ControlledForm {
             onChange={this.setTags}
             />
           <br />
-          { 
+          {
             this.props.clickMessage
             ? <div className='center-text'>{this.props.clickMessage}<br /></div> : ''
           }
@@ -164,5 +197,6 @@ QuestionSidebar.propTypes = {
   increase: PropTypes.func,
   decrease: PropTypes.func,
   updateQuery: PropTypes.func,
-  atMax: PropTypes.bool
+  atMax: PropTypes.bool,
+  reset: PropTypes.bool
 }

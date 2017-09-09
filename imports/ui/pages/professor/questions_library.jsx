@@ -39,7 +39,8 @@ class _QuestionsLibrary extends Component {
       questions: props.library,
       limit: 11,
       query: props.query,
-      questionMap: _(props.library).indexBy('_id')
+      questionMap: _(props.library).indexBy('_id'),
+      resetSidebar: false //only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
     }
 
     if (this.props.selected) {
@@ -54,6 +55,8 @@ class _QuestionsLibrary extends Component {
 
   editQuestion (questionId) {
     if (questionId === -1) {
+      //reset the query
+      this.setState({query: this.props.query, resetSidebar: !this.state.resetSidebar})
       const blankQuestion = {
         plainText: '', // plain text version of question
         type: -1,
@@ -86,6 +89,8 @@ class _QuestionsLibrary extends Component {
     params.options.limit = this.state.limit
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
+    if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
+    else params.query = _.omit(params.query, 'courseId')
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
     else params.query = _.omit(params.query, 'plainText')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
@@ -125,7 +130,6 @@ class _QuestionsLibrary extends Component {
       <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
         {createNav('library')}
-
         <div className='row'>
           <div className='col-md-4'>
             <br />
@@ -138,7 +142,8 @@ class _QuestionsLibrary extends Component {
               increase={increase}
               decrease={decrease}
               atMax={atMax}
-              updateQuery={this.limitAndUpdate} />
+              updateQuery={this.limitAndUpdate}
+              reset={this.state.resetSidebar} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
@@ -171,8 +176,9 @@ export const QuestionsLibrary = createContainer(() => {
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   let params = {
     query: {
-      '$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
-      sessionId: {$exists: false}
+      //'$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
+      //sessionId: {$exists: false}
+      public: false
     },
     options: {
       sort: { createdAt: -1 },
