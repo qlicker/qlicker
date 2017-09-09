@@ -146,7 +146,7 @@ class _QuestionsLibrary extends Component {
               </div>
               <div className='ql-preview-item-container'>
                 {this.state.selected
-                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} readonly noStats />
+                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview={true} readonly noStats />
                   : ''
                 }
               </div>
@@ -180,4 +180,3 @@ export const QuestionsLibrary = createContainer(() => {
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)
-
