@@ -292,6 +292,8 @@ Meteor.methods({
     //quetion below was const, but changed to let, right???
     let question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     //Don't copy if we already own or created
+    //TODO: should really check if the same question is already in the library
+    //by hashing it or something similar
     userId = Meteor.userId()
     if( question.owner === userId || question.creator === userId){
       throw new Meteor.Error('Question already in library')
