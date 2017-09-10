@@ -98,7 +98,9 @@ export class QuestionSidebar extends ControlledForm {
       //set the corresponding course tag (user can always remove it)
       let tags = this.state.tags
       Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
-         if (tag && !tags.includes(tag)){
+        //this does not seem to work, it adds it regardless...
+         tlabels = _(tags).pluck('label')
+         if (tag && !tlabels.includes(tag.label)){
            tags.push(tag)
            this.setTags(tags)
          }
@@ -108,12 +110,6 @@ export class QuestionSidebar extends ControlledForm {
     this.setState({ courseId: cId }, () => {
       this.props.updateQuery(this.state)
     })
-/*
-    //TODO should also add course tag to tags
-    this.setState({courseId: e.target.value}, () => {
-      this.props.updateQuery(this.state)
-      //console.log(this.state.tags)
-    })*/
   }
   /**
    * udpate state tags array
@@ -127,7 +123,9 @@ export class QuestionSidebar extends ControlledForm {
 
   resetFilter(){
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', questionType: -1, courseId:-1, tags: [], })
+    this.setState({ searchString: '', questionType: -1, courseId:-1, tags: [], }, ()=>{
+      this.props.updateQuery(this.state)
+    })
   }
 
   componentWillReceiveProps (nextProps) {
@@ -148,10 +146,8 @@ export class QuestionSidebar extends ControlledForm {
       <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
 
-          <input type='text' className='form-control search-field' placeholder='Search Term' onChange={_.throttle(this.setSearchString, 500)} />
-
           <select value={this.state.type} onChange={this.setType} className='ql-header-button question-type form-control'>
-            <option key={-1} value={-1}>Any Type</option>
+            <option key={-1} value={-1}>Any type</option>
             {
               _(QUESTION_TYPE).keys().map((k) => {
                 const val = QUESTION_TYPE[k]
@@ -174,12 +170,17 @@ export class QuestionSidebar extends ControlledForm {
 
           <Select
             name='tag-input'
-            placeholder='Search by Tag'
+            placeholder='Type to search by tag'
             multi
             value={this.state.tags}
             options={this.tagSuggestions}
             onChange={this.setTags}
             />
+          <input type='text' className='form-control search-field' placeholder='Search by question content' onChange={_.throttle(this.setSearchString, 500)} />
+          <div className='btn-group btn-group-justified details-button-group'>
+            <div className='btn btn-default' onClick={this.resetFilter}>Reset search filter
+            </div>
+          </div>
           <br />
           {
             this.props.clickMessage
