@@ -384,7 +384,7 @@ Meteor.methods({
     return c
   },
   /**
-   * get course tags and _ids for use in course select componenet
+   * get course tags for which user is an instructor and _ids for use in course select componenet
    * @returns {MongoID} obj._id
    * @returns {String} obj.code
    */
@@ -392,8 +392,15 @@ Meteor.methods({
     const courses = Courses.find({ instructors: Meteor.userId()}).fetch()
     return _.map(courses, (course) => { return {_id: course._id, code: course.courseCode().toUpperCase()} })
   },
-
   /**
+   * get course tags for profile.courses
+   * @returns {MongoID} obj._id
+   * @returns {String} obj.code
+   */
+  'courses.getCourseTagsProfile' () {
+    const courses = Meteor.user()? Courses.find({_id: {$in:Meteor.user().profile.courses} }).fetch():[]
+    return _.map(courses, (course) => { return {_id: course._id, code: course.courseCode().toUpperCase()} })
+  },  /**
    * set inactive attribute based on bool
    * @param {MongoID} courseId
    * @param {Boolean} active

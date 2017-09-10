@@ -28,10 +28,8 @@ class _PageContainer extends Component {
   }
 
   render () {
-    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && !this.state.user.hasRole('admin')
-    const isProfOrAdmin = this.state.user.hasGreaterRole('professor') || isInstructor
-
-
+    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && ! this.state.user.hasRole('admin')
+    //const isProfOrAdmin = this.state.user.hasGreaterRole('professor') || isInstructor
     const logout = () => {
       Meteor.logout(() => Router.go('login'))
     }
@@ -72,23 +70,20 @@ class _PageContainer extends Component {
                     }
                   </ul>
                 </li>
-                }
-                {
-
-                  isProfOrAdmin
-                    ? <li className='dropdown'>
-                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
-                         aria-haspopup='true' aria-expanded='false'>Questions <span className='caret'/></a>
-                      <ul className='dropdown-menu'>
-                        <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
-                        <li role='separator' className='divider'>&nbsp;</li>
-                        <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a>
-                        </li>
-                        <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student
-                          Submissions</a></li>
-                      </ul>
-                    </li> : ''
-                }
+               }
+               <li className='dropdown'>
+                  <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
+                     aria-haspopup='true' aria-expanded='false'>Questions <span className='caret'/></a>
+                  <ul className='dropdown-menu'>
+                    <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
+                    <li role='separator' className='divider'>&nbsp;</li>
+                    <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a>
+                    </li>
+                    {isInstructor ?
+                      <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student
+                        Submissions</a></li> : ''}
+                  </ul>
+                </li>
                 {
                   isInstructor ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
                   : '' }
