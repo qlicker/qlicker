@@ -115,13 +115,13 @@ export class QuestionEditItem extends Component {
     }
 
     //Default value of courseId depends on courseId of question and prop
-    this.state.courseId = -1
+    //this.state.courseId =
     if(this.props.courseId || this.props.question.courseId){
       if(this.props.courseId && this.props.question &&
          this.props.question.courseId&& this.props.courseId === this.props.question.courseId){
         this.state.courseId = this.props.courseId
       }else if(this.props.question && this.props.question.courseId){
-        this.state.courseId = this.props.question.courseId 
+        this.state.courseId = this.props.question.courseId
       }else if(this.props.courseId){
         this.state.courseId = this.props.courseId
       }else{}
@@ -487,21 +487,6 @@ export class QuestionEditItem extends Component {
         </div>)
       })
     }
-
-/*
-    //Useed to decide which course to select by default in dropdown
-    questionCourseId=-1
-    if(this.props.courseId || this.props.question.courseId){
-      if(this.props.courseId && this.props.question &&
-         this.props.question.courseId&& this.props.courseId === this.props.question.courseId){
-        questionCourseId = this.props.courseId
-      }else if(this.props.question && this.props.question.courseId){
-        questionCourseId = this.props.question.courseId
-      }else if(this.props.courseId){
-        questionCourseId = this.props.courseId
-      }else{}
-    }
-*/
     user = Meteor.user()
     const selectOnly =  ( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
@@ -543,7 +528,7 @@ export class QuestionEditItem extends Component {
                 </div>
               </div>
               <div className='col-md-6'>
-                <select value = {this.state.courseId} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
+                <select value = {this.state.courseId ? this.state.courseId : -1} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
                   <option key={-1} value={-1} >No course</option>
                   { this.state.courses
                    ? this.state.courses.map((obj) => {

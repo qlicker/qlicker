@@ -179,7 +179,6 @@ export const QuestionsLibrary = createContainer(() => {
     query: {
       //'$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
       //sessionId: {$exists: false}
-      public: false
     },
     options: {
       sort: { createdAt: -1 },

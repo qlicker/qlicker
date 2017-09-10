@@ -54,7 +54,8 @@ const questionPattern = {
       closed: Boolean
     }]
   }),
-  imagePath: Match.Maybe(String)
+  imagePath: Match.Maybe(String),
+  studentCopyOfPublic: Match.Maybe(Boolean)//true if this a student's copy from a public library
 }
 
 const defaultSessionOptions = {
@@ -158,12 +159,14 @@ if (Meteor.isServer) {
         const courses = _.pluck(Courses.find({}).fetch(), '_id')
         return Questions.find({
           approved: true,
+          studentCopyOfPublic: {$exists: false},
           sessionId: {$exists: false} })
       }
       else if( user.isInstructorAnyCourse() ){
         const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
         return Questions.find({
           '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
+          studentCopyOfPublic: {$exists: false},
           sessionId: {$exists: false} })
       } else{
         //students. By checking for creator, they can see the questions they submitted
@@ -309,6 +312,9 @@ Meteor.methods({
     question.owner = Meteor.userId()
     question.createdAt = new Date()
     question.approved = true
+    if( !Meteor.user().isInstructorAnyCourse() ){
+      question.studentCopyOfPublic = true
+    }
 
     const id = Questions.insert(question)
     return id
