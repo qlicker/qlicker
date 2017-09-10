@@ -27,14 +27,14 @@ export class QuestionSidebar extends ControlledForm {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
                    questionType: -1, courseId:-1, tags: [],
-                   reset : this.props.reset }
+                  }
 
     this.setQuestion = this.setQuestion.bind(this)
     this.setSearchString = this.setSearchString.bind(this)
     this.setType = this.setType.bind(this)
     this.setCourseId = this.setCourseId.bind(this)
     this.setTags = this.setTags.bind(this)
-
+    this.resetFilter = this.resetFilter.bind(this)
     // populate tagging suggestions
     this.tagSuggestions = []
     Meteor.call('questions.possibleTags', (e, tags) => {
@@ -93,28 +93,46 @@ export class QuestionSidebar extends ControlledForm {
    * @param {Event} e
    */
   setCourseId(e) {
-    this.setState({courseId: e.target.value}, () => {
+    let cId = e.target.value
+    if (parseInt(cId) !== -1) {
+      //set the corresponding course tag (user can always remove it)
+      let tags = this.state.tags
+      Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
+         if (tag && !tags.includes(tag)){
+           tags.push(tag)
+           this.setTags(tags)
+         }
+      })
+    }
+
+    this.setState({ courseId: cId }, () => {
       this.props.updateQuery(this.state)
     })
+/*
+    //TODO should also add course tag to tags
+    this.setState({courseId: e.target.value}, () => {
+      this.props.updateQuery(this.state)
+      //console.log(this.state.tags)
+    })*/
   }
   /**
    * udpate state tags array
    * @param {Event} e
    */
   setTags (tags) {
-
     this.setState({ tags: tags }, () => {
       this.props.updateQuery(this.state)
     })
   }
 
+  resetFilter(){
+    this.refs.addQuestionForm.reset()
+    this.setState({ searchString: '', questionType: -1, courseId:-1, tags: [], })
+  }
+
   componentWillReceiveProps (nextProps) {
-    if(nextProps.reset !== this.state.reset ){
-      this.setState({ questionPool: nextProps.questions.slice(),
-                      questionType: -1, courseId:-1, tags: [], })  
-    } else{
-      this.setState({ questionPool: nextProps.questions.slice() })
-    }
+    this.setState({ questionPool: nextProps.questions.slice() })
+    if(nextProps.resetFilter) this.resetFilter()
   }
 
   render () {
@@ -132,7 +150,7 @@ export class QuestionSidebar extends ControlledForm {
 
           <input type='text' className='form-control search-field' placeholder='Search Term' onChange={_.throttle(this.setSearchString, 500)} />
 
-          <select defaultValue={this.state.type} onChange={this.setType} className='ql-header-button question-type form-control'>
+          <select value={this.state.type} onChange={this.setType} className='ql-header-button question-type form-control'>
             <option key={-1} value={-1}>Any Type</option>
             {
               _(QUESTION_TYPE).keys().map((k) => {
@@ -142,7 +160,7 @@ export class QuestionSidebar extends ControlledForm {
             }
           </select>
           {this.state.courses && this.state.courses.length>1 ?
-            <select value = {this.state.courseId}  onChange={this.setCourseId} className='ql-header-button question-type form-control'>
+            <select value= {this.state.courseId}  onChange={this.setCourseId} className='ql-header-button question-type form-control'>
               <option key={-1} value={-1} >Any course</option>
               { this.state.courses
                ? this.state.courses.map((obj) => {
@@ -198,5 +216,5 @@ QuestionSidebar.propTypes = {
   decrease: PropTypes.func,
   updateQuery: PropTypes.func,
   atMax: PropTypes.bool,
-  reset: PropTypes.bool
+  resetFilter: PropTypes.bool
 }

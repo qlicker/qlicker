@@ -56,7 +56,7 @@ class _QuestionsLibrary extends Component {
   editQuestion (questionId) {
     if (questionId === -1) {
       //reset the query
-      this.setState({query: this.props.query, resetSidebar: !this.state.resetSidebar})
+      this.setState({query: this.props.query, resetSidebar: true})
       const blankQuestion = {
         plainText: '', // plain text version of question
         type: -1,
@@ -81,10 +81,11 @@ class _QuestionsLibrary extends Component {
   }
 
   questionDeleted () {
-    this.setState({ selected: null })
+    this.setState({ selected: null, resetSidebar: false })
   }
 
   updateQuery (childState) {
+    this.setState({resetSidebar: false})
     let params = this.state.query
     params.options.limit = this.state.limit
     if (childState.questionType > -1) params.query.type = childState.questionType
@@ -143,7 +144,7 @@ class _QuestionsLibrary extends Component {
               decrease={decrease}
               atMax={atMax}
               updateQuery={this.limitAndUpdate}
-              reset={this.state.resetSidebar} />
+              resetFilter={this.state.resetSidebar} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
