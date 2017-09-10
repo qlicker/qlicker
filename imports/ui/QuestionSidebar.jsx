@@ -35,6 +35,8 @@ export class QuestionSidebar extends ControlledForm {
     this.setCourseId = this.setCourseId.bind(this)
     this.setTags = this.setTags.bind(this)
     this.resetFilter = this.resetFilter.bind(this)
+    this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.unApproveQuestion = this.unApproveQuestion.bind(this)
     // populate tagging suggestions
     this.tagSuggestions = []
     Meteor.call('questions.possibleTags', (e, tags) => {
@@ -112,6 +114,34 @@ export class QuestionSidebar extends ControlledForm {
     })
   }
   /**
+   * delete the question
+   * @param {MongoId} questionId
+   */
+  deleteQuestion(questionId){
+    if (confirm('Are you sure?')) {
+      Meteor.call('questions.delete', questionId, (error) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question Deleted')
+      })
+    }
+  }
+  /**
+   * Set approved status to false
+   * @param {MongoId} questionId
+   */
+  unApproveQuestion(questionId){
+    if (confirm('Are you sure?')) {
+      question = this.state.questionPool.find((q)=>{return q._id===questionId})
+      if(question){
+        question.approved=false
+        Meteor.call('questions.update', question, (error, newQuestionId) => {
+          if (error) return alertify.error('Error: ' + error.error)
+          alertify.success('Question un-approved')
+        })
+    }
+    }
+  }
+  /**
    * udpate state tags array
    * @param {Event} e
    */
@@ -142,6 +172,8 @@ export class QuestionSidebar extends ControlledForm {
       <span className='ql-question-name'> <span className='glyphicon glyphicon-minus'></span> Show less</span>
     </div> : ''
 
+    const isInstructor = Meteor.user().isInstructorAnyCourse()
+    const userId = Meteor.userId()
     return (
       <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
@@ -189,10 +221,23 @@ export class QuestionSidebar extends ControlledForm {
           <div className='ql-question-list'>
             { /* list questions */
               this.state.questionPool.map(q => {
+                controls = []
+                if(q.owner === userId) controls.push({label:'delete', click : () => this.deleteQuestion(q._id) })
+                if( (q.owner !== userId || q.creator !== userId ) && q.approved && isInstructor){
+                  controls.push({label:'un-approve', click : () => this.unApproveQuestion(q._id) })
+                }
+
                 return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
-                    ? <QuestionListItem question={q} session={this.props.session} click={() => this.setQuestion(q._id)} />
-                    : <StudentQuestionListItem question={q} click={() => this.setQuestion(q._id)} /> }
+                    ? <QuestionListItem
+                         question={q}
+                         session={this.props.session}
+                         controls={controls.length > 0 ? controls: ''}
+                         click={() => this.setQuestion(q._id)} />
+                    : <StudentQuestionListItem
+                         question={q}
+                         controls={controls.length > 0 ?  controls: ''}
+                         click={() => this.setQuestion(q._id)} /> }
                 </div>)
               })
             }

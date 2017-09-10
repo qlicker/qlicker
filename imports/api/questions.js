@@ -265,7 +265,11 @@ Meteor.methods({
 
     const ownQuestion = yourCourses.indexOf(question.courseId) > -1
     if (!ownQuestion && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
-
+    if (question.creator !== question.owner){
+      //this is to not delete a student question
+      question.owner = question.creator
+      return Meteor.call('questions.update', question)
+    }
     return Questions.remove({ _id: questionId })
   },
 
@@ -305,9 +309,10 @@ Meteor.methods({
     //TODO: should really check if the same question is already in the library
     //by hashing it or something similar
     userId = Meteor.userId()
-    if( question.owner === userId || question.creator === userId){
+    /* this wouldn't allow a question created in a session to be copied over
+    if( (question.owner === userId || question.creator === userId) && !question.sessionId){
       throw new Meteor.Error('Question already in library')
-    }
+    }*/
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
