@@ -17,13 +17,32 @@ Qlicker is an application that will make it easier for professors to integrate s
 
 ## Running Qlicker
 
-Install meteor, install npm dependencies, then run.
-
+1. Install meteor
 ```
 curl https://install.meteor.com/ | sh 
-npm install
-meteor
 ```
+
+2. Clone the repo, and create a settings.json file with the proper s3 creditionals in the root directory of the cloned repo. This is an example:
+```
+{
+  "bucket":"bucketimage",
+  "AWSRegion":"region",
+  "AWSAccessKeyId":"SECRET",
+  "AWSSecretAccessKey":"SECRET"
+}
+```
+
+3. Install the node packages.
+```
+meteor npm install
+```
+
+4. Run the program.
+```
+meteor --settings settings.json
+```
+
+Note, if you use `npm install` instead of `meteor npm install`, you will need to manually delete the `node_modules` directory, and then run `meteor npm install`.
 
 To run tests locally
 `npm run test:unit-watch` or `npm run test:app-watch`
