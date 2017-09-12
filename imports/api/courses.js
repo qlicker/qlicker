@@ -248,11 +248,23 @@ Meteor.methods({
    * @param {MongoID} courseId
    * @param {MongoId} studentUserId
    */
-  'courses.addStudent' (courseId, studentUserId) { // TODO enforce permission
+  'courses.addStudent' (courseId, studentUserId) {
     check(courseId, Helpers.MongoID)
     check(studentUserId, Helpers.MongoID)
 
     profHasCoursePermission(courseId)
+
+    const user = Meteor.users.findOne({ '_id': studentUserId })
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    //not checking if user.profile also contains course, probably should//TODO
+    course = Courses.findOne({ _id: courseId })
+    if(course.students.includes(studentUserId)){
+      throw new Meteor.Error('student already in course', 'student already in course')
+    }
+    if(course.instructors.includes(studentUserId)){
+      throw new Meteor.Error('student already instructor for course', 'student already instructor for course')
+    }
 
     Meteor.users.update({ _id: studentUserId }, {
       $addToSet: { 'profile.courses': courseId }
@@ -263,6 +275,37 @@ Meteor.methods({
     })
   },
 
+  /**
+   * adds a student to course by email
+   * @param {String} email
+   * @param {String} courseId
+   */
+   'courses.addStudentByEmail' (email, courseId) {
+     check(email, Helpers.Email)
+     check(courseId, Helpers.MongoID)
+
+     profHasCoursePermission(courseId)
+
+     const user = Meteor.users.findOne({ 'emails.0.address': email })
+     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+     //not checking if user.profile also contains course, probably should//TODO
+     course = Courses.findOne({ _id: courseId })
+     if(course.students.includes(user._id)){
+       throw new Meteor.Error('student already in course', 'student already in course')
+     }
+     if(course.instructors.includes(user._id)){
+       throw new Meteor.Error('student already instructor for course', 'student already instructor for course')
+     }
+
+     Meteor.users.update({ _id: user._id }, {
+       $addToSet: { 'profile.courses': courseId }
+     })
+
+     return Courses.update({ _id: courseId }, {
+       '$addToSet': { students: user._id }
+     })
+   },
   /**
    * adds a TA to a course
    * @param {String} email
@@ -276,6 +319,12 @@ Meteor.methods({
 
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    //not checking if user.profile also contains course, probably should//TODO
+    course = Courses.findOne({ _id: courseId })
+    if(course.instructors.includes(user._id)){
+      throw new Meteor.Error('Already instructor for course', 'Already instructor for course')
+    }
 
     Meteor.users.update({ _id: user._id }, {
       $addToSet: { 'profile.courses': courseId }

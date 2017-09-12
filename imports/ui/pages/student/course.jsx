@@ -19,7 +19,8 @@ class _Course extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { submittingQuestion: false }
+    this.state = { submittingQuestion: false,
+                   expandedSessionlist: false }
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
   }
 
@@ -42,6 +43,11 @@ class _Course extends Component {
                    return statusSort[ses.status]
                  }).value()
 
+    const maxNum = 8
+    const totalSessions = sessions.length
+    if (!this.state.expandedSessionlist) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionlist: !this.state.expandedSessionlist }) }
+    const expandText = !this.state.expandedSessionlist ? 'Show all' : 'Show less'
     return (<div>
       {
         sessions.map((s) => (<SessionListItem
@@ -49,6 +55,10 @@ class _Course extends Component {
           session={s}
           click={() => this.sessionClickHandler(s)} />))
       }
+      { totalSessions > maxNum
+        ? <a href='#' className='show-more-item' onClick={toggleExpandedSessionlist}>
+          <div className='ql-list-item'>{expandText}</div>
+        </a> : '' }
     </div>)
   }
 

@@ -14,6 +14,7 @@ import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
 import { PickCourseModal } from '../../modals/PickCourseModal'
 import { AddTAModal } from '../../modals/AddTAModal'
+import { AddStudentModal } from '../../modals/AddStudentModal'
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
 import { ROLES } from '../../../configs'
@@ -31,8 +32,10 @@ class _ManageCourse extends Component {
       copySessionModal: false,
       profileViewModal: false,
       addTAModal: false,
+      addStudentModal: false,
       sessionToCopy: null,
-      expandedClasslist: false
+      expandedClasslist: false,
+      expandedSessionlist: false
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
@@ -144,6 +147,13 @@ class _ManageCourse extends Component {
                  }).reverse().sortBy( function(ses){
                    return statusSort[ses.status]
                  }).value()
+
+    const maxNum = 8
+    const totalSessions = sessions.length
+    if (!this.state.expandedSessionlist) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionlist: !this.state.expandedSessionlist }) }
+    const expandText = !this.state.expandedSessionlist ? 'Show all' : 'Show less'
+
     return (<div>
       {
         sessions.map((ses) => {
@@ -175,11 +185,16 @@ class _ManageCourse extends Component {
             controls={controls} />)
         })
       }
+      { totalSessions > maxNum
+        ? <a href='#' className='show-more-item' onClick={toggleExpandedSessionlist}>
+          <div className='ql-list-item'>{expandText}</div>
+        </a> : '' }
     </div>)
   }
 
   renderClassList () {
     uid = Meteor.userId()
+    isProfOrAdmin = Meteor.user().hasGreaterRole('professor')
     let students = this.props.course.students || []
     //then sort alphabetically
     students = _(students).sortBy(function(id){
@@ -198,32 +213,27 @@ class _ManageCourse extends Component {
 
     if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
-    const expandText = !this.state.expandedClasslist ? 'Show More' : 'Show Less'
+    const expandText = !this.state.expandedClasslist ? 'Show all' : 'Show less'
     return (<div>
       {
         students.map((sId) => {
           const stu = this.props.students[sId]
           if (!stu) return
+          let controls = [{ label: 'Remove student from course', click: () => this.removeStudent(sId) }]
           return (<StudentListItem
             key={sId}
             courseId={this.props.course._id}
             student={stu}
             click={() => this.toggleProfileViewModal(stu)}
             role='Student'
-            controls={[
-              { label: 'View details', click: () => this.toggleProfileViewModal(stu)},
-              { label: 'Remove student from course', click: () => this.removeStudent(sId) }
-            ]} />)
+            controls={isProfOrAdmin? controls: ''} />)
         })
       }
-      { //TA cannot remove self, course owner cannot be removed by anyone
+      { //Cannot remove self, course owner cannot be removed by anyone
         TAs.map((sId) => {
           const TA = this.props.TAs[sId]
           if (!TA) return
-          let controls = [{label: 'View details', click: () => this.toggleProfileViewModal(TA)}]
-          if (sId !== this.props.course.owner && sId !== uid ) {
-            controls.push({ label: 'Remove instructor from course', click: () => this.removeTA(sId) })
-          }
+          let controls = [{ label: 'Remove instructor from course', click: () => this.removeTA(sId) }]
 
           return (<StudentListItem
             key={sId}
@@ -231,7 +241,7 @@ class _ManageCourse extends Component {
             student={TA}
             click={() => this.toggleProfileViewModal(TA)}
             role={sId === this.props.course.owner ? 'Owner' : 'Instructor'}
-            controls={controls} />)
+            controls={(isProfOrAdmin && sId !== this.props.course.owner && sId !== uid ) ? controls: ''} />)
         })
       }
       { totalStudents > maxNum
@@ -244,7 +254,7 @@ class _ManageCourse extends Component {
   render () {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
-
+    const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
 
     const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
     return (
@@ -263,6 +273,9 @@ class _ManageCourse extends Component {
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA
                       { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} courseName= {this.props.course.courseCode()} done={toggleAddTA} /> : '' }
+                    </div>
+                    <div className='btn btn-default' onClick={toggleAddStudent}>Add Student
+                      { this.state.addStudentModal ? <AddStudentModal courseId={this.props.course._id} courseName= {this.props.course.courseCode()} done={toggleAddStudent} /> : '' }
                     </div>
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
@@ -289,7 +302,7 @@ class _ManageCourse extends Component {
 
             <div className='ql-card hidden-xs'>
               <div className='ql-header-bar'>
-                <h4>Classlist</h4>
+                <h4>Classlist ({this.props.course.students.length} student{this.props.course.students.length>1?'s':''})</h4>
               </div>
               <div>
                 <div className='ql-course-classlist'>
@@ -301,7 +314,7 @@ class _ManageCourse extends Component {
           </div>
 
           <div className='col-md-8'>
-            <h3>Sessions</h3>
+            <h3>Sessions ({this.props.sessions.length} session{this.props.sessions.length>1 ?'s':''})</h3>
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
