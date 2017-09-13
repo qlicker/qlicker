@@ -212,6 +212,7 @@ class _ManageCourse extends Component {
     const totalStudents = students.length + TAs.length
 
     if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
+    if (!this.state.expandedClasslist) TAs = TAs.slice(0, maxNum-students.length+1)
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const expandText = !this.state.expandedClasslist ? 'Show all' : 'Show less'
     return (<div>
@@ -230,7 +231,7 @@ class _ManageCourse extends Component {
         })
       }
       { //Cannot remove self, course owner cannot be removed by anyone
-        TAs.map((sId) => {
+          TAs.map((sId) => {
           const TA = this.props.TAs[sId]
           if (!TA) return
           let controls = [{ label: 'Remove instructor from course', click: () => this.removeTA(sId) }]
