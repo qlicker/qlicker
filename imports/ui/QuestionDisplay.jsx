@@ -181,20 +181,6 @@ export class _QuestionDisplay extends Component {
       questionId: this.props.question._id
     }
 
-    /* // no longer needed cause can only submit once with button
-    // remove or add options to MS response
-    if (this.props.question.type === QUESTION_TYPE.MS) {
-      if (oldAnswer && oldAnswer.answer.length > 0) {
-        const index = oldAnswer.answer.indexOf(answer)
-        if (index > -1) { // if old answer array has new answer
-          oldAnswer.answer.splice(index, 1) // remove new answer
-          answerObject.answer = oldAnswer.answer
-        } else answerObject.answer = oldAnswer.answer.concat([answer]) // add new answer to old answer array
-      } else answerObject.answer = [answer] // create new answer array
-      answerObject.answer = _(answerObject.answer).uniq() // in theory, this is not needed
-    }
-    */
-
     Meteor.call('responses.add', answerObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Answer Submitted')
@@ -209,11 +195,14 @@ export class _QuestionDisplay extends Component {
     const stats = this.props.distribution
     const total = this.props.totalAnswered
     let answerStat = 0
-
     stats.forEach((a) => {
+
       if (a) {
-        if (a.answer === answer && a.counts) {
+        if (a.answer === answer && a.counts && total) {
           answerStat = Math.round(a.counts[0].count / total * 100, 2)
+          console.log("answer stat")
+          console.log(a.answer)
+          console.log(answerStat)
         }
       }
     })
@@ -294,7 +283,6 @@ export class _QuestionDisplay extends Component {
               ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
-              { /*classSuffixStr === 'ms' && !this.props.forReview) ? <input type='checkbox' className='ql-checkbox' /> : '' */}
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span> : '' }
               {content} {(shouldShow && a.correct) ? '✓' : ''}
@@ -372,46 +360,48 @@ export class _QuestionDisplay extends Component {
 
 export const QuestionDisplay = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
-  const data = []
+  let formattedData = []
   let total
   let responses
 
   const question = props.question
-  if (!props.noStats) {
-    const l = question.sessionOptions.attempts.length
-
-    responses = Responses.find({ questionId: question._id, attempt: l }).fetch()
-
+  if (!props.noStats && question.type !== QUESTION_TYPE.SA) {
+    //Get the number of last attempt
+    const attemptNumber = question.sessionOptions.attempts.length
+    //Get the responses for that attempt:
+    responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
+    //Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
+    //Get the total number of responses:
     total = responses.length
+    let answerDistribution = {}
 
-    let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
-
-    options.map((a) => {
-      a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
-      delete a.values
-    })
-    const keyedOptions = _(options).indexBy('answer')
-
-    // split up multi-select responses
-    const arrayKeys = _(options).chain().pluck('answer').filter((k) => k instanceof Array).value()
-    arrayKeys.forEach((k) => {
-      k.forEach((j) => {
-        keyedOptions[j] = _({}).extend(keyedOptions[k])
-        keyedOptions[j].answer = j
-      })
+    //pull out all the answers from the responses, this gives an array of arrays of answers
+    //e.g. [[A,B], [B], [B,C]], then flatten it
+    allAnswers = _(_(responses).pluck('answer')).flatten()
+    console.log(allAnswers)
+    allAnswers.forEach( (a) => {
+      console.log(a)
+      if(answerDistribution[a]) answerDistribution[a] += 1
+      else answerDistribution[a] = 1
     })
 
-    validOptions.forEach((key) => {
-      data.push(keyedOptions[key])
+    //TODO: can just use answerDistribution instead of this more complicated format
+
+    validOptions.forEach( (o) => {
+      if(!answerDistribution[o]) answerDistribution[o] = 0
+      formattedData.push({ answer:o, counts:[ {attempt:attemptNumber, count:answerDistribution[o]} ] })
     })
+    console.log(answerDistribution)
+    console.log(formattedData)
+
   }
 
   return {
     question: question,
     readonly: props.readonly,
     totalAnswered: total,
-    distribution: data,
+    distribution: formattedData,
     responses: responses,
     loading: !handle.ready()
   }
