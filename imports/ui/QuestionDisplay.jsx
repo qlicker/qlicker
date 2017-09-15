@@ -9,7 +9,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { Responses } from '../api/responses'
 import { Questions } from '../api/questions'
 import { Sessions } from '../api/sessions'
-import dl from 'datalib'
+//import dl from 'datalib' ///not used anymore
 import { _ } from 'underscore'
 import { $ } from 'jquery'
 import { WysiwygHelper } from '../wysiwyg-helpers'
@@ -193,16 +193,11 @@ export class _QuestionDisplay extends Component {
    */
   calculateStats (answer) {
     const stats = this.props.distribution
-    const total = this.props.totalAnswered
     let answerStat = 0
     stats.forEach((a) => {
-
       if (a) {
-        if (a.answer === answer && a.counts && total) {
-          answerStat = Math.round(a.counts[0].count / total * 100, 2)
-          console.log("answer stat")
-          console.log(a.answer)
-          console.log(answerStat)
+        if (a.answer === answer && a.counts) {
+          answerStat = a.counts[0].pct
         }
       }
     })
@@ -379,21 +374,20 @@ export const QuestionDisplay = createContainer((props) => {
     //pull out all the answers from the responses, this gives an array of arrays of answers
     //e.g. [[A,B], [B], [B,C]], then flatten it
     allAnswers = _(_(responses).pluck('answer')).flatten()
-    console.log(allAnswers)
+    //then we count each occurrence of answer in the array
+    //we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
     allAnswers.forEach( (a) => {
-      console.log(a)
       if(answerDistribution[a]) answerDistribution[a] += 1
       else answerDistribution[a] = 1
     })
 
-    //TODO: can just use answerDistribution instead of this more complicated format
-
     validOptions.forEach( (o) => {
       if(!answerDistribution[o]) answerDistribution[o] = 0
-      formattedData.push({ answer:o, counts:[ {attempt:attemptNumber, count:answerDistribution[o]} ] })
+      pct = Math.round(100. * (total !==0 ? answerDistribution[o]/total : 0))
+      //counts does not need to be an array, but leave the flexibility to be able to hold
+      //the values for more than one attempt
+      formattedData.push({ answer:o, counts:[ {attempt:attemptNumber, count:answerDistribution[o], pct:pct} ] })
     })
-    console.log(answerDistribution)
-    console.log(formattedData)
 
   }
 
