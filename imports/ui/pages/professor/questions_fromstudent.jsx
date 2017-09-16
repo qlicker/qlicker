@@ -65,7 +65,8 @@ class _QuestionsFromStudent extends Component {
 
   makeQuestionPublic (questionId) {
     //by making it public, you take over ownership, so student cannot delete it anymore
-    let question = this.state.questionMap[questionId]
+   //it will also show in the library for any instructor of the course 
+   let question = this.state.questionMap[questionId]
     question.approved = true //this makes it editable by any instructor of the course
     question.public = true
     question.owner = Meteor.userId()

@@ -323,7 +323,10 @@ Meteor.methods({
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
-    question.approved = true
+
+    //TODO: should check that the question is part of a course, and the user an instructor for that course:
+    if(Meteor.user().isInstructorAnyCourse()) question.approved = true
+
     //this is so that the (approved) questions that students copy to their own library
     //don't show up in the instructor's libraries.
     if( !Meteor.user().isInstructorAnyCourse() ){

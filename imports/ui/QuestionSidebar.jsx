@@ -133,7 +133,8 @@ export class QuestionSidebar extends ControlledForm {
     if (confirm('Are you sure?')) {
       question = this.state.questionPool.find((q)=>{return q._id===questionId})
       if(question){
-        question.approved=false
+        question.approved = false
+        question.public = false
         Meteor.call('questions.update', question, (error, newQuestionId) => {
           if (error) return alertify.error('Error: ' + error.error)
           alertify.success('Question un-approved')
