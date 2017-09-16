@@ -79,7 +79,7 @@ To copy a student-submitted question to your library, select the desired questio
 
 By copying the question, you preserve the information about who created the question, but you take over the ownership. The student that originally submitted the question, can still see the question, and any edits that you make to it. If you un-approve the question, it will no longer show up for the other instructors in the course. If you subsequently delete it, this will remove it from your library by switching the ownership back to the original student.
 
-You can also choose to make a student submission public. This will also transfer the ownership to you, preventing the student from deleting the question, and will "approve the question", although it will not show up in your library because the public flag is set. If you copy it to your library, a copy is made, and since it is approved for the course, all instructors of the course will be able to see it.
+You can also choose to make a student submission public. This will also transfer the ownership to you, preventing the student from deleting the question, and will "approve the question". If you copy it to your library, a copy is made, and since it is approved for the course, all instructors of the course will be able to see it and edit it.
 
 ## Creating Sessions
 Course sessions are the means of getting the questions out to your students. To create a session, go to the course's main page and click 'Create Course'. To get to the course main page, select the desired course in either the Qlicker Home page, the Courses page, or the 'Courses' dropdown menu.
