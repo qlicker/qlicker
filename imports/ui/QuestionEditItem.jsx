@@ -60,6 +60,7 @@ export class QuestionEditItem extends Component {
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.setCourse = this.setCourse.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
@@ -395,6 +396,10 @@ export class QuestionEditItem extends Component {
     })
   }
 
+  duplicateQuestion(){
+    alertify.error('duplicateQuestion not implemented!')
+  }
+
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
   }
@@ -507,6 +512,7 @@ export class QuestionEditItem extends Component {
               <div className='col-md-6'>
                 <div className='btn-group'>
                   <button className='btn btn-default'
+                    onClick={this.duplicateQuestion}
                     data-toggle='tooltip'
                     data-placement='top'
                     title='Create a copy of this question'>
