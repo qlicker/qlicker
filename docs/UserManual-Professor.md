@@ -73,9 +73,13 @@ Public questions can be accessed by clicking 'Public Questions' at the top of th
 To copy a public question to your library, select the desired question from the list and click 'Copy to Library' above the question preview. The copied question can now be modified, and used in your sessions.
 
 ### Student Submissions
-Student-submitted questions can be accessed by clicking 'Student Submissions' at the top of the Question Library page. Student-submitted questions are automatically tagged with the department code and course number of the course they submitted the question to. These questions can be searched using keywords, question type, and tags.
+Student-submitted questions can be accessed by clicking 'Student Submissions' at the top of the Question Library page. Student-submitted questions are automatically tagged with the department code and course number of the course they submitted the question to. These questions can be searched using keywords, question type, and tags. By default, if an instructor has not approved or made the student question public, the student retains ownership of the question, allowing them to delete it.
 
-To copy a student-submitted question to your library, select the desired question from the list and click 'Copy to Library' above the question preview. The copied question can now be modified, and used in your sessions.
+To copy a student-submitted question to your library, select the desired question from the list and click 'Copy to Library' above the question preview. The copied question can now be modified, and used in your sessions. The question submitted by the student will be associated with a course (not just because of the tag). By copying it to your library, you are "approving it" for the course, so it will also show up in the library of all instructors for the course, who will be allowed to modify it.
+
+By copying the question, you preserve the information about who created the question, but you take over the ownership. The student that originally submitted the question, can still see the question, and any edits that you make to it. If you un-approve the question, it will no longer show up for the other instructors in the course. If you subsequently delete it, this will remove it from your library by switching the ownership back to the original student.
+
+You can also choose to make a student submission public. This will also transfer the ownership to you, preventing the student from deleting the question, and will "approve the question", although it will not show up in your library because the public flag is set. If you copy it to your library, a copy is made, and since it is approved for the course, all instructors of the course will be able to see it.
 
 ## Creating Sessions
 Course sessions are the means of getting the questions out to your students. To create a session, go to the course's main page and click 'Create Course'. To get to the course main page, select the desired course in either the Qlicker Home page, the Courses page, or the 'Courses' dropdown menu.
