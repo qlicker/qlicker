@@ -261,9 +261,16 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const question = Questions.findOne({ _id: questionId })
-    const yourCourses = _(Courses.find({ instructors: Meteor.userId() }).fetch()).pluck('_id')
+    const userId = Meteor.userId()
 
+    // a student deleting a public question that they copied over:
+    if ( question.owner === userId && question.studentCopyOfPublic ){
+      return Questions.remove({ _id: questionId })
+    }
+
+    const yourCourses = _(Courses.find({ instructors: userId }).fetch()).pluck('_id')
     const ownQuestion = yourCourses.indexOf(question.courseId) > -1
+
     if (!ownQuestion && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
     if (question.creator !== question.owner){
       //this is to not delete a student question
@@ -317,6 +324,8 @@ Meteor.methods({
     question.owner = Meteor.userId()
     question.createdAt = new Date()
     question.approved = true
+    //this is so that the (approved) questions that students copy to their own library
+    //don't show up in the instructor's libraries.
     if( !Meteor.user().isInstructorAnyCourse() ){
       question.studentCopyOfPublic = true
     }
