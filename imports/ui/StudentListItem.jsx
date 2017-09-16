@@ -26,7 +26,7 @@ export class StudentListItem extends ListItem {
       role += ' (' + this.props.role + ')'
     }
     return (
-      <div className='ql-student-list-item ql-list-item'>
+      <div className='ql-student-list-item ql-list-item'  onClick={this.click}>
         <div
           className='img-circle ql-profile-image'
           style={{
@@ -47,4 +47,3 @@ StudentListItem.propTypes = {
   courseId: PropTypes.string.isRequired,
   role: PropTypes.string
 }
-

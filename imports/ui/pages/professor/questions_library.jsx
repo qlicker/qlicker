@@ -16,12 +16,15 @@ import { Questions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
+  const isInstructor = Meteor.user().isInstructorAnyCourse()
   return (<ul className='nav nav-pills'>
     <li role='presentation' className={active === 'library' ? 'active' : ''}>
       <a href={Router.routes['questions'].path()}>Question Library</a>
     </li>
     <li role='presentation' className={active === 'public' ? 'active' : ''}><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
-    <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+    { isInstructor ?
+      <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+      : '' }
   </ul>)
 }
 
@@ -36,7 +39,8 @@ class _QuestionsLibrary extends Component {
       questions: props.library,
       limit: 11,
       query: props.query,
-      questionMap: _(props.library).indexBy('_id')
+      questionMap: _(props.library).indexBy('_id'),
+      resetSidebar: false //only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
     }
 
     if (this.props.selected) {
@@ -51,6 +55,8 @@ class _QuestionsLibrary extends Component {
 
   editQuestion (questionId) {
     if (questionId === -1) {
+      //reset the query
+      this.setState({query: this.props.query, resetSidebar: true})
       const blankQuestion = {
         plainText: '', // plain text version of question
         type: -1,
@@ -75,14 +81,17 @@ class _QuestionsLibrary extends Component {
   }
 
   questionDeleted () {
-    this.setState({ selected: null })
+    this.setState({ selected: null, resetSidebar: false })
   }
 
   updateQuery (childState) {
+    this.setState({resetSidebar: false})
     let params = this.state.query
     params.options.limit = this.state.limit
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
+    if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
+    else params.query = _.omit(params.query, 'courseId')
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
     else params.query = _.omit(params.query, 'plainText')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
@@ -108,6 +117,7 @@ class _QuestionsLibrary extends Component {
     let library = this.state.questions || []
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
+    const isInstructor = Meteor.user().isInstructorAnyCourse()
 
     const increase = (childState) => {
       this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
@@ -121,32 +131,36 @@ class _QuestionsLibrary extends Component {
       <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
         {createNav('library')}
-
         <div className='row'>
           <div className='col-md-4'>
             <br />
-            <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
+              {isInstructor ?
+                <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
+                : ''}
             <QuestionSidebar
               questions={library}
               onSelect={this.editQuestion}
               increase={increase}
               decrease={decrease}
               atMax={atMax}
-              updateQuery={this.limitAndUpdate} />
+              updateQuery={this.limitAndUpdate}
+              resetFilter={this.state.resetSidebar} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
             ? <div>
               <div id='ckeditor-toolbar' />
-              <div className='ql-edit-item-container'>
-                <QuestionEditItem
-                  question={this.state.questionMap[this.state.selected]}
-                  deleted={this.questionDeleted}
-                  metadata autoSave />
-              </div>
+              {isInstructor ?
+                <div className='ql-edit-item-container'>
+                  <QuestionEditItem
+                    question={this.state.questionMap[this.state.selected]}
+                    deleted={this.questionDeleted}
+                    metadata autoSave />
+                </div> :''
+              }
               <div className='ql-preview-item-container'>
                 {this.state.selected
-                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} readonly noStats />
+                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly noStats />
                   : ''
                 }
               </div>
@@ -163,8 +177,8 @@ export const QuestionsLibrary = createContainer(() => {
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   let params = {
     query: {
-      '$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
-      sessionId: {$exists: false}
+      //'$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
+      //sessionId: {$exists: false}
     },
     options: {
       sort: { createdAt: -1 },
@@ -180,4 +194,3 @@ export const QuestionsLibrary = createContainer(() => {
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)
-

@@ -114,6 +114,18 @@ export class QuestionEditItem extends Component {
 
     }
 
+    //Default value of courseId depends on courseId of question and prop
+    //this.state.courseId =
+    if(this.props.courseId || this.props.question.courseId){
+      if(this.props.courseId && this.props.question &&
+         this.props.question.courseId&& this.props.courseId === this.props.question.courseId){
+        this.state.courseId = this.props.courseId
+      }else if(this.props.question && this.props.question.courseId){
+        this.state.courseId = this.props.question.courseId
+      }else if(this.props.courseId){
+        this.state.courseId = this.props.courseId
+      }else{}
+    }
 
     if (this.props.courseId) {
       // add course code tag
@@ -207,7 +219,31 @@ export class QuestionEditItem extends Component {
     tags.push(newTag)
     this.addTag(tags)
   }
-
+  /**
+   * Set CourseId and add corresponding tag (called from dropdown)
+   * @param {course} e
+   */
+   setCourse (e) {
+     let cId = e.target.value
+     if (parseInt(cId) !== -1) {
+       let tags = this.state.tags
+       Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
+          tlabels = _(tags).pluck('label')
+          if (tag && !tlabels.includes(tag.label)){
+            tags.push(tag)
+            this.addTag(tags)
+          }
+          this.saveQuestion()
+       })
+       this.setState({ courseId: cId }, () => {
+       this.saveQuestion()
+     })
+     }else{
+        this.setState({courseId: null}, () => {
+        this.saveQuestion()
+        })
+     }
+   }
   /**
    * Update wysiwyg contents for actual question in state
    * @param {Object} content
@@ -364,28 +400,6 @@ export class QuestionEditItem extends Component {
   }
 
   /**
-   * Set CourseId and add corresponding tag (called from dropdown)
-   * @param {course} e
-   */
-   setCourse (e) {
-    if (e.target.value !== -1) {
-      let tags = this.state.tags
-      let cId = e.target.value
-      Meteor.call('courses.getCourseCode', cId, (error, tag) => {
-         if (tag && tags.indexOf(tag) === -1) this.addTagString(tag)
-         this.saveQuestion()
-         })
-      this.setState({ courseId: cId }, () => {
-        this.saveQuestion()
-      })
-    }else{
-      this.setState({courseId: null}, () => {
-        this.saveQuestion()
-      })
-    }
-  }
-
-  /**
    * generate a answer option element row
    * @param {Answer} a
    */
@@ -473,20 +487,6 @@ export class QuestionEditItem extends Component {
         </div>)
       })
     }
-
-    //Useed to decide which course to select by default in dropdown
-    questionCourseId=-1
-    if(this.props.courseId || this.props.question.courseId){
-      if(this.props.courseId && this.props.question &&
-         this.props.question.courseId&& this.props.courseId === this.props.question.courseId){
-        questionCourseId = this.props.courseId
-      }else if(this.props.question && this.props.question.courseId){
-        questionCourseId = this.props.question.courseId
-      }else if(this.props.courseId){
-        questionCourseId = this.props.courseId
-      }else{}
-    }
-
     user = Meteor.user()
     const selectOnly =  ( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
@@ -528,7 +528,7 @@ export class QuestionEditItem extends Component {
                 </div>
               </div>
               <div className='col-md-6'>
-                <select value = {questionCourseId} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
+                <select value = {this.state.courseId ? this.state.courseId : -1} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
                   <option key={-1} value={-1} >No course</option>
                   { this.state.courses
                    ? this.state.courses.map((obj) => {

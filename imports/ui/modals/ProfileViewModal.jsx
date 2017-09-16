@@ -103,7 +103,7 @@ export class ProfileViewModal extends ControlledForm {
   render () {
 
     return ( this.props.user ?
-      <div className='ql-modal-container' >
+      <div className='ql-modal-container' onClick={this.done} >
         <div className='row'>
           <div className='col-md-3' />
           <div className='col-md-6'>

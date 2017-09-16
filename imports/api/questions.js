@@ -54,7 +54,8 @@ const questionPattern = {
       closed: Boolean
     }]
   }),
-  imagePath: Match.Maybe(String)
+  imagePath: Match.Maybe(String),
+  studentCopyOfPublic: Match.Maybe(Boolean)//true if this a student's copy from a public library
 }
 
 const defaultSessionOptions = {
@@ -150,14 +151,30 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // questions owned by a professor
+  // question library for a user (student can see those they own or created)
   Meteor.publish('questions.library', function () {
     if (this.userId) {
-      const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
-
-      return Questions.find({
-        '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
-        sessionId: {$exists: false} })
+      const user = Meteor.users.findOne({_id: this.userId})
+      if( user.hasRole(ROLES.admin) ){
+        const courses = _.pluck(Courses.find({}).fetch(), '_id')
+        return Questions.find({
+          approved: true,
+          studentCopyOfPublic: {$exists: false},
+          sessionId: {$exists: false} })
+      }
+      else if( user.isInstructorAnyCourse() ){
+        const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
+        return Questions.find({
+          '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
+          studentCopyOfPublic: {$exists: false},
+          sessionId: {$exists: false} })
+      } else{
+        //students. By checking for creator, they can see the questions they submitted
+        //that have been moved to a course library (which changes the owner w/o copying)
+        return Questions.find({
+          '$or': [ {creator: this.userId}, {owner: this.userId}],
+          sessionId: {$exists: false} })
+      }
     } else this.ready()
   })
 
@@ -244,11 +261,22 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const question = Questions.findOne({ _id: questionId })
-    const yourCourses = _(Courses.find({ instructors: Meteor.userId() }).fetch()).pluck('_id')
+    const userId = Meteor.userId()
 
+    // a student deleting a public question that they copied over:
+    if ( question.owner === userId && question.studentCopyOfPublic ){
+      return Questions.remove({ _id: questionId })
+    }
+
+    const yourCourses = _(Courses.find({ instructors: userId }).fetch()).pluck('_id')
     const ownQuestion = yourCourses.indexOf(question.courseId) > -1
-    if (!ownQuestion && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
 
+    if (!ownQuestion && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
+    if (question.creator !== question.owner){
+      //this is to not delete a student question
+      question.owner = question.creator
+      return Meteor.call('questions.update', question)
+    }
     return Questions.remove({ _id: questionId })
   },
 
@@ -282,11 +310,28 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const omittedFields = ['_id', 'originalQuestion', 'sessionId']
-    const question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    //quetion below was const, but changed to let, right???
+    let question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
+    //Don't copy if we already own or created
+    //TODO: should really check if the same question is already in the library
+    //by hashing it or something similar
+    userId = Meteor.userId()
+    /* this wouldn't allow a question created in a session to be copied over
+    if( (question.owner === userId || question.creator === userId) && !question.sessionId){
+      throw new Meteor.Error('Question already in library')
+    }*/
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
-    question.approved = true
+
+    //TODO: should check that the question is part of a course, and the user an instructor for that course:
+    if(Meteor.user().isInstructorAnyCourse()) question.approved = true
+
+    //this is so that the (approved) questions that students copy to their own library
+    //don't show up in the instructor's libraries.
+    if( !Meteor.user().isInstructorAnyCourse() ){
+      question.studentCopyOfPublic = true
+    }
 
     const id = Questions.insert(question)
     return id

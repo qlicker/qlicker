@@ -128,7 +128,7 @@ Router.route('/questions/library/:_id?', {
   },
   action: function () {
     const isInstructor = Courses.findOne({instructors: Meteor.userId()}) || Meteor.user().hasRole('professor')
-    if (Meteor.userId() && isInstructor) {
+    if (Meteor.userId() /*&& isInstructor*/) {
       mount(AppLayout, { content: <PageContainer user={Meteor.user()}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
@@ -144,7 +144,7 @@ Router.route('/questions/public', {
   action: function () {
     let user = Meteor.user()
     const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
-    if (Meteor.userId() && isInstructor) {
+    if (Meteor.userId() /*&& isInstructor*/) {
       mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
   }
