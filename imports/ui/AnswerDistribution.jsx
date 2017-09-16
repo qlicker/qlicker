@@ -32,13 +32,12 @@ export class _AnswerDistribution extends Component {
     const bars = []
     _(this.props.maxAttempt).times((i) => {
       const color = colorSeq[i] || this.getRandomColor()
-      bars.push(<Bar key={i} dataKey={'attempt_' + (i + 1)} maxBarSize={45} fill={color} label isAnimationActive={false} />)
+      bars.push(<Bar key={i} dataKey={'pct_attempt_' + (i + 1)} maxBarSize={45} fill={color} label isAnimationActive={false} />)
     })
     return (<div className='ql-center-answer-distribution'>
       <BarChart className='ql-answer-distribution'
         height={190} width={500} data={this.props.distribution}
-        margin={{top: 10, right: 10, left: -25, bottom: 5}}>
-        <text x={250} y={20} textAnchor='middle' style={{fontWeight: 'bold'}}>{this.props.title || ''}</text>
+        margin={{top: 20, right: 10, left: -25, bottom: 5}}>
         <XAxis dataKey='answer' />
         <YAxis allowDecimals={false} />
         <Legend />
@@ -56,6 +55,49 @@ export const AnswerDistribution = createContainer((props) => {
   const maxAttempt = props.question.sessionOptions ? props.question.sessionOptions.attempts.length : 0
   const validOptions = _(props.question.options).pluck('answer')
 
+  //This is basically the same as in QuestionDisplay, with an extra loop over attempts
+  answerDistributionByAttempt = {}
+  totalByAttempt = {}
+  for(let i = 0; i < maxAttempt ; i++){
+    attemptNumber = i + 1
+    //Get the responses for that attempt:
+    responsesForAttempt = _(responses).filter( (r)=>{return r.attempt === attemptNumber})
+    //Get the total number of responses:
+    total = responsesForAttempt.length
+    totalByAttempt[attemptNumber] = total
+    //pull out all the answers from the responses, this gives an array of arrays of answers
+    //e.g. [[A,B], [B], [B,C]], then flatten it
+    allAnswers = _(_(responsesForAttempt).pluck('answer')).flatten()
+    //then we count each occurrence of answer in the array
+    //we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
+    let answerDistribution = {}
+    allAnswers.forEach( (a) => {
+      if(answerDistribution[a]) answerDistribution[a] += 1
+      else answerDistribution[a] = 1
+    })
+    answerDistributionByAttempt[attemptNumber] = answerDistribution
+  }
+  //create the data for plotting, an array like:
+  //[{answer:A, attempt_1:5, attempt_2:0}, {answer:B, attempt_1:8, attempt_2:3},... ]
+  formattedData = []
+  validOptions.forEach( (o) => {
+    answerEntry = { answer:o }
+    for(let i = 0; i < maxAttempt ; i++){
+      attemptNumber = i + 1
+      answerDistribution = answerDistributionByAttempt[attemptNumber]
+      total = totalByAttempt[attemptNumber]
+
+      if(!answerDistribution[o]) answerDistribution[o] = 0
+      pct = Math.round(100. * (total !==0 ? answerDistribution[o]/total : 0))
+
+      answerEntry['attempt_'+attemptNumber] = answerDistribution[o]
+      answerEntry['pct_attempt_'+attemptNumber] = pct
+    }
+    formattedData.push(answerEntry)
+  })
+
+////////////old starts here
+/*
   const data = []
   let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
   options.map((a) => {
@@ -88,9 +130,10 @@ export const AnswerDistribution = createContainer((props) => {
     data.push(kOptions[key])
   })
 
+*/
   return {
     responses: responses,
-    distribution: data,
+    distribution: formattedData,
     maxAttempt: maxAttempt,
     loading: !handle.ready()
   }
@@ -99,4 +142,3 @@ export const AnswerDistribution = createContainer((props) => {
 AnswerDistribution.propTypes = {
   question: PropTypes.object.isRequired
 }
-
