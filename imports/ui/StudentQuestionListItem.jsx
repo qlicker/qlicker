@@ -25,9 +25,11 @@ export const StudentQuestionListItem = createContainer((props) => {
     Meteor.subscribe('users.myTAs', {cId: props.question.courseId})
   const user = Meteor.users.findOne(props.question.creator)
   const name = user ? user.getName() : 'Unknown'
+  const owner = Meteor.users.findOne(props.question.owner)
+  const nameOwner = owner ? owner.getName(): 'Unknown'
   return {
     student: user,
-    details: 'Submitted By: ' + name,
+    details: 'Submitted by: ' + name +', owned by: '+nameOwner,
     loading: !handle.ready()
   }
 }, _StudentQuestionListItem)
