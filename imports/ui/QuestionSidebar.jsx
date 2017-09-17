@@ -36,6 +36,7 @@ export class QuestionSidebar extends ControlledForm {
     this.setTags = this.setTags.bind(this)
     this.resetFilter = this.resetFilter.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.approveQuestion = this.approveQuestion.bind(this)
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
     // populate tagging suggestions
     this.tagSuggestions = []
@@ -134,7 +135,23 @@ export class QuestionSidebar extends ControlledForm {
       question = this.state.questionPool.find((q)=>{return q._id===questionId})
       if(question){
         question.approved = false
-        question.public = false
+        question.public = false //public questions should be approved
+        Meteor.call('questions.update', question, (error, newQuestionId) => {
+          if (error) return alertify.error('Error: ' + error.error)
+          alertify.success('Question un-approved')
+        })
+    }
+    }
+  }
+  /**
+   * Set approved status to true
+   * @param {MongoId} questionId
+   */
+  approveQuestion(questionId){
+    if (confirm('Are you sure?')) {
+      question = this.state.questionPool.find((q)=>{return q._id===questionId})
+      if(question){
+        question.approved = true
         Meteor.call('questions.update', question, (error, newQuestionId) => {
           if (error) return alertify.error('Error: ' + error.error)
           alertify.success('Question un-approved')
@@ -227,7 +244,9 @@ export class QuestionSidebar extends ControlledForm {
                 if( (q.owner !== userId || q.creator !== userId ) && q.approved && isInstructor){
                   controls.push({label:'un-approve', click : () => this.unApproveQuestion(q._id) })
                 }
-
+                if( (q.owner !== userId || q.creator !== userId ) && !q.approved && isInstructor){
+                  controls.push({label:'approve', click : () => this.approveQuestion(q._id) })
+                }
                 return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
                     ? <QuestionListItem

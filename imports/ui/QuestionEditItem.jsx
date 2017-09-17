@@ -60,6 +60,7 @@ export class QuestionEditItem extends Component {
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.setCourse = this.setCourse.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
@@ -395,6 +396,16 @@ export class QuestionEditItem extends Component {
     })
   }
 
+  duplicateQuestion(){
+    if(this.state._id && (this.state.options.length !== 0 || this.state.type === QUESTION_TYPE.SA)){
+       delete this.state._id
+       this.saveQuestion()
+     }
+     else{
+       alertify.error('Error: question must be saved')
+     }
+  }
+
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
   }
@@ -506,12 +517,15 @@ export class QuestionEditItem extends Component {
             ? <div className='row metadata-row'>
               <div className='col-md-6'>
                 <div className='btn-group'>
-                  <button className='btn btn-default'
-                    data-toggle='tooltip'
-                    data-placement='top'
-                    title='Create a copy of this question'>
-                    Duplicate
-                  </button>
+                  {this.state._id ?
+                    <button className='btn btn-default'
+                      onClick={this.duplicateQuestion}
+                      data-toggle='tooltip'
+                      data-placement='top'
+                      title='Create a copy of this question'>
+                      Duplicate
+                    </button> : ''
+                  }
                   <button
                     className='btn btn-default'
                     onClick={this.deleteQuestion}>
