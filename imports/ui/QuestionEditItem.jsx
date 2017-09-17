@@ -397,7 +397,13 @@ export class QuestionEditItem extends Component {
   }
 
   duplicateQuestion(){
-    alertify.error('duplicateQuestion not implemented!')
+    if(this.state._id && (this.state.options.length !== 0 || this.state.type === QUESTION_TYPE.SA)){
+       delete this.state._id
+       this.saveQuestion()
+     }
+     else{
+       alertify.error('Error: question must be saved')
+     }
   }
 
   componentWillReceiveProps (nextProps) {
@@ -511,13 +517,15 @@ export class QuestionEditItem extends Component {
             ? <div className='row metadata-row'>
               <div className='col-md-6'>
                 <div className='btn-group'>
-                  <button className='btn btn-default'
-                    onClick={this.duplicateQuestion}
-                    data-toggle='tooltip'
-                    data-placement='top'
-                    title='Create a copy of this question'>
-                    Duplicate
-                  </button>
+                  {this.state._id ?
+                    <button className='btn btn-default'
+                      onClick={this.duplicateQuestion}
+                      data-toggle='tooltip'
+                      data-placement='top'
+                      title='Create a copy of this question'>
+                      Duplicate
+                    </button> : ''
+                  }
                   <button
                     className='btn btn-default'
                     onClick={this.deleteQuestion}>
