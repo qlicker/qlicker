@@ -292,12 +292,15 @@ Meteor.methods({
     const session = Sessions.findOne({ _id: sessionId })
     const question = Questions.findOne({ _id: questionId })
 
+    if(!question || !session) return
+
     question.originalQuestion = questionId
     question.sessionId = sessionId
     question.courseId = session.courseId
     question.owner = Meteor.userId()
+    //question.sessionOptions = defaultSessionOptions
 
-    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
+    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
     return copiedQuestion._id
   },

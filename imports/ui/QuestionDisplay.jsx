@@ -214,7 +214,7 @@ export class _QuestionDisplay extends Component {
   wysiwygContent (answer, content, correct) {
     let classContent = 'ql-wysiwyg-content'
 
-    if (!this.props.noStats && this.props.question.sessionOptions.correct) {
+    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'ql-wysiwyg-content correct-color' : 'ql-wysiwyg-content incorrect-color'
     }
     return (
@@ -232,7 +232,7 @@ export class _QuestionDisplay extends Component {
    */
   commonContent (typeStr, answer, content, correct) {
     let classContent = ''
-    if (!this.props.noStats && this.props.question.sessionOptions.correct) {
+    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
@@ -253,7 +253,7 @@ export class _QuestionDisplay extends Component {
         if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
 
-        if (!this.props.noStats && this.props.question.sessionOptions.stats) {
+        if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
@@ -307,7 +307,7 @@ export class _QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (!this.props.noStats && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
+    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
     const type = q.type
@@ -360,7 +360,7 @@ export const QuestionDisplay = createContainer((props) => {
   let responses
 
   const question = props.question
-  if (!props.noStats && question.type !== QUESTION_TYPE.SA) {
+  if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
     //Get the number of last attempt
     const attemptNumber = question.sessionOptions.attempts.length
     //Get the responses for that attempt:
