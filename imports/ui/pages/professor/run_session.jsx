@@ -227,8 +227,82 @@ class _RunSession extends Component {
       })
     }
   }
+  renderMobile(){
+
+    if (this.state.session.status !== 'running') return <div className='ql-subs-loading'>Session not running</div>
+    const current = this.state.session.currentQuestion
+    if (this.props.loading || !current) return <div className='ql-subs-loading'>Loading</div>
+
+    let questionList = this.state.session.questions || []
+
+    const q = this.props.questions[current]
+    if (!q.sessionOptions) return <div>Loading</div>
+    const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+
+    // strings
+    const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
+    const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
+    const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
+    const strAttemptEnabled = currentAttempt.closed ? 'Allow Responses' : 'Disallow Responses'
+
+    const numAnswered = this.props.responses.length
+    const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
+
+    return (
+      <div className='ql-manage-session'>
+
+        <div className='ql-session-toolbar'>
+          <h3 className='session-title'>{ this.state.session.name }</h3>
+          <span className='divider'>&nbsp;</span>
+          <span className='divider'>&nbsp;</span>
+          <span data-tip data-for='students' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <span className='divider'>&nbsp;</span>
+          <span className='toolbar-button' onClick={this.endSession}>
+            <span className='glyphicon glyphicon-stop' />&nbsp;
+            Finish Session
+          </span>
+          <span className='divider'>&nbsp;</span>
+          <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
+          <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>
+          <span className='divider'>&nbsp;</span>
+
+        </div>
+
+        <div className='ql-row-container'>
+          <div className='ql-question-toolbar'>
+            <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
+            <span className='divider'>&nbsp;</span>
+            <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
+            <span className='divider'>&nbsp;</span>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
+            <span className='divider'>&nbsp;</span>
+            <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
+            <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
+            <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+            <span className='divider'>&nbsp;</span>
+          </div>
+
+          <div className={'ql-main-content ' + (this.state.presenting ? 'presenting' : '')}>
+            {
+              !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
+              ? <div><ShortAnswerList question={q} /></div>
+              : ''
+            }
+
+            <div className='ql-question-preview'>
+              { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }
+            </div>
+          </div>
+
+        </div>
+      </div> )
+
+  }
 
   render () {
+    if (this.props.mobile) return this.renderMobile()
     if (this.state.session.status !== 'running') return <div className='ql-subs-loading'>Session not running</div>
     const current = this.state.session.currentQuestion
     if (this.props.loading || !current) return <div className='ql-subs-loading'>Loading</div>
@@ -349,7 +423,7 @@ class _RunSession extends Component {
           </div>
 
         </div>
-      </div>)
+      </div> )
   }
 
 }
@@ -379,4 +453,3 @@ export const RunSession = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _RunSession)
-
