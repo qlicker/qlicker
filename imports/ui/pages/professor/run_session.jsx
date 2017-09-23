@@ -245,6 +245,7 @@ class _RunSession extends Component {
     }
   }
   renderMobile(){
+    //TODO: Add some styling... this is barebones and needs some css to look nicer...
 
     if (this.state.session.status !== 'running') return <div className='ql-subs-loading'>Session not running</div>
     const current = this.state.session.currentQuestion
@@ -275,7 +276,7 @@ class _RunSession extends Component {
         Question: {questionList.indexOf(current) + 1}/{questionList.length}&nbsp;&nbsp;
         Responses: <span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}&nbsp;&nbsp;
         Attempt: {q.sessionOptions.attempts.length}
-        <div className='btn-group-lg btn-group-justified details-button-group'>
+        <div className='btn-group btn-group-justified details-button-group'>
           <div className='btn btn-default' onClick={this.newAttempt}>
             New attempt
           </div>
@@ -283,7 +284,7 @@ class _RunSession extends Component {
             {strAttemptEnabled}
           </div>
         </div>
-        <div className='btn-group-lg btn-group-justified details-button-group'>
+        <div className='btn-group btn-group-justified details-button-group'>
           <div className='btn btn-default' onClick={()=>{this.toggleStats(q._id)}}>
             {strStatsVisible}
           </div>
@@ -291,7 +292,7 @@ class _RunSession extends Component {
             {strCorrectVisible}
           </div>
         </div>
-        <div className='btn-group-lg btn-group-justified details-button-group'>
+        <div className='btn-group btn-group-justified details-button-group'>
           <div className='btn btn-default' onClick={this.prevQuestion}>
             <span className='glyphicon glyphicon-arrow-left' /> &nbsp;  Previous
           </div>
@@ -311,7 +312,7 @@ class _RunSession extends Component {
           ? <div><ShortAnswerList question={q} /></div>
           : ''
         }
-        <div className='btn-group btn-group-justified details-button-group'>
+        <div className='btn-group-lg btn-group-justified details-button-group'>
           <div className='btn btn-default' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
             Finish Session
@@ -396,9 +397,9 @@ class _RunSession extends Component {
             <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
             <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
             <span className='divider'>&nbsp;</span>
-            <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
             <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
             <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+            <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
             <span className='divider'>&nbsp;</span>
           </div>
 
