@@ -14,12 +14,24 @@ import { Responses } from '../api/responses'
  */
 class _ShortAnswerList extends Component {
 
+  renderAnswer(r){
+    const user = Meteor.users.findOne(r.studentUserId)
+    const name = user? user.getName() : 'Unknown'
+
+    return(
+      <div>
+        {name}: {r.answer}
+      </div>
+    )
+
+  }
+
   render () {
     if (this.props.loading) return <div>Loading</div>
     return (<div className='ql-short-answer-list'>
       <h3>Responses</h3>
       {
-        this.props.responses.map(r => <div className='ql-short-answer-item'>{r.answer}</div>)
+        this.props.responses.map(r => <div key={r._id} className='ql-short-answer-item'>{this.renderAnswer(r)}</div>)
       }
     </div>)
   } //  end render
@@ -28,7 +40,11 @@ class _ShortAnswerList extends Component {
 
 export const ShortAnswerList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
-  const responses = Responses.find({ questionId: props.question._id }, { sort: { createdAt: -1 } }).fetch()
+  const question = props.question
+  const attemptNumber = question.sessionOptions.attempts.length
+  //Get the responses for that attempt:
+  const responses = Responses.find({ questionId: question._id, attempt: attemptNumber }, { sort: { createdAt: -1 } }).fetch()
+  //const responses = Responses.find({ questionId: props.question._id }, { sort: { createdAt: -1 } }).fetch()
 
   return {
     responses: responses,
@@ -39,4 +55,3 @@ export const ShortAnswerList = createContainer((props) => {
 ShortAnswerList.propTypes = {
   question: PropTypes.object.isRequired
 }
-
