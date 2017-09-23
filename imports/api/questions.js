@@ -454,6 +454,7 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.startAttempt' (questionId) {
+    if(!questionId) return
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
@@ -536,6 +537,7 @@ Meteor.methods({
    * disables visibility of entire question in session
    */
   'questions.hideQuestion' (questionId) {
+    if(!questionId) return
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
