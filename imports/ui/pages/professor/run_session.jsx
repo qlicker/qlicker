@@ -40,6 +40,8 @@ class _RunSession extends Component {
     this.toggleHidden = this.toggleHidden.bind(this)
     this.toggleCorrect = this.toggleCorrect.bind(this)
     this.toggleAttempt = this.toggleAttempt.bind(this)
+    this.routeMobile = this.routeMobile.bind(this)
+    this.routeDesktop = this.routeDesktop.bind(this)
 
     Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
   }
@@ -55,6 +57,21 @@ class _RunSession extends Component {
     })
   }
 
+  /**
+   * routeMobile
+   * Routes to the mobile version
+   */
+  routeMobile() {
+    Router.go('session.run.mobile',{_id:this.props.session._id})
+  }
+
+  /**
+   * routeDesktop
+   * Routes to the desktop version
+   */
+  routeDesktop() {
+    Router.go('session.run',{_id:this.props.session._id})
+  }
   /**
    * toggleStats(MongoId (string): questionId)
    * calls questions.showStats or .hideStats to show/hide answer distribution from students
@@ -249,56 +266,49 @@ class _RunSession extends Component {
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
     return (
-      <div className='ql-manage-session'>
+      <div className='container ql-session-display'>
+        <a className='toolbar-button' href='#' onClick={this.routeDesktop}>
+          <span className='glyphicon glyphicon-fullscreen' />&nbsp;
+          Desktop view
+        </a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }&nbsp;&nbsp;
+        Question: {questionList.indexOf(current) + 1}/{questionList.length}&nbsp;&nbsp;
+        Responses: <span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}&nbsp;&nbsp;
+        Attempt: {q.sessionOptions.attempts.length}
+        <div className='btn-group btn-group-justified details-button-group'>
+          <div className='btn btn-default' onClick={()=>{this.toggleStats(q._id)}}>
+            {strStatsVisible}
+          </div>
+          <div className='btn btn-default' onClick={()=>{this.toggleCorrect(q._id)}}>
+            {strCorrectVisible}
+          </div>
+          <div className='btn btn-default' onClick={this.newAttempt}>
+            New attempt
+          </div>
+        </div>
+        <div className='btn-group btn-group-justified details-button-group'>
+          <div className='btn btn-default' onClick={this.prevQuestion}>
+            <span className='glyphicon glyphicon-arrow-left' /> &nbsp;  Previous
+          </div>
+          <div className='btn btn-default' onClick={() => this.toggleHidden(q._id)}>
+            {strQuestionVisible}
+          </div>
+          <div className='btn btn-default' onClick={this.nextQuestion}>
+            Next &nbsp;<span className='glyphicon glyphicon-arrow-right' />
+          </div>
+        </div>
 
-        <div className='ql-session-toolbar'>
-          <h3 className='session-title'>{ this.state.session.name }</h3>
-          <span className='divider'>&nbsp;</span>
-          <span className='divider'>&nbsp;</span>
-          <span data-tip data-for='students' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
-          <span className='divider'>&nbsp;</span>
-          <span className='toolbar-button' onClick={this.endSession}>
+        <div className='ql-question-preview'>
+          { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof showStatsOverride /> : '' }
+        </div>
+
+        <div className='btn-group btn-group-justified details-button-group'>
+          <div className='btn btn-default' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
             Finish Session
-          </span>
-          <span className='divider'>&nbsp;</span>
-          <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
-          <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>
-          <span className='divider'>&nbsp;</span>
-
-        </div>
-
-        <div className='ql-row-container'>
-          <div className='ql-question-toolbar'>
-            <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
-            <span className='divider'>&nbsp;</span>
-            <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
-            <span className='divider'>&nbsp;</span>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
-            <span className='divider'>&nbsp;</span>
-            <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
-            <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
-            <span className='divider'>&nbsp;</span>
           </div>
-
-          <div className={'ql-main-content ' + (this.state.presenting ? 'presenting' : '')}>
-            {
-              !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
-              ? <div><ShortAnswerList question={q} /></div>
-              : ''
-            }
-
-            <div className='ql-question-preview'>
-              { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }
-            </div>
-          </div>
-
         </div>
-      </div> )
-
+      </div>)
   }
 
   render () {
@@ -359,6 +369,10 @@ class _RunSession extends Component {
             <span className='glyphicon glyphicon-blackboard' />&nbsp;
             2nd Display
           </span>
+          <a className='toolbar-button' href='#' onClick={this.routeMobile}>
+            <span className='glyphicon glyphicon-phone' />&nbsp;
+            Mobile view
+          </a>
           <span className='divider'>&nbsp;</span>
           <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
           <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>

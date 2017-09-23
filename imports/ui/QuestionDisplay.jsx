@@ -253,7 +253,9 @@ export class _QuestionDisplay extends Component {
         if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
 
-        if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats) {
+        let showStats = !this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
+        if(this.props.showStatsOverride) showStats = true
+        if (showStats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
@@ -268,8 +270,10 @@ export class _QuestionDisplay extends Component {
 
           widthStyle = { width: stats + '%' }
         }
+        const statsStr = '('+stats+'%)'
         const sess = this.props.question.sessionOptions
         const shouldShow = this.props.forReview || this.props.prof || (sess && sess.correct)
+
         return (
           <div key={'question_' + a.answer}
             onClick={() => this.setAnswer(a.answer)}
@@ -278,9 +282,10 @@ export class _QuestionDisplay extends Component {
               ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
-              { classSuffixStr === 'mc' || classSuffixStr === 'ms'
-                ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content} {(shouldShow && a.correct) ? '✓' : ''}
+              { classSuffixStr === 'mc' || classSuffixStr === 'ms' ?
+                 <span className='ql-mc'>{a.answer}.</span>
+                 : '' }
+              {content} {(shouldShow && a.correct) ? '✓' : ''} {showStats ? statsStr: ''}
             </div>
           </div>)
       })
@@ -404,7 +409,8 @@ export const QuestionDisplay = createContainer((props) => {
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
   readonly: PropTypes.bool,
-  noStats: PropTypes.bool,
+  noStats: PropTypes.bool, //seems confusing...
+  showStatsOverride: PropTypes.bool, //used for mobile session running
   prof: PropTypes.bool,
   forReview: PropTypes.bool
 }
