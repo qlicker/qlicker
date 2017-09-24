@@ -144,17 +144,21 @@ export class QuestionSidebar extends ControlledForm {
     }
   }
   /**
-   * Set approved status to true
+   * Set approved status to true and take ownership
    * @param {MongoId} questionId
    */
+   //TODO: by unapproving and then approving a question, you can thus steal the ownership
+   //not clear how to make this better.
   approveQuestion(questionId){
     if (confirm('Are you sure?')) {
       question = this.state.questionPool.find((q)=>{return q._id===questionId})
-      if(question){
+      userId = Meteor.userId()
+      if(question && userId){
         question.approved = true
+        question.owner = userId
         Meteor.call('questions.update', question, (error, newQuestionId) => {
           if (error) return alertify.error('Error: ' + error.error)
-          alertify.success('Question un-approved')
+          alertify.success('Question approved')
         })
     }
     }

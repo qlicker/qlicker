@@ -337,6 +337,21 @@ Router.route('/session/run/:_id', {
   }
 })
 
+
+Router.route('/session/run/:_id/mobile', {
+  name: 'session.run.mobile',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
+  },
+  action: function () {
+    const sess = Sessions.findOne(this.params._id)
+    const cId = sess ? sess.courseId : ''
+    if (Meteor.userId() && Meteor.user().isInstructor(cId)) {
+      mount(AppLayout, { content:  <RunSession mobile sessionId={this.params._id} courseId={cId} /> })
+    } else Router.go('login')
+  }
+})
+
 import { Session } from '../../ui/pages/student/session'
 Router.route('/session/present/:_id', {
   name: 'session',

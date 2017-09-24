@@ -256,6 +256,8 @@ class _ManageCourse extends Component {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
+    const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
+    const expandText = !this.state.expandedClasslist ? 'show all' : 'show less'
 
     const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
     return (
@@ -302,8 +304,8 @@ class _ManageCourse extends Component {
             </div>
 
             <div className='ql-card hidden-xs'>
-              <div className='ql-header-bar'>
-                <h4>Classlist ({this.props.course.students.length} student{this.props.course.students.length>1?'s':''})</h4>
+              <div className='ql-header-bar' onClick={toggleExpandedClasslist}>
+                <h4>{this.props.course.students.length} student{this.props.course.students.length>1?'s':''} (click to {expandText})</h4>
               </div>
               <div>
                 <div className='ql-course-classlist'>
@@ -311,7 +313,6 @@ class _ManageCourse extends Component {
                 </div>
               </div>
             </div>
-
           </div>
 
           <div className='col-md-8'>

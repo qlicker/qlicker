@@ -214,7 +214,7 @@ export class _QuestionDisplay extends Component {
   wysiwygContent (answer, content, correct) {
     let classContent = 'ql-wysiwyg-content'
 
-    if (!this.props.noStats && this.props.question.sessionOptions.correct) {
+    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'ql-wysiwyg-content correct-color' : 'ql-wysiwyg-content incorrect-color'
     }
     return (
@@ -232,7 +232,7 @@ export class _QuestionDisplay extends Component {
    */
   commonContent (typeStr, answer, content, correct) {
     let classContent = ''
-    if (!this.props.noStats && this.props.question.sessionOptions.correct) {
+    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
@@ -253,7 +253,9 @@ export class _QuestionDisplay extends Component {
         if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
 
-        if (!this.props.noStats && this.props.question.sessionOptions.stats) {
+        let showStats = !this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
+        if(this.props.showStatsOverride) showStats = true
+        if (showStats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
@@ -268,8 +270,10 @@ export class _QuestionDisplay extends Component {
 
           widthStyle = { width: stats + '%' }
         }
+        const statsStr = '('+stats+'%)'
         const sess = this.props.question.sessionOptions
         const shouldShow = this.props.forReview || this.props.prof || (sess && sess.correct)
+
         return (
           <div key={'question_' + a.answer}
             onClick={() => this.setAnswer(a.answer)}
@@ -278,9 +282,10 @@ export class _QuestionDisplay extends Component {
               ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
-              { classSuffixStr === 'mc' || classSuffixStr === 'ms'
-                ? <span className='ql-mc'>{a.answer}.</span> : '' }
-              {content} {(shouldShow && a.correct) ? '✓' : ''}
+              { classSuffixStr === 'mc' || classSuffixStr === 'ms' ?
+                 <span className='ql-mc'>{a.answer}.</span>
+                 : '' }
+              {content} {(shouldShow && a.correct) ? '✓' : ''} {showStats ? statsStr: ''}
             </div>
           </div>)
       })
@@ -288,10 +293,20 @@ export class _QuestionDisplay extends Component {
   }
 
   renderShortAnswer (q) {
-    if (this.props.forReview) return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
+    if ((this.props.forReview || this.props.prof)){
+      //return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
+      return (
+        <div>
+        {q.options[0].content ?
+          <h4 style={{'alignSelf': 'left'}}>{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
+          :''
+        }</div>
+    )}
+
+
     let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
     return (
-      <div className='ql-short-answer'>
+      <div className='ql-answer-content-container ql-short-answer'>
         { showAns ? <h4>Correct Answer: {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
         <textarea
           disabled={this.readonly}
@@ -307,7 +322,7 @@ export class _QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (!this.props.noStats && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
+    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
     const type = q.type
@@ -360,7 +375,7 @@ export const QuestionDisplay = createContainer((props) => {
   let responses
 
   const question = props.question
-  if (!props.noStats && question.type !== QUESTION_TYPE.SA) {
+  if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
     //Get the number of last attempt
     const attemptNumber = question.sessionOptions.attempts.length
     //Get the responses for that attempt:
@@ -404,7 +419,8 @@ export const QuestionDisplay = createContainer((props) => {
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
   readonly: PropTypes.bool,
-  noStats: PropTypes.bool,
+  noStats: PropTypes.bool, //seems confusing...
+  showStatsOverride: PropTypes.bool, //used for mobile session running
   prof: PropTypes.bool,
   forReview: PropTypes.bool
 }

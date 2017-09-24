@@ -43,10 +43,10 @@ export class _StudentQuestionResultsClassList extends Component {
     })
 
     return (<div className='ql-student-results-list'>
-      <div style={{float: 'left', width: '50%'}}>
+      <div className='col-sm-8'>
         <QuestionDisplay style={{float: 'right'}} question={q} readonly noStats forReview />
       </div>
-      <div style={{float: 'right', width: '50%'}}>
+      <div className='col-sm-4'>
         <table style={{float: 'right', margin: '15px'}} className='ql-student-results-table'>
           <thead>
             <tr>
@@ -77,4 +77,3 @@ export const StudentQuestionResultsClassList = createContainer((props) => {
 StudentQuestionResultsClassList.propTypes = {
   question: PropTypes.object.isRequired
 }
-
