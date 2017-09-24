@@ -293,7 +293,17 @@ export class _QuestionDisplay extends Component {
   }
 
   renderShortAnswer (q) {
-    if (this.props.forReview) return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
+    if ((this.props.forReview || this.props.prof)){
+      //return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
+      return (
+        <div>
+        {q.options[0].content ?
+          <h4 style={{'alignSelf': 'left'}}>{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
+          :''
+        }</div>
+    )}
+
+
     let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
     return (
       <div className='ql-answer-content-container ql-short-answer'>
