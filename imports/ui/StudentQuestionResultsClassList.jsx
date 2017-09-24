@@ -42,9 +42,6 @@ export class _StudentQuestionResultsClassList extends Component {
       </tr>)
     })
 
-    //TODO This should use bootstrap to decide on width
-    //<div style={{float: 'left', width: '50%'}}>
-    //<div style={{float: 'right', width: '50%'}}>
     return (<div className='ql-student-results-list'>
       <div className='col-sm-8'>
         <QuestionDisplay style={{float: 'right'}} question={q} readonly noStats forReview />
