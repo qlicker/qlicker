@@ -32,28 +32,27 @@ export class ProfileViewModal extends ControlledForm {
   }
 
   verifyUserEmail (email) {
-    Meteor.call('users.verifyEmail',email, (e, d) => {
+    Meteor.call('users.verifyEmail', email, (e, d) => {
       if (e) alertify.error(e)
-      if (d){
+      if (d) {
         alertify.success('Email verified')
         this.forceUpdate()
       }
     })
-
   }
 
   sendVerificationEmailTo (user) {
-    Meteor.call('users.sendVerificationEmailTo',user._id, (e) => {
-      if (e) alertify.error('Error sending email '+e)
+    Meteor.call('users.sendVerificationEmailTo', user._id, (e) => {
+      if (e) alertify.error('Error sending email ' + e)
       else alertify.success('Email sent')
     })
   }
 
-  deleteUser(user){
-    if(confirm('Are you really sure?')){
-      Meteor.call('users.delete',user, (e) => {
-        if (e) alertify.error('Error deleting user '+e)
-        else{
+  deleteUser (user) {
+    if (confirm('Are you really sure?')) {
+      Meteor.call('users.delete', user, (e) => {
+        if (e) alertify.error('Error deleting user ' + e)
+        else {
           alertify.success('User deleted')
           this.props.done()
         }
@@ -61,31 +60,30 @@ export class ProfileViewModal extends ControlledForm {
     }
   }
 
-  renderAdminControls(){
-    viewUser = Meteor.user()
+  renderAdminControls () {
+    let viewUser = Meteor.user()
     const user = this.props.user
-    if (viewUser.hasGreaterRole(ROLES.admin)){
+    if (viewUser.hasGreaterRole(ROLES.admin)) {
       const sendVerificationEmailTo = (e) => this.sendVerificationEmailTo(user._id)
       const verifyUserEmail = (e) => this.verifyUserEmail(user.getEmail())
-      const deleteUser =  (e) => this.deleteUser(user)
+      const deleteUser = (e) => this.deleteUser(user)
       return (
-         <div className='ql-profile-container'>
-           {user.emails[0].verified ? ''
+        <div className='ql-profile-container'>
+          {user.emails[0].verified ? ''
               : <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                  <a className='btn btn-primary' onClick={verifyUserEmail}>Verify Email</a>
-                  <a className='btn btn-primary' onClick={sendVerificationEmailTo}>Send Verification Email</a>
-               </div>
+                <a className='btn btn-primary' onClick={verifyUserEmail}>Verify Email</a>
+                <a className='btn btn-primary' onClick={sendVerificationEmailTo}>Send Verification Email</a>
+              </div>
             }
-           <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-             <a className='btn btn-primary' onClick={deleteUser}>Delete User</a>
-             {/*<a className='btn btn-danger' onClick={this.done}>Ban User</a>*/}
+          <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+            <a className='btn btn-primary' onClick={deleteUser}>Delete User</a>
+            {/* <a className='btn btn-danger' onClick={this.done}>Ban User</a> */}
           </div>
-       </div>)
-    }else{return ''}
-
+        </div>)
+    } else { return '' }
   }
 
-  renderUserInfo(){
+  renderUserInfo () {
     const user = this.props.user
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
@@ -101,35 +99,36 @@ export class ProfileViewModal extends ControlledForm {
   }
 
   render () {
-
-    return ( this.props.user ?
-      <div className='ql-modal-container' onClick={this.done} >
+    return (this.props.user
+      ? <div className='ql-modal-container' onClick={this.done} >
         <div className='row'>
           <div className='col-md-3' />
           <div className='col-md-6'>
             <div className='ql-profile-card  ql-card'>
-               <div className='profile-header ql-header-bar'><h3>{this.props.user.profile.lastname}, {this.props.user.profile.firstname}  </h3></div>
-               <div className='ql-card-content'>
-                  <div className='ql-profile-image-container'  onClick={this.done}>
-                    <img className="img-responsive center-block" src={this.props.user.getImageUrl() } />
-                 </div>
-                 <br/>
-                 {this.renderUserInfo()}
-                 {this.renderAdminControls()}
-                 <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                    <a className='btn btn-default' onClick={this.done}>Close</a>
-                 </div>
-               </div>
+              <div className='profile-header ql-header-bar'>
+                <h3>
+                  {this.props.user.profile.lastname}, {this.props.user.profile.firstname}
+                </h3>
+              </div>
+              <div className='ql-card-content'>
+                <div className='ql-profile-image-container' onClick={this.done}>
+                  <img className='img-responsive center-block' src={this.props.user.getImageUrl()} />
+                </div>
+                <br />
+                {this.renderUserInfo()}
+                {this.renderAdminControls()}
+                <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                  <a className='btn btn-default' onClick={this.done}>Close</a>
+                </div>
+              </div>
             </div>
+          </div>
+          <div className='col-md-3' />
         </div>
-        <div className='col-md-3' />
-      </div>
-    </div>: 'Loading')
+      </div> : 'Loading')
   } //  end render
 
 } // end profileViewModal
-
-
 
 ProfileViewModal.propTypes = {
   done: PropTypes.func,

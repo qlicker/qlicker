@@ -5,11 +5,7 @@
 // StudentQuestionResultsListItem.jsx: List displaying student session results
 
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
 import { WysiwygHelper } from '../wysiwyg-helpers'
-
-import { Responses } from '../api/responses'
-import { _ } from 'underscore'
 
 export class StudentQuestionResultsListItem extends Component {
 

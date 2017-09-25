@@ -11,7 +11,6 @@ import { _ } from 'underscore'
 
 import { restoreStubs } from '../../stubs.tests.js'
 
-
 import { Courses } from './courses'
 import { Questions } from './questions'
 import { Sessions } from './sessions'
@@ -27,7 +26,6 @@ export const sampleSession = {
   quiz: false,
   createdAt: new Date()
 }
-
 
 if (Meteor.isServer) {
   describe('Sessions', () => {

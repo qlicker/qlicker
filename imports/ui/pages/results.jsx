@@ -6,8 +6,6 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
-import { _ } from 'underscore'
-import $ from 'jquery'
 
 import { Courses } from '../../api/courses'
 import { Sessions } from '../../api/sessions'

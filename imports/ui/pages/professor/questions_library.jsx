@@ -22,8 +22,8 @@ export const createNav = (active) => {
       <a href={Router.routes['questions'].path()}>Question Library</a>
     </li>
     <li role='presentation' className={active === 'public' ? 'active' : ''}><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
-    { isInstructor ?
-      <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+    { isInstructor
+      ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
       : '' }
   </ul>)
 }
@@ -40,7 +40,7 @@ class _QuestionsLibrary extends Component {
       limit: 11,
       query: props.query,
       questionMap: _(props.library).indexBy('_id'),
-      resetSidebar: false //only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
+      resetSidebar: false // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
     }
 
     if (this.props.selected) {
@@ -55,7 +55,7 @@ class _QuestionsLibrary extends Component {
 
   editQuestion (questionId) {
     if (questionId === -1) {
-      //reset the query
+      // reset the query
       this.setState({query: this.props.query, resetSidebar: true})
       const blankQuestion = {
         plainText: '', // plain text version of question
@@ -98,7 +98,7 @@ class _QuestionsLibrary extends Component {
     else params.query = _.omit(params.query, 'tags.value')
 
     const newQuestions = Questions.find(params.query, params.options).fetch()
-    if (!_.findWhere(newQuestions, {_id: this.state.selected})) this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+    if (!_.findWhere(newQuestions, {_id: this.state.selected})) this.setState({selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
     else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
   }
 
@@ -134,8 +134,8 @@ class _QuestionsLibrary extends Component {
         <div className='row'>
           <div className='col-md-4'>
             <br />
-              {isInstructor ?
-                <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
+            {isInstructor
+              ? <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
                 : ''}
             <QuestionSidebar
               questions={library}
@@ -150,13 +150,13 @@ class _QuestionsLibrary extends Component {
             { this.state.selected
             ? <div>
               <div id='ckeditor-toolbar' />
-              {isInstructor ?
-                <div className='ql-edit-item-container'>
+              {isInstructor
+                ? <div className='ql-edit-item-container'>
                   <QuestionEditItem
                     question={this.state.questionMap[this.state.selected]}
                     deleted={this.questionDeleted}
                     metadata autoSave />
-                </div> :''
+                </div> : ''
               }
               <div className='ql-preview-item-container'>
                 {this.state.selected
@@ -177,8 +177,8 @@ export const QuestionsLibrary = createContainer(() => {
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   let params = {
     query: {
-      //'$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
-      //sessionId: {$exists: false}
+      // '$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
+      // sessionId: {$exists: false}
     },
     options: {
       sort: { createdAt: -1 },

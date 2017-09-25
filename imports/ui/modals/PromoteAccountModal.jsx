@@ -74,4 +74,3 @@ export class PromoteAccountModal extends ControlledForm {
 
 } // end PromoteAccountModal
 
-

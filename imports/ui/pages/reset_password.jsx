@@ -3,7 +3,7 @@
 //
 // reset_password.jsx: page for reseting password
 
-import React, { Component } from 'react'
+import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 

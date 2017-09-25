@@ -3,9 +3,9 @@
   "private": true,
   "scripts": {
     "doc": "jsdoc imports/* docs/README.md -d docs/.jsdocs -t node_modules/docdash/",
-    "start": "meteor run",
-    "lint": "node_modules/.bin/standard",
-    "fix": "node_modules/.bin/standard --fix",
+    "start": "meteor --settings settings.json",
+    "lint": "standard \"client/**/*.js*\" \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
+    "fix": "standard --fix \"client/**/*.js*\" \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
     "test:app-watch": "meteor test --full-app --driver-package practicalmeteor:mocha",
     "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html in_coverage' --xunit-out $CIRCLE_TEST_REPORTS/full-app-results.xml",
     "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha",

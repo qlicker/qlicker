@@ -189,7 +189,7 @@ Meteor.methods({
     session.status = 'hidden'
     session.name += ' (copy)'
     session.reviewable = false
-    
+
     // keep a copy of the questions
     const questions = (session.questions || []).slice()
     session.questions = []

@@ -7,11 +7,6 @@
 import React, { Component } from 'react'
 import { _ } from 'underscore'
 
-import { Slingshot } from 'meteor/edgee:slingshot'
-import { Images } from '../api/questions'
-
-let UUID = require('uuid-1345')
-
 export const DEFAULT_STATE = {
   login: true,
   email: '',

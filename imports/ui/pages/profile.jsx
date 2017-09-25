@@ -7,14 +7,13 @@ import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
-import { _ } from 'underscore'
 import $ from 'jquery'
 
 import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
+import { Dropzone } from 'dropzone'
 
 import { Images } from '../../api/images'
-import { Settings } from '../../api/settings'
 
 let UUID = require('uuid-1345')
 
@@ -87,13 +86,21 @@ class _Profile extends Component {
   }
 
   componentDidUpdate () {
-    if (!this.state.uploadActive) return
-    if (Meteor.isTest) return
-    new Dropzone('#profile-image-uploader', {
+    if (!this.state.uploadActive) {
+      return
+    }
+
+    if (Meteor.isTest) {
+      return
+    }
+
+    /* eslint-disable no-unused-vars */
+    // The drop
+    let dropzone = new Dropzone('#profile-image-uploader', {
       url: '/some/random/url',
       acceptedFiles: 'image/jpeg,image/png,image/gif',
       accept: (file, done) => {
-        let reader = new FileReader()
+        let reader = new window.FileReader()
         reader.readAsDataURL(file)
         reader.addEventListener('loadend', function (e) {
           const fileURL = reader.result
@@ -105,7 +112,7 @@ class _Profile extends Component {
           if (existing) {
             this.saveProfileImage(existing.url)
           } else {
-            let img = new Image()
+            let img = new window.Image()
             img.onload = function () {
               const meta = {UID: UID, type: 'image'}
               Meteor.call('settings.find', (e, obj) => {
@@ -115,7 +122,7 @@ class _Profile extends Component {
             }.bind(this)
             img.src = fileURL
             // Makes a thumbnail
-            let thumb = new Image()
+            let thumb = new window.Image()
             thumb.onload = function () {
               const meta = {UID: UID, type: 'thumbnail'}
               this.resizeImage(50, thumb, meta, false)
@@ -125,6 +132,7 @@ class _Profile extends Component {
         }.bind(this))
       }
     })
+    /* eslint-enable no-unused-vars */
   }
 
   componentWillReceiveProps (nextProps) {

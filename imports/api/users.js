@@ -1,4 +1,3 @@
-/* global FS */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -36,8 +35,8 @@ _.extend(User.prototype, {
   hasRole: function (role) {
     return this.profile.roles.indexOf(role) !== -1
   },
-  isInstructorAnyCourse: function(){
-    return Courses.findOne({ instructors: this._id }) ? true:false
+  isInstructorAnyCourse: function () {
+    return !!Courses.findOne({ instructors: this._id })
   },
   isInstructor: function (courseId) {
     if (!courseId) return false
@@ -82,7 +81,6 @@ if (Meteor.isServer) {
   Meteor.publish('users.myStudents', function (params) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
-
 
     if (user && (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id }))) {
       let studentRefs = []
@@ -143,7 +141,7 @@ Meteor.methods({
     let userId = Meteor.userId()
     if (userId && Meteor.isServer && Meteor.user.hasGreaterRole(ROLES.admin)) {
       return Accounts.sendVerificationEmail(toUserId)
-    }else{
+    } else {
       throw new Meteor.Error('not-authorized', 'not-authorized')
     }
   },
@@ -239,21 +237,22 @@ Meteor.methods({
   'users.createFromAdmin' (user) {
     if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
     const userId = Accounts.createUser(user)
-    if (Meteor.isServer){
+    if (Meteor.isServer) {
       Accounts.sendEnrollmentEmail(userId)
     }
-    return userId;
+    return userId
   },
 
   'users.delete' (user) {
     if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
-    if (Meteor.isServer){
-      Meteor.users.remove({ _id: user._id}, function(e,r){
-        if(e) throw new  Meteor.Error(e,e)
+    if (Meteor.isServer) {
+      Meteor.users.remove({_id: user._id}, function (e, r) {
+        if (e) {
+          throw new Meteor.Error(e, e)
+        }
       })
     }
   }
-
 
 //  'users.createFromAdmin' (user) {
 //    if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')

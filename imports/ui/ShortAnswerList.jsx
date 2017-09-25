@@ -14,16 +14,15 @@ import { Responses } from '../api/responses'
  */
 class _ShortAnswerList extends Component {
 
-  renderAnswer(r){
+  renderAnswer (r) {
     const user = Meteor.users.findOne(r.studentUserId)
-    const name = user? user.getName() : 'Unknown'
+    const name = user ? user.getName() : 'Unknown'
 
-    return(
+    return (
       <div>
         {name}: {r.answer}
       </div>
     )
-
   }
 
   render () {
@@ -42,9 +41,9 @@ export const ShortAnswerList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const question = props.question
   const attemptNumber = question.sessionOptions.attempts.length
-  //Get the responses for that attempt:
+  // Get the responses for that attempt:
   const responses = Responses.find({ questionId: question._id, attempt: attemptNumber }, { sort: { createdAt: -1 } }).fetch()
-  //const responses = Responses.find({ questionId: props.question._id }, { sort: { createdAt: -1 } }).fetch()
+  // const responses = Responses.find({ questionId: props.question._id }, { sort: { createdAt: -1 } }).fetch()
 
   return {
     responses: responses,

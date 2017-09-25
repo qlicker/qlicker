@@ -4,7 +4,6 @@
 // QuestionStats.jsx: Component for attempt distributions for a question
 
 import React, { Component, PropTypes } from 'react'
-import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
@@ -18,9 +17,6 @@ import { SessionResultsDownloader } from './SessionResultsDownloader'
 import { QUESTION_TYPE } from '../configs'
 
 export class _SessionResults extends Component {
-  constructor (props) {
-    super(props)
-  }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
@@ -35,14 +31,14 @@ export class _SessionResults extends Component {
       {
         this.props.session.questions.map(qId => {
           const q = this.props.questions[qId]
-          return (<div key = {'questionResult_' + qId}>
+          return (<div key={'questionResult_' + qId}>
             <a role='button' data-toggle='collapse' href={'#collapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
               <QuestionResultsListItem question={q} session={this.props.session} />
             </a>
             <div className='collapse' id={'collapse_' + qId}>
-              <div  className='row'>
-                <div  className='col-md-5'><QuestionResultsClassList question={q} session={this.props.session} /></div>
-                <div  className='col-md-7'>
+              <div className='row'>
+                <div className='col-md-5'><QuestionResultsClassList question={q} session={this.props.session} /></div>
+                <div className='col-md-7'>
                   {
                     q && q.type !== QUESTION_TYPE.SA // option based questions
                     ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div> : ''

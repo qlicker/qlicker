@@ -42,8 +42,8 @@ class _ManageCourse extends Component {
     this.copySession = this.copySession.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
-    //this.deleteCourse = this.deleteCourse.bind(this)
-    //this.setActive = this.setActive.bind(this)
+    // this.deleteCourse = this.deleteCourse.bind(this)
+    // this.setActive = this.setActive.bind(this)
     this.toggleVerification = this.toggleVerification.bind(this)
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
@@ -84,7 +84,7 @@ class _ManageCourse extends Component {
       if (error) return alertify.error('Error: could not set course property')
       alertify.success('Course set to: ' + (this.props.course.inactive ? 'Archived' : 'Active'))
     })
-  }*/
+  } */
 
   deleteSession (sessionId) {
     if (confirm('Are you sure?')) {
@@ -125,8 +125,8 @@ class _ManageCourse extends Component {
       alertify.success('Email verification' + (this.props.course.requireVerified ? '' : ' not') + ' required')
     })
   }
-  generateNewCourseCode (){
-    if(confirm('Are sure?')){
+  generateNewCourseCode () {
+    if (confirm('Are sure?')) {
       Meteor.call('courses.regenerateCode', this.props.course._id, (error) => {
         if (error) return alertify.error('Error: could not update enrollment code')
         alertify.success('Enrollment code updated')
@@ -135,18 +135,18 @@ class _ManageCourse extends Component {
   }
   toggleAllowStudentQuestions () {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
-      if (error) return alertify.error('Error allowing/refusing student questions '+error.error)
+      if (error) return alertify.error('Error allowing/refusing student questions ' + error.error)
       alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
   renderSessionList () {
     let sessions = this.props.sessions
-    const statusSort = {hidden:2, visible:3, running:1, done:4}
-    sessions = _(sessions).chain().sortBy( function(ses){
-                   return ses.date
-                 }).reverse().sortBy( function(ses){
-                   return statusSort[ses.status]
-                 }).value()
+    const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
+    sessions = _(sessions).chain().sortBy(function (ses) {
+      return ses.date
+    }).reverse().sortBy(function (ses) {
+      return statusSort[ses.status]
+    }).value()
 
     const maxNum = 8
     const totalSessions = sessions.length
@@ -172,7 +172,7 @@ class _ManageCourse extends Component {
             controls.push({ divider: true })
           }
 
-          controls.push({ label: 'Review results', click: () => Router.go('/results/session/'+sId) })
+          controls.push({ label: 'Review results', click: () => Router.go('/results/session/' + sId) })
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
           controls.push({ divider: true })
@@ -193,26 +193,28 @@ class _ManageCourse extends Component {
   }
 
   renderClassList () {
-    uid = Meteor.userId()
-    isProfOrAdmin = Meteor.user().hasGreaterRole('professor')
+    let uid = Meteor.userId()
+    let isProfOrAdmin = Meteor.user().hasGreaterRole('professor')
     let students = this.props.course.students || []
-    //then sort alphabetically
-    students = _(students).sortBy(function(id){
-            return (this.props.students[id] ?
-                    this.props.students[id].profile.lastname
-                   :'0') }.bind(this))
+    // then sort alphabetically
+    students = _(students).sortBy(function (id) {
+      return (this.props.students[id]
+        ? this.props.students[id].profile.lastname
+                   : '0')
+    }.bind(this))
 
     let TAs = this.props.course.instructors || []
-    TAs = _(TAs).sortBy(function(id){
-            return (this.props.TAs[id] ?
-                    this.props.TAs[id].profile.lastname
-                   :'0') }.bind(this))
+    TAs = _(TAs).sortBy(function (id) {
+      return (this.props.TAs[id]
+        ? this.props.TAs[id].profile.lastname
+                   : '0')
+    }.bind(this))
 
     const maxNum = 8
     const totalStudents = students.length + TAs.length
 
     if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
-    if (!this.state.expandedClasslist) TAs = TAs.slice(0, maxNum-students.length+1)
+    if (!this.state.expandedClasslist) TAs = TAs.slice(0, maxNum - students.length + 1)
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const expandText = !this.state.expandedClasslist ? 'Show all' : 'Show less'
     return (<div>
@@ -227,23 +229,23 @@ class _ManageCourse extends Component {
             student={stu}
             click={() => this.toggleProfileViewModal(stu)}
             role='Student'
-            controls={isProfOrAdmin? controls: ''} />)
+            controls={isProfOrAdmin ? controls : ''} />)
         })
       }
-      { //Cannot remove self, course owner cannot be removed by anyone
+      { // Cannot remove self, course owner cannot be removed by anyone
           TAs.map((sId) => {
-          const TA = this.props.TAs[sId]
-          if (!TA) return
-          let controls = [{ label: 'Remove instructor from course', click: () => this.removeTA(sId) }]
+            const TA = this.props.TAs[sId]
+            if (!TA) return
+            let controls = [{ label: 'Remove instructor from course', click: () => this.removeTA(sId) }]
 
-          return (<StudentListItem
-            key={sId}
-            courseId={this.props.course._id}
-            student={TA}
-            click={() => this.toggleProfileViewModal(TA)}
-            role={sId === this.props.course.owner ? 'Owner' : 'Instructor'}
-            controls={(isProfOrAdmin && sId !== this.props.course.owner && sId !== uid ) ? controls: ''} />)
-        })
+            return (<StudentListItem
+              key={sId}
+              courseId={this.props.course._id}
+              student={TA}
+              click={() => this.toggleProfileViewModal(TA)}
+              role={sId === this.props.course.owner ? 'Owner' : 'Instructor'}
+              controls={(isProfOrAdmin && sId !== this.props.course.owner && sId !== uid) ? controls : ''} />)
+          })
       }
       { totalStudents > maxNum
         ? <a href='#' className='show-more-item' onClick={toggleExpandedClasslist}>
@@ -259,7 +261,6 @@ class _ManageCourse extends Component {
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const expandText = !this.state.expandedClasslist ? 'show all' : 'show less'
 
-    const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
     return (
       <div className='container ql-manage-course'>
         <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
@@ -275,10 +276,10 @@ class _ManageCourse extends Component {
                 {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA
-                      { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} courseName= {this.props.course.courseCode()} done={toggleAddTA} /> : '' }
+                      { this.state.addTAModal ? <AddTAModal courseId={this.props.course._id} courseName={this.props.course.courseCode()} done={toggleAddTA} /> : '' }
                     </div>
                     <div className='btn btn-default' onClick={toggleAddStudent}>Add Student
-                      { this.state.addStudentModal ? <AddStudentModal courseId={this.props.course._id} courseName= {this.props.course.courseCode()} done={toggleAddStudent} /> : '' }
+                      { this.state.addStudentModal ? <AddStudentModal courseId={this.props.course._id} courseName={this.props.course.courseCode()} done={toggleAddStudent} /> : '' }
                     </div>
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
@@ -298,14 +299,14 @@ class _ManageCourse extends Component {
                   <span className='ql-course-semester'> { this.props.course.semester }</span>
                   <br />
                   Enrollment Code: <span className='ql-enrollment-code'>{ this.props.course.enrollmentCode }</span>
-                  &nbsp;&nbsp;<a href="#" onClick={this.generateNewCourseCode}>new</a>
+                  &nbsp;&nbsp;<a href='#' onClick={this.generateNewCourseCode}>new</a>
                 </div>
               </div>
             </div>
 
             <div className='ql-card hidden-xs'>
               <div className='ql-header-bar' onClick={toggleExpandedClasslist}>
-                <h4>{this.props.course.students.length} student{this.props.course.students.length>1?'s':''} (click to {expandText})</h4>
+                <h4>{this.props.course.students.length} student{this.props.course.students.length > 1 ? 's' : ''} (click to {expandText})</h4>
               </div>
               <div>
                 <div className='ql-course-classlist'>
@@ -316,7 +317,7 @@ class _ManageCourse extends Component {
           </div>
 
           <div className='col-md-8'>
-            <h3>Sessions ({this.props.sessions.length} session{this.props.sessions.length>1 ?'s':''})</h3>
+            <h3>Sessions ({this.props.sessions.length} session{this.props.sessions.length > 1 ? 's' : ''})</h3>
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
@@ -338,8 +339,8 @@ class _ManageCourse extends Component {
           : '' }
         { this.state.profileViewModal
           ? <ProfileViewModal
-             user={this.state.userToView}
-             done={this.toggleProfileViewModal}/>
+            user={this.state.userToView}
+            done={this.toggleProfileViewModal} />
         : '' }
       </div>)
   }

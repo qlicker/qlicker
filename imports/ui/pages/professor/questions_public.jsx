@@ -89,7 +89,7 @@ class _QuestionsPublic extends Component {
   render () {
     let library = this.state.questions || []
     let userId = Meteor.userId()
-    //let isInstructor = Meteor.user().isInstructorAnyCourse()
+    // let isInstructor = Meteor.user().isInstructorAnyCourse()
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
 
@@ -120,13 +120,13 @@ class _QuestionsPublic extends Component {
               ? <div>
                 <h3>Preview Question</h3>
                 { (this.state.questionMap[this.state.selected].owner !== userId &&
-                   this.state.questionMap[this.state.selected].creator !== userId) ?
-                  <button className='btn btn-default'
+                   this.state.questionMap[this.state.selected].creator !== userId)
+                  ? <button className='btn btn-default'
                     onClick={() => { this.copyPublicQuestion(this.state.questionMap[this.state.selected]._id) }}
                     data-toggle='tooltip'
                     data-placement='left'
                     title='Create a copy for your library'>
-                      Copy to Library
+                    Copy to Library
                     </button>
                    : ''
                 }
