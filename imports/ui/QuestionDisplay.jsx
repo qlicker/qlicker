@@ -7,7 +7,6 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { Responses } from '../api/responses'
-// import dl from 'datalib' ///not used anymore
 import { _ } from 'underscore'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
