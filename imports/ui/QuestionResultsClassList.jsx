@@ -26,7 +26,7 @@ export class _QuestionResultsClassList extends Component {
           </tr>
         </thead>
         <tbody>
-          {
+          { // TODO: check that this is actually showing the response for the last attempt!
             _.uniq(this.props.responses, 'studentUserId').map((row) => {
               const user = this.props.students[row.studentUserId]
               return (<tr key={row._id}>
