@@ -58,7 +58,7 @@ export class _SessionResults extends Component {
                 </div>
               </div>
               <a role='button' data-toggle='collapse' href={'#detailsCollapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
-                See all responses
+                Toggle list of responses
               </a>
               <div className='collapse' id={'detailsCollapse_' + qId}>
                 <QuestionResultsClassList question={q} session={this.props.session} />
