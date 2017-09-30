@@ -226,17 +226,15 @@ export class QuestionEditItem extends Component {
     if (parseInt(cId) !== -1) {
       let tags = this.state.tags
       Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
-        if (error) {
-          alertify.error('Error: ' + error.error)
-        } else {
-          let tlabels = _(tags).pluck('label')
-          if (tag && !tlabels.includes(tag.label)) {
-            tags.push(tag)
-            this.addTag(tags)
-          }
-          this.saveQuestion()
+        if (error) return alertify.error('Error: ' + error.error)
+        let tlabels = _(tags).pluck('label')
+        if (tag && !tlabels.includes(tag.label)) {
+          tags.push(tag)
+          this.addTag(tags)
         }
+        this.saveQuestion()
       })
+
       this.setState({ courseId: cId }, () => {
         this.saveQuestion()
       })
