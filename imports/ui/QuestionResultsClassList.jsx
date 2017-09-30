@@ -9,7 +9,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
 import { Responses } from '../api/responses'
-
+import { QUESTION_TYPE } from '../configs'
 import { Stats } from '../stats'
 
 export class _QuestionResultsClassList extends Component {
@@ -21,7 +21,8 @@ export class _QuestionResultsClassList extends Component {
         <thead>
           <tr>
             <th>Student</th>
-            <th>{this.props.question.type === 2 ? 'Response' : 'Mark'}</th>
+            <th>Response</th>
+            {this.props.question.type !== QUESTION_TYPE.SA ? <th> Mark </th>  : ''}
           </tr>
         </thead>
         <tbody>
@@ -30,9 +31,10 @@ export class _QuestionResultsClassList extends Component {
               const user = this.props.students[row.studentUserId]
               return (<tr key={row._id}>
                 <td>{user.getName()}</td>
-                {this.props.question.type === 2
-                  ? <td>{row.answer}</td>
-                  : <td>{stats.questionGrade(this.props.question._id, user._id)}</td>
+                <td>{row.answer}</td>
+                {this.props.question.type !== QUESTION_TYPE.SA
+                  ? <td>{stats.questionGrade(this.props.question._id, user._id)}</td>
+                  : ''
                 }
               </tr>)
             })
@@ -61,4 +63,3 @@ QuestionResultsClassList.propTypes = {
   question: PropTypes.object.isRequired,
   session: PropTypes.object.isRequired
 }
-
