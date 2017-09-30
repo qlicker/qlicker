@@ -49,6 +49,15 @@ class Stats {
     const response = _.max(responses, (resp) => { return resp.attempt })
     return (response && response.mark) ? (response.mark * 100).toFixed(0) : 0
   }
+
+  // returns a string with all of the responses from this student to this question
+  questionAnswerByAttempt (qId, studentId) {
+    const responses = _.filter(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
+    let strAnswer = ''
+    const answers = _.pluck(responses, 'answer')
+    return answers.join(' | ')
+  }
+
 }
 
 export { Stats }

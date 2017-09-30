@@ -21,7 +21,7 @@ export class _QuestionResultsClassList extends Component {
         <thead>
           <tr>
             <th>Student</th>
-            <th>Response</th>
+            <th>Responses</th>
             {this.props.question.type !== QUESTION_TYPE.SA ? <th> Mark </th>  : ''}
           </tr>
         </thead>
@@ -31,7 +31,12 @@ export class _QuestionResultsClassList extends Component {
               const user = this.props.students[row.studentUserId]
               return (<tr key={row._id}>
                 <td>{user.getName()}</td>
-                <td>{row.answer}</td>
+
+                {this.props.question.type !== QUESTION_TYPE.SA
+                  ? <td>{stats.questionAnswerByAttempt(this.props.question._id, user._id)}</td>
+                  : <td>{row.answer}</td>
+                }
+
                 {this.props.question.type !== QUESTION_TYPE.SA
                   ? <td>{stats.questionGrade(this.props.question._id, user._id)}</td>
                   : ''
@@ -51,6 +56,7 @@ export const QuestionResultsClassList = createContainer((props) => {
     Meteor.subscribe('users.myStudents', {cId: props.session.courseId})
 
   const responses = Responses.find({ questionId: props.question._id }).fetch()
+
   const students = Meteor.users.find({ _id: { $in: _(responses).pluck('studentUserId') } }).fetch()
   return {
     responses: responses,
