@@ -11,6 +11,7 @@ import { Questions } from '../api/questions'
 import { AnswerDistribution } from './AnswerDistribution'
 import { QuestionResultsClassList } from './QuestionResultsClassList'
 import { QuestionResultsListItem } from './QuestionResultsListItem'
+import { QuestionDisplay } from './QuestionDisplay'
 import { ShortAnswerList } from './ShortAnswerList'
 import { SessionResultsDownloader } from './SessionResultsDownloader'
 
@@ -37,17 +38,26 @@ export class _SessionResults extends Component {
             </a>
             <div className='collapse' id={'collapse_' + qId}>
               <div className='row'>
-                <div className='col-md-5'><QuestionResultsClassList question={q} session={this.props.session} /></div>
-                <div className='col-md-7'>
+                <div className='col-sm-6'>
+                  <QuestionDisplay style={{float: 'right'}} question={q} readonly noStats forReview />
+                </div>
+
+                <div  className='col-sm-6'>
                   {
                     q && q.type !== QUESTION_TYPE.SA // option based questions
-                    ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div> : ''
+                    ? <AnswerDistribution question={q} title='Responses' />: ''
                   }
                   {
                     q && q.type === QUESTION_TYPE.SA // short answer
-                    ? <ShortAnswerList question={q} /> : ''
+                    ? <div> <ShortAnswerList question={q} /> </div> : ''
                   }
                 </div>
+              </div>
+              <a role='button' data-toggle='collapse' href={'#detailsCollapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
+                Toggle list of responses
+              </a>
+              <div className='collapse' id={'detailsCollapse_' + qId}>
+                <QuestionResultsClassList question={q} session={this.props.session} />
               </div>
             </div>
           </div>)
