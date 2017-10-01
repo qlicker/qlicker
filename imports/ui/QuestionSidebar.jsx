@@ -31,6 +31,7 @@ export class QuestionSidebar extends ControlledForm {
 
     this.setQuestion = this.setQuestion.bind(this)
     this.setSearchString = this.setSearchString.bind(this)
+    this.setUserSearchString = this.setUserSearchString.bind(this)
     this.setType = this.setType.bind(this)
     this.setCourseId = this.setCourseId.bind(this)
     this.setTags = this.setTags.bind(this)
@@ -69,6 +70,15 @@ export class QuestionSidebar extends ControlledForm {
   setQuestion (questionId) {
     this.setState({ questionId: questionId }, () => {
       this.props.onSelect(questionId)
+    })
+  }
+  /**
+   * Set search term for user search & invoke filter
+   * @param {Event} e
+   */
+  setUserSearchString (e) {
+    this.setState({ userSearchString: e.target.value }, () => {
+      this.props.updateQuery(this.state)
     })
   }
 
@@ -175,7 +185,7 @@ export class QuestionSidebar extends ControlledForm {
 
   resetFilter(){
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', questionType: -1, courseId:-1, tags: [], }, ()=>{
+    this.setState({ searchString: '', userSearchString: '', questionType: -1, courseId:-1, tags: [], }, ()=>{
       this.props.updateQuery(this.state)
     })
   }
@@ -231,6 +241,7 @@ export class QuestionSidebar extends ControlledForm {
             onChange={this.setTags}
             />
           <input type='text' className='form-control search-field' placeholder='Search by question content' onChange={_.throttle(this.setSearchString, 500)} />
+          <input type='text' className='form-control search-field' placeholder='Search by question creator' onChange={_.throttle(this.setUserSearchString, 500)} />
           <div className='btn-group btn-group-justified details-button-group'>
             <div className='btn btn-default' onClick={this.resetFilter}>Reset search filter
             </div>
