@@ -39,6 +39,30 @@ class Stats {
     return this.numQuestions ? (mark / this.numQuestions * 100).toFixed(0) : 0
   }
 
+  calculateResponseGrade (response, question) {
+    const correct = _.map(_.filter(question.options, {correct: true}), (op) => op.answer) // correct responses
+    const resp = response.answer
+
+    let mark = 0
+    switch (question.type) {
+      case QUESTION_TYPE.MC:
+        mark = correct[0] === resp ? 1 : 0
+        break
+      case QUESTION_TYPE.TF:
+        mark = correct[0] === resp ? 1 : 0
+        break
+      case QUESTION_TYPE.SA:
+        mark = resp ? 1 : 0
+        break
+      case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
+        const intersection = _.intersection(correct, resp)
+        const percentage = (2 * intersection.length - resp.length) / correct.length
+        mark = percentage > 0 ? percentage : 0
+        break
+    }
+    return mark
+  }
+
   questionParticipation (qId, studentId) {
     const response = _.find(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
     return response ? 100 : 0
@@ -48,14 +72,6 @@ class Stats {
     const responses = _.filter(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
     const response = _.max(responses, (resp) => { return resp.attempt })
     return (response && response.mark) ? (response.mark * 100).toFixed(0) : 0
-  }
-
-  // returns a string with all of the responses from this student to this question
-  questionAnswerByAttempt (qId, studentId) {
-    const responses = _.filter(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
-    let strAnswer = ''
-    const answers = _.pluck(responses, 'answer')
-    return answers.join(' | ')
   }
 
 }

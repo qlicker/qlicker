@@ -16,32 +16,48 @@ export class _QuestionResultsClassList extends Component {
 
   render () {
     const stats = new Stats([this.props.question], this.props.responses)
+    const students = this.props.students || []
+    const nAttempts = ( this.props.question && this.props.question.sessionOptions &&
+       this.props.question.sessionOptions.attempts)
+       ? this.props.question.sessionOptions.attempts.length : 0
+    const attempts = ( this.props.question && this.props.question.sessionOptions &&
+       this.props.question.sessionOptions.attempts)
+       ? _(this.props.question.sessionOptions.attempts).sortBy( (a) => {return a.number}) : []
+
     return (<div className='ql-student-results-list'>
       <table className='ql-student-results-table'>
         <thead>
           <tr>
             <th>Student</th>
-            <th>Responses</th>
-            {this.props.question.type !== QUESTION_TYPE.SA ? <th> Mark </th>  : ''}
+            {attempts.map( (attempt) =>{
+              return(<th key={'att_'+attempt.number}>Attempt: {attempt.number}</th>)
+              })
+            }
+            <th>Mark</th>
           </tr>
         </thead>
         <tbody>
-          { // TODO: check that this is actually showing the response for the last attempt!
-            _.uniq(this.props.responses, 'studentUserId').map((row) => {
-              const user = this.props.students[row.studentUserId]
-              return (<tr key={row._id}>
+          {students.map( (user) => {
+              const responses = _(this.props.responses).where({studentUserId : user._id})
+              let grade = (this.props.question.type === QUESTION_TYPE.SA) ? 'N/A' : 0
+              return (<tr key={user._id}>
                 <td>{user.getName()}</td>
-
-                {this.props.question.type !== QUESTION_TYPE.SA
-                  ? <td>{stats.questionAnswerByAttempt(this.props.question._id, user._id)}</td>
-                  : <td>{row.answer}</td>
+                {attempts.map( (attempt) =>{
+                  const response = _(responses).findWhere({attempt: attempt.number})
+                  const key = user._id + '_' + this.props.question._id + '_' + attempt.number
+                  const answer = response ? response.answer : ''
+                  //only update the grade if there is a later attempt
+                  if (response && this.props.question.type !== QUESTION_TYPE.SA) {
+                     grade = stats.calculateResponseGrade(response, this.props.question)
+                   }
+                  const answerStr = response ? answer + ' (' + grade + ')' : ''
+                  return(<td key={key}>{answerStr}</td>)
+                  })
                 }
-
-                {this.props.question.type !== QUESTION_TYPE.SA
-                  ? <td>{stats.questionGrade(this.props.question._id, user._id)}</td>
-                  : ''
-                }
-              </tr>)
+                <td>{this.props.question.type !== QUESTION_TYPE.SA
+                  ? 100*grade //stats.calculateResponseGrade(response)
+                  : 'N/A'
+                }</td></tr>)
             })
           }
         </tbody>
@@ -56,11 +72,11 @@ export const QuestionResultsClassList = createContainer((props) => {
     Meteor.subscribe('users.myStudents', {cId: props.session.courseId})
 
   const responses = Responses.find({ questionId: props.question._id }).fetch()
+  const students = Meteor.users.find({ _id: { $in: _(responses).pluck('studentUserId') }} , {sort: {'profile.lastname' : 1}} ).fetch()
 
-  const students = Meteor.users.find({ _id: { $in: _(responses).pluck('studentUserId') } }).fetch()
   return {
     responses: responses,
-    students: _(students).indexBy('_id'),
+    students: students,
     loading: !handle.ready()
   }
 }, _QuestionResultsClassList)
