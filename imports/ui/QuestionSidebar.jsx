@@ -241,7 +241,11 @@ export class QuestionSidebar extends ControlledForm {
             onChange={this.setTags}
             />
           <input type='text' className='form-control search-field' placeholder='Search by question content' onChange={_.throttle(this.setSearchString, 500)} />
-          <input type='text' className='form-control search-field' placeholder='Search by question creator' onChange={_.throttle(this.setUserSearchString, 500)} />
+          {
+            isInstructor
+            ? <input type='text' className='form-control search-field' placeholder='Search by question creator' onChange={_.throttle(this.setUserSearchString, 500)} />
+            : ''
+          }
           <div className='btn-group btn-group-justified details-button-group'>
             <div className='btn btn-default' onClick={this.resetFilter}>Reset search filter
             </div>
