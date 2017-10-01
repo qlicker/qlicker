@@ -22,7 +22,7 @@ export class _QuestionResultsClassList extends Component {
           <tr>
             <th>Student</th>
             <th>Response</th>
-            {this.props.question.type !== QUESTION_TYPE.SA ? <th> Mark </th>  : ''}
+            {this.props.question.type !== QUESTION_TYPE.SA ? <th> Mark </th> : ''}
           </tr>
         </thead>
         <tbody>

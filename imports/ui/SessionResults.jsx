@@ -42,10 +42,10 @@ export class _SessionResults extends Component {
                   <QuestionDisplay style={{float: 'right'}} question={q} readonly noStats forReview />
                 </div>
 
-                <div  className='col-sm-6'>
+                <div className='col-sm-6'>
                   {
                     q && q.type !== QUESTION_TYPE.SA // option based questions
-                    ? <AnswerDistribution question={q} title='Responses' />: ''
+                    ? <AnswerDistribution question={q} title='Responses' /> : ''
                   }
                   {
                     q && q.type === QUESTION_TYPE.SA // short answer
