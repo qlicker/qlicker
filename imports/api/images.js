@@ -1,4 +1,3 @@
-/* global FS */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //

@@ -426,8 +426,8 @@ class _ManageSession extends Component {
                 </div>
                 <div role='tabpanel' className='tab-pane' id='questions'>
                   <select className='form-control' onChange={this.changeQuestionPool}>
-                    { Meteor.user().hasRole('professor') ?
-                    <option value='library'>My Question Library</option> : ''}
+                    { Meteor.user().hasRole('professor')
+                      ? <option value='library'>My Question Library</option> : ''}
                     <option value='public'>Public Question Pool</option>
                     <option value='student'>Submitted by Students</option>
                   </select>

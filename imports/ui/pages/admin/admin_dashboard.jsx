@@ -76,7 +76,7 @@ class _AdminDashboard extends Component {
   }
 
   verifyUserEmail (email) {
-    Meteor.call('users.verifyEmail',email, (e, d) => {
+    Meteor.call('users.verifyEmail', email, (e, d) => {
       if (e) alertify.error(e)
       if (d) alertify.success('Email verified')
     })
@@ -159,25 +159,25 @@ class _AdminDashboard extends Component {
 
             {
               this.props.allUsers.map((u) => {
-                courseList=''
-                if( u.profile.courses && this.props ){
-                  u.profile.courses.forEach( function(cId){
-                    courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] +' ' : ''
+                let courseList = ''
+                if (u.profile.courses && this.props) {
+                  u.profile.courses.forEach(function (cId) {
+                    courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] + ' ' : ''
                   }.bind(this))
                 }
                 return (<tr key={u._id}>
                   <td>
-                    <a href="#" onClick={(e) => this.toggleProfileViewModal(u)}>{u.getName()}</a>
+                    <a href='#' onClick={(e) => this.toggleProfileViewModal(u)}>{u.getName()}</a>
                   </td>
-                  <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)' :
-                   <a href="#" onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
-                   </td>
+                  <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)'
+                      : <a href='#' onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
+                  </td>
                   <td>{courseList}</td>
                   <td>
                     <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
-                      { Object.keys(ROLES).map((r) => <option key={"role_"+ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
+                      { Object.keys(ROLES).map((r) => <option key={'role_' + ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
                     </select>
-                    &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)':''}
+                    &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
                   </td>
                 </tr>)
               })
@@ -204,23 +204,23 @@ class _AdminDashboard extends Component {
         </form>
         { this.state.profileViewModal
           ? <ProfileViewModal
-             user={this.state.userToView}
-             done={this.toggleProfileViewModal}/>
+            user={this.state.userToView}
+            done={this.toggleProfileViewModal} />
         : '' }
       </div>)
   }
 }
 
 export const AdminDashboard = createContainer(() => {
-  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings')
-                && Meteor.subscribe('courses')
+  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings') &&
+    Meteor.subscribe('courses')
   const courses = Courses.find().fetch()
   let courseNames = {}
-  courses.map( (c)=>{
+  courses.map((c) => {
     courseNames[c._id] = c.courseCode().toUpperCase()
   })
   const settings = Settings.find().fetch()[0]
-  const allUsers = Meteor.users.find({ }, { sort: { 'profile.roles.0': 1 , 'profile.lastname': 1, } }).fetch()
+  const allUsers = Meteor.users.find({ }, { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 } }).fetch()
   return {
     settings: settings,
     allUsers: allUsers,

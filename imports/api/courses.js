@@ -52,9 +52,9 @@ if (Meteor.isServer) {
   Meteor.publish('courses', function () {
     if (this.userId) {
       let user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole(ROLES.admin)){
+      if (user.hasGreaterRole(ROLES.admin)) {
         return Courses.find()
-      }else if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
+      } else if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
         return Courses.find({ _id: { $in: user.profile.courses || [] } }) // finds all the course owned
       } else {
         let coursesArray = user.profile.courses || []
@@ -81,7 +81,7 @@ if (Meteor.isServer) {
         const userCursor = Meteor.users.find({ _id: this.userId })
         const handle = userCursor.observeChanges({
           changed: (id, fields) => {
-            const updatedCoursesArray = fields.profile && fields.profile.courses? fields.profile.courses: []
+            const updatedCoursesArray = fields.profile && fields.profile.courses ? fields.profile.courses : []
             const newCourseIds = _.difference(updatedCoursesArray, coursesArray)
 
             newCourseIds.forEach((cId) => {
@@ -257,12 +257,12 @@ Meteor.methods({
     const user = Meteor.users.findOne({ '_id': studentUserId })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
-    //not checking if user.profile also contains course, probably should//TODO
-    course = Courses.findOne({ _id: courseId })
-    if(course.students.includes(studentUserId)){
+    // not checking if user.profile also contains course, probably should//TODO
+    let course = Courses.findOne({ _id: courseId })
+    if (course.students.includes(studentUserId)) {
       throw new Meteor.Error('student already in course', 'student already in course')
     }
-    if(course.instructors.includes(studentUserId)){
+    if (course.instructors.includes(studentUserId)) {
       throw new Meteor.Error('student already instructor for course', 'student already instructor for course')
     }
 
@@ -280,32 +280,33 @@ Meteor.methods({
    * @param {String} email
    * @param {String} courseId
    */
-   'courses.addStudentByEmail' (email, courseId) {
-     check(email, Helpers.Email)
-     check(courseId, Helpers.MongoID)
+  'courses.addStudentByEmail' (email, courseId) {
+    check(email, Helpers.Email)
+    check(courseId, Helpers.MongoID)
 
-     profHasCoursePermission(courseId)
+    profHasCoursePermission(courseId)
 
-     const user = Meteor.users.findOne({ 'emails.0.address': email })
-     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
-     //not checking if user.profile also contains course, probably should//TODO
-     course = Courses.findOne({ _id: courseId })
-     if(course.students.includes(user._id)){
-       throw new Meteor.Error('student already in course', 'student already in course')
-     }
-     if(course.instructors.includes(user._id)){
-       throw new Meteor.Error('student already instructor for course', 'student already instructor for course')
-     }
+    // not checking if user.profile also contains course, probably should//TODO
+    let course = Courses.findOne({ _id: courseId })
+    if (course.students.includes(user._id)) {
+      throw new Meteor.Error('student already in course', 'student already in course')
+    }
 
-     Meteor.users.update({ _id: user._id }, {
-       $addToSet: { 'profile.courses': courseId }
-     })
+    if (course.instructors.includes(user._id)) {
+      throw new Meteor.Error('student already instructor for course', 'student already instructor for course')
+    }
 
-     return Courses.update({ _id: courseId }, {
-       '$addToSet': { students: user._id }
-     })
-   },
+    Meteor.users.update({ _id: user._id }, {
+      $addToSet: { 'profile.courses': courseId }
+    })
+
+    return Courses.update({ _id: courseId }, {
+      '$addToSet': { students: user._id }
+    })
+  },
   /**
    * adds a TA to a course
    * @param {String} email
@@ -320,9 +321,9 @@ Meteor.methods({
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
-    //not checking if user.profile also contains course, probably should//TODO
-    course = Courses.findOne({ _id: courseId })
-    if(course.instructors.includes(user._id)){
+    // not checking if user.profile also contains course, probably should//TODO
+    let course = Courses.findOne({ _id: courseId })
+    if (course.instructors.includes(user._id)) {
       throw new Meteor.Error('Already instructor for course', 'Already instructor for course')
     }
 
@@ -438,7 +439,7 @@ Meteor.methods({
    * @returns {String} obj.code
    */
   'courses.getCourseTags' () {
-    const courses = Courses.find({ instructors: Meteor.userId()}).fetch()
+    const courses = Courses.find({instructors: Meteor.userId()}).fetch()
     return _.map(courses, (course) => { return {_id: course._id, code: course.courseCode().toUpperCase()} })
   },
   /**
@@ -447,7 +448,7 @@ Meteor.methods({
    * @returns {String} obj.code
    */
   'courses.getCourseTagsProfile' () {
-    const courses = Meteor.user()? Courses.find({_id: {$in:Meteor.user().profile.courses} }).fetch():[]
+    const courses = Meteor.user() ? Courses.find({_id: { $in: Meteor.user().profile.courses }}).fetch() : []
     return _.map(courses, (course) => { return {_id: course._id, code: course.courseCode().toUpperCase()} })
   },  /**
    * set inactive attribute based on bool
@@ -491,12 +492,12 @@ Meteor.methods({
    */
   'courses.toggleAllowStudentQuestions' (courseId) {
     profHasCoursePermission(courseId)
-    course = Courses.findOne(courseId)
+    let course = Courses.findOne(courseId)
     const previous = course.allowStudentQuestions
     Courses.update({ _id: courseId }, {
       $set: {
         allowStudentQuestions: !previous
       }
     })
-  },
+  }
 }) // end Meteor.methods

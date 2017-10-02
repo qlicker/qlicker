@@ -7,8 +7,6 @@
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
 import { Images } from '../api/images'
-import { Settings } from '../api/settings'
-import $ from 'jquery'
 
 let UUID = require('uuid-1345')
 
@@ -103,7 +101,7 @@ export class Editor extends Component {
     this.editor.on('fileUploadRequest', function (evt) {
       let upload = evt.data.requestData.upload
       let file = upload.file
-      let reader = new FileReader()
+      let reader = new window.FileReader()
       reader.readAsDataURL(file)
       evt.stop()
       reader.addEventListener('loadend', function (e) {
@@ -115,7 +113,7 @@ export class Editor extends Component {
         const existing = Images.find(image).fetch()[0]
         if (existing) this.addImage(existing)
         else {
-          let img = new Image()
+          let img = new window.Image()
           img.onload = function () {
             const meta = {UID: UID, type: 'image'}
             Meteor.call('settings.find', (e, obj) => {
@@ -125,7 +123,7 @@ export class Editor extends Component {
           img.src = fileURL
 
           // Makes a thumbnail
-          let thumb = new Image()
+          let thumb = new window.Image()
           thumb.onload = function () {
             const meta = {UID: UID, type: 'thumbnail'}
             this.resizeImage(50, thumb, meta, false)

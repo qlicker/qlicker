@@ -7,7 +7,6 @@ import React, { PropTypes } from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 import '../../api/users.js'
-import { Courses } from '../../api/courses.js'
 
 /**
  * modal for profs to make new prof accounts

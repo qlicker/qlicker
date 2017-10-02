@@ -54,9 +54,9 @@ export class QuestionListItem extends ListItem {
         </div>
         <div>
           <span className='ql-question-details'>
-            {this.props.question.public? '(public) ': ''}
-            {this.props.question.courseId? '(in course) ': ''}
-            {this.props.question.approved? '(approved) ': '(un-approved) '}
+            {this.props.question.public ? '(public) ' : ''}
+            {this.props.question.courseId ? '(in course) ' : ''}
+            {this.props.question.approved ? '(approved) ' : '(un-approved) '}
           </span>
         </div>
         <div className='controls'>{controls}</div>

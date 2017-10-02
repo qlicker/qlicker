@@ -7,11 +7,8 @@ import { Factory } from 'meteor/dburles:factory'
 import { Random } from 'meteor/random'
 
 import { Courses } from './courses'
-import { Questions } from './questions'
 import { Sessions } from './sessions'
 import Helpers from './helpers'
-
-
 
 Factory.define('course', Courses, {
   name: 'Information Technology Project (2016-17)',

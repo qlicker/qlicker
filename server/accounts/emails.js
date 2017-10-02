@@ -1,11 +1,11 @@
 import { Settings } from '../../imports/api/settings'
 
 Accounts.emailTemplates.siteName = 'Qlicker'
-// server/main.js creates a document with an initial default email 
-const defaultEmail = "admin@"+process.env.ROOT_URL.split("//")[1].split(":")[0].split("/")[0]
+// server/main.js creates a document with an initial default email
+const defaultEmail = 'admin@' + process.env.ROOT_URL.split('//')[1].split(':')[0].split('/')[0]
 const fromEmail = (Settings.findOne() && Settings.findOne().email) ? Settings.findOne().email : defaultEmail
 
-Accounts.emailTemplates.from = "Qlicker Admin <"+fromEmail+">"
+Accounts.emailTemplates.from = 'Qlicker Admin <' + fromEmail + '>'
 
 Accounts.emailTemplates.verifyEmail = {
 

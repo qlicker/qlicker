@@ -5,12 +5,10 @@
 // routes.app-test.js: testing app navigation by routes
 
 import { Meteor } from 'meteor/meteor'
-import { expect } from 'meteor/practicalmeteor:chai'
-import { $ } from 'meteor/jquery'
 
 import { generateData } from './../../api/generate-data.app-test.js'
 
-import { waitForSubscriptions, afterFlushPromise, triggerChange } from '../../../app-test/utils.app-test'
+import { waitForSubscriptions } from '../../../app-test/utils.app-test'
 
 if (Meteor.isClient) {
   describe('routes', function () {

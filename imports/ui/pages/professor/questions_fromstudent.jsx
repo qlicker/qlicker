@@ -64,10 +64,11 @@ class _QuestionsFromStudent extends Component {
   }
 
   makeQuestionPublic (questionId) {
-    //by making it public, you take over ownership, so student cannot delete it anymore
-   //it will also show in the library for any instructor of the course
-   let question = this.state.questionMap[questionId]
-    question.approved = true //this makes it editable by any instructor of the course
+   // by making it public, you take over ownership, so student cannot delete it anymore
+   // it will also show in the library for any instructor of the course
+    let question = this.state.questionMap[questionId]
+    question.approved = true // this makes it editable by any instructor of the course
+
     question.public = true
     question.owner = Meteor.userId()
     question.createdAt = new Date()
@@ -101,11 +102,11 @@ class _QuestionsFromStudent extends Component {
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
     else params.query = _.omit(params.query, 'plainText')
     if (childState.userSearchString) {
-       const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
+      const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
                                                {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
-       const uids = _(users).pluck('_id')
-       params.query.creator = {$in : uids}
-     } else params.query = _.omit(params.query, 'creator')
+      const uids = _(users).pluck('_id')
+      params.query.creator = {$in: uids}
+    } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
 
@@ -212,7 +213,6 @@ export const QuestionsFromStudent = createContainer(() => {
   }
 
   const library = Questions.find(params.query, params.options).fetch()
-
 
   return {
     query: params,

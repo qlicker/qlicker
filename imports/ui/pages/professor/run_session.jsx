@@ -61,16 +61,16 @@ class _RunSession extends Component {
    * routeMobile
    * Routes to the mobile version
    */
-  routeMobile() {
-    Router.go('session.run.mobile',{_id:this.props.session._id})
+  routeMobile () {
+    Router.go('session.run.mobile', {_id: this.props.session._id})
   }
 
   /**
    * routeDesktop
    * Routes to the desktop version
    */
-  routeDesktop() {
-    Router.go('session.run',{_id:this.props.session._id})
+  routeDesktop () {
+    Router.go('session.run', {_id: this.props.session._id})
   }
   /**
    * toggleStats(MongoId (string): questionId)
@@ -225,11 +225,11 @@ class _RunSession extends Component {
       Router.go('course', { _id: this.state.session.courseId }) // TODO go to grades overview page for that session
     })
     if (!this.state.session.reviewable) {
-      //by default, do not change reviability, but do remind prof if not reviewable:
+      // by default, do not change reviability, but do remind prof if not reviewable:
       alertify.error('Warning: session not reviewable')
-      //Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
-        //if (error) alertify.error('Error: ' + error.error)
-      //})
+      // Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
+        // if (error) alertify.error('Error: ' + error.error)
+      // })
     }
   }
 
@@ -244,8 +244,8 @@ class _RunSession extends Component {
       })
     }
   }
-  renderMobile(){
-    //TODO: Add some styling... this is barebones and needs some css to look nicer...
+  renderMobile () {
+    // TODO: Add some styling... this is barebones and needs some css to look nicer...
 
     if (this.state.session.status !== 'running') return <div className='ql-subs-loading'>Session not running</div>
     const current = this.state.session.currentQuestion
@@ -285,10 +285,10 @@ class _RunSession extends Component {
           </div>
         </div>
         <div className='btn-group btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={()=>{this.toggleStats(q._id)}}>
+          <div className='btn btn-default' onClick={() => { this.toggleStats(q._id) }}>
             {strStatsVisible}
           </div>
-          <div className='btn btn-default' onClick={()=>{this.toggleCorrect(q._id)}}>
+          <div className='btn btn-default' onClick={() => { this.toggleCorrect(q._id) }}>
             {strCorrectVisible}
           </div>
         </div>
@@ -444,7 +444,7 @@ class _RunSession extends Component {
           </div>
 
         </div>
-      </div> )
+      </div>)
   }
 
 }

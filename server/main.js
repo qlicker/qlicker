@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 
 import '../imports/api/users.js'
-import { Courses } from '../imports/api/courses.js'
 import { Sessions } from '../imports/api/sessions.js'
 import { Questions } from '../imports/api/questions.js'
 import { Responses } from '../imports/api/responses.js'
@@ -14,8 +13,8 @@ Meteor.startup(() => {
     Settings.insert({restrictDomain: false,
       allowedDomains: [],
       maxImageSize: 3,
-      maxImageWidth: 700,//ROOT_URL can be https://qlicker.org:3000/ or htpps://qlicker.org/:
-      email: "admin@"+process.env.ROOT_URL.split("//")[1].split(":")[0].split("/")[0],
+      maxImageWidth: 700, // ROOT_URL can be https://qlicker.org:3000/ or htpps://qlicker.org/:
+      email: 'admin@' + process.env.ROOT_URL.split('//')[1].split(':')[0].split('/')[0],
       requireVerified: false
     })
   }

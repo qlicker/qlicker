@@ -6,10 +6,7 @@
 // ensuring the method is always available
 
 import { Meteor } from 'meteor/meteor'
-import { Factory } from 'meteor/dburles:factory'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-import { Random } from 'meteor/random'
-import { _ } from 'meteor/underscore'
 
 import { denodeify } from '../utils/denodeify'
 

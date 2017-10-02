@@ -7,6 +7,7 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
+import { _ } from 'underscore'
 
 import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
 
@@ -20,28 +21,28 @@ class _Course extends Component {
     super(props)
 
     this.state = { submittingQuestion: false,
-                   expandedSessionlist: false }
+      expandedSessionlist: false }
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
   }
 
   sessionClickHandler (session) {
-    //Disabled the student.results route for now:
-    //if (session.status === 'done') {
+    // Disabled the student.results route for now:
+    // if (session.status === 'done') {
     //  Router.go('student.results', { studentId: Meteor.userId(), courseId: this.props.course._id })
-    //} else {
-      Router.go('session', { _id: session._id })
-    //}
+    // } else {
+    Router.go('session', { _id: session._id })
+    // }
   }
 
   renderSessionList () {
     // let sessions = this.props.course.sessions || []
     let sessions = this.props.sessions || []
-    const statusSort = {hidden:2, visible:3, running:1, done:4}
-    sessions = _(sessions).chain().sortBy( function(ses){
-                   return ses.date
-                 }).reverse().sortBy( function(ses){
-                   return statusSort[ses.status]
-                 }).value()
+    const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
+    sessions = _(sessions).chain().sortBy(function (ses) {
+      return ses.date
+    }).reverse().sortBy(function (ses) {
+      return statusSort[ses.status]
+    }).value()
 
     const maxNum = 8
     const totalSessions = sessions.length
@@ -70,8 +71,8 @@ class _Course extends Component {
     return (
       <div className='container ql-manage-course'>
         <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
-        {this.props.course.allowStudentQuestions ?
-          <button className='submit-question-button btn btn-primary' onClick={toggleSubmittingQuestion}>Submit Question</button>
+        {this.props.course.allowStudentQuestions
+          ? <button className='submit-question-button btn btn-primary' onClick={toggleSubmittingQuestion}>Submit Question</button>
           : ''
         }
         { this.renderSessionList() }

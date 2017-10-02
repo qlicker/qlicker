@@ -111,7 +111,7 @@ if (Meteor.isClient) {
             expect(Router.current().route.getName()).to.equal('professor')
           })
       })
-      
+
       // TODO
       it('can create course [T6]')
       it('can delete course')

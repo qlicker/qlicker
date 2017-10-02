@@ -7,7 +7,6 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import _ from 'underscore'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
