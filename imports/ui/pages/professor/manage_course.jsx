@@ -149,7 +149,7 @@ class _ManageCourse extends Component {
                  }).value()
 
     const maxNum = 8
-    const totalSessions = sessions.length
+    const totalSessions = sessions ? sessions.length : 0
     if (!this.state.expandedSessionlist) sessions = sessions.slice(0, maxNum)
     const toggleExpandedSessionlist = () => { this.setState({ expandedSessionlist: !this.state.expandedSessionlist }) }
     const expandText = !this.state.expandedSessionlist ? 'Show all' : 'Show less'
@@ -258,7 +258,8 @@ class _ManageCourse extends Component {
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const expandText = !this.state.expandedClasslist ? 'show all' : 'show less'
-
+    const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
+    const nSessions = this.props.sessions ? this.props.sessions.length : 0
     const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
     return (
       <div className='container ql-manage-course'>
@@ -305,7 +306,7 @@ class _ManageCourse extends Component {
 
             <div className='ql-card hidden-xs'>
               <div className='ql-header-bar' onClick={toggleExpandedClasslist}>
-                <h4>{this.props.course.students.length} student{this.props.course.students.length>1?'s':''} (click to {expandText})</h4>
+                <h4>{nStudents} student{nStudents > 1 ? 's' : ''} (click to {expandText})</h4>
               </div>
               <div>
                 <div className='ql-course-classlist'>
@@ -316,7 +317,7 @@ class _ManageCourse extends Component {
           </div>
 
           <div className='col-md-8'>
-            <h3>Sessions ({this.props.sessions.length} session{this.props.sessions.length>1 ?'s':''})</h3>
+            <h3>Sessions ({nSessions} session{nSessions>1 ? 's' : '' })</h3>
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
