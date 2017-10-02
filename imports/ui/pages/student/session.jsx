@@ -23,7 +23,6 @@ class _Session extends Component {
     if (this.props.user.hasRole('student')) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
   }
 
-
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
@@ -32,14 +31,14 @@ class _Session extends Component {
       let statusMessage
 
       if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
-      if (status === 'done'){
+      if (status === 'done') {
         statusMessage = 'This session has finished'
-        user = Meteor.user()
-        cId = this.props.session.courseId
-        if(user && !user.isInstructor(cId)){
-          //if it's an instructor, this is being shown as a second display, so dont't
-          //go to the course page and show everyone the class list
-          Router.go("/course/"+this.props.session.courseId)
+        let user = Meteor.user()
+        let cId = this.props.session.courseId
+        if (user && !user.isInstructor(cId)) {
+          // if it's an instructor, this is being shown as a second display, so dont't
+          // go to the course page and show everyone the class list
+          Router.go('/course/' + this.props.session.courseId)
         }
       }
       return <div className='ql-subs-loading'>{statusMessage}</div>

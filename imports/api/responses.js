@@ -1,4 +1,3 @@
-/* global FS */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
@@ -140,7 +139,6 @@ Meteor.methods({
 
     return Responses.insert(responseObject)
   },
-
 
   /**
    * add a student result to question (that is attached to session)

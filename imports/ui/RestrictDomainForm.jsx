@@ -3,9 +3,7 @@
 //
 // ControlledForm.jsx: super class for controlled form components
 
-import React, { Component, PropTypes } from 'react'
-
-import { Settings } from '../api/settings'
+import React, { Component } from 'react'
 
 import _ from 'underscore'
 
@@ -70,7 +68,7 @@ export class RestrictDomainForm extends Component {
   render () {
     const domains = this.state.allowedDomains.map((domain, index) => {
       return (
-        <span key={'restrict_'+domain} onClick={this.domainClick}>{domain + (index === this.state.allowedDomains.length - 1 ? '' : ', ')}</span>
+        <span key={'restrict_' + domain} onClick={this.domainClick}>{domain + (index === this.state.allowedDomains.length - 1 ? '' : ', ')}</span>
       )
     })
 

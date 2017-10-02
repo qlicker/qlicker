@@ -9,8 +9,6 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { Table, Column, Cell } from 'fixed-data-table'
 
 import { _ } from 'underscore'
-import $ from 'jquery'
-import dl from 'datalib'
 
 import { Courses } from '../../api/courses'
 import { Sessions } from '../../api/sessions'
@@ -43,8 +41,8 @@ class _ClasslistParticipation extends Component {
       let element = document.createElement('canvas')
       let context = element.getContext('2d')
       const width = (context.measureText(text).width + 30)
-      if (width < 110 )return 110
-      else if (width > 300)return 300
+      if (width < 110) return 110
+      else if (width > 300) return 300
       else return width
     }
 
@@ -93,7 +91,7 @@ class _ClasslistParticipation extends Component {
                   key={sId}
                   header={<Cell onClick={_ => Router.go('session.results', { sessionId: sId })}><a href='#'>{this.props.sessionMap[sId].name}</a></Cell>}
                   cell={<PercentageCell sId={sId} />}
-                  width={getTextWidth(this.props.sessionMap[sId].name) }
+                  width={getTextWidth(this.props.sessionMap[sId].name)}
                 />
               ) }
 

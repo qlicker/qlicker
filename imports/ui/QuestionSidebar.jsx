@@ -8,7 +8,7 @@ import _ from 'underscore'
 
 import { ControlledForm } from './ControlledForm'
 
-import Select, { Creatable } from 'react-select'
+import Select from 'react-select'
 import { QuestionListItem } from './QuestionListItem'
 import { StudentQuestionListItem } from './StudentQuestionListItem'
 
@@ -26,8 +26,10 @@ export class QuestionSidebar extends ControlledForm {
   constructor (props) {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
-                   questionType: -1, courseId:-1, tags: [],
-                  }
+      questionType: -1,
+      courseId: -1,
+      tags: []
+    }
 
     this.setQuestion = this.setQuestion.bind(this)
     this.setSearchString = this.setSearchString.bind(this)
@@ -105,18 +107,19 @@ export class QuestionSidebar extends ControlledForm {
    * Set course id & invoke filter
    * @param {Event} e
    */
-  setCourseId(e) {
+  setCourseId (e) {
     let cId = e.target.value
     if (parseInt(cId) !== -1) {
-      //set the corresponding course tag (user can always remove it)
+      // set the corresponding course tag (user can always remove it)
       let tags = this.state.tags
       Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
-        //this does not seem to work, it adds it regardless...
-         tlabels = _(tags).pluck('label')
-         if (tag && !tlabels.includes(tag.label)){
-           tags.push(tag)
-           this.setTags(tags)
-         }
+        if (error) return alertify.error('Error: ' + error.error)
+        // this does not seem to work, it adds it regardless...
+        let tlabels = _(tags).pluck('label')
+        if (tag && !tlabels.includes(tag.label)) {
+          tags.push(tag)
+          this.setTags(tags)
+        }
       })
     }
 
@@ -128,7 +131,7 @@ export class QuestionSidebar extends ControlledForm {
    * delete the question
    * @param {MongoId} questionId
    */
-  deleteQuestion(questionId){
+  deleteQuestion (questionId) {
     if (confirm('Are you sure?')) {
       Meteor.call('questions.delete', questionId, (error) => {
         if (error) return alertify.error('Error: ' + error.error)
@@ -140,37 +143,37 @@ export class QuestionSidebar extends ControlledForm {
    * Set approved status to false
    * @param {MongoId} questionId
    */
-  unApproveQuestion(questionId){
+  unApproveQuestion (questionId) {
     if (confirm('Are you sure?')) {
-      question = this.state.questionPool.find((q)=>{return q._id===questionId})
-      if(question){
+      let question = this.state.questionPool.find((q) => { return q._id === questionId })
+      if (question) {
         question.approved = false
-        question.public = false //public questions should be approved
+        question.public = false // public questions should be approved
         Meteor.call('questions.update', question, (error, newQuestionId) => {
           if (error) return alertify.error('Error: ' + error.error)
           alertify.success('Question un-approved')
         })
-    }
+      }
     }
   }
   /**
    * Set approved status to true and take ownership
    * @param {MongoId} questionId
    */
-   //TODO: by unapproving and then approving a question, you can thus steal the ownership
-   //not clear how to make this better.
-  approveQuestion(questionId){
+   // TODO: by unapproving and then approving a question, you can thus steal the ownership
+   // not clear how to make this better.
+  approveQuestion (questionId) {
     if (confirm('Are you sure?')) {
-      question = this.state.questionPool.find((q)=>{return q._id===questionId})
-      userId = Meteor.userId()
-      if(question && userId){
+      let question = this.state.questionPool.find((q) => { return q._id === questionId })
+      let userId = Meteor.userId()
+      if (question && userId) {
         question.approved = true
         question.owner = userId
         Meteor.call('questions.update', question, (error, newQuestionId) => {
           if (error) return alertify.error('Error: ' + error.error)
           alertify.success('Question approved')
         })
-    }
+      }
     }
   }
   /**
@@ -183,25 +186,25 @@ export class QuestionSidebar extends ControlledForm {
     })
   }
 
-  resetFilter(){
+  resetFilter () {
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', userSearchString: '', questionType: -1, courseId:-1, tags: [], }, ()=>{
+    this.setState({ searchString: '', userSearchString: '', questionType: -1, courseId: -1, tags: [] }, () => {
       this.props.updateQuery(this.state)
     })
   }
 
   componentWillReceiveProps (nextProps) {
     this.setState({ questionPool: nextProps.questions.slice() })
-    if(nextProps.resetFilter) this.resetFilter()
+    if (nextProps.resetFilter) this.resetFilter()
   }
 
   render () {
     const showMore = !this.props.atMax ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.questions.length === 10 ? '12' : '6')} onClick={() => this.props.increase(this.state)}>
-      <span className='ql-question-name'> <span className='glyphicon glyphicon-plus'></span> Show more</span>
+      <span className='ql-question-name'> <span className='glyphicon glyphicon-plus' /> Show more</span>
     </div> : ''
 
     const showLess = this.props.questions.length > 10 ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.atMax ? '12' : '6')} onClick={() => this.props.decrease(this.state)}>
-      <span className='ql-question-name'> <span className='glyphicon glyphicon-minus'></span> Show less</span>
+      <span className='ql-question-name'> <span className='glyphicon glyphicon-minus' /> Show less</span>
     </div> : ''
 
     const isInstructor = Meteor.user().isInstructorAnyCourse()
@@ -219,13 +222,13 @@ export class QuestionSidebar extends ControlledForm {
               })
             }
           </select>
-          {this.state.courses && this.state.courses.length>1 ?
-            <select value= {this.state.courseId}  onChange={this.setCourseId} className='ql-header-button question-type form-control'>
+          {this.state.courses && this.state.courses.length > 1
+            ? <select value={this.state.courseId} onChange={this.setCourseId} className='ql-header-button question-type form-control'>
               <option key={-1} value={-1} >Any course</option>
               { this.state.courses
                ? this.state.courses.map((obj) => {
-                  return <option key={obj._id} value={obj._id} >{ obj.code }</option>
-                 })
+                 return <option key={obj._id} value={obj._id} >{ obj.code }</option>
+               })
                : ''
               }
             </select>
@@ -258,25 +261,25 @@ export class QuestionSidebar extends ControlledForm {
           <div className='ql-question-list'>
             { /* list questions */
               this.state.questionPool.map(q => {
-                controls = []
-                if(q.owner === userId) controls.push({label:'delete', click : () => this.deleteQuestion(q._id) })
-                if( (q.owner !== userId || q.creator !== userId ) && q.approved && isInstructor){
-                  controls.push({label:'un-approve', click : () => this.unApproveQuestion(q._id) })
+                let controls = []
+                if (q.owner === userId) controls.push({label: 'delete', click: () => this.deleteQuestion(q._id)})
+                if ((q.owner !== userId || q.creator !== userId) && q.approved && isInstructor) {
+                  controls.push({label: 'un-approve', click: () => this.unApproveQuestion(q._id)})
                 }
-                if( (q.owner !== userId || q.creator !== userId ) && !q.approved && isInstructor){
-                  controls.push({label:'approve', click : () => this.approveQuestion(q._id) })
+                if ((q.owner !== userId || q.creator !== userId) && !q.approved && isInstructor) {
+                  controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
                 }
                 return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
                     ? <QuestionListItem
-                         question={q}
-                         session={this.props.session}
-                         controls={controls.length > 0 ? controls: ''}
-                         click={() => this.setQuestion(q._id)} />
+                      question={q}
+                      session={this.props.session}
+                      controls={controls.length > 0 ? controls : ''}
+                      click={() => this.setQuestion(q._id)} />
                     : <StudentQuestionListItem
-                         question={q}
-                         controls={controls.length > 0 ?  controls: ''}
-                         click={() => this.setQuestion(q._id)} /> }
+                      question={q}
+                      controls={controls.length > 0 ? controls : ''}
+                      click={() => this.setQuestion(q._id)} /> }
                 </div>)
               })
             }

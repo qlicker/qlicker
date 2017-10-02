@@ -81,4 +81,3 @@ export class ChangePasswordModal extends ControlledForm {
 
 } // end ChangePasswordModal
 
-

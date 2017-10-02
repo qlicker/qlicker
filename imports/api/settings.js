@@ -5,7 +5,7 @@
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
-import { check, Match } from 'meteor/check'
+import { check } from 'meteor/check'
 
 import { _ } from 'underscore'
 
@@ -87,7 +87,7 @@ Meteor.methods({
       let user = Meteor.users.findOne({_id: this.userId})
       if (user.hasRole(ROLES.admin)) {
         if (settings.email && settings.email !== Settings.findOne().email && Meteor.isServer) {
-          Accounts.emailTemplates.from = "Qlicker Admin <"+settings.email+">"
+          Accounts.emailTemplates.from = 'Qlicker Admin <' + settings.email + '>'
         }
         return Settings.update(settings._id, settings)
       }

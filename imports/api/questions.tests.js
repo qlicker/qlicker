@@ -41,7 +41,6 @@ export const prepQuestionAndSession = (assertion) => {
   assertion(sessionId, questionId, courseId)
 }
 
-
 if (Meteor.isServer) {
   describe('Questions', () => {
     describe('methods', () => {

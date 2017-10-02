@@ -28,8 +28,8 @@ class _PageContainer extends Component {
   }
 
   render () {
-    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && ! this.state.user.hasRole('admin')
-    //const isProfOrAdmin = this.state.user.hasGreaterRole('professor') || isInstructor
+    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && !this.state.user.hasRole('admin')
+    // const isProfOrAdmin = this.state.user.hasGreaterRole('professor') || isInstructor
     const logout = () => {
       Meteor.logout(() => Router.go('login'))
     }
@@ -71,16 +71,16 @@ class _PageContainer extends Component {
                   </ul>
                 </li>
                }
-               <li className='dropdown'>
+                <li className='dropdown'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
-                     aria-haspopup='true' aria-expanded='false'>Questions <span className='caret'/></a>
+                    aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
                   <ul className='dropdown-menu'>
                     <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
                     <li role='separator' className='divider'>&nbsp;</li>
                     <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a>
                     </li>
-                    {isInstructor ?
-                      <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student
+                    {isInstructor
+                      ? <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student
                         Submissions</a></li> : ''}
                   </ul>
                 </li>
@@ -129,7 +129,7 @@ export const PageContainer = createContainer(() => {
 */
 
   if (user.hasGreaterRole('professor')) {
-    //courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
+    // courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
     courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } })
   } else {
     const cArr = user.profile.courses || []

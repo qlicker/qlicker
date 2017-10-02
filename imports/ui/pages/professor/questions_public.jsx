@@ -67,11 +67,11 @@ class _QuestionsPublic extends Component {
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
     else params.query = _.omit(params.query, 'plainText')
     if (childState.userSearchString) {
-       const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
+      const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
                                                {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
-       const uids = _(users).pluck('_id')
-       params.query.creator = {$in : uids}
-     } else params.query = _.omit(params.query, 'creator')
+      const uids = _(users).pluck('_id')
+      params.query.creator = {$in: uids}
+    } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
 
@@ -95,7 +95,7 @@ class _QuestionsPublic extends Component {
   render () {
     let library = this.state.questions || []
     let userId = Meteor.userId()
-    //let isInstructor = Meteor.user().isInstructorAnyCourse()
+    // let isInstructor = Meteor.user().isInstructorAnyCourse()
     const atMax = library.length !== this.state.limit
     if (!atMax) library = library.slice(0, -1)
 
@@ -126,13 +126,13 @@ class _QuestionsPublic extends Component {
               ? <div>
                 <h3>Preview Question</h3>
                 { (this.state.questionMap[this.state.selected].owner !== userId &&
-                   this.state.questionMap[this.state.selected].creator !== userId) ?
-                  <button className='btn btn-default'
+                   this.state.questionMap[this.state.selected].creator !== userId)
+                  ? <button className='btn btn-default'
                     onClick={() => { this.copyPublicQuestion(this.state.questionMap[this.state.selected]._id) }}
                     data-toggle='tooltip'
                     data-placement='left'
                     title='Create a copy for your library'>
-                      Copy to Library
+                    Copy to Library
                     </button>
                    : ''
                 }

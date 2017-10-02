@@ -73,4 +73,3 @@ export class EnrollCourseModal extends ControlledForm {
 
 } // end EnrollCourseModal
 
-

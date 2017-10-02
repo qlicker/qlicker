@@ -7,11 +7,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { Responses } from '../api/responses'
-import { Questions } from '../api/questions'
-import { Sessions } from '../api/sessions'
-//import dl from 'datalib' ///not used anymore
 import { _ } from 'underscore'
-import { $ } from 'jquery'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
 
@@ -70,8 +66,8 @@ export class _QuestionDisplay extends Component {
   resetState () {
    // const l = this.props.question.sessionOptions.attempts.length
    // const attempt = this.props.question.sessionOptions.attempts[l - 1]
-   const q1=this.props.question;
-   const attempt = q1.sessionOptions
+    const q1 = this.props.question
+    const attempt = q1.sessionOptions
       ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1]
       : 0
 
@@ -114,7 +110,7 @@ export class _QuestionDisplay extends Component {
   disallowResponses () {
     const q = this.props.question
     const disallowResponses = q.sessionOptions && q.sessionOptions.attempts.length && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
-    //const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
+    // const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
     return disallowResponses
   }
 
@@ -160,7 +156,6 @@ export class _QuestionDisplay extends Component {
    * send response in state to server. Calls {@link module:responses~"responses.add" responses.add}
    */
   submitResponse () {
-
     if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
@@ -254,7 +249,7 @@ export class _QuestionDisplay extends Component {
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
 
         let showStats = !this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
-        if(this.props.showStatsOverride) showStats = true
+        if (this.props.showStatsOverride) showStats = true
         if (showStats) {
           stats = this.calculateStats(a.answer)
 
@@ -270,7 +265,7 @@ export class _QuestionDisplay extends Component {
 
           widthStyle = { width: stats + '%' }
         }
-        const statsStr = '('+stats+'%)'
+        const statsStr = '(' + stats + '%)'
         const sess = this.props.question.sessionOptions
         const shouldShow = this.props.forReview || this.props.prof || (sess && sess.correct)
 
@@ -282,10 +277,10 @@ export class _QuestionDisplay extends Component {
               ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
-              { classSuffixStr === 'mc' || classSuffixStr === 'ms' ?
-                 <span className='ql-mc'>{a.answer}.</span>
+              { classSuffixStr === 'mc' || classSuffixStr === 'ms'
+                ? <span className='ql-mc'>{a.answer}.</span>
                  : '' }
-              {content} {(shouldShow && a.correct) ? '✓' : ''} {showStats ? statsStr: ''}
+              {content} {(shouldShow && a.correct) ? '✓' : ''} {showStats ? statsStr : ''}
             </div>
           </div>)
       })
@@ -293,16 +288,16 @@ export class _QuestionDisplay extends Component {
   }
 
   renderShortAnswer (q) {
-    if ((this.props.forReview || this.props.prof)){
-      //return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
+    if ((this.props.forReview || this.props.prof)) {
+      // return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
       return (
         <div>
-        {q.options[0].content ?
-          <h4 style={{'alignSelf': 'left'}}>{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
-          :''
+          {q.options[0].content
+            ? <h4 style={{'alignSelf': 'left'}}>{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
+          : ''
         }</div>
-    )}
-
+      )
+    }
 
     let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
     return (
@@ -376,34 +371,33 @@ export const QuestionDisplay = createContainer((props) => {
 
   const question = props.question
   if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
-    //Get the number of last attempt
+    // Get the number of last attempt
     const attemptNumber = question.sessionOptions.attempts.length
-    //Get the responses for that attempt:
+    // Get the responses for that attempt:
     responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
-    //Get the valid options for the question (e.g A, B, C)
+    // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
-    //Get the total number of responses:
+    // Get the total number of responses:
     total = responses.length
     let answerDistribution = {}
 
-    //pull out all the answers from the responses, this gives an array of arrays of answers
-    //e.g. [[A,B], [B], [B,C]], then flatten it
-    allAnswers = _(_(responses).pluck('answer')).flatten()
-    //then we count each occurrence of answer in the array
-    //we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
-    allAnswers.forEach( (a) => {
-      if(answerDistribution[a]) answerDistribution[a] += 1
+    // pull out all the answers from the responses, this gives an array of arrays of answers
+    // e.g. [[A,B], [B], [B,C]], then flatten it
+    let allAnswers = _(_(responses).pluck('answer')).flatten()
+    // then we count each occurrence of answer in the array
+    // we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
+    allAnswers.forEach((a) => {
+      if (answerDistribution[a]) answerDistribution[a] += 1
       else answerDistribution[a] = 1
     })
 
-    validOptions.forEach( (o) => {
-      if(!answerDistribution[o]) answerDistribution[o] = 0
-      pct = Math.round(100. * (total !==0 ? answerDistribution[o]/total : 0))
-      //counts does not need to be an array, but leave the flexibility to be able to hold
-      //the values for more than one attempt
-      formattedData.push({ answer:o, counts:[ {attempt:attemptNumber, count:answerDistribution[o], pct:pct} ] })
+    validOptions.forEach((o) => {
+      if (!answerDistribution[o]) answerDistribution[o] = 0
+      let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
+      // counts does not need to be an array, but leave the flexibility to be able to hold
+      // the values for more than one attempt
+      formattedData.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
     })
-
   }
 
   return {
@@ -419,8 +413,8 @@ export const QuestionDisplay = createContainer((props) => {
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
   readonly: PropTypes.bool,
-  noStats: PropTypes.bool, //seems confusing...
-  showStatsOverride: PropTypes.bool, //used for mobile session running
+  noStats: PropTypes.bool, // seems confusing...
+  showStatsOverride: PropTypes.bool, // used for mobile session running
   prof: PropTypes.bool,
   forReview: PropTypes.bool
 }

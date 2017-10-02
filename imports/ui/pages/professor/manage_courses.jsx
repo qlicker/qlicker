@@ -6,7 +6,6 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
-import _ from 'underscore'
 
 import { CourseListItem } from '../../CourseListItem'
 import { CreateCourseModal } from '../../modals/CreateCourseModal'
@@ -39,7 +38,7 @@ class _ManageCourses extends Component {
 
   doneCreatingCourse (e) {
     this.setState({ creatingCourse: false })
-    Meteor.setTimeout(this.forceUpdate,500)
+    Meteor.setTimeout(this.forceUpdate, 500)
   }
 
   renderCourseList (cList) {

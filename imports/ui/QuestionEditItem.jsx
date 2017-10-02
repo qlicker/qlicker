@@ -5,13 +5,11 @@
 
 import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
-import $ from 'jquery'
 
-import  Select, { Creatable } from 'react-select'
+import Select, { Creatable } from 'react-select'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
-import { QuestionImages } from '../api/questions'
 
 // constants
 import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
@@ -95,16 +93,16 @@ export class QuestionEditItem extends Component {
 
     // populate tagging suggestions
     this.tagSuggestions = []
-    user = Meteor.user()
-    if( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse() ){
-      Meteor.call('questions.possibleTags',this.props.courseId, (e, tags) => {
+    let user = Meteor.user()
+    if (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse()) {
+      Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
         // non-critical, if e: silently fail
         tags.forEach((t) => {
           this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
         })
         this.forceUpdate()
       })
-    }else{
+    } else {
       Meteor.call('questions.possibleTags', (e, tags) => {
         // non-critical, if e: silently fail
         tags.forEach((t) => {
@@ -112,31 +110,30 @@ export class QuestionEditItem extends Component {
         })
         this.forceUpdate()
       })
-
     }
 
-    //Default value of courseId depends on courseId of question and prop
-    //this.state.courseId =
-    if(this.props.courseId || this.props.question.courseId){
-      if(this.props.courseId && this.props.question &&
-         this.props.question.courseId&& this.props.courseId === this.props.question.courseId){
+    // Default value of courseId depends on courseId of question and prop
+    // this.state.courseId =
+    if (this.props.courseId || this.props.question.courseId) {
+      if (this.props.courseId && this.props.question &&
+         this.props.question.courseId && this.props.courseId === this.props.question.courseId) {
         this.state.courseId = this.props.courseId
-      }else if(this.props.question && this.props.question.courseId){
+      } else if (this.props.question && this.props.question.courseId) {
         this.state.courseId = this.props.question.courseId
-      }else if(this.props.courseId){
+      } else if (this.props.courseId) {
         this.state.courseId = this.props.courseId
-      }else{}
+      } else {}
     }
 
     if (this.props.courseId) {
       // add course code tag
       Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
-        if(tag) this.setState({ tags: [tag] })
+        if (tag) this.setState({ tags: [tag] })
       })
     }
 
-    //if (!this.props.courseId && !this.props.question.courseId) {
-    if(user.isInstructorAnyCourse()){
+    // if (!this.props.courseId && !this.props.question.courseId) {
+    if (user.isInstructorAnyCourse()) {
       Meteor.call('courses.getCourseTags', (e, d) => {
         this.setState({courses: d})
       })
@@ -224,27 +221,29 @@ export class QuestionEditItem extends Component {
    * Set CourseId and add corresponding tag (called from dropdown)
    * @param {course} e
    */
-   setCourse (e) {
-     let cId = e.target.value
-     if (parseInt(cId) !== -1) {
-       let tags = this.state.tags
-       Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
-          tlabels = _(tags).pluck('label')
-          if (tag && !tlabels.includes(tag.label)){
-            tags.push(tag)
-            this.addTag(tags)
-          }
-          this.saveQuestion()
-       })
-       this.setState({ courseId: cId }, () => {
-       this.saveQuestion()
-     })
-     }else{
-        this.setState({courseId: null}, () => {
+  setCourse (e) {
+    let cId = e.target.value
+    if (parseInt(cId) !== -1) {
+      let tags = this.state.tags
+      Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        let tlabels = _(tags).pluck('label')
+        if (tag && !tlabels.includes(tag.label)) {
+          tags.push(tag)
+          this.addTag(tags)
+        }
         this.saveQuestion()
-        })
-     }
-   }
+      })
+
+      this.setState({ courseId: cId }, () => {
+        this.saveQuestion()
+      })
+    } else {
+      this.setState({courseId: null}, () => {
+        this.saveQuestion()
+      })
+    }
+  }
   /**
    * Update wysiwyg contents for actual question in state
    * @param {Object} content
@@ -396,14 +395,13 @@ export class QuestionEditItem extends Component {
     })
   }
 
-  duplicateQuestion(){
-    if(this.state._id && (this.state.options.length !== 0 || this.state.type === QUESTION_TYPE.SA)){
-       delete this.state._id
-       this.saveQuestion()
-     }
-     else{
-       alertify.error('Error: question must be saved')
-     }
+  duplicateQuestion () {
+    if (this.state._id && (this.state.options.length !== 0 || this.state.type === QUESTION_TYPE.SA)) {
+      delete this.state._id
+      this.saveQuestion()
+    } else {
+      alertify.error('Error: question must be saved')
+    }
   }
 
   componentWillReceiveProps (nextProps) {
@@ -498,8 +496,8 @@ export class QuestionEditItem extends Component {
         </div>)
       })
     }
-    user = Meteor.user()
-    const selectOnly =  ( user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
+    let user = Meteor.user()
+    const selectOnly = (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
     const radioOptions = [
       { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },
@@ -517,8 +515,8 @@ export class QuestionEditItem extends Component {
             ? <div className='row metadata-row'>
               <div className='col-md-6'>
                 <div className='btn-group'>
-                  {this.state._id ?
-                    <button className='btn btn-default'
+                  {this.state._id
+                    ? <button className='btn btn-default'
                       onClick={this.duplicateQuestion}
                       data-toggle='tooltip'
                       data-placement='top'
@@ -542,12 +540,12 @@ export class QuestionEditItem extends Component {
                 </div>
               </div>
               <div className='col-md-6'>
-                <select value = {this.state.courseId ? this.state.courseId : -1} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
+                <select value={this.state.courseId ? this.state.courseId : -1} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
                   <option key={-1} value={-1} >No course</option>
                   { this.state.courses
                    ? this.state.courses.map((obj) => {
-                      return <option key={obj._id} value={obj._id} >{ obj.code }</option>
-                     })
+                     return <option key={obj._id} value={obj._id} >{ obj.code }</option>
+                   })
                    : ''
                   }
                 </select>
@@ -557,13 +555,13 @@ export class QuestionEditItem extends Component {
             : '' }
           <div className='row'>
             <div className='col-md-12 metadata-row'>
-            {selectOnly ? <Select
-                  name='tag-input'
-                  placeholder='Tags'
-                  multi
-                  value={this.state.tags && this.state.tags.length ? this.state.tags : [''] }
-                  options={this.tagSuggestions ? this.tagSuggestions : [{value:'',label:''}] }
-                  onChange={this.addTag}
+              {selectOnly ? <Select
+                name='tag-input'
+                placeholder='Tags'
+                multi
+                value={this.state.tags && this.state.tags.length ? this.state.tags : ['']}
+                options={this.tagSuggestions ? this.tagSuggestions : [{value: '', label: ''}]}
+                onChange={this.addTag}
                 /> : <Creatable
                   name='tag-input'
                   placeholder='Tags'
@@ -581,7 +579,7 @@ export class QuestionEditItem extends Component {
                 val={this.state.content}
                 className='question-editor'
                 placeholder='Question?'
-                question={this.state}/>
+                question={this.state} />
               { this.props.onDeleteThis
                 ? <span
                   onClick={this.props.onDeleteThis}

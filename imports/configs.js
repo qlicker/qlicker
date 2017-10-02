@@ -22,7 +22,6 @@ export const QUESTION_TYPE = {
 
 export const QUESTION_TYPE_STRINGS = ['Multiple Choice', 'True/False', 'Short Answer', 'Multi Select']
 
-
 export const MC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 export const TF_ORDER = ['TRUE', 'FALSE']
 export const SA_ORDER = ['ANSWER']
@@ -33,7 +32,6 @@ export const SESSION_STATUS_STRINGS = {
   running: '• Live',
   done: 'Finished'
 }
-
 
 export const formatDate = (date) => {
   var monthNames = [

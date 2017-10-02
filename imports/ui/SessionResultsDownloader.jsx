@@ -57,7 +57,7 @@ export const SessionResultsDownloader = createContainer((props) => {
   const course = Courses.find({ _id: props.session.courseId }).fetch()[0]
 
   const studentIds = course.students || []
-  const students = Meteor.users.find({ _id: { $in: studentIds } }, {sort: {'profile.lastname' : 1}}).fetch()
+  const students = Meteor.users.find({ _id: { $in: studentIds } }, {sort: {'profile.lastname': 1}}).fetch()
 
   const questions = Questions.find({ sessionId: props.session._id }).fetch()
 

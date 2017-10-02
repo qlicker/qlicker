@@ -5,7 +5,6 @@
 // QuestionListItem.jsx: React component list item for each course
 // typically used on student and professor overview page
 
-import React from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { QuestionListItem } from './QuestionListItem'
@@ -26,10 +25,10 @@ export const StudentQuestionListItem = createContainer((props) => {
   const user = Meteor.users.findOne(props.question.creator)
   const name = user ? user.getName() : 'Unknown'
   const owner = Meteor.users.findOne(props.question.owner)
-  const nameOwner = owner ? owner.getName(): 'Unknown'
+  const nameOwner = owner ? owner.getName() : 'Unknown'
   return {
     student: user,
-    details: 'Submitted by: ' + name +', owned by: '+nameOwner,
+    details: 'Submitted by: ' + name + ', owned by: ' + nameOwner,
     loading: !handle.ready()
   }
 }, _StudentQuestionListItem)

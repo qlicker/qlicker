@@ -1,10 +1,7 @@
-/* global FS */
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
 // questions.js: JS related to question collection
-
-import Busboy from 'busboy'
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
@@ -55,7 +52,7 @@ const questionPattern = {
     }]
   }),
   imagePath: Match.Maybe(String),
-  studentCopyOfPublic: Match.Maybe(Boolean)//true if this a student's copy from a public library
+  studentCopyOfPublic: Match.Maybe(Boolean) // true if this a student's copy from a public library
 }
 
 const defaultSessionOptions = {
@@ -112,7 +109,7 @@ if (Meteor.isServer) {
         initialQs.forEach(q => {
           const qToAdd = q
           // if prof has marked Q with correct visible, refetch answer options
-          if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne({_id:q._id}).options
+          if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne({_id: q._id}).options
           this.added('questions', qToAdd._id, qToAdd)
         })
 
@@ -155,24 +152,22 @@ if (Meteor.isServer) {
   Meteor.publish('questions.library', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if( user.hasRole(ROLES.admin) ){
-        const courses = _.pluck(Courses.find({}).fetch(), '_id')
+      if (user.hasRole(ROLES.admin)) {
         return Questions.find({
           approved: true,
           studentCopyOfPublic: {$exists: false},
           sessionId: {$exists: false} })
-      }
-      else if( user.isInstructorAnyCourse() ){
+      } else if (user.isInstructorAnyCourse()) {
         const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
         return Questions.find({
           '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
           studentCopyOfPublic: {$exists: false},
           sessionId: {$exists: false} })
-      } else{
-        //students. By checking for creator, they can see the questions they submitted
-        //that have been moved to a course library (which changes the owner w/o copying)
+      } else {
+        // students. By checking for creator, they can see the questions they submitted
+        // that have been moved to a course library (which changes the owner w/o copying)
         return Questions.find({
-          '$or': [ {creator: this.userId}, {owner: this.userId}],
+          '$or': [{creator: this.userId}, {owner: this.userId}],
           sessionId: {$exists: false} })
       }
     } else this.ready()
@@ -222,7 +217,6 @@ Meteor.methods({
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasRole(ROLES.student)) {
-
       // if student, can only add question to enrolled courses
       const courses = Courses.find({ _id: { $in: (user.profile.courses || []) } }).fetch()
       const courseIds = _(courses).pluck('_id')
@@ -264,7 +258,7 @@ Meteor.methods({
     const userId = Meteor.userId()
 
     // a student deleting a public question that they copied over:
-    if ( question.owner === userId && question.studentCopyOfPublic ){
+    if (question.owner === userId && question.studentCopyOfPublic) {
       return Questions.remove({ _id: questionId })
     }
 
@@ -272,8 +266,8 @@ Meteor.methods({
     const ownQuestion = yourCourses.indexOf(question.courseId) > -1
 
     if (!ownQuestion && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
-    if (question.creator !== question.owner){
-      //this is to not delete a student question
+    if (question.creator !== question.owner) {
+      // this is to not delete a student question
       question.owner = question.creator
       return Meteor.call('questions.update', question)
     }
@@ -292,13 +286,13 @@ Meteor.methods({
     const session = Sessions.findOne({ _id: sessionId })
     const question = Questions.findOne({ _id: questionId })
 
-    if(!question || !session) return
+    if (!question || !session) return
 
     question.originalQuestion = questionId
     question.sessionId = sessionId
     question.courseId = session.courseId
     question.owner = Meteor.userId()
-    //question.sessionOptions = defaultSessionOptions
+    // question.sessionOptions = defaultSessionOptions
 
     const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
@@ -313,26 +307,26 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const omittedFields = ['_id', 'originalQuestion', 'sessionId']
-    //quetion below was const, but changed to let, right???
+    // quetion below was const, but changed to let, right???
     let question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
-    //Don't copy if we already own or created
-    //TODO: should really check if the same question is already in the library
-    //by hashing it or something similar
-    userId = Meteor.userId()
-    /* this wouldn't allow a question created in a session to be copied over
-    if( (question.owner === userId || question.creator === userId) && !question.sessionId){
-      throw new Meteor.Error('Question already in library')
-    }*/
+    // Don't copy if we already own or created
+    // TODO: should really check if the same question is already in the library
+    // by hashing it or something similar
+    //
+    // this wouldn't allow a question created in a session to be copied over
+    // if( (question.owner === userId || question.creator === userId) && !question.sessionId){
+    //   throw new Meteor.Error('Question already in library')
+    // }
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
 
-    //TODO: should check that the question is part of a course, and the user an instructor for that course:
-    if(Meteor.user().isInstructorAnyCourse()) question.approved = true
+    // TODO: should check that the question is part of a course, and the user an instructor for that course:
+    if (Meteor.user().isInstructorAnyCourse()) question.approved = true
 
-    //this is so that the (approved) questions that students copy to their own library
-    //don't show up in the instructor's libraries.
-    if( !Meteor.user().isInstructorAnyCourse() ){
+    // this is so that the (approved) questions that students copy to their own library
+    // don't show up in the instructor's libraries.
+    if (!Meteor.user().isInstructorAnyCourse()) {
       question.studentCopyOfPublic = true
     }
 
@@ -380,7 +374,7 @@ Meteor.methods({
       const questions = Questions.find({
         courseId: {$in: cArr},
         sessionId: {$exists: false},
-        approved: true //false would find the tags that students created
+        approved: true // false would find the tags that students created
       })
 
       questions.forEach((q) => {
@@ -388,30 +382,31 @@ Meteor.methods({
           tags.add(t.label.toUpperCase())
         })
       })
-    } else {//most likely a student contributing a question:
+    } else { // most likely a student contributing a question:
       const coursesArray = user.profile.courses || []
-      const courses = courseIdForStudent ?  Courses.find({ _id: courseIdForStudent}) :
-                        Courses.find({ _id: { $in: coursesArray } }).fetch()
+      const courses = courseIdForStudent ? Courses.find({_id: courseIdForStudent}) : Courses.find({ _id: { $in: coursesArray } }).fetch()
       courses.forEach(c => {
         tags.add(c.courseCode().toUpperCase())
       })
-      /*
-      //tags that the student has created
-      const userQuestions = Questions.find({ owner: Meteor.userId() }).fetch()
-      userQuestions.forEach((q) => {
-        q.tags.forEach((t) => {
-          tags.add(t.label.toUpperCase())
-        })
-      })*/
-      //get tags related to the course (if specified), otherwise, tags for all courses in profile:
-      const courseQuestions = courseIdForStudent ?  Questions.find ( {courseId: courseIdForStudent, approved:true }).fetch():
-                                Questions.find ( {courseId:{$in: coursesArray}, approved:true }).fetch()
+
+      // tags that the student has created
+      // const userQuestions = Questions.find({ owner: Meteor.userId() }).fetch()
+      // userQuestions.forEach((q) => {
+      //   q.tags.forEach((t) => {
+      //     tags.add(t.label.toUpperCase())
+      //   })
+      // })
+
+      // get tags related to the course (if specified), otherwise, tags for all courses in profile:
+      const courseQuestions = courseIdForStudent
+        ? Questions.find({courseId: courseIdForStudent, approved: true}).fetch()
+        : Questions.find({courseId: {$in: coursesArray}, approved: true}).fetch()
+
       courseQuestions.forEach((q) => {
         q.tags.forEach((t) => {
           tags.add(t.label.toUpperCase())
         })
       })
-
     }
 
     return [...tags]
@@ -454,7 +449,9 @@ Meteor.methods({
    * @param {MongoId} questionId
    */
   'questions.startAttempt' (questionId) {
-    if(!questionId) return
+    if (!questionId) {
+      return
+    }
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
@@ -537,7 +534,9 @@ Meteor.methods({
    * disables visibility of entire question in session
    */
   'questions.hideQuestion' (questionId) {
-    if(!questionId) return
+    if (!questionId) {
+      return
+    }
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')

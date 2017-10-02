@@ -34,20 +34,20 @@ class Stats {
       return _.max(responses, (resp) => { return resp.attempt })
     })
 
-    const marks = _(responses).map( (resp) => {
+    const marks = _(responses).map((resp) => {
       return this.calculateResponseGrade(resp)
     })
-    //const marks = _.pluck(responses, 'mark')
+    // const marks = _.pluck(responses, 'mark')
     const mark = _.reduce(marks, (memo, num) => { return memo + num }, 0)
 
     return this.numQuestions ? (mark / this.numQuestions * 100).toFixed(0) : 0
   }
 
   calculateResponseGrade (response, question) {
-    if ( !response ) return 0
-    const q = question ? question : _(this.questions).findWhere({ _id: response.questionId })
+    if (!response) return 0
+    const q = question || _(this.questions).findWhere({ _id: response.questionId })
     const resp = response.answer
-    if ( !q || !resp ) return 0
+    if (!q || !resp) return 0
     const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
 
     let mark = 0
@@ -78,10 +78,10 @@ class Stats {
   questionGrade (qId, studentId) {
     const responses = _.filter(this.responses, (r) => { return r.studentUserId === studentId && r.questionId === qId })
     const response = _.max(responses, (resp) => { return resp.attempt })
-    const question = _(this.questions).findWhere({_id:qId})
-    if (response && question ) return (100*this.calculateResponseGrade(response, question)).toFixed(0)
+    const question = _(this.questions).findWhere({_id: qId})
+    if (response && question) return (100 * this.calculateResponseGrade(response, question)).toFixed(0)
     else return 0
-    //return (response && response.mark) ? (response.mark * 100).toFixed(0) : 0
+    // return (response && response.mark) ? (response.mark * 100).toFixed(0) : 0
   }
 
 }

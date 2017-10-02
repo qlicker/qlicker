@@ -15,7 +15,6 @@ import { createStubs, restoreStubs } from '../../stubs.tests.js'
 import { Courses } from './courses.js'
 import './users.js'
 
-
 const userId = Random.id()
 export const sampleCourse = {
   createdAt: new Date(),

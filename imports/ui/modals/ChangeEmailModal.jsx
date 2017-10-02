@@ -75,4 +75,3 @@ export class ChangeEmailModal extends ControlledForm {
 
 } // end ChangeEmailModal
 
-

@@ -34,7 +34,6 @@ export class SessionListItem extends ListItem {
   reviewSession (evt) {
     evt.stopPropagation()
     const sessionId = this.props.session._id
-    const courseId = this.props.session.courseId
     Router.go('student.session.results', { sessionId: sessionId })
   }
 

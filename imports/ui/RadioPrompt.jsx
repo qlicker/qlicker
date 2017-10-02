@@ -5,7 +5,6 @@
 
 import React, { Component, PropTypes } from 'react'
 
-
 /**
  * Controlled React component. custom "radio button" style group of buttons. horizontal set of buttons that allows for one selection
  * @class
@@ -33,7 +32,6 @@ export class RadioPrompt extends Component {
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps)
   }
-
 
   render () {
     return (

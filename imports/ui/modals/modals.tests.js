@@ -12,8 +12,8 @@ import { _ } from 'underscore'
 
 import { CreateCourseModal, DEFAULT_STATE as CREATE_DEFAULT_STATE } from './CreateCourseModal'
 import { EnrollCourseModal, DEFAULT_STATE as ENROLL_DEFAULT_STATE } from './EnrollCourseModal'
-import { CreateQuestionModal, DEFAULT_STATE as QUESTION_DEFAULT_STATE } from './CreateQuestionModal'
-import { CreateSessionModal, DEFAULT_STATE as SESSION_DEFAULT_STATE } from './CreateSessionModal'
+import { CreateQuestionModal } from './CreateQuestionModal'
+import { CreateSessionModal } from './CreateSessionModal'
 
 if (Meteor.isClient) {
   describe('<CreateCourseModal />', () => {

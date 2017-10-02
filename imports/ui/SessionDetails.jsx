@@ -69,11 +69,9 @@ export class SessionDetails extends Component {
         <option value>Online Quiz</option>
       </select> */}
 
-
     </div>)
     return r
   } //  end render
 
 }
-
 
