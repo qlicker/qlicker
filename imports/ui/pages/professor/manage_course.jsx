@@ -260,13 +260,9 @@ class _ManageCourse extends Component {
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const expandText = !this.state.expandedClasslist ? 'show all' : 'show less'
-<<<<<<< HEAD
 
-=======
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ? this.props.sessions.length : 0
-    const strActive = this.props.course.inactive ? 'Enable Course' : 'Archive Course'
->>>>>>> b92560bac96fd46b9fb78638c965ed90c1ba27d5
     return (
       <div className='container ql-manage-course'>
         <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
@@ -312,11 +308,7 @@ class _ManageCourse extends Component {
 
             <div className='ql-card hidden-xs'>
               <div className='ql-header-bar' onClick={toggleExpandedClasslist}>
-<<<<<<< HEAD
-                <h4>{this.props.course.students.length} student{this.props.course.students.length > 1 ? 's' : ''} (click to {expandText})</h4>
-=======
                 <h4>{nStudents} student{nStudents > 1 ? 's' : ''} (click to {expandText})</h4>
->>>>>>> b92560bac96fd46b9fb78638c965ed90c1ba27d5
               </div>
               <div>
                 <div className='ql-course-classlist'>
@@ -327,7 +319,7 @@ class _ManageCourse extends Component {
           </div>
 
           <div className='col-md-8'>
-            <h3>Sessions ({nSessions} session{nSessions>1 ? 's' : '' })</h3>
+            <h3>Sessions ({nSessions} session{nSessions > 1 ? 's' : '' })</h3>
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
