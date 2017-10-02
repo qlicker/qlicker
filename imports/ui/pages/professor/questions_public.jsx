@@ -67,11 +67,11 @@ class _QuestionsPublic extends Component {
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
     else params.query = _.omit(params.query, 'plainText')
     if (childState.userSearchString) {
-       const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
+      const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
                                                {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
-       const uids = _(users).pluck('_id')
-       params.query.creator = {$in : uids}
-     } else params.query = _.omit(params.query, 'creator')
+      const uids = _(users).pluck('_id')
+      params.query.creator = {$in: uids}
+    } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
 

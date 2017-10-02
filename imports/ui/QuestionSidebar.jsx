@@ -188,8 +188,7 @@ export class QuestionSidebar extends ControlledForm {
 
   resetFilter () {
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', userSearchString: '', questionType: -1, courseId:-1, tags: [], }, ()=>{
-
+    this.setState({ searchString: '', userSearchString: '', questionType: -1, courseId: -1, tags: [] }, () => {
       this.props.updateQuery(this.state)
     })
   }
