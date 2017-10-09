@@ -43,16 +43,36 @@ class _Session extends Component {
       }
       return <div className='ql-subs-loading'>{statusMessage}</div>
     }
+    const session = this.props.session
 
-    const current = this.props.session.currentQuestion
-    const q = current ? this.props.questions[current] : null
-    const questionDisplay = this.props.user.hasRole('professor')
-      ? <QuestionDisplay question={q} readonly />
-      : <QuestionDisplay question={q} />
-    return (
-      <div className='container ql-session-display'>
-        { q ? questionDisplay : '' }
-      </div>)
+    if( !session.quiz ){
+      const current = this.props.session.currentQuestion
+      const q = current ? this.props.questions[current] : null
+      const questionDisplay = this.props.user.hasRole('professor')
+        ? <QuestionDisplay question={q} readonly />
+        : <QuestionDisplay question={q} />
+      return (
+        <div className='container ql-session-display'>
+          { q ? questionDisplay : '' }
+        </div>)
+    }else{
+      const qlist = session.questions
+      return( <div>
+        {
+          qlist.map( (qId) => {
+            const q = this.props.questions[qId]
+            const questionDisplay = this.props.user.hasRole('professor')
+              ? <QuestionDisplay question={q} readonly />
+              : <QuestionDisplay question={q} />
+              return (
+                <div className='container ql-session-display'>
+                  { q ? questionDisplay : '' }
+                </div>)
+          })
+        }
+        </div>)
+
+    }
   }
 
 }
