@@ -6,12 +6,14 @@
     "start": "meteor --settings settings.json",
     "lint": "node_modules/.bin/standard \"client/**/*.js*\" \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
     "fix-lint": "node_modules/.bin/standard --fix \"client/**/*.js*\" \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
-    "test:app-watch": "meteor test --full-app --driver-package practicalmeteor:mocha",
-    "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html in_coverage' --xunit-out $CIRCLE_TEST_REPORTS/full-app-results.xml",
-    "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha",
+    "test:unit": "node_modules/.bin/spacejam test --once --driver-package practicalmeteor:mocha --settings settings.json",
+    "test:app": "node_modules/.bin/spacejam test --once --full-app --driver-package practicalmeteor:mocha --settings settings.json",
+    "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha --settings settings.json",
+    "test:app-watch": "meteor test --full-app --driver-package practicalmeteor:mocha --settings settings.json",
     "test:unit-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html' --xunit-out $CIRCLE_TEST_REPORTS/unit-results.xml",
+    "test:app-coverage": "node_modules/.bin/spacejam test --full-app --driver-package practicalmeteor:mocha --port 4099 --coverage 'out_lcovonly out_coverage out_html in_coverage' --xunit-out $CIRCLE_TEST_REPORTS/full-app-results.xml",
     "test:unit-no-coverage": "node_modules/.bin/spacejam test --driver-package practicalmeteor:mocha --port 4099",
-    "test:all": "npm run test:unit-coverage && npm run test:app-coverage"
+    "test:all": "npm run test:unit-watch && npm run test:app-watch"
   },
   "dependencies": {
     "aws-sdk": "^2.94.0",
