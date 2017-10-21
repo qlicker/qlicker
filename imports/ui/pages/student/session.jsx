@@ -57,15 +57,18 @@ class _Session extends Component {
         </div>)
     }else{
       const qlist = session.questions
-      return( <div>
+      let qCount = 0
+      return( <div className='container ql-session-display'>
         {
           qlist.map( (qId) => {
+            qCount += 1
             const q = this.props.questions[qId]
             const questionDisplay = this.props.user.hasRole('professor')
               ? <QuestionDisplay question={q} readonly />
               : <QuestionDisplay question={q} />
               return (
-                <div className='container ql-session-display'>
+                <div key={"qlist_"+qId}>
+                  <div className = 'ql-session-question-title'> Question: {qCount}</div>
                   { q ? questionDisplay : '' }
                 </div>)
           })
