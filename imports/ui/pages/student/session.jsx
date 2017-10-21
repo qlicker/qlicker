@@ -58,6 +58,7 @@ class _Session extends Component {
     }else{
       const qlist = session.questions
       let qCount = 0
+      const qLength = qlist.length
       return( <div className='container ql-session-display'>
         {
           qlist.map( (qId) => {
@@ -68,7 +69,7 @@ class _Session extends Component {
               : <QuestionDisplay question={q} />
               return (
                 <div key={"qlist_"+qId}>
-                  <div className = 'ql-session-question-title'> Question: {qCount}</div>
+                  <div className = 'ql-session-question-title'> Question: {qCount+"/"+qLength}</div>
                   { q ? questionDisplay : '' }
                 </div>)
           })
