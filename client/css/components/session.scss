@@ -1,4 +1,6 @@
 
+@import '../variables.scss';
+
 .ql-session-display {
 
 
@@ -6,7 +8,7 @@
 
 .ql-session-question-title {
   font-size: 2em;
-  background: #30b0e7;
+  background: $blue;
   padding: 5px;
   color: white;
 }
