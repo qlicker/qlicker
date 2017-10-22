@@ -5,6 +5,8 @@
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
+
+import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QuestionDisplay } from './QuestionDisplay'
 
 import { QUESTION_TYPE } from '../configs'
@@ -28,7 +30,7 @@ export class _StudentQuestionResultsClassList extends Component {
           inner = row.answer + (correct[0] === row.answer ? ' ✓' : ' ✗')
           break
         case QUESTION_TYPE.SA:
-          inner = row.answer
+          inner = row.answerWysiwyg ? WysiwygHelper.htmlDiv( row.answerWysiwyg) : row.answer
           break
         case QUESTION_TYPE.MS:
           const intersection = _.intersection(correct, row.answer)

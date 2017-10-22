@@ -18,7 +18,7 @@ class _ShortAnswerList extends Component {
   renderAnswer (r) {
     const user = Meteor.users.findOne(r.studentUserId)
     const name = user ? user.getName() : 'Unknown'
-    const answer = WysiwygHelper.htmlDiv(r.answerWysiwyg)
+    const answer = r.answerWysiwyg ? WysiwygHelper.htmlDiv( r.answerWysiwyg) : r.answer
 
     return (
       <div>
