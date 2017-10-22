@@ -10,6 +10,7 @@ import { Responses } from '../api/responses'
 import { _ } from 'underscore'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
+import { Editor } from './Editor'
 
 /**
  * React Component (meteor reactive) to display Question object and send question reponses.
@@ -34,6 +35,7 @@ export class _QuestionDisplay extends Component {
     this.state = {
       btnDisabled: true,
       submittedAnswer: '',
+      submittedAnswerWysiwyg: '',
       questionId: this.props.question._id,
       isSubmitted: false,
       attempt: attempt,
@@ -47,6 +49,7 @@ export class _QuestionDisplay extends Component {
     this.disallowResponses = this.disallowResponses.bind(this)
     this.setAnswer = this.setAnswer.bind(this)
     this.setShortAnswer = this.setShortAnswer.bind(this)
+    this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
     this.resetState = this.resetState.bind(this)
   }
 
@@ -77,9 +80,11 @@ export class _QuestionDisplay extends Component {
       (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) ||
       (this.state.questionId === this.props.question._id && this.state.attempt === attempt && myResponses.length > 0)) {
       if (myResponses.length > 0 && (!this.state.wasVisited)) {
+        const submittedAnswerWysiwyg = (q1.type === QUESTION_TYPE.SA) ? myResponses[0].answerWysiwyg : ''
         this.setState({
           btnDisabled: true,
           submittedAnswer: myResponses[0].answer,
+          submittedAnswerWysiwyg: submittedAnswerWysiwyg,
           questionId: this.props.question._id,
           isSubmitted: true,
           attempt: attempt,
@@ -91,6 +96,7 @@ export class _QuestionDisplay extends Component {
         this.setState({
           btnDisabled: true,
           submittedAnswer: '',
+          submittedAnswerWysiwyg: '',
           questionId: this.props.question._id,
           isSubmitted: false,
           attempt: attempt,
@@ -126,6 +132,17 @@ export class _QuestionDisplay extends Component {
   }
 
   /**
+   * set answer in state for short answer questions
+   * @param {Event} e - form event object
+   */
+  setShortAnswerWysiwyg (content, plainText) {
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: plainText,
+      submittedAnswerWysiwyg: content
+    })
+  }
+  /**
    * set answer in state for option based questions
    * @param {String} answer - the answer key
    */
@@ -159,6 +176,7 @@ export class _QuestionDisplay extends Component {
     if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
+    const answerWysiwyg = this.state.submittedAnswerWysiwyg
     this.readonly = true
 
     this.setState({
@@ -172,6 +190,7 @@ export class _QuestionDisplay extends Component {
     const answerObject = {
       studentUserId: Meteor.userId(),
       answer: answer,
+      answerWysiwyg: answerWysiwyg,
       attempt: attempt.number,
       questionId: this.props.question._id
     }
@@ -300,16 +319,21 @@ export class _QuestionDisplay extends Component {
     }
 
     let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
+
     return (
-      <div className='ql-answer-content-container ql-short-answer'>
+      <div className='ql-answer-content-container ql-short-answer' >
         { showAns ? <h4>Correct Answer: {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
-        <textarea
-          disabled={this.readonly}
-          placeholder='Type your answer here'
-          className='form-control'
-          rows='3'
-          onChange={this.setShortAnswer}
-          value={this.props.prof ? q.options[0].plainText : this.state.submittedAnswer} />
+
+        { this.readonly ?  WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) :
+          <div className={'small-editor-wrapper col-md-12'}>
+            <Editor
+              change={this.setShortAnswerWysiwyg}
+              placeholder='Type your answer here'
+              val={this.state.submittedAnswerWysiwyg}
+              className='answer-editor'
+            />
+          </div>
+        }
       </div>
     )
   }
@@ -322,6 +346,8 @@ export class _QuestionDisplay extends Component {
     const q = this.props.question
     const type = q.type
     let content
+
+    const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
 
     switch (type) {
       case QUESTION_TYPE.MC:
@@ -346,6 +372,7 @@ export class _QuestionDisplay extends Component {
 
         { this.disallowResponses() && (!this.props.noStats) ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
+        { showToolbar ? <div id='ckeditor-toolbar' /> : '' }
         <div className='ql-answers'>
           {content}
         </div>
@@ -370,11 +397,13 @@ export const QuestionDisplay = createContainer((props) => {
   let responses
 
   const question = props.question
+  // Get the number of last attempt
+  const attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
+  // Get the responses for that attempt:
+  responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
+
   if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
-    // Get the number of last attempt
-    const attemptNumber = question.sessionOptions.attempts.length
-    // Get the responses for that attempt:
-    responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
+
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
     // Get the total number of responses:

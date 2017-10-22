@@ -6,6 +6,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
+import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
 
 /**
@@ -17,10 +18,11 @@ class _ShortAnswerList extends Component {
   renderAnswer (r) {
     const user = Meteor.users.findOne(r.studentUserId)
     const name = user ? user.getName() : 'Unknown'
+    const answer = WysiwygHelper.htmlDiv(r.answerWysiwyg)
 
     return (
       <div>
-        {name}: {r.answer}
+        {name}: {answer}
       </div>
     )
   }

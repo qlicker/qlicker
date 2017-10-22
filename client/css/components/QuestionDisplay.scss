@@ -14,6 +14,10 @@ $red-bar: rgba(167,37,38, 0.3);
       color: $blue;
       cursor: pointer;
 
+      .ql-short-answer {
+        color: black;
+      }
+
       .ql-checkbox {
         border-color: $blue;
         &:after {
@@ -33,7 +37,7 @@ $red-bar: rgba(167,37,38, 0.3);
     background: white;
     padding: 16px;
   }
-  
+
   .ql-subs-loading {
     padding: 10px;
   }
@@ -50,7 +54,7 @@ $red-bar: rgba(167,37,38, 0.3);
 
     .submit-button {
       width: 100%;
-      max-width: 400px;     
+      max-width: 400px;
     }
   }
 
