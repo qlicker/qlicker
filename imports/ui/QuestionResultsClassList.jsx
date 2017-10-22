@@ -44,7 +44,7 @@ export class _QuestionResultsClassList extends Component {
                 const response = _(responses).findWhere({attempt: attempt.number})
                 const key = user._id + '_' + this.props.question._id + '_' + attempt.number
                 let answer = response ? response.answer : ''
-                answer = (response.answerWysiwyg && this.props.question.type === QUESTION_TYPE.SA) ? WysiwygHelper.htmlDiv(response.answerWysiwyg) : answer
+                answer = ( response && this.props.question.type === QUESTION_TYPE.SA && response.answerWysiwyg ) ? WysiwygHelper.htmlDiv(response.answerWysiwyg) : answer
 
                 if (response && this.props.question.type !== QUESTION_TYPE.SA) {
                   grade = stats.calculateResponseGrade(response, this.props.question)
