@@ -24,6 +24,7 @@ const responsePattern = {
   questionId: Helpers.MongoID,
   studentUserId: Helpers.MongoID,
   answer: Helpers.AnswerItem,
+  answerWysiwyg: Match.Maybe(String),
   createdAt: Date
 }
 
@@ -151,7 +152,7 @@ Meteor.methods({
       attempt: responseObject.attempt,
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
-    }, { $set: { answer: responseObject.answer } })
+    }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg } })
   }
 
 }) // end Meteor.methods

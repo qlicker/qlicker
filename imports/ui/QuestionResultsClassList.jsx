@@ -8,6 +8,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import _ from 'underscore'
 
+import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
 import { QUESTION_TYPE } from '../configs'
 import { Stats } from '../stats'
@@ -42,13 +43,14 @@ export class _QuestionResultsClassList extends Component {
               {attempts.map((attempt) => {
                 const response = _(responses).findWhere({attempt: attempt.number})
                 const key = user._id + '_' + this.props.question._id + '_' + attempt.number
-                const answer = response ? response.answer : ''
-                  // only update the grade if there is a later attempt
+                let answer = response ? response.answer : ''
+                answer = ( response && this.props.question.type === QUESTION_TYPE.SA && response.answerWysiwyg ) ? WysiwygHelper.htmlDiv(response.answerWysiwyg) : answer
+
                 if (response && this.props.question.type !== QUESTION_TYPE.SA) {
                   grade = stats.calculateResponseGrade(response, this.props.question)
                 }
-                const answerStr = response ? answer + ' (' + grade + ')' : ''
-                return (<td key={key}>{answerStr}</td>)
+
+                return (<td key={key}>{answer} ({grade})</td>)
               })
                 }
               <td>{this.props.question.type !== QUESTION_TYPE.SA
