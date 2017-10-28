@@ -53,3 +53,5 @@ export const ROLES = { // NOTE usage of constants is not fully implmented, some 
   prof: 'professor',
   admin: 'admin'
 }
+
+export const userGuideUrl = 'https://qlicker.github.io'
