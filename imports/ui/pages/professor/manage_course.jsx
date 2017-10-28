@@ -39,6 +39,7 @@ class _ManageCourse extends Component {
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
+    this.gradeSession = this.gradeSession.bind(this)
     this.copySession = this.copySession.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
@@ -54,6 +55,11 @@ class _ManageCourse extends Component {
     this.setState({ copySessionModal: !this.state.copySessionModal, sessionToCopy: sessionId })
   }
 
+  gradeSession (sessionId) {
+    Meteor.call('grades.calcSessionGrades', sessionId, (error) => {
+      if (error) return alertify.error('Error calculating grade: '+ error)
+    })
+  }
   toggleProfileViewModal (userToView = null) {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
@@ -175,6 +181,7 @@ class _ManageCourse extends Component {
           controls.push({ label: 'Review results', click: () => Router.go('/results/session/' + sId) })
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
+          controls.push({ label: 'Calculate Grades', click: () => this.gradeSession(sId) })
           controls.push({ divider: true })
           controls.push({ label: 'Delete', click: () => this.deleteSession(sId) })
 
