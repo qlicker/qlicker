@@ -225,6 +225,9 @@ Meteor.methods({
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
+    // Prevents a professor from demoting an admin.
+    if (user.hasRole(ROLES.admin)) throw new Meteor.Error('no-demote-admin', 'Cannot demote an admin to professor.')
+
     return Meteor.users.update({ _id: user._id }, {
       '$set': { 'profile.roles': [ ROLES.prof ] }
     })
