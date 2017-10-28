@@ -5,6 +5,7 @@ import { Sessions } from '../imports/api/sessions.js'
 import { Questions } from '../imports/api/questions.js'
 import { Responses } from '../imports/api/responses.js'
 import { Images } from '../imports/api/images.js'
+import { Grades } from '../imports/api/grades.js'
 
 import { Settings } from '../imports/api/settings.js'
 
@@ -26,4 +27,7 @@ Meteor.startup(() => {
   Responses._ensureIndex({ studentUserId: 1 })
   Sessions._ensureIndex({ courseId: 1 })
   Images._ensureIndex({ UID: 1 })
+  Grades._ensureIndex({ userId: 1 })
+  Grades._ensureIndex({ courseId: 1 })
+  Grades._ensureIndex({ sessionId: 1 })
 })

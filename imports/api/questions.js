@@ -46,9 +46,11 @@ const questionPattern = {
     hidden: Boolean, // temporarily hide question on screen
     stats: Boolean, // students able to see distribution of answers
     correct: Boolean, // students able to see which is correct
+    points: Match.Maybe(Number), // number of points question is work
     attempts: [{
       number: Number,
-      closed: Boolean
+      closed: Boolean,
+      weight: Match.Maybe(Number) // weight of the attempt
     }]
   }),
   imagePath: Match.Maybe(String),
