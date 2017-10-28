@@ -44,7 +44,7 @@ class Stats {
   }
 
   calculateResponseGrade (response, question) {
-    if (!response) return 0
+    if (!response || !response.attempt) return 0
     const q = question || _(this.questions).findWhere({ _id: response.questionId })
     const resp = response.answer
     if (!q || !resp) return 0

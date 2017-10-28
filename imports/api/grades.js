@@ -17,7 +17,7 @@ import { Responses } from './responses.js'
 
 import { Stats } from '../stats.js'
 
-import { ROLES } from '../configs'
+import { ROLES, QUESTION_TYPE } from '../configs'
 
 // expected collection pattern
 const gradePattern = {
@@ -35,6 +35,10 @@ const gradePattern = {
   } ]),
   points: Match.Maybe(Number), // number of points obtained
   outOf: Match.Maybe(Number),// total number of points available
+  numAnswered: Match.Maybe(Number), // number of questions worth points answered
+  numQuestions: Match.Maybe(Number), // number of questions worth points
+  numAnsweredTotal: Match.Maybe(Number), // total number of questions answered
+  numQuestionsTotal: Match.Maybe(Number), // total number of questions \
   visibleToStudents: Match.Maybe(Boolean)// whether grade is visible to students (non-instructors)
 }
 
@@ -129,7 +133,7 @@ Meteor.methods({
     const g = Grades.insert(grade, (e, id) => {
       if (e) alertify.error('Error inserting grade')
     })
-    return c
+    return g
   },
 
   /**
@@ -172,9 +176,11 @@ Meteor.methods({
     const defaultGrade = {
       courseId: courseId,
       sessionId: sessionId,
-      name: session.name,
+      name: sess.name,
       points: 0,
       outOf: 0,
+      numAnswered: 0,
+      numQuestions: 0,
       visibleToStudents: false,
       marks: []
     }
@@ -187,18 +193,50 @@ Meteor.methods({
       let marks = []
       let gradeOutOf = 0
       let gradePoints = 0
+      let numAnswered = 0
+      let numQuestions = 0
+      let numAnsweredTotal = 0
+      let numQuestionsTotal = 0
+
       for(let iq = 0; iq < questions.length; iq++){
         let question = questions[iq]
+        numQuestionsTotal += 1
         let markOutOf = 1
-        if (question.sessionOptions && question.sessionOptions.points){
-          markOutOf = question.sessionOptions.points
+        if(question.type === QUESTION_TYPE.SA){
+           markOutOf = 0
         }
+        if (question.sessionOptions && question.sessionOptions.points){
+           markOutOf = question.sessionOptions.points
+        }
+
         gradeOutOf += markOutOf
-        let studentResponses = _(responses).where( {studentUserId: studentId})
+        let studentResponses = _(responses).where({ studentUserId: studentId, questionId: question._id })
         let response = _.max(studentResponses, (resp) => { return resp.attempt })
-        let markPoints = stats.calculateResponseGrade(response, question)
-        let attempt = response ? response.attempt : 0
+        let markPoints = 0
+        let attempt = 0
+
+        if(response.attempt){
+          attempt = response.attempt
+          markPoints = stats.calculateResponseGrade(response, question)
+          numAnsweredTotal += 1
+          if(markOutOf > 0){
+            numAnswered +=1
+          }
+        }
         gradePoints += markPoints
+
+        if(markOutOf > 0){
+          numQuestions +=1
+        }
+
+       //don't update a mark if its automatic flag is sest to false
+        if (existingGrade){
+          let existingMark = _(existingGrade.marks).findWhere({ questionId: question._id})
+          if(existingMark && existingMark.automatic === false){
+            continue
+          }
+        }
+
         let mark = {
           questionId: question._id,
           attempt: attempt,
@@ -206,12 +244,18 @@ Meteor.methods({
           outOf: markOutOf,
           automatic: true
         }
-        marks.append(mark)
+        marks.push(mark)
       }//end of questions
 
       grade.marks = marks
       grade.points = gradePoints
       grade.outOf = gradeOutOf
+      grade.userId = studentId
+      grade.numQuestions = numQuestions
+      grade.numAnswered = numAnswered
+      grade.numQuestionsTotal = numQuestionsTotal
+      grade.numAnsweredTotal = numAnsweredTotal
+      console.log(grade)
       Meteor.call('grades.insert', grade)
     }//end of students
 
