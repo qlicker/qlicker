@@ -38,6 +38,9 @@ _.extend(User.prototype, {
   isInstructorAnyCourse: function () {
     return !!Courses.findOne({ instructors: this._id })
   },
+  coursesInstructed: function () {
+    return  _(Courses.find({ instructors: this._id  }).fetch()).pluck('_id') || []
+  },
   isInstructor: function (courseId) {
     if (!courseId) return false
     check(courseId, Helpers.MongoID)
