@@ -4,3 +4,4 @@ node_modules/
 .coverage/
 settings.json
 Dockerfile
+.DS_Store

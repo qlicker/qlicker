@@ -11,6 +11,8 @@ import $ from 'jquery'
 import { PromoteAccountModal } from '../modals/PromoteAccountModal'
 import { Courses } from '../../api/courses'
 
+import { userGuideUrl } from '../../configs.js'
+
 class _PageContainer extends Component {
 
   constructor (props) {
@@ -95,9 +97,10 @@ class _PageContainer extends Component {
                     <img src={this.state.user.getThumbnailUrl()} className='nav-profile img-circle' /> {this.state.user.getName()} <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
-                    <li><a className='close-nav' href={Router.routes['profile'].path()}>Profile</a></li>
+                    <li><a className='close-nav' href={Router.routes['profile'].path()}>Edit user profile</a></li>
                     {/* <li><a href='#'>Settings</a></li> */}
-                    {this.state.user.hasGreaterRole('professor') ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote Account</a></li> : ''}
+                    {this.state.user.hasGreaterRole('professor') ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote an account to professor</a></li> : ''}
+                    <li><a className='close-nav' href={userGuideUrl}>Visit user guide</a></li>
                     <li role='separator' className='divider' />
                     <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
                   </ul>
