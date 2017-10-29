@@ -187,6 +187,14 @@ Meteor.methods({
     check(uId, Helpers.MongoID)
     check(newRole, Helpers.NEString)
     if (!Meteor.user().hasRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+
+    // Prevent the case of no administrators running qlicker.
+    const user = Meteor.users.findOne({ _id: uId })
+    if (user.hasRole(ROLES.admin) && newRole !== ROLES.admin) {
+      const numberOfAdmins = Meteor.users.find({ 'profile.roles': ROLES.admin }).count()
+      if (numberOfAdmins < 2) throw new Meteor.Error('keep-single-admin', 'There must be at least one admin account running qlicker.')
+    }
+
     if (newRole === ROLES.admin) {
       let courses = []
       Courses.update({}, {$addToSet: {instructors: uId}}, {multi: true})
@@ -225,6 +233,9 @@ Meteor.methods({
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
+    // Prevents a professor from demoting an admin.
+    if (user.hasRole(ROLES.admin)) throw new Meteor.Error('no-demote-admin', 'Cannot demote an admin to professor.')
+
     return Meteor.users.update({ _id: user._id }, {
       '$set': { 'profile.roles': [ ROLES.prof ] }
     })
@@ -253,10 +264,4 @@ Meteor.methods({
       })
     }
   }
-
-//  'users.createFromAdmin' (user) {
-//    if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
-//    return Accounts.createUser(user)
-//  }
-
 })
