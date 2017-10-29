@@ -57,7 +57,7 @@ class _ManageCourse extends Component {
 
   gradeSession (sessionId) {
     Meteor.call('grades.calcSessionGrades', sessionId, (error) => {
-      if (error) return alertify.error('Error calculating grade: '+ error)
+      if (error) return alertify.error('Error calculating grade: '+ error.error)
     })
   }
   toggleProfileViewModal (userToView = null) {
