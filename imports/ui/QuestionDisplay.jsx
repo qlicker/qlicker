@@ -324,15 +324,15 @@ export class _QuestionDisplay extends Component {
       <div className='ql-answer-content-container ql-short-answer' >
         { showAns ? <h4>Correct Answer: {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
 
-        { this.readonly ?  WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) :
-          <div className={'small-editor-wrapper col-md-12'}>
-            <Editor
-              change={this.setShortAnswerWysiwyg}
-              placeholder='Type your answer here'
-              val={this.state.submittedAnswerWysiwyg}
-              className='answer-editor'
+        { this.readonly ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
+        : <div className={'small-editor-wrapper col-md-12'}>
+          <Editor
+            change={this.setShortAnswerWysiwyg}
+            placeholder='Type your answer here'
+            val={this.state.submittedAnswerWysiwyg}
+            className='answer-editor'
             />
-          </div>
+        </div>
         }
       </div>
     )
@@ -403,7 +403,6 @@ export const QuestionDisplay = createContainer((props) => {
   responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
 
   if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
-
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
     // Get the total number of responses:

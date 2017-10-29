@@ -30,7 +30,7 @@ export class _StudentQuestionResultsClassList extends Component {
           inner = row.answer + (correct[0] === row.answer ? ' ✓' : ' ✗')
           break
         case QUESTION_TYPE.SA:
-          inner = row.answerWysiwyg ? WysiwygHelper.htmlDiv( row.answerWysiwyg) : row.answer
+          inner = row.answerWysiwyg ? WysiwygHelper.htmlDiv(row.answerWysiwyg) : row.answer
           break
         case QUESTION_TYPE.MS:
           const intersection = _.intersection(correct, row.answer)
