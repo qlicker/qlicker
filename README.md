@@ -1,5 +1,5 @@
 # QLICKER
-Open Source Clicker - CISC498
+pen Source Clicker - CISC498
 
 [![CircleCI](https://circleci.com/gh/qlicker/qlicker.svg?style=shield&circle-token=add100d7632954b295a5010c4d904e5b7801d8f5)](https://circleci.com/gh/qlicker/qlicker)
 [![GitHub issues](https://img.shields.io/github/issues/qlicker/qlicker.svg)](https://github.com/qlicker/qlicker/issues)
