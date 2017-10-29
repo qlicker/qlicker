@@ -41,7 +41,7 @@ class _AdminDashboard extends Component {
   saveRoleChange (uId, newRole) {
     if (confirm('Are you sure?')) {
       Meteor.call('users.changeRole', uId, newRole, (e) => {
-        if (e) return alertify.error('Error: could not change role')
+        if (e) return alertify.error('Error: ' + e.message)
         alertify.success('Role changed')
       })
     }
