@@ -53,7 +53,7 @@ export const Grades = new Mongo.Collection('grades',
 if (Meteor.isServer) {
   Meteor.publish('grades.all', function () {
     if (this.userId) {
-      const user = Meteor.user()
+      const user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin)) {
         return Grades.find()
       } else if (user.isInstructorAnyCourse()) {
@@ -67,7 +67,7 @@ if (Meteor.isServer) {
 
   Meteor.publish('grades.forCourse', function (courseId) {
     if (this.userId) {
-      const user = Meteor.user()
+      const user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin) || user.isInstructor(courseId)) {
         return Grades.find({ courseId: courseId}) // finds all the course owned
       } else {
@@ -78,7 +78,7 @@ if (Meteor.isServer) {
 
   Meteor.publish('grades.forSession', function (sessionId) {
     if (this.userId) {
-      const user = Meteor.user()
+      const user = Meteor.users.findOne({ _id: this.userId })
       const sess = Sessions.findOne({ _id: sessionId})
       const courseId = sess ? sess.courseId: ''
 
@@ -92,7 +92,7 @@ if (Meteor.isServer) {
 
   Meteor.publish('grades.forQuestion', function (questionId) {
     if (this.userId) {
-      const user = Meteor.user()
+      const user = Meteor.users.findOne({ _id: this.userId })
       const q = Questions.findOne({ _id: questionId})
       const sessionId = q.sessionId ? q.sessionId : ''
       const sess = Sessions.findOne({ _id: sessionId})
@@ -255,7 +255,7 @@ Meteor.methods({
       grade.numAnswered = numAnswered
       grade.numQuestionsTotal = numQuestionsTotal
       grade.numAnsweredTotal = numAnsweredTotal
-      console.log(grade)
+
       Meteor.call('grades.insert', grade)
     }//end of students
 

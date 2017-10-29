@@ -238,8 +238,8 @@ Router.route('/course/:_id/results', {
   },
   action: function () {
     const u = Meteor.user()
-    const isInstructorAnyCourse = u.isInstructorAnyCourse()
-    if (u && isInstructorAnyCourse) {
+    const isInstructor = u.isInstructor(this.params._id)
+    if (u && isInstructor) {
       mount(AppLayout, { content: <PageContainer> <ClasslistParticipationPage courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }

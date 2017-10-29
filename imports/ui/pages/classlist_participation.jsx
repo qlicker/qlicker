@@ -7,6 +7,7 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import { Table, Column, Cell } from 'fixed-data-table'
+import { GradeTable } from '../GradeTable.jsx'
 
 import { _ } from 'underscore'
 
@@ -74,6 +75,9 @@ class _ClasslistParticipation extends Component {
           </div>
 
           <div className='ql-card-content'>
+            <div>
+              <GradeTable courseId={this.props.course._id} />
+            </div>
             <Table
               rowHeight={35}
               rowsCount={this.props.students.length}
@@ -112,7 +116,8 @@ export const ClasslistParticipationPage = createContainer((props) => {
     Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.courseId)}) &&
     Meteor.subscribe('sessions') &&
     Meteor.subscribe('questions.inCourse', props.courseId) &&
-    Meteor.subscribe('responses.forCourse', props.courseId)
+    Meteor.subscribe('responses.forCourse', props.courseId) &&
+    Meteor.subscribe('grades.forCourse', props.courseId)
 
   const user = Meteor.user()
 
