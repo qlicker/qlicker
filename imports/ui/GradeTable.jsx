@@ -9,6 +9,9 @@ import { createContainer } from 'meteor/react-meteor-data'
 //
 import { _ } from 'underscore'
 
+import ReactTable from 'react-table'
+
+
 import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 import { Grades } from '../api/grades'
@@ -31,6 +34,7 @@ export class _GradeTable extends Component {
      this.renderStudent = this.renderStudent.bind(this)
      this.renderStudentGrades = this.renderStudentGrades.bind(this)
      this.calculateGrades = this.calculateGrades.bind(this)
+     this.gradeValue = this.gradeValue.bind(this)
    }
 
   calculateGrades () {
@@ -77,16 +81,58 @@ export class _GradeTable extends Component {
     )
   }
 
+  gradeValue (grade){
+    let gradeValue = 'no grade item'
+    if(grade){
+      gradeValue = 0
+      if(grade.points>0){
+
+        if(grade.outOf > 0){
+          gradeValue = 100*grade.points/grade.outOf
+        }else{
+          gradeValue=100
+        }
+      }
+    }
+    return gradeValue
+  }
+
   render () {
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+
     const students = this.props.students
+    const sessions = this.props.sessionList
+    const numSessions = sessions.length
+    let columns = [{
+      Header: 'Last Name, First Name',
+      accessor: 'name'
+    }]
+    for(let iSes = 0; iSes < numSessions ; iSes++){
+     let session = sessions[iSes]
+     let cHeader = {
+       id: 'sessionGrade',
+       Header: session.name,
+       accessor: (d) => {
+         let grade = _(d.grades).findWhere({ sessionId: session._id})
+         return this.gradeValue(grade)
+       }
+     }
+     columns.push(cHeader)
+   }
+
+
     return (
       <div>
+        <ReactTable
+          data={this.props.tableData}
+          columns={columns}
+        />
+
         <a onClick={this.calculateGrades}> Calculate course grades </a>
         {
           students.map( (stu) =>{
             return this.renderStudentGrades(stu)
           })
-
         }
       </div>
     )
@@ -116,10 +162,24 @@ export const GradeTable = createContainer((props) => {
 
   }
 
+  const tableData = []
+  const numStudents = students.length
+  const numSessions = sessions.length
+
+  for(let iStu = 0; iStu < numStudents; iStu++){
+    let sgrades = _(grades).where({ userId: students[iStu]._id})
+    let dataItem = {
+      name: students[iStu].profile.lastname+', '+ students[iStu].profile.firstname,
+      grades: sgrades
+    }
+    tableData.push(dataItem)
+  }
+
   return {
     students: students,
     course: course,
     grades: grades,
+    tableData: tableData,
     sessionList: sessions,
     sessionMap: _(sessions).indexBy('_id'),
     loading: !handle.ready()
