@@ -33,6 +33,8 @@ const gradePattern = {
     outOf: Match.Maybe(Number), // value of the mark for that question
     automatic: Match.Maybe(Boolean), //whehter the value was automatically calculated (and should be automatically updated)
   } ]),
+  participation: Match.Maybe(Number), // fraction of questions worth points that were answered
+  value: Match.Maybe(Number), // calculated value of grade
   points: Match.Maybe(Number), // number of points obtained
   outOf: Match.Maybe(Number),// total number of points available
   numAnswered: Match.Maybe(Number), // number of questions worth points answered
@@ -177,6 +179,8 @@ Meteor.methods({
       courseId: courseId,
       sessionId: sessionId,
       name: sess.name,
+      participation: 0,
+      value: 0,
       points: 0,
       outOf: 0,
       numAnswered: 0,
@@ -247,7 +251,26 @@ Meteor.methods({
         marks.push(mark)
       }//end of questions
 
+      let participation = 0
+      if(numAnswered > 0){
+        if(numQuestions > 0){
+          participation = (100 * numAnswered/numQuestions)
+        }else{
+          participation = 100
+        }
+      }
+      let gradeValue = 0
+      if(gradePoints > 0){
+        if(gradeOutOf > 0){
+          gradeValue = (100 * gradePoints/gradeOutOf)
+        }else{
+          gradeValue = 100
+        }
+      }
+
       grade.marks = marks
+      grade.participation = participation
+      grade.value = gradeValue
       grade.points = gradePoints
       grade.outOf = gradeOutOf
       grade.userId = studentId
