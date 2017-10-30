@@ -31,14 +31,14 @@ export class _GradeTable extends Component {
      super(props)
 
      this.state = {}
-     this.renderStudent = this.renderStudent.bind(this)
+
      this.renderStudentGrades = this.renderStudentGrades.bind(this)
      this.calculateGrades = this.calculateGrades.bind(this)
-     this.gradeValue = this.gradeValue.bind(this)
+
    }
 
   calculateGrades () {
-    const sessions = this.props.sessionList
+    const sessions = this.props.sessions
     for(let i = 0; i<sessions.length; i++){
       Meteor.call('grades.calcSessionGrades',sessions[i]._id, (err) => {
         if(err){
@@ -48,30 +48,14 @@ export class _GradeTable extends Component {
     }
   }
 
-  renderStudent(stu){
-    return(
-        <div key={stu._id}> {stu.profile.lastname} </div>
-    )
-  }
-
+  // not really needed, just testing the value of the grade
   renderStudentGrades (stu) {
-    const sessions = this.props.sessionList
+    const sessions = this.props.sessions
     const grades = this.props.grades
     return(
         sessions.map( (sess) => {
           let gradeItem = _(grades).findWhere({ userId: stu._id, sessionId: sess._id})
-          let gradeValue = 'no grade item'
-          if(gradeItem){
-            gradeValue = 0
-            if(gradeItem.points>0){
-              if(gradeItem.outOf > 0){
-                gradeValue = 100*gradeItem.points/gradeItem.outOf
-              }else{
-                gradeValue=100
-              }
-            }
-          }
-           gradeItem ? (gradeItem.outOf ? 100*gradeItem.points/gradeItem.outOf : 100) : 'no grade item'
+          let gradeValue = gradeItem.value
           return(
             <div key={'grade'+stu._id+sess._id}>
             {sess.name} : {gradeValue}
@@ -81,32 +65,17 @@ export class _GradeTable extends Component {
     )
   }
 
-  gradeValue (grade){
-    let gradeValue = 'no grade item'
-    if(grade){
-      gradeValue = 0
-      if(grade.points>0){
-
-        if(grade.outOf > 0){
-          gradeValue = 100*grade.points/grade.outOf
-        }else{
-          gradeValue=100
-        }
-      }
-    }
-    return gradeValue
-  }
-
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     const students = this.props.students
-    const sessions = this.props.sessionList
+    const sessions = this.props.sessions
     const numSessions = sessions.length
     let columns = [{
       Header: 'Last Name, First Name',
       accessor: 'name'
     }]
+    // Add one column per session:
     for(let iSes = 0; iSes < numSessions ; iSes++){
      let session = sessions[iSes]
      let cHeader = {
@@ -114,7 +83,7 @@ export class _GradeTable extends Component {
        Header: session.name,
        accessor: (d) => {
          let grade = _(d.grades).findWhere({ sessionId: session._id})
-         return this.gradeValue(grade)
+         return grade.value
        }
      }
      columns.push(cHeader)
@@ -150,7 +119,7 @@ export const GradeTable = createContainer((props) => {
 
   const user = Meteor.user()
   const course = Courses.findOne(props.courseId)
-  const grades = Grades.find({ courseId:props.courseId }).fetch()
+  const grades = Grades.find({ courseId: props.courseId }).fetch()
 
   let students, sessions
   if (course) {
@@ -177,11 +146,9 @@ export const GradeTable = createContainer((props) => {
 
   return {
     students: students,
-    course: course,
     grades: grades,
     tableData: tableData,
-    sessionList: sessions,
-    sessionMap: _(sessions).indexBy('_id'),
+    sessions: sessions,
     loading: !handle.ready()
   }
 }, _GradeTable)
