@@ -110,6 +110,50 @@ if (Meteor.isServer) {
 }
 
 /**
+ * Calculates the number of points for a response
+ * @param {Response} response - response object
+ */
+export const calculateResponsePoints = (response) => {
+  if (!response || !response.attempt) return 0
+  const q = Questions.findOne({ _id: response.questionId })
+  const resp = response.answer
+  if (!q || !resp) return 0
+  const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
+  const attempt = resp.attempt
+  let points = 1
+
+  let weight = 1
+  if(q.sessionOptions){
+    if(q.sessionOptions.points){
+      points = q.sessionOptions.points
+    }
+    const qAttempt = _(q.sessionOptions).findWhere({ number:attempt})
+    if (qAttempt && qAttempt.weight){
+      weight = qAttempt.weight
+    }
+  }
+  let mark = 0
+  switch (q.type) {
+    case QUESTION_TYPE.MC:
+      mark = correct[0] === resp ? 1 : 0
+      break
+    case QUESTION_TYPE.TF:
+      mark = correct[0] === resp ? 1 : 0
+      break
+    case QUESTION_TYPE.SA: // 1 if any answer
+      mark = resp ? 1 : 0
+      break
+    case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
+      const intersection = _.intersection(correct, resp)
+      const percentage = (2 * intersection.length - resp.length) / correct.length
+      mark = percentage > 0 ? percentage : 0
+      break
+  }
+  return mark*points
+ }
+
+
+/**
  * Meteor methods for grades object
  * @module grades
  */
@@ -169,9 +213,39 @@ Meteor.methods({
     if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(courseId)) {
       throw Error('Unauthorized to grade session')
     }
+    // questions in the session
     const qIds = sess.questions
-    const questions = Questions.find({ _id: { $in: qIds}}).fetch()
+    // responses corresponding to questions in the session
     const responses = Responses.find({ questionId: { $in: qIds}}).fetch()
+    // questions in the session
+    let questions = Questions.find({ _id: { $in: qIds}}).fetch()
+    // of the questions in the sessions, the ones that have responses
+    questions = _.filter(questions, (q) => { return _.findWhere(responses, {questionId: q._id}) })
+
+    //the total number of questions in the session (that have responses)
+    const numQuestionsTotal = questions.length
+
+    //count the questions that are worth points, keep track of total marks for each question
+    let numQuestions = 0
+    let markOutOf = []
+    let gradeOutOf = 0
+    for(let iq = 0; iq < numQuestionsTotal; iq++){
+      let question  = questions[iq]
+      markOutOf.push(1)
+      // Assume that SA is not worth any points
+      if(question.type === QUESTION_TYPE.SA){
+         markOutOf[iq] = 0
+      }
+      // except if the number of points was assigned to the SA (or other question)
+      if (question.sessionOptions && question.sessionOptions.points > 0){
+         markOutOf[iq] = question.sessionOptions.points
+      }
+      if(markOutOf[iq] > 0){
+        numQuestions +=1
+      }
+      gradeOutOf += markOutOf[iq]
+    }
+
     const studentIds = course.students
     const stats = new Stats(questions, responses)
 
@@ -195,25 +269,14 @@ Meteor.methods({
       let grade = existingGrade ? existingGrade : defaultGrade
 
       let marks = []
-      let gradeOutOf = 0
       let gradePoints = 0
       let numAnswered = 0
-      let numQuestions = 0
       let numAnsweredTotal = 0
-      let numQuestionsTotal = 0
 
-      for(let iq = 0; iq < questions.length; iq++){
+
+      for(let iq = 0; iq < numQuestionsTotal; iq++){
         let question = questions[iq]
-        numQuestionsTotal += 1
-        let markOutOf = 1
-        if(question.type === QUESTION_TYPE.SA){
-           markOutOf = 0
-        }
-        if (question.sessionOptions && question.sessionOptions.points){
-           markOutOf = question.sessionOptions.points
-        }
 
-        gradeOutOf += markOutOf
         let studentResponses = _(responses).where({ studentUserId: studentId, questionId: question._id })
         let response = _.max(studentResponses, (resp) => { return resp.attempt })
         let markPoints = 0
@@ -221,17 +284,14 @@ Meteor.methods({
 
         if(response.attempt){
           attempt = response.attempt
-          markPoints = stats.calculateResponseGrade(response, question)
+          //markPoints = stats.calculateResponseGrade(response, question)
+          markPoints = calculateResponsePoints(response)
           numAnsweredTotal += 1
-          if(markOutOf > 0){
+          if(markOutOf[iq] > 0){
             numAnswered +=1
           }
         }
         gradePoints += markPoints
-
-        if(markOutOf > 0){
-          numQuestions +=1
-        }
 
        //don't update a mark if its automatic flag is sest to false
         if (existingGrade){
@@ -245,7 +305,7 @@ Meteor.methods({
           questionId: question._id,
           attempt: attempt,
           points: markPoints,
-          outOf: markOutOf,
+          outOf: markOutOf[iq],
           automatic: true
         }
         marks.push(mark)
