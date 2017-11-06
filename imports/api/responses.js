@@ -52,7 +52,9 @@ if (Meteor.isServer) {
         return Responses.find({ questionId: questionId })
       } else if (user.hasRole(ROLES.student)) {
         const findCriteria = { questionId: questionId }
-        return Responses.find(findCriteria)
+        // Prevent students from seeing the studentIds of other students when
+        // recieving responses.
+        return Responses.find(findCriteria, { fields: { 'studentUserId': false } })
       }
     } else this.ready()
   })
