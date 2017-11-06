@@ -92,6 +92,3 @@ jobs:
           paths:
             - ./node_modules/
             - ~/.npm/
-        
-      # run tests!
-      - run: yarn test
