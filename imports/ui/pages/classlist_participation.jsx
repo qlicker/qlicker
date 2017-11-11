@@ -76,8 +76,9 @@ class _ClasslistParticipation extends Component {
 
           <div className='ql-card-content'>
             <div>
-              <GradeTable courseId={this.props.course._id} />
+              <GradeTable courseId={this.props.course._id} done={ () => {return 0}} />
             </div>
+            Old version:
             <Table
               rowHeight={35}
               rowsCount={this.props.students.length}

@@ -25,25 +25,36 @@ export class _GradeViewModal extends ControlledForm {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const grade = this.props.grade
     const student = this.props.student
+    let questionCount = 0
     return ( grade ?
        <div className='ql-modal-container' onClick={this.props.done} >
           <div className='ql-modal ql-card' onClick={this.preventPropagation}>
             <div className='ql-modal-header ql-header-bar'><h3>{grade.name} {student.profile.lastname}, {student.profile.firstname}</h3> </div>
             <div className='ql-card-content'>
               <div className='row'>
-                <div className='col-md-4' />
-                <div className='col-md-4'>
-                  Grade value: {grade.value} <br />
-                  Participation: {grade.participation} <br />
+
+                <div className='ql-modal-gradeview'>
+                  Grade value: {grade.value} ({grade.points} out of {grade.outOf})<br />
+                  Participation: {grade.participation} ({grade.joined ? "joined" : "did not join" }) <br />
                   Questions answered total: {grade.numAnsweredTotal}<br />
                   Questions total: {grade.numQuestionsTotal} <br />
                   Questions worth points answered: {grade.numAnswered}  <br />
                   Questions worth points: {grade.numQuestions}  <br />
-                </div>
+                  {
+                    grade.marks.map((mark) => {
+                      questionCount +=1
+                      const autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
+                      return ( <div key={mark.questionId}>
+                         Q{questionCount}: {mark.points} out of {mark.outOf} on attempt {mark.attempt} {autoText}
+                       </div>)
+                    })
+                  }
+
                 <div className='btn-group btn-group-justified' role='group' aria-label='...'>
                   <a className='btn btn-default' onClick={this.props.done}>Close</a>
                 </div>
-                <div className='col-md-4' />
+              </div>
+
               </div>
              </div>
             </div>
@@ -56,8 +67,10 @@ export class _GradeViewModal extends ControlledForm {
 // meteor reactive data container
 export const GradeViewModal = createContainer((props) => {
   const courseId = props.grade.courseId
+  const sessionId = props.grade.sessionId
   const grade = props.grade
-  const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId})
+  const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
+                 Meteor.subscribe('questions.inSession', sessionId)
 
   const student = Meteor.users.findOne({ _id:grade.userId })
 

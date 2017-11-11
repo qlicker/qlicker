@@ -20,11 +20,13 @@ import { Stats } from '../stats'
 import { CourseResultsDownloader } from './CourseResultsDownloader'
 import { GradeViewModal } from './modals/GradeViewModal'
 
+import { ControlledForm } from './ControlledForm'
+
 /**
  * React Component (meteor reactive) to display Question object and send question reponses.
  * @prop {Id} courseId - Id of course to show
  */
-export class _GradeTable extends Component {
+export class _GradeTable extends ControlledForm {
 
   /**
    * setup Question display inital state.
@@ -32,14 +34,19 @@ export class _GradeTable extends Component {
    constructor (props) {
      super(props)
 
-     this.state = {gradeViewModal: false}
+     this.state = {gradeViewModal: false, studentSearchString: ''}
      this.calculateGrades = this.calculateGrades.bind(this)
      this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
+     this.setStudentSearchString = this.setStudentSearchString.bind(this)
    }
 
-  toggleGradeViewModal (gradeToView = null) {
+   done (e) {
+     this.props.done()
+   }
+
+   toggleGradeViewModal (gradeToView = null) {
     this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView })
-  }
+   }
 
   calculateGrades () {
     const sessions = this.props.sessions
@@ -50,6 +57,10 @@ export class _GradeTable extends Component {
         }
       })
     }
+  }
+
+  setStudentSearchString (e) {
+    this.setState( {studentSearchString: e.target.value} )
   }
 
   render () {
@@ -66,13 +77,21 @@ export class _GradeTable extends Component {
 
     const sessions = this.props.sessions
 
-    const NameCell = ({rowIndex}) => <Cell>{ this.props.tableData[rowIndex].name }</Cell>
+    const tableData = this.props.tableData
+
+    const NameCell = ({rowIndex}) => <Cell>{ tableData[rowIndex].name }</Cell>
     const GradeCell = ({rowIndex, sessionId}) => {
-      const grades = this.props.tableData[rowIndex].grades
+      const grades = tableData[rowIndex].grades
       const grade = _(grades).findWhere({ sessionId: sessionId})
       const onClick = () => this.toggleGradeViewModal(grade)
-
-      return (<Cell onClick = {onClick}>{ grade.participation.toFixed(0) } / { grade.value.toFixed(0) }</Cell>)
+      return ( grade ?
+        <Cell onClick = {onClick}>
+          <div className='ql-grade-cell'>
+          {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
+        </div>
+        </Cell> :
+        <Cell > No grade </Cell>
+      )
     }
 
     return (
@@ -80,9 +99,15 @@ export class _GradeTable extends Component {
         <div onClick={this.calculateGrades} type='button' className='btn btn-secondary'>
           Recalculate course grades
         </div>
+        <div>
+          <form>
+            <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
+          </form>
+        </div>
+
         <Table
           rowHeight={35}
-          rowsCount={this.props.tableData.length}
+          rowsCount={tableData.length}
           width={window.innerWidth - (window.innerWidth * 0.20)}
           height={window.innerHeight - (window.innerHeight * 0.30)}
           headerHeight={50}>

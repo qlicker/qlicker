@@ -33,6 +33,7 @@ const gradePattern = {
     outOf: Match.Maybe(Number), // value of the mark for that question
     automatic: Match.Maybe(Boolean), //whehter the value was automatically calculated (and should be automatically updated)
   } ]),
+  joined: Match.Maybe(Boolean), //whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
   value: Match.Maybe(Number), // calculated value of grade
   points: Match.Maybe(Number), // number of points obtained
@@ -253,6 +254,7 @@ Meteor.methods({
       courseId: courseId,
       sessionId: sessionId,
       name: sess.name,
+      joined: false,
       participation: 0,
       value: 0,
       points: 0,
@@ -272,6 +274,7 @@ Meteor.methods({
       let gradePoints = 0
       let numAnswered = 0
       let numAnsweredTotal = 0
+      let joined = _(sess.joined).contains(studentId)
 
 
       for(let iq = 0; iq < numQuestionsTotal; iq++){
@@ -309,15 +312,20 @@ Meteor.methods({
           automatic: true
         }
         marks.push(mark)
-      }//end of questions
+      }// end of questions
 
+      // Calculate the participation grade
       let participation = 0
       if(numAnswered > 0){
         if(numQuestions > 0){
           participation = (100 * numAnswered/numQuestions)
         }else{
+          // answered at least one question, but none of the questions were worth points
           participation = 100
         }
+      }
+      if(joined && numQuestions === 0){
+        participation = 100
       }
       let gradeValue = 0
       if(gradePoints > 0){
@@ -329,6 +337,7 @@ Meteor.methods({
       }
 
       grade.marks = marks
+      grade.joined = joined
       grade.participation = participation
       grade.value = gradeValue
       grade.points = gradePoints
