@@ -10,8 +10,10 @@ $red-bar: rgba(167,37,38, 0.3);
 
   &.interactive {
     .ql-answer-content-container:hover {
-      border: 1px solid $blue;
-      color: $blue;
+      //border: 1px solid $blue;
+      //color: $blue;
+      border: 1px solid $black;
+      font-weight: bold;
       cursor: pointer;
 
       .ql-short-answer {
