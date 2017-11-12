@@ -287,10 +287,10 @@ Meteor.methods({
 
         if(response.attempt){
           attempt = response.attempt
-          //markPoints = stats.calculateResponseGrade(response, question)
-          markPoints = calculateResponsePoints(response)
+          //markPoints = stats.calculateResponseGrade(response, question)      
           numAnsweredTotal += 1
           if(markOutOf[iq] > 0){
+            markPoints = calculateResponsePoints(response)
             numAnswered +=1
           }
         }
