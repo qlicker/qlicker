@@ -115,7 +115,8 @@ export class _GradeTable extends ControlledForm {
         tableData = _(tableData).sortBy( (entry) => {return entry.name.toLowerCase()})
       } else {
         tableData = _(tableData).sortBy( (entry) => {
-          return _(entry.grades).findWhere({ sessionId:sortByColumn }).value
+          const grade = _(entry.grades).findWhere({ sessionId:sortByColumn })
+          return ( (grade && grade.value) ? grade.value : 0 )
          })
       }
       if (!sortAsc){
