@@ -1,16 +1,23 @@
-
+@import '../variables.scss';
 
 // Component
 .ql-grade-table-container {
   position: relative;
 
+  .ql-grade-table-session-header {
+     &:hover {
+       font-weight: bold;
+       color: $blue;
+       cursor: pointer;
+     }
+  }
 
   // cell in the grade tableData
   .ql-grade-cell {
-
     &:hover {
       font-weight: bold;
       cursor: pointer;
+      color: $blue;
     }
   }
 
@@ -20,6 +27,14 @@
      right: 0px;
     &:hover {
       cursor: pointer;
+      color: $blue;
+    }
+  }
+
+  .ql-grade-table-grade-calc-button {
+    &:hover {
+      cursor: pointer;
+      color: $blue;
     }
   }
 

@@ -40,6 +40,7 @@ export class _GradeTable extends ControlledForm {
                     sortAsc: true
                   }
      this.calculateGrades = this.calculateGrades.bind(this)
+     this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
      this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
      this.setStudentSearchString = this.setStudentSearchString.bind(this)
      this.setSortByColumn = this.setSortByColumn.bind(this)
@@ -52,6 +53,14 @@ export class _GradeTable extends ControlledForm {
 
    toggleGradeViewModal (gradeToView = null) {
     this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView })
+   }
+
+   calculateSessionGrades (sessionId) {
+     Meteor.call('grades.calcSessionGrades',sessionId, (err) => {
+       if(err){
+         alertify.error('Error: ' + err.error)
+       }
+     })
    }
 
   calculateGrades () {
@@ -93,6 +102,7 @@ export class _GradeTable extends ControlledForm {
     const studentSearchString = this.state.studentSearchString
     const sortByColumn = this.state.sortByColumn
     const sortAsc = this.state.sortAsc
+    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
 
     // Grab only the rows we need if the search string is set
     let tableData = studentSearchString ?
@@ -140,10 +150,12 @@ export class _GradeTable extends ControlledForm {
       }
       sortButtonClass +=' ql-grade-table-sort-button'
       const onClickSort =  () => this.setSortByColumn(sessionId)
+      const calcSessionGrades = () => this.calculateSessionGrades(sessionId)
       return (
         <Cell>
-          {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } />: '' }
-          <a  onClick={_ => Router.go('session.results', { sessionId: sessionId })} href='#'>{session.name}</a>
+          {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} />: '' }
+          {isInstructor ? <div onClick={calcSessionGrades} className='glyphicon glyphicon-repeat ql-grade-table-grade-calc-button' /> : ''}
+          <div className='ql-grade-table-session-header' onClick={_ => Router.go('session.results', { sessionId: sessionId })} >{session.name} </div>
         </Cell>
       )
     }
@@ -164,10 +176,13 @@ export class _GradeTable extends ControlledForm {
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
-        <div onClick={this.calculateGrades} type='button' className='btn btn-secondary'>
-          Recalculate course grades
-        </div>
-        { nRows > 1 ?
+        {isInstructor ?
+          <div onClick={this.calculateGrades} type='button' className='btn btn-secondary'>
+            Recalculate course grades
+          </div>
+          : ''
+        }
+        {nRows > 1 ?
           <div>
             <form ref='searchStudentForm'>
               <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
@@ -245,6 +260,7 @@ export const GradeTable = createContainer((props) => {
   }
 
   return {
+    courseId: props.courseId,
     students: students,
     grades: grades,
     tableData: tableData,
