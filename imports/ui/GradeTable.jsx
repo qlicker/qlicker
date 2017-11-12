@@ -113,6 +113,7 @@ export class _GradeTable extends ControlledForm {
       }
     }
 
+    const nRows = tableData.length
 
     const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
 
@@ -125,7 +126,7 @@ export class _GradeTable extends ControlledForm {
       const onClickSort =  () => this.setSortByColumn('name')
       return(
         <Cell>
-          <div className={sortButtonClass} onClick={ onClickSort } />
+          {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } /> : '' }
           Last, First
         </Cell>
       )
@@ -141,7 +142,7 @@ export class _GradeTable extends ControlledForm {
       const onClickSort =  () => this.setSortByColumn(sessionId)
       return (
         <Cell>
-          <div className={sortButtonClass} onClick={ onClickSort } />
+          {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } />: '' }
           <a  onClick={_ => Router.go('session.results', { sessionId: sessionId })} href='#'>{session.name}</a>
         </Cell>
       )
@@ -166,15 +167,18 @@ export class _GradeTable extends ControlledForm {
         <div onClick={this.calculateGrades} type='button' className='btn btn-secondary'>
           Recalculate course grades
         </div>
-        <div>
-          <form ref='searchStudentForm'>
-            <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
-          </form>
-        </div>
+        { nRows > 1 ?
+          <div>
+            <form ref='searchStudentForm'>
+              <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
+            </form>
+           </div>
+          : ''
+        }
 
         <Table
           rowHeight={35}
-          rowsCount={tableData.length}
+          rowsCount={nRows}
           width={0.8 * window.innerWidth}
           height={0.7 * window.innerHeight }
           headerHeight={50}>

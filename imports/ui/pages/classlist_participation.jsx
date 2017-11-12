@@ -29,9 +29,9 @@ class _ClasslistParticipation extends Component {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.sessionList.length < 1) return <div className='ql-subs-loading'>No sessions in course</div>
 
     const sessionList = _(this.props.sessionList).pluck('_id')
-
     const statsMap = _.mapObject(this.props.sessionMap, (val, key) => {
       const q = _.where(this.props.questions, {sessionId: key})
       const r = _.filter(this.props.responses, (resp) => { return val.questions.indexOf(resp.questionId) !== -1 })
