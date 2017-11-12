@@ -1,0 +1,26 @@
+
+
+// Component
+.ql-grade-table-container {
+  position: relative;
+
+
+  // cell in the grade tableData
+  .ql-grade-cell {
+
+    &:hover {
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+
+  .ql-grade-table-sort-button {
+     position: absolute;
+     top: 0px;
+     right: 0px;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+}

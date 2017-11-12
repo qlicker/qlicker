@@ -34,13 +34,19 @@ export class _GradeTable extends ControlledForm {
    constructor (props) {
      super(props)
 
-     this.state = {gradeViewModal: false, studentSearchString: ''}
+     this.state = { gradeViewModal: false,
+                    studentSearchString: '',
+                    sortByColumn: '',
+                    sortAsc: true
+                  }
      this.calculateGrades = this.calculateGrades.bind(this)
      this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
      this.setStudentSearchString = this.setStudentSearchString.bind(this)
+     this.setSortByColumn = this.setSortByColumn.bind(this)
    }
 
    done (e) {
+     this.refs.searchStudentForm.reset()
      this.props.done()
    }
 
@@ -60,7 +66,14 @@ export class _GradeTable extends ControlledForm {
   }
 
   setStudentSearchString (e) {
-    this.setState( {studentSearchString: e.target.value} )
+    this.setState({ studentSearchString: e.target.value })
+  }
+
+  // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
+  setSortByColumn (sessionId) {
+    let sortAsc = (sessionId === this.state.sortByColumn) ? !this.state.sortAsc : true
+
+    this.setState({ sortByColumn:sessionId, sortAsc:sortAsc })
   }
 
   render () {
@@ -76,10 +89,40 @@ export class _GradeTable extends ControlledForm {
     }
 
     const sessions = this.props.sessions
+    const studentSearchString = this.state.studentSearchString
+    const sortByColumn = this.state.sortByColumn
+    const sortAsc = this.state.sortAsc
 
-    const tableData = this.props.tableData
+    // Grab only the rows we need if the search string is set
+    let tableData = studentSearchString ?
+      _(this.props.tableData).filter( (entry) => {return entry.name.includes(studentSearchString)} ):
+      this.props.tableData
+    // Sort if needed
+    if (sortByColumn) {
+      tableData = _(tableData).sortBy( (entry) => {
+        const value = _(entry.grades).findWhere({ sessionId:sortByColumn }).value
+        return (sortAsc ? value: -value)
+       })
+    }
 
     const NameCell = ({rowIndex}) => <Cell>{ tableData[rowIndex].name }</Cell>
+
+    const SessionHeaderCell = ({sessionId}) => {
+      const session = _(sessions).findWhere({ _id:sessionId })
+      let sortButtonClass = 'glyphicon glyphicon-minus'
+      if (sortByColumn === sessionId ){
+        sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
+      }
+      sortButtonClass +=' ql-grade-table-sort-button'
+      const onClickSort =  () => this.setSortByColumn(sessionId)
+      return (
+        <Cell>
+          <div className={sortButtonClass} onClick={ onClickSort } />
+          <a  onClick={_ => Router.go('session.results', { sessionId: sessionId })} href='#'>{session.name}</a>      
+        </Cell>
+      )
+    }
+
     const GradeCell = ({rowIndex, sessionId}) => {
       const grades = tableData[rowIndex].grades
       const grade = _(grades).findWhere({ sessionId: sessionId})
@@ -95,12 +138,12 @@ export class _GradeTable extends ControlledForm {
     }
 
     return (
-      <div>
+      <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div onClick={this.calculateGrades} type='button' className='btn btn-secondary'>
           Recalculate course grades
         </div>
         <div>
-          <form>
+          <form ref='searchStudentForm'>
             <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
           </form>
         </div>
@@ -108,8 +151,8 @@ export class _GradeTable extends ControlledForm {
         <Table
           rowHeight={35}
           rowsCount={tableData.length}
-          width={window.innerWidth - (window.innerWidth * 0.20)}
-          height={window.innerHeight - (window.innerHeight * 0.30)}
+          width={0.8 * window.innerWidth}
+          height={0.7 * window.innerHeight }
           headerHeight={50}>
           <Column
             header={<Cell>Last, First</Cell>}
@@ -120,7 +163,7 @@ export class _GradeTable extends ControlledForm {
           { sessions.map((sess) =>
             <Column
               key={sess._id}
-              header={<Cell onClick={_ => Router.go('session.results', { sessionId: sess._id })}><a href='#'>{sess.name}</a></Cell>}
+              header={<SessionHeaderCell sessionId={sess._id} />}
               cell={<GradeCell sessionId={sess._id} />}
               width={getTextWidth(sess.name)}
             />
@@ -178,7 +221,8 @@ export const GradeTable = createContainer((props) => {
     grades: grades,
     tableData: tableData,
     sessions: sessions,
-    loading: !handle.ready()
+    done: () => {},
+    loading: !handle.ready(),
   }
 }, _GradeTable)
 

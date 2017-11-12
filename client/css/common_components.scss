@@ -332,12 +332,3 @@ select.ql-unstyled-select {
   background-size: cover;
   display: inline-block;
 }
-
-// cell in the grade tableData
-.ql-grade-cell {
-
-  &:hover {
-    font-weight: bold;
-    cursor: pointer;
-  }
-}
