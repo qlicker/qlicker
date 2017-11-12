@@ -36,7 +36,7 @@ export class _GradeTable extends ControlledForm {
 
      this.state = { gradeViewModal: false,
                     studentSearchString: '',
-                    sortByColumn: '',
+                    sortByColumn: 'name',
                     sortAsc: true
                   }
      this.calculateGrades = this.calculateGrades.bind(this)
@@ -70,6 +70,7 @@ export class _GradeTable extends ControlledForm {
   }
 
   // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
+  // Expects either a sessionId for the column, or the string 'name' if sorting by name
   setSortByColumn (sessionId) {
     let sortAsc = (sessionId === this.state.sortByColumn) ? !this.state.sortAsc : true
 
@@ -95,17 +96,40 @@ export class _GradeTable extends ControlledForm {
 
     // Grab only the rows we need if the search string is set
     let tableData = studentSearchString ?
-      _(this.props.tableData).filter( (entry) => {return entry.name.includes(studentSearchString)} ):
+      _(this.props.tableData).filter( (entry) => {return entry.name.toLowerCase().includes(studentSearchString.toLowerCase())} ):
       this.props.tableData
+
     // Sort if needed
     if (sortByColumn) {
-      tableData = _(tableData).sortBy( (entry) => {
-        const value = _(entry.grades).findWhere({ sessionId:sortByColumn }).value
-        return (sortAsc ? value: -value)
-       })
+      if (sortByColumn === 'name'){
+        tableData = _(tableData).sortBy( (entry) => {return entry.name.toLowerCase()})
+      } else {
+        tableData = _(tableData).sortBy( (entry) => {
+          return _(entry.grades).findWhere({ sessionId:sortByColumn }).value
+         })
+      }
+      if (!sortAsc){
+        tableData = tableData.reverse()
+      }
     }
 
-    const NameCell = ({rowIndex}) => <Cell>{ tableData[rowIndex].name }</Cell>
+
+    const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
+
+    const NameHeaderCell = ({rowIndex}) => {
+      let sortButtonClass = 'glyphicon glyphicon-minus'
+      if (sortByColumn === 'name' ){
+        sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
+      }
+      sortButtonClass +=' ql-grade-table-sort-button'
+      const onClickSort =  () => this.setSortByColumn('name')
+      return(
+        <Cell>
+          <div className={sortButtonClass} onClick={ onClickSort } />
+          Last, First
+        </Cell>
+      )
+    }
 
     const SessionHeaderCell = ({sessionId}) => {
       const session = _(sessions).findWhere({ _id:sessionId })
@@ -118,7 +142,7 @@ export class _GradeTable extends ControlledForm {
       return (
         <Cell>
           <div className={sortButtonClass} onClick={ onClickSort } />
-          <a  onClick={_ => Router.go('session.results', { sessionId: sessionId })} href='#'>{session.name}</a>      
+          <a  onClick={_ => Router.go('session.results', { sessionId: sessionId })} href='#'>{session.name}</a>
         </Cell>
       )
     }
@@ -130,8 +154,8 @@ export class _GradeTable extends ControlledForm {
       return ( grade ?
         <Cell onClick = {onClick}>
           <div className='ql-grade-cell'>
-          {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
-        </div>
+            {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
+          </div>
         </Cell> :
         <Cell > No grade </Cell>
       )
@@ -155,7 +179,7 @@ export class _GradeTable extends ControlledForm {
           height={0.7 * window.innerHeight }
           headerHeight={50}>
           <Column
-            header={<Cell>Last, First</Cell>}
+            header={<NameHeaderCell />}
             cell={<NameCell />}
             fixed
             width={170}
@@ -172,9 +196,9 @@ export class _GradeTable extends ControlledForm {
         </Table>
         { this.state.gradeViewModal
           ? <GradeViewModal
-            grade={this.state.gradeToView}
-            done={this.toggleGradeViewModal} />
-        : '' }
+              grade={this.state.gradeToView}
+              done={this.toggleGradeViewModal} />
+          : '' }
       </div>
     )
 
