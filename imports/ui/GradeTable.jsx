@@ -113,6 +113,8 @@ export class _GradeTable extends ControlledForm {
     if (sortByColumn) {
       if (sortByColumn === 'name'){
         tableData = _(tableData).sortBy( (entry) => {return entry.name.toLowerCase()})
+      } else if (sortByColumn === 'participation'){
+        tableData = _(tableData).sortBy( (entry) => {return entry.participation})
       } else {
         tableData = _(tableData).sortBy( (entry) => {
           const grade = _(entry.grades).findWhere({ sessionId:sortByColumn })
@@ -126,9 +128,7 @@ export class _GradeTable extends ControlledForm {
 
     const nRows = tableData.length
 
-    const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
-
-    const NameHeaderCell = ({rowIndex}) => {
+      const NameHeaderCell = ({rowIndex}) => {
       let sortButtonClass = 'glyphicon glyphicon-minus'
       if (sortByColumn === 'name' ){
         sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
@@ -139,6 +139,21 @@ export class _GradeTable extends ControlledForm {
         <Cell>
           {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } /> : '' }
           Last, First
+        </Cell>
+      )
+    }
+
+    const ParticipationHeaderCell = ({rowIndex}) => {
+      let sortButtonClass = 'glyphicon glyphicon-minus'
+      if (sortByColumn === 'participation' ){
+        sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
+      }
+      sortButtonClass +=' ql-grade-table-sort-button'
+      const onClickSort =  () => this.setSortByColumn('participation')
+      return(
+        <Cell>
+          {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } /> : '' }
+          Participation
         </Cell>
       )
     }
@@ -161,6 +176,10 @@ export class _GradeTable extends ControlledForm {
       )
     }
 
+    const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
+
+    const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].participation } </Cell>
+
     const GradeCell = ({rowIndex, sessionId}) => {
       const grades = tableData[rowIndex].grades
       const grade = _(grades).findWhere({ sessionId: sessionId})
@@ -174,6 +193,7 @@ export class _GradeTable extends ControlledForm {
         <Cell > No grade </Cell>
       )
     }
+
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
@@ -203,6 +223,11 @@ export class _GradeTable extends ControlledForm {
             cell={<NameCell />}
             fixed
             width={170}
+          />
+          <Column
+            header={<ParticipationHeaderCell />}
+            cell={<ParticipationCell />}
+            width={110}
           />
           { sessions.map((sess) =>
             <Column
@@ -253,8 +278,21 @@ export const GradeTable = createContainer((props) => {
 
   for(let iStu = 0; iStu < numStudents; iStu++){
     let sgrades = _(grades).where({ userId: students[iStu]._id})
+
+    let participation = 0
+    if (sgrades.length > 0){
+      participation = _(sgrades).reduce( (total, grade) => {
+        let gpart = 0
+        if (grade && grade.participation){
+          gpart = grade.participation
+        }
+        return total + gpart
+      }, 0) / sgrades.length
+    }
+
     let dataItem = {
       name: students[iStu].profile.lastname+', '+ students[iStu].profile.firstname,
+      participation: participation.toFixed(0),
       grades: sgrades
     }
     tableData.push(dataItem)
