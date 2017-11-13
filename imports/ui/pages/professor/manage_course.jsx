@@ -206,14 +206,14 @@ class _ManageCourse extends Component {
     // then sort alphabetically
     students = _(students).sortBy(function (id) {
       return (this.props.students[id]
-        ? this.props.students[id].profile.lastname
+        ? this.props.students[id].profile.lastname.toLowerCase()
                    : '0')
     }.bind(this))
 
     let TAs = this.props.course.instructors || []
     TAs = _(TAs).sortBy(function (id) {
       return (this.props.TAs[id]
-        ? this.props.TAs[id].profile.lastname
+        ? this.props.TAs[id].profile.lastname.toLowerCase()
                    : '0')
     }.bind(this))
 
