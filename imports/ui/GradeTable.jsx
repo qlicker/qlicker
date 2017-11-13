@@ -264,7 +264,8 @@ export const GradeTable = createContainer((props) => {
 
   let students, sessions
   if (course) {
-    students = Meteor.users.find({ _id: { $in: course.students || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
+    students = Meteor.users.find({ _id: { $in: course.students || [] } }).fetch()
+    students = _(students).sortBy( (entry) => {return entry.profile.lastname.toLowerCase()})
 
     const sessionQuery = { courseId: course._id }
     if (user.hasRole('student')) sessionQuery.status = { $ne: 'hidden' }
