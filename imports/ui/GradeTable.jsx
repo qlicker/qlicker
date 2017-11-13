@@ -80,10 +80,10 @@ export class _GradeTable extends ControlledForm {
 
   // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
   // Expects either a sessionId for the column, or the string 'name' if sorting by name
-  setSortByColumn (sessionId) {
-    let sortAsc = (sessionId === this.state.sortByColumn) ? !this.state.sortAsc : true
+  setSortByColumn (colName) {
+    let sortAsc = (colName === this.state.sortByColumn) ? !this.state.sortAsc : true
 
-    this.setState({ sortByColumn:sessionId, sortAsc:sortAsc })
+    this.setState({ sortByColumn:colName, sortAsc:sortAsc })
   }
 
   render () {
@@ -170,8 +170,8 @@ export class _GradeTable extends ControlledForm {
       return (
         <Cell>
           {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} />: '' }
-          {isInstructor ? <div onClick={calcSessionGrades} className='glyphicon glyphicon-repeat ql-grade-table-grade-calc-button' /> : ''}
           <div className='ql-grade-table-session-header' onClick={_ => Router.go('session.results', { sessionId: sessionId })} >{session.name} </div>
+          {isInstructor ? <div onClick={calcSessionGrades} className='glyphicon glyphicon-repeat ql-grade-table-grade-calc-button' /> : ''}
         </Cell>
       )
     }

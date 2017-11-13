@@ -5,6 +5,7 @@
   position: relative;
 
   .ql-grade-table-session-header {
+    display: inline;
      &:hover {
        font-weight: bold;
        color: $blue;
@@ -32,6 +33,7 @@
   }
 
   .ql-grade-table-grade-calc-button {
+    display: inline;
     &:hover {
       cursor: pointer;
       color: $blue;
