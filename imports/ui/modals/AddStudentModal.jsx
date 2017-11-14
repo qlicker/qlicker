@@ -56,10 +56,10 @@ export class AddStudentModal extends ControlledForm {
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
       <div className='ql-modal ql-modal-newemail ql-card' onClick={this.preventPropagation}>
-        <div className='ql-modal-header ql-header-bar'><h3>Add a TA to {this.props.courseName}</h3></div>
+        <div className='ql-modal-header ql-header-bar'><h3>Add a student to {this.props.courseName}</h3></div>
         <form ref='newEmailForm' className='ql-card-content' onSubmit={this.handleSubmit}>
 
-          <div className='text'>Enter a instructor's Qlicker account email address to give them access to this course.</div>
+          <div className='text'>Enter a student's Qlicker account email address to give them access to this course.</div>
 
           <label>Email:</label>
           <input type='email' className='form-control' onChange={this.newEmailOnChange} /><br />
