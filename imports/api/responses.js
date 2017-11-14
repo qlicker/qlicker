@@ -54,7 +54,8 @@ if (Meteor.isServer) {
         const findCriteria = { questionId: questionId }
         // Prevent students from seeing the studentIds of other students when
         // recieving responses.
-        return Responses.find(findCriteria, { fields: { 'studentUserId': false } })
+        //return Responses.find(findCriteria, { fields: { 'studentUserId': false } })
+        return Responses.find(findCriteria)
       }
     } else this.ready()
   })
