@@ -9,26 +9,33 @@ $red-bar: rgba(167,37,38, 0.3);
 .ql-question-display {
 
   &.interactive {
-    .ql-answer-content-container:hover {
-      //border: 1px solid $blue;
-      //color: $blue;
-      border: 1px solid $black;
-      font-weight: bold;
+    // Have the cursor change for all screen sizes.
+    .ql-answer-content-container:hover { 
       cursor: pointer;
+    }
 
-      .ql-short-answer {
-        color: black;
-      }
+    // Only hover selection on medium screens.
+    @media (min-width: $medium-width)  {
+      .ql-answer-content-container:hover {
+        //border: 1px solid $blue;
+        //color: $blue;
+        border: 1px solid $black;
+        font-weight: bold;
 
-      .ql-checkbox {
-        border-color: $blue;
-        &:after {
-          content: '\2713';
-          position: absolute;
-          font-size: 18px;
-          top: 0px;
-          left: 3px;
-          color: $blue;
+        .ql-short-answer {
+          color: black;
+        }
+
+        .ql-checkbox {
+          border-color: $blue;
+          &:after {
+            content: '\2713';
+            position: absolute;
+            font-size: 18px;
+            top: 0px;
+            left: 3px;
+            color: $blue;
+          }
         }
       }
     }
