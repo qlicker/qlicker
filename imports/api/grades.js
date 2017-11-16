@@ -69,6 +69,7 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('grades.forCourse', function (courseId) {
+    check(courseId, Helpers.MongoID)
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin) || user.isInstructor(courseId)) {
@@ -80,6 +81,7 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('grades.forSession', function (sessionId) {
+    check(sessionId, Helpers.MongoID)
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const sess = Sessions.findOne({ _id: sessionId})
@@ -94,6 +96,7 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('grades.forQuestion', function (questionId) {
+    check(questionId, Helpers.MongoID)
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const q = Questions.findOne({ _id: questionId})
@@ -287,7 +290,7 @@ Meteor.methods({
 
         if(response.attempt){
           attempt = response.attempt
-          //markPoints = stats.calculateResponseGrade(response, question)      
+          //markPoints = stats.calculateResponseGrade(response, question)
           numAnsweredTotal += 1
           if(markOutOf[iq] > 0){
             markPoints = calculateResponsePoints(response)
