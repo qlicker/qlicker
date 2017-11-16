@@ -48,7 +48,7 @@ export class _QuestionDisplay extends Component {
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
     this.setAnswer = this.setAnswer.bind(this)
-    this.setShortAnswer = this.setShortAnswer.bind(this)
+    //this.setShortAnswer = this.setShortAnswer.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
     this.resetState = this.resetState.bind(this)
   }
@@ -64,11 +64,12 @@ export class _QuestionDisplay extends Component {
   }
 
   /**
-   * reset the state of component and prep for different Question
+   * Decide whether to reset the state (e.g. if the question or attempt number changed)
+   * Since this is reactive to the response collection, it gets called anytime someone (else)
+   * submits a response to a question.
    */
   resetState () {
-   // const l = this.props.question.sessionOptions.attempts.length
-   // const attempt = this.props.question.sessionOptions.attempts[l - 1]
+
     const q1 = this.props.question
     const attempt = q1.sessionOptions
       ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1]
@@ -76,11 +77,14 @@ export class _QuestionDisplay extends Component {
 
     const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
 
-    if (this.state.questionId !== this.props.question._id ||
-      (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) ||
-      (this.state.questionId === this.props.question._id && this.state.attempt === attempt && myResponses.length > 0)) {
+    if (this.state.questionId !== this.props.question._id || //the question changed
+      (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) || //the attempt changed
+      (this.state.questionId === this.props.question._id && this.state.attempt === attempt && myResponses.length > 0)) { //there is already a response
       if (myResponses.length > 0 && (!this.state.wasVisited)) {
+        // Fill the state with the exsiting response
         const submittedAnswerWysiwyg = (q1.type === QUESTION_TYPE.SA) ? myResponses[0].answerWysiwyg : ''
+        //console.log("keeping state")
+        //console.log(this.state.submittedAnswer)
         this.setState({
           btnDisabled: true,
           submittedAnswer: myResponses[0].answer,
@@ -90,9 +94,10 @@ export class _QuestionDisplay extends Component {
           attempt: attempt,
           wasVisited: true
         })
-
         this.readonly = true
       } else if (myResponses.length <= 0) {
+        //console.log("resetting state")
+        //console.log(this.state.submittedAnswer)
         this.setState({
           btnDisabled: true,
           submittedAnswer: '',
@@ -123,19 +128,21 @@ export class _QuestionDisplay extends Component {
   /**
    * set answer in state for short answer questions
    * @param {Event} e - form event object
-   */
+
   setShortAnswer (e) {
+    if (this.disallowResponses() || this.readonly) return
     this.setState({
       btnDisabled: false,
       submittedAnswer: e.target.value
     })
-  }
+  }*/
 
   /**
    * set answer in state for short answer questions
-   * @param {Event} e - form event object
+   *
    */
   setShortAnswerWysiwyg (content, plainText) {
+    if (this.disallowResponses() || this.readonly) return
     this.setState({
       btnDisabled: false,
       submittedAnswer: plainText,
@@ -167,6 +174,7 @@ export class _QuestionDisplay extends Component {
       btnDisabled: false,
       submittedAnswer: answerToSubmit
     })
+
   }
 
   /**
