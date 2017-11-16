@@ -44,8 +44,10 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const question = Questions.findOne({ _id: questionId })
-      const session = Sessions.findOne({ _id: question.sessionId })
+
       if (!question.sessionId) return this.ready()
+
+      const session = Sessions.findOne({ _id: question.sessionId })
       const course = Courses.findOne({ _id: session.courseId })
 
       if (user.isInstructor(course._id)) {
@@ -109,7 +111,7 @@ Meteor.methods({
     const q = Questions.findOne({ _id: responseObject.questionId })
     const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
     let resp = responseObject.answer
-
+/*
     let mark = 0
     switch (q.type) {
       case QUESTION_TYPE.MC:
@@ -128,7 +130,7 @@ Meteor.methods({
         break
     }
 
-    responseObject.mark = mark
+    responseObject.mark = mark*/
     if (!q.sessionId) throw Error('Question not attached to session')
     if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit answer')
 
