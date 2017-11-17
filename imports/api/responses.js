@@ -53,11 +53,31 @@ if (Meteor.isServer) {
       if (user.isInstructor(course._id)) {
         return Responses.find({ questionId: questionId })
       } else if (user.hasRole(ROLES.student)) {
-        const findCriteria = { questionId: questionId }
-        // Prevent students from seeing the studentIds of other students when
-        // recieving responses.
-        //return Responses.find(findCriteria, { fields: { 'studentUserId': false } })
-        return Responses.find(findCriteria)
+
+      //By defaulty, publish only the user's repsonses
+      const initialRs = Responses.find({ questionId: questionId,  studentUserId:this.userId  })
+      initialRs.forEach(r => {
+        this.added('responses', r._id, r)
+      })
+      this.ready()
+      
+      // observe changes on the question, and publish all responses if stats option gets set to true
+      const qCursor = Questions.find({ _id: questionId })
+      const handle = qCursor.observeChanges({
+        changed: (id, fields) => {
+          if(fields.sessionOptions.stats){
+            //const moreRs = Responses.find({ questionId: questionId,  studentUserId:{$ne:this.userId}  })
+            const moreRs = Responses.find({ questionId: questionId })
+            moreRs.forEach(r => {
+              this.added('responses', r._id, r)
+            })
+          }
+        }
+      })
+      this.onStop(function () {
+        handle.stop()
+      })
+
       }
     } else this.ready()
   })
