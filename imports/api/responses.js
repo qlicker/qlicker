@@ -64,6 +64,7 @@ if (Meteor.isServer) {
       this.ready()
 
       // observe changes on the question, and publish all responses if stats option gets set to true
+      // TODO: This needs to remove the responses if stats changes back to false!!!!
       const qCursor = Questions.find({ _id: questionId })
       const handle = qCursor.observeChanges({
         changed: (id, fields) => {
