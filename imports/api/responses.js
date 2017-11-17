@@ -55,12 +55,14 @@ if (Meteor.isServer) {
       } else if (user.hasRole(ROLES.student)) {
 
       //By defaulty, publish only the user's repsonses
-      const initialRs = Responses.find({ questionId: questionId,  studentUserId:this.userId  })
+      const initialRs = question.sessionOptions.stats ?
+                        Responses.find({ questionId: questionId }) :
+                        Responses.find({ questionId: questionId,  studentUserId:this.userId  })
       initialRs.forEach(r => {
         this.added('responses', r._id, r)
       })
       this.ready()
-      
+
       // observe changes on the question, and publish all responses if stats option gets set to true
       const qCursor = Questions.find({ _id: questionId })
       const handle = qCursor.observeChanges({
