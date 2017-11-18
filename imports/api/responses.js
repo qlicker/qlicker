@@ -64,21 +64,38 @@ if (Meteor.isServer) {
       this.ready()
 
       // observe changes on the question, and publish all responses if stats option gets set to true
-      // TODO: This needs to remove the responses if stats changes back to false!!!!
+      // TODO: This needs to remove the responses if stats changes back to false - I think this works
+      // TODO: Also need to observe changes in Response collection, if it gets bigger - Not working, if someone adds a response when stats is on
+      // it does not show up for people that have answered
+      const rCursor = Responses.find({ questionId: questionId  })
+      const rHandle = rCursor.observeChanges({
+        added: (id, fields) => {
+          if(question.sessionOptions.stats){
+            this.added('responses', r._id, r)
+          }
+        }
+      })
+
+
       const qCursor = Questions.find({ _id: questionId })
-      const handle = qCursor.observeChanges({
+      const qHandle = qCursor.observeChanges({
         changed: (id, fields) => {
           if(fields.sessionOptions.stats){
-            //const moreRs = Responses.find({ questionId: questionId,  studentUserId:{$ne:this.userId}  })
-            const moreRs = Responses.find({ questionId: questionId })
-            moreRs.forEach(r => {
+            const currentRs = Responses.find({ questionId: questionId })
+            currentRs.forEach(r => {
+              this.added('responses', r._id, r)
+            })
+          }else{
+            const currentRs = Responses.find({ questionId: questionId,  studentUserId:this.userId  })
+            currentRs.forEach(r => {
               this.added('responses', r._id, r)
             })
           }
         }
       })
       this.onStop(function () {
-        handle.stop()
+        qHandle.stop()
+        rHandle.stop()
       })
 
       }

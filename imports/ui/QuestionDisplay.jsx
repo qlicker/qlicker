@@ -69,6 +69,9 @@ export class _QuestionDisplay extends Component {
    * submits a response to a question.
    */
   resetState () {
+    if(this.props.loading){
+      return
+    }
 
     const q1 = this.props.question
     const attempt = q1.sessionOptions
@@ -76,6 +79,8 @@ export class _QuestionDisplay extends Component {
       : 0
 
     const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
+    //console.log("in reset state")
+    //console.log(this.props.responses)
 
     if (this.state.questionId !== this.props.question._id || //the question changed
       (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) || //the attempt changed
