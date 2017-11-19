@@ -59,7 +59,11 @@ if (Meteor.isServer) {
                         Responses.find({ questionId: questionId }) :
                         Responses.find({ questionId: questionId,  studentUserId:this.userId  })
       initialRs.forEach(r => {
-        this.added('responses', r._id, r)
+        if (r.studentUserId === this.userId){
+          this.added('responses', r._id, r)
+        } else {
+          this.added('responses', r._id, _(r).omit('studentUserId'))
+        }
       })
       this.ready()
 
