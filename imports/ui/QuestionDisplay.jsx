@@ -26,10 +26,9 @@ export class _QuestionDisplay extends Component {
    */
   constructor (p) {
     super(p)
-
     const q = this.props.question
-    const attempt = q.sessionOptions
-      ? q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+    const attemptNumber = q.sessionOptions
+      ? q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].number
       : 0
 
     this.state = {
@@ -38,7 +37,7 @@ export class _QuestionDisplay extends Component {
       submittedAnswerWysiwyg: '',
       questionId: this.props.question._id,
       isSubmitted: false,
-      attempt: attempt,
+      attemptNumber: attemptNumber,
       wasVisited: false
     }
 
@@ -69,47 +68,43 @@ export class _QuestionDisplay extends Component {
    * submits a response to a question.
    */
   resetState () {
+    // Don't reset if still loading
     if(this.props.loading){
       return
     }
 
     const q1 = this.props.question
-    const attempt = q1.sessionOptions
-      ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1]
+    const attemptNumber = q1.sessionOptions
+      ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1].number
       : 0
 
-    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId() })
-    //console.log("in reset state")
-    //console.log(this.props.responses)
+    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId(), attempt: attemptNumber })
 
     if (this.state.questionId !== this.props.question._id || //the question changed
-      (this.state.questionId === this.props.question._id && this.state.attempt !== attempt) || //the attempt changed
-      (this.state.questionId === this.props.question._id && this.state.attempt === attempt && myResponses.length > 0)) { //there is already a response
+      (this.state.questionId === this.props.question._id && this.state.attemptNumber !== attemptNumber) || //the attempt changed
+      (this.state.questionId === this.props.question._id && this.state.attemptNumber === attemptNumber && myResponses.length > 0)) { //there is already a response
       if (myResponses.length > 0 && (!this.state.wasVisited)) {
         // Fill the state with the exsiting response
         const submittedAnswerWysiwyg = (q1.type === QUESTION_TYPE.SA) ? myResponses[0].answerWysiwyg : ''
-        //console.log("keeping state")
-        //console.log(this.state.submittedAnswer)
         this.setState({
           btnDisabled: true,
           submittedAnswer: myResponses[0].answer,
           submittedAnswerWysiwyg: submittedAnswerWysiwyg,
           questionId: this.props.question._id,
           isSubmitted: true,
-          attempt: attempt,
+          attemptNumber: attemptNumber,
           wasVisited: true
         })
         this.readonly = true
       } else if (myResponses.length <= 0) {
-        //console.log("resetting state")
-        //console.log(this.state.submittedAnswer)
+        // reset the state to for an empty response
         this.setState({
           btnDisabled: true,
           submittedAnswer: '',
           submittedAnswerWysiwyg: '',
           questionId: this.props.question._id,
           isSubmitted: false,
-          attempt: attempt,
+          attemptNumber: attemptNumber,
           wasVisited: false
         })
 
@@ -198,13 +193,13 @@ export class _QuestionDisplay extends Component {
     })
 
     const l = this.props.question.sessionOptions.attempts.length
-    const attempt = this.props.question.sessionOptions.attempts[l - 1]
+    const attemptNumber = this.props.question.sessionOptions.attempts[l - 1].number
 
     const answerObject = {
       studentUserId: Meteor.userId(),
       answer: answer,
       answerWysiwyg: answerWysiwyg,
-      attempt: attempt.number,
+      attempt: attemptNumber,
       questionId: this.props.question._id
     }
 

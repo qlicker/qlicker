@@ -64,8 +64,6 @@ if (Meteor.isServer) {
       this.ready()
 
       // observe changes on the question, and publish all responses if stats option gets set to true
-      // TODO: This needs to remove the responses if stats changes back to false - I think this works, but it's not obviously correct
-
       const self = this // not clear if we need to use self, in case this is different in the callbacks
 
       // A cursor to watch for new responses
@@ -73,34 +71,40 @@ if (Meteor.isServer) {
       const rHandle = rCursor.observeChanges({
         // if a new response was added and stats is on, then add this response to the publication
         added: (id, fields) => {
+          // if the response is from the user, added regardless
+          if (fields.studentUserId === self.userId){
+            self.added('responses', id, fields)
+            return
+          }
+          // if stats is on, added a different user's response, but omit the student id
           const q = Questions.findOne({ _id: questionId })
           if(q.sessionOptions.stats){
-            self.added('responses', id, fields)
-          } else{ // add it if it's this user's response, regardless!
-            if (fields.studentUserId === self.userId){
-              self.added('responses', id, fields)
-            }
+            self.added('responses', id, _(fields).omit('studentUserId'))
           }
         }
       })
       // A cursor to watch for changes in the stats property of the question
-      const qCursor = Questions.find({ _id: questionId }) // TODO: could we limit the field here?
+      const qCursor = Questions.find({ _id: questionId })
       const qHandle = qCursor.observeChanges({
         // if the question changed, and stats is true, add all responses to the publication
         changed: (id, fields) => {
-          if(fields.sessionOptions.stats){
+          if (fields.sessionOptions.stats){
             const currentRs = Responses.find({ questionId: questionId })
             currentRs.forEach(r => {
-              self.added('responses', r._id, r)
+              if (r.studentUserId === self.userId){
+                self.added('responses', r._id, r)
+              } else {
+                self.added('responses', r._id, _(r).omit('studentUserId'))
+              }
             })
           }else{
-            //only add the current user's repsonse
-            // TODO: this should not be required, as the response cursor above should do this automatically, right???
-            // But maybe this is how to remove the responses from the publication if stats was switched *back* off????
-            const currentRs = Responses.find({ questionId: questionId,  studentUserId:self.userId  })
-            currentRs.forEach(r => {
-              self.added('responses', r._id, r)
-            })
+            /*
+            // TODO Remove docs if stat is turned back off. The code below fails if stats is on and the attempt number changes
+            // because it tries to remove docs that aren't there, which gives a server error.
+            const otherRs = Responses.find({ questionId: questionId,  studentUserId: {$ne: self.userId}  })
+            otherRs.forEach(r => {
+              self.removed('responses', r._id, r)
+            })*/
           }
         }
       })
