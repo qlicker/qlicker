@@ -54,7 +54,7 @@ if (Meteor.isServer) {
         return Responses.find({ questionId: questionId })
       } else if (user.hasRole(ROLES.student)) {
 
-      //By defaulty, publish only the user's repsonses
+      //If stats is true for the question, publish all responses initially, otherwise, only the user's
       const initialRs = question.sessionOptions.stats ?
                         Responses.find({ questionId: questionId }) :
                         Responses.find({ questionId: questionId,  studentUserId:this.userId  })
@@ -64,31 +64,42 @@ if (Meteor.isServer) {
       this.ready()
 
       // observe changes on the question, and publish all responses if stats option gets set to true
-      // TODO: This needs to remove the responses if stats changes back to false - I think this works
-      // TODO: Also need to observe changes in Response collection, if it gets bigger - Not working, if someone adds a response when stats is on
-      // it does not show up for people that have answered
+      // TODO: This needs to remove the responses if stats changes back to false - I think this works, but it's not obviously correct
+
+      const self = this // not clear if we need to use self, in case this is different in the callbacks
+
+      // A cursor to watch for new responses
       const rCursor = Responses.find({ questionId: questionId  })
       const rHandle = rCursor.observeChanges({
+        // if a new response was added and stats is on, then add this response to the publication
         added: (id, fields) => {
-          if(question.sessionOptions.stats){
-            this.added('responses', r._id, r)
+          const q = Questions.findOne({ _id: questionId })
+          if(q.sessionOptions.stats){
+            self.added('responses', id, fields)
+          } else{ // add it if it's this user's response, regardless!
+            if (fields.studentUserId === self.userId){
+              self.added('responses', id, fields)
+            }
           }
         }
       })
-
-
-      const qCursor = Questions.find({ _id: questionId })
+      // A cursor to watch for changes in the stats property of the question
+      const qCursor = Questions.find({ _id: questionId }) // TODO: could we limit the field here?
       const qHandle = qCursor.observeChanges({
+        // if the question changed, and stats is true, add all responses to the publication
         changed: (id, fields) => {
           if(fields.sessionOptions.stats){
             const currentRs = Responses.find({ questionId: questionId })
             currentRs.forEach(r => {
-              this.added('responses', r._id, r)
+              self.added('responses', r._id, r)
             })
           }else{
-            const currentRs = Responses.find({ questionId: questionId,  studentUserId:this.userId  })
+            //only add the current user's repsonse
+            // TODO: this should not be required, as the response cursor above should do this automatically, right???
+            // But maybe this is how to remove the responses from the publication if stats was switched *back* off????
+            const currentRs = Responses.find({ questionId: questionId,  studentUserId:self.userId  })
             currentRs.forEach(r => {
-              this.added('responses', r._id, r)
+              self.added('responses', r._id, r)
             })
           }
         }
