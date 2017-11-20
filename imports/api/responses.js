@@ -90,16 +90,12 @@ if (Meteor.isServer) {
       // A cursor to watch for changes in the stats property of the question
       const qCursor = Questions.find({ _id: questionId })
       const qHandle = qCursor.observeChanges({
-        // if the question changed, and stats is true, add all responses to the publication
+      // if the question changed, and stats is true, add all responses to the publication
         changed: (id, fields) => {
           if (fields.sessionOptions.stats){
             const currentRs = Responses.find({ questionId: questionId })
             currentRs.forEach(r => {
-              if (r.studentUserId === self.userId){
-                self.added('responses', r._id, r)
-              } else {
-                self.added('responses', r._id, _(r).omit('studentUserId'))
-              }
+              self.added('responses', r._id, _(r).omit('studentUserId'))
             })
           }else{
             /*
