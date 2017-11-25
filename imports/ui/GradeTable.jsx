@@ -203,7 +203,7 @@ export class _GradeTable extends ControlledForm {
           </div>
           : ''
         }
-        {nRows > 1 ?
+        {this.props.students.length > 1 ?
           <div>
             <form ref='searchStudentForm'>
               <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
