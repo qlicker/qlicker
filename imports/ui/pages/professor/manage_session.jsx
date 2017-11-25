@@ -482,10 +482,12 @@ class _ManageSession extends Component {
             {
               questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
+                const questionNumber = this.props.session.questions.indexOf(questionId) + 1
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
                     onDeleteThis={() => this.removeQuestion(questionId)}
                     question={q}
+                    questionNumber={questionNumber}
                     sessionId={this.state.session._id}
                     courseId={this.state.session.courseId}
                     onNewQuestion={this.newQuestionSaved}

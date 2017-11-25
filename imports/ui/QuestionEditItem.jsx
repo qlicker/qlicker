@@ -137,10 +137,10 @@ export class QuestionEditItem extends Component {
 
    /**
    * For a question in a session, change the number of points that it is worth
-   * @param {Object} event 
+   * @param {Object} event
    */
   setPoints (e){
-    const points =  Number(e.target.value)
+    const points =  parseFloat(e.target.value)
     let sessionOptions = this.state.sessionOptions
     sessionOptions.points = points
     this.setState({sessionOptions: sessionOptions}, () => {
@@ -563,14 +563,17 @@ export class QuestionEditItem extends Component {
             : '' }
           { (this.props.sessionId)
             ? <div className='row'>
-                <div className='col-md-3 metadata-row'>
+                <div className='col-md-1 metadata-row'>
+                  Q{this.props.questionNumber}
+                </div>
+                <div className='col-md-2 metadata-row'>
                  Points:
                  <textarea className='form-control' data-name='points'
                    onChange={this.setPoints}
                    rows={1}
                    placeholder='1'
                   />
-                  <div className='col-md-9 metadata-row' />
+                  <div className='col-md-8 metadata-row' />
                 </div>
               </div>
             : ''
@@ -636,6 +639,7 @@ export class QuestionEditItem extends Component {
 QuestionEditItem.propTypes = {
   done: PropTypes.func,
   question: PropTypes.object,
+  questionNumber: PropTypes.number,
   onNewQuestion: PropTypes.func,
   metadata: PropTypes.bool,
   deleted: PropTypes.func,

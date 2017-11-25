@@ -34,12 +34,11 @@ export class _GradeViewModal extends ControlledForm {
               <div className='row'>
 
                 <div className='ql-modal-gradeview'>
-                  Grade value: {grade.value} ({grade.points} out of {grade.outOf})<br />
-                  Participation: {grade.participation} ({grade.joined ? "joined" : "did not join" }) <br />
-                  Questions answered total: {grade.numAnsweredTotal}<br />
-                  Questions total: {grade.numQuestionsTotal} <br />
-                  Questions worth points answered: {grade.numAnswered}  <br />
-                  Questions worth points: {grade.numQuestions}  <br />
+                  Grade: {grade.value}% ({grade.points} out of {grade.outOf})<br />
+                  Participation: {grade.participation}% ({grade.joined ? "joined" : "did not join" }) <br />
+                  Questions answered total: {grade.numAnsweredTotal} (out of {grade.numQuestionsTotal}) <br />
+                  Questions worth points answered: {grade.numAnswered} (out of {grade.numQuestions})  <br />
+                  Questions: <br />
                   {
                     grade.marks.map((mark) => {
                       questionCount +=1
