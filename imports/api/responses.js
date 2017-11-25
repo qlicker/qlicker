@@ -55,7 +55,7 @@ if (Meteor.isServer) {
       } else if (user.hasRole(ROLES.student)) {
 
       //If stats is true for the question, publish all responses initially, otherwise, only the user's
-      const initialRs = question.sessionOptions.stats ?
+      const initialRs = question.sessionOptions && question.sessionOptions.stats ?
                         Responses.find({ questionId: questionId }) :
                         Responses.find({ questionId: questionId,  studentUserId:this.userId  })
       initialRs.forEach(r => {
@@ -82,7 +82,7 @@ if (Meteor.isServer) {
           }
           // if stats is on, added a different user's response, but omit the student id
           const q = Questions.findOne({ _id: questionId })
-          if(q.sessionOptions.stats){
+          if(q.sessionOptions && q.sessionOptions.stats){
             self.added('responses', id, _(fields).omit('studentUserId'))
           }
         }
@@ -92,7 +92,7 @@ if (Meteor.isServer) {
       const qHandle = qCursor.observeChanges({
       // if the question changed, and stats is true, add all responses to the publication
         changed: (id, fields) => {
-          if (fields.sessionOptions.stats){
+          if (fields.sessionOptions && fields.sessionOptions.stats){
             const currentRs = Responses.find({ questionId: questionId })
             currentRs.forEach(r => {
               self.added('responses', r._id, _(r).omit('studentUserId'))
