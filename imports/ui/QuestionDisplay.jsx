@@ -78,17 +78,17 @@ export class _QuestionDisplay extends Component {
       ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1].number
       : 0
 
-    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId(), attempt: attemptNumber })
+    const myResponse = this.props.myresponse
 
     if (this.state.questionId !== this.props.question._id || //the question changed
       (this.state.questionId === this.props.question._id && this.state.attemptNumber !== attemptNumber) || //the attempt changed
-      (this.state.questionId === this.props.question._id && this.state.attemptNumber === attemptNumber && myResponses.length > 0)) { //there is already a response
-      if (myResponses.length > 0 && (!this.state.wasVisited)) {
+      (this.state.questionId === this.props.question._id && this.state.attemptNumber === attemptNumber && myResponse)) { //there is already a response
+      if (myResponse && (!this.state.wasVisited)) {
         // Fill the state with the exsiting response
-        const submittedAnswerWysiwyg = (q1.type === QUESTION_TYPE.SA) ? myResponses[0].answerWysiwyg : ''
+        const submittedAnswerWysiwyg = (q1.type === QUESTION_TYPE.SA) ? myResponse.answerWysiwyg : ''
         this.setState({
           btnDisabled: true,
-          submittedAnswer: myResponses[0].answer,
+          submittedAnswer: myResponse.answer,
           submittedAnswerWysiwyg: submittedAnswerWysiwyg,
           questionId: this.props.question._id,
           isSubmitted: true,
@@ -96,7 +96,7 @@ export class _QuestionDisplay extends Component {
           wasVisited: true
         })
         this.readonly = true
-      } else if (myResponses.length <= 0) {
+      } else if (!myResponse) {
         // reset the state to for an empty response
         this.setState({
           btnDisabled: true,
@@ -409,7 +409,9 @@ export const QuestionDisplay = createContainer((props) => {
   const attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
   // Get the responses for that attempt:
   responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
-
+  const myresponse = props.response
+                    ? props.response
+                    :_(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
   if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
@@ -441,13 +443,14 @@ export const QuestionDisplay = createContainer((props) => {
     readonly: props.readonly,
     totalAnswered: total,
     distribution: formattedData,
-    responses: responses,
+    myresponse: myresponse,
     loading: !handle.ready()
   }
 }, _QuestionDisplay)
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
+  response: PropTypes.object,
   readonly: PropTypes.bool,
   noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running
