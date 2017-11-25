@@ -11,8 +11,11 @@ import Select, { Creatable } from 'react-select'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
+import { defaultSessionOptions } from '../api/questions'
+
 // constants
 import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
+
 
 export const DEFAULT_STATE = {
   plainText: '',
@@ -21,16 +24,7 @@ export const DEFAULT_STATE = {
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
-  sessionOptions: {
-    hidden: false,
-    stats: false,
-    correct: false,
-    attempts: [{
-      number: 1,
-      closed: false
-    }]
-  }
-
+  sessionOptions: defaultSessionOptions
 }
 
 /**
@@ -60,6 +54,7 @@ export class QuestionEditItem extends Component {
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.setCourse = this.setCourse.bind(this)
+    this.setPoints = this.setPoints.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
     // if editing pre-exsiting question
@@ -139,6 +134,10 @@ export class QuestionEditItem extends Component {
       })
     }
   } // end constructor
+
+  setPoints (e){
+
+  }
 
   /**
    * change question type to MC, TF or SA
@@ -553,6 +552,19 @@ export class QuestionEditItem extends Component {
 
             </div>
             : '' }
+          { (this.props.sessionId && this.props.question.sessionOptions)
+            ? <div className='row'>
+                <div className='col-md-12 metadata-row'>
+                 Points:
+                 <textarea className='form-control' data-name='points'
+                   onChange={this.setPoints}
+                   rows={1}
+                   placeholder='1'
+                  />
+                </div>
+              </div>
+            : ''
+          }
           <div className='row'>
             <div className='col-md-12 metadata-row'>
               {selectOnly ? <Select

@@ -57,13 +57,15 @@ const questionPattern = {
   studentCopyOfPublic: Match.Maybe(Boolean) // true if this a student's copy from a public library
 }
 
-const defaultSessionOptions = {
+export const defaultSessionOptions = {
   hidden: false,
   stats: false,
   correct: false,
+  points: 1,
   attempts: [{
     number: 1,
-    closed: false
+    closed: false,
+    weight: 0
   }]
 }
 
@@ -294,7 +296,7 @@ Meteor.methods({
     question.sessionId = sessionId
     question.courseId = session.courseId
     question.owner = Meteor.userId()
-    // question.sessionOptions = defaultSessionOptions
+    question.sessionOptions = defaultSessionOptions
 
     const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)

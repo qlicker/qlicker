@@ -16,7 +16,7 @@ import moment from 'moment'
 import { Creatable } from 'react-select'
 
 import { Sessions } from '../../../api/sessions'
-import { Questions } from '../../../api/questions'
+import { Questions, defaultSessionOptions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
@@ -219,7 +219,8 @@ class _ManageSession extends Component {
       sessionId: sessionId,
       courseId: this.state.session.courseId,
       owner: course.owner,
-      approved: true
+      approved: true,
+      sessionOptions: defaultSessionOptions
     }
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
