@@ -411,7 +411,7 @@ export const QuestionDisplay = createContainer((props) => {
   responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
   const myresponse = props.response
                     ? props.response
-                    :_(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
+                    : _(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
   if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')

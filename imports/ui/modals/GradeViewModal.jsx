@@ -7,6 +7,9 @@ import React, { PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { ControlledForm } from '../ControlledForm'
+import { Sessions } from '../../api/sessions'
+import { Questions } from '../../api/questions'
+import { Responses } from '../../api/responses'
 
 /**
  * modal dialog to prompt for new email addresss
@@ -17,9 +20,13 @@ export class _GradeViewModal extends ControlledForm {
 
   constructor (props) {
     super(props)
-
+    this.state = { QuestionDiplayModal: false}
+    this.toggleQuestionDisplayModal = this.toggleQuestionDisplayModal.bind(this)
   }
 
+  toggleQuestionDisplayModal (question = null) {
+    this.setState({ QuestionDiplayModal: !this.state.QuestionDisplayModal, questionToView: question })
+  }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
@@ -43,8 +50,13 @@ export class _GradeViewModal extends ControlledForm {
                     grade.marks.map((mark) => {
                       questionCount +=1
                       const autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
+                      const question = _(this.props.questions).findWhere({ _id:mark.questionId})
+                      const onClick = () => this.toggleQuestionDisplayModal(question)
                       return ( <div key={mark.questionId}>
-                         Q{questionCount}: {mark.points} out of {mark.outOf} on attempt {mark.attempt} {autoText}
+                         <a onClick={onClick}>
+                           Q{questionCount}
+                         </a>
+                          {mark.points} out of {mark.outOf} on attempt {mark.attempt} {autoText}
                        </div>)
                     })
                   }
@@ -57,6 +69,11 @@ export class _GradeViewModal extends ControlledForm {
               </div>
              </div>
             </div>
+            { this.state.QuestionDisplayModal
+              ? <QuestionDisplayModal
+                  question={this.state.questionToView}
+                  done={this.toggleQuestionDisplayModal} />
+              : '' }
         </div>
       : 'Loading')
   } //  end render
@@ -69,14 +86,18 @@ export const GradeViewModal = createContainer((props) => {
   const sessionId = props.grade.sessionId
   const grade = props.grade
   const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
-                 Meteor.subscribe('questions.inSession', sessionId)
+                 Meteor.subscribe('questions.inSession', sessionId) &&
+                 Meteor.subscribe('sessions')
 
   const student = Meteor.users.findOne({ _id:grade.userId })
+  const session = Sessions.findOne({ _id:sessionId })
+  const questions = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
   return {
     loading: !handle.ready(),
     grade: grade,
-    student: student
+    student: student,
+    questions: questions
   }
 }, _GradeViewModal)
 
