@@ -135,8 +135,17 @@ export class QuestionEditItem extends Component {
     }
   } // end constructor
 
+   /**
+   * For a question in a session, change the number of points that it is worth
+   * @param {Object} event 
+   */
   setPoints (e){
-
+    const points =  Number(e.target.value)
+    let sessionOptions = this.state.sessionOptions
+    sessionOptions.points = points
+    this.setState({sessionOptions: sessionOptions}, () => {
+      this._DB_saveQuestion()
+    })
   }
 
   /**
@@ -552,15 +561,16 @@ export class QuestionEditItem extends Component {
 
             </div>
             : '' }
-          { (this.props.sessionId && this.props.question.sessionOptions)
+          { (this.props.sessionId)
             ? <div className='row'>
-                <div className='col-md-12 metadata-row'>
+                <div className='col-md-3 metadata-row'>
                  Points:
                  <textarea className='form-control' data-name='points'
                    onChange={this.setPoints}
                    rows={1}
                    placeholder='1'
                   />
+                  <div className='col-md-9 metadata-row' />
                 </div>
               </div>
             : ''
