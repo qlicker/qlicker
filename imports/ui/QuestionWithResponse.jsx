@@ -56,13 +56,6 @@ export class QuestionWithResponse extends ControlledForm {
     const increment = () => this.incrementResponse(1)
     const decrement = () => this.incrementResponse(-1)
 
-    console.log("rendering")
-    console.log(response)
-    console.log(this.state.responseToView)
-    console.log(response.attempt)
-    console.log(next)
-    console.log(prev)
-
     return (
       <div>
         { response

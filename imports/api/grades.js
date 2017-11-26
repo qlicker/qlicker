@@ -222,8 +222,13 @@ Meteor.methods({
     // responses corresponding to questions in the session
     const responses = Responses.find({ questionId: { $in: qIds}}).fetch()
     // questions in the session
-    let questions = Questions.find({ _id: { $in: qIds}}).fetch()
-    // of the questions in the sessions, the ones that have responses
+    let questions = []  //Questions.find({ _id: { $in: qIds}}).fetch()
+    qIds.forEach( (qId) => {
+      questions.push(Questions.findOne({ _id: qId }))
+    })
+
+    // TODO: Keep all, and assume that prof has set 0 points for questions that don't have points
+    // of the questions in the sessions, the ones that have responses - REMOVE this //TODO
     questions = _.filter(questions, (q) => { return _.findWhere(responses, {questionId: q._id}) })
 
     //the total number of questions in the session (that have responses)

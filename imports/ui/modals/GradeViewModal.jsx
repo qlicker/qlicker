@@ -117,7 +117,7 @@ export const GradeViewModal = createContainer((props) => {
 
   const student = Meteor.users.findOne({ _id:grade.userId })
   const session = Sessions.findOne({ _id:sessionId })
-  // TODO: The questions need to be sorted so that they are in the same order as in the session !!!
+  // overkill to sort the questions...
   let questions = []
   session.questions.forEach( (qId) => {
     questions.push( Questions.findOne({ _id:qId }) )

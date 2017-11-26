@@ -61,7 +61,9 @@ export class QuestionEditItem extends Component {
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
       this.state.owner = Meteor.userId()
-
+      if (this.props.sessionId && !this.props.question.sessionOptions){
+        this.state.sessionOptions = defaultSessionOptions
+      }
       this.currentAnswer = this.state.options ? this.state.options.length : 0
       switch (this.state.type) {
         case QUESTION_TYPE.MC:
