@@ -11,6 +11,8 @@ import { Sessions } from '../../api/sessions'
 import { Questions } from '../../api/questions'
 import { Responses } from '../../api/responses'
 
+import { QuestionWithResponse } from '../QuestionWithResponse'
+
 /**
  * modal dialog to prompt for new email addresss
  * @augments ControlledForm
@@ -20,12 +22,24 @@ export class _GradeViewModal extends ControlledForm {
 
   constructor (props) {
     super(props)
-    this.state = { QuestionDiplayModal: false}
-    this.toggleQuestionDisplayModal = this.toggleQuestionDisplayModal.bind(this)
+
+    const firstQ = this.props.questions.length > 0
+                  ? this.props.questions[0]
+                  : null
+    this.state = {
+      previewQuestion: false,
+      questionToView: firstQ
+    }
+
+    this.setPreviewQuestion = this.setPreviewQuestion.bind(this)
+    this.togglePreviewQuestion = this.togglePreviewQuestion.bind(this)
   }
 
-  toggleQuestionDisplayModal (question = null) {
-    this.setState({ QuestionDiplayModal: !this.state.QuestionDisplayModal, questionToView: question })
+  setPreviewQuestion (question = null) {
+    this.setState({ previewQuestion:true, questionToView: question })
+  }
+  togglePreviewQuestion () {
+    this.setState({ previewQuestion:!this.state.previewQuestion })
   }
 
   render () {
@@ -34,8 +48,8 @@ export class _GradeViewModal extends ControlledForm {
     const student = this.props.student
     let questionCount = 0
     return ( grade ?
-       <div className='ql-modal-container' onClick={this.props.done} >
-          <div className='ql-modal ql-card' onClick={this.preventPropagation}>
+       <div className='ql-modal-container'  >
+          <div className='ql-modal ql-card' >
             <div className='ql-modal-header ql-header-bar'><h3>{grade.name} {student.profile.lastname}, {student.profile.firstname}</h3> </div>
             <div className='ql-card-content'>
               <div className='row'>
@@ -51,7 +65,7 @@ export class _GradeViewModal extends ControlledForm {
                       questionCount +=1
                       const autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
                       const question = _(this.props.questions).findWhere({ _id:mark.questionId})
-                      const onClick = () => this.toggleQuestionDisplayModal(question)
+                      const onClick = () => this.setPreviewQuestion(question)
                       return ( <div key={mark.questionId}>
                          <a onClick={onClick}>
                            Q{questionCount}
@@ -60,20 +74,22 @@ export class _GradeViewModal extends ControlledForm {
                        </div>)
                     })
                   }
-
+                  <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                    <a className='btn btn-default' onClick={this.togglePreviewQuestion}>{
+                      this.state.previewQuestion ? 'Hide preview': 'Show preview'
+                    }</a>
+                  </div>
+                  { this.state.previewQuestion
+                    ? <QuestionWithResponse question={this.state.questionToView} />
+                    : ''
+                  }
                 <div className='btn-group btn-group-justified' role='group' aria-label='...'>
                   <a className='btn btn-default' onClick={this.props.done}>Close</a>
                 </div>
               </div>
-
               </div>
              </div>
             </div>
-            { this.state.QuestionDisplayModal
-              ? <QuestionDisplayModal
-                  question={this.state.questionToView}
-                  done={this.toggleQuestionDisplayModal} />
-              : '' }
         </div>
       : 'Loading')
   } //  end render
