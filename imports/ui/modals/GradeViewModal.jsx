@@ -24,11 +24,17 @@ export class _GradeViewModal extends ControlledForm {
     super(props)
 
     const firstQ = this.props.questions.length > 0
-                  ? this.props.questions[0]
-                  : null
+      ? this.props.questions[0]
+      : null
+
+    const responsesToView = firstQ
+      ? _(this.props.responses).where({ questionId: firstQ._id })
+      : null
+
     this.state = {
       previewQuestion: false,
-      questionToView: firstQ
+      questionToView: firstQ,
+      responsesToView: responsesToView
     }
 
     this.setPreviewQuestion = this.setPreviewQuestion.bind(this)
@@ -36,7 +42,10 @@ export class _GradeViewModal extends ControlledForm {
   }
 
   setPreviewQuestion (question = null) {
-    this.setState({ previewQuestion:true, questionToView: question })
+    const responsesToView = question
+      ? _(this.props.responses).where({ questionId: question._id })
+      : null
+    this.setState({ previewQuestion:true, questionToView: question, responsesToView: responsesToView })
   }
   togglePreviewQuestion () {
     this.setState({ previewQuestion:!this.state.previewQuestion })
@@ -80,7 +89,7 @@ export class _GradeViewModal extends ControlledForm {
                     }</a>
                   </div>
                   { this.state.previewQuestion
-                    ? <QuestionWithResponse question={this.state.questionToView} />
+                    ? <QuestionWithResponse question={this.state.questionToView} responses={this.state.responsesToView} />
                     : ''
                   }
                 <div className='btn-group btn-group-justified' role='group' aria-label='...'>
@@ -103,17 +112,25 @@ export const GradeViewModal = createContainer((props) => {
   const grade = props.grade
   const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
                  Meteor.subscribe('questions.inSession', sessionId) &&
-                 Meteor.subscribe('sessions')
+                 Meteor.subscribe('sessions') &&
+                 Meteor.subscribe('responses.forSession', sessionId)
 
   const student = Meteor.users.findOne({ _id:grade.userId })
   const session = Sessions.findOne({ _id:sessionId })
-  const questions = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
+  // TODO: The questions need to be sorted so that they are in the same order as in the session !!!
+  let questions = []
+  session.questions.forEach( (qId) => {
+    questions.push( Questions.findOne({ _id:qId }) )
+  })
+  const questionIds = _(questions).pluck("_id")
+  const responses = Responses.find({ questionId: { $in:questionIds }, studentUserId:grade.userId }, { sort: { attempt: 1 } }).fetch()
 
   return {
     loading: !handle.ready(),
     grade: grade,
     student: student,
-    questions: questions
+    questions: questions,
+    responses: responses
   }
 }, _GradeViewModal)
 

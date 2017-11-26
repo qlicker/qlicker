@@ -62,6 +62,124 @@ export class _QuestionDisplay extends Component {
     this.resetState()
   }
 
+
+  componentWillReceiveProps (nextProps){
+    const isNewQuestion = (this.props.question._id !== nextProps.question._id) ||
+                          (this.state.questionId !== nextProps.question._id)
+
+    // Was a new response passed as prop (TODO: check that this doesn't break in session stuff...)
+    const isNewResponse = (this.props.myresponse && nextProps.myresponse && (this.props.myresponse._id !== nextProps.myresponse._id)) ||
+                          (this.props.myresponse && !nextProps.myresponse) ||
+                          (!this.props.myresponse && nextProps.myresponse)
+
+
+    // Did the attempt number change?
+    const currentQ = this.props.question
+    const currentAttemptNumber = currentQ.sessionOptions
+                                ? currentQ.sessionOptions.attempts[currentQ.sessionOptions.attempts.length - 1].number
+                                : 0
+
+    const nextQ = nextProps.question
+    const nextAttemptNumber = nextQ.sessionOptions
+                                ? nextQ.sessionOptions.attempts[nextQ.sessionOptions.attempts.length - 1].number
+                                : 0
+
+    const isNewAttempt = (currentAttemptNumber !== nextAttemptNumber) ||
+                         (this.state.attemptNumber !== nextAttemptNumber) ||
+                         (this.state.attemptNumber !== currentAttemptNumber)
+
+   if (isNewQuestion || isNewResponse || isNewAttempt ){
+     if (nextProps.myresponse){
+       const myResponse = nextProps.myresponse
+       const submittedAnswerWysiwyg = (nextQ.type === QUESTION_TYPE.SA) ? myResponse.answerWysiwyg : ''
+       this.setState({
+         btnDisabled: true,
+         submittedAnswer: myResponse.answer,
+         submittedAnswerWysiwyg: submittedAnswerWysiwyg,
+         questionId: nextProps.question._id,
+         isSubmitted: true,
+         attemptNumber: nextAttemptNumber,
+         wasVisited: true
+       })
+       this.readonly = true
+     } else {
+       this.setState({
+         btnDisabled: true,
+         submittedAnswer: '',
+         submittedAnswerWysiwyg: '',
+         questionId: nextProps.question._id,
+         isSubmitted: false,
+         attemptNumber: nextAttemptNumber,
+         wasVisited: false
+       })
+
+       this.readonly = false
+       if (nextProps.readonly) this.readonly = nextProps.readonly
+     }
+    }
+  }
+  /*
+  shouldComponentUpdate (nextProps, nextState) {
+
+    // Is it done loading?
+    const doneLoading = (this.props.loading !== nextProps.loading)
+
+    // Did the question change?
+    const isNewQuestion = (this.props.question._id !== nextProps.question._id) ||
+                          (this.state.questionId !== nextState.questionId) ||
+                          (this.state.questionId !== nextProps.question._id)
+
+    // Was a new response passed as prop (TODO: check that this doesn't break in session stuff...)
+    const isNewResponse = (this.props.myresponse && nextProps.myresponse && (this.props.myresponse._id !== nextProps.myresponse._id)) ||
+                          (this.props.myresponse && !nextProps.myresponse) ||
+                          (!this.props.myresponse && nextProps.myresponse)
+
+
+    // Did the attempt number change?
+    const currentQ = this.props.question
+    const currentAttemptNumber = currentQ.sessionOptions
+                                ? currentQ.sessionOptions.attempts[currentQ.sessionOptions.attempts.length - 1].number
+                                : 0
+
+    const nextQ = nextProps.question
+    const nextAttemptNumber = nextQ.sessionOptions
+                                ? nextQ.sessionOptions.attempts[nextQ.sessionOptions.attempts.length - 1].number
+                                : 0
+
+    const isNewAttempt = (currentAttemptNumber !== nextAttemptNumber) ||
+                         (this.state.attemptNumber !== nextAttemptNumber) ||
+                         (this.state.attemptNumber !== currentAttemptNumber)
+
+    // Did the decision to show stats change?
+    const currentStats = currentQ.sessionOptions
+                         ? currentQ.sessionOptions.stats
+                         : -1
+    const nextStats = nextQ.sessionOptions
+                      ? nextQ.sessionOptions.stats
+                        : -1
+    const changeStats = (currentStats !== nextStats)
+
+    // Did the decision to show correct change?
+    const currentCorrect = currentQ.sessionOptions
+                         ? currentQ.sessionOptions.correct
+                         : -1
+    const nextCorrect = nextQ.sessionOptions
+                      ? nextQ.sessionOptions.correct
+                        : -1
+
+    const changeCorrect = (currentCorrect !== nextCorrect)
+
+
+    if (doneLoading || isNewQuestion || isNewResponse || isNewAttempt || changeStats || changeCorrect){
+      return true
+    } else {
+      return false
+    }
+
+  } */
+
+
+
   /**
    * Decide whether to reset the state (e.g. if the question or attempt number changed)
    * Since this is reactive to the response collection, it gets called anytime someone (else)
@@ -349,7 +467,7 @@ export class _QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
+    if (!this.props.noStats && !this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
     const type = q.type
@@ -412,6 +530,7 @@ export const QuestionDisplay = createContainer((props) => {
   const myresponse = props.response
                     ? props.response
                     : _(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
+
   if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
