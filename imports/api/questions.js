@@ -92,7 +92,7 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // questions for reviewing a session
+  // questions for reviewing a session (send the correct flag)
   Meteor.publish('questions.forReview', function (sessionId) {
     if (this.userId) {
       return Questions.find({ sessionId: sessionId })
@@ -100,6 +100,8 @@ if (Meteor.isServer) {
   })
 
   // questions in a specific session
+  // TODO: For Short answer, cannot send options[0].content, since that is the solution!!!
+  // TODO: Should move the solution to options.correct for SA???
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})

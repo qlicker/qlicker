@@ -63,6 +63,7 @@ export class _QuestionDisplay extends Component {
   }
 
 
+
   componentWillReceiveProps (nextProps){
     const isNewQuestion = (this.props.question._id !== nextProps.question._id) ||
                           (this.state.questionId !== nextProps.question._id)
@@ -437,29 +438,30 @@ export class _QuestionDisplay extends Component {
       // return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
       return (
         <div>
+          {this.props.myresponse ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) : ''}
           {q.options[0].content
-            ? <h4 style={{'alignSelf': 'left'}}>{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
+            ? <h4 style={{'alignSelf': 'left'}}> Correct Answer: <br />{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
           : ''
         }</div>
       )
     }
 
-    let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
+    let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].content
 
     return (
       <div className='ql-answer-content-container ql-short-answer' >
-        { showAns ? <h4>Correct Answer: {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
-
-        { this.readonly ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
-        : <div className={'small-editor-wrapper col-md-12'}>
-          <Editor
-            change={this.setShortAnswerWysiwyg}
-            placeholder='Type your answer here'
-            val={this.state.submittedAnswerWysiwyg}
-            className='answer-editor'
-            />
-        </div>
+        { this.readonly
+          ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
+          : <div className={'small-editor-wrapper col-md-12'}>
+              <Editor
+                change={this.setShortAnswerWysiwyg}
+                placeholder='Type your answer here'
+                val={this.state.submittedAnswerWysiwyg}
+                className='answer-editor'
+                />
+            </div>
         }
+        { showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
       </div>
     )
   }
@@ -527,6 +529,7 @@ export const QuestionDisplay = createContainer((props) => {
   const attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
   // Get the responses for that attempt:
   responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
+  // myresponse is either the user's response in a live session, or the response passed as a prop
   const myresponse = props.response
                     ? props.response
                     : _(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
@@ -569,7 +572,7 @@ export const QuestionDisplay = createContainer((props) => {
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
-  response: PropTypes.object,
+  response: PropTypes.object, // response to display with the question
   readonly: PropTypes.bool,
   noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running
