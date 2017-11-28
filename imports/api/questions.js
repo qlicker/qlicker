@@ -92,9 +92,24 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // questions for reviewing a session (send the correct flag)
+  // questions for reviewing a session (sends the correct flag)
+  // only send to students if the reviewable flag is turned on
   Meteor.publish('questions.forReview', function (sessionId) {
     if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      const session = Sessions.findOne({_id: sessionId})
+
+      if (user.hasRole(ROLES.admin) || user.isInstructor(session.courseId)){
+        return Questions.find({ sessionId: sessionId })
+      }
+      if (user.hasRole(ROLES.student){
+        if (session.reviewable){
+          return Questions.find({ sessionId: sessionId })
+        } else{
+          return this.ready()
+        }
+      }
+
       return Questions.find({ sessionId: sessionId })
     } else this.ready()
   })
