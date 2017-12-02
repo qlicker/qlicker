@@ -176,7 +176,7 @@ Meteor.methods({
     const user = Meteor.user()
 
     if ( !user.hasRole(ROLES.admin) &&
-         !user.isInstructorAnyCourse() ) {
+         !user.isInstructor(grade.courseId) ) {
       throw new Meteor.Error('not-authorized')
     }
 
@@ -196,7 +196,7 @@ Meteor.methods({
     const user = Meteor.user()
 
     if ( !user.hasRole(ROLES.admin) &&
-         !user.isInstructorAnyCourse() ) {
+         !user.isInstructor(grade.courseId)  ) {
       throw new Meteor.Error('not-authorized')
     }
 
@@ -208,6 +208,56 @@ Meteor.methods({
     else throw Error('Unable to update')
   },
 
+  /**
+   * Update points for a mark in a grade item and recalulate grade point sum
+   * @param {MongoId} gradeId - grade object with id
+   * @param {Number} points- new value of the points for that grade
+   */
+  'grades.setMarkPoints' (gradeId, questionId, points) {
+    check(gradeId, Helpers.MongoID)
+    check(questionId, Helpers.MongoID)
+    check(points, Number)
+
+    let grade = Grades.findOne({ _id:gradeId })
+    const user = Meteor.user()
+
+    if ( !user.hasRole(ROLES.admin) &&
+         !user.isInstructor(grade.courseId)  ) {
+      throw new Meteor.Error('not-authorized')
+    }
+
+    let marks = grade.marks
+    let mark = _(marks).findWhere({ questionId:questionId })
+
+    if (mark){
+      mark.points = points
+      mark.automatic = false
+      // now recalculate the grade for the session
+      let gradePoints = 0
+      for (let i = 0; i < marks.length; i++){
+        gradePoints += marks[i].points
+      }
+
+      let gradeValue = 0
+      if(gradePoints > 0) {
+        if(grade.outOf > 0){
+          gradeValue = (100 * gradePoints/grade.outOf)
+        }else{
+          gradeValue = 100
+        }
+      }
+      grade.value = gradeValue
+      Meteor.call('grades.update', grade)
+      return grade
+    } else {
+      throw Error('questionId not in grade item')
+    }
+  },
+
+  /**
+   * Calculate all grades for a session
+   * @param {MongoID} sessionId - session ID
+   */
   'grades.calcSessionGrades' (sessionId){
     const user = Meteor.user()
     const sess = Sessions.findOne({ _id: sessionId})

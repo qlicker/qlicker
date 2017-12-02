@@ -1,7 +1,40 @@
+@import '../variables.scss';
+
 
 .ql-modal-gradeview {
   padding-left: 10px;
   padding-bottom: 10px;
   font-size: 130%;
+
+  .ql-gradeview-question {
+    padding-left: 10px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    font-size: 100%;
+    display: flex;
+    flex-direction: row;
+
+
+    .ql-gradeview-question-preview {
+      text-decoration: underline;
+      text-decoration-color: $blue;
+      &:hover {
+        font-weight: bold;
+        cursor: pointer;
+        color: $blue;
+      }
+    }
+    .ql-gradeview-question-points {
+      display: flex;
+      flex-direction: row;
+      a {
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+    }
+
+  }
 
 }

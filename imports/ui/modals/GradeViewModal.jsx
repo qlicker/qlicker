@@ -13,6 +13,8 @@ import { Responses } from '../../api/responses'
 
 import { QuestionWithResponse } from '../QuestionWithResponse'
 
+import { ROLES } from '../../configs'
+
 /**
  * modal dialog to prompt for new email addresss
  * @augments ControlledForm
@@ -34,27 +36,59 @@ export class _GradeViewModal extends ControlledForm {
     this.state = {
       previewQuestion: false,
       questionToView: firstQ,
-      responsesToView: responsesToView
+      responsesToView: responsesToView,
+      markToEdit: 0,
+      newMarkPoints: 0,
+      grade: this.props.grade,
     }
 
     this.setPreviewQuestion = this.setPreviewQuestion.bind(this)
     this.togglePreviewQuestion = this.togglePreviewQuestion.bind(this)
+    this.toggleMarkEditable = this.toggleMarkEditable.bind(this)
+    this.setMarkPoints = this.setMarkPoints.bind(this)
+    this.updateMark = this.updateMark.bind(this)
   }
 
+  // set which question to show in the preview
   setPreviewQuestion (question = null) {
     const responsesToView = question
       ? _(this.props.responses).where({ questionId: question._id })
       : null
     this.setState({ previewQuestion:true, questionToView: question, responsesToView: responsesToView })
   }
+
+  // toggle whether to show a question in the preview
   togglePreviewQuestion () {
     this.setState({ previewQuestion:!this.state.previewQuestion })
   }
 
+  // toggle whether to make one of the marks editable (set to 0 to make non editable)
+  toggleMarkEditable (qId) {
+    this.setState({ markToEdit:qId })
+  }
+
+  setMarkPoints (e) {
+    newPoints = Number(e.target.value)
+    this.setState({ newMarkPoints:newPoints })
+  }
+
+  updateMark (qId, points) {
+    Meteor.call('grades.setMarkPoints', this.props.grade._id, qId, points, (err, grade) => {
+      if (err) return alertify.error('Error: ' + err.error)
+      alertify.success('Mark updated')
+      this.setState({ grade:grade })
+      this.toggleMarkEditable(0)
+    })
+  }
+
+
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    const grade = this.props.grade
+    const grade = this.state.grade
     const student = this.props.student
+    const user =  Meteor.user()
+    const canEdit = user.hasGreaterRole(ROLES.admin) || user.isInstructor(this.props.courseId)
+
     let questionCount = 0
     return ( grade ?
        <div className='ql-modal-container'  >
@@ -72,14 +106,39 @@ export class _GradeViewModal extends ControlledForm {
                   {
                     grade.marks.map((mark) => {
                       questionCount +=1
-                      const autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
-                      const question = _(this.props.questions).findWhere({ _id:mark.questionId})
+                      let autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
+                      const question = _(this.props.questions).findWhere({ _id:mark.questionId })
+                      const responses = _(this.props.responses).where({ questionId:mark.questionId })
+                      if (!responses || responses.length < 1){
+                        autoText = "(no response)"
+                      }
+
                       const onClick = () => this.setPreviewQuestion(question)
-                      return ( <div key={mark.questionId}>
-                         <a onClick={onClick}>
-                           Q{questionCount}
-                         </a>
-                          {mark.points} out of {mark.outOf} on attempt {mark.attempt} {autoText}
+                      const toggleMarkEditable = () => this.toggleMarkEditable(mark.questionId)
+                      const cancelEditing = () => this.toggleMarkEditable(0)
+                      const udpateMark = () => this.updateMark(mark.questionId, this.state.newMarkPoints)
+
+                      return ( <div key={mark.questionId} className='ql-gradeview-question'>
+                         <div className='ql-gradeview-question-preview' onClick={onClick}>
+                           Question {questionCount}:
+                         </div>
+                         <div className='ql-gradeview-question-points'>
+                           { (this.state.markToEdit === mark.questionId) && canEdit
+                             ? <form  ref='editMarkForm' >
+                                <input type='text' onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points}></input>
+                                out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp;<a onClick={cancelEditing}>cancel</a>
+                                  &nbsp;&nbsp; <a onClick={udpateMark}>submit</a>
+                               </form>
+
+                             : <div>
+                                &nbsp;&nbsp;{mark.points} out of {mark.outOf} on attempt {mark.attempt} {autoText}&nbsp;
+                                 { canEdit
+                                    ? <a onClick={toggleMarkEditable}>edit</a>
+                                    : ''
+                                 }
+                               </div>
+                          }
+                        </div>
                        </div>)
                     })
                   }
@@ -130,7 +189,8 @@ export const GradeViewModal = createContainer((props) => {
     grade: grade,
     student: student,
     questions: questions,
-    responses: responses
+    responses: responses,
+    courseId: courseId
   }
 }, _GradeViewModal)
 

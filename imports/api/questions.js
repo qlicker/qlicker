@@ -102,8 +102,8 @@ if (Meteor.isServer) {
       if (user.hasRole(ROLES.admin) || user.isInstructor(session.courseId)){
         return Questions.find({ sessionId: sessionId })
       }
-      if (user.hasRole(ROLES.student){
-        if (session.reviewable){
+      if (user.hasRole(ROLES.student)) {
+        if (session.reviewable) {
           return Questions.find({ sessionId: sessionId })
         } else{
           return this.ready()

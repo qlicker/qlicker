@@ -22,6 +22,9 @@ import { GradeViewModal } from './modals/GradeViewModal'
 
 import { ControlledForm } from './ControlledForm'
 
+import { ROLES } from '../configs'
+
+
 /**
  * React Component (meteor reactive) to display Question object and send question reponses.
  * @prop {Id} courseId - Id of course to show
@@ -268,7 +271,10 @@ export const GradeTable = createContainer((props) => {
     students = _(students).sortBy( (entry) => {return entry.profile.lastname.toLowerCase()})
 
     const sessionQuery = { courseId: course._id }
-    if (user.hasRole('student')) sessionQuery.status = { $ne: 'hidden' }
+    if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(props.courseId)){
+       sessionQuery.status = { $ne: 'hidden' }
+       sessionQuery.reviewable = true
+     }
     sessions = Sessions.find(sessionQuery, { sort: { date: 1 } }).fetch()
 
   }
