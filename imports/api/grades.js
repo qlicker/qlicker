@@ -36,6 +36,7 @@ const gradePattern = {
   joined: Match.Maybe(Boolean), //whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
   value: Match.Maybe(Number), // calculated value of grade
+  automatic: Math.Maybe(Bool), // whether the grade was set automatically (in case it was manually overridden)
   points: Match.Maybe(Number), // number of points obtained
   outOf: Match.Maybe(Number),// total number of points available
   numAnswered: Match.Maybe(Number), // number of questions worth points answered
@@ -246,7 +247,10 @@ Meteor.methods({
           gradeValue = 100
         }
       }
-      grade.value = gradeValue
+      grade.points = gradePoints
+      if( grade.automatic ){
+        grade.value = gradeValue
+      }
       Meteor.call('grades.update', grade)
       return grade
     } else {

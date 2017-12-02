@@ -81,7 +81,8 @@ export class _GradeViewModal extends ControlledForm {
     })
   }
 
-
+// TODO: Add an option to auto-grade if it was manually graded!
+// TODO: Add an option to edit the overal grade
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const grade = this.state.grade
