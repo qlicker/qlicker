@@ -10,10 +10,11 @@ import { ControlledForm } from '../ControlledForm'
 import { Sessions } from '../../api/sessions'
 import { Questions } from '../../api/questions'
 import { Responses } from '../../api/responses'
+import { Grades } from '../../api/grades'
 
 import { QuestionWithResponse } from '../QuestionWithResponse'
 
-import { ROLES } from '../../configs'
+import { ROLES, QUESTION_TYPE } from '../../configs'
 
 /**
  * modal dialog to prompt for new email addresss
@@ -47,6 +48,7 @@ export class _GradeViewModal extends ControlledForm {
     this.toggleMarkEditable = this.toggleMarkEditable.bind(this)
     this.setMarkPoints = this.setMarkPoints.bind(this)
     this.updateMark = this.updateMark.bind(this)
+    this.autogradeMark = this.autogradeMark
   }
 
   // set which question to show in the preview
@@ -73,11 +75,18 @@ export class _GradeViewModal extends ControlledForm {
   }
 
   updateMark (qId, points) {
-    Meteor.call('grades.setMarkPoints', this.props.grade._id, qId, points, (err, grade) => {
+    Meteor.call('grades.setMarkPoints', this.props.grade._id, qId, points, (err) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Mark updated')
-      this.setState({ grade:grade })
+      //this.setState({ grade:grade })
       this.toggleMarkEditable(0)
+    })
+  }
+
+  autogradeMark (qId) {
+    Meteor.call('grades.setMarkAutomatic', this.props.grade._id, qId, (err) => {
+      if (err) return alertify.error('Error: ' + err.error)
+      alertify.success('Mark updated')
     })
   }
 
@@ -85,7 +94,7 @@ export class _GradeViewModal extends ControlledForm {
 // TODO: Add an option to edit the overal grade
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    const grade = this.state.grade
+    const grade = this.props.grade
     const student = this.props.student
     const user =  Meteor.user()
     const canEdit = user.hasGreaterRole(ROLES.admin) || user.isInstructor(this.props.courseId)
@@ -109,6 +118,11 @@ export class _GradeViewModal extends ControlledForm {
                       questionCount +=1
                       let autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
                       const question = _(this.props.questions).findWhere({ _id:mark.questionId })
+                      const autoGradeable = question && (question.type === QUESTION_TYPE.MC ||
+                                                         question.type === QUESTION_TYPE.TF ||
+                                                         question.type === QUESTION_TYPE.MS)
+
+                      const offerToAutograde = autoGradeable && !mark.automatic
                       const responses = _(this.props.responses).where({ questionId:mark.questionId })
                       if (!responses || responses.length < 1){
                         autoText = "(no response)"
@@ -118,23 +132,30 @@ export class _GradeViewModal extends ControlledForm {
                       const toggleMarkEditable = () => this.toggleMarkEditable(mark.questionId)
                       const cancelEditing = () => this.toggleMarkEditable(0)
                       const udpateMark = () => this.updateMark(mark.questionId, this.state.newMarkPoints)
+                      const autogradeMark = () => this.autogradeMark(mark.questionId)
 
                       return ( <div key={mark.questionId} className='ql-gradeview-question'>
                          <div className='ql-gradeview-question-preview' onClick={onClick}>
-                           Question {questionCount}:
+                           Question {questionCount} :
                          </div>
                          <div className='ql-gradeview-question-points'>
                            { (this.state.markToEdit === mark.questionId) && canEdit
                              ? <form  ref='editMarkForm' >
                                 <input type='text' onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points}></input>
-                                out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp;<a onClick={cancelEditing}>cancel</a>
-                                  &nbsp;&nbsp; <a onClick={udpateMark}>submit</a>
+                                out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
+                                &nbsp;&nbsp;<a onClick={cancelEditing}>cancel</a>
                                </form>
 
                              : <div>
                                 &nbsp;&nbsp;{mark.points} out of {mark.outOf} on attempt {mark.attempt} {autoText}&nbsp;
                                  { canEdit
-                                    ? <a onClick={toggleMarkEditable}>edit</a>
+                                    ? <div>
+                                        <a onClick={toggleMarkEditable}>edit</a>
+                                        { offerToAutograde
+                                        ? <a onClick={autogradeMark}> auto-grade</a>
+                                        : ''
+                                        }
+                                      </div>
                                     : ''
                                  }
                                </div>
@@ -169,21 +190,25 @@ export class _GradeViewModal extends ControlledForm {
 export const GradeViewModal = createContainer((props) => {
   const courseId = props.grade.courseId
   const sessionId = props.grade.sessionId
-  const grade = props.grade
-  const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
+//  const grade = props.grade
+  const handle = Meteor.subscribe('users.myStudents', {cId: courseId}) &&
                  Meteor.subscribe('questions.inSession', sessionId) &&
                  Meteor.subscribe('sessions') &&
-                 Meteor.subscribe('responses.forSession', sessionId)
+                 Meteor.subscribe('responses.forSession', sessionId) &&
+                 Meteor.subscribe('grades.single', props.grade._id)
 
-  const student = Meteor.users.findOne({ _id:grade.userId })
+
   const session = Sessions.findOne({ _id:sessionId })
+  const grade = Grades.findOne({ _id: props.grade._id})
+  const student = Meteor.users.findOne({ _id:props.grade.userId })
+
   // overkill to sort the questions...
   let questions = []
   session.questions.forEach( (qId) => {
     questions.push( Questions.findOne({ _id:qId }) )
   })
   const questionIds = _(questions).pluck("_id")
-  const responses = Responses.find({ questionId: { $in:questionIds }, studentUserId:grade.userId }, { sort: { attempt: 1 } }).fetch()
+  const responses = Responses.find({ questionId: { $in:questionIds }, studentUserId:props.grade.userId }, { sort: { attempt: 1 } }).fetch()
 
   return {
     loading: !handle.ready(),

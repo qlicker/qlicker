@@ -28,6 +28,7 @@ const gradePattern = {
   name: Match.Maybe(String),// name of grade (defaults to session name)
   marks: Match.Maybe([ { // a set of marks that result in the grade
     questionId: Match.Maybe(Helpers.NEString), //Id of question
+    responseId: Match.Maybe(Helpers.NEString), //Id of response used to calculate points
     attempt: Match.Maybe(Number), //attempt for that question
     points: Match.Maybe(Number), // value of the mark for that question
     outOf: Match.Maybe(Number), // value of the mark for that question
@@ -36,7 +37,7 @@ const gradePattern = {
   joined: Match.Maybe(Boolean), //whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
   value: Match.Maybe(Number), // calculated value of grade
-  automatic: Math.Maybe(Bool), // whether the grade was set automatically (in case it was manually overridden)
+  automatic: Match.Maybe(Boolean), // whether the grade was set automatically (in case it was manually overridden)
   points: Match.Maybe(Number), // number of points obtained
   outOf: Match.Maybe(Number),// total number of points available
   numAnswered: Match.Maybe(Number), // number of questions worth points answered
@@ -65,6 +66,20 @@ if (Meteor.isServer) {
         return Grades.find({ courseId: { $in: courses || [] } }) // finds all the course owned
       } else {
         return Grades.find({ userId: this.userId, visibleToStudents: true } )
+      }
+    } else this.ready()
+  })
+
+  Meteor.publish('grades.single', function (gradeId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      if (user.hasGreaterRole(ROLES.admin)) {
+        return Grades.find({ _id:gradeId })
+      } else if (user.isInstructorAnyCourse()) {
+        const courses = user.coursesInstructed()
+        return Grades.find({ _id:gradeId, courseId: { $in: courses || [] } }) // finds all the course owned
+      } else {
+        return Grades.find({ _id:gradeId, userId: this.userId, visibleToStudents: true } )
       }
     } else this.ready()
   })
@@ -157,13 +172,11 @@ export const calculateResponsePoints = (response) => {
   return mark*points
  }
 
-
 /**
  * Meteor methods for grades object
  * @module grades
  */
 Meteor.methods({
-
   /**
    * insert new course object into Courses mongodb Collection
    * @param {Grade} grade - grade object without id
@@ -210,8 +223,64 @@ Meteor.methods({
   },
 
   /**
+   * Update points for an existing grade
+   * @param {MongoId} grade - grade object with id
+   */
+  'grades.updatePoints' (grade) {
+    check(grade, gradePattern)
+
+    const marks = grade.marks
+    let gradePoints = 0
+    for (let i = 0; i < marks.length; i++){
+      gradePoints += marks[i].points
+    }
+
+    let gradeValue = 0
+    if(gradePoints > 0) {
+      if(grade.outOf > 0){
+        gradeValue = (100 * gradePoints/grade.outOf)
+      }else{
+        gradeValue = 100
+      }
+    }
+    grade.points = gradePoints
+    if( grade.automatic ){
+      grade.value = gradeValue
+    }
+    Meteor.call('grades.update', grade)
+  },
+
+  'grades.setMarkAutomatic' (gradeId, questionId) {
+    check(gradeId, Helpers.MongoID)
+    check(questionId, Helpers.MongoID)
+
+    let grade = Grades.findOne({ _id:gradeId })
+    const user = Meteor.user()
+
+    if ( !user.hasRole(ROLES.admin) &&
+         !user.isInstructor(grade.courseId)  ) {
+      throw new Meteor.Error('not-authorized')
+    }
+
+    let marks = grade.marks
+    let mark = _(marks).findWhere({ questionId:questionId })
+
+    if (mark){
+      const response = Responses.findOne({ _id: mark.responseId})
+      mark.points = calculateResponsePoints(response)
+      mark.automatic = true
+      Meteor.call('grades.updatePoints', grade)
+
+    } else {
+      throw Error('questionId not in grade item')
+    }
+
+  },
+
+  /**
    * Update points for a mark in a grade item and recalulate grade point sum
    * @param {MongoId} gradeId - grade object with id
+   * @param {MongoId} questionId - the id of the question for which to set the mark points
    * @param {Number} points- new value of the points for that grade
    */
   'grades.setMarkPoints' (gradeId, questionId, points) {
@@ -233,26 +302,7 @@ Meteor.methods({
     if (mark){
       mark.points = points
       mark.automatic = false
-      // now recalculate the grade for the session
-      let gradePoints = 0
-      for (let i = 0; i < marks.length; i++){
-        gradePoints += marks[i].points
-      }
-
-      let gradeValue = 0
-      if(gradePoints > 0) {
-        if(grade.outOf > 0){
-          gradeValue = (100 * gradePoints/grade.outOf)
-        }else{
-          gradeValue = 100
-        }
-      }
-      grade.points = gradePoints
-      if( grade.automatic ){
-        grade.value = gradeValue
-      }
-      Meteor.call('grades.update', grade)
-      return grade
+      Meteor.call('grades.updatePoints', grade)
     } else {
       throw Error('questionId not in grade item')
     }
@@ -263,6 +313,7 @@ Meteor.methods({
    * @param {MongoID} sessionId - session ID
    */
   'grades.calcSessionGrades' (sessionId){
+
     const user = Meteor.user()
     const sess = Sessions.findOne({ _id: sessionId})
     const courseId = sess ? sess.courseId: ''
@@ -320,6 +371,7 @@ Meteor.methods({
       participation: 0,
       value: 0,
       points: 0,
+      automatic: true,
       outOf: 0,
       numAnswered: 0,
       numQuestions: 0,
@@ -330,6 +382,7 @@ Meteor.methods({
     for(let is = 0; is < studentIds.length; is++){
       let studentId = studentIds[is]
       let existingGrade = Grades.findOne({ userId: studentId, courseId: courseId, sessionId:sessionId})
+
       let grade = existingGrade ? existingGrade : defaultGrade
 
       let marks = []
@@ -346,10 +399,12 @@ Meteor.methods({
         let response = _.max(studentResponses, (resp) => { return resp.attempt })
         let markPoints = 0
         let attempt = 0
+        let responseId = "0"
 
         if(response.attempt){
           attempt = response.attempt
-          //markPoints = stats.calculateResponseGrade(response, question)
+          responseId = response._id
+            //markPoints = stats.calculateResponseGrade(response, question)
           numAnsweredTotal += 1
           if(markOutOf[iq] > 0){
             markPoints = calculateResponsePoints(response)
@@ -368,6 +423,7 @@ Meteor.methods({
 
         let mark = {
           questionId: question._id,
+          responseId: responseId,
           attempt: attempt,
           points: markPoints,
           outOf: markOutOf[iq],
