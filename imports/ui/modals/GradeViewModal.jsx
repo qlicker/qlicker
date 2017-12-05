@@ -152,10 +152,10 @@ export class _GradeViewModal extends ControlledForm {
                         &nbsp; <a onClick={updateGrade}>submit</a>
                         &nbsp;&nbsp;<a onClick={toggleGradeEditable}>cancel</a>
                       </form>
-                    : <div className='ql.same-row'>
+                    : <div >
                          Grade: {grade.value}% ({grade.points} out of {grade.outOf}) {gradeAutoText}
                          {canEdit
-                           ? <div className='ql.same-row'>
+                           ? <div className='ql-gradeview-row'>
                                <a onClick={toggleGradeEditable}>edit</a>
                                { !grade.automatic
                                  ? <div> &nbsp;&nbsp; <a onClick={this.autogradeGrade}>auto-grade</a></div>
@@ -185,14 +185,14 @@ export class _GradeViewModal extends ControlledForm {
                         autoText = "(no response)"
                       }
 
-                      const onClick = () => this.setPreviewQuestion(question)
+                      const previewQuestion = () => this.setPreviewQuestion(question)
                       const toggleMarkEditable = () => this.toggleMarkEditable(mark.questionId)
                       const cancelEditing = () => this.toggleMarkEditable(0)
                       const udpateMark = () => this.updateMark(mark.questionId, this.state.newMarkPoints)
                       const autogradeMark = () => this.autogradeMark(mark.questionId)
 
                       return ( <div key={mark.questionId} className='ql-gradeview-question'>
-                         <div className='ql-gradeview-question-preview' onClick={onClick}>
+                         <div className='ql-gradeview-question-preview' onClick={previewQuestion}>
                            Question {questionCount} :
                          </div>
                          <div className='ql-gradeview-question-points'>

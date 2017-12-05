@@ -10,10 +10,11 @@
       cursor: pointer;
   }
 
-  .ql.same-row {
+  .ql-gradeview-row {
     display: flex;
     flex-direction: row;
   }
+
   .ql-gradeview-question {
     padding-left: 10px;
     padding-bottom: 2px;
