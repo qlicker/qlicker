@@ -36,9 +36,9 @@ const gradePattern = {
   } ]),
   joined: Match.Maybe(Boolean), //whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
-  value: Match.Maybe(Number), // calculated value of grade
-  automatic: Match.Maybe(Boolean), // whether the grade was set automatically (in case it was manually overridden)
-  points: Match.Maybe(Number), // number of points obtained
+  value: Match.Maybe(Number), // calculated value of grade, can be manually overridden
+  automatic: Match.Maybe(Boolean), // whether the grade was set automatically or manually overidden
+  points: Match.Maybe(Number), // number of points obtained, always calculated automatically
   outOf: Match.Maybe(Number),// total number of points available
   numAnswered: Match.Maybe(Number), // number of questions worth points answered
   numQuestions: Match.Maybe(Number), // number of questions worth points
@@ -255,6 +255,9 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     let grade = Grades.findOne({ _id:gradeId })
+    if (!grade){
+      throw Error('No grade with this id')
+    }
     const user = Meteor.user()
 
     if ( !user.hasRole(ROLES.admin) &&
@@ -274,9 +277,25 @@ Meteor.methods({
     } else {
       throw Error('questionId not in grade item')
     }
-
   },
 
+  'grades.setGradeAutomatic' (gradeId) {
+    check(gradeId, Helpers.MongoID)
+
+    let grade = Grades.findOne({ _id:gradeId })
+    if (!grade){
+      throw Error('No grade with this id')
+    }
+    const user = Meteor.user()
+
+    if ( !user.hasRole(ROLES.admin) &&
+         !user.isInstructor(grade.courseId)  ) {
+      throw new Meteor.Error('not-authorized')
+    }
+
+    grade.automatic = true
+    Meteor.call('grades.updatePoints', grade)
+  },
   /**
    * Set the grade value directly
    * @param {MongoId} gradeId - grade object with id
@@ -287,6 +306,10 @@ Meteor.methods({
     check(value, Number)
 
     let grade = Grades.findOne({ _id:gradeId })
+    if (!grade){
+      throw Error('No grade with this id')
+    }
+
     const user = Meteor.user()
 
     if ( !user.hasRole(ROLES.admin) &&
@@ -311,6 +334,10 @@ Meteor.methods({
     check(points, Number)
 
     let grade = Grades.findOne({ _id:gradeId })
+    if (!grade){
+      throw Error('No grade with this id')
+    }
+
     const user = Meteor.user()
 
     if ( !user.hasRole(ROLES.admin) &&

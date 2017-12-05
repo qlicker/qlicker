@@ -53,7 +53,7 @@ export class _GradeViewModal extends ControlledForm {
     this.updateMark = this.updateMark.bind(this)
     this.setGradeValue = this.setGradeValue.bind(this)
     this.updateGrade = this.updateGrade.bind(this)
-    //this.autograde = this.autograde.bind(this)
+    this.autogradeGrade = this.autogradeGrade.bind(this)
     this.autogradeMark = this.autogradeMark
   }
 
@@ -107,10 +107,18 @@ export class _GradeViewModal extends ControlledForm {
       this.toggleGradeEditable()
     })
   }
+
   autogradeMark (qId) {
     Meteor.call('grades.setMarkAutomatic', this.props.grade._id, qId, (err) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Mark updated')
+    })
+  }
+
+  autogradeGrade () {
+    Meteor.call('grades.setGradeAutomatic', this.props.grade._id, (err) => {
+      if (err) return alertify.error('Error: ' + err.error)
+      alertify.success('Grade updated')
     })
   }
 
@@ -144,8 +152,18 @@ export class _GradeViewModal extends ControlledForm {
                         &nbsp; <a onClick={updateGrade}>submit</a>
                         &nbsp;&nbsp;<a onClick={toggleGradeEditable}>cancel</a>
                       </form>
-                    : <div>
-                         Grade: {grade.value}% ({grade.points} out of {grade.outOf} {gradeAutoText}) <a onClick={toggleGradeEditable}>edit</a><br />
+                    : <div className='ql.same-row'>
+                         Grade: {grade.value}% ({grade.points} out of {grade.outOf}) {gradeAutoText}
+                         {canEdit
+                           ? <div className='ql.same-row'>
+                               <a onClick={toggleGradeEditable}>edit</a>
+                               { !grade.automatic
+                                 ? <div> &nbsp;&nbsp; <a onClick={this.autogradeGrade}>auto-grade</a></div>
+                                : ''
+                               }
+                             </div>
+                           : ''
+                         }
                       </div>
                   }
                   Participation: {grade.participation}% ({grade.joined ? "joined" : "did not join" }) <br />
