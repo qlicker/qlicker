@@ -5,6 +5,10 @@
   padding-left: 10px;
   padding-bottom: 10px;
   font-size: 130%;
+  a {
+    &:hover {
+      cursor: pointer;
+  }
 
   .ql-gradeview-question {
     padding-left: 10px;
@@ -27,10 +31,6 @@
     .ql-gradeview-question-points {
       display: flex;
       flex-direction: row;
-      a {
-        &:hover {
-          cursor: pointer;
-        }
       }
 
     }

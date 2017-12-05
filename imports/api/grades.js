@@ -278,7 +278,29 @@ Meteor.methods({
   },
 
   /**
-   * Update points for a mark in a grade item and recalulate grade point sum
+   * Set the grade value directly
+   * @param {MongoId} gradeId - grade object with id
+   * @param {Number} value- new value for the grade
+   */
+  'grades.setGradeValue' (gradeId, value) {
+    check(gradeId, Helpers.MongoID)
+    check(value, Number)
+
+    let grade = Grades.findOne({ _id:gradeId })
+    const user = Meteor.user()
+
+    if ( !user.hasRole(ROLES.admin) &&
+         !user.isInstructor(grade.courseId)  ) {
+      throw new Meteor.Error('not-authorized')
+    }
+
+    grade.value = value
+    grade.automatic = false
+    Meteor.call('grades.updatePoints', grade)
+  },
+
+  /**
+   * Set points for a mark in a grade item and recalulate grade point sum
    * @param {MongoId} gradeId - grade object with id
    * @param {MongoId} questionId - the id of the question for which to set the mark points
    * @param {Number} points- new value of the points for that grade

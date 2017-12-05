@@ -41,13 +41,19 @@ export class _GradeViewModal extends ControlledForm {
       markToEdit: 0,
       newMarkPoints: 0,
       grade: this.props.grade,
+      editGrade: false,
+      newGradeValue: 0,
     }
 
     this.setPreviewQuestion = this.setPreviewQuestion.bind(this)
     this.togglePreviewQuestion = this.togglePreviewQuestion.bind(this)
     this.toggleMarkEditable = this.toggleMarkEditable.bind(this)
+    this.toggleGradeEditable = this.toggleGradeEditable.bind(this)
     this.setMarkPoints = this.setMarkPoints.bind(this)
     this.updateMark = this.updateMark.bind(this)
+    this.setGradeValue = this.setGradeValue.bind(this)
+    this.updateGrade = this.updateGrade.bind(this)
+    //this.autograde = this.autograde.bind(this)
     this.autogradeMark = this.autogradeMark
   }
 
@@ -69,9 +75,19 @@ export class _GradeViewModal extends ControlledForm {
     this.setState({ markToEdit:qId })
   }
 
+  toggleGradeEditable () {
+    this.setState({ editGrade:!this.state.editGrade })
+  }
+
+
   setMarkPoints (e) {
     newPoints = Number(e.target.value)
     this.setState({ newMarkPoints:newPoints })
+  }
+
+  setGradeValue (e) {
+    newValue = Number(e.target.value)
+    this.setState({ newGradeValue:newValue })
   }
 
   updateMark (qId, points) {
@@ -83,6 +99,14 @@ export class _GradeViewModal extends ControlledForm {
     })
   }
 
+  updateGrade (value) {
+    Meteor.call('grades.setGradeValue', this.props.grade._id, value, (err) => {
+      if (err) return alertify.error('Error: ' + err.error)
+      alertify.success('Grade updated')
+      //this.setState({ grade:grade })
+      this.toggleGradeEditable()
+    })
+  }
   autogradeMark (qId) {
     Meteor.call('grades.setMarkAutomatic', this.props.grade._id, qId, (err) => {
       if (err) return alertify.error('Error: ' + err.error)
@@ -98,6 +122,10 @@ export class _GradeViewModal extends ControlledForm {
     const student = this.props.student
     const user =  Meteor.user()
     const canEdit = user.hasGreaterRole(ROLES.admin) || user.isInstructor(this.props.courseId)
+    const gradeAutoText =  grade.automatic ? "(auto-graded)": "(manually overridden)"
+
+    const toggleGradeEditable = () => this.toggleGradeEditable()
+    const updateGrade = () => this.updateGrade(this.state.newGradeValue)
 
     let questionCount = 0
     return ( grade ?
@@ -108,7 +136,18 @@ export class _GradeViewModal extends ControlledForm {
               <div className='row'>
 
                 <div className='ql-modal-gradeview'>
-                  Grade: {grade.value}% ({grade.points} out of {grade.outOf})<br />
+                    {this.state.editGrade
+                    ?  <form  ref='editGradeForm' >
+                       Grade:
+                       <input type='text' onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
+                       % ({grade.points} out of {grade.outOf} {gradeAutoText})
+                        &nbsp; <a onClick={updateGrade}>submit</a>
+                        &nbsp;&nbsp;<a onClick={toggleGradeEditable}>cancel</a>
+                      </form>
+                    : <div>
+                         Grade: {grade.value}% ({grade.points} out of {grade.outOf} {gradeAutoText}) <a onClick={toggleGradeEditable}>edit</a><br />
+                      </div>
+                  }
                   Participation: {grade.participation}% ({grade.joined ? "joined" : "did not join" }) <br />
                   Questions answered total: {grade.numAnsweredTotal} (out of {grade.numQuestionsTotal}) <br />
                   Questions worth points answered: {grade.numAnswered} (out of {grade.numQuestions})  <br />
