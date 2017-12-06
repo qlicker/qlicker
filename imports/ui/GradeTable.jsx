@@ -12,6 +12,8 @@ import { _ } from 'underscore'
 import {Table, Column, Cell} from 'fixed-data-table-2'
 import 'fixed-data-table-2/dist/fixed-data-table.css'
 
+import { CSVLink } from 'react-csv'
+
 import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 import { Grades } from '../api/grades'
@@ -187,10 +189,13 @@ export class _GradeTable extends ControlledForm {
     const GradeCell = ({rowIndex, sessionId}) => {
       const grades = tableData[rowIndex].grades
       const grade = _(grades).findWhere({ sessionId: sessionId})
+      const cellClass = grade.automatic
+                        ? 'ql-grade-cell'
+                        : 'ql-grade-cell-manual'
       const onClick = () => this.toggleGradeViewModal(grade)
       return ( grade ?
         <Cell onClick = {onClick}>
-          <div className='ql-grade-cell'>
+          <div className={cellClass}>
             {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
           </div>
         </Cell> :
@@ -198,12 +203,36 @@ export class _GradeTable extends ControlledForm {
       )
     }
 
+   // Setup data for CSV downloader:
+   let cvsHeaders = ['Last name', 'First name', 'Email', 'Particpation']
+
+   sessions.forEach((s) => {
+     cvsHeaders.push(s.name + ' Participation')
+     cvsHeaders.push(s.name + ' Mark')
+   })
+
+   let csvData = this.props.tableData.map((tableRow) => {
+     let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.participation]
+     tableRow.grades.forEach((g) => {
+       row.push(g.participation)
+       row.push(g.value)
+     })
+     return row
+   })
+   const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         {isInstructor ?
-          <div onClick={this.calculateGrades} type='button' className='btn btn-secondary'>
-            Recalculate course grades
+          <div>
+            <div onClick={this.calculateGrades} type='button' className='btn btn-secondary'>
+              Recalculate course grades
+            </div>
+            <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+              <div type='button' className='btn btn-secondary'>
+                Export as .csv
+              </div>
+            </CSVLink>
           </div>
           : ''
         }
@@ -301,6 +330,9 @@ export const GradeTable = createContainer((props) => {
 
     let dataItem = {
       name: students[iStu].profile.lastname+', '+ students[iStu].profile.firstname,
+      firstName: students[iStu].profile.firstname,
+      lastName: students[iStu].profile.lastname,
+      email: students[iStu].emails[0].address,
       participation: participation.toFixed(0),
       grades: sgrades
     }
@@ -309,6 +341,7 @@ export const GradeTable = createContainer((props) => {
 
   return {
     courseId: props.courseId,
+    courseName: course.name,
     students: students,
     grades: grades,
     tableData: tableData,

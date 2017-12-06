@@ -49,7 +49,9 @@ export class _GradeView extends Component {
     this.setGradeValue = this.setGradeValue.bind(this)
     this.updateGrade = this.updateGrade.bind(this)
     this.autogradeGrade = this.autogradeGrade.bind(this)
-    this.autogradeMark = this.autogradeMark
+    this.autogradeMark = this.autogradeMark.bind(this)
+    this.handleGradeSubmit = this.handleGradeSubmit.bind(this)
+    this.handleMarkSubmit = this.handleMarkSubmit.bind(this)
   }
 
   // set which question to show in the preview
@@ -103,6 +105,16 @@ export class _GradeView extends Component {
     })
   }
 
+  handleGradeSubmit (e) {
+    e.preventDefault()
+    this.updateGrade(this.state.newGradeValue)
+  }
+
+  handleMarkSubmit (e) {
+    e.preventDefault()
+    this.updateMark(this.state.markToEdit, this.state.newMarkPoints)
+  }
+
   autogradeMark (qId) {
     Meteor.call('grades.setMarkAutomatic', this.props.grade._id, qId, (err) => {
       if (err) return alertify.error('Error: ' + err.error)
@@ -132,7 +144,7 @@ export class _GradeView extends Component {
     return ( grade ?
              <div className='ql-gradeview'>
               {this.state.editGrade
-              ?  <form  ref='editGradeForm' >
+              ?  <form  ref='editGradeForm' onSubmit={this.handleGradeSubmit} >
                  Grade:
                  <input type='text' onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
                  % ({grade.points} out of {grade.outOf} {gradeAutoText})
@@ -184,7 +196,7 @@ export class _GradeView extends Component {
                    </div>
                    <div className='ql-gradeview-question-points'>
                      { (this.state.markToEdit === mark.questionId) && canEdit
-                       ? <form  ref='editMarkForm' >
+                       ? <form  ref='editMarkForm' onSubmit={this.handleMarkSubmit}>
                           <input type='text' onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points}></input>
                           out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
                           &nbsp;&nbsp;<a onClick={cancelEditing}>cancel</a>

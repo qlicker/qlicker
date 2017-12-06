@@ -22,6 +22,15 @@
     }
   }
 
+  .ql-grade-cell-manual{
+    background: $light-red;
+    &:hover {
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+
+
   .ql-grade-table-sort-button {
      position: absolute;
      top: 0px;
