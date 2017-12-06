@@ -55,7 +55,8 @@ export class _GradeTable extends ControlledForm {
    }
 
    toggleGradeViewModal (gradeToView = null) {
-    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView })
+    const studentToView = _(this.props.students).findWhere({ _id:gradeToView.userId })
+    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView:studentToView })
    }
 
    calculateSessionGrades (sessionId) {
@@ -245,6 +246,7 @@ export class _GradeTable extends ControlledForm {
         { this.state.gradeViewModal
           ? <GradeViewModal
               grade={this.state.gradeToView}
+              student={this.state.studentToView}
               done={this.toggleGradeViewModal} />
           : '' }
       </div>
