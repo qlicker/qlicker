@@ -13,7 +13,8 @@ import { QuestionResultsClassList } from './QuestionResultsClassList'
 import { QuestionResultsListItem } from './QuestionResultsListItem'
 import { QuestionDisplay } from './QuestionDisplay'
 import { ShortAnswerList } from './ShortAnswerList'
-import { SessionResultsDownloader } from './SessionResultsDownloader'
+
+import { SessionResultsTable } from './SessionResultsTable'
 
 import { QUESTION_TYPE } from '../configs'
 
@@ -22,13 +23,11 @@ export class _SessionResults extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const total = this.props.session.joined ? this.props.session.joined.length : 0
-    return (<div>
-      <div className='row'>
-        <div className='col-md-3'>Number of students in session: { total }</div>
-        <div className='col-md-2 pull-right'>
-          <SessionResultsDownloader session={this.props.session} />
-        </div>
-      </div>
+    return (
+      <div>
+         Number of students in session: { total }
+        <SessionResultsTable session={this.props.session} />
+
       {
         this.props.session.questions.map(qId => {
           const q = this.props.questions[qId]

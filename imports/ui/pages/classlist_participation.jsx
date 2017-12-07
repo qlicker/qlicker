@@ -17,7 +17,7 @@ import { Responses } from '../../api/responses'
 import { Questions } from '../../api/questions'
 
 import { Stats } from '../../stats'
-import { CourseResultsDownloader } from '../CourseResultsDownloader'
+
 
 class _ClasslistParticipation extends Component {
 
@@ -67,9 +67,6 @@ class _ClasslistParticipation extends Component {
           <div className='ql-header-bar'>
             <div className='row'>
               <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.course.fullCourseCode()}</span>: Results (participation/grade)</h4>
-              </div>
-              <div className='col-xs-2'>
-                <span className='pull-right'><CourseResultsDownloader course={this.props.course} /></span>
               </div>
             </div>
           </div>

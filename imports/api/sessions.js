@@ -44,7 +44,7 @@ if (Meteor.isServer) {
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (Courses.findOne({ instructors: user._id })) {
+      if ( user.isInstructorAnyCourse() ) {
         const courseIdArray = user.profile.courses || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasGreaterRole(ROLES.prof)) {
@@ -52,6 +52,8 @@ if (Meteor.isServer) {
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasRole(ROLES.student)) {
         const courseIdArray = user.profile.courses || []
+        // TODO should check, but for a student, should not need to know who joined, right?
+        // return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } }, {fields: {joined: false}})
         return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } })
       }
     } else this.ready()

@@ -85,12 +85,14 @@ if (Meteor.isServer) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id }))) {
+    if (user && (user.hasGreaterRole(ROLES.prof) || user.isInstructorAnyCourse() )) {
       let studentRefs = []
       Courses.find({ instructors: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({_id: {$in: studentRefs}}, {fields: {services: false}})
+    } else if (user && user.hasGreaterRole(ROLES.student) ) {
+      return Meteor.users.find({_id: this.userId }, {fields: {services: false}})
     } else return this.ready()
   })
 
