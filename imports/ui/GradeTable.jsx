@@ -109,7 +109,10 @@ export class _GradeTable extends Component {
 
     // Grab only the rows we need if the search string is set
     let tableData = studentSearchString
-      ? _(this.props.tableData).filter( (entry) => {return entry.name.toLowerCase().includes(studentSearchString.toLowerCase())} )
+      ? _(this.props.tableData).filter( (entry) => {
+        return entry.name.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+              entry.email.toLowerCase().includes(studentSearchString.toLowerCase())
+            })
       : this.props.tableData
 
     // Sort if needed
@@ -190,13 +193,13 @@ export class _GradeTable extends Component {
                         ? 'ql-grade-cell'
                         : 'ql-grade-cell-manual'
       const onClick = () => this.toggleGradeViewModal(grade)
-      return ( grade ?
-        <Cell onClick = {onClick}>
-          <div className={cellClass}>
-            {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
-          </div>
-        </Cell> :
-        <Cell > No grade </Cell>
+      return ( grade
+        ? <Cell onClick = {onClick}>
+            <div className={cellClass}>
+              {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
+            </div>
+          </Cell>
+        : <Cell > No grade </Cell>
       )
     }
 
@@ -233,7 +236,7 @@ export class _GradeTable extends Component {
         {this.props.students.length > 1 ?
           <div>
             <form ref='searchStudentForm'>
-              <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
+              <input type='text' className='form-control search-field' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 500)} />
             </form>
            </div>
           : ''

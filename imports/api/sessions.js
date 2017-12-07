@@ -10,6 +10,7 @@ import { check, Match } from 'meteor/check'
 import { _ } from 'underscore'
 
 import { Courses, profHasCoursePermission } from './courses.js'
+import { Grades } from './grades.js'
 
 import Helpers from './helpers.js'
 
@@ -277,6 +278,26 @@ Meteor.methods({
     const session = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(session.courseId)
 
+    /*
+    // TODO: Calculate grades if the session is made reviewable 
+    // for some reasone, doesn't find any grades, even if they exist!!!
+
+
+    const grades = Grades.find({ sessionId: session._id }).fetch()
+    const calcGrades =  (grades.length < 1 && !session.reviewable )
+
+    // If making the session reviewable, calculate the grades
+    if (calcGrades && session) {
+      console.log("calculating grades")
+      console.log(grades)
+      console.log(session._id)
+      Meteor.call('grades.calcSessionGrades',session._id, (err) => {
+        if(err){
+          alertify.error('Error: ' + err.error)
+        }
+      })
+    }
+   */
     return Sessions.update({ _id: sessionId }, {
       $set: {
         reviewable: !session.reviewable

@@ -16,18 +16,22 @@ import { Courses } from '../api/courses'
 import { Grades } from '../api/grades'
 import { Questions } from '../api/questions'
 
+import { GradeViewModal } from './modals/GradeViewModal'
 
 export class _SessionResultsTable extends Component {
 
   constructor (props) {
     super(props)
 
-    this.state = { studentSearchString: '',
-                   sortByColumn: 'name',
-                   sortAsc: true
-                 }
+    this.state = {
+      gradeViewModal: false,
+      studentSearchString: '',
+      sortByColumn: 'name',
+      sortAsc: true
+    }
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.setSortByColumn = this.setSortByColumn.bind(this)
+    this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
   }
 
   setStudentSearchString (e) {
@@ -42,6 +46,10 @@ export class _SessionResultsTable extends Component {
     this.setState({ sortByColumn:colName, sortAsc:sortAsc })
   }
 
+  toggleGradeViewModal (gradeToView = null) {
+   const studentToView = _(this.props.students).findWhere({ _id:gradeToView.userId })
+   this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView:studentToView })
+  }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
@@ -56,15 +64,28 @@ export class _SessionResultsTable extends Component {
     }
 
     const session = this.props.session
-    const questions = this.props.questions
+    //const questions = this.props.questions
     const studentSearchString = this.state.studentSearchString
     const sortByColumn = this.state.sortByColumn
     const sortAsc = this.state.sortAsc
-    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+    const isInstructor = Meteor.user().isInstructor(session.courseId)
+
+    const qIds = session ? session.questions : []
+    const numQuestions = qIds.length
+    let questions = []
+
+    for(let i=0 ;i <numQuestions; i++){
+      let question =  _(this.props.questions).findWhere({ _id:qIds[i]})
+      _(question).extend({ colName:'Q'+(i+1)} )
+      questions.push( question )
+    }
 
     // Grab only the rows we need if the search string is set
     let tableData = studentSearchString
-      ? _(this.props.tableData).filter( (entry) => {return entry.name.toLowerCase().includes(studentSearchString.toLowerCase())} )
+      ? _(this.props.tableData).filter( (entry) => {
+        return entry.name.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+              entry.email.toLowerCase().includes(studentSearchString.toLowerCase())
+            })
       : this.props.tableData
 
     // Sort if needed
@@ -73,10 +94,13 @@ export class _SessionResultsTable extends Component {
         tableData = _(tableData).sortBy( (entry) => {return entry.name.toLowerCase()})
       } else if (sortByColumn === 'participation'){
         tableData = _(tableData).sortBy( (entry) => {return entry.grade.participation})
-      } else {
+      } else if (sortByColumn === 'grade'){
+        tableData = _(tableData).sortBy( (entry) => {return entry.grade.value})
+      }
+      else {
         tableData = _(tableData).sortBy( (entry) => {
           const mark = _(entry.grade.marks).findWhere({ questionId:sortByColumn })
-          return ( (grade && grade.value) ? grade.value : 0 )
+          return ( (mark && mark.points) ? mark.points : 0 )
          })
       }
       if (!sortAsc){
@@ -110,7 +134,7 @@ export class _SessionResultsTable extends Component {
       return(
         <Cell>
           {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } /> : '' }
-          grade
+          Grade
         </Cell>
       )
     }
@@ -132,8 +156,9 @@ export class _SessionResultsTable extends Component {
 
     const QuestionHeaderCell = ({questionId}) => {
       const question = _(questions).findWhere({ _id:questionId })
+
       let sortButtonClass = 'glyphicon glyphicon-minus'
-      if (sortByColumn === sessionId ){
+      if (sortByColumn === questionId ){
         sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
       }
       sortButtonClass +=' ql-grade-table-sort-button'
@@ -141,7 +166,7 @@ export class _SessionResultsTable extends Component {
       return (
         <Cell>
           {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} />: '' }
-          <div className='ql-grade-table-session-header' >{question._id} </div>
+          {question.colName}
         </Cell>
       )
     }
@@ -150,18 +175,30 @@ export class _SessionResultsTable extends Component {
 
     const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].grade.participation } </Cell>
 
-    const GradeCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].grade.value } </Cell>
+    const GradeCell =  ({rowIndex}) =>  {
+      const grade = tableData[rowIndex].grade
+      const cellClass = grade.automatic
+                        ? 'ql-grade-cell'
+                        : 'ql-grade-cell-manual'
 
+      const onClick = () => this.toggleGradeViewModal(grade)
+      return (grade
+              ? <Cell onClick = {onClick}>
+                 <div className={cellClass}>
+                  { tableData[rowIndex].grade.value }
+                 </div>
+                </Cell>
+              : <Cell> no grade </Cell>
+             )
+    }
 
     const QuestionCell = ({rowIndex, questionId}) => {
       const grade = tableData[rowIndex].grade
       const mark = _(grade.marks).findWhere({ questionId: questionId})
-      const cellClass = 'ql-grade-cell'
-
       return ( mark ?
-        <Cell onClick = {onClick}>
-          <div className={cellClass}>
-            {mark.points} / {mark.outOf}
+        <Cell>
+          <div>
+            {mark.points} / {mark.outOf} (attempt {mark.attempt})
           </div>
         </Cell> :
         <Cell > No mark </Cell>
@@ -172,8 +209,8 @@ export class _SessionResultsTable extends Component {
    let cvsHeaders = ['Last name', 'First name', 'Email', 'Particpation', 'Grade']
 
    questions.forEach((q) => {
-     cvsHeaders.push(q._id+' points')
-     cvsHeaders.push(q._id+' outOfs')
+     cvsHeaders.push(q.colName+' points')
+     cvsHeaders.push(q.colName+' outOfs')
    })
 
    let csvData = this.props.tableData.map((tableRow) => {
@@ -201,7 +238,7 @@ export class _SessionResultsTable extends Component {
         {this.props.students.length > 1 ?
           <div>
             <form ref='searchStudentForm'>
-              <input type='text' className='form-control search-field' placeholder='search by student 'onChange={_.throttle(this.setStudentSearchString, 500)} />
+              <input type='text' className='form-control search-field' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 500)} />
             </form>
            </div>
           : ''
@@ -220,25 +257,31 @@ export class _SessionResultsTable extends Component {
             width={170}
           />
           <Column
-            header={<ParticipationHeaderCell />}
-            cell={<ParticipationCell />}
+            header={<GradeHeaderCell />}
+            cell={<GradeCell />}
             width={110}
           />
           <Column
-            header={<GradeHeaderCell />}
-            cell={<GradeCell />}
+            header={<ParticipationHeaderCell />}
+            cell={<ParticipationCell />}
             width={110}
           />
           { questions.map((q) =>
             <Column
               key={q._id}
               header={<QuestionHeaderCell questionId={q._id} />}
-              cell={<QuestionCell sessionId={q._id} />}
+              cell={<QuestionCell questionId={q._id} />}
               width={getTextWidth(q._id)}
             />
           ) }
 
         </Table>
+        { this.state.gradeViewModal
+          ? <GradeViewModal
+              grade={this.state.gradeToView}
+              student={this.state.studentToView}
+              done={this.toggleGradeViewModal} />
+          : '' }
       </div>
     )
  }
@@ -253,20 +296,14 @@ export const SessionResultsTable = createContainer( (props) => {
   const user = Meteor.user()
   const course = Courses.findOne({ _id:props.session.courseId })
   const grades = Grades.find({ sessionId: props.session._id }).fetch()
-  //const questions = Questions.find({ sessionId: props.session._id })
-  const qIds = session ? session.questions : []
-  const numQuestions = qIds.length
+  const questions = Questions.find({ sessionId: props.session._id }).fetch()
   const session = props.session
 
   let students
-  let questions = []
+
   if (course) {
     students = Meteor.users.find({ _id: { $in: course.students || [] } }).fetch()
     students = _(students).sortBy( (entry) => {return entry.profile.lastname.toLowerCase()})
-    for (let i =0; i<numQuestions ;i++){
-      questions.push(  Questions.findOne({ _id: qIds[i] }) )
-    }
-
   }
 
   const tableData = []
