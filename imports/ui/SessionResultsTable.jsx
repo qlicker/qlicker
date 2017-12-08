@@ -177,7 +177,7 @@ export class _SessionResultsTable extends Component {
 
     const GradeCell =  ({rowIndex}) =>  {
       const grade = tableData[rowIndex].grade
-      const cellClass = grade.automatic
+      const cellClass = grade && grade.automatic
                         ? 'ql-grade-cell'
                         : 'ql-grade-cell-manual'
 

@@ -189,7 +189,7 @@ export class _GradeTable extends Component {
     const GradeCell = ({rowIndex, sessionId}) => {
       const grades = tableData[rowIndex].grades
       const grade = _(grades).findWhere({ sessionId: sessionId})
-      const cellClass = grade.automatic
+      const cellClass = grade && grade.automatic
                         ? 'ql-grade-cell'
                         : 'ql-grade-cell-manual'
       const onClick = () => this.toggleGradeViewModal(grade)
