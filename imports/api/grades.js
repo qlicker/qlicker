@@ -138,7 +138,7 @@ export const calculateResponsePoints = (response) => {
   const q = Questions.findOne({ _id: response.questionId })
   const resp = response.answer
   if (!q || !resp) return 0
-  if (!isAutoGradeable(q)) return 0
+  if (!isAutoGradeable(q.type)) return 0
 
   const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
   const attempt = resp.attempt
