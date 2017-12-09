@@ -216,6 +216,9 @@ Meteor.methods({
       throw new Meteor.Error('not-authorized')
     }
 
+    if (!grade){
+      throw Error('Undefined grade in update!')
+    }
     const r = Grades.update({ _id: grade._id }, {
       $set: _.omit(grade, '_id')
     })
@@ -374,7 +377,7 @@ Meteor.methods({
       throw Error('Unauthorized to grade session')
     }
     // questions in the session
-    const qIds = sess.questions
+    const qIds = sess ? sess.questions : []
     // responses corresponding to questions in the session
     const responses = Responses.find({ questionId: { $in: qIds}}).fetch()
     // questions in the session
