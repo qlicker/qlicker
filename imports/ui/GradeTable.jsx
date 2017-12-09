@@ -182,10 +182,12 @@ export class _GradeTable extends Component {
       const calcSessionGrades = () => this.calculateSessionGrades(sessionId)
       const viewSession = () => Router.go('session.results', { sessionId: sessionId })
       // TODO: Dropdown does not work because of CSS for fixed table data
+      /*
       const options = [ {name:'view', click:viewSession},
                         {name:'sort', click:onClickSort},
                         {name:'calculate grades', click:calcSessionGrades}
                       ]
+      */
       return (
         <Cell>
           {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} />: '' }
