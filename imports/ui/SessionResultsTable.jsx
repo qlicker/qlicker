@@ -241,28 +241,29 @@ export class _SessionResultsTable extends Component {
    })
    const cvsFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
    const handleSubmit = (e) => {e.preventDefault()}
-   
+
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
-        {isInstructor ?
-          <div>
-            <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
-              <div type='button' className='btn btn-secondary'>
-                Export as .csv
-              </div>
-            </CSVLink>
-          </div>
-          : ''
-        }
-        {this.props.students.length > 1 ?
-          <div>
-            <form ref='searchStudentForm' onSubmit={handleSubmit}>
-              <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
-            </form>
-           </div>
-          : ''
-        }
-
+        <div className='ql-grade-table-controlbar'>
+          {this.props.students.length > 1 ?
+            <div className='ql-grade-table-controlbar-search'>
+              <form ref='searchStudentForm' onSubmit={handleSubmit}>
+                <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
+              </form>
+             </div>
+            : ''
+          }
+          {isInstructor ?
+            <div className='ql-grade-table-download' >
+              <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+                <div type='button' className='btn btn-secondary'>
+                  Export as .csv
+                </div>
+              </CSVLink>
+            </div>
+            : ''
+          }
+        </div>
         <Table
           rowHeight={35}
           rowsCount={nRows}

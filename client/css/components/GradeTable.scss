@@ -4,6 +4,22 @@
 .ql-grade-table-container {
   position: relative;
 
+  .ql-grade-table-controlbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    padding-bottom: 10px;
+
+    .ql-grade-table-controlbar-search {
+
+    }
+    .ql-grade-table-controlbar-download {
+
+    }
+
+  }
+
   .ql-grade-table-session-header {
     display: inline;
      &:hover {

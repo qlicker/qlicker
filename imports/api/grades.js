@@ -17,7 +17,7 @@ import { Responses } from './responses.js'
 
 import { Stats } from '../stats.js'
 
-import { ROLES, QUESTION_TYPE } from '../configs'
+import { ROLES, QUESTION_TYPE, isAutoGradeable } from '../configs'
 
 // expected collection pattern
 const gradePattern = {
@@ -138,6 +138,8 @@ export const calculateResponsePoints = (response) => {
   const q = Questions.findOne({ _id: response.questionId })
   const resp = response.answer
   if (!q || !resp) return 0
+  if (!isAutoGradeable(q)) return 0
+
   const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
   const attempt = resp.attempt
   let points = 1
@@ -396,6 +398,7 @@ Meteor.methods({
       let question  = questions[iq]
       markOutOf.push(1)
       // Assume that SA is not worth any points
+      // TODO: Remove this!!!
       if(question.type === QUESTION_TYPE.SA){
          markOutOf[iq] = 0
       }

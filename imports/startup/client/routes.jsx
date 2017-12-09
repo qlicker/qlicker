@@ -230,7 +230,7 @@ Router.route('/courses/results', {
   }
 })
 
-import { ClasslistParticipationPage } from '../../ui/pages/classlist_participation'
+import { CourseGrades } from '../../ui/pages/course_grades'
 Router.route('/course/:_id/results', {
   name: 'course.results',
   waitOn: function () {
@@ -240,7 +240,7 @@ Router.route('/course/:_id/results', {
     const u = Meteor.user()
     const isInstructor = u.isInstructor(this.params._id)
     if (u && isInstructor) {
-      mount(AppLayout, { content: <PageContainer> <ClasslistParticipationPage courseId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer> <CourseGrades courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })

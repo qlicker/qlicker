@@ -21,8 +21,7 @@ import { Grades } from '../api/grades'
 import { Stats } from '../stats'
 
 import { GradeViewModal } from './modals/GradeViewModal'
-
-// import { ControlledForm } from './ControlledForm'
+import { Dropdown } from './Dropdown'
 
 import { ROLES } from '../configs'
 
@@ -181,10 +180,16 @@ export class _GradeTable extends Component {
       sortButtonClass +=' ql-grade-table-sort-button'
       const onClickSort =  () => this.setSortByColumn(sessionId)
       const calcSessionGrades = () => this.calculateSessionGrades(sessionId)
+      const viewSession = () => Router.go('session.results', { sessionId: sessionId })
+      // TODO: Dropdown does not work because of CSS for fixed table data
+      const options = [ {name:'view', click:viewSession},
+                        {name:'sort', click:onClickSort},
+                        {name:'calculate grades', click:calcSessionGrades}
+                      ]
       return (
         <Cell>
           {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} />: '' }
-          <div className='ql-grade-table-session-header' onClick={_ => Router.go('session.results', { sessionId: sessionId })} >{session.name} </div>
+          <div className='ql-grade-table-session-header' onClick={viewSession} >{session.name} </div>
           {isInstructor ? <div onClick={calcSessionGrades} className='glyphicon glyphicon-repeat ql-grade-table-grade-calc-button' /> : ''}
         </Cell>
       )
@@ -232,25 +237,26 @@ export class _GradeTable extends Component {
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
-        {isInstructor ?
-          <div>
-            <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
-              <div type='button' className='btn btn-secondary'>
-                Export as .csv
-              </div>
-            </CSVLink>
-          </div>
-          : ''
-        }
-        {this.props.students.length > 1 ?
-          <div>
-            <form ref='searchStudentForm' onSubmit={handleSubmit}>
-              <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
-            </form>
-           </div>
-          : ''
-        }
-
+        <div className='ql-grade-table-controlbar'>
+          {this.props.students.length > 1 ?
+            <div className='ql-grade-table-search'>
+              <form ref='searchStudentForm' onSubmit={handleSubmit}>
+                <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
+              </form>
+             </div>
+            : ''
+          }
+          {isInstructor ?
+            <div className='ql-grade-table-controlbar-download'>
+              <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+                <div type='button' className='btn btn-secondary'>
+                  Export as .csv
+                </div>
+              </CSVLink>
+            </div>
+            : ''
+          }
+        </div>
         <Table
           rowHeight={35}
           rowsCount={nRows}
