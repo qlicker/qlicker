@@ -21,7 +21,6 @@ import { Grades } from '../api/grades'
 import { Stats } from '../stats'
 
 import { GradeViewModal } from './modals/GradeViewModal'
-import { Dropdown } from './Dropdown'
 
 import { ROLES } from '../configs'
 
@@ -40,7 +39,7 @@ export class _GradeTable extends Component {
                     sortByColumn: 'name',
                     sortAsc: true
                   }
-     this.calculateGrades = this.calculateGrades.bind(this)
+     this.calculateAllGrades = this.calculateAllGrades.bind(this)
      this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
      this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
      this.setStudentSearchString = this.setStudentSearchString.bind(this)
@@ -65,7 +64,7 @@ export class _GradeTable extends Component {
      })
    }
 
-  calculateGrades () {
+  calculateAllGrades () {
     const sessions = this.props.sessions
     for(let i = 0; i<sessions.length; i++){
       Meteor.call('grades.calcSessionGrades',sessions[i]._id, (err) => {
@@ -93,7 +92,7 @@ export class _GradeTable extends Component {
     if (!this.props.students || this.props.students.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
     if (!this.props.grades || this.props.grades.length < 1 ){
       return (<div>
-        <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
+        <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
           Calculate grades
         </div>
       </div>)

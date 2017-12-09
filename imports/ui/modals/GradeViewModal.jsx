@@ -28,7 +28,7 @@ export class GradeViewModal extends ControlledForm{
             <div className='ql-modal-header ql-header-bar'><h3>{grade.name} {student.profile.lastname}, {student.profile.firstname}</h3> </div>
             <div className='ql-card-content'>
               <div className='row'>
-                <GradeView grade={this.props.grade} student={this.props.student} />
+                <GradeView grade={grade} student={student} />
                 <div className='btn-group btn-group-justified' role='group' aria-label='...'>
                   <a className='btn btn-default' onClick={this.props.done}>Close</a>
                 </div>

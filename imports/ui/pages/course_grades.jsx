@@ -37,8 +37,16 @@ export class _CourseGrades extends Component {
 
 
 export const CourseGrades = createContainer((props) => {
+  //const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
+    //Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.courseId)})
   const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
-    Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.courseId)})
+     Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.courseId)}) &&
+    Meteor.subscribe('sessions') &&
+     Meteor.subscribe('questions.inCourse', props.courseId) &&
+     Meteor.subscribe('responses.forCourse', props.courseId) &&
+     Meteor.subscribe('grades.forCourse', props.courseId)
+
+
     const course = Courses.findOne(props.courseId)
     const courseName = course.fullCourseCode()
     return {

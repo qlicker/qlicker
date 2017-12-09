@@ -370,12 +370,18 @@ Meteor.methods({
 
     const user = Meteor.user()
     const sess = Sessions.findOne({ _id: sessionId})
+    if (!sess) {
+      throw Error('No session with this id')
+    }
     const courseId = sess ? sess.courseId: ''
     const course = Courses.findOne({ _id: courseId})
 
     if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(courseId)) {
       throw Error('Unauthorized to grade session')
     }
+
+
+
     // questions in the session
     const qIds = sess ? sess.questions : []
     // responses corresponding to questions in the session
@@ -386,9 +392,10 @@ Meteor.methods({
       questions.push(Questions.findOne({ _id: qId }))
     })
 
+
     // TODO: Keep all, and assume that prof has set 0 points for questions that don't have points
     // of the questions in the sessions, the ones that have responses - REMOVE this //TODO
-    questions = _.filter(questions, (q) => { return _.findWhere(responses, {questionId: q._id}) })
+    // questions = _.filter(questions, (q) => { return _.findWhere(responses, {questionId: q._id}) })
 
     //the total number of questions in the session (that have responses)
     const numQuestionsTotal = questions.length
