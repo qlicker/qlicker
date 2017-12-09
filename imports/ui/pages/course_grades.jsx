@@ -3,7 +3,7 @@
 //
 // classlist_participation.jsx: page for displaying class participation
 
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { GradeTable } from '../GradeTable.jsx'
 
 export class CourseGrades extends Component {
