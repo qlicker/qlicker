@@ -14,7 +14,7 @@ import { Grades } from '../api/grades'
 
 import { QuestionWithResponse } from './QuestionWithResponse'
 
-import { ROLES, QUESTION_TYPE } from '../configs'
+import { ROLES, QUESTION_TYPE, isAutoGradeable, QUESTION_TYPE_STRINGS_SHORT } from '../configs'
 
 
 export class _GradeView extends Component {
@@ -136,101 +136,113 @@ export class _GradeView extends Component {
     const user =  Meteor.user()
     const canEdit = user.hasGreaterRole(ROLES.admin) || user.isInstructor(this.props.courseId)
     const gradeAutoText =  grade.automatic ? "(auto-graded)": "(manually overridden)"
+    const gradeInfoClass =  grade.automatic ? 'ql-gradeview-gradeinfo' : 'ql-gradeview-gradeinfo ql-gradeview-manual'
 
     const toggleGradeEditable = () => this.toggleGradeEditable()
     const updateGrade = () => this.updateGrade(this.state.newGradeValue)
 
     let questionCount = 0
-    return ( grade ?
-             <div className='ql-gradeview'>
-              {this.state.editGrade
-              ?  <form  ref='editGradeForm' onSubmit={this.handleGradeSubmit} >
-                 Grade:
-                 <input type='text' onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
-                 % ({grade.points} out of {grade.outOf} {gradeAutoText})
-                  &nbsp; <a onClick={updateGrade}>submit</a>
-                  &nbsp;&nbsp;<a onClick={toggleGradeEditable}>cancel</a>
-                </form>
-              : <div >
-                   Grade: {grade.value}% ({grade.points} out of {grade.outOf}) {gradeAutoText}
-                   {canEdit
-                     ? <div className='ql-gradeview-row'>
-                         <a onClick={toggleGradeEditable}>edit</a>
-                         { !grade.automatic
-                           ? <div> &nbsp;&nbsp; <a onClick={this.autogradeGrade}>auto-grade</a></div>
-                          : ''
-                         }
+    return (grade
+            ? <div className='ql-gradeview'>
+
+               <div className='ql-gradeview-summary'>
+                 {this.state.editGrade
+                  ?  <form className={gradeInfoClass}  ref='editGradeForm' onSubmit={this.handleGradeSubmit} >
+                     Grade:
+                     <input type='text' onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
+                     % ({grade.points} out of {grade.outOf} {gradeAutoText})
+                      &nbsp; <a onClick={updateGrade}>submit</a>
+                      &nbsp;&nbsp;<a onClick={toggleGradeEditable}>cancel</a>
+                    </form>
+                  : <div className={gradeInfoClass} >
+                       <div >
+                       Grade: {grade.value.toFixed(1)}% ({grade.points} out of {grade.outOf}) {gradeAutoText}
                        </div>
-                     : ''
-                   }
-                </div>
-            }
-            Participation: {grade.participation}% ({grade.joined ? "joined" : "did not join" }) <br />
-            Questions answered total: {grade.numAnsweredTotal} (out of {grade.numQuestionsTotal}) <br />
-            Questions worth points answered: {grade.numAnswered} (out of {grade.numQuestions})  <br />
-            Questions: <br />
-            {
-              grade.marks.map((mark) => {
-                questionCount +=1
-                let autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
-                const question = _(this.props.questions).findWhere({ _id:mark.questionId })
-                const autoGradeable = question && (question.type === QUESTION_TYPE.MC ||
-                                                   question.type === QUESTION_TYPE.TF ||
-                                                   question.type === QUESTION_TYPE.MS)
-
-                const offerToAutograde = autoGradeable && !mark.automatic
-                const responses = _(this.props.responses).where({ questionId:mark.questionId })
-                if (!responses || responses.length < 1){
-                  autoText = "(no response)"
-                }
-
-                const previewQuestion = () => this.setPreviewQuestion(question)
-                const toggleMarkEditable = () => this.toggleMarkEditable(mark.questionId)
-                const cancelEditing = () => this.toggleMarkEditable(0)
-                const udpateMark = () => this.updateMark(mark.questionId, this.state.newMarkPoints)
-                const autogradeMark = () => this.autogradeMark(mark.questionId)
-
-                return ( <div key={mark.questionId} className='ql-gradeview-question'>
-                   <div className='ql-gradeview-question-preview' onClick={previewQuestion}>
-                     Question {questionCount} :
-                   </div>
-                   <div className='ql-gradeview-question-points'>
-                     { (this.state.markToEdit === mark.questionId) && canEdit
-                       ? <form  ref='editMarkForm' onSubmit={this.handleMarkSubmit}>
-                          <input type='text' onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points}></input>
-                          out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
-                          &nbsp;&nbsp;<a onClick={cancelEditing}>cancel</a>
-                         </form>
-
-                       : <div>
-                          &nbsp;&nbsp;{mark.points} out of {mark.outOf} on attempt {mark.attempt} {autoText}&nbsp;
-                           { canEdit
-                              ? <div>
-                                  <a onClick={toggleMarkEditable}>edit</a>
-                                  { offerToAutograde
-                                  ? <a onClick={autogradeMark}> auto-grade</a>
-                                  : ''
-                                  }
-                                </div>
-                              : ''
-                           }
-                         </div>
-                    }
-                  </div>
-                 </div>)
-              })
-            }
-            <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-              <a className='btn btn-default' onClick={this.togglePreviewQuestion}>{
-                this.state.previewQuestion ? 'Hide preview': 'Show preview'
-              }</a>
+                       {canEdit
+                         ? <div>
+                             &nbsp;&nbsp;<a onClick={toggleGradeEditable}>edit</a>
+                             { !grade.automatic
+                               ? <div>&nbsp;&nbsp; <a onClick={this.autogradeGrade}>auto-grade</a> </div>
+                               : ''
+                             }
+                           </div>
+                         : ''
+                       }
+                    </div>
+                 }
+                Participation: {grade.participation.toFixed(1)}% ({grade.joined ? "joined" : "did not join" }) <br />
+                Questions answered total: {grade.numAnsweredTotal} (out of {grade.numQuestionsTotal}) <br />
+                Questions worth points answered: {grade.numAnswered} (out of {grade.numQuestions})  <br />
             </div>
-            { this.state.previewQuestion
-              ? <QuestionWithResponse question={this.state.questionToView} responses={this.state.responsesToView} />
-              : ''
-            }
-        </div>
 
+            <div className='ql-gradeview-questionlist'>
+                 {grade.marks.map((mark) => {
+                  questionCount +=1
+                  let autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
+                  const infoClass =  mark.automatic ? 'ql-gradeview-question-info' : 'ql-gradeview-question-info ql-gradeview-manual'
+
+                  const question = _(this.props.questions).findWhere({ _id:mark.questionId })
+                  const autoGradeable = question && isAutoGradeable(question.type)
+
+                  const offerToAutograde = autoGradeable && !mark.automatic
+                  const responses = _(this.props.responses).where({ questionId:mark.questionId })
+                  if (!responses || responses.length < 1){
+                    autoText = "(no response)"
+                  }
+
+                  const previewQuestion = () => this.setPreviewQuestion(question)
+                  const toggleMarkEditable = () => this.toggleMarkEditable(mark.questionId)
+                  const cancelEditing = () => this.toggleMarkEditable(0)
+                  const udpateMark = () => this.updateMark(mark.questionId, this.state.newMarkPoints)
+                  const autogradeMark = () => this.autogradeMark(mark.questionId)
+
+
+                  return ( <div key={mark.questionId} className='ql-gradeview-question'>
+                     <div className='ql-gradeview-question-preview' onClick={previewQuestion}>
+                       Question {questionCount} ({QUESTION_TYPE_STRINGS_SHORT[question.type]})
+                     </div>
+                     &nbsp;&nbsp;
+                     <div className={infoClass}>
+                       { (this.state.markToEdit === mark.questionId) && canEdit
+                         ? <form  ref='editMarkForm' onSubmit={this.handleMarkSubmit}>
+                            <input type='text' onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points.toFixed(2)}></input>
+                            out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
+                            &nbsp;&nbsp;<a onClick={cancelEditing}>cancel</a>
+                           </form>
+
+                         : <div>
+                           {mark.points.toFixed(2)} out of {mark.outOf} on attempt {mark.attempt} {autoText}&nbsp;
+                             { canEdit
+                                ? <div>
+                                    <a onClick={toggleMarkEditable}>edit</a>
+                                    { offerToAutograde
+                                    ?  <div>&nbsp;&nbsp; <a onClick={autogradeMark}> auto-grade</a> </div>
+                                    : ''
+                                    }
+                                  </div>
+                                : ''
+                             }
+                           </div>
+                      }
+                    </div>
+                   </div>)
+                })
+                }
+            </div>
+              <a  onClick={this.togglePreviewQuestion}>
+                {
+                this.state.previewQuestion ? 'Hide attempts': 'Show attempts'
+                }
+              </a>
+
+              { this.state.previewQuestion
+                ? <div>
+                     <QuestionWithResponse question={this.state.questionToView} responses={this.state.responsesToView} />
+                     <a  onClick={this.togglePreviewQuestion}>Hide attempts</a>
+                  </div>
+                : ''
+              }
+        </div>
       : 'Loading')
   } //  end render
 

@@ -192,7 +192,7 @@ export class _GradeTable extends Component {
 
     const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
 
-    const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].participation } </Cell>
+    const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].participation.toFixed(0) } </Cell>
 
     const GradeCell = ({rowIndex, sessionId}) => {
       const grades = tableData[rowIndex].grades
@@ -228,6 +228,7 @@ export class _GradeTable extends Component {
      return row
    })
    const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
+   const handleSubmit = (e) => {e.preventDefault()}
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
@@ -243,8 +244,8 @@ export class _GradeTable extends Component {
         }
         {this.props.students.length > 1 ?
           <div>
-            <form ref='searchStudentForm'>
-              <input type='text' className='form-control search-field' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 500)} />
+            <form ref='searchStudentForm' onSubmit={handleSubmit}>
+              <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
             </form>
            </div>
           : ''
@@ -338,7 +339,7 @@ export const GradeTable = createContainer((props) => {
       firstName: students[iStu].profile.firstname,
       lastName: students[iStu].profile.lastname,
       email: students[iStu].emails[0].address,
-      participation: participation.toFixed(0),
+      participation: participation,
       grades: sgrades
     }
     tableData.push(dataItem)

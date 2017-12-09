@@ -64,11 +64,11 @@ export class QuestionWithResponse extends ControlledForm {
               {this.props.responses.length > 1
                  ? <div className='btn-group btn-group-justified' role='group' aria-label='...'>
                    { prev > -1
-                     ? <a className='btn btn-default' onClick={decrement}>Previous</a>
+                     ? <a className='btn btn-default' onClick={decrement}>Previous attempt</a>
                      : ''
                    }
                    { next < this.props.responses.length
-                     ? <a className='btn btn-default' onClick={increment}>Next</a>
+                     ? <a className='btn btn-default' onClick={increment}>Next attempt</a>
                      : ''
                    }
                    </div>

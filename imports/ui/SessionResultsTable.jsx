@@ -190,7 +190,7 @@ export class _SessionResultsTable extends Component {
 
     const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
 
-    const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].grade.participation } </Cell>
+    const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].grade.participation.toFixed(0) } </Cell>
 
     const GradeCell =  ({rowIndex}) =>  {
       const grade = tableData[rowIndex].grade
@@ -202,7 +202,7 @@ export class _SessionResultsTable extends Component {
       return (grade
               ? <Cell onClick = {onClick}>
                  <div className={cellClass}>
-                  { tableData[rowIndex].grade.value }
+                  { tableData[rowIndex].grade.value.toFixed(0) }
                  </div>
                 </Cell>
               : <Cell> no grade </Cell>
@@ -212,10 +212,11 @@ export class _SessionResultsTable extends Component {
     const QuestionCell = ({rowIndex, questionId}) => {
       const grade = tableData[rowIndex].grade
       const mark = _(grade.marks).findWhere({ questionId: questionId})
+      const attemptText = mark && mark.attempt > 0 ? "(attempt "+mark.attempt+")": "(no attempt)"
       return ( mark ?
         <Cell>
           <div>
-            {mark.points} / {mark.outOf} (attempt {mark.attempt})
+            {mark.points.toFixed(0)} / {mark.outOf} {attemptText}
           </div>
         </Cell> :
         <Cell > No mark </Cell>
@@ -239,7 +240,8 @@ export class _SessionResultsTable extends Component {
      return row
    })
    const cvsFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
-
+   const handleSubmit = (e) => {e.preventDefault()}
+   
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         {isInstructor ?
@@ -254,8 +256,8 @@ export class _SessionResultsTable extends Component {
         }
         {this.props.students.length > 1 ?
           <div>
-            <form ref='searchStudentForm'>
-              <input type='text' className='form-control search-field' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 500)} />
+            <form ref='searchStudentForm' onSubmit={handleSubmit}>
+              <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
             </form>
            </div>
           : ''

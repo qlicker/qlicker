@@ -20,7 +20,25 @@ export const QUESTION_TYPE = {
   MS: 3
 }
 
+// Whether or not a question can be auto-graded
+export const isAutoGradeable = (type) => {
+  switch (type){
+    case QUESTION_TYPE.MC:
+      return true
+    case QUESTION_TYPE.TF:
+      return true
+    case QUESTION_TYPE.SA: // 1 if any answer
+      return false
+    case QUESTION_TYPE.MS:
+      return true
+    default:
+      return false
+  }
+}
+
 export const QUESTION_TYPE_STRINGS = ['Multiple Choice', 'True/False', 'Short Answer', 'Multi Select']
+export const QUESTION_TYPE_STRINGS_SHORT = ['MC', 'TF', 'SA', 'MS']
+
 
 export const MC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F']
 export const TF_ORDER = ['TRUE', 'FALSE']
