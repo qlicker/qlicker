@@ -32,6 +32,7 @@ export class _SessionResultsTable extends Component {
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.setSortByColumn = this.setSortByColumn.bind(this)
     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
+    this.calculateGrades = this.calculateGrades.bind(this)
   }
 
   setStudentSearchString (e) {
@@ -51,8 +52,24 @@ export class _SessionResultsTable extends Component {
    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView:studentToView })
   }
 
+  calculateGrades () {
+    Meteor.call('grades.calcSessionGrades',this.props.session._id, (err) => {
+      if(err){
+        alertify.error('Error: ' + err.error)
+      }
+    })
+  }
+
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (!this.props.students || this.props.students.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
+    if (!this.props.grades || this.props.grades.length < 1 ){
+      return (<div>
+        <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
+          Calculate grades
+        </div>
+      </div>)
+    }
 
     const getTextWidth = (text) => {
       let element = document.createElement('canvas')

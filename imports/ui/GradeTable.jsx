@@ -91,6 +91,14 @@ export class _GradeTable extends Component {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (!this.props.students || this.props.students.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
+    if (!this.props.grades || this.props.grades.length < 1 ){
+      return (<div>
+        <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
+          Calculate grades
+        </div>
+      </div>)
+    }
 
     const getTextWidth = (text) => {
       let element = document.createElement('canvas')

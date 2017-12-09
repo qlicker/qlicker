@@ -409,7 +409,7 @@ Meteor.methods({
       gradeOutOf += markOutOf[iq]
     }
 
-    const studentIds = course.students
+    const studentIds = course.students ? course.students : []
     const stats = new Stats(questions, responses)
 
     const defaultGrade = {
