@@ -54,6 +54,21 @@ export class _GradeView extends Component {
     this.handleMarkSubmit = this.handleMarkSubmit.bind(this)
   }
 
+  componentWillReceiveProps (nextProps){
+    const firstQ = nextProps.questions.length > 0
+      ? this.props.questions[0]
+      : null
+
+    const responsesToView = firstQ
+      ? _(nextProps.responses).where({ questionId: firstQ._id })
+      : null
+
+    this.setState({
+      questionToView: firstQ, // the question to show in preview
+      responsesToView: responsesToView, // array of responses to view in question preview
+      })
+  }
+
   // set which question to show in the preview
   setPreviewQuestion (question = null) {
     const responsesToView = question
@@ -272,7 +287,7 @@ export const GradeView = createContainer((props) => {
   session.questions.forEach( (qId) => {
     questions.push( Questions.findOne({ _id:qId }) )
   })
-  const questionIds = _(questions).pluck("_id")
+  const questionIds = questions ? _(questions).pluck("_id") : []
   const responses = Responses.find({ questionId: { $in:questionIds }, studentUserId:props.grade.userId }, { sort: { attempt: 1 } }).fetch()
 
   return {

@@ -186,7 +186,7 @@ Meteor.methods({
    */
   'grades.insert' (grade) {
     check(grade, gradePattern)
-    if(grade._id){
+    if(grade && grade._id){
       return Meteor.call('grades.update', grade)
     }
     const user = Meteor.user()
@@ -207,8 +207,8 @@ Meteor.methods({
    * @param {Grade} grade - grade object with id
    */
   'grades.update' (grade) {
-    check(grade._id, Helpers.MongoID)
     check(grade, gradePattern)
+
     const user = Meteor.user()
 
     if ( !user.hasRole(ROLES.admin) &&
