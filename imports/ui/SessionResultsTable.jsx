@@ -17,6 +17,7 @@ import { Grades } from '../api/grades'
 import { Questions } from '../api/questions'
 
 import { GradeViewModal } from './modals/GradeViewModal'
+import { ProfileViewModal } from './modals/ProfileViewModal'
 
 export class _SessionResultsTable extends Component {
 
@@ -25,6 +26,7 @@ export class _SessionResultsTable extends Component {
 
     this.state = {
       gradeViewModal: false,
+      profileViewModal: false,
       studentSearchString: '',
       sortByColumn: 'name',
       sortAsc: true
@@ -32,6 +34,7 @@ export class _SessionResultsTable extends Component {
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.setSortByColumn = this.setSortByColumn.bind(this)
     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
+    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.calculateGrades = this.calculateGrades.bind(this)
   }
 
@@ -50,6 +53,10 @@ export class _SessionResultsTable extends Component {
   toggleGradeViewModal (gradeToView = null) {
    const studentToView = _(this.props.students).findWhere({ _id:gradeToView.userId })
    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView:studentToView })
+  }
+
+  toggleProfileViewModal (studentToView = null) {
+   this.setState({ profileViewModal: !this.state.profileViewModal, studentToView:studentToView })
   }
 
   calculateGrades () {
@@ -192,7 +199,17 @@ export class _SessionResultsTable extends Component {
       )
     }
 
-    const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
+    const NameCell = ({rowIndex}) => {
+      const student = _(this.props.students).findWhere({ _id:tableData[rowIndex].userId })
+      const viewStudent = () => this.toggleProfileViewModal(student)
+      return(
+        <Cell onClick={viewStudent}>
+           <div className='ql-grade-cell'>
+             { tableData[rowIndex].name }
+           </div>
+        </Cell>
+      )
+     }
 
     const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].grade.participation.toFixed(0) } </Cell>
 
@@ -305,6 +322,11 @@ export class _SessionResultsTable extends Component {
               grade={this.state.gradeToView}
               student={this.state.studentToView}
               done={this.toggleGradeViewModal} />
+          : '' }
+        { this.state.profileViewModal
+          ? <ProfileViewModal
+              user={this.state.studentToView}
+              done={this.toggleProfileViewModal} />
           : '' }
           <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
             Re-calculate grades

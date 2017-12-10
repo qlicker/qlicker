@@ -21,6 +21,7 @@ import { Grades } from '../api/grades'
 import { Stats } from '../stats'
 
 import { GradeViewModal } from './modals/GradeViewModal'
+import { ProfileViewModal } from './modals/ProfileViewModal'
 
 import { ROLES } from '../configs'
 
@@ -35,6 +36,7 @@ export class _GradeTable extends Component {
      super(props)
 
      this.state = { gradeViewModal: false,
+                    profileViewModal: false,
                     studentSearchString: '',
                     sortByColumn: 'name',
                     sortAsc: true
@@ -42,6 +44,7 @@ export class _GradeTable extends Component {
      this.calculateAllGrades = this.calculateAllGrades.bind(this)
      this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
      this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
+     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
      this.setStudentSearchString = this.setStudentSearchString.bind(this)
      this.setSortByColumn = this.setSortByColumn.bind(this)
    }
@@ -54,6 +57,10 @@ export class _GradeTable extends Component {
    toggleGradeViewModal (gradeToView = null) {
     const studentToView = _(this.props.students).findWhere({ _id:gradeToView.userId })
     this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView:studentToView })
+   }
+
+   toggleProfileViewModal (studentToView = null) {
+    this.setState({ profileViewModal: !this.state.profileViewModal, studentToView:studentToView })
    }
 
    calculateSessionGrades (sessionId) {
@@ -204,7 +211,17 @@ export class _GradeTable extends Component {
       )
     }
 
-    const NameCell = ({rowIndex}) =>  <Cell>{ tableData[rowIndex].name } </Cell>
+    const NameCell = ({rowIndex}) => {
+      const student = _(this.props.students).findWhere({ _id:tableData[rowIndex].userId })
+      const viewStudent = () => this.toggleProfileViewModal(student)
+      return(
+        <Cell onClick={viewStudent}>
+           <div className='ql-grade-cell'>
+             { tableData[rowIndex].name }
+           </div>
+        </Cell>
+      )
+     }
 
     const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].participation.toFixed(0) } </Cell>
 
@@ -299,6 +316,11 @@ export class _GradeTable extends Component {
               student={this.state.studentToView}
               done={this.toggleGradeViewModal} />
           : '' }
+        { this.state.profileViewModal
+          ? <ProfileViewModal
+              user={this.state.studentToView}
+              done={this.toggleProfileViewModal} />
+          : '' }
           <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
             Re-calculate all grades
           </div>
@@ -357,6 +379,7 @@ export const GradeTable = createContainer((props) => {
       name: students[iStu].profile.lastname+', '+ students[iStu].profile.firstname,
       firstName: students[iStu].profile.firstname,
       lastName: students[iStu].profile.lastname,
+      userId: students[iStu]._id,
       email: students[iStu].emails[0].address,
       participation: participation,
       grades: sgrades
