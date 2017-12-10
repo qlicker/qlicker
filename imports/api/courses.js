@@ -49,6 +49,25 @@ export const Courses = new Mongo.Collection('courses',
 
 // data publishing
 if (Meteor.isServer) {
+  // TODO: where appropriate, switch to this publication!
+  Meteor.publish('courses.single', function (courseId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const course = Courses.findOne({ _id:courseId })
+      if (!course || !user) return this.ready()
+
+      if (user.hasGreaterRole(ROLES.admin)) {
+        return Courses.find({ _id:courseId })
+      } else if (_.indexOf(course.instructors, this.userId) > -1 ) {
+        return Courses.find({ _id:courseId })
+      } else if (_.indexOf(course.students, this.userId) > -1){
+        return Courses.find({ _id:courseId }, { fields: { students: false } })
+      } else{
+        return this.ready()
+      }
+    } else this.ready()
+  })
+
   Meteor.publish('courses', function () {
     if (this.userId) {
       let user = Meteor.users.findOne({ _id: this.userId })

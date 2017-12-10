@@ -57,21 +57,29 @@ export class _GradeTable extends Component {
    }
 
    calculateSessionGrades (sessionId) {
-     Meteor.call('grades.calcSessionGrades',sessionId, (err) => {
-       if(err){
-         alertify.error('Error: ' + err.error)
-       }
-     })
+    if (confirm('Are you sure?')) {
+       Meteor.call('grades.calcSessionGrades',sessionId, (err) => {
+         if(err){
+           alertify.error('Error: ' + err.error)
+         } else {
+           alertify.success('Grades calculated')
+         }
+       })
+     }
    }
 
   calculateAllGrades () {
-    const sessions = this.props.sessions
-    for(let i = 0; i<sessions.length; i++){
-      Meteor.call('grades.calcSessionGrades',sessions[i]._id, (err) => {
-        if(err){
-          alertify.error('Error: ' + err.error)
-        }
-      })
+    if (confirm('Are you sure?')) {
+      const sessions = this.props.sessions
+      for(let i = 0; i<sessions.length; i++){
+        Meteor.call('grades.calcSessionGrades',sessions[i]._id, (err) => {
+          if(err){
+            alertify.error('Error: ' + err.error)
+          } else {
+            alertify.success('Grades calculated')
+          }
+        })
+      }
     }
   }
 
@@ -93,7 +101,7 @@ export class _GradeTable extends Component {
     if (!this.props.grades || this.props.grades.length < 1 ){
       return (<div>
         <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
-          Calculate grades
+          Calculate grades!
         </div>
       </div>)
     }
@@ -291,6 +299,9 @@ export class _GradeTable extends Component {
               student={this.state.studentToView}
               done={this.toggleGradeViewModal} />
           : '' }
+          <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
+            Re-calculate all grades
+          </div>
       </div>
     )
 
@@ -300,9 +311,9 @@ export class _GradeTable extends Component {
 
 // meteor reactive data container
 export const GradeTable = createContainer((props) => {
-  const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
-    Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.courseId)}) &&
-    Meteor.subscribe('sessions') &&
+  const handle = Meteor.subscribe('users.studentsInCourse', props.courseId) &&
+    Meteor.subscribe('courses.single', props.courseId) &&
+    Meteor.subscribe('sessions.forCourse', props.courseId) &&
     Meteor.subscribe('grades.forCourse', props.courseId)
 
   const user = Meteor.user()
@@ -310,6 +321,7 @@ export const GradeTable = createContainer((props) => {
   const grades = Grades.find({ courseId: props.courseId }).fetch()
 
   let students, sessions
+
   if (course) {
     students = Meteor.users.find({ _id: { $in: course.students || [] } }).fetch()
     students = _(students).sortBy( (entry) => {return entry.profile.lastname.toLowerCase()})

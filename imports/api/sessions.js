@@ -42,6 +42,7 @@ export const Sessions = new Mongo.Collection('sessions',
   { transform: (doc) => { return new Session(doc) } })
 // data publishing
 if (Meteor.isServer) {
+
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
@@ -56,6 +57,42 @@ if (Meteor.isServer) {
         // TODO should check, but for a student, should not need to know who joined, right?
         // return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } }, {fields: {joined: false}})
         return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } })
+      }
+    } else this.ready()
+  })
+
+  // TODO: where appropriate, switch to this publication!
+  Meteor.publish('sessions.forCourse', function (courseId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const course = Courses.findOne({ _id:courseId })
+      if (!course || !user) return this.ready()
+
+      if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
+        return Sessions.find({ courseId: courseId })
+      } else if ( _.indexOf(course.students, this.userId) > -1 ) {
+        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
+      } else {
+        return this.ready()
+      }
+    } else this.ready()
+  })
+// TODO: where appropriate, switch to this publication!
+  Meteor.publish('sessions.single', function (sessionId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const session = Sessions.findOne({ _id: sessionId})
+      if (!session || !user) return this.ready()
+      const courseId = session.courseId
+      const course = Courses.findOne({ _id:courseId })
+      if (!course) return this.ready()
+
+      if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
+        return Sessions.find({ courseId: courseId })
+      } else if ( _.indexOf(course.students, this.userId) > -1 ) {
+        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
+      } else {
+        return this.ready()
       }
     } else this.ready()
   })
@@ -279,7 +316,7 @@ Meteor.methods({
     profHasCoursePermission(session.courseId)
 
     /*
-    // TODO: Calculate grades if the session is made reviewable 
+    // TODO: Calculate grades if the session is made reviewable
     // for some reasone, doesn't find any grades, even if they exist!!!
 
 

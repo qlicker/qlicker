@@ -232,74 +232,80 @@ Meteor.methods({
    * @param {MongoId} grade - grade object with id
    */
   'grades.updatePoints' (grade) {
-    check(grade, gradePattern)
+    if (Meteor.isServer){
+      check(grade, gradePattern)
 
-    const marks = grade.marks
-    let gradePoints = 0
-    for (let i = 0; i < marks.length; i++){
-      gradePoints += marks[i].points
-    }
-
-    let gradeValue = 0
-    if(gradePoints > 0) {
-      if(grade.outOf > 0){
-        gradeValue = (100 * gradePoints/grade.outOf)
-      }else{
-        gradeValue = 100
+      const marks = grade.marks
+      let gradePoints = 0
+      for (let i = 0; i < marks.length; i++){
+        gradePoints += marks[i].points
       }
+
+      let gradeValue = 0
+      if(gradePoints > 0) {
+        if(grade.outOf > 0){
+          gradeValue = (100 * gradePoints/grade.outOf)
+        }else{
+          gradeValue = 100
+        }
+      }
+      grade.points = gradePoints
+      if( grade.automatic ){
+        grade.value = gradeValue
+      }
+      Meteor.call('grades.update', grade)
     }
-    grade.points = gradePoints
-    if( grade.automatic ){
-      grade.value = gradeValue
-    }
-    Meteor.call('grades.update', grade)
   },
 
   'grades.setMarkAutomatic' (gradeId, questionId) {
-    check(gradeId, Helpers.MongoID)
-    check(questionId, Helpers.MongoID)
+    if (Meteor.isServer){
+      check(gradeId, Helpers.MongoID)
+      check(questionId, Helpers.MongoID)
 
-    let grade = Grades.findOne({ _id:gradeId })
-    if (!grade){
-      throw Error('No grade with this id')
-    }
-    const user = Meteor.user()
+      let grade = Grades.findOne({ _id:gradeId })
+      if (!grade){
+        throw Error('No grade with this id')
+      }
+      const user = Meteor.user()
 
-    if ( !user.hasRole(ROLES.admin) &&
-         !user.isInstructor(grade.courseId)  ) {
-      throw new Meteor.Error('not-authorized')
-    }
+      if ( !user.hasRole(ROLES.admin) &&
+           !user.isInstructor(grade.courseId)  ) {
+        throw new Meteor.Error('not-authorized')
+      }
 
-    let marks = grade.marks
-    let mark = _(marks).findWhere({ questionId:questionId })
+      let marks = grade.marks
+      let mark = _(marks).findWhere({ questionId:questionId })
 
-    if (mark){
-      const response = Responses.findOne({ _id: mark.responseId})
-      mark.points = calculateResponsePoints(response)
-      mark.automatic = true
-      Meteor.call('grades.updatePoints', grade)
+      if (mark){
+        const response = Responses.findOne({ _id: mark.responseId})
+        mark.points = calculateResponsePoints(response)
+        mark.automatic = true
+        Meteor.call('grades.updatePoints', grade)
 
-    } else {
-      throw Error('questionId not in grade item')
+      } else {
+        throw Error('questionId not in grade item')
+      }
     }
   },
 
   'grades.setGradeAutomatic' (gradeId) {
-    check(gradeId, Helpers.MongoID)
+    if (Meteor.isServer){
+      check(gradeId, Helpers.MongoID)
 
-    let grade = Grades.findOne({ _id:gradeId })
-    if (!grade){
-      throw Error('No grade with this id')
+      let grade = Grades.findOne({ _id:gradeId })
+      if (!grade){
+        throw Error('No grade with this id')
+      }
+      const user = Meteor.user()
+
+      if ( !user.hasRole(ROLES.admin) &&
+           !user.isInstructor(grade.courseId)  ) {
+        throw new Meteor.Error('not-authorized')
+      }
+
+      grade.automatic = true
+      Meteor.call('grades.updatePoints', grade)
     }
-    const user = Meteor.user()
-
-    if ( !user.hasRole(ROLES.admin) &&
-         !user.isInstructor(grade.courseId)  ) {
-      throw new Meteor.Error('not-authorized')
-    }
-
-    grade.automatic = true
-    Meteor.call('grades.updatePoints', grade)
   },
   /**
    * Set the grade value directly
@@ -307,24 +313,26 @@ Meteor.methods({
    * @param {Number} value- new value for the grade
    */
   'grades.setGradeValue' (gradeId, value) {
-    check(gradeId, Helpers.MongoID)
-    check(value, Number)
+    if (Meteor.isServer){
+      check(gradeId, Helpers.MongoID)
+      check(value, Number)
 
-    let grade = Grades.findOne({ _id:gradeId })
-    if (!grade){
-      throw Error('No grade with this id')
+      let grade = Grades.findOne({ _id:gradeId })
+      if (!grade){
+        throw Error('No grade with this id')
+      }
+
+      const user = Meteor.user()
+
+      if ( !user.hasRole(ROLES.admin) &&
+           !user.isInstructor(grade.courseId)  ) {
+        throw new Meteor.Error('not-authorized')
+      }
+
+      grade.value = value
+      grade.automatic = false
+      Meteor.call('grades.updatePoints', grade)
     }
-
-    const user = Meteor.user()
-
-    if ( !user.hasRole(ROLES.admin) &&
-         !user.isInstructor(grade.courseId)  ) {
-      throw new Meteor.Error('not-authorized')
-    }
-
-    grade.value = value
-    grade.automatic = false
-    Meteor.call('grades.updatePoints', grade)
   },
 
   /**
@@ -334,31 +342,33 @@ Meteor.methods({
    * @param {Number} points- new value of the points for that grade
    */
   'grades.setMarkPoints' (gradeId, questionId, points) {
-    check(gradeId, Helpers.MongoID)
-    check(questionId, Helpers.MongoID)
-    check(points, Number)
+    if (Meteor.isServer){
+      check(gradeId, Helpers.MongoID)
+      check(questionId, Helpers.MongoID)
+      check(points, Number)
 
-    let grade = Grades.findOne({ _id:gradeId })
-    if (!grade){
-      throw Error('No grade with this id')
-    }
+      let grade = Grades.findOne({ _id:gradeId })
+      if (!grade){
+        throw Error('No grade with this id')
+      }
 
-    const user = Meteor.user()
+      const user = Meteor.user()
 
-    if ( !user.hasRole(ROLES.admin) &&
-         !user.isInstructor(grade.courseId)  ) {
-      throw new Meteor.Error('not-authorized')
-    }
+      if ( !user.hasRole(ROLES.admin) &&
+           !user.isInstructor(grade.courseId)  ) {
+        throw new Meteor.Error('not-authorized')
+      }
 
-    let marks = grade.marks
-    let mark = _(marks).findWhere({ questionId:questionId })
+      let marks = grade.marks
+      let mark = _(marks).findWhere({ questionId:questionId })
 
-    if (mark){
-      mark.points = points
-      mark.automatic = false
-      Meteor.call('grades.updatePoints', grade)
-    } else {
-      throw Error('questionId not in grade item')
+      if (mark){
+        mark.points = points
+        mark.automatic = false
+        Meteor.call('grades.updatePoints', grade)
+      } else {
+        throw Error('questionId not in grade item')
+      }
     }
   },
 
@@ -367,171 +377,165 @@ Meteor.methods({
    * @param {MongoID} sessionId - session ID
    */
   'grades.calcSessionGrades' (sessionId){
-
-    const user = Meteor.user()
-    const sess = Sessions.findOne({ _id: sessionId})
-    if (!sess) {
-      throw Error('No session with this id')
-    }
-    const courseId = sess ? sess.courseId: ''
-    const course = Courses.findOne({ _id: courseId})
-
-    if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(courseId)) {
-      throw Error('Unauthorized to grade session')
-    }
-
-
-
-    // questions in the session
-    const qIds = sess ? sess.questions : []
-    // responses corresponding to questions in the session
-    const responses = Responses.find({ questionId: { $in: qIds}}).fetch()
-    // questions in the session
-    let questions = []  //Questions.find({ _id: { $in: qIds}}).fetch()
-    qIds.forEach( (qId) => {
-      questions.push(Questions.findOne({ _id: qId }))
-    })
-
-
-    // TODO: Keep all, and assume that prof has set 0 points for questions that don't have points
-    // of the questions in the sessions, the ones that have responses - REMOVE this //TODO
-    // questions = _.filter(questions, (q) => { return _.findWhere(responses, {questionId: q._id}) })
-
-    //the total number of questions in the session (that have responses)
-    const numQuestionsTotal = questions.length
-
-    //count the questions that are worth points, keep track of total marks for each question
-    let numQuestions = 0
-    let markOutOf = []
-    let gradeOutOf = 0
-    for(let iq = 0; iq < numQuestionsTotal; iq++){
-      let question  = questions[iq]
-      markOutOf.push(1)
-      // Assume that SA is not worth any points
-      // TODO: Remove this!!!
-      if(question.type === QUESTION_TYPE.SA){
-         markOutOf[iq] = 0
+    if (Meteor.isServer){ // only run this on the server!
+      const user = Meteor.user()
+      const sess = Sessions.findOne({ _id: sessionId})
+      if (!sess) {
+        throw Error('No session with this id')
       }
-      // except if the number of points was assigned to the SA (or other question)
-      if (question.sessionOptions && question.sessionOptions.points > 0){
-         markOutOf[iq] = question.sessionOptions.points
+      const courseId = sess ? sess.courseId: ''
+      const course = Courses.findOne({ _id: courseId})
+
+      if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(courseId)) {
+        throw Error('Unauthorized to grade session')
       }
-      if(markOutOf[iq] > 0){
-        numQuestions +=1
-      }
-      gradeOutOf += markOutOf[iq]
-    }
 
-    const studentIds = course.students ? course.students : []
-    const stats = new Stats(questions, responses)
+      // questions in the session
+      const qIds = sess ? sess.questions : []
+      // responses corresponding to questions in the session
+      const responses = Responses.find({ questionId: { $in: qIds}}).fetch()
+      // questions in the session (sort to be in the same order)
+      let questionsUnsorted = Questions.find({ _id: { $in: qIds}}).fetch()
+      let questions = []
+      qIds.forEach( (qId) => {
+        questions.push( _(questionsUnsorted).findWhere({ _id:qId}) )
+      })
 
-    const defaultGrade = {
-      courseId: courseId,
-      sessionId: sessionId,
-      name: sess.name,
-      joined: false,
-      participation: 0,
-      value: 0,
-      points: 0,
-      automatic: true,
-      outOf: 0,
-      numAnswered: 0,
-      numQuestions: 0,
-      visibleToStudents: false,
-      marks: []
-    }
+      //the total number of questions in the session (that have responses)
+      const numQuestionsTotal = questions.length
 
-    for(let is = 0; is < studentIds.length; is++){
-      let studentId = studentIds[is]
-      let existingGrade = Grades.findOne({ userId: studentId, courseId: courseId, sessionId:sessionId})
-
-      let grade = existingGrade ? existingGrade : defaultGrade
-
-      let marks = []
-      let gradePoints = 0
-      let numAnswered = 0
-      let numAnsweredTotal = 0
-      let joined = _(sess.joined).contains(studentId)
-
-
+      //count the questions that are worth points, keep track of total marks for each question
+      let numQuestions = 0
+      let markOutOf = []
+      let gradeOutOf = 0
       for(let iq = 0; iq < numQuestionsTotal; iq++){
-        let question = questions[iq]
+        let question  = questions[iq]
+        markOutOf.push(1)
+        // Assume that SA is not worth any points
+        // TODO: Remove this!!!
+        if(question.type === QUESTION_TYPE.SA){
+           markOutOf[iq] = 0
+        }
+        // except if the number of points was assigned to the SA (or other question)
+        if (question.sessionOptions && question.sessionOptions.points > 0){
+           markOutOf[iq] = question.sessionOptions.points
+        }
+        if(markOutOf[iq] > 0){
+          numQuestions +=1
+        }
+        gradeOutOf += markOutOf[iq]
+      }
 
-        let studentResponses = _(responses).where({ studentUserId: studentId, questionId: question._id })
-        let response = _.max(studentResponses, (resp) => { return resp.attempt })
-        let markPoints = 0
-        let attempt = 0
-        let responseId = "0"
+      const studentIds = course.students ? course.students : []
+      const stats = new Stats(questions, responses)
 
-        if(response.attempt){
-          attempt = response.attempt
-          responseId = response._id
-            //markPoints = stats.calculateResponseGrade(response, question)
-          numAnsweredTotal += 1
-          if(markOutOf[iq] > 0){
-            markPoints = calculateResponsePoints(response)
-            numAnswered +=1
+      const defaultGrade = {
+        courseId: courseId,
+        sessionId: sessionId,
+        name: sess.name,
+        joined: false,
+        participation: 0,
+        value: 0,
+        points: 0,
+        automatic: true,
+        outOf: 0,
+        numAnswered: 0,
+        numQuestions: 0,
+        visibleToStudents: false,
+        marks: []
+      }
+
+      for(let is = 0; is < studentIds.length; is++){
+        let studentId = studentIds[is]
+        let existingGrade = Grades.findOne({ userId: studentId, courseId: courseId, sessionId:sessionId})
+
+        let grade = existingGrade ? existingGrade : defaultGrade
+
+        let marks = []
+        let gradePoints = 0
+        let numAnswered = 0
+        let numAnsweredTotal = 0
+        let joined = _(sess.joined).contains(studentId)
+
+
+        for(let iq = 0; iq < numQuestionsTotal; iq++){
+          let question = questions[iq]
+
+          let studentResponses = _(responses).where({ studentUserId: studentId, questionId: question._id })
+          let response = _.max(studentResponses, (resp) => { return resp.attempt })
+          let markPoints = 0
+          let attempt = 0
+          let responseId = "0"
+
+          if(response.attempt){
+            attempt = response.attempt
+            responseId = response._id
+              //markPoints = stats.calculateResponseGrade(response, question)
+            numAnsweredTotal += 1
+            if(markOutOf[iq] > 0){
+              markPoints = calculateResponsePoints(response)
+              numAnswered +=1
+            }
+          }
+          gradePoints += markPoints
+
+         //don't update a mark if its automatic flag is sest to false
+          if (existingGrade){
+            let existingMark = _(existingGrade.marks).findWhere({ questionId: question._id})
+            if(existingMark && existingMark.automatic === false){
+              continue
+            }
+          }
+
+          let mark = {
+            questionId: question._id,
+            responseId: responseId,
+            attempt: attempt,
+            points: markPoints,
+            outOf: markOutOf[iq],
+            automatic: true
+          }
+          marks.push(mark)
+        }// end of questions
+
+        // Calculate the participation grade
+        let participation = 0
+        if(numAnswered > 0){
+          if(numQuestions > 0){
+            participation = (100 * numAnswered/numQuestions)
+          }else{
+            // answered at least one question, but none of the questions were worth points
+            participation = 100
           }
         }
-        gradePoints += markPoints
-
-       //don't update a mark if its automatic flag is sest to false
-        if (existingGrade){
-          let existingMark = _(existingGrade.marks).findWhere({ questionId: question._id})
-          if(existingMark && existingMark.automatic === false){
-            continue
-          }
-        }
-
-        let mark = {
-          questionId: question._id,
-          responseId: responseId,
-          attempt: attempt,
-          points: markPoints,
-          outOf: markOutOf[iq],
-          automatic: true
-        }
-        marks.push(mark)
-      }// end of questions
-
-      // Calculate the participation grade
-      let participation = 0
-      if(numAnswered > 0){
-        if(numQuestions > 0){
-          participation = (100 * numAnswered/numQuestions)
-        }else{
-          // answered at least one question, but none of the questions were worth points
+        if(joined && numQuestions === 0){
           participation = 100
         }
-      }
-      if(joined && numQuestions === 0){
-        participation = 100
-      }
-      let gradeValue = 0
-      if(gradePoints > 0){
-        if(gradeOutOf > 0){
-          gradeValue = (100 * gradePoints/gradeOutOf)
-        }else{
-          gradeValue = 100
+        let gradeValue = 0
+        if(gradePoints > 0){
+          if(gradeOutOf > 0){
+            gradeValue = (100 * gradePoints/gradeOutOf)
+          }else{
+            gradeValue = 100
+          }
         }
-      }
 
-      grade.marks = marks
-      grade.joined = joined
-      grade.participation = participation
-      grade.value = gradeValue
-      grade.points = gradePoints
-      grade.outOf = gradeOutOf
-      grade.userId = studentId
-      grade.numQuestions = numQuestions
-      grade.numAnswered = numAnswered
-      grade.numQuestionsTotal = numQuestionsTotal
-      grade.numAnsweredTotal = numAnsweredTotal
+        grade.marks = marks
+        grade.joined = joined
+        grade.participation = participation
+        grade.value = gradeValue
+        grade.points = gradePoints
+        grade.outOf = gradeOutOf
+        grade.userId = studentId
+        grade.numQuestions = numQuestions
+        grade.numAnswered = numAnswered
+        grade.numQuestionsTotal = numQuestionsTotal
+        grade.numAnsweredTotal = numAnsweredTotal
 
-      Meteor.call('grades.insert', grade)
-    }//end of students
-
+        Meteor.call('grades.insert', grade)
+      }//end of students
   }
+}
 
 
 }) // end Meteor.methods

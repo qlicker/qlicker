@@ -74,7 +74,11 @@ export class _GradeView extends Component {
     const responsesToView = question
       ? _(this.props.responses).where({ questionId: question._id })
       : null
-    this.setState({ previewQuestion:true, questionToView: question, responsesToView: responsesToView })
+    if (this.state.questionToView && question && this.state.questionToView._id === question._id && this.state.previewQuestion){
+      this.setState({ previewQuestion:false, questionToView: question, responsesToView: responsesToView })
+    } else {
+      this.setState({ previewQuestion:true, questionToView: question, responsesToView: responsesToView })
+    }
   }
 
   // toggle whether to show a question in the preview
@@ -270,26 +274,22 @@ export class _GradeView extends Component {
 export const GradeView = createContainer((props) => {
   const courseId = props.grade.courseId
   const sessionId = props.grade.sessionId
-//  const grade = props.grade
-  const handle = Meteor.subscribe('users.myStudents', {cId: courseId}) &&
+
+  const handle = Meteor.subscribe('users.studentsInCourse', courseId)&&
                  Meteor.subscribe('questions.inSession', sessionId) &&
-                 Meteor.subscribe('sessions') &&
+                 Meteor.subscribe('sessions.single', sessionId) &&
                  Meteor.subscribe('responses.forSession', sessionId) &&
                  Meteor.subscribe('grades.single', props.grade._id)
 
 
   const session = Sessions.findOne({ _id:sessionId })
-  const grade = Grades.findOne({ _id: props.grade._id})
+  const grade = Grades.findOne({ _id: props.grade._id}) //Makes the grade reactive!
   const student = props.student
                     ? props.student
                     : Meteor.users.findOne({ _id:props.grade.userId })
 
+  let questions = Questions.find({ _id:{ $in:session.questions }}).fetch()
 
-  // overkill to sort the questions...
-  let questions = []
-  session.questions.forEach( (qId) => {
-    questions.push( Questions.findOne({ _id:qId }) )
-  })
   const questionIds = questions ? _(questions).pluck("_id") : []
   const responses = Responses.find({ questionId: { $in:questionIds }, studentUserId:props.grade.userId }, { sort: { attempt: 1 } }).fetch()
 

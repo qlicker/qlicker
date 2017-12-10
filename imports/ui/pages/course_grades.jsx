@@ -40,12 +40,14 @@ export const CourseGrades = createContainer((props) => {
   //const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
     //Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.courseId)})
   // TODO: not clear why one needs to subscribe to all these here.. if not, GradeTable doesn't work properly!!
+  const handle = Meteor.subscribe('courses.single', props.courseId)
+  /*
    const handle = Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
      Meteor.subscribe('courses', {isInstructor: Meteor.user().isInstructor(props.courseId)}) &&
      Meteor.subscribe('sessions') &&
      Meteor.subscribe('questions.inCourse', props.courseId) &&
      Meteor.subscribe('responses.forCourse', props.courseId) &&
-     Meteor.subscribe('grades.forCourse', props.courseId)
+     Meteor.subscribe('grades.forCourse', props.courseId)*/
 
 
     const course = Courses.findOne(props.courseId)

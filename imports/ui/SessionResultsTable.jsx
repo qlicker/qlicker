@@ -53,11 +53,15 @@ export class _SessionResultsTable extends Component {
   }
 
   calculateGrades () {
-    Meteor.call('grades.calcSessionGrades',this.props.session._id, (err) => {
-      if(err){
-        alertify.error('Error: ' + err.error)
-      }
-    })
+    if (confirm('Are you sure?')) {
+      Meteor.call('grades.calcSessionGrades',this.props.session._id, (err) => {
+        if(err){
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Grades calculated')
+        }
+      })
+    }
   }
 
   render () {
@@ -302,6 +306,9 @@ export class _SessionResultsTable extends Component {
               student={this.state.studentToView}
               done={this.toggleGradeViewModal} />
           : '' }
+          <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
+            Re-calculate grades
+          </div>
       </div>
     )
  }
