@@ -195,6 +195,9 @@ export class _GradeView extends Component {
                   questionCount +=1
                   let autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
                   const infoClass =  mark.automatic ? 'ql-gradeview-question-info' : 'ql-gradeview-question-info ql-gradeview-manual'
+                  const previewClass = (this.state.questionToView && mark.questionId === this.state.questionToView._id && this.state.previewQuestion)
+                                       ? 'ql-gradeview-question-preview preview'
+                                       : 'ql-gradeview-question-preview'
 
                   const question = _(this.props.questions).findWhere({ _id:mark.questionId })
                   const autoGradeable = question && isAutoGradeable(question.type)
@@ -213,7 +216,7 @@ export class _GradeView extends Component {
 
 
                   return ( <div key={mark.questionId} className='ql-gradeview-question'>
-                     <div className='ql-gradeview-question-preview' onClick={previewQuestion}>
+                     <div className={previewClass} onClick={previewQuestion}>
                        Question {questionCount} ({QUESTION_TYPE_STRINGS_SHORT[question.type]})
                      </div>
                      &nbsp;&nbsp;
@@ -251,7 +254,7 @@ export class _GradeView extends Component {
               </a>
 
               { this.state.previewQuestion
-                ? <div>
+                ? <div className='ql-gradeview-preview-container'>
                      <QuestionWithResponse question={this.state.questionToView} responses={this.state.responsesToView} />
                      <a  onClick={this.togglePreviewQuestion}>Hide attempts</a>
                   </div>

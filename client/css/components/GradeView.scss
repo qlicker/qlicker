@@ -43,7 +43,7 @@
     padding-left: 10px;
     padding-bottom: 10px;
     padding-top: 10px;
-    
+
     .ql-gradeview-question {
       padding-top: 2px;
       font-size: 100%;
@@ -53,15 +53,21 @@
       .ql-gradeview-question-preview {
         //text-decoration: underline;
         //text-decoration-color: $blue;
-        border:2px solid $darker-grey;
+        border:1px solid $darker-grey;
         border-radius: 5px;
         padding-right: 2px;
         padding-left: 2px;
+
         &:hover {
           font-weight: bold;
           cursor: pointer;
           color: $blue;
-          border:3px solid $darker-grey;
+          border:2px solid $darker-grey;
+        }
+        &.preview  {
+          font-weight: bold;
+          color: $black;
+          border:2px solid $darker-grey;
         }
       }
 
@@ -82,6 +88,10 @@
       }
 
     }
+  }
+  
+  .ql-gradeview-preview-container {
+    font-size: 70%;
   }
 
 }
