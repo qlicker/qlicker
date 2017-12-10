@@ -100,8 +100,9 @@ export class ProfileViewModal extends ControlledForm {
   }
 
   render () {
-    return (this.props.user
-      ? <div className='ql-modal-container' >
+    if (!this.props.user) return <div className='ql-subs-loading'>Loading</div>
+    return (
+      <div className='ql-modal-container' >
         <div className='row'>
           <div className='col-md-3' />
           <div className='col-md-6'>
@@ -126,7 +127,8 @@ export class ProfileViewModal extends ControlledForm {
           </div>
           <div className='col-md-3' />
         </div>
-      </div> : 'Loading')
+      </div>
+      )
   } //  end render
 
 } // end profileViewModal

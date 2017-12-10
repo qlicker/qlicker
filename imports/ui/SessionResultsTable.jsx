@@ -263,6 +263,8 @@ export class _SessionResultsTable extends Component {
    const cvsFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
    const handleSubmit = (e) => {e.preventDefault()}
 
+   const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
+   const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
@@ -317,13 +319,13 @@ export class _SessionResultsTable extends Component {
           ) }
 
         </Table>
-        { this.state.gradeViewModal
+        { showGradeViewModal
           ? <GradeViewModal
               grade={this.state.gradeToView}
               student={this.state.studentToView}
               done={this.toggleGradeViewModal} />
           : '' }
-        { this.state.profileViewModal
+        { showProfileViewModal
           ? <ProfileViewModal
               user={this.state.studentToView}
               done={this.toggleProfileViewModal} />
@@ -337,10 +339,18 @@ export class _SessionResultsTable extends Component {
 }
 
 export const SessionResultsTable = createContainer( (props) => {
+  /*
   const handle = Meteor.subscribe('users.myStudents', { cId: props.session.courseId }) &&
     Meteor.subscribe('courses') &&
     Meteor.subscribe('questions.forReview', props.session._id) &&
     Meteor.subscribe('grades.forSession', props.session._id)
+*/
+
+  const handle = Meteor.subscribe('users.studentsInCourse', props.session.courseId) &&
+    Meteor.subscribe('courses.single', props.session.courseId) &&
+    Meteor.subscribe('sessions.single', props.session._id) &&
+    Meteor.subscribe('grades.forSession', props.session._id) &&
+    Meteor.subscribe('questions.forReview', props.session._id)
 
   const user = Meteor.user()
   const course = Courses.findOne({ _id:props.session.courseId })
@@ -354,7 +364,6 @@ export const SessionResultsTable = createContainer( (props) => {
     students = Meteor.users.find({ _id: { $in: course.students || [] } }).fetch()
     students = _(students).sortBy( (entry) => {return entry.profile.lastname.toLowerCase()})
   }
-
   const tableData = []
   const numStudents = students.length
 
@@ -366,6 +375,7 @@ export const SessionResultsTable = createContainer( (props) => {
       firstName: students[iStu].profile.firstname,
       lastName: students[iStu].profile.lastname,
       email: students[iStu].emails[0].address,
+      userId: students[iStu]._id,
       grade: sgrade
     }
     tableData.push(dataItem)

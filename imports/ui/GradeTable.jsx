@@ -261,6 +261,9 @@ export class _GradeTable extends Component {
    const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
    const handleSubmit = (e) => {e.preventDefault()}
 
+   const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
+   const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
+
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
@@ -310,13 +313,13 @@ export class _GradeTable extends Component {
           ) }
 
         </Table>
-        { this.state.gradeViewModal
+        { showGradeViewModal
           ? <GradeViewModal
               grade={this.state.gradeToView}
               student={this.state.studentToView}
               done={this.toggleGradeViewModal} />
           : '' }
-        { this.state.profileViewModal
+        { showProfileViewModal
           ? <ProfileViewModal
               user={this.state.studentToView}
               done={this.toggleProfileViewModal} />
