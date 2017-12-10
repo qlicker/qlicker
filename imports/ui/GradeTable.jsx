@@ -268,7 +268,7 @@ export class _GradeTable extends Component {
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
           {this.props.students.length > 1 ?
-            <div className='ql-grade-table-search'>
+            <div className='ql-grade-table-controlbar-divh'>
               <form ref='searchStudentForm' onSubmit={handleSubmit}>
                 <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
               </form>
@@ -276,13 +276,20 @@ export class _GradeTable extends Component {
             : ''
           }
           {isInstructor ?
-            <div className='ql-grade-table-controlbar-download'>
-              <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
-                <div type='button' className='btn btn-secondary'>
-                  Export as .csv
+            <div className='ql-grade-table-controlbar-div'>
+              <div>
+                <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
+                  Re-calculate grades
                 </div>
-              </CSVLink>
-            </div>
+              </div>
+              <div>
+                <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+                  <div type='button' className='btn btn-secondary'>
+                    Export as .csv
+                  </div>
+                </CSVLink>
+              </div>
+           </div>
             : ''
           }
         </div>
@@ -324,9 +331,6 @@ export class _GradeTable extends Component {
               user={this.state.studentToView}
               done={this.toggleProfileViewModal} />
           : '' }
-          <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
-            Re-calculate all grades
-          </div>
       </div>
     )
 

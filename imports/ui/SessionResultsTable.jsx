@@ -269,21 +269,29 @@ export class _SessionResultsTable extends Component {
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
           {this.props.students.length > 1 ?
-            <div className='ql-grade-table-controlbar-search'>
+            <div className='ql-grade-table-controlbar-div'>
               <form ref='searchStudentForm' onSubmit={handleSubmit}>
                 <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
               </form>
              </div>
             : ''
           }
+
           {isInstructor ?
-            <div className='ql-grade-table-download' >
-              <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
-                <div type='button' className='btn btn-secondary'>
-                  Export as .csv
+            <div className='ql-grade-table-controlbar-div'>
+              <div>
+                <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
+                  Re-calculate grades
                 </div>
-              </CSVLink>
-            </div>
+              </div>
+              <div>
+                <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+                  <div type='button' className='btn btn-secondary'>
+                    Export as .csv
+                  </div>
+                </CSVLink>
+              </div>
+           </div>
             : ''
           }
         </div>
@@ -291,7 +299,7 @@ export class _SessionResultsTable extends Component {
           rowHeight={35}
           rowsCount={nRows}
           width={0.8 * window.innerWidth}
-          height={0.7 * window.innerHeight}
+          height={0.35 * window.innerHeight}
           headerHeight={50}>
           <Column
             header={<NameHeaderCell />}
@@ -330,9 +338,6 @@ export class _SessionResultsTable extends Component {
               user={this.state.studentToView}
               done={this.toggleProfileViewModal} />
           : '' }
-          <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
-            Re-calculate grades
-          </div>
       </div>
     )
  }

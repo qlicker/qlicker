@@ -11,11 +11,9 @@
     padding-bottom: 5px;
     padding-bottom: 10px;
 
-    .ql-grade-table-controlbar-search {
-
-    }
-    .ql-grade-table-controlbar-download {
-
+    .ql-grade-table-controlbar-div {
+      display: flex;
+      flex-direction: row;
     }
 
   }
