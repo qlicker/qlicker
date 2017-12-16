@@ -83,7 +83,7 @@ class _Session extends Component {
 
 // meteor reactive data container
 export const Session = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions') &&
+  const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
     Meteor.subscribe('questions.inSession', props.sessionId)
 
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]

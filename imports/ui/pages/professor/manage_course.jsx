@@ -39,12 +39,9 @@ class _ManageCourse extends Component {
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
-    this.gradeSession = this.gradeSession.bind(this)
     this.copySession = this.copySession.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
-    // this.deleteCourse = this.deleteCourse.bind(this)
-    // this.setActive = this.setActive.bind(this)
     this.toggleVerification = this.toggleVerification.bind(this)
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
@@ -55,11 +52,6 @@ class _ManageCourse extends Component {
     this.setState({ copySessionModal: !this.state.copySessionModal, sessionToCopy: sessionId })
   }
 
-  gradeSession (sessionId) {
-    Meteor.call('grades.calcSessionGrades', sessionId, (error) => {
-      if (error) return alertify.error('Error calculating grade: '+ error.error)
-    })
-  }
   toggleProfileViewModal (userToView = null) {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
@@ -74,23 +66,6 @@ class _ManageCourse extends Component {
       }
     })
   }
-/*
-  deleteCourse () {
-    if (confirm('Are you sure?')) {
-      Meteor.call('courses.delete', this.props.course._id, (error) => {
-        if (error) return alertify.error('Error deleting course')
-        alertify.success('Course Deleted')
-        Router.go('courses')
-      })
-    }
-  }
-
-  setActive () {
-    Meteor.call('courses.setActive', this.props.course._id, this.props.course.inactive || false, (error) => {
-      if (error) return alertify.error('Error: could not set course property')
-      alertify.success('Course set to: ' + (this.props.course.inactive ? 'Archived' : 'Active'))
-    })
-  } */
 
   deleteSession (sessionId) {
     if (confirm('Are you sure?')) {
@@ -131,6 +106,7 @@ class _ManageCourse extends Component {
       alertify.success('Email verification' + (this.props.course.requireVerified ? '' : ' not') + ' required')
     })
   }
+
   generateNewCourseCode () {
     if (confirm('Are sure?')) {
       Meteor.call('courses.regenerateCode', this.props.course._id, (error) => {
@@ -139,12 +115,14 @@ class _ManageCourse extends Component {
       })
     }
   }
+
   toggleAllowStudentQuestions () {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
       if (error) return alertify.error('Error allowing/refusing student questions ' + error.error)
       alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
+
   renderSessionList () {
     let sessions = this.props.sessions
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
@@ -181,7 +159,6 @@ class _ManageCourse extends Component {
           controls.push({ label: 'Review results', click: () => Router.go('/results/session/' + sId) })
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
-          controls.push({ label: 'Calculate Grades', click: () => this.gradeSession(sId) })
           controls.push({ divider: true })
           controls.push({ label: 'Delete', click: () => this.deleteSession(sId) })
 
@@ -330,7 +307,7 @@ class _ManageCourse extends Component {
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { _id: this.props.course._id }) }}>Review Session Results</button>
+                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>Review Session Results</button>
               </div>
               { this.renderSessionList() }
             </div>
@@ -357,10 +334,10 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses', {isInstructor: props.isInstructor}) &&
-    Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) &&
-    Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
-    Meteor.subscribe('users.myTAs', {cId: props.courseId})
+  const handle = Meteor.subscribe('courses.single', props.courseId) &&
+    Meteor.subscribe('sessions.forCourse', props.courseId) &&
+    Meteor.subscribe('users.studentsInCourse', props.courseId) &&
+    Meteor.subscribe('users.instructorsInCourse', props.courseId)
 
   const course = Courses.find({ _id: props.courseId }).fetch()[0]
 

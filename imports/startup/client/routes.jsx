@@ -202,14 +202,12 @@ Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
     // could the myTAs be wrong for a TA???
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses') /* && Meteor.subscribe('users.myTAs') */
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params._id)
   },
   action: function () {
-    if (Meteor.userId() && Meteor.user().hasGreaterRole('professor')) {
-      mount(AppLayout, {content: <PageContainer> <ManageCourse courseId={this.params._id} /> </PageContainer>})
-    } else if (Meteor.user().isInstructor(this.params._id)) {
+    if (Meteor.user().isInstructor(this.params._id) || Meteor.user().hasRole('admin')) {
       mount(AppLayout, {content: <PageContainer> <ManageCourse isInstructor courseId={this.params._id} /> </PageContainer>})
-    } else if (Meteor.user().hasRole('student')) {
+    } else if (Meteor.user().isStudent(this.params._id)) {
       mount(AppLayout, { content: <PageContainer> <Course courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
@@ -231,60 +229,50 @@ Router.route('/courses/results', {
 })
 
 import { CourseGrades } from '../../ui/pages/course_grades'
-Router.route('/course/:_id/results', {
+Router.route('/course/grades/:courseId', {
   name: 'course.results',
   waitOn: function () {
-    return Meteor.subscribe('userData')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params.courseId)
   },
   action: function () {
     const u = Meteor.user()
-    const isInstructor = u.isInstructor(this.params._id)
-    if (u && isInstructor) {
-      mount(AppLayout, { content: <PageContainer> <CourseGrades courseId={this.params._id} /> </PageContainer> })
+    const isInCourse = u.isInstructor(this.params.courseId) || u.isStudent(this.params.courseId)
+    if (u && isInCourse) {
+      mount(AppLayout, { content: <PageContainer> <CourseGrades courseId={this.params.courseId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
 
 import { ResultsPage } from '../../ui/pages/results'
+import { StudentSessionResultsPage } from '../../ui/pages/student_session_results'
+
 Router.route('/results/session/:sessionId', {
   name: 'session.results',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params.sessionId) && Meteor.subscribe('courses')
   },
   action: function () {
     const sess = Sessions.findOne({_id: this.params.sessionId})
     const cId = sess ? sess.courseId : 0
     let user = Meteor.user()
-    if (user && user.isInstructor(cId)) {
-      mount(AppLayout, { content: <PageContainer> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
+    if (user){
+      if (user.hasRole('admin') || user.isInstructor(cId)){
+        mount(AppLayout, { content: <PageContainer> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
+      } else if (user.isStudent(cId)){
+        mount(AppLayout, { content: <PageContainer>
+          <StudentSessionResultsPage sessionId={this.params.sessionId} studentId={Meteor.userId()} /> </PageContainer> })
+      } else Router.go('login')
+
     } else Router.go('login')
   }
 })
+
 /*
-//This route does not currently work, assume that StudentResultsPage is not working.
-//Should be able to handle this route from course/:id/results instead and reuse
-//the same component but with different subscrption.
-
-import { StudentResultsPage } from '../../ui/pages/student_results'
-Router.route('/results/:studentId/:courseId', {
-  name: 'student.results',
-  waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
-  },
-  action: function () {
-    if (Meteor.user()) {
-      mount(AppLayout, { content: <PageContainer>
-        <StudentResultsPage studentId={this.params.studentId} courseId={this.params.courseId} />
-      </PageContainer> })
-    } else Router.go('login')
-  }
-}) */
-
 import { StudentSessionResultsPage } from '../../ui/pages/student_session_results'
 Router.route('/results/:sessionId', {
   name: 'student.session.results',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions.single',this.params.sessionId)
   },
   action: function () {
     const user = Meteor.user()
@@ -297,14 +285,14 @@ Router.route('/results/:sessionId', {
       </PageContainer> })
     } else Router.go('login')
   }
-})
+})*/
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {
   name: 'session.edit',
   waitOn: function () {
     return Meteor.subscribe('userData') &&
-      Meteor.subscribe('sessions') &&
+      Meteor.subscribe('sessions.single',this.params._id) &&
       Meteor.subscribe('courses') &&
       Meteor.subscribe('images') &&
       Meteor.subscribe('questions.inSession', this.params._id)
@@ -322,7 +310,7 @@ import { RunSession } from '../../ui/pages/professor/run_session'
 Router.route('/session/run/:_id', {
   name: 'session.run',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
     const sess = Sessions.findOne(this.params._id)
@@ -336,7 +324,7 @@ Router.route('/session/run/:_id', {
 Router.route('/session/run/:_id/mobile', {
   name: 'session.run.mobile',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
     const sess = Sessions.findOne(this.params._id)
@@ -351,7 +339,7 @@ import { Session } from '../../ui/pages/student/session'
 Router.route('/session/present/:_id', {
   name: 'session',
   waitOn: function () {
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions') && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses')
   },
   action: function () {
     const user = Meteor.user()

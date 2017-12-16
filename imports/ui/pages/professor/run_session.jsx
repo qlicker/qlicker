@@ -227,9 +227,6 @@ class _RunSession extends Component {
     if (!this.state.session.reviewable) {
       // by default, do not change reviability, but do remind prof if not reviewable:
       alertify.error('Warning: session not reviewable')
-      // Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
-        // if (error) alertify.error('Error: ' + error.error)
-      // })
     }
   }
 
@@ -450,11 +447,10 @@ class _RunSession extends Component {
 }
 
 export const RunSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions') &&
-    Meteor.subscribe('questions.inSession', props.sessionId) &&
+  const handle =  Meteor.subscribe('sessions.single',props.sessionId)
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('responses.forSession', props.sessionId) &&
-    Meteor.subscribe('users.myStudents', {cId: props.courseId})
+    Meteor.subscribe('users.studentsInCourse', props.courseId)
 
   const session = Sessions.findOne(props.sessionId)
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()

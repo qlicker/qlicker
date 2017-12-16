@@ -74,7 +74,9 @@ export class _SessionResultsTable extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     if (!this.props.students || this.props.students.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
-    if (!this.props.grades || this.props.grades.length < 1 ){
+    const session = this.props.session
+    const isInstructor = Meteor.user().isInstructor(session.courseId)
+    if ( (!this.props.grades || this.props.grades.length < 1) && isInstructor ){
       return (<div>
         <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
           Calculate grades
@@ -91,12 +93,10 @@ export class _SessionResultsTable extends Component {
       else return width
     }
 
-    const session = this.props.session
-    //const questions = this.props.questions
     const studentSearchString = this.state.studentSearchString
     const sortByColumn = this.state.sortByColumn
     const sortAsc = this.state.sortAsc
-    const isInstructor = Meteor.user().isInstructor(session.courseId)
+
 
     const qIds = session ? session.questions : []
     const numQuestions = qIds.length

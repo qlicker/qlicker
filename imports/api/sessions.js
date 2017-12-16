@@ -42,7 +42,7 @@ export const Sessions = new Mongo.Collection('sessions',
   { transform: (doc) => { return new Session(doc) } })
 // data publishing
 if (Meteor.isServer) {
-
+// TODO : Should make more robust, check if students, etc, like the other publications
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
@@ -70,7 +70,7 @@ if (Meteor.isServer) {
 
       if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
         return Sessions.find({ courseId: courseId })
-      } else if ( _.indexOf(course.students, this.userId) > -1 ) {
+      } else if ( user.isStudent(courseId) ) {
         return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
         return this.ready()
@@ -89,7 +89,7 @@ if (Meteor.isServer) {
 
       if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
         return Sessions.find({ courseId: courseId })
-      } else if ( _.indexOf(course.students, this.userId) > -1 ) {
+      } else if ( user.isStudent(courseId) ) {
         return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
         return this.ready()
@@ -313,28 +313,24 @@ Meteor.methods({
   'sessions.toggleReviewable' (sessionId) {
     check(sessionId, Helpers.MongoID)
     const session = Sessions.findOne({ _id: sessionId })
+    if(!session){
+        throw Error('No session with this id')
+    }
     profHasCoursePermission(session.courseId)
 
-    /*
-    // TODO: Calculate grades if the session is made reviewable
-    // for some reasone, doesn't find any grades, even if they exist!!!
-
-
-    const grades = Grades.find({ sessionId: session._id }).fetch()
-    const calcGrades =  (grades.length < 1 && !session.reviewable )
-
-    // If making the session reviewable, calculate the grades
-    if (calcGrades && session) {
-      console.log("calculating grades")
-      console.log(grades)
-      console.log(session._id)
-      Meteor.call('grades.calcSessionGrades',session._id, (err) => {
-        if(err){
-          alertify.error('Error: ' + err.error)
-        }
+    // If making the session reviewable, calculate/update the grades
+    if (!session.reviewable) {
+      Meteor.call('grades.calcSessionGrades',session._id, () => {
+        Meteor.call('grades.showToStudents', session._id)
       })
+
+    } else {// If the session is made non-reviewable, hide the grades from students
+      const grades = Grades.find({ sessionId: session._id }).fetch()
+      if(grades.length > 0){
+        Meteor.call('grades.hideFromStudents', session._id)
+      }
     }
-   */
+
     return Sessions.update({ _id: sessionId }, {
       $set: {
         reviewable: !session.reviewable

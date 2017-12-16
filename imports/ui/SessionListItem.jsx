@@ -34,7 +34,7 @@ export class SessionListItem extends ListItem {
   reviewSession (evt) {
     evt.stopPropagation()
     const sessionId = this.props.session._id
-    Router.go('student.session.results', { sessionId: sessionId })
+    Router.go('session.results', { sessionId: sessionId })
   }
 
   render () {
@@ -102,4 +102,3 @@ SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
   details: PropTypes.bool
 }
-

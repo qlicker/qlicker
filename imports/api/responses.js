@@ -95,6 +95,7 @@ if (Meteor.isServer) {
           if (fields.sessionOptions && fields.sessionOptions.stats){
             const currentRs = Responses.find({ questionId: questionId })
             currentRs.forEach(r => {
+              // TODO: Should double-check if this should be "changed" instead of "added"
               self.added('responses', r._id, _(r).omit('studentUserId'))
             })
           }else{

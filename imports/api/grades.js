@@ -228,6 +228,24 @@ Meteor.methods({
   },
 
   /**
+   * Hide the grades from the students
+   * @param {MongoID} sessionId - session ID
+   */
+  'grades.hideFromStudents' (sessionId){
+    const r = Grades.update({ sessionId: sessionId}, {
+      $set: { visibleToStudents:false }
+    })
+  },
+  /**
+   * Hide the grades from the students
+   * @param {MongoID} sessionId - session ID
+   */
+  'grades.showToStudents' (sessionId){
+    const r = Grades.update({ sessionId: sessionId}, {
+      $set: { visibleToStudents:true }
+    })
+  },
+  /**
    * Update points for an existing grade
    * @param {MongoId} grade - grade object with id
    */

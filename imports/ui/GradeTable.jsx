@@ -105,7 +105,11 @@ export class _GradeTable extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     if (!this.props.students || this.props.students.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
-    if (!this.props.grades || this.props.grades.length < 1 ){
+
+    const sessions = this.props.sessions
+    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+    
+    if ( (!this.props.grades || this.props.grades.length < 1) && isInstructor ){
       return (<div>
         <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
           Calculate grades!
@@ -122,11 +126,10 @@ export class _GradeTable extends Component {
       else return width
     }
 
-    const sessions = this.props.sessions
     const studentSearchString = this.state.studentSearchString
     const sortByColumn = this.state.sortByColumn
     const sortAsc = this.state.sortAsc
-    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+
 
     // Grab only the rows we need if the search string is set
     let tableData = studentSearchString

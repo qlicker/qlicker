@@ -23,7 +23,7 @@ class _ResultsOverview extends Component {
 
   renderCourseList (cList) {
     return cList.map((c) => (
-      <CourseListItem key={c._id} course={c} click={() => { Router.go('course.results', { _id: c._id }) }} />
+      <CourseListItem key={c._id} course={c} click={() => { Router.go('course.results', { courseId: c._id }) }} />
     ))
   }
 
@@ -57,4 +57,3 @@ export const ResultsOverview = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _ResultsOverview)
-

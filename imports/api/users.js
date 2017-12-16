@@ -47,6 +47,12 @@ _.extend(User.prototype, {
     const c = Courses.findOne(courseId)
     return c ? _.contains(c.instructors, this._id) : false
   },
+  isStudent: function (courseId) {
+    if (!courseId) return false
+    check(courseId, Helpers.MongoID)
+    const c = Courses.findOne(courseId)
+    return c ? _.contains(c.students, this._id) : false
+  },
   hasGreaterRole: function (role) {
     if (this.profile.roles.indexOf(role) !== -1) return true
     else if (role === ROLES.prof && this.profile.roles.indexOf(ROLES.admin) !== -1) return true
@@ -89,7 +95,7 @@ if (Meteor.isServer) {
     if (!course || !user) return this.ready()
 
     if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ) {
-      let students = course.students
+      let students = course.students ? course.students : []
       return Meteor.users.find({_id: {$in: students}}, {fields: {services: false}})
     } else {
       if (_.indexOf(course.students,this.userId) > -1){
@@ -108,7 +114,7 @@ if (Meteor.isServer) {
     if (!course || !user) return this.ready()
 
     if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ) {
-      let instructors = course.instructors
+      let instructors = course.instructors ? course.instructors : []
       return Meteor.users.find({_id: {$in: instructors}}, {fields: {services: false}})
     } else return this.ready()
 

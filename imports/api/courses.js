@@ -53,15 +53,33 @@ if (Meteor.isServer) {
   Meteor.publish('courses.single', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      const course = Courses.findOne({ _id:courseId })
-      if (!course || !user) return this.ready()
+      const c = Courses.findOne({ _id:courseId })
+      if (!c || !user) return this.ready()
 
       if (user.hasGreaterRole(ROLES.admin)) {
         return Courses.find({ _id:courseId })
-      } else if (_.indexOf(course.instructors, this.userId) > -1 ) {
+      } else if (user.isInstructor(courseId) ) {
         return Courses.find({ _id:courseId })
-      } else if (_.indexOf(course.students, this.userId) > -1){
-        return Courses.find({ _id:courseId }, { fields: { students: false } })
+      } else if (user.isStudent(courseId)){
+        //return Courses.find({ _id:courseId }, { fields: { students: false } })
+        let course = Courses.findOne({ _id:courseId })
+        const students = [this.userId]
+        course.students = students
+        this.added('courses', course._id, course)
+        this.ready()
+
+        const cCursor = Courses.find({ _id:courseId })
+        const cHandle = cCursor.observeChanges({
+          changed: (id, fields) => {
+            fields.students = [this.userId]
+            this.changed('courses', id, fields)
+          }
+        })
+
+        this.onStop(function () {
+          cHandle.stop()
+        })
+
       } else{
         return this.ready()
       }
@@ -77,7 +95,9 @@ if (Meteor.isServer) {
         return Courses.find({ _id: { $in: user.profile.courses || [] } }) // finds all the course owned
       } else {
         let coursesArray = user.profile.courses || []
-        return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
+        // TODO Need to remove students from array, as in above
+        //return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
+        return Courses.find({ _id: { $in: coursesArray } })
       }
     } else this.ready()
   })
