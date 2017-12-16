@@ -41,6 +41,8 @@ class _ManageCourse extends Component {
 
     this.copySession = this.copySession.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
+    this.startSession = this.startSession.bind(this)
+    this.endSession = this.endSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
     this.toggleVerification = this.toggleVerification.bind(this)
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
@@ -54,6 +56,24 @@ class _ManageCourse extends Component {
 
   toggleProfileViewModal (userToView = null) {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
+  }
+
+  startSession (sessionId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('sessions.startSession', sessionId, (error) => {
+        if (error) return alertify.error('Couldn\'t start session')
+        alertify.success('Session live!')
+      })
+    }
+  }
+
+  endSession (sessionId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('sessions.endSession', sessionId, (error) => {
+        if (error) return alertify.error('Couldn\'t start session')
+        alertify.success('Session completed!')
+      })
+    }
   }
 
   copySession (sessionId, courseId = null) {
@@ -153,10 +173,18 @@ class _ManageCourse extends Component {
               label: 'Open Session Display',
               click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') }
             })
+            controls.push({
+              label: 'End session',
+              click: () => { this.endSession(sId) }
+            })
             controls.push({ divider: true })
-          }
 
-          controls.push({ label: 'Review results', click: () => Router.go('session.results',{sessionId: sId} ) })
+          }
+          if (ses.status === 'done'){
+            controls.push({ label: 'Review results', click: () => Router.go('session.results',{sessionId: sId} ) })
+          } else {
+            controls.push({ label: 'Start session', click: () => this.startSession(sId) })
+          }
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
           controls.push({ divider: true })

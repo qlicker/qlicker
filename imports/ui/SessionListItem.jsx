@@ -61,11 +61,15 @@ export class SessionListItem extends ListItem {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.reviewSession(evt)}>Review</a>
     }
 
+    let statusClassName = 'ql-session-status ' + ('ql-' + status)
+    if (session.reviewable && session.status === 'done') statusClassName +=' reviewable'
+    if (!session.reviewable && session.status === 'done') statusClassName +=' not-reviewable'
+
     return (
       <div className='ql-session-list-item ql-list-item' onClick={this.click}>
         <div className='row'>
           <div className='col-md-2 col-xs-4 col-sm-3 status-col'>
-            <span className={'ql-session-status ' + ('ql-' + status)}>{strStatus} </span>
+            <span className={statusClassName}>{strStatus} </span>
           </div>
           <div className={this.props.controls ? 'col-md-6 col-sm-5 col-xs-8' : 'col-md-7 col-sm-6 col-xs-8'}>
             <span className='ql-session-name'>{ session.name }</span>

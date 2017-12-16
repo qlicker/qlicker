@@ -322,6 +322,9 @@ select.ql-unstyled-select {
 
   .ql-card-content {
     padding: 15px;
+    label {
+      padding-right: 3px;
+    }
   }
 }
 

@@ -83,9 +83,9 @@ export class CreateSessionModal extends ControlledForm {
 
   render () {
     return (<div className='ql-modal-container' onClick={this.done}>
-      <div className='ql-modal ql-modal-createsession ql-card' onClick={this.preventPropagation}>
+      <div className='ql-modal ql-card' onClick={this.preventPropagation}>
         <div className='ql-modal-header ql-header-bar'><h3>Create Session</h3></div>
-        <form ref='createSessionForm' className='ql-form-createsession ql-card-content' onSubmit={this.handleSubmit}>
+        <form ref='createSessionForm' className='ql-card-content' onSubmit={this.handleSubmit}>
           <label>Quiz:  </label>
           <input type='checkbox' checked={this.state.quiz} data-name='quiz' onChange={this.setValue} /> <br />
           <label>Name:</label>
