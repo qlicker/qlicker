@@ -231,7 +231,7 @@ Meteor.methods({
    * Hide the grades from the students
    * @param {MongoID} sessionId - session ID
    */
-  'grades.hideFromStudents' (sessionId){
+  'grades.hideFromStudents' (sessionId) {
     const r = Grades.update({ sessionId: sessionId}, {
       $set: { visibleToStudents:false }
     })
@@ -240,7 +240,7 @@ Meteor.methods({
    * Hide the grades from the students
    * @param {MongoID} sessionId - session ID
    */
-  'grades.showToStudents' (sessionId){
+  'grades.showToStudents' (sessionId) {
     const r = Grades.update({ sessionId: sessionId}, {
       $set: { visibleToStudents:true }
     })
@@ -459,7 +459,7 @@ Meteor.methods({
         outOf: 0,
         numAnswered: 0,
         numQuestions: 0,
-        visibleToStudents: false,
+        visibleToStudents: sess.reviewable,
         marks: []
       }
 
@@ -549,6 +549,7 @@ Meteor.methods({
         grade.numAnswered = numAnswered
         grade.numQuestionsTotal = numQuestionsTotal
         grade.numAnsweredTotal = numAnsweredTotal
+        grade.visibleToStudents = sess.reviewable
 
         Meteor.call('grades.insert', grade)
       }//end of students

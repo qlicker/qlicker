@@ -83,7 +83,7 @@ export class _GradeTable extends Component {
           if(err){
             alertify.error('Error: ' + err.error)
           } else {
-            alertify.success('Grades calculated')
+            alertify.success('Grades calculated for '+sessions[i].name)
           }
         })
       }
@@ -108,7 +108,7 @@ export class _GradeTable extends Component {
 
     const sessions = this.props.sessions
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
-    
+
     if ( (!this.props.grades || this.props.grades.length < 1) && isInstructor ){
       return (<div>
         <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
@@ -198,6 +198,9 @@ export class _GradeTable extends Component {
       const onClickSort =  () => this.setSortByColumn(sessionId)
       const calcSessionGrades = () => this.calculateSessionGrades(sessionId)
       const viewSession = () => Router.go('session.results', { sessionId: sessionId })
+      const headerClass = session.gradesViewable()
+                            ? 'ql-grade-table-session-header'
+                            : 'ql-grade-table-session-header hidden-from-students'
       // TODO: Dropdown does not work because of CSS for fixed table data
       /*
       const options = [ {name:'view', click:viewSession},
@@ -208,7 +211,7 @@ export class _GradeTable extends Component {
       return (
         <Cell>
           {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} />: '' }
-          <div className='ql-grade-table-session-header' onClick={viewSession} >{session.name} </div>
+          <div className={headerClass} onClick={viewSession} >{session.name} </div>
           {isInstructor ? <div onClick={calcSessionGrades} className='glyphicon glyphicon-repeat ql-grade-table-grade-calc-button' /> : ''}
         </Cell>
       )
@@ -281,8 +284,8 @@ export class _GradeTable extends Component {
           {isInstructor ?
             <div className='ql-grade-table-controlbar-div'>
               <div>
-                <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
-                  Re-calculate grades
+                <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
+                  Re-calculate all grades
                 </div>
               </div>
               <div>

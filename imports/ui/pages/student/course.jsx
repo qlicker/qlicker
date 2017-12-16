@@ -67,6 +67,7 @@ class _Course extends Component {
     const toggleSubmittingQuestion = () => {
       this.setState({ submittingQuestion: !this.state.submittingQuestion })
     }
+    const goToGrades = () => Router.go('course.results', { courseId: this.props.course._id })
 
     return (
       <div className='container ql-manage-course'>
@@ -75,6 +76,7 @@ class _Course extends Component {
           ? <button className='submit-question-button btn btn-primary' onClick={toggleSubmittingQuestion}>Submit Question</button>
           : ''
         }
+        <button className='btn' onClick={goToGrades}>View Grades</button>
         { this.renderSessionList() }
 
         <br />

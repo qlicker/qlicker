@@ -25,6 +25,9 @@
        color: $blue;
        cursor: pointer;
      }
+     &.hidden-from-students {
+       background: $light-red;
+     }
   }
 
   // cell in the grade tableData

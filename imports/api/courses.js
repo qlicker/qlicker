@@ -70,9 +70,16 @@ if (Meteor.isServer) {
 
         const cCursor = Courses.find({ _id:courseId })
         const cHandle = cCursor.observeChanges({
+          added: (id, fields) => {
+            fields.students = [this.userId]
+            this.added('courses', id, fields)
+          },
           changed: (id, fields) => {
             fields.students = [this.userId]
             this.changed('courses', id, fields)
+          },
+          removed: (id) => {
+            this.removed('courses', id)
           }
         })
 
@@ -91,14 +98,61 @@ if (Meteor.isServer) {
       let user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin)) {
         return Courses.find()
-      } else if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
+      } else { //could be a student or a prof
+
+        // Initial subscription to existing courses
+        const studentCourses = Courses.find({ students: this.userId }).fetch()
+        const instructorCourses = Courses.find({ instructors: this.userId }).fetch()
+        studentCourses.forEach( c => {
+          let course = c
+          course.students = [this.userId]
+          this.added('courses', c._id, course)
+        })
+        instructorCourses.forEach( c => {
+          this.added('courses', c._id, c)
+        })
+        this.ready()
+        // Watch for changes:
+        const sCursor = Courses.find({ students: this.userId })
+        const iCursor = Courses.find({ instructors: this.userId })
+        const sHandle = sCursor.observeChanges({
+          added: (id, fields) => {
+            fields.students = [this.userId]
+            this.added('courses', id, fields)
+          },
+          changed: (id, fields) => {
+            fields.students = [this.userId]
+            this.changed('courses', id, fields)
+          },
+          removed: (id) => {
+            this.removed('courses', id)
+          }
+        })
+        const iHandle = iCursor.observeChanges({
+          added: (id, fields) => {
+            this.added('courses', id, fields)
+          },
+          changed: (id, fields) => {
+            this.changed('courses', id, fields)
+          },
+          removed: (id) => {
+            this.removed('courses', id)
+          }
+        })
+        this.onStop(function () {
+          sHandle.stop()
+          iHandle.stop()
+        })
+      }
+
+      /*else if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
         return Courses.find({ _id: { $in: user.profile.courses || [] } }) // finds all the course owned
       } else {
         let coursesArray = user.profile.courses || []
         // TODO Need to remove students from array, as in above
         //return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
         return Courses.find({ _id: { $in: coursesArray } })
-      }
+      }*/
     } else this.ready()
   })
 

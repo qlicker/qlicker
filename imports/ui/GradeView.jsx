@@ -276,7 +276,7 @@ export const GradeView = createContainer((props) => {
   const sessionId = props.grade.sessionId
 
   const handle = Meteor.subscribe('users.studentsInCourse', courseId)&&
-                 Meteor.subscribe('questions.inSession', sessionId) &&
+                 Meteor.subscribe('questions.forReview', sessionId) &&
                  Meteor.subscribe('sessions.single', sessionId) &&
                  Meteor.subscribe('responses.forSession', sessionId) &&
                  Meteor.subscribe('grades.single', props.grade._id)

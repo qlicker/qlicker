@@ -35,7 +35,15 @@ const sessionPattern = {
 
 // Create Session class
 const Session = function (doc) { _.extend(this, doc) }
-_.extend(Session.prototype, {})
+// Add some methods:
+_.extend(Session.prototype, {
+  gradesViewable: function () {
+    grades = Grades.find({ sessionId:this._id, visibleToStudents:true }).fetch()
+    return grades.length > 0
+  },
+})
+
+
 
 // Create course collection
 export const Sessions = new Mongo.Collection('sessions',
@@ -318,24 +326,18 @@ Meteor.methods({
     }
     profHasCoursePermission(session.courseId)
 
-    // If making the session reviewable, calculate/update the grades
-    if (!session.reviewable) {
-      Meteor.call('grades.calcSessionGrades',session._id, () => {
-        Meteor.call('grades.showToStudents', session._id)
-      })
-
-    } else {// If the session is made non-reviewable, hide the grades from students
-      const grades = Grades.find({ sessionId: session._id }).fetch()
-      if(grades.length > 0){
-        Meteor.call('grades.hideFromStudents', session._id)
-      }
-    }
-
-    return Sessions.update({ _id: sessionId }, {
-      $set: {
-        reviewable: !session.reviewable
+    return Sessions.update({ _id: sessionId }, { $set: { reviewable: !session.reviewable }}, () => {
+      // If making the session reviewable, calculate/update the grades
+      if (!session.reviewable) {
+        Meteor.call('grades.calcSessionGrades',session._id)
+      } else {// If the session is made non-reviewable, hide the grades from students
+        const grades = Grades.find({ sessionId: session._id }).fetch()
+        if(grades.length > 0){
+          Meteor.call('grades.hideFromStudents', session._id)
+        }
       }
     })
+
   },
 
   /**

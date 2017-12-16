@@ -156,7 +156,7 @@ class _ManageCourse extends Component {
             controls.push({ divider: true })
           }
 
-          controls.push({ label: 'Review results', click: () => Router.go('/results/session/' + sId) })
+          controls.push({ label: 'Review results', click: () => Router.go('session.results',{sessionId: sId} ) })
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
           controls.push({ divider: true })
