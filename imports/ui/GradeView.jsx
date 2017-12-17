@@ -97,12 +97,12 @@ export class _GradeView extends Component {
 
 
   setMarkPoints (e) {
-    newPoints = Number(e.target.value)
+    const newPoints = parseFloat(e.target.value)
     this.setState({ newMarkPoints:newPoints })
   }
 
   setGradeValue (e) {
-    newValue = Number(e.target.value)
+    const newValue = parseFloat(e.target.value)
     this.setState({ newGradeValue:newValue })
   }
 
@@ -168,7 +168,7 @@ export class _GradeView extends Component {
                  {this.state.editGrade
                   ?  <form className={gradeInfoClass}  ref='editGradeForm' onSubmit={this.handleGradeSubmit} >
                      Grade:
-                     <input type='text' onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
+                     <input type='number' min={0} max={100} step={0.001} onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
                      % ({grade.points} out of {grade.outOf} {gradeAutoText})
                       &nbsp; <a onClick={updateGrade}>submit</a>
                       &nbsp;&nbsp;<a onClick={toggleGradeEditable}>cancel</a>
@@ -227,7 +227,7 @@ export class _GradeView extends Component {
                      <div className={infoClass}>
                        { (this.state.markToEdit === mark.questionId) && canEdit
                          ? <form  ref='editMarkForm' onSubmit={this.handleMarkSubmit}>
-                            <input type='text' onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points.toFixed(2)}></input>
+                            <input type='number' min={0} step={0.001} onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points.toFixed(2)}></input>
                             out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
                             &nbsp;&nbsp;<a onClick={cancelEditing}>cancel</a>
                            </form>

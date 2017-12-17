@@ -55,6 +55,7 @@ export class QuestionEditItem extends Component {
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.setCourse = this.setCourse.bind(this)
     this.setPoints = this.setPoints.bind(this)
+    this.setMaxAttempts = this.setMaxAttempts.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
     // if editing pre-exsiting question
@@ -141,14 +142,32 @@ export class QuestionEditItem extends Component {
    * For a question in a session, change the number of points that it is worth
    * @param {Object} event
    */
-  setPoints (e){
-    const points =  parseFloat(e.target.value)
+  setPoints (e) {
+    const points = parseFloat(e.target.value)
     let sessionOptions = this.state.sessionOptions
     sessionOptions.points = points
     this.setState({sessionOptions: sessionOptions}, () => {
       this._DB_saveQuestion()
     })
   }
+  /**
+  * For a question in a session, change the number of points that it is worth
+  * @param {Object} event
+  */
+ setMaxAttempts (e) {
+   const maxAttempts = parseInt(e.target.value)
+   let sessionOptions = this.state.sessionOptions
+   sessionOptions.maxAttempts = maxAttempts
+   let attemptWeights = [1.0]
+   // Each attempt is worth half as much as the previous one
+   for(let i = 1; i < maxAttempts; i++){
+     attemptWeights.push( attemptWeights[i-1]/2. )
+   }
+   sessionOptions.attemptWeights = attemptWeights
+   this.setState({sessionOptions: sessionOptions}, () => {
+     this._DB_saveQuestion()
+   })
+ }
 
   /**
    * change question type to MC, TF or SA
@@ -563,20 +582,40 @@ export class QuestionEditItem extends Component {
 
             </div>
             : '' }
-          { (this.props.sessionId)
-            ? <div className='row'>
-                <div className='col-md-1 metadata-row'>
-                  Q{this.props.questionNumber}
+          { this.props.sessionId
+            ? <div className='row session-options'>
+                <div className='qnumber'>
+                  Question {this.props.questionNumber}
                 </div>
-                <div className='col-md-2 metadata-row'>
-                 Points:
-                 <textarea className='form-control' data-name='points'
-                   onChange={this.setPoints}
-                   rows={1}
-                   placeholder='1'
-                  />
-                  <div className='col-md-8 metadata-row' />
-                </div>
+                <div>
+                  <div className='qoption-label'>
+                    Points:
+                  </div>
+                  <input type='number'
+                     min={0} step={0.01}
+                     onChange={this.setPoints}
+                     placeholder={this.state.sessionOptions.points}></input>
+                  </div>
+                { this.props.isQuiz
+                  ? <div>
+                      <div className='qoption-label'>
+                        Max attempts (1-5):
+                      </div>
+                      <input type='number'
+                         min={1} max={5} step={1}
+                         onChange={this.setMaxAttempts}
+                         placeholder={this.state.sessionOptions.maxAttempts}></input>
+                      { this.state.sessionOptions.maxAttempts > 1
+                        ? <div> &nbsp;weights:
+                            {this.state.sessionOptions.attemptWeights.map( (w) =>{
+                              return (<div key={this.props.questionNumer+'_'+w}>&nbsp; {w.toFixed(2)} </div>)
+                              })}
+                          </div>
+                        : ''
+                      }
+                    </div>
+                  : ''
+                }
               </div>
             : ''
           }
@@ -645,5 +684,6 @@ QuestionEditItem.propTypes = {
   onNewQuestion: PropTypes.func,
   metadata: PropTypes.bool,
   deleted: PropTypes.func,
+  isQuiz: PropTypes.bool,
   autoSave: PropTypes.bool
 }

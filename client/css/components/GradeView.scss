@@ -12,6 +12,11 @@
     }
   }
 
+  input {
+    width: 4em;
+    margin-right: 1px;
+    margin-left: 1px;
+  }
   .ql-gradeview-manual {
     background: $light-red;
     border-radius: 5px;
@@ -89,7 +94,7 @@
 
     }
   }
-  
+
   .ql-gradeview-preview-container {
     font-size: 70%;
   }

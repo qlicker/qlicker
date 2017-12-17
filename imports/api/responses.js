@@ -20,7 +20,7 @@ import { ROLES, QUESTION_TYPE } from '../configs'
 // expected collection pattern
 const responsePattern = {
   _id: Match.Maybe(Helpers.MongoID),
-  attempt: Number,
+  attempt: Number, // number of the attempt
   questionId: Helpers.MongoID,
   studentUserId: Helpers.MongoID,
   answer: Helpers.AnswerItem,

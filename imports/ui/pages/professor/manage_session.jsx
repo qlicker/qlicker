@@ -78,7 +78,7 @@ class _ManageSession extends Component {
           Router.go('session.run', { _id: this.state.session._id })
           if (prevStatus !== 'running') {
             Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
-            if ( !this.state.session.quiz){
+            if ( !this.state.session.quiz ){
               Meteor.call('questions.hideQuestion', this.state.session.currentQuestion)
             }
           }
@@ -493,6 +493,7 @@ class _ManageSession extends Component {
                     sessionId={this.state.session._id}
                     courseId={this.state.session.courseId}
                     onNewQuestion={this.newQuestionSaved}
+                    isQuiz={this.state.session.quiz}
                     autoSave />
                 </div>)
               })

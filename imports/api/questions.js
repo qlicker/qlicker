@@ -47,10 +47,11 @@ const questionPattern = {
     stats: Boolean, // students able to see distribution of answers
     correct: Boolean, // students able to see which is correct
     points: Match.Maybe(Number), // number of points question is work
+    maxAttempts: Match.Maybe(Number), // max number of attempts in a quiz setting
+    attemptWeights: [Match.Maybe(Number)], // weight of each attempt
     attempts: [{
       number: Number,
       closed: Boolean,
-      weight: Match.Maybe(Number) // weight of the attempt
     }]
   }),
   imagePath: Match.Maybe(String),
@@ -62,10 +63,11 @@ export const defaultSessionOptions = {
   stats: false,
   correct: false,
   points: 1,
+  maxAttempts: 1,
+  attemptWeights: [1],
   attempts: [{
     number: 1,
     closed: false,
-    weight: 0
   }]
 }
 

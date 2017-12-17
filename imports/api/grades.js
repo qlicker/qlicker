@@ -134,27 +134,35 @@ if (Meteor.isServer) {
  * @param {Response} response - response object
  */
 export const calculateResponsePoints = (response) => {
-  if (!response || !response.attempt) return 0
+  if (!response) return 0
+  // if (!response || !response.attempt) return 0
   const q = Questions.findOne({ _id: response.questionId })
   const resp = response.answer
   if (!q || !resp) return 0
+
   if (!isAutoGradeable(q.type)) return 0
 
   const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
-  const attempt = resp.attempt
-  let points = 1
+  const attemptNumber = resp.attempt
+  let points = 1 // points that the question is worth
 
-  let weight = 1
+  let weight = 1 // weight of that attempt of the question (e.g. second attempt could be worth less points)
   if(q.sessionOptions){
     if(q.sessionOptions.points){
       points = q.sessionOptions.points
     }
-    const qAttempt = _(q.sessionOptions).findWhere({ number:attempt})
-    if (qAttempt && qAttempt.weight){
-      weight = qAttempt.weight
+    if(q.sessionOptions.maxAttempts && q.sessionOptions.attemptWeights){
+      if(attemptNumber < q.sessionOptions.maxAttempts + 1 && q.sessionOptions.attemptWeights.length < attemptNumber){
+        weight =  q.sessionOptions.attemptWeights[attemptNumber - 1]
+      } else {
+        weight = 0
+      }
     }
   }
-  let mark = 0
+  // No point in grading it if the question is not worth any points!
+  if (points === 0) return 0
+
+  let mark = 0 // between 0 and 1 depending on the answer
   switch (q.type) {
     case QUESTION_TYPE.MC:
       mark = correct[0] === resp ? 1 : 0
@@ -162,7 +170,7 @@ export const calculateResponsePoints = (response) => {
     case QUESTION_TYPE.TF:
       mark = correct[0] === resp ? 1 : 0
       break
-    case QUESTION_TYPE.SA: // 1 if any answer
+    case QUESTION_TYPE.SA: // 1 if any answer - TODO: this should never happen since SA is not autogradable
       mark = resp ? 1 : 0
       break
     case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
