@@ -7,7 +7,7 @@
 import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
-import '../api/courses.js'
+
 import { SESSION_STATUS_STRINGS, formatDate } from '../configs'
 
 /**
@@ -55,11 +55,11 @@ export class SessionListItem extends ListItem {
       completion = ((index + 1) / length) * 100
     }
     let link = ''
-    if (Meteor.user().isInstructor(this.props.session.courseId)) {
+    if (Meteor.user().isInstructor(session.courseId) && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a>
-    } else if (Meteor.user().hasRole('student') && session.reviewable) {
+    } else if (Meteor.user().hasRole('student') && session.reviewable && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.reviewSession(evt)}>Review</a>
-    }
+    } else {}
 
     let statusClassName = 'ql-session-status ' + ('ql-' + status)
     if (session.reviewable && session.status === 'done') statusClassName +=' reviewable'

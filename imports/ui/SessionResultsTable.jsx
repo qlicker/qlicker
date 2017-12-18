@@ -237,7 +237,7 @@ export class _SessionResultsTable extends Component {
       return ( mark ?
         <Cell>
           <div>
-            {mark.points.toFixed(0)} / {mark.outOf} {attemptText}
+            {mark.points.toFixed(2)} / {mark.outOf} {attemptText}
           </div>
         </Cell> :
         <Cell > No mark </Cell>
@@ -322,7 +322,7 @@ export class _SessionResultsTable extends Component {
               key={q._id}
               header={<QuestionHeaderCell questionId={q._id} />}
               cell={<QuestionCell questionId={q._id} />}
-              width={getTextWidth(q._id)}
+              width={140}
             />
           ) }
 
