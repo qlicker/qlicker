@@ -10,6 +10,7 @@ import { check, Match } from 'meteor/check'
 import { Courses } from './courses'
 import { Sessions } from './sessions'
 import { Questions } from './questions'
+import { calculateResponsePoints } from './grades'
 
 import { _ } from 'underscore'
 
@@ -25,6 +26,7 @@ const responsePattern = {
   studentUserId: Helpers.MongoID,
   answer: Helpers.AnswerItem,
   answerWysiwyg: Match.Maybe(String),
+  correct: Match.Maybe(Boolean), // whether or not this response was correct (used in a quiz with multiple attempts)
   createdAt: Date
 }
 
@@ -165,9 +167,11 @@ Meteor.methods({
     check(responseObject, responsePattern)
 
     const q = Questions.findOne({ _id: responseObject.questionId })
+
+    /*
     const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
     let resp = responseObject.answer
-/*
+
     let mark = 0
     switch (q.type) {
       case QUESTION_TYPE.MC:
@@ -188,9 +192,18 @@ Meteor.methods({
 
     responseObject.mark = mark*/
     if (!q.sessionId) throw Error('Question not attached to session')
+
+    // If this is a response in a quiz where the question has multiple possible attempts,
+    // check if this answer is correct
+    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && Meteor.isServer()){
+      session = Sessions.findOne({ _id:q.sessionId })
+      responseObject.correct = (calculateResponsePoints(responseObject) === q.sessionOptions.points)
+    }
+
     if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit answer')
 
     // TODO check if attempt number is current in question
+
 
     const c = Responses.find({
       attempt: responseObject.attempt,

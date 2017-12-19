@@ -62,8 +62,6 @@ export class _QuestionDisplay extends Component {
     this.resetState()
   }
 
-
-
   componentWillReceiveProps (nextProps){
     const isNewQuestion = (this.props.question._id !== nextProps.question._id) ||
                           (this.state.questionId !== nextProps.question._id)
@@ -119,66 +117,6 @@ export class _QuestionDisplay extends Component {
      }
     }
   }
-  /*
-  shouldComponentUpdate (nextProps, nextState) {
-
-    // Is it done loading?
-    const doneLoading = (this.props.loading !== nextProps.loading)
-
-    // Did the question change?
-    const isNewQuestion = (this.props.question._id !== nextProps.question._id) ||
-                          (this.state.questionId !== nextState.questionId) ||
-                          (this.state.questionId !== nextProps.question._id)
-
-    // Was a new response passed as prop (TODO: check that this doesn't break in session stuff...)
-    const isNewResponse = (this.props.myresponse && nextProps.myresponse && (this.props.myresponse._id !== nextProps.myresponse._id)) ||
-                          (this.props.myresponse && !nextProps.myresponse) ||
-                          (!this.props.myresponse && nextProps.myresponse)
-
-
-    // Did the attempt number change?
-    const currentQ = this.props.question
-    const currentAttemptNumber = currentQ.sessionOptions
-                                ? currentQ.sessionOptions.attempts[currentQ.sessionOptions.attempts.length - 1].number
-                                : 0
-
-    const nextQ = nextProps.question
-    const nextAttemptNumber = nextQ.sessionOptions
-                                ? nextQ.sessionOptions.attempts[nextQ.sessionOptions.attempts.length - 1].number
-                                : 0
-
-    const isNewAttempt = (currentAttemptNumber !== nextAttemptNumber) ||
-                         (this.state.attemptNumber !== nextAttemptNumber) ||
-                         (this.state.attemptNumber !== currentAttemptNumber)
-
-    // Did the decision to show stats change?
-    const currentStats = currentQ.sessionOptions
-                         ? currentQ.sessionOptions.stats
-                         : -1
-    const nextStats = nextQ.sessionOptions
-                      ? nextQ.sessionOptions.stats
-                        : -1
-    const changeStats = (currentStats !== nextStats)
-
-    // Did the decision to show correct change?
-    const currentCorrect = currentQ.sessionOptions
-                         ? currentQ.sessionOptions.correct
-                         : -1
-    const nextCorrect = nextQ.sessionOptions
-                      ? nextQ.sessionOptions.correct
-                        : -1
-
-    const changeCorrect = (currentCorrect !== nextCorrect)
-
-
-    if (doneLoading || isNewQuestion || isNewResponse || isNewAttempt || changeStats || changeCorrect){
-      return true
-    } else {
-      return false
-    }
-
-  } */
-
 
 
   /**
@@ -246,18 +184,6 @@ export class _QuestionDisplay extends Component {
 
   /**
    * set answer in state for short answer questions
-   * @param {Event} e - form event object
-
-  setShortAnswer (e) {
-    if (this.disallowResponses() || this.readonly) return
-    this.setState({
-      btnDisabled: false,
-      submittedAnswer: e.target.value
-    })
-  }*/
-
-  /**
-   * set answer in state for short answer questions
    *
    */
   setShortAnswerWysiwyg (content, plainText) {
@@ -304,6 +230,7 @@ export class _QuestionDisplay extends Component {
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
+    const question =  this.props.question
     this.readonly = true
 
     this.setState({
@@ -311,10 +238,13 @@ export class _QuestionDisplay extends Component {
       isSubmitted: true
     })
 
-    const l = this.props.question.sessionOptions.attempts.length
-    const attemptNumber = this.props.question.sessionOptions.attempts[l - 1].number
+    const l = question.sessionOptions.attempts.length
+    let attemptNumber = question.sessionOptions.attempts[l - 1].number
 
-    const answerObject = {
+    if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
+      attemptNumber = this.props.myresponse ? this.props.myresponse.attempt + 1 : 1
+    }
+    const responseObject = {
       studentUserId: Meteor.userId(),
       answer: answer,
       answerWysiwyg: answerWysiwyg,
@@ -322,7 +252,7 @@ export class _QuestionDisplay extends Component {
       questionId: this.props.question._id
     }
 
-    Meteor.call('responses.add', answerObject, (err, answerId) => {
+    Meteor.call('responses.add', responseObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Answer Submitted')
     })
@@ -501,6 +431,7 @@ export class _QuestionDisplay extends Component {
         { this.disallowResponses() && (!this.props.noStats) ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
         { showToolbar ? <div id='ckeditor-toolbar' /> : '' }
+
         <div className='ql-answers'>
           {content}
         </div>
@@ -522,18 +453,29 @@ export const QuestionDisplay = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   let formattedData = []
   let total
-  let responses
 
   const question = props.question
-  // Get the number of last attempt
-  const attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
+  // Get the number of the last attempt from the question's session options, assuming it's a live session:
+  let attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts)
+    ? question.sessionOptions.attempts.length
+    : 0
+  // If the question has a max number of attempts, the current attempt number is the user's last attempt
+  if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
+    const allMyResponses = Responses.find({ questionId: question._id, studentUserId: Meteor.userId() }).fetch()
+    const myHighestResponse = _.max(allMyResponses, (resp) => { return resp.attempt })
+    attemptNumber = myHighestResponse && myHighestResponse.attempt < question.sessionOptions.maxAttempts + 1
+      ? myHighestResponse.attempt
+      : 0
+  }
+
   // Get the responses for that attempt:
-  responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
+  let responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
   // myresponse is either the user's response in a live session, or the response passed as a prop
   const myresponse = props.response
                     ? props.response
                     : _(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
 
+  // calculate the statistics for that question:
   if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')

@@ -67,7 +67,7 @@ class _Session extends Component {
             qCount += 1
             const q = this.props.questions[qId]
             const lastResponse = _.max(this.props.responses, (resp) => { return resp.attempt })
-            const currentAttempt = lastResponse && lastResponse.attempt ? lastResponse.attempt + 1 : 1
+            const currentAttempt = lastResponse && lastResponse.attempt ? lastResponse.attempt : 1
             const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
             const maxAttempts = (q.sessionOptions && q.sessionOptions.maxAttempts) ? q.sessionOptions.maxAttempts : 1
             const questionDisplay = this.props.user.isInstructor(session.courseId)
