@@ -67,8 +67,10 @@ class _Session extends Component {
             qCount += 1
             const q = this.props.questions[qId]
             const lastResponse = _.max(this.props.responses, (resp) => { return resp.attempt })
+            console.log(lastResponse)
             const currentAttempt = lastResponse && lastResponse.attempt ? lastResponse.attempt : 1
             const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
+            const correct =  lastResponse && lastResponse.correct ? '(Correct)' : ''
             const maxAttempts = (q.sessionOptions && q.sessionOptions.maxAttempts) ? q.sessionOptions.maxAttempts : 1
             const questionDisplay = this.props.user.isInstructor(session.courseId)
               ? <QuestionDisplay question={q} readonly />
@@ -76,7 +78,7 @@ class _Session extends Component {
               return (
                 <div key={"qlist_"+qId}>
                   <div className = 'ql-session-question-title'>
-                    Question: {qCount+"/"+qLength} ({points} points), Attempt {currentAttempt} of {maxAttempts}
+                    Question: {qCount+"/"+qLength} ({points} points), Attempt {currentAttempt} of {maxAttempts} {correct}
                   </div>
                   { q ? questionDisplay : '' }
                 </div>)

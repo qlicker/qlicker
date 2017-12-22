@@ -54,7 +54,7 @@ if (Meteor.isServer) {
 
       if (user.isInstructor(course._id)) {
         return Responses.find({ questionId: questionId })
-      } else if (user.hasRole(ROLES.student)) {
+      } else if (user.isStudent(course._id)) {
 
       //If stats is true for the question, publish all responses initially, otherwise, only the user's
       const initialRs = question.sessionOptions && question.sessionOptions.stats ?
@@ -129,7 +129,7 @@ if (Meteor.isServer) {
 
       if (user.isInstructor(course._id)) {
         return Responses.find({ questionId: { $in: session.questions } })
-      } else if (user.hasRole(ROLES.student)) {
+      } else if (user.isStudent(course._id)) {
         return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
       }
     } else this.ready()
@@ -145,7 +145,7 @@ if (Meteor.isServer) {
 
       if (user.isInstructor(courseId)) {
         return Responses.find({ questionId: { $in: questionIds } })
-      } else if (user.hasRole(ROLES.student)) {
+      } else if (user.isStudent(courseId)) {
         return Responses.find({ questionId: { $in: questionIds }, studentUserId: this.userId })
       }
     } else this.ready()
@@ -195,7 +195,7 @@ Meteor.methods({
 
     // If this is a response in a quiz where the question has multiple possible attempts,
     // check if this answer is correct
-    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && Meteor.isServer()){
+    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && Meteor.isServer){
       session = Sessions.findOne({ _id:q.sessionId })
       responseObject.correct = (calculateResponsePoints(responseObject) === q.sessionOptions.points)
     }

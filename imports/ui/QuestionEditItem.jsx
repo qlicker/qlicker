@@ -594,7 +594,7 @@ export class QuestionEditItem extends Component {
                   <input type='number'
                      min={0} step={0.01}
                      onChange={this.setPoints}
-                     placeholder={this.state.sessionOptions.points}></input>
+                     value={this.state.sessionOptions.points}></input>
                   </div>
                 { this.props.isQuiz
                   ? <div>
@@ -604,7 +604,7 @@ export class QuestionEditItem extends Component {
                       <input type='number'
                          min={1} max={5} step={1}
                          onChange={this.setMaxAttempts}
-                         placeholder={this.state.sessionOptions.maxAttempts}></input>
+                         value={this.state.sessionOptions.maxAttempts}></input>
                       { this.state.sessionOptions.maxAttempts > 1
                         ? <div> &nbsp;weights:
                             {this.state.sessionOptions.attemptWeights.map( (w) =>{
