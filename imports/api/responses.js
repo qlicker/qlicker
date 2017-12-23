@@ -195,7 +195,7 @@ Meteor.methods({
 
     // If this is a response in a quiz where the question has multiple possible attempts,
     // check if this answer is correct
-    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && Meteor.isServer){
+    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && responseObject.attempt < q.sessionOptions.maxAttempts+1 && Meteor.isServer){
       session = Sessions.findOne({ _id:q.sessionId })
       responseObject.correct = (calculateResponsePoints(responseObject) === q.sessionOptions.points)
     }

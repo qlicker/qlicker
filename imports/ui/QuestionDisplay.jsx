@@ -238,8 +238,9 @@ export class _QuestionDisplay extends Component {
       isSubmitted: true
     })
 
-    const l = question.sessionOptions.attempts.length
-    let attemptNumber = question.sessionOptions.attempts[l - 1].number
+    const l = (question && question.sessionOptions && question.sessionOptions.attempts)
+     ? question.sessionOptions.attempts.length : 0
+    let attemptNumber = l ? question.sessionOptions.attempts[l - 1].number : 0
 
     if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
       attemptNumber = this.props.myresponse ? this.props.myresponse.attempt + 1 : 1
@@ -406,6 +407,11 @@ export class _QuestionDisplay extends Component {
     let content
 
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
+    const askForNewAttempt = (this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
+                              && q.sessionOptions && q.sessionOptions.maxAttempts > 1
+                              && this.props.myresponse && (!this.props.myresponse.correct)
+
+
 
     switch (type) {
       case QUESTION_TYPE.MC:
@@ -436,13 +442,21 @@ export class _QuestionDisplay extends Component {
           {content}
         </div>
 
-        <div className='bottom-buttons'>
-          { !this.props.readonly
-            ? <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
-              {this.state.isSubmitted ? 'Submitted' : 'Submit'}
-            </button>
-          : ''}
-        </div>
+
+        { ! this.props.readonly
+
+          ? <div className='bottom-buttons'>
+            {askForNewAttempt
+              ? <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+                  Try again?
+                </button>
+              : <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+                   {this.state.isSubmitted ? 'Submitted' : 'Submit'}
+                 </button>
+            }      
+            </div>
+          : ''
+        }
 
       </div>
     )

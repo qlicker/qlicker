@@ -66,11 +66,11 @@ class _Session extends Component {
           qlist.map( (qId) => {
             qCount += 1
             const q = this.props.questions[qId]
-            const lastResponse = _.max(this.props.responses, (resp) => { return resp.attempt })
-            console.log(lastResponse)
+            const responses = _.where(this.props.responses, { questionId:qId })
+            const lastResponse = _.max(responses, (resp) => { return resp.attempt })
             const currentAttempt = lastResponse && lastResponse.attempt ? lastResponse.attempt : 1
             const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
-            const correct =  lastResponse && lastResponse.correct ? '(Correct)' : ''
+            const correct =  (lastResponse && lastResponse.correct) ? '(Correct)' : ''
             const maxAttempts = (q.sessionOptions && q.sessionOptions.maxAttempts) ? q.sessionOptions.maxAttempts : 1
             const questionDisplay = this.props.user.isInstructor(session.courseId)
               ? <QuestionDisplay question={q} readonly />
