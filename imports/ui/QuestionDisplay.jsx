@@ -27,17 +27,14 @@ export class _QuestionDisplay extends Component {
   constructor (p) {
     super(p)
     const q = this.props.question
-    const attemptNumber = q.sessionOptions
-      ? q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].number
-      : 0
 
     this.state = {
       btnDisabled: true,
       submittedAnswer: '',
       submittedAnswerWysiwyg: '',
-      questionId: this.props.question._id,
+      questionId: q._id,
       isSubmitted: false,
-      attemptNumber: attemptNumber,
+      attemptNumber: this.props.attemptNumber,
       wasVisited: false
     }
 
@@ -46,10 +43,21 @@ export class _QuestionDisplay extends Component {
 
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
+    this.tryAgain = this.tryAgain.bind(this)
     this.setAnswer = this.setAnswer.bind(this)
-    //this.setShortAnswer = this.setShortAnswer.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
-    this.resetState = this.resetState.bind(this)
+    //this.resetState = this.resetState.bind(this)
+  }
+  componentWillMount () {
+    const q = this.props.question
+    const r = this.props.myResponse
+    this.state = {
+      btnDisabled: true,
+      submittedAnswer: r ? r.answer : '',
+      submittedAnswerWysiwyg: r ? r.answerWysiwyg : '',
+      questionId: q._id,
+      isSubmitted: r ?  true : false,
+    }
   }
 
   componentDidMount () {
@@ -59,7 +67,7 @@ export class _QuestionDisplay extends Component {
   componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
 
-    this.resetState()
+    //this.resetState()
   }
 
   componentWillReceiveProps (nextProps){
@@ -67,14 +75,14 @@ export class _QuestionDisplay extends Component {
                           (this.state.questionId !== nextProps.question._id)
 
     // Was a new response passed as prop (TODO: check that this doesn't break in session stuff...)
-    const isNewResponse = (this.props.myresponse && nextProps.myresponse && (this.props.myresponse._id !== nextProps.myresponse._id)) ||
-                          (this.props.myresponse && !nextProps.myresponse) ||
-                          (!this.props.myresponse && nextProps.myresponse)
+    const isNewResponse = (this.props.myResponse && nextProps.myResponse && (this.props.myResponse._id !== nextProps.myResponse._id)) ||
+                          (this.props.myResponse && !nextProps.myResponse) ||
+                          (!this.props.myResponse && nextProps.myResponse)
 
 
     // Did the attempt number change?
     const currentQ = this.props.question
-    const currentAttemptNumber = currentQ.sessionOptions
+    let currentAttemptNumber = currentQ.sessionOptions
                                 ? currentQ.sessionOptions.attempts[currentQ.sessionOptions.attempts.length - 1].number
                                 : 0
 
@@ -88,8 +96,8 @@ export class _QuestionDisplay extends Component {
                          (this.state.attemptNumber !== currentAttemptNumber)
 
    if (isNewQuestion || isNewResponse || isNewAttempt ){
-     if (nextProps.myresponse){
-       const myResponse = nextProps.myresponse
+     if (nextProps.myResponse){
+       const myResponse = nextProps.myResponse
        const submittedAnswerWysiwyg = (nextQ.type === QUESTION_TYPE.SA) ? myResponse.answerWysiwyg : ''
        this.setState({
          btnDisabled: true,
@@ -124,6 +132,7 @@ export class _QuestionDisplay extends Component {
    * Since this is reactive to the response collection, it gets called anytime someone (else)
    * submits a response to a question.
    */
+/*
   resetState () {
     // Don't reset if still loading
     if(this.props.loading){
@@ -135,7 +144,7 @@ export class _QuestionDisplay extends Component {
       ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1].number
       : 0
 
-    const myResponse = this.props.myresponse
+    const myResponse = this.props.myResponse
 
     if (this.state.questionId !== this.props.question._id || //the question changed
       (this.state.questionId === this.props.question._id && this.state.attemptNumber !== attemptNumber) || //the attempt changed
@@ -170,7 +179,7 @@ export class _QuestionDisplay extends Component {
       }
     }
   }
-
+*/
   /**
    * helper to determine in responses should be allowed
    * @returns {Boolean} status of whether component should allow reponse submission
@@ -180,6 +189,25 @@ export class _QuestionDisplay extends Component {
     const disallowResponses = q.sessionOptions && q.sessionOptions.attempts.length && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
     // const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
     return disallowResponses
+  }
+
+  /**
+   * Reset the component to allow for a new attempt in a question that has multiple attempts
+  */
+  tryAgain () {
+    const question = this.props.question
+    const response = this.props.myResponse
+    const soptions = question.defaultSessionOptions
+    if (!question || !response || !soptions) return
+    if (soptions.maxAttempts < 2 || response.attempt >= soptions.maxAttempts) return
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: '',
+      submittedAnswerWysiwyg: '',
+      isSubmitted: false,
+    })
+    this.readonly = false
+
   }
 
   /**
@@ -243,7 +271,7 @@ export class _QuestionDisplay extends Component {
     let attemptNumber = l ? question.sessionOptions.attempts[l - 1].number : 0
 
     if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
-      attemptNumber = this.props.myresponse ? this.props.myresponse.attempt + 1 : 1
+      attemptNumber = this.props.myResponse ? this.props.myResponse.attempt + 1 : 1
     }
     const responseObject = {
       studentUserId: Meteor.userId(),
@@ -265,6 +293,7 @@ export class _QuestionDisplay extends Component {
    */
   calculateStats (answer) {
     const stats = this.props.distribution
+    if (!stats) return 0
     let answerStat = 0
     stats.forEach((a) => {
       if (a) {
@@ -369,7 +398,7 @@ export class _QuestionDisplay extends Component {
       // return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
       return (
         <div>
-          {this.props.myresponse ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) : ''}
+          {this.props.myResponse ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) : ''}
           {q.options[0].content
             ? <h4 style={{'alignSelf': 'left'}}> Correct Answer: <br />{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
           : ''
@@ -409,7 +438,7 @@ export class _QuestionDisplay extends Component {
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
     const askForNewAttempt = (this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
                               && q.sessionOptions && q.sessionOptions.maxAttempts > 1
-                              && this.props.myresponse && (!this.props.myresponse.correct)
+                              && this.props.myResponse && (!this.props.myResponse.correct)
 
 
 
@@ -447,13 +476,13 @@ export class _QuestionDisplay extends Component {
 
           ? <div className='bottom-buttons'>
             {askForNewAttempt
-              ? <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+              ? <button className='btn btn-primary submit-button' onClick={() => this.tryAgain()} disabled={false}>
                   Try again?
                 </button>
               : <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
                    {this.state.isSubmitted ? 'Submitted' : 'Submit'}
                  </button>
-            }      
+            }
             </div>
           : ''
         }
@@ -475,8 +504,8 @@ export const QuestionDisplay = createContainer((props) => {
     : 0
   // If the question has a max number of attempts, the current attempt number is the user's last attempt
   if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
-    const allMyResponses = Responses.find({ questionId: question._id, studentUserId: Meteor.userId() }).fetch()
-    const myHighestResponse = _.max(allMyResponses, (resp) => { return resp.attempt })
+    const allmyResponses = Responses.find({ questionId: question._id, studentUserId: Meteor.userId() }).fetch()
+    const myHighestResponse = _.max(allmyResponses, (resp) => { return resp.attempt })
     attemptNumber = myHighestResponse && myHighestResponse.attempt < question.sessionOptions.maxAttempts + 1
       ? myHighestResponse.attempt
       : 0
@@ -484,8 +513,8 @@ export const QuestionDisplay = createContainer((props) => {
 
   // Get the responses for that attempt:
   let responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
-  // myresponse is either the user's response in a live session, or the response passed as a prop
-  const myresponse = props.response
+  // myResponse is either the user's response in a live session, or the response passed as a prop
+  const myResponse = props.response
                     ? props.response
                     : _(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
 
@@ -520,8 +549,10 @@ export const QuestionDisplay = createContainer((props) => {
     question: question,
     readonly: props.readonly,
     totalAnswered: total,
-    distribution: formattedData,
-    myresponse: myresponse,
+    //distribution: formattedData,
+    distribution: props.distribution,
+    myResponse: myResponse,
+    attemptNumber: attemptNumber,
     loading: !handle.ready()
   }
 }, _QuestionDisplay)
@@ -529,6 +560,7 @@ export const QuestionDisplay = createContainer((props) => {
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
   response: PropTypes.object, // response to display with the question
+  distribution: PropTypes.array, // distribution of answers for displaying stats
   readonly: PropTypes.bool,
   noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running

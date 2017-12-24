@@ -130,7 +130,67 @@ if (Meteor.isServer) {
       if (user.isInstructor(course._id)) {
         return Responses.find({ questionId: { $in: session.questions } })
       } else if (user.isStudent(course._id)) {
-        return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
+      // return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
+
+      //If stats is true for the question, publish all responses initially, otherwise, only the user's
+      const initialRs = Responses.find({ questionId: { $in: session.questions } })
+      initialRs.forEach(r => {
+        const q = Questions.findOne({ _id: r.questionId })
+        if (r.studentUserId === this.userId){
+          this.added('responses', r._id, r)
+        } else if (q.sessionOptions && q.sessionOptions.stats) {
+          this.added('responses', r._id, _(r).omit('studentUserId'))
+        }
+      })
+      this.ready()
+
+      // observe changes on the question, and publish all responses if stats option gets set to true
+      // A cursor to watch for new responses
+      const self = this
+      const rCursor = Responses.find({ questionId: { $in: session.questions }  })
+      const rHandle = rCursor.observeChanges({
+        // if a new response was added and stats is on, then add this response to the publication
+        added: (id, fields) => {
+          // if the response is from the user, added regardless
+          if (fields.studentUserId === self.userId){
+            self.added('responses', id, fields)
+            return
+          }
+          // if stats is on, added a different user's response, but omit the student id
+          const q = Questions.findOne({ _id: questionId })
+          if(q.sessionOptions && q.sessionOptions.stats){
+            self.added('responses', id, _(fields).omit('studentUserId'))
+          }
+        }
+      })
+      // A cursor to watch for changes in the stats property of the questions
+      const qCursor = Questions.find({ _id: { $in: session.questions } })
+      const qHandle = qCursor.observeChanges({
+      // if the question changed, and stats is true, add all responses to the publication
+        changed: (id, fields) => {
+          if (fields.sessionOptions && fields.sessionOptions.stats){
+            const currentRs = Responses.find({ questionId: { $in: session.questions } })
+            currentRs.forEach(r => {
+              // TODO: Should double-check if this should be "changed" instead of "added"
+              self.added('responses', r._id, _(r).omit('studentUserId'))
+            })
+          }else{
+            /*
+            // TODO Remove docs if stat is turned back off. The code below fails if stats is on and the attempt number changes
+            // because it tries to remove docs that aren't there, which gives a server error.
+            const otherRs = Responses.find({ questionId: questionId,  studentUserId: {$ne: self.userId}  })
+            otherRs.forEach(r => {
+              self.removed('responses', r._id, r)
+            })*/
+          }
+        }
+      })
+      this.onStop(function () {
+        qHandle.stop()
+        rHandle.stop()
+      })
+
+
       }
     } else this.ready()
   })
