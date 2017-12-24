@@ -232,14 +232,13 @@ export const responseDistribution =  (allResponses, question, attemptNumber) => 
 
   //Extract only the responses relevant to the question
   const responses = _(allResponses).where({ questionId: question._id, attempt:attemptNumber })
-  let distribution = []
+  let responseStats = []
   if (responses && question.type !== QUESTION_TYPE.SA) {
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
     // Get the total number of responses:
     const total = responses.length
     let answerDistribution = {}
-
     // pull out all the answers from the responses, this gives an array of arrays of answers
     // e.g. [[A,B], [B], [B,C]], then flatten it
     let allAnswers = _(_(responses).pluck('answer')).flatten()
@@ -255,10 +254,11 @@ export const responseDistribution =  (allResponses, question, attemptNumber) => 
       let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
       // counts does not need to be an array, but leave the flexibility to be able to hold
       // the values for more than one attempt
-      distribution.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
+      //responseStats.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
+      responseStats.push({ answer: o, counts: answerDistribution[o], total:total, pct:pct, attempt:attemptNumber})
     })
   }
-  return distribution
+  return responseStats
 }
 
 /**

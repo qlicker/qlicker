@@ -34,8 +34,6 @@ export class _QuestionDisplay extends Component {
       submittedAnswerWysiwyg: '',
       questionId: q._id,
       isSubmitted: false,
-      attemptNumber: this.props.attemptNumber,
-      wasVisited: false
     }
 
     this.readonly = false
@@ -81,6 +79,7 @@ export class _QuestionDisplay extends Component {
 
 
     // Did the attempt number change?
+    /*
     const currentQ = this.props.question
     let currentAttemptNumber = currentQ.sessionOptions
                                 ? currentQ.sessionOptions.attempts[currentQ.sessionOptions.attempts.length - 1].number
@@ -93,20 +92,19 @@ export class _QuestionDisplay extends Component {
 
     const isNewAttempt = (currentAttemptNumber !== nextAttemptNumber) ||
                          (this.state.attemptNumber !== nextAttemptNumber) ||
-                         (this.state.attemptNumber !== currentAttemptNumber)
+                         (this.state.attemptNumber !== currentAttemptNumber) */
+   const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
 
    if (isNewQuestion || isNewResponse || isNewAttempt ){
      if (nextProps.myResponse){
        const myResponse = nextProps.myResponse
-       const submittedAnswerWysiwyg = (nextQ.type === QUESTION_TYPE.SA) ? myResponse.answerWysiwyg : ''
+       const submittedAnswerWysiwyg = (nextProps.question.type === QUESTION_TYPE.SA) ? myResponse.answerWysiwyg : ''
        this.setState({
          btnDisabled: true,
          submittedAnswer: myResponse.answer,
          submittedAnswerWysiwyg: submittedAnswerWysiwyg,
          questionId: nextProps.question._id,
          isSubmitted: true,
-         attemptNumber: nextAttemptNumber,
-         wasVisited: true
        })
        this.readonly = true
      } else {
@@ -116,8 +114,6 @@ export class _QuestionDisplay extends Component {
          submittedAnswerWysiwyg: '',
          questionId: nextProps.question._id,
          isSubmitted: false,
-         attemptNumber: nextAttemptNumber,
-         wasVisited: false
        })
 
        this.readonly = false
@@ -292,13 +288,13 @@ export class _QuestionDisplay extends Component {
    * @param {String} answer
    */
   calculateStats (answer) {
-    const stats = this.props.distribution
+    const stats = this.props.responseStats
     if (!stats) return 0
     let answerStat = 0
     stats.forEach((a) => {
       if (a) {
-        if (a.answer === answer && a.counts) {
-          answerStat = a.counts[0].pct
+        if (a.answer === answer) {
+          answerStat = a.pct
         }
       }
     })
@@ -440,8 +436,6 @@ export class _QuestionDisplay extends Component {
                               && q.sessionOptions && q.sessionOptions.maxAttempts > 1
                               && this.props.myResponse && (!this.props.myResponse.correct)
 
-
-
     switch (type) {
       case QUESTION_TYPE.MC:
         content = this.renderOptionQuestion('mc', q)
@@ -493,6 +487,7 @@ export class _QuestionDisplay extends Component {
 }
 
 export const QuestionDisplay = createContainer((props) => {
+  /*
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   let formattedData = []
   let total
@@ -543,24 +538,23 @@ export const QuestionDisplay = createContainer((props) => {
       // the values for more than one attempt
       formattedData.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
     })
-  }
+  }*/
 
   return {
-    question: question,
+    question: props.question,
     readonly: props.readonly,
-    totalAnswered: total,
-    //distribution: formattedData,
-    distribution: props.distribution,
-    myResponse: myResponse,
-    attemptNumber: attemptNumber,
-    loading: !handle.ready()
+    responseStats: props.responseStats,
+    myResponse:props.response,
+    attemptNumber: props.attemptNumber
+    //loading: !handle.ready()
   }
 }, _QuestionDisplay)
 
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
   response: PropTypes.object, // response to display with the question
-  distribution: PropTypes.array, // distribution of answers for displaying stats
+  attemptNumber: PropTypes.number,
+  responseStats: PropTypes.array, // distribution of answers for displaying stats
   readonly: PropTypes.bool,
   noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running

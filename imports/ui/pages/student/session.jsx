@@ -52,13 +52,19 @@ class _Session extends Component {
       const current = this.props.session.currentQuestion
       const q = this.props.questions[current]
       if (!q) return <div className='ql-subs-loading'>Loading</div>
-      const responses =  _.where(this.props.myResponses, { questionId:q._id, studentUserId: Meteor.user()._id  })
+
+      const responses =  _.where(this.props.myResponses, { questionId:q._id })
       let lastResponse = _.max(responses, (resp) => { return resp.attempt })
       if (!(lastResponse.attempt > 0)) lastResponse = null
-      const distribution = q.sessionOptions.stats ? this.props.responseStats[q._id] : null
+
+      const currentAttemptNumber = q.sessionOptions.attempts.length
+      const myLastAttemptNumber = lastResponse.attempt > 0 ? lastResponse.attempt : 0
+      const response = myLastAttemptNumber < currentAttemptNumber ? null : lastResponse
+
+      const responseStats = q.sessionOptions.stats ? this.props.responseStatsByQuestion[q._id] : null
       const questionDisplay = this.props.user.isInstructor(session.courseId)
         ? <QuestionDisplay question={q} readonly />
-        : <QuestionDisplay question={q} response={lastResponse} distribution={distribution} />
+        : <QuestionDisplay question={q} attemptNumber={currentAttemptNumber} response={response} responseStats={responseStats} />
       return (
         <div className='container ql-session-display'>
           { q ? questionDisplay : '' }
@@ -79,10 +85,10 @@ class _Session extends Component {
             const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
             const correct =  (lastResponse && lastResponse.correct) ? '(Correct)' : ''
             const maxAttempts = (q.sessionOptions && q.sessionOptions.maxAttempts) ? q.sessionOptions.maxAttempts : 1
-            const distribution = q.sessionOptions.stats ? this.props.responseStats[q._id] : null
+            const responseStats = q.sessionOptions.stats ? this.props.responseStatsByQuestion[q._id] : null
             const questionDisplay = this.props.user.isInstructor(session.courseId)
               ? <QuestionDisplay question={q} readonly />
-              : <QuestionDisplay question={q} response={lastResponse} distribution={distribution} />
+              : <QuestionDisplay question={q} response={lastResponse} responseStats={responseStats} />
               return (
                 <div key={"qlist_"+qId}>
                   <div className = 'ql-session-question-title'>
@@ -112,7 +118,7 @@ export const Session = createContainer((props) => {
   const allResponses = Responses.find({ questionId:{ $in: session.questions }}).fetch()
   const allMyResponses = _(allResponses).where({ studentUserId: Meteor.userId() })
   // calculate the statistics for each question:
-  let formattedData = []
+  let responseStatsByQuestion = []
   questionsInSession.forEach( (question) => {
 
     let attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts)
@@ -126,7 +132,7 @@ export const Session = createContainer((props) => {
         ? myLastResponse.attempt
         : 0
     }
-    formattedData[question._id] = responseDistribution(allResponses, question, attemptNumber)
+    responseStatsByQuestion[question._id] = responseDistribution(allResponses, question, attemptNumber)
   })
 
   return {
@@ -134,7 +140,7 @@ export const Session = createContainer((props) => {
     user: user, // user object
     session: session, // session object
     myResponses: allMyResponses, // responses related to this session
-    responseStats: formattedData,
+    responseStatsByQuestion: responseStatsByQuestion,
     loading: !handle.ready()
   }
 }, _Session)
