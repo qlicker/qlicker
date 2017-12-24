@@ -140,7 +140,8 @@ if (Meteor.isServer) {
           this.added('responses', r._id, r)
         } else if (q.sessionOptions && q.sessionOptions.stats) {
           this.added('responses', r._id, _(r).omit('studentUserId'))
-        }
+        } else {}
+
       })
       this.ready()
 
@@ -157,8 +158,8 @@ if (Meteor.isServer) {
             return
           }
           // if stats is on, added a different user's response, but omit the student id
-          const q = Questions.findOne({ _id: questionId })
-          if(q.sessionOptions && q.sessionOptions.stats){
+          const q = Questions.findOne({ _id: fields.questionId })
+          if(q && q.sessionOptions && q.sessionOptions.stats){
             self.added('responses', id, _(fields).omit('studentUserId'))
           }
         }
@@ -166,10 +167,10 @@ if (Meteor.isServer) {
       // A cursor to watch for changes in the stats property of the questions
       const qCursor = Questions.find({ _id: { $in: session.questions } })
       const qHandle = qCursor.observeChanges({
-      // if the question changed, and stats is true, add all responses to the publication
+      // if the question changed, and stats is true, add all responses from other users to the publication
         changed: (id, fields) => {
           if (fields.sessionOptions && fields.sessionOptions.stats){
-            const currentRs = Responses.find({ questionId: { $in: session.questions } })
+            const currentRs = Responses.find({ questionId: fields.questionId })
             currentRs.forEach(r => {
               // TODO: Should double-check if this should be "changed" instead of "added"
               self.added('responses', r._id, _(r).omit('studentUserId'))
@@ -210,6 +211,57 @@ if (Meteor.isServer) {
       }
     } else this.ready()
   })
+}
+
+/**
+ * Computes the distribution of the answers from the array of response objects
+ * @param {Array} allResponses - array of response objects
+ * @param {Question} question - the question object for the responses
+ * @param {Number} attemptNumber - attempt number for which to calculate
+ */
+export const responseDistribution =  (allResponses, question, attemptNumber) => {
+
+  const session = Sessions.findOne({ questions: question._id})
+  if (!session || !question.sessionOptions) return []
+  const courseId = session.courseId
+  const user = Meteor.user()
+
+  if (!user.isStudent(courseId) || !user.isInstructor(courseId)) return []
+  if (user.isStudent(courseId) && !question.sessionOptions.stats ) return []
+
+  //Extract only the responses relevant to the question
+  const responses = _(allResponses).where({ questionId: question._id, attempt:attemptNumber })
+  const distribution = []
+  console.log("calculating")
+  console.log(allmyResponses)
+  
+  if (responses && question.type !== QUESTION_TYPE.SA) {
+    // Get the valid options for the question (e.g A, B, C)
+    const validOptions = _(question.options).pluck('answer')
+    // Get the total number of responses:
+    const total = responses.length
+    let answerDistribution = {}
+
+
+    // pull out all the answers from the responses, this gives an array of arrays of answers
+    // e.g. [[A,B], [B], [B,C]], then flatten it
+    let allAnswers = _(_(responses).pluck('answer')).flatten()
+    // then we count each occurrence of answer in the array
+    // we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
+    allAnswers.forEach((a) => {
+      if (answerDistribution[a]) answerDistribution[a] += 1
+      else answerDistribution[a] = 1
+    })
+
+    validOptions.forEach((o) => {
+      if (!answerDistribution[o]) answerDistribution[o] = 0
+      let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
+      // counts does not need to be an array, but leave the flexibility to be able to hold
+      // the values for more than one attempt
+      distribution.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
+    })
+  }
+  return distribution
 }
 
 /**

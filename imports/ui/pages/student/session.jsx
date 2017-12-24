@@ -11,7 +11,7 @@ import { _ } from 'underscore'
 
 import { Questions } from '../../../api/questions'
 import { Sessions } from '../../../api/sessions'
-import { Responses } from '../../../api/responses'
+import { Responses, responseDistribution } from '../../../api/responses'
 
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { QUESTION_TYPE } from '../../../configs'
@@ -50,13 +50,15 @@ class _Session extends Component {
 
     if( !session.quiz ){
       const current = this.props.session.currentQuestion
-      const q = current ? this.props.questions[current] : null
-      const responses = _.where(this.props.responses, { questionId:q._id, studentUserId: Meteor.user()._id  })
+      const q = this.props.questions[current]
+      if (!q) return <div className='ql-subs-loading'>Loading</div>
+      const responses = q ? _.where(this.props.myResponses, { questionId:q._id, studentUserId: Meteor.user()._id  }) : []
       let lastResponse = _.max(responses, (resp) => { return resp.attempt })
       if (!(lastResponse.attempt > 0)) lastResponse = null
+      const distribution = q ? this.props.responseStats[q._id] : null
       const questionDisplay = this.props.user.isInstructor(session.courseId)
         ? <QuestionDisplay question={q} readonly />
-        : <QuestionDisplay question={q} response={lastResponse} distribution={this.props.responseStats[q._id]} />
+        : <QuestionDisplay question={q} response={lastResponse} distribution={distribution} />
       return (
         <div className='container ql-session-display'>
           { q ? questionDisplay : '' }
@@ -70,15 +72,17 @@ class _Session extends Component {
           qlist.map( (qId) => {
             qCount += 1
             const q = this.props.questions[qId]
-            const responses = _.where(this.props.responses, { questionId:qId, studentUserId: Meteor.user()._id  })
+            if (!q) return <div className='ql-subs-loading'>Loading</div>
+            const responses = _.where(this.props.myResponses, { questionId:qId, studentUserId: Meteor.user()._id  })
             const lastResponse = _.max(responses, (resp) => { return resp.attempt })
             const currentAttempt = lastResponse && lastResponse.attempt ? lastResponse.attempt : 1
             const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
             const correct =  (lastResponse && lastResponse.correct) ? '(Correct)' : ''
             const maxAttempts = (q.sessionOptions && q.sessionOptions.maxAttempts) ? q.sessionOptions.maxAttempts : 1
+            const distribution = this.props.responseStats[q._id]
             const questionDisplay = this.props.user.isInstructor(session.courseId)
               ? <QuestionDisplay question={q} readonly />
-              : <QuestionDisplay question={q} response={lastResponse} distribution={this.props.responseStats[q._id]} />
+              : <QuestionDisplay question={q} response={lastResponse} distribution={distribution} />
               return (
                 <div key={"qlist_"+qId}>
                   <div className = 'ql-session-question-title'>
@@ -101,32 +105,35 @@ export const Session = createContainer((props) => {
     Meteor.subscribe('questions.inSession', props.sessionId)
     Meteor.subscribe('responses.forSession', props.sessionId)
 
-  const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
+  const session = Sessions.findOne({ _id: props.sessionId })
   let user = Meteor.user()
-  const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
-  //const responses = Responses.find({ questionId:{ $in: session.questions }, studentUserId: user._id }).fetch()
+  const questionsInSession = Questions.find({ _id: { $in: session.questions }}).fetch()
+  // all the responses, so that stats can be calculated
   const allResponses = Responses.find({ questionId:{ $in: session.questions }}).fetch()
+  const allMyResponses = _(allResponses).where({ studentUserId: Meteor.userId() })
   // calculate the statistics for each question:
   let formattedData = []
   questionsInSession.forEach( (question) => {
 
     formattedData[question._id] = []
-
     let attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts)
       ? question.sessionOptions.attempts.length
       : 0
     // If the question has a max number of attempts, the current attempt number is the user's last attempt
     if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
-      const allmyResponses = _(allResponses).findWhere({ questionId: question._id, studentUserId: Meteor.userId() })
-      const myLastResponse= _.max(allmyResponses, (resp) => { return resp.attempt })
+      const allMyResponsesQ = _(allMyResponses).where({ questionId: question._id })
+      const myLastResponse= _.max(allMyResponsesQ, (resp) => { return resp.attempt })
       attemptNumber = myLastResponse && myLastResponse.attempt < question.sessionOptions.maxAttempts + 1
         ? myLastResponse.attempt
         : 0
     }
-    const responses = _(allResponses).findWhere({ questionId: question._id, attempt:attemptNumber })
+    formattedData[question._id].push(responseDistribution(allResponses, question, attemptNumber))
+
+    /*
+    const responses = _(allResponses).where({ questionId: question._id, attempt:attemptNumber })
 
 
-    if (responses && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
+    if (responses && question.type !== QUESTION_TYPE.SA && question.sessionOptions && question.sessionOptions.stats) {
       // Get the valid options for the question (e.g A, B, C)
       const validOptions = _(question.options).pluck('answer')
       // Get the total number of responses:
@@ -150,14 +157,14 @@ export const Session = createContainer((props) => {
         // the values for more than one attempt
         formattedData[question._id].push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
       })
-    }
+    }*/
   })
 
   return {
     questions: _.indexBy(questionsInSession, '_id'), // question map
     user: user, // user object
     session: session, // session object
-    responses: allResponses, // responses related to this session
+    myResponses: allMyResponses, // responses related to this session
     responseStats: formattedData,
     loading: !handle.ready()
   }
