@@ -223,25 +223,22 @@ export const responseDistribution =  (allResponses, question, attemptNumber) => 
 
   const session = Sessions.findOne({ questions: question._id})
   if (!session || !question.sessionOptions) return []
+
   const courseId = session.courseId
   const user = Meteor.user()
 
-  if (!user.isStudent(courseId) || !user.isInstructor(courseId)) return []
+  if (!user.isStudent(courseId) && !user.isInstructor(courseId)) return []
   if (user.isStudent(courseId) && !question.sessionOptions.stats ) return []
 
   //Extract only the responses relevant to the question
   const responses = _(allResponses).where({ questionId: question._id, attempt:attemptNumber })
-  const distribution = []
-  console.log("calculating")
-  console.log(allmyResponses)
-  
+  let distribution = []
   if (responses && question.type !== QUESTION_TYPE.SA) {
     // Get the valid options for the question (e.g A, B, C)
     const validOptions = _(question.options).pluck('answer')
     // Get the total number of responses:
     const total = responses.length
     let answerDistribution = {}
-
 
     // pull out all the answers from the responses, this gives an array of arrays of answers
     // e.g. [[A,B], [B], [B,C]], then flatten it

@@ -52,10 +52,10 @@ class _Session extends Component {
       const current = this.props.session.currentQuestion
       const q = this.props.questions[current]
       if (!q) return <div className='ql-subs-loading'>Loading</div>
-      const responses = q ? _.where(this.props.myResponses, { questionId:q._id, studentUserId: Meteor.user()._id  }) : []
+      const responses =  _.where(this.props.myResponses, { questionId:q._id, studentUserId: Meteor.user()._id  })
       let lastResponse = _.max(responses, (resp) => { return resp.attempt })
       if (!(lastResponse.attempt > 0)) lastResponse = null
-      const distribution = q ? this.props.responseStats[q._id] : null
+      const distribution = q.sessionOptions.stats ? this.props.responseStats[q._id] : null
       const questionDisplay = this.props.user.isInstructor(session.courseId)
         ? <QuestionDisplay question={q} readonly />
         : <QuestionDisplay question={q} response={lastResponse} distribution={distribution} />
@@ -79,7 +79,7 @@ class _Session extends Component {
             const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
             const correct =  (lastResponse && lastResponse.correct) ? '(Correct)' : ''
             const maxAttempts = (q.sessionOptions && q.sessionOptions.maxAttempts) ? q.sessionOptions.maxAttempts : 1
-            const distribution = this.props.responseStats[q._id]
+            const distribution = q.sessionOptions.stats ? this.props.responseStats[q._id] : null
             const questionDisplay = this.props.user.isInstructor(session.courseId)
               ? <QuestionDisplay question={q} readonly />
               : <QuestionDisplay question={q} response={lastResponse} distribution={distribution} />
@@ -115,7 +115,6 @@ export const Session = createContainer((props) => {
   let formattedData = []
   questionsInSession.forEach( (question) => {
 
-    formattedData[question._id] = []
     let attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts)
       ? question.sessionOptions.attempts.length
       : 0
@@ -127,37 +126,7 @@ export const Session = createContainer((props) => {
         ? myLastResponse.attempt
         : 0
     }
-    formattedData[question._id].push(responseDistribution(allResponses, question, attemptNumber))
-
-    /*
-    const responses = _(allResponses).where({ questionId: question._id, attempt:attemptNumber })
-
-
-    if (responses && question.type !== QUESTION_TYPE.SA && question.sessionOptions && question.sessionOptions.stats) {
-      // Get the valid options for the question (e.g A, B, C)
-      const validOptions = _(question.options).pluck('answer')
-      // Get the total number of responses:
-      total = responses.length
-      let answerDistribution = {}
-
-      // pull out all the answers from the responses, this gives an array of arrays of answers
-      // e.g. [[A,B], [B], [B,C]], then flatten it
-      let allAnswers = _(_(responses).pluck('answer')).flatten()
-      // then we count each occurrence of answer in the array
-      // we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
-      allAnswers.forEach((a) => {
-        if (answerDistribution[a]) answerDistribution[a] += 1
-        else answerDistribution[a] = 1
-      })
-
-      validOptions.forEach((o) => {
-        if (!answerDistribution[o]) answerDistribution[o] = 0
-        let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
-        // counts does not need to be an array, but leave the flexibility to be able to hold
-        // the values for more than one attempt
-        formattedData[question._id].push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
-      })
-    }*/
+    formattedData[question._id] = responseDistribution(allResponses, question, attemptNumber)
   })
 
   return {
