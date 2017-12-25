@@ -5,8 +5,7 @@
 // QuestionDisplay.jsx: Component for displaying question in session
 
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
-import { Responses } from '../api/responses'
+
 import { _ } from 'underscore'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
@@ -19,7 +18,8 @@ import { Editor } from './Editor'
  * @prop {Boolean} [noStats] - turn off response stats fetching
  * @prop {Boolean} [prof] - pass true if component used by professor account
  */
-export class _QuestionDisplay extends Component {
+
+export class QuestionDisplay extends Component {
 
   /**
    * setup Question display inital state.
@@ -48,7 +48,7 @@ export class _QuestionDisplay extends Component {
   }
   componentWillMount () {
     const q = this.props.question
-    const r = this.props.myResponse
+    const r = this.props.response
     this.state = {
       btnDisabled: true,
       submittedAnswer: r ? r.answer : '',
@@ -73,35 +73,19 @@ export class _QuestionDisplay extends Component {
                           (this.state.questionId !== nextProps.question._id)
 
     // Was a new response passed as prop (TODO: check that this doesn't break in session stuff...)
-    const isNewResponse = (this.props.myResponse && nextProps.myResponse && (this.props.myResponse._id !== nextProps.myResponse._id)) ||
-                          (this.props.myResponse && !nextProps.myResponse) ||
-                          (!this.props.myResponse && nextProps.myResponse)
+    const isNewResponse = (this.props.response && nextProps.response && (this.props.response._id !== nextProps.response._id)) ||
+                          (this.props.response && !nextProps.response) ||
+                          (!this.props.response && nextProps.response)
 
-
-    // Did the attempt number change?
-    /*
-    const currentQ = this.props.question
-    let currentAttemptNumber = currentQ.sessionOptions
-                                ? currentQ.sessionOptions.attempts[currentQ.sessionOptions.attempts.length - 1].number
-                                : 0
-
-    const nextQ = nextProps.question
-    const nextAttemptNumber = nextQ.sessionOptions
-                                ? nextQ.sessionOptions.attempts[nextQ.sessionOptions.attempts.length - 1].number
-                                : 0
-
-    const isNewAttempt = (currentAttemptNumber !== nextAttemptNumber) ||
-                         (this.state.attemptNumber !== nextAttemptNumber) ||
-                         (this.state.attemptNumber !== currentAttemptNumber) */
    const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
 
    if (isNewQuestion || isNewResponse || isNewAttempt ){
-     if (nextProps.myResponse){
-       const myResponse = nextProps.myResponse
-       const submittedAnswerWysiwyg = (nextProps.question.type === QUESTION_TYPE.SA) ? myResponse.answerWysiwyg : ''
+     if (nextProps.response){
+       const response = nextProps.response
+       const submittedAnswerWysiwyg = (nextProps.question.type === QUESTION_TYPE.SA) ? response.answerWysiwyg : ''
        this.setState({
          btnDisabled: true,
-         submittedAnswer: myResponse.answer,
+         submittedAnswer: response.answer,
          submittedAnswerWysiwyg: submittedAnswerWysiwyg,
          questionId: nextProps.question._id,
          isSubmitted: true,
@@ -122,60 +106,6 @@ export class _QuestionDisplay extends Component {
     }
   }
 
-
-  /**
-   * Decide whether to reset the state (e.g. if the question or attempt number changed)
-   * Since this is reactive to the response collection, it gets called anytime someone (else)
-   * submits a response to a question.
-   */
-/*
-  resetState () {
-    // Don't reset if still loading
-    if(this.props.loading){
-      return
-    }
-
-    const q1 = this.props.question
-    const attemptNumber = q1.sessionOptions
-      ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1].number
-      : 0
-
-    const myResponse = this.props.myResponse
-
-    if (this.state.questionId !== this.props.question._id || //the question changed
-      (this.state.questionId === this.props.question._id && this.state.attemptNumber !== attemptNumber) || //the attempt changed
-      (this.state.questionId === this.props.question._id && this.state.attemptNumber === attemptNumber && myResponse)) { //there is already a response
-      if (myResponse && (!this.state.wasVisited)) {
-        // Fill the state with the exsiting response
-        const submittedAnswerWysiwyg = (q1.type === QUESTION_TYPE.SA) ? myResponse.answerWysiwyg : ''
-        this.setState({
-          btnDisabled: true,
-          submittedAnswer: myResponse.answer,
-          submittedAnswerWysiwyg: submittedAnswerWysiwyg,
-          questionId: this.props.question._id,
-          isSubmitted: true,
-          attemptNumber: attemptNumber,
-          wasVisited: true
-        })
-        this.readonly = true
-      } else if (!myResponse) {
-        // reset the state to for an empty response
-        this.setState({
-          btnDisabled: true,
-          submittedAnswer: '',
-          submittedAnswerWysiwyg: '',
-          questionId: this.props.question._id,
-          isSubmitted: false,
-          attemptNumber: attemptNumber,
-          wasVisited: false
-        })
-
-        this.readonly = false
-        if (this.props.readonly) this.readonly = this.props.readonly
-      }
-    }
-  }
-*/
   /**
    * helper to determine in responses should be allowed
    * @returns {Boolean} status of whether component should allow reponse submission
@@ -192,7 +122,7 @@ export class _QuestionDisplay extends Component {
   */
   tryAgain () {
     const question = this.props.question
-    const response = this.props.myResponse
+    const response = this.props.response
     const soptions = question.defaultSessionOptions
     if (!question || !response || !soptions) return
     if (soptions.maxAttempts < 2 || response.attempt >= soptions.maxAttempts) return
@@ -254,7 +184,6 @@ export class _QuestionDisplay extends Component {
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
-    const question =  this.props.question
     this.readonly = true
 
     this.setState({
@@ -262,18 +191,11 @@ export class _QuestionDisplay extends Component {
       isSubmitted: true
     })
 
-    const l = (question && question.sessionOptions && question.sessionOptions.attempts)
-     ? question.sessionOptions.attempts.length : 0
-    let attemptNumber = l ? question.sessionOptions.attempts[l - 1].number : 0
-
-    if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
-      attemptNumber = this.props.myResponse ? this.props.myResponse.attempt + 1 : 1
-    }
     const responseObject = {
       studentUserId: Meteor.userId(),
       answer: answer,
       answerWysiwyg: answerWysiwyg,
-      attempt: attemptNumber,
+      attempt: this.props.attemptNumber,
       questionId: this.props.question._id
     }
 
@@ -350,7 +272,7 @@ export class _QuestionDisplay extends Component {
         if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
 
-        let showStats = !this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
+        let showStats = !this.props.noStats && this.props.responseStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
         if (this.props.showStatsOverride) showStats = true
         if (showStats) {
           stats = this.calculateStats(a.answer)
@@ -394,7 +316,7 @@ export class _QuestionDisplay extends Component {
       // return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
       return (
         <div>
-          {this.props.myResponse ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) : ''}
+          {this.props.response ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) : ''}
           {q.options[0].content
             ? <h4 style={{'alignSelf': 'left'}}> Correct Answer: <br />{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
           : ''
@@ -433,8 +355,7 @@ export class _QuestionDisplay extends Component {
 
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
     const askForNewAttempt = (this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
-                              && q.sessionOptions && q.sessionOptions.maxAttempts > 1
-                              && this.props.myResponse && (!this.props.myResponse.correct)
+                              && this.props.askForNewAttempt
 
     switch (type) {
       case QUESTION_TYPE.MC:
@@ -486,75 +407,12 @@ export class _QuestionDisplay extends Component {
   } // end render
 }
 
-export const QuestionDisplay = createContainer((props) => {
-  /*
-  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
-  let formattedData = []
-  let total
-
-  const question = props.question
-  // Get the number of the last attempt from the question's session options, assuming it's a live session:
-  let attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts)
-    ? question.sessionOptions.attempts.length
-    : 0
-  // If the question has a max number of attempts, the current attempt number is the user's last attempt
-  if (question && question.sessionOptions && question.sessionOptions.maxAttempts > 1){
-    const allmyResponses = Responses.find({ questionId: question._id, studentUserId: Meteor.userId() }).fetch()
-    const myHighestResponse = _.max(allmyResponses, (resp) => { return resp.attempt })
-    attemptNumber = myHighestResponse && myHighestResponse.attempt < question.sessionOptions.maxAttempts + 1
-      ? myHighestResponse.attempt
-      : 0
-  }
-
-  // Get the responses for that attempt:
-  let responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
-  // myResponse is either the user's response in a live session, or the response passed as a prop
-  const myResponse = props.response
-                    ? props.response
-                    : _(responses).findWhere({ studentUserId: Meteor.userId(), attempt: attemptNumber })
-
-  // calculate the statistics for that question:
-  if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
-    // Get the valid options for the question (e.g A, B, C)
-    const validOptions = _(question.options).pluck('answer')
-    // Get the total number of responses:
-    total = responses.length
-    let answerDistribution = {}
-
-    // pull out all the answers from the responses, this gives an array of arrays of answers
-    // e.g. [[A,B], [B], [B,C]], then flatten it
-    let allAnswers = _(_(responses).pluck('answer')).flatten()
-    // then we count each occurrence of answer in the array
-    // we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
-    allAnswers.forEach((a) => {
-      if (answerDistribution[a]) answerDistribution[a] += 1
-      else answerDistribution[a] = 1
-    })
-
-    validOptions.forEach((o) => {
-      if (!answerDistribution[o]) answerDistribution[o] = 0
-      let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
-      // counts does not need to be an array, but leave the flexibility to be able to hold
-      // the values for more than one attempt
-      formattedData.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
-    })
-  }*/
-
-  return {
-    question: props.question,
-    readonly: props.readonly,
-    responseStats: props.responseStats,
-    myResponse:props.response,
-    attemptNumber: props.attemptNumber
-    //loading: !handle.ready()
-  }
-}, _QuestionDisplay)
-
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
   response: PropTypes.object, // response to display with the question
   attemptNumber: PropTypes.number,
   responseStats: PropTypes.array, // distribution of answers for displaying stats
+  askForNewAttempt: PropTypes.bool, // Wether or not to ask for a new attempt (in quiz setting)
   readonly: PropTypes.bool,
   noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running
