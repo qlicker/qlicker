@@ -170,7 +170,7 @@ if (Meteor.isServer) {
       // if the question changed, and stats is true, add all responses from other users to the publication
         changed: (id, fields) => {
           if (fields.sessionOptions && fields.sessionOptions.stats){
-            const currentRs = Responses.find({ questionId: fields.questionId })
+            const currentRs = Responses.find({ questionId: id })
             currentRs.forEach(r => {
               // TODO: Should double-check if this should be "changed" instead of "added"
               self.added('responses', r._id, _(r).omit('studentUserId'))

@@ -67,7 +67,7 @@ class _Session extends Component {
         : <QuestionDisplay question={q} attemptNumber={currentAttemptNumber} response={response} responseStats={responseStats} />
       return (
         <div className='container ql-session-display'>
-          { q ? questionDisplay : '' }
+          { questionDisplay }
         </div>)
     }else{
       const qlist = session.questions
@@ -99,10 +99,8 @@ class _Session extends Component {
           })
         }
         </div>)
-
     }
   }
-
 }
 
 // meteor reactive data container
