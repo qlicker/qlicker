@@ -27,25 +27,26 @@ export class QuestionDisplay extends Component {
   constructor (p) {
     super(p)
     const q = this.props.question
+    const r = this.props.response
 
     this.state = {
       btnDisabled: true,
-      submittedAnswer: '',
-      submittedAnswerWysiwyg: '',
+      submittedAnswer: r ? r.answer : '',
+      submittedAnswerWysiwyg: r ? r.answerWysiwyg : '',
       questionId: q._id,
-      isSubmitted: false,
+      isSubmitted: r ?  true : false,
     }
 
-    this.readonly = false
+    this.readonly =  r ?  true : false
     if (this.props.readonly) this.readonly = this.props.readonly
 
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
-    this.tryAgain = this.tryAgain.bind(this)
+
     this.setAnswer = this.setAnswer.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
-    //this.resetState = this.resetState.bind(this)
   }
+
   componentWillMount () {
     const q = this.props.question
     const r = this.props.response
@@ -118,25 +119,6 @@ export class QuestionDisplay extends Component {
   }
 
   /**
-   * Reset the component to allow for a new attempt in a question that has multiple attempts
-  */
-  tryAgain () {
-    const question = this.props.question
-    const response = this.props.response
-    const soptions = question.defaultSessionOptions
-    if (!question || !response || !soptions) return
-    if (soptions.maxAttempts < 2 || response.attempt >= soptions.maxAttempts) return
-    this.setState({
-      btnDisabled: false,
-      submittedAnswer: '',
-      submittedAnswerWysiwyg: '',
-      isSubmitted: false,
-    })
-    this.readonly = false
-
-  }
-
-  /**
    * set answer in state for short answer questions
    *
    */
@@ -181,6 +163,9 @@ export class QuestionDisplay extends Component {
    */
   submitResponse () {
     if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
+    const q = this.props.question
+
+    // TODO: Check if attempt number is higher than allowed (needs an additional prop to know if it's in a quiz)
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
@@ -202,7 +187,10 @@ export class QuestionDisplay extends Component {
     Meteor.call('responses.add', responseObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Answer Submitted')
+      if (this.props.onSubmit) this.props.onSubmit()
     })
+
+
   }
 
   /**
@@ -354,8 +342,6 @@ export class QuestionDisplay extends Component {
     let content
 
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
-    const askForNewAttempt = (this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
-                              && this.props.askForNewAttempt
 
     switch (type) {
       case QUESTION_TYPE.MC:
@@ -371,6 +357,7 @@ export class QuestionDisplay extends Component {
         content = this.renderOptionQuestion('ms', q)
         break
     }
+
     return (
       <div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
 
@@ -388,16 +375,10 @@ export class QuestionDisplay extends Component {
 
 
         { ! this.props.readonly
-
           ? <div className='bottom-buttons'>
-            {askForNewAttempt
-              ? <button className='btn btn-primary submit-button' onClick={() => this.tryAgain()} disabled={false}>
-                  Try again?
-                </button>
-              : <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+               <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
                    {this.state.isSubmitted ? 'Submitted' : 'Submit'}
                  </button>
-            }
             </div>
           : ''
         }
@@ -412,10 +393,10 @@ QuestionDisplay.propTypes = {
   response: PropTypes.object, // response to display with the question
   attemptNumber: PropTypes.number,
   responseStats: PropTypes.array, // distribution of answers for displaying stats
-  askForNewAttempt: PropTypes.bool, // Wether or not to ask for a new attempt (in quiz setting)
   readonly: PropTypes.bool,
   noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running
   prof: PropTypes.bool,
-  forReview: PropTypes.bool
+  forReview: PropTypes.bool,
+  onSubmit: PropTypes.func // function to run when clicking submit
 }

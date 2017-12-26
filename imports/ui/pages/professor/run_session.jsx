@@ -222,7 +222,7 @@ class _RunSession extends Component {
     Meteor.call('sessions.endSession', sessionId, (error) => {
       if (error) return alertify.error('Error: could not end session ')
       alertify.success('Session Ended')
-      Router.go('course', { _id: this.state.session.courseId }) // TODO go to grades overview page for that session
+      Router.go('course', { _id: this.state.session.courseId })
     })
     if (!this.state.session.reviewable) {
       // by default, do not change reviability, but do remind prof if not reviewable:
@@ -230,6 +230,8 @@ class _RunSession extends Component {
     }
   }
 
+  // TODO: This should not get called when ending a session (it does), which makes
+  // it call startAttempt, which it should not!
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) {
       this.setState({ session: nextProps.session }, () => {
