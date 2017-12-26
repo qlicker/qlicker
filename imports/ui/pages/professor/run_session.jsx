@@ -235,7 +235,7 @@ class _RunSession extends Component {
       this.setState({ session: nextProps.session }, () => {
         const current = this.state.session.currentQuestion
         const q = this.props.questions[current]
-        if (!q.sessionOptions || !q.sessionOptions.attempts) {
+        if (!q || !q.sessionOptions || !q.sessionOptions.attempts) {
           Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
         }
       })

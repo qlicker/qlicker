@@ -477,6 +477,8 @@ Meteor.methods({
     }
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
+    if (!q) return
+    
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
     if (q.sessionOptions) { // add another attempt (if first is closed)
       const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
