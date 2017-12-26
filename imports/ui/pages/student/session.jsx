@@ -29,10 +29,6 @@ class _Session extends Component {
 
   toggleTryAgain (qId) {
     let questionsToTryAgain = this.state.questionsToTryAgain
-    console.log("toggling")
-    console.log(qId)
-    console.log(questionsToTryAgain[qId])
-    console.log(!questionsToTryAgain[qId])
     questionsToTryAgain[qId] = !(questionsToTryAgain[qId])
     this.setState({ questionToTryAgain:questionsToTryAgain })
 
@@ -83,82 +79,77 @@ class _Session extends Component {
       const responseStats = q.sessionOptions.stats ? this.props.responseStatsByQuestion[q._id] : null
       const questionDisplay = user.isInstructor(session.courseId)
         ? <QuestionDisplay question={q} readonly />
-        : <QuestionDisplay question={q} attemptNumber={currentAttemptNumber} response={response} responseStats={responseStats} />
+        : <QuestionDisplay question={q} style={{float: 'right'}} attemptNumber={currentAttemptNumber} response={response} responseStats={responseStats} />
       return (
         <div className='container ql-session-display'>
-          { questionDisplay }
+           { questionDisplay }
         </div>)
     }else{
       // for questions in a quiz (all questions at once, possible multiple attempts allowed)
       const qlist = session.questions
       let qCount = 0
       const qLength = qlist.length
-      return( <div className='container ql-session-display'>
-        {
-          qlist.map( (qId) => {
-            qCount += 1
-            const q = this.props.questions[qId]
-            if (!q || !q.sessionOptions) return <div className='ql-subs-loading'>Loading</div>
-            // Get all the responses for this question, and the last one:
-            const responses = _.where(this.props.myResponses, { questionId:qId })
-            let lastResponse = _.max(responses, (resp) => { return resp.attempt })
-            const maxAttempts =  q.sessionOptions.maxAttempts ? q.sessionOptions.maxAttempts : 1
+      return(
+        <div className='container ql-session-display'>
+          <div className='ql-session-question-list'>
+            {
+              qlist.map( (qId) => {
+                qCount += 1
+                const q = this.props.questions[qId]
+                if (!q || !q.sessionOptions) return <div className='ql-subs-loading'>Loading</div>
+                // Get all the responses for this question, and the last one:
+                const responses = _.where(this.props.myResponses, { questionId:qId })
+                let lastResponse = _.max(responses, (resp) => { return resp.attempt })
+                const maxAttempts =  q.sessionOptions.maxAttempts ? q.sessionOptions.maxAttempts : 1
 
-            let currentAttemptNumber = 1
-            let myLastAttemptNumber = 0
-            if (_.isEmpty(lastResponse)){
-              lastResponse = null
-            } else {
-              myLastAttemptNumber = lastResponse.attempt
-              currentAttemptNumber = myLastAttemptNumber
-              if (this.state.questionsToTryAgain[qId] && myLastAttemptNumber < maxAttempts &&
-                  lastResponse.correct === false && maxAttempts > 1 && myLastAttemptNumber > 0 ){
-                currentAttemptNumber = myLastAttemptNumber + 1
-              }
-            }
-
-
-            const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
-            // only show correct if there is more than 1 attempt
-            const correct =  (lastResponse && maxAttempts > 1 && lastResponse.correct)
-            const askForNewAttempt = (lastResponse && myLastAttemptNumber === currentAttemptNumber &&
-                                      myLastAttemptNumber < maxAttempts && !correct )
-            const response = lastResponse && currentAttemptNumber === myLastAttemptNumber ? lastResponse : null
-
-            console.log("numbers")
-            console.log(currentAttemptNumber)
-            console.log(myLastAttemptNumber)
-            // TODO: onSubmit is not getting called
-            const toggleTryAgain = () => this.toggleTryAgain(qId)
-            //let onSubmit = () => this.toggleTryAgain(qId)
-            //if (currentAttemptNumber === myLastAttemptNumber) onSubmit = () => {}
-            const onSubmit = () => {}
-            const toggleOnSubmit = currentAttemptNumber > myLastAttemptNumber && myLastAttemptNumber > 0
-            console.log(toggleOnSubmit)
-            console.log(this.state.questionsToTryAgain[qId] )
-
-            const questionDisplay = user.isInstructor(session.courseId)
-              ? <QuestionDisplay question={q} readonly />
-              : <QuestionDisplay question={q} response={response} attemptNumber={currentAttemptNumber}
-                 onSubmit={ toggleOnSubmit ? toggleTryAgain: onSubmit}/>
-
-            return (
-                <div key={"qlist_"+qId}>
-                  <div className = 'ql-session-question-title'>
-                    Question: {qCount+"/"+qLength} ({points} points), Attempt {currentAttemptNumber} of {maxAttempts}
-                  </div>
-                  { q ? questionDisplay : '' }
-                  { askForNewAttempt
-                    ?
-                         <button className='btn btn-primary submit-button' onClick={toggleTryAgain}>
-                             Try again!
-                           </button>
-
-                    : ''
+                let currentAttemptNumber = 1
+                let myLastAttemptNumber = 0
+                if (_.isEmpty(lastResponse)){
+                  lastResponse = null
+                } else {
+                  myLastAttemptNumber = lastResponse.attempt
+                  currentAttemptNumber = myLastAttemptNumber
+                  if (this.state.questionsToTryAgain[qId] && myLastAttemptNumber < maxAttempts &&
+                      lastResponse.correct === false && maxAttempts > 1 && myLastAttemptNumber > 0 ){
+                    currentAttemptNumber = myLastAttemptNumber + 1
                   }
-                </div>)
-          })
-        }
+                }
+
+
+                const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
+                // only show correct if there is more than 1 attempt
+                const correct =  (lastResponse && maxAttempts > 1 && lastResponse.correct)
+                const askForNewAttempt = (lastResponse && myLastAttemptNumber === currentAttemptNumber &&
+                                          myLastAttemptNumber < maxAttempts && !correct )
+                const response = lastResponse && currentAttemptNumber === myLastAttemptNumber ? lastResponse : null
+
+                const toggleTryAgain = () => this.toggleTryAgain(qId)
+                const doNothing = () => {}
+                const toggleOnSubmit = currentAttemptNumber > myLastAttemptNumber && myLastAttemptNumber > 0
+
+                const questionDisplay = user.isInstructor(session.courseId)
+                  ? <QuestionDisplay question={q} readonly />
+                  : <QuestionDisplay question={q} response={response} attemptNumber={currentAttemptNumber}
+                     onSubmit={ toggleOnSubmit ? toggleTryAgain: doNothing}/>
+
+                return (
+                    <div className = 'ql-session-question' key={"qlist_"+qId}>
+                      <div className = 'ql-session-question-title'>
+                        Question: {qCount+"/"+qLength} ({points} points), Attempt {currentAttemptNumber} of {maxAttempts}
+                      </div>
+                      { q ? questionDisplay : '' }
+                      { askForNewAttempt
+                        ?  <div className='bottom-buttons'>
+                             <button className='btn btn-primary try-again-button' onClick={toggleTryAgain}>
+                                 Try again!
+                               </button>
+                            </div>
+                        : ''
+                      }
+                    </div>)
+              })
+            }
+          </div>
         </div>)
     }
   }

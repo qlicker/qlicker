@@ -46,7 +46,7 @@ export class _StudentQuestionResultsClassList extends Component {
 
     return (<div className='ql-student-results-list'>
       <div className='col-sm-8'>
-        <QuestionDisplay style={{float: 'right'}} question={q} readonly noStats forReview />
+        <QuestionDisplay style={{float: 'right'}} question={q} readonly forReview />
       </div>
       <div className='col-sm-4'>
         <table style={{float: 'right', margin: '15px'}} className='ql-student-results-table'>

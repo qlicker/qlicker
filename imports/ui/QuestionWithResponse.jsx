@@ -77,7 +77,7 @@ export class QuestionWithResponse extends ControlledForm {
             </div>
           : ''
         }
-        <QuestionDisplay question={this.props.question} noStats readonly forReview response={response} />
+        <QuestionDisplay question={this.props.question} readonly forReview response={response} />
       </div>
     )
   } //  end render

@@ -15,7 +15,6 @@ import { Editor } from './Editor'
  * React Component (meteor reactive) to display Question object and send question reponses.
  * @prop {Question} question - question object
  * @prop {Boolean} [readonly] - turn off all interactivity
- * @prop {Boolean} [noStats] - turn off response stats fetching
  * @prop {Boolean} [prof] - pass true if component used by professor account
  */
 
@@ -65,8 +64,6 @@ export class QuestionDisplay extends Component {
 
   componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
-
-    //this.resetState()
   }
 
   componentWillReceiveProps (nextProps){
@@ -183,11 +180,13 @@ export class QuestionDisplay extends Component {
       attempt: this.props.attemptNumber,
       questionId: this.props.question._id
     }
+    if (this.props.onSubmit){
+      this.props.onSubmit()
+    }
 
     Meteor.call('responses.add', responseObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Answer Submitted')
-      if (this.props.onSubmit) this.props.onSubmit()
     })
 
 
@@ -221,7 +220,7 @@ export class QuestionDisplay extends Component {
   wysiwygContent (answer, content, correct) {
     let classContent = 'ql-wysiwyg-content'
 
-    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
+    if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'ql-wysiwyg-content correct-color' : 'ql-wysiwyg-content incorrect-color'
     }
     return (
@@ -239,7 +238,7 @@ export class QuestionDisplay extends Component {
    */
   commonContent (typeStr, answer, content, correct) {
     let classContent = ''
-    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
+    if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
@@ -260,17 +259,17 @@ export class QuestionDisplay extends Component {
         if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
 
-        let showStats = !this.props.noStats && this.props.responseStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
+        let showStats = !this.props.forReview && this.props.responseStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
         if (this.props.showStatsOverride) showStats = true
         if (showStats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
             statClass += ' show-stats'
-
-            if (this.props.question.sessionOptions.correct && a.correct) {
+            // don't show colours if it's for review
+            if (!this.props.forReview && this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
-            } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
+            } else if (!this.props.forReview && this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
           }
@@ -279,7 +278,7 @@ export class QuestionDisplay extends Component {
         }
         const statsStr = '(' + stats + '%)'
         const sess = this.props.question.sessionOptions
-        const shouldShow = this.props.forReview || this.props.prof || (sess && sess.correct)
+        const shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
 
         return (
           <div key={'question_' + a.answer}
@@ -292,7 +291,7 @@ export class QuestionDisplay extends Component {
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span>
                  : '' }
-              {content} {(shouldShow && a.correct) ? '✓' : ''} {showStats ? statsStr : ''}
+              {content} {(shouldShowCorrect && a.correct) ? '✓' : ''} {showStats ? statsStr : ''}
             </div>
           </div>)
       })
@@ -335,7 +334,7 @@ export class QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (!this.props.noStats && !this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
+    if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
     const type = q.type
@@ -365,7 +364,7 @@ export class QuestionDisplay extends Component {
           {WysiwygHelper.htmlDiv(q.content)}
         </div>
 
-        { this.disallowResponses() && (!this.props.noStats) ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
+        { this.disallowResponses() ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
         { showToolbar ? <div id='ckeditor-toolbar' /> : '' }
 
@@ -394,7 +393,6 @@ QuestionDisplay.propTypes = {
   attemptNumber: PropTypes.number,
   responseStats: PropTypes.array, // distribution of answers for displaying stats
   readonly: PropTypes.bool,
-  noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running
   prof: PropTypes.bool,
   forReview: PropTypes.bool,

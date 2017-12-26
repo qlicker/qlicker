@@ -3,23 +3,42 @@
 
 .ql-session-display {
 
+  .ql-session-question-list {
 
-}
+    .ql-session-question {
+        margin-bottom: 10px;
+        border:2px solid $darker-grey;
 
-.ql-session-question-title {
-  font-size: 2em;
-  background: $blue;
-  padding: 5px;
-  color: white;
-}
+      .ql-session-question-title {
+        font-size: 2em;
+        background: $blue;
+        padding: 5px;
+        color: white;
+      }
+      .bottom-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin-bottom: 5px;
+        .try-again-button {
+          width: 100%;
+          max-width: 400px;
+        }
+      }
 
+   }
 
-@media (max-width: 480px) {
-  .ql-session-display {
-    &.container {
-      padding:0;
-      margin:0;
-    }
   }
 
+
+  @media (max-width: 480px) {
+    .ql-session-display {
+      &.container {
+        padding:0;
+        margin:0;
+      }
+    }
+
+  }
 }

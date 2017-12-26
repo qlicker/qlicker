@@ -38,7 +38,7 @@ export class _SessionResults extends Component {
             <div className='collapse' id={'collapse_' + qId}>
               <div className='row'>
                 <div className='col-sm-6'>
-                  <QuestionDisplay style={{float: 'right'}} question={q} readonly noStats forReview />
+                  <QuestionDisplay style={{float: 'right'}} question={q} readonly forReview />
                 </div>
 
                 <div className='col-sm-6'>
