@@ -9,7 +9,7 @@ import { _ } from 'underscore'
 
 import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
-import { Responses } from '../api/responses'
+import { Responses, responseDistribution } from '../api/responses'
 
 /**
  * React Component (meteor reactive) for attempt distributions for a question
@@ -51,16 +51,22 @@ export class _AnswerDistribution extends Component {
 export const AnswerDistribution = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const responses = Responses.find({ questionId: props.question._id }).fetch()
-  const maxAttempt = props.question.sessionOptions ? props.question.sessionOptions.attempts.length : 0
-  const validOptions = _(props.question.options).pluck('answer')
 
+
+  // Find the highest attempt in the responses:
+  const maxResponse = _(responses).max( (r) => {return r.attempt} )
+  const maxAttempt = !(_.isEmpty(maxResponse)) ? maxResponse.attempt : 0
+
+  // Old
   // This is basically the same as in QuestionDisplay, with an extra loop over attempts
+  //const maxAttempt = props.question.sessionOptions ? props.question.sessionOptions.attempts.length : 0
+  const validOptions = _(props.question.options).pluck('answer')
   let answerDistributionByAttempt = {}
   let totalByAttempt = {}
   for (let i = 0; i < maxAttempt; i++) {
     let attemptNumber = i + 1
     // Get the responses for that attempt:
-    let responsesForAttempt = _(responses).filter((r) => { return r.attempt === attemptNumber })
+    let responsesForAttempt = _(responses).where({ attempt:attemptNumber })
     // Get the total number of responses:
     let total = responsesForAttempt.length
     totalByAttempt[attemptNumber] = total
@@ -95,41 +101,6 @@ export const AnswerDistribution = createContainer((props) => {
     formattedData.push(answerEntry)
   })
 
-// //////////old starts here
-/*
-  const data = []
-  let options = _(dl.groupby('answer').execute(responses)).sortBy('answer')
-  options.map((a) => {
-    a.counts = _(dl.groupby('attempt').count().execute(a.values)).sortBy('attempt')
-    delete a.values
-  })
-  const kOptions = _(options).indexBy('answer')
-
-  // split up multi-select responses
-  const arrayKeys = _(options).chain().pluck('answer').filter((k) => k instanceof Array).value()
-  arrayKeys.forEach((k) => {
-    k.forEach((j) => {
-      kOptions[j] = _({}).extend(kOptions[k])
-      kOptions[j].answer = j
-    })
-  })
-
-  validOptions.forEach((key) => {
-    if (key in kOptions) {
-      const counts = _(kOptions[key].counts).indexBy('attempt')
-      _(maxAttempt).times((i) => {
-        kOptions[key]['attempt_' + (i + 1)] = counts[i + 1] ? counts[i + 1].count : 0
-      })
-    } else {
-      _(maxAttempt).times((i) => {
-        if (!(key in kOptions)) kOptions[key] = { answer: key }
-        kOptions[key]['attempt_' + (i + 1)] = 0
-      })
-    }
-    data.push(kOptions[key])
-  })
-
-*/
   return {
     responses: responses,
     distribution: formattedData,

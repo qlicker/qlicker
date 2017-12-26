@@ -277,34 +277,11 @@ Meteor.methods({
 
     const q = Questions.findOne({ _id: responseObject.questionId })
 
-    /*
-    const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
-    let resp = responseObject.answer
-
-    let mark = 0
-    switch (q.type) {
-      case QUESTION_TYPE.MC:
-        mark = correct[0] === resp ? 1 : 0
-        break
-      case QUESTION_TYPE.TF:
-        mark = correct[0] === resp ? 1 : 0
-        break
-      case QUESTION_TYPE.SA:
-        mark = resp ? 1 : 0
-        break
-      case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
-        const intersection = _.intersection(correct, resp)
-        const percentage = (2 * intersection.length - resp.length) / correct.length
-        mark = percentage > 0 ? percentage : 0
-        break
-    }
-
-    responseObject.mark = mark*/
     if (!q.sessionId) throw Error('Question not attached to session')
 
     // If this is a response in a quiz where the question has multiple possible attempts,
     // check if this answer is correct
-    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && responseObject.attempt < q.sessionOptions.maxAttempts+1 && Meteor.isServer){
+    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && responseObject.attempt <= q.sessionOptions.maxAttempts && Meteor.isServer){
       session = Sessions.findOne({ _id:q.sessionId })
       responseObject.correct = (calculateResponsePoints(responseObject) === q.sessionOptions.points)
     }
