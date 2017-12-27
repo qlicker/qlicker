@@ -11,6 +11,24 @@
     }
 
   }
+  .ql-session-display-mobile {
+
+    .ql-session-display-mobile-infobar {
+      padding: 5px;
+      font-size: 120%;
+    }
+
+    .ql-session-display-mobile-buttons {
+      padding: 5px;
+      .btn-group {
+        padding-bottom: 5px;
+        .btn {
+          height: 40px;
+        }
+      }
+    }
+
+  }
 
   // Question list used in a quiz setting, student view
   .ql-session-question-list {

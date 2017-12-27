@@ -268,54 +268,60 @@ class _RunSession extends Component {
 
     return (
       <div className='container ql-session-display'>
-        <a className='toolbar-button' href='#' onClick={this.routeDesktop}>
-          <span className='glyphicon glyphicon-fullscreen' />&nbsp;
-          Desktop view
-        </a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }&nbsp;&nbsp;
-        Question: {questionList.indexOf(current) + 1}/{questionList.length}&nbsp;&nbsp;
-        Responses: <span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}&nbsp;&nbsp;
-        Attempt: {q.sessionOptions.attempts.length}
-        <div className='btn-group btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={this.newAttempt}>
-            New attempt
+        <div className='ql-session-display-mobile'>
+          <div className='ql-session-display-mobile-infobar'>
+            <a className='toolbar-button' href='#' onClick={this.routeDesktop}>
+              <span className='glyphicon glyphicon-fullscreen' />&nbsp;
+              Desktop view
+            </a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }&nbsp;&nbsp;
+            Question: {questionList.indexOf(current) + 1}/{questionList.length}&nbsp;&nbsp;
+            Responses: <span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}&nbsp;&nbsp;
+            Attempt: {q.sessionOptions.attempts.length}
           </div>
-          <div className='btn btn-default' onClick={() => this.toggleAttempt(q._id)}>
-            {strAttemptEnabled}
+          <div className='ql-session-display-mobile-buttons'>
+            <div className='btn-group btn-group-justified'>
+              <div className='btn btn-default' onClick={this.newAttempt}>
+                New attempt
+              </div>
+              <div className='btn btn-default' onClick={() => this.toggleAttempt(q._id)}>
+                {strAttemptEnabled}
+              </div>
+            </div>
+            <div className='btn-group btn-group-justified'>
+              <div className='btn btn-default' onClick={() => { this.toggleStats(q._id) }}>
+                {strStatsVisible}
+              </div>
+              <div className='btn btn-default' onClick={() => { this.toggleCorrect(q._id) }}>
+                {strCorrectVisible}
+              </div>
+            </div>
+            <div className='btn-group btn-group-justified'>
+              <div className='btn btn-default' onClick={this.prevQuestion}>
+                <span className='glyphicon glyphicon-arrow-left' /> &nbsp;  Previous
+              </div>
+              <div className='btn btn-default' onClick={() => this.toggleHidden(q._id)}>
+                {strQuestionVisible}
+              </div>
+              <div className='btn btn-default' onClick={this.nextQuestion}>
+                Next &nbsp;<span className='glyphicon glyphicon-arrow-right' />
+              </div>
+            </div>
           </div>
-        </div>
-        <div className='btn-group btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={() => { this.toggleStats(q._id) }}>
-            {strStatsVisible}
-          </div>
-          <div className='btn btn-default' onClick={() => { this.toggleCorrect(q._id) }}>
-            {strCorrectVisible}
-          </div>
-        </div>
-        <div className='btn-group btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={this.prevQuestion}>
-            <span className='glyphicon glyphicon-arrow-left' /> &nbsp;  Previous
-          </div>
-          <div className='btn btn-default' onClick={() => this.toggleHidden(q._id)}>
-            {strQuestionVisible}
-          </div>
-          <div className='btn btn-default' onClick={this.nextQuestion}>
-            Next &nbsp;<span className='glyphicon glyphicon-arrow-right' />
-          </div>
-        </div>
 
-        <div className='ql-question-preview'>
-          { q ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof showStatsOverride /> : '' }
-        </div>
-        {
-          !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
-          ? <div><ShortAnswerList question={q} /></div>
-          : ''
-        }
-        <div className='btn-group-lg btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={this.endSession}>
-            <span className='glyphicon glyphicon-stop' />&nbsp;
-            Finish Session
+          <div className='ql-question-preview'>
+            { q ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof showStatsOverride /> : '' }
+          </div>
+          {
+            !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
+            ? <div><ShortAnswerList question={q} /></div>
+            : ''
+          }
+          <div className='btn-group-lg btn-group-justified details-button-group'>
+            <div className='btn btn-default' onClick={this.endSession}>
+              <span className='glyphicon glyphicon-stop' />&nbsp;
+              Finish Session
+            </div>
           </div>
         </div>
       </div>)
