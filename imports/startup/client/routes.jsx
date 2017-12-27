@@ -195,20 +195,34 @@ Router.route('/student', {
   }
 })
 
-// Shared routes
 import { ManageCourse } from '../../ui/pages/professor/manage_course'
 import { Course } from '../../ui/pages/student/course'
 Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
-    // could the myTAs be wrong for a TA???
     return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params._id)
   },
   action: function () {
+    if (!Meteor.userId()) Router.go('login')
     if (Meteor.user().isInstructor(this.params._id) || Meteor.user().hasRole('admin')) {
       mount(AppLayout, {content: <PageContainer> <ManageCourse isInstructor courseId={this.params._id} /> </PageContainer>})
     } else if (Meteor.user().isStudent(this.params._id)) {
       mount(AppLayout, { content: <PageContainer> <Course courseId={this.params._id} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { ManageCourseGroups } from '../../ui/pages/professor/manage_course_groups'
+
+Router.route('/course/:courseId/groups', {
+  name: 'course.groups',
+  waitOn: function () {
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params.courseId)
+  },
+  action: function () {
+    if (!Meteor.userId()) Router.go('login')
+    if (Meteor.user().isInstructor(this.params.courseId) || Meteor.user().hasRole('admin')) {
+      mount(AppLayout, {content: <PageContainer> <ManageCourseGroups courseId={this.params.courseId} /> </PageContainer>})
     } else Router.go('login')
   }
 })

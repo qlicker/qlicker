@@ -271,6 +271,7 @@ class _ManageCourse extends Component {
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
     const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
+    const manageGroups = () => Router.go('course.groups', { courseId:this.props.course._id })
     const expandText = !this.state.expandedClasslist ? 'show all' : 'show less'
 
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
@@ -287,6 +288,9 @@ class _ManageCourse extends Component {
                 <h4>Course Details</h4>
               </div>
               <div className='ql-card-content'>
+                <div className='btn-group btn-group-justified details-button-group'>
+                  <div className='btn btn-default' onClick={manageGroups}> Manage Groups </div>
+                </div>
                 {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA
