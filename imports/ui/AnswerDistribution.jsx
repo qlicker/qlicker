@@ -52,19 +52,39 @@ export const AnswerDistribution = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const responses = Responses.find({ questionId: props.question._id }).fetch()
 
-
-  // Find the highest attempt in the responses:
   const maxResponse = _(responses).max( (r) => {return r.attempt} )
   const maxAttempt = !(_.isEmpty(maxResponse)) ? maxResponse.attempt : 0
 
+  const responseStats = responseDistribution(responses, props.question)
+  // create the data for plotting, an array like:
+  // [{answer:A, attempt_1:5, attempt_2:0}, {answer:B, attempt_1:8, attempt_2:3},... ]
+  // (one object per answer)
+  const answersByAttempt = _(responseStats).groupBy('answer')
+  let distribution = []
+  _(answersByAttempt).keys().forEach( (answer) => {
+    const responseStatsByAttempt = _(answersByAttempt[answer]).groupBy('attempt')
+    let answerEntry = {}
+    answerEntry[answer]=answer
+
+    _(responseStatsByAttempt).keys().forEach( (aNumber) => {
+      answerEntry['attempt_' + aNumber] = responseStatsByAttempt[aNumber][0]['counts']
+      answerEntry['pct_attempt_' + aNumber] = responseStatsByAttempt[aNumber][0]['pct']
+    })
+    distribution.push(answerEntry)
+  })
+
+  /*
   // Old
   // This is basically the same as in QuestionDisplay, with an extra loop over attempts
-  //const maxAttempt = props.question.sessionOptions ? props.question.sessionOptions.attempts.length : 0
+  //  const maxResponse = _(responses).max( (r) => {return r.attempt} )
+  //  const maxAttempt = !(_.isEmpty(maxResponse)) ? maxResponse.attempt : 0
+  const maxAttempt = props.question.sessionOptions ? props.question.sessionOptions.attempts.length : 0
   const validOptions = _(props.question.options).pluck('answer')
   let answerDistributionByAttempt = {}
   let totalByAttempt = {}
   for (let i = 0; i < maxAttempt; i++) {
     let attemptNumber = i + 1
+
     // Get the responses for that attempt:
     let responsesForAttempt = _(responses).where({ attempt:attemptNumber })
     // Get the total number of responses:
@@ -100,11 +120,14 @@ export const AnswerDistribution = createContainer((props) => {
     }
     formattedData.push(answerEntry)
   })
-
+  console.log("Distribution/old")
+  console.log(distribution)
+  console.log(formattedData)
+*/
   return {
     responses: responses,
-    distribution: formattedData,
-    maxAttempt: maxAttempt,
+    distribution: distribution,
+    maxAttempt: maxAttempt, //probably not necessary...
     loading: !handle.ready()
   }
 }, _AnswerDistribution)

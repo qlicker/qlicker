@@ -217,9 +217,9 @@ if (Meteor.isServer) {
  * Computes the distribution of the answers from the array of response objects
  * @param {Array} allResponses - array of response objects
  * @param {Question} question - the question object for the responses
- * @param {Number} attemptNumber - attempt number for which to calculate
+ * @param {Number} attemptNumber - attempt number for which to calculate (-1 to calculate all)
  */
-export const responseDistribution =  (allResponses, question, attemptNumber) => {
+export const responseDistribution =  (allResponses, question, attemptNumber = -1) => {
 
   const session = Sessions.findOne({ questions: question._id})
   if (!session || !question.sessionOptions) return []
@@ -230,34 +230,41 @@ export const responseDistribution =  (allResponses, question, attemptNumber) => 
   if (!user.isStudent(courseId) && !user.isInstructor(courseId)) return []
   if (user.isStudent(courseId) && !question.sessionOptions.stats ) return []
 
-  //Extract only the responses relevant to the question
-  const responses = _(allResponses).where({ questionId: question._id, attempt:attemptNumber })
+  const responsesByAttempt = _(_(allResponses).where({ questionId: question._id })).groupBy('attempt')
   let responseStats = []
-  if (responses && question.type !== QUESTION_TYPE.SA) {
-    // Get the valid options for the question (e.g A, B, C)
-    const validOptions = _(question.options).pluck('answer')
-    // Get the total number of responses:
-    const total = responses.length
-    let answerDistribution = {}
-    // pull out all the answers from the responses, this gives an array of arrays of answers
-    // e.g. [[A,B], [B], [B,C]], then flatten it
-    let allAnswers = _(_(responses).pluck('answer')).flatten()
-    // then we count each occurrence of answer in the array
-    // we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
-    allAnswers.forEach((a) => {
-      if (answerDistribution[a]) answerDistribution[a] += 1
-      else answerDistribution[a] = 1
-    })
+  // Loop over all attempts
+  _(responsesByAttempt).keys().forEach( (aNumber) => {
+    if (attemptNumber !== -1 && aNumber !== attemptNumber){
+      return //this is like continue, needs to be used in a forEach statement...
+    }
+    let responses = responsesByAttempt[aNumber]
+    if (responses && question.type !== QUESTION_TYPE.SA) {
+      // Get the valid options for the question (e.g A, B, C)
+      const validOptions = _(question.options).pluck('answer')
+      // Get the total number of responses:
+      const total = responses.length
+      let answerDistribution = {}
+      // pull out all the answers from the responses, this gives an array of arrays of answers
+      // e.g. [[A,B], [B], [B,C]], then flatten it
+      let allAnswers = _(_(responses).pluck('answer')).flatten()
+      // then we count each occurrence of answer in the array
+      // we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
+      allAnswers.forEach((a) => {
+        if (answerDistribution[a]) answerDistribution[a] += 1
+        else answerDistribution[a] = 1
+      })
 
-    validOptions.forEach((o) => {
-      if (!answerDistribution[o]) answerDistribution[o] = 0
-      let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
-      // counts does not need to be an array, but leave the flexibility to be able to hold
-      // the values for more than one attempt
-      //responseStats.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
-      responseStats.push({ answer: o, counts: answerDistribution[o], total:total, pct:pct, attempt:attemptNumber})
-    })
-  }
+      validOptions.forEach((o) => {
+        if (!answerDistribution[o]) answerDistribution[o] = 0
+        let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
+        // counts does not need to be an array, but leave the flexibility to be able to hold
+        // the values for more than one attempt
+        //responseStats.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
+        responseStats.push({ answer: o, counts: answerDistribution[o], total:total, pct:pct, attempt:aNumber})
+      })
+    }
+  })
+
   return responseStats
 }
 
