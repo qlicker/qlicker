@@ -317,10 +317,12 @@ class _RunSession extends Component {
             ? <div><ShortAnswerList question={q} /></div>
             : ''
           }
-          <div className='btn-group-lg btn-group-justified details-button-group'>
-            <div className='btn btn-default' onClick={this.endSession}>
-              <span className='glyphicon glyphicon-stop' />&nbsp;
-              Finish Session
+          <div className='ql-session-display-mobile-buttons'>
+            <div className='btn-group-lg btn-group-justified'>
+              <div className='btn btn-default' onClick={this.endSession}>
+                <span className='glyphicon glyphicon-stop' />&nbsp;
+                Finish Session
+              </div>
             </div>
           </div>
         </div>
