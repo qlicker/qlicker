@@ -11,7 +11,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
-import { Responses } from '../../../api/responses'
+import { Responses, responseDistribution } from '../../../api/responses'
 
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
@@ -255,14 +255,15 @@ class _RunSession extends Component {
     const q = this.props.questions[current]
     if (!q.sessionOptions) return <div>Loading</div>
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
-
+    const currentAttemptNumber = q.sessionOptions.attempts.length
+    const responseStats = _(this.props.responseStatsByQuestion[q._id]).where({ attempt:currentAttemptNumber })
     // strings
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
     const strAttemptEnabled = currentAttempt.closed ? 'Allow responses' : 'Disallow responses'
 
-    const numAnswered = this.props.responses.length
+    const numAnswered = this.props.responseCounts[q._id][currentAttemptNumber]
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
     return (
@@ -304,7 +305,7 @@ class _RunSession extends Component {
         </div>
 
         <div className='ql-question-preview'>
-          { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof showStatsOverride /> : '' }
+          { q ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof showStatsOverride /> : '' }
         </div>
         {
           !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
@@ -331,6 +332,11 @@ class _RunSession extends Component {
     const q = this.props.questions[current]
     if (!q.sessionOptions) return <div>Loading</div>
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+    const currentAttemptNumber = q.sessionOptions.attempts.length
+
+    const responseStats = q.sessionOptions.stats
+                          ? _(this.props.responseStatsByQuestion[q._id]).where({ attempt:currentAttemptNumber })
+                          : null
 
     // strings
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
@@ -338,7 +344,7 @@ class _RunSession extends Component {
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
     const strAttemptEnabled = currentAttempt.closed ? 'Allow Responses' : 'Disallow Responses'
 
-    const numAnswered = this.props.responses.length
+    const numAnswered = this.props.responseCounts[q._id][currentAttemptNumber]
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
     const students = Meteor.users.find({ _id: { $in: this.state.session.joined || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
@@ -428,7 +434,7 @@ class _RunSession extends Component {
           <div className={'ql-main-content ' + (this.state.presenting ? 'presenting' : '')}>
             {
               !this.state.presenting && q && q.type !== QUESTION_TYPE.SA // option based questions
-              ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div>
+              ? <div><AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[q._id]} /><div className='clear' /></div>
               : ''
             }
             {
@@ -438,7 +444,7 @@ class _RunSession extends Component {
             }
 
             <div className='ql-question-preview'>
-              { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }
+              { q ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof /> : '' }
             </div>
           </div>
 
@@ -458,16 +464,31 @@ export const RunSession = createContainer((props) => {
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
   const questions = _.indexBy(questionsInSession, '_id')
 
+  const allResponses = Responses.find({ questionId:{ $in: session.questions }}).fetch()
+  const responsesByQuestion = _(allResponses).groupBy('questionId')
+  let responseStatsByQuestion = []
+  const responseCounts = []
+  questionsInSession.forEach( (question) => {
+    responseStatsByQuestion[question._id] = responseDistribution(responsesByQuestion[question._id], question)
+    responseCounts[question._id] = _(responsesByQuestion[question._id]).countBy('attempt')
+  })
+
+
+
+//  const responseCounts = _(allResponses).countBy('questionId')
+
+/*
   let responses = []
   const q = questions[session.currentQuestion]
   if (session.currentQuestion && q && q.sessionOptions) {
     const maxAttempt = questions[session.currentQuestion].sessionOptions.attempts.length
     responses = Responses.find({ attempt: maxAttempt, questionId: session.currentQuestion }).fetch()
   }
-
+*/
   return {
     questions: questions,
-    responses: responses,
+    responseCounts: responseCounts,
+    responseStatsByQuestion: responseStatsByQuestion,
     session: session,
     loading: !handle.ready()
   }

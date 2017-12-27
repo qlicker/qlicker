@@ -8,6 +8,8 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
 import { Questions } from '../api/questions'
+import { Responses, responseDistribution } from '../api/responses'
+
 import { AnswerDistribution } from './AnswerDistribution'
 import { QuestionResultsClassList } from './QuestionResultsClassList'
 import { QuestionResultsListItem } from './QuestionResultsListItem'
@@ -22,6 +24,7 @@ export class _SessionResults extends Component {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+
     const total = this.props.session.joined ? this.props.session.joined.length : 0
     return (
       <div>
@@ -44,7 +47,7 @@ export class _SessionResults extends Component {
                 <div className='col-sm-6'>
                   {
                     q && q.type !== QUESTION_TYPE.SA // option based questions
-                    ? <AnswerDistribution question={q} title='Responses' /> : ''
+                    ? <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[qId]}  /> : ''
                   }
                   {
                     q && q.type === QUESTION_TYPE.SA // short answer
@@ -68,11 +71,22 @@ export class _SessionResults extends Component {
 }
 
 export const SessionResults = createContainer((props) => {
-  const handle = Meteor.subscribe('questions.inSession', props.session._id)
-  const questions = Questions.find({ sessionId: props.session._id }).fetch()
+  const handle = Meteor.subscribe('questions.inSession', props.session._id) &&
+                 Meteor.subscribe('responses.forSession', props.session._id)
+
+  const questionsInSession = Questions.find({ _id: { $in: props.session.questions } }).fetch()
+  const questions = _.indexBy(questionsInSession, '_id')
+
+  const allResponses = Responses.find({ questionId:{ $in: props.session.questions }}).fetch()
+  const responsesByQuestion = _(allResponses).groupBy('questionId')
+  let responseStatsByQuestion = []
+  questionsInSession.forEach( (question) => {
+    responseStatsByQuestion[question._id] = responseDistribution(responsesByQuestion[question._id], question)
+  })
 
   return {
-    questions: _(questions).indexBy('_id'),
+    questions: questions,
+    responseStatsByQuestion: responseStatsByQuestion,
     loading: !handle.ready()
   }
 }, _SessionResults)

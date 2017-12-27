@@ -2,7 +2,17 @@
 @import '../variables.scss';
 
 .ql-session-display {
+  @media (max-width: 480px) {
+    .ql-session-display {
+      &.container {
+        padding:0;
+        margin:0;
+      }
+    }
 
+  }
+
+  // Question list used in a quiz setting, student view
   .ql-session-question-list {
 
     .ql-session-question {
@@ -32,13 +42,5 @@
   }
 
 
-  @media (max-width: 480px) {
-    .ql-session-display {
-      &.container {
-        padding:0;
-        margin:0;
-      }
-    }
 
-  }
 }

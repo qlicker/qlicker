@@ -226,17 +226,20 @@ export const responseDistribution =  (allResponses, question, attemptNumber = -1
 
   const courseId = session.courseId
   const user = Meteor.user()
-
+  // Don't calculate anything if user is not a student or instructor
   if (!user.isStudent(courseId) && !user.isInstructor(courseId)) return []
+  // Only calculate for a student if the stats flag is on for that question
   if (user.isStudent(courseId) && !question.sessionOptions.stats ) return []
 
   const responsesByAttempt = _(_(allResponses).where({ questionId: question._id })).groupBy('attempt')
   let responseStats = []
   // Loop over all attempts
-  _(responsesByAttempt).keys().forEach( (aNumber) => {
+  _(responsesByAttempt).keys().forEach( (strNumber) => {
+    const aNumber = parseInt(strNumber)
     if (attemptNumber !== -1 && aNumber !== attemptNumber){
       return //this is like continue, needs to be used in a forEach statement...
     }
+
     let responses = responsesByAttempt[aNumber]
     if (responses && question.type !== QUESTION_TYPE.SA) {
       // Get the valid options for the question (e.g A, B, C)
