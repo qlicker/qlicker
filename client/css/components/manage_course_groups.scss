@@ -1,3 +1,5 @@
+@import '../variables.scss';
+
 
 .ql-manage-course-groups {
   font-size: 120%;
@@ -6,23 +8,44 @@
       cursor: pointer;
     }
   }
-  
+
   .btn-group {
     padding-bottom: 5px;
   }
   .ql-manage-course-groups-select{
     padding-bottom: 5px;
   }
-  .ql-manage-course-groups-group {
 
-    .ql-manage-course-groups-group-info{
+  .ql-manage-course-groups-studentlist {
+    padding-top: 5px;
+    .ql-manage-course-groups-studentlist-title {
+      padding-bottom: 8px;
+      text-align: center;
+      font-weight: bold;
+
+    }
+    .ql-manage-course-groups-student {
+      vertical-align: middle;
+      border:2px solid $grey;
+      height: 35px;
+      &:hover {
+        cursor: pointer;
+        background-color: $grey;
+      }
+
+    }
+  }
+
+  .ql-manage-course-groups-group-info {
+    display: flex;
+    flex-direction: row;
+    div {
       display: flex;
       flex-direction: row;
-      div {
-        display: flex;
-        flex-direction: row;
-      }
-    }
+     }
+  }
+
+  .ql-manage-course-groups-students-info {
 
   }
 }
