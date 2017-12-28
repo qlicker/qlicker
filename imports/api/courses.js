@@ -616,7 +616,7 @@ Meteor.methods({
     }
     let categories = course.groupCategories ? course.groupCategories : []
     categories.push({
-      categoryNumber:categories.length,
+      categoryNumber:categories.length + 1,
       categoryName:categoryName,
       groups: []
     })
@@ -641,9 +641,9 @@ Meteor.methods({
     let course = Courses.findOne(courseId)
 
     let categories = course.groupCategories ? course.groupCategories : []
-    if (! _(course.groupCategories).findWhere({ categoryName: categoryName }) ){
+    if (!_(categories).findWhere({ categoryName: categoryName }) ){
       categories.push({
-        categoryNumber:categories.length,
+        categoryNumber:categories.length + 1,
         categoryName:categoryName,
         groups: []
        })
@@ -653,7 +653,7 @@ Meteor.methods({
     let offset = groups.length
     for (let ig = 0; ig < nGroups; ig++){
       const groupNumber = ig+offset+1
-      const groupName = 'Group'+toString(groupNumber)
+      const groupName = 'Group'+ groupNumber.toString()
       const group = {
         groupNumber: groupNumber,
         groupName: groupName,
@@ -703,14 +703,45 @@ Meteor.methods({
         groupCategories: categories
       }
     })
-
   },
+  /**
+   * Adds or removes a student to/from a group (by category and group number)
+   * @param {MongoID} courseId
+   * @param {String} newGroupName
+   * @param {Number} categoryNumber
+   * @param {Number} groupNumber // number of groups to create
+   */
+  'courses.changeGroupName' (courseId, categoryNumber, groupNumber, newGroupName) {
+    check(courseId, Helpers.MongoID)
+    check(newGroupName, Helpers.NEString)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
 
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })){
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber:groupNumber })
+    if(!group){
+      throw new Meteor.Error('Group does not exist!')
+    }
+    group.groupName = groupName
+    Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
 }) // end Meteor.methods
 
 
 /*
 groupCategories: Match.Maybe([{
+  categoryNumber: Match.Maybe(Number)
   categoryName: Match.Maybe(Helpers.NEString),
   groups: Match.Maybe([{
     groupNumber: Match.Maybe(Helpers.Number),

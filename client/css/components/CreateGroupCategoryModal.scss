@@ -1,0 +1,26 @@
+
+.ql-modal-create-group-category {
+  font-size: 120%;
+
+  .ql-modal-create-group-category-input {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+    margin-bottom: 5px;
+    div {
+      padding-right: 8px;
+    }
+
+    input {
+      height: 35px;
+    }
+    .ql-modal-create-group-category-input-number{
+      input {
+        width: 4em;
+        margin-right: 1px;
+        margin-left: 1px;
+      }
+    }
+
+  }
+}
