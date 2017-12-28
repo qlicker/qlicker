@@ -260,7 +260,7 @@ class _ManageCourseGroups extends Component {
                             const onStudentClick =  () => this.toggleStudentInGroup(sId)
                             return(
                               <div key={'s2'+sId} className='ql-manage-course-groups-student' onClick={onStudentClick}>
-                                {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname}
+                                {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
                               </div>
                             )
                           })
@@ -304,7 +304,7 @@ class _ManageCourseGroups extends Component {
                                                : () => this.setGroupFromStudent(sId)
                         return(
                           <div key={'s2'+sId} className='ql-manage-course-groups-student' onClick={onStudentClick}>
-                            {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname}
+                            {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
                           </div>
                         )
                       })
