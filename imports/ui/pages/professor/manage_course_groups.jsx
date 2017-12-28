@@ -28,6 +28,7 @@ class _ManageCourseGroups extends Component {
       changingGroupeName:false,
       newGroupName:'',
       showUngroupedStudents:true,
+      studentSearchString: ''
     }
 
     this.setCategory = this.setCategory.bind(this)
@@ -38,15 +39,22 @@ class _ManageCourseGroups extends Component {
     this.toggleStudentInGroup = this.toggleStudentInGroup.bind(this)
     this.setGroupFromStudent = this.setGroupFromStudent.bind(this)
     this.toggleShowUngoupedStudents = this.toggleShowUngoupedStudents.bind(this)
+    this.setStudentSearchString = this.setStudentSearchString.bind(this)
+    this.addGroupToCategory = this.addGroupToCategory.bind(this)
 
   }
 
   componentWillReceiveProps (nextProps){
-    if (this.state.category && this.state.group){
+    if (this.state.category){
       // handle the case where the group or category was modified, so update the state
       const newCategory = _(nextProps.course.groupCategories).findWhere({ categoryNumber:this.state.category.categoryNumber })
-      const newGroup = _(newCategory.groups).findWhere({ groupNumber:this.state.group.groupNumber })
-      this.setState({ category:newCategory, group:newGroup })
+      if (this.state.group){
+        const newGroup = _(newCategory.groups).findWhere({ groupNumber:this.state.group.groupNumber })
+        this.setState({ category:newCategory, group:newGroup })
+      } else {
+        this.setState({ category:newCategory })
+      }
+
     }
   }
 
@@ -99,7 +107,6 @@ class _ManageCourseGroups extends Component {
     }
   }
 
-  // TODO: Not sure if this finds the correct group!!!
   setGroupFromStudent (sId) {
     if( this.state.category ){
       let group = null
@@ -112,6 +119,19 @@ class _ManageCourseGroups extends Component {
 
   toggleShowUngoupedStudents () {
     this.setState({ showUngroupedStudents:!this.state.showUngroupedStudents })
+  }
+
+  setStudentSearchString (e) {
+    this.setState({ studentSearchString: e.target.value })
+  }
+
+  addGroupToCategory () {
+    if( this.state.category ){
+      Meteor.call('courses.addGroupsToCategory', this.props.courseId, this.state.category.categoryName, (error) => {
+        if (error) return alertify.error(error.err)
+        alertify.success('Added group')
+      })
+    }
   }
 
   render () {
@@ -153,6 +173,16 @@ class _ManageCourseGroups extends Component {
       studentsToShowStr = 'Students in '+this.state.category.categoryName
     }
 
+    // Filter the list of students to show in student column
+    const studentSearchString = this.state.studentSearchString
+    studentsToShow = studentSearchString
+      ? _(studentsToShow).filter( (entry) => {
+        return this.props.students[entry].profile.lastname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+               this.props.students[entry].profile.firstname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+               this.props.students[entry].emails[0].address.toLowerCase().includes(studentSearchString.toLowerCase())
+            })
+      : studentsToShow
+
     return(
       <div className='container ql-manage-course-groups'>
         <div className='row'>
@@ -163,7 +193,7 @@ class _ManageCourseGroups extends Component {
               </div>
               <div className='ql-card-content'>
                 <div className='btn-group btn-group-justified'>
-                  <div className='btn btn-default' onClick={toggleCreateCategory}> Create a new Category </div>
+                  <div className='btn btn-default' onClick={toggleCreateCategory}> Create a new category </div>
                   { this.state.categoryModal ? <CreateGroupCategoryModal courseId={this.props.course._id} done={toggleCreateCategory} /> : '' }
                 </div>
                 { categoryOptions.length
@@ -190,6 +220,12 @@ class _ManageCourseGroups extends Component {
                    </div>
                   : ''
                 }
+                { this.state.category
+                  ? <div className='btn-group btn-group-justified'>
+                      <div className='btn btn-default' onClick={this.addGroupToCategory}> Add a group to category </div>
+                    </div>
+                  : ''
+                }
               </div>
             </div>
           </div>
@@ -197,7 +233,7 @@ class _ManageCourseGroups extends Component {
           <div className='col-md-4'>
             <div className='ql-card'>
               <div className='ql-header-bar'>
-                <h4>Group</h4>
+                <h4>Group membership</h4>
               </div>
               <div className='ql-card-content'>
                 {this.state.group
@@ -212,12 +248,13 @@ class _ManageCourseGroups extends Component {
                               &nbsp;&nbsp;
                               <a onClick={this.toggleChanginGroupName}>cancel</a>
                             </div>
-                          : <div> {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change</a> </div>
+                          : <div> {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change name</a> </div>
                         }
                       </div>
                       <div className='ql-manage-course-groups-studentlist'>
                         <div className='ql-manage-course-groups-studentlist-title'>
-                          ({studentsInGroup.length} student{studentsInGroup.length !== 1 ? 's' :''})
+                          ({studentsInGroup.length} student{studentsInGroup.length !== 1 ? 's' :''}) <br />
+                          {studentsInGroup.length > 0 ? '(click on a student to remove from group)': ''}
                         </div>
                         { studentsInGroup.map( (sId)=>{
                             const onStudentClick =  () => this.toggleStudentInGroup(sId)
@@ -245,17 +282,21 @@ class _ManageCourseGroups extends Component {
                 <div>
                   <div className='ql-manage-course-groups-students-info'>
                     { this.state.category
-                      ? <div className='btn-group btn-group-justified'>
-                          <div className='btn btn-default' onClick={this.toggleShowUngoupedStudents}>
-                            Show students {this.state.showUngroupedStudents ? '' : 'not'} in {this.state.category.categoryName}
+                      ? <div>
+                          <div className='btn-group btn-group-justified'>
+                            <div className='btn btn-default' onClick={this.toggleShowUngoupedStudents}>
+                              {this.state.showUngroupedStudents ? 'Show students in a group' : 'Show students not in a group'}
+                            </div>
                           </div>
                         </div>
                       : ''
                     }
+                    <input type='text' onChange={_.throttle(this.setStudentSearchString, 200)} placeholder='Search by student name or email'></input>
                   </div>
                   <div className='ql-manage-course-groups-studentlist'>
                     <div className='ql-manage-course-groups-studentlist-title'>
-                      {studentsToShowStr} ({studentsToShow.length} student{studentsToShow.length !== 1 ? 's' :''})
+                      {studentsToShowStr} ({studentsToShow.length} student{studentsToShow.length !== 1 ? 's' :''}) <br />
+                      {addStudentToGroup ? '(click on a student to add to group)': ''}
                     </div>
                     { studentsToShow.map( (sId)=>{
                         const onStudentClick = addStudentToGroup
