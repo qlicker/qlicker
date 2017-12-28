@@ -36,10 +36,19 @@ class _ManageCourseGroups extends Component {
     this.changeGroupName = this.changeGroupName.bind(this)
   }
 
+  componentWillReceiveProps (nextProps){
+    if (this.state.category && this.state.group){
+      // handle the case where the group or category was modified, so update the state
+      const newCategory = _(nextProps.course.groupCategories).findWhere({ categoryNumber:this.state.category.categoryNumber })
+      const newGroup = _(newCategory.groups).findWhere({ groupNumber:this.state.group.groupNumber })
+      this.setState({ category:newCategory, group:newGroup })
+    }
+  }
+
   setCategory (option) {
     if(option){
       const category = _(this.props.course.groupCategories).findWhere({ categoryNumber:option.value })
-      this.setState({ category:category })
+      this.setState({ category:category, group:null })
     } else {
       this.setState({ category:null, group:null })
     }
@@ -70,8 +79,8 @@ class _ManageCourseGroups extends Component {
         if (error) return alertify.error(error.err)
         alertify.success('Group name changed')
       })
+      this.setState({ changingGroupeName:false, newGroupName:'' })
     }
-    this.setState({ changingGroupeName:false })
 
   }
 
@@ -145,9 +154,10 @@ class _ManageCourseGroups extends Component {
                   ? <div className='ql-manage-course-groups-group-info'>
                       Group name:&nbsp;&nbsp; {this.state.changingGroupeName
                         ? <div>
-                            <input type='text' onChange={this.setNewGroupName} size="16" placeholder={this.state.group.groupName}></input>
+                            <input type='text' onChange={this.setNewGroupName} size="8" placeholder={this.state.group.groupName}></input>
                             &nbsp;&nbsp;
                             <a onClick={this.changeGroupName}>save</a>
+                            &nbsp;&nbsp;
                             <a onClick={this.toggleChanginGroupName}>cancel</a>
                           </div>
                         : <div> {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change</a> </div>}

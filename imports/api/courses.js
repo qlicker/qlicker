@@ -729,7 +729,7 @@ Meteor.methods({
     if(!group){
       throw new Meteor.Error('Group does not exist!')
     }
-    group.groupName = groupName
+    group.groupName = newGroupName
     Courses.update({ _id: courseId }, {
       $set: {
         groupCategories: categories
