@@ -51,15 +51,31 @@ const gradePattern = {
 export const Grade = function (doc) { _.extend(this, doc) }
 _.extend(Grade.prototype, {
   // Determine if a grade has questions that need to be graded manually that haven't been graded
+  // (mark is set to automatic and of a type that is not autogradeable, and person responded)
   hasUngradedMarks: function () {
     let needsGrading = false
+    if (!this.joined || this.numAnswered === 0) return false
     this.marks.forEach( (m) => {
       if (!m.automatic) return // has already been manually graded, so continue
       let question = Questions.findOne({ _id:m.questionId })
-      if (!isAutoGradeable(question.type) && m.automatic) needsGrading = true
+      if (question && !isAutoGradeable(question.type) && m.automatic &&
+         question.sessionOptions && ('points' in question.sessionOptions) &&
+         question.sessionOptions.points > 0 && m.responseId !== "0") {
+         needsGrading = true
+      }
     })
     return needsGrading
   },
+  hasManualMarks: function () {
+    let manual = false
+    if (!this.automatic) return true
+    if (!this.joined || this.numAnswered === 0) return false
+    this.marks.forEach( (m) => {
+      if (!m.automatic) manual = true
+    })
+    return manual
+  },
+
 })
 // Create grade collection
 export const Grades = new Mongo.Collection('grades',
@@ -148,42 +164,43 @@ export const calculateResponsePoints = (response) => {
   if (!response) return 0
   // if (!response || !response.attempt) return 0
   const q = Questions.findOne({ _id: response.questionId })
-  const resp = response.answer
-  if (!q || !resp) return 0
+  const answer = response.answer
+  if (!q || !answer) return 0
 
   if (!isAutoGradeable(q.type)) return 0
 
   const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
-  const attemptNumber = resp.attempt
-  let points = 1 // points that the question is worth
+  const attemptNumber = response.attempt
+  let points = 1.0 // points that the question is worth
 
-  let weight = 1 // weight of that attempt of the question (e.g. second attempt could be worth less points)
+  let weight = 1.0 // weight of that attempt of the question (e.g. second attempt could be worth less points)
   if(q.sessionOptions){
-    if(q.sessionOptions.points){
+    if('points' in q.sessionOptions){
       points = q.sessionOptions.points
     }
     if(q.sessionOptions.maxAttempts && q.sessionOptions.attemptWeights){
-      if(attemptNumber < q.sessionOptions.maxAttempts + 1 && q.sessionOptions.attemptWeights.length < attemptNumber){
+      if(attemptNumber < q.sessionOptions.maxAttempts + 1 && attemptNumber < q.sessionOptions.attemptWeights.length + 1){
         weight =  q.sessionOptions.attemptWeights[attemptNumber - 1]
       } else {
         weight = 0
       }
     }
   }
+  points *= weight
   // No point in grading it if the question is not worth any points!
   if (points === 0) return 0
 
   let mark = 0 // between 0 and 1 depending on the answer
   switch (q.type) {
     case QUESTION_TYPE.MC:
-      mark = correct[0] === resp ? 1 : 0
+      mark = correct[0] === answer ? 1 : 0
       break
     case QUESTION_TYPE.TF:
-      mark = correct[0] === resp ? 1 : 0
+      mark = correct[0] === answer ? 1 : 0
       break
     case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
-      const intersection = _.intersection(correct, resp)
-      const percentage = (2 * intersection.length - resp.length) / correct.length
+      const intersection = _.intersection(correct, answer)
+      const percentage = (2 * intersection.length - answer.length) / correct.length
       mark = percentage > 0 ? percentage : 0
       break
   }
@@ -455,7 +472,7 @@ Meteor.methods({
            markOutOf[iq] = 0
         }
         // except if the number of points was assigned to the SA (or other question)
-        if (question.sessionOptions && question.sessionOptions.points > 0){
+        if (question.sessionOptions && ('points' in question.sessionOptions) ){
            markOutOf[iq] = question.sessionOptions.points
         }
         if(markOutOf[iq] > 0){
@@ -515,15 +532,16 @@ Meteor.methods({
               numAnswered +=1
             }
           }
-          gradePoints += markPoints
-
          //don't update a mark if its automatic flag is sest to false
+         let automaticMark = true
           if (existingGrade){
             let existingMark = _(existingGrade.marks).findWhere({ questionId: question._id})
             if(existingMark && existingMark.automatic === false){
-              continue
+              markPoints = existingMark.points
+              automaticMark = false
             }
           }
+          gradePoints += markPoints
 
           let mark = {
             questionId: question._id,
@@ -531,7 +549,7 @@ Meteor.methods({
             attempt: attempt,
             points: markPoints,
             outOf: markOutOf[iq],
-            automatic: true
+            automatic: automaticMark
           }
           marks.push(mark)
         }// end of questions
@@ -549,8 +567,10 @@ Meteor.methods({
         if(joined && numQuestions === 0){
           participation = 100
         }
-        let gradeValue = 0
-        if(gradePoints > 0){
+
+        let gradeValue = grade.value //this will be set if the grade existed
+
+        if(gradePoints > 0 && grade.automatic){ //only update if not an existing grade with automatic set to false
           if(gradeOutOf > 0){
             gradeValue = (100 * gradePoints/gradeOutOf)
           }else{

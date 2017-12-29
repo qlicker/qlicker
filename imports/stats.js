@@ -54,7 +54,7 @@ class Stats {
 
     let weight = 1
     if(q.sessionOptions){
-      if(q.sessionOptions.points){
+      if('points' in q.sessionOptions){
         points = q.sessionOptions.points
       }
       const qAttempt = _(q.sessionOptions).findWhere({ number:attempt})

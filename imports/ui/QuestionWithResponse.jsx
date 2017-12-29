@@ -20,7 +20,7 @@ export class QuestionWithResponse extends ControlledForm {
 
   constructor (props) {
     super(props)
-    const responseToView = this.props.responses.length > 0
+    const responseToView = this.props.responses && this.props.responses.length > 0
       ? this.props.responses.length -1
       : 0
     this.state = {

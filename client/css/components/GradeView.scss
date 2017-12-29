@@ -18,7 +18,7 @@
     margin-left: 1px;
   }
   .ql-gradeview-manual {
-    background: $light-red;
+    background: $light-green;
     border-radius: 5px;
     padding-right: 5px;
     padding-left: 5px;
@@ -59,9 +59,9 @@
         //text-decoration: underline;
         //text-decoration-color: $blue;
         border:1px solid $darker-grey;
-        border-radius: 5px;
-        padding-right: 2px;
-        padding-left: 2px;
+        //border-radius: 5px;
+        padding-right: 5px;
+        padding-left: 5px;
 
         &:hover {
           font-weight: bold;

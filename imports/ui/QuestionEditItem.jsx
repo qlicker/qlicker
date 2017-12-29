@@ -592,7 +592,7 @@ export class QuestionEditItem extends Component {
                     Points:
                   </div>
                   <input type='number'
-                     min={0} step={0.01}
+                     min={0} step={0.5}
                      onChange={this.setPoints}
                      value={this.state.sessionOptions.points}></input>
                   </div>

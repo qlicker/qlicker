@@ -116,8 +116,7 @@ class _Session extends Component {
                   }
                 }
 
-
-                const points = (q.sessionOptions && q.sessionOptions.points) ? q.sessionOptions.points : 1
+                const points = (q.sessionOptions && ('points' in q.sessionOptions) ) ? q.sessionOptions.points : 1
                 // only show correct if there is more than 1 attempt
                 const correct =  (lastResponse && maxAttempts > 1 && lastResponse.correct)
                 const askForNewAttempt = (lastResponse && myLastAttemptNumber === currentAttemptNumber &&

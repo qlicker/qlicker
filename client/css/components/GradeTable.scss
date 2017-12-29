@@ -39,7 +39,7 @@
     }
   }
 
-  .ql-grade-cell-manual{
+  .ql-grade-cell-needs-grading{
     background: $light-red;
     &:hover {
       font-weight: bold;
@@ -47,6 +47,13 @@
     }
   }
 
+  .ql-grade-cell-manual{
+    background: $light-green;
+    &:hover {
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
 
   .ql-grade-table-sort-button {
      position: absolute;

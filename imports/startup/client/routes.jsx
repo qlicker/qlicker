@@ -59,6 +59,7 @@ import { ProfilePage } from '../../ui/pages/profile'
 Router.route('/profile', {
   name: 'profile',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('images')
   },
   action: function () {
@@ -93,6 +94,7 @@ import { AdminDashboard } from '../../ui/pages/admin/admin_dashboard'
 Router.route('/admin', {
   name: 'admin',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('users.all') && Meteor.subscribe('settings') && Meteor.subscribe('courses')
   },
   action: function () {
@@ -200,6 +202,7 @@ import { Course } from '../../ui/pages/student/course'
 Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params._id)
   },
   action: function () {
@@ -217,6 +220,7 @@ import { ManageCourseGroups } from '../../ui/pages/professor/manage_course_group
 Router.route('/course/:courseId/groups', {
   name: 'course.groups',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params.courseId)
   },
   action: function () {
@@ -231,6 +235,7 @@ import { ResultsOverview } from '../../ui/pages/results_overview'
 Router.route('/courses/results', {
   name: 'results.overview',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData')
   },
   action: function () {
@@ -246,6 +251,7 @@ import { CourseGrades } from '../../ui/pages/course_grades'
 Router.route('/course/:courseId/grades', {
   name: 'course.results',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params.courseId)
   },
   action: function () {
@@ -263,6 +269,7 @@ import { StudentSessionResultsPage } from '../../ui/pages/student_session_result
 Router.route('/session/:sessionId/results', {
   name: 'session.results',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params.sessionId) && Meteor.subscribe('courses')
   },
   action: function () {
@@ -285,6 +292,7 @@ import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/session/edit/:_id', {
   name: 'session.edit',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') &&
       Meteor.subscribe('sessions.single',this.params._id) &&
       Meteor.subscribe('courses') &&
@@ -304,6 +312,7 @@ import { RunSession } from '../../ui/pages/professor/run_session'
 Router.route('/session/run/:_id', {
   name: 'session.run',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
@@ -318,6 +327,7 @@ Router.route('/session/run/:_id', {
 Router.route('/session/run/:_id/mobile', {
   name: 'session.run.mobile',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
@@ -333,6 +343,7 @@ import { Session } from '../../ui/pages/student/session'
 Router.route('/session/present/:_id', {
   name: 'session',
   waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses')
   },
   action: function () {
