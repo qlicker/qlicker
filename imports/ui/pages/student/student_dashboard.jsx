@@ -80,12 +80,11 @@ class _StudentDashboard extends Component {
 }
 
 export const StudentDashboard = createContainer(() => {
-  const handle = Meteor.subscribe('courses.userObserveChanges') && Meteor.subscribe('userData')
-  const user = Meteor.users.findOne(Meteor.userId())
-  const cArr = user.profile.courses || []
+  const handle = Meteor.subscribe('courses')
+  const courses = Courses.find({ students: Meteor.userId() }).fetch()
 
   return {
-    courses: Courses.find({ _id: { $in: cArr }, inactive: { $in: [null, false] } }).fetch(),
+    courses: courses,
     loading: !handle.ready(),
     handle: handle
   }

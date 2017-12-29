@@ -371,7 +371,7 @@ export const ManageCourse = createContainer((props) => {
     Meteor.subscribe('users.studentsInCourse', props.courseId) &&
     Meteor.subscribe('users.instructorsInCourse', props.courseId)
 
-  const course = Courses.find({ _id: props.courseId }).fetch()[0]
+  const course = Courses.findOne({ _id: props.courseId })
 
   const TAIds = course.instructors || []
   const TAs = Meteor.users.find({ _id: { $in: TAIds }, 'profile.roles': { $ne: 'admin' } }).fetch()
