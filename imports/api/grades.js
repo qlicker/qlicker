@@ -170,9 +170,6 @@ export const calculateResponsePoints = (response) => {
     case QUESTION_TYPE.TF:
       mark = correct[0] === resp ? 1 : 0
       break
-    case QUESTION_TYPE.SA: // 1 if any answer - TODO: this should never happen since SA is not autogradable
-      mark = resp ? 1 : 0
-      break
     case QUESTION_TYPE.MS: // (correct responses-incorrect responses)/(correct answers)
       const intersection = _.intersection(correct, resp)
       const percentage = (2 * intersection.length - resp.length) / correct.length
@@ -245,7 +242,7 @@ Meteor.methods({
     })
   },
   /**
-   * Hide the grades from the students
+   * Show the grades to the students
    * @param {MongoID} sessionId - session ID
    */
   'grades.showToStudents' (sessionId) {
@@ -431,14 +428,18 @@ Meteor.methods({
       const numQuestionsTotal = questions.length
 
       //count the questions that are worth points, keep track of total marks for each question
-      let numQuestions = 0
+      let numQuestions = 0 // worth points
       let markOutOf = []
       let gradeOutOf = 0
       for(let iq = 0; iq < numQuestionsTotal; iq++){
         let question  = questions[iq]
+        // assume that it is worth 1 point
         markOutOf.push(1)
-        // Assume that SA is not worth any points
-        // TODO: Remove this!!!
+
+        // TODO: Check this still makes sense
+        // Assume that short answer is not worth any points if the points were not set
+        // This is to deal with backwards compatibility for questions that were in the DB
+        // before points were assigned and SA were counted in participation if any answer was entered
         if(question.type === QUESTION_TYPE.SA){
            markOutOf[iq] = 0
         }
