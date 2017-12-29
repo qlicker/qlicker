@@ -49,7 +49,18 @@ const gradePattern = {
 
 // Create grade class
 export const Grade = function (doc) { _.extend(this, doc) }
-
+_.extend(Grade.prototype, {
+  // Determine if a grade has questions that need to be graded manually that haven't been graded
+  hasUngradedMarks: function () {
+    let needsGrading = false
+    this.marks.forEach( (m) => {
+      if (!m.automatic) return // has already been manually graded, so continue
+      let question = Questions.findOne({ _id:m.questionId })
+      if (!isAutoGradeable(question.type) && m.automatic) needsGrading = true
+    })
+    return needsGrading
+  },
+})
 // Create grade collection
 export const Grades = new Mongo.Collection('grades',
   { transform: (doc) => { return new Grade(doc) } })

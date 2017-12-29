@@ -147,7 +147,7 @@ class _PageContainer extends Component {
 
 export const PageContainer = createContainer(() => {
   const handle = Meteor.subscribe('courses')
-  const courses = Courses.find({ inactive: { $in: [null, false] } })
+  const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
 
   return {
     courses: courses,
