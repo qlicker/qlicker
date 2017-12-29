@@ -74,6 +74,25 @@ if (Meteor.isServer) {
         let course = Courses.findOne({ _id:courseId })
         const students = [this.userId]
         course.students = students
+        course.instructors = []
+        let groupCategories = []
+        course.groupCategories.forEach( (cat) => {
+          cat.groups.forEach( (g) => {
+            if ( _(g.students).contains(this.userId) ){
+              groupCategories.push({
+                categoryNumber: cat.categoryNumber,
+                categoryName: cat.categoryName,
+                groups: [{
+                  groupName: g.groupName,
+                  groupNumber: g.groupNumber,
+                  students: [this.userId]
+                  }]
+              })
+            }
+          })
+        })
+        course.groupCategories = groupCategories
+
         this.added('courses', course._id, course)
         this.ready()
 
@@ -81,10 +100,48 @@ if (Meteor.isServer) {
         const cHandle = cCursor.observeChanges({
           added: (id, fields) => {
             fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            groupCategories = []
+            fields.groupCategories.forEach( (cat) => {
+              cat.groups.forEach( (g) => {
+                if ( _(g.students).contains(this.userId) ){
+                  groupCategories.push({
+                    categoryNumber: cat.categoryNumber,
+                    categoryName: cat.categoryName,
+                    groups: [{
+                      groupName: g.groupName,
+                      groupNumber: g.groupNumber,
+                      students: [this.userId]
+                      }]
+                  })
+                }
+              })
+            })
+            fields.groupCategories = groupCategories
             this.added('courses', id, fields)
           },
           changed: (id, fields) => {
             fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            groupCategories = []
+            fields.groupCategories.forEach( (cat) => {
+              cat.groups.forEach( (g) => {
+                if ( _(g.students).contains(this.userId) ){
+                  groupCategories.push({
+                    categoryNumber: cat.categoryNumber,
+                    categoryName: cat.categoryName,
+                    groups: [{
+                      groupName: g.groupName,
+                      groupNumber: g.groupNumber,
+                      students: [this.userId]
+                      }]
+                  })
+                }
+              })
+            })
+            fields.groupCategories = groupCategories
             this.changed('courses', id, fields)
           },
           removed: (id) => {
@@ -103,6 +160,11 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('courses', function () {
+    // This handles publishing of student data differently depending on whether
+    // the user is an instructor or student of a course. This is somewhat complicated
+    // by the fact that a user could be a student in some courses and an instructor
+    // for others.
+
     if (this.userId) {
       let user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin)) {
@@ -115,6 +177,24 @@ if (Meteor.isServer) {
         studentCourses.forEach( c => {
           let course = c
           course.students = [this.userId]
+          course.instructors = []
+          let groupCategories = []
+          course.groupCategories.forEach( (cat) => {
+            cat.groups.forEach( (g) => {
+              if ( _(g.students).contains(this.userId) ){
+                groupCategories.push({
+                  categoryNumber: cat.categoryNumber,
+                  categoryName: cat.categoryName,
+                  groups: [{
+                    groupName: g.groupName,
+                    groupNumber: g.groupNumber,
+                    students: [this.userId]
+                    }]
+                })
+              }
+            })
+          })
+          course.groupCategories = groupCategories
           this.added('courses', c._id, course)
         })
         instructorCourses.forEach( c => {
@@ -122,15 +202,55 @@ if (Meteor.isServer) {
         })
         this.ready()
         // Watch for changes:
+        // courses where user is a student:
         const sCursor = Courses.find({ students: this.userId })
+        // courses where user is an instructor:
         const iCursor = Courses.find({ instructors: this.userId })
         const sHandle = sCursor.observeChanges({
           added: (id, fields) => {
             fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            let groupCategories = []
+            fields.groupCategories.forEach( (cat) => {
+              cat.groups.forEach( (g) => {
+                if ( _(g.students).contains(this.userId) ){
+                  groupCategories.push({
+                    categoryNumber: cat.categoryNumber,
+                    categoryName: cat.categoryName,
+                    groups: [{
+                      groupName: g.groupName,
+                      groupNumber: g.groupNumber,
+                      students: [this.userId]
+                      }]
+                  })
+                }
+              })
+            })
+            fields.groupCategories = groupCategories
             this.added('courses', id, fields)
           },
           changed: (id, fields) => {
             fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            let groupCategories = []
+            fields.groupCategories.forEach( (cat) => {
+              cat.groups.forEach( (g) => {
+                if ( _(g.students).contains(this.userId) ){
+                  groupCategories.push({
+                    categoryNumber: cat.categoryNumber,
+                    categoryName: cat.categoryName,
+                    groups: [{
+                      groupName: g.groupName,
+                      groupNumber: g.groupNumber,
+                      students: [this.userId]
+                      }]
+                  })
+                }
+              })
+            })
+            fields.groupCategories = groupCategories
             this.changed('courses', id, fields)
           },
           removed: (id) => {
