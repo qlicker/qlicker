@@ -27,7 +27,7 @@
     .ql-manage-course-groups-student {
       vertical-align: middle;
       border:2px solid $grey;
-      height: 35px;
+      height: 30px;
       &:hover {
         cursor: pointer;
         background-color: $grey;
@@ -37,12 +37,16 @@
   }
 
   .ql-manage-course-groups-group-info {
-    display: flex;
-    flex-direction: row;
-    div {
+
+    .ql-manage-course-groups-group-info-row {
+      padding-bottom: 5px;
       display: flex;
       flex-direction: row;
-     }
+      div {
+        display: flex;
+        flex-direction: row;
+       }
+    }
   }
 
   .ql-manage-course-groups-students-info {

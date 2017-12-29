@@ -41,6 +41,7 @@ class _ManageCourseGroups extends Component {
     this.toggleShowUngoupedStudents = this.toggleShowUngoupedStudents.bind(this)
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.addGroupToCategory = this.addGroupToCategory.bind(this)
+    this.incrementGroup = this.incrementGroup.bind(this)
 
   }
 
@@ -61,7 +62,7 @@ class _ManageCourseGroups extends Component {
   setCategory (option) {
     if(option){
       const category = _(this.props.course.groupCategories).findWhere({ categoryNumber:option.value })
-      this.setState({ category:category, group:null })
+      this.setState({ category:category, group:category.groups[0] })
     } else {
       this.setState({ category:null, group:null })
     }
@@ -134,6 +135,18 @@ class _ManageCourseGroups extends Component {
     }
   }
 
+  incrementGroup (index) {
+    if( this.state.category ){
+      const currentGroupNumber = this.state.group.groupNumber
+      const newGroupNumber = currentGroupNumber + index
+      const nGroups = this.state.category.groups.length
+      if (newGroupNumber <= nGroups  && newGroupNumber > 0){
+        const group = this.state.category.groups[newGroupNumber-1]
+        if (group) this.setState({ group:group })
+      }
+    }
+  }
+
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const studentsInCourse = this.props.course.students
@@ -182,6 +195,14 @@ class _ManageCourseGroups extends Component {
                this.props.students[entry].emails[0].address.toLowerCase().includes(studentSearchString.toLowerCase())
             })
       : studentsToShow
+
+    // Sort the students alphabetically
+    studentsToShow = _(studentsToShow).sortBy( (entry) => {return this.props.students[entry].profile.lastname.toLowerCase()})
+
+    const nGroups = this.state.category ? this.state.category.groups.length : 0
+    const currentGroupNumber = this.state.group ? this.state.group.groupNumber : 0
+    const nextGroup = () => this.incrementGroup(1)
+    const prevGroup = () => this.incrementGroup(-1)
 
     return(
       <div className='container ql-manage-course-groups'>
@@ -239,16 +260,25 @@ class _ManageCourseGroups extends Component {
                 {this.state.group
                   ? <div>
                       <div className='ql-manage-course-groups-group-info'>
-                        Group name:&nbsp;&nbsp;
-                        {this.state.changingGroupeName
-                          ? <div>
-                              <input type='text' onChange={this.setNewGroupName} size="8" placeholder={this.state.group.groupName}></input>
-                              &nbsp;&nbsp;
-                              <a onClick={this.changeGroupName}>save</a>
-                              &nbsp;&nbsp;
-                              <a onClick={this.toggleChanginGroupName}>cancel</a>
+                        <div className='ql-manage-course-groups-group-info-row'>
+                          Group name:&nbsp;&nbsp;
+                          {this.state.changingGroupeName
+                            ? <div>
+                                <input type='text' onChange={this.setNewGroupName} size="8" placeholder={this.state.group.groupName}></input>
+                                &nbsp;&nbsp;
+                                <a onClick={this.changeGroupName}>save</a>
+                                &nbsp;&nbsp;
+                                <a onClick={this.toggleChanginGroupName}>cancel</a>
+                              </div>
+                            : <div> {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change name</a> </div>
+                          }
+                        </div>
+                        { nGroups > 1
+                          ? <div className='btn-group btn-group-justified'>
+                              {currentGroupNumber > 1 ? <div className='btn btn-default' onClick={prevGroup}> Previous group </div> : '' }
+                              {currentGroupNumber < nGroups ? <div className='btn btn-default' onClick={nextGroup}> Next group </div>  : '' }
                             </div>
-                          : <div> {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change name</a> </div>
+                          : ''
                         }
                       </div>
                       <div className='ql-manage-course-groups-studentlist'>
