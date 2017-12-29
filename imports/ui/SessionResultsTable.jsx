@@ -234,7 +234,7 @@ export class _SessionResultsTable extends Component {
 
     const QuestionCell = ({rowIndex, questionId}) => {
       const grade = tableData[rowIndex].grade
-      const mark = _(grade.marks).findWhere({ questionId: questionId})
+      const mark = grade ? _(grade.marks).findWhere({ questionId: questionId}) : null
       const attemptText = mark && mark.attempt > 0 ? "(attempt "+mark.attempt+")": "(no attempt)"
       return ( mark ?
         <Cell>
@@ -255,7 +255,9 @@ export class _SessionResultsTable extends Component {
    })
 
    let csvData = this.props.tableData.map((tableRow) => {
-     let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.grade.participation, tableRow.grade.value]
+     let participationGrade = tableRow.grade ? tableRow.grade.participation : 0
+     let gradeValue = tableRow.grade ? tableRow.grade.value : 0
+     let row = [tableRow.lastName, tableRow.firstName, tableRow.email, participationGrade, gradeValue]
      tableRow.grade.marks.forEach((m) => {
        row.push(m.points)
        row.push(m.outOf)

@@ -381,6 +381,14 @@ export class QuestionDisplay extends Component {
             </div>
           : ''
         }
+        { this.props.forReview && this.props.readonly
+          ? <div className='bottom-buttons'>
+               <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} >
+                   Show correct
+                 </button>
+            </div>
+          : ''
+        }
 
       </div>
     )

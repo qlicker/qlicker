@@ -235,11 +235,11 @@ export class _GradeTable extends Component {
       const grades = tableData[rowIndex].grades
       const grade = _(grades).findWhere({ sessionId: sessionId})
       let cellClass = 'ql-grade-cell'
-      if (grade){
+      if (grade) {
         if (grade.hasManualMarks() ) cellClass = 'ql-grade-cell-manual'
         if (grade.hasUngradedMarks() )  cellClass = 'ql-grade-cell-needs-grading'
       }
-      
+
       const onClick = () => this.toggleGradeViewModal(grade)
       return ( grade
         ? <Cell onClick = {onClick}>

@@ -501,7 +501,7 @@ Meteor.methods({
       }
 
       for(let is = 0; is < studentIds.length; is++){
-        let studentId = studentIds[is]
+        const studentId = studentIds[is]
         let existingGrade = Grades.findOne({ userId: studentId, courseId: courseId, sessionId:sessionId})
 
         let grade = existingGrade ? existingGrade : defaultGrade
@@ -510,19 +510,19 @@ Meteor.methods({
         let gradePoints = 0
         let numAnswered = 0
         let numAnsweredTotal = 0
-        let joined = _(sess.joined).contains(studentId)
+        const joined = _(sess.joined).contains(studentId)
 
 
         for(let iq = 0; iq < numQuestionsTotal; iq++){
           let question = questions[iq]
 
-          let studentResponses = _(responses).where({ studentUserId: studentId, questionId: question._id })
-          let response = _.max(studentResponses, (resp) => { return resp.attempt })
+          const studentResponses = _(responses).where({ studentUserId: studentId, questionId: question._id })
+          const response = _.max(studentResponses, (resp) => { return resp.attempt })
           let markPoints = 0
           let attempt = 0
           let responseId = "0"
 
-          if(response.attempt){
+          if(response && response.attempt){
             attempt = response.attempt
             responseId = response._id
               //markPoints = stats.calculateResponseGrade(response, question)
@@ -532,8 +532,8 @@ Meteor.methods({
               numAnswered +=1
             }
           }
-         //don't update a mark if its automatic flag is sest to false
-         let automaticMark = true
+          //don't update a mark if its automatic flag is sest to false
+          let automaticMark = true
           if (existingGrade){
             let existingMark = _(existingGrade.marks).findWhere({ questionId: question._id})
             if(existingMark && existingMark.automatic === false){
@@ -568,7 +568,9 @@ Meteor.methods({
           participation = 100
         }
 
-        let gradeValue = grade.value //this will be set if the grade existed
+        // if the grade is manual (not automatic), then take the value from existingGrade
+        // grade.automatic can only be false if grade was set to existingGrade instead of defaultGrade
+        let gradeValue = grade.automatic ? 0 : grade.value
 
         if(gradePoints > 0 && grade.automatic){ //only update if not an existing grade with automatic set to false
           if(gradeOutOf > 0){
