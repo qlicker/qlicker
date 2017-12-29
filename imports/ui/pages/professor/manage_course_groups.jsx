@@ -198,6 +198,7 @@ class _ManageCourseGroups extends Component {
 
     // Sort the students alphabetically
     studentsToShow = _(studentsToShow).sortBy( (entry) => {return this.props.students[entry].profile.lastname.toLowerCase()})
+    studentsInGroup = _(studentsInGroup).sortBy( (entry) => {return this.props.students[entry].profile.lastname.toLowerCase()})
 
     const nGroups = this.state.category ? this.state.category.groups.length : 0
     const currentGroupNumber = this.state.group ? this.state.group.groupNumber : 0
