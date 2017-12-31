@@ -24,11 +24,18 @@
     padding-left: 5px;
   }
 
+  .ql-gradeview-needs-grading {
+    background: $light-red;
+    border-radius: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
+  }
+
   .ql-gradeview-summary{
     padding-left: 10px;
     padding-bottom: 10px;
     padding-top: 10px;
-    border:2px solid $blue;
+    border:2px solid $darker-grey;
     .ql-gradeview-gradeinfo {
       display: flex;
       flex-direction: row;
@@ -59,7 +66,8 @@
         //text-decoration: underline;
         //text-decoration-color: $blue;
         border:1px solid $darker-grey;
-        //border-radius: 5px;
+        width: 135px;
+        text-align: center;
         padding-right: 5px;
         padding-left: 5px;
 

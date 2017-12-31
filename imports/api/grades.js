@@ -32,7 +32,8 @@ const gradePattern = {
     attempt: Match.Maybe(Number), //attempt for that question
     points: Match.Maybe(Number), // value of the mark for that question
     outOf: Match.Maybe(Number), // value of the mark for that question
-    automatic: Match.Maybe(Boolean), //whehter the value was automatically calculated (and should be automatically updated)
+    automatic: Match.Maybe(Boolean), // whehter the value was automatically calculated (and should be automatically updated)
+    needsGrading:  Match.Maybe(Boolean), // whether the points need to be set manually (for a non-autogradeable question)
   } ]),
   joined: Match.Maybe(Boolean), //whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
@@ -56,6 +57,8 @@ _.extend(Grade.prototype, {
     let needsGrading = false
     if (!this.joined || this.numAnswered === 0) return false
     this.marks.forEach( (m) => {
+      if (m.needsGrading) needsGrading = true
+      /*
       if (!m.automatic) return // has already been manually graded, so continue
       let question = Questions.findOne({ _id:m.questionId })
       if (question && !isAutoGradeable(question.type) && m.automatic &&
@@ -63,6 +66,7 @@ _.extend(Grade.prototype, {
          question.sessionOptions.points > 0 && m.responseId !== "0") {
          needsGrading = true
       }
+      */
     })
     return needsGrading
   },
@@ -324,6 +328,11 @@ Meteor.methods({
         throw new Meteor.Error('not-authorized')
       }
 
+      const question = Questions.findOne({ _id: questionId })
+      if (!isAutoGradeable(question.type)) {
+        throw new Meteor.Error('Question type cannot be graded automatically')
+      }
+
       let marks = grade.marks
       let mark = _(marks).findWhere({ questionId:questionId })
 
@@ -416,6 +425,7 @@ Meteor.methods({
       if (mark){
         mark.points = points
         mark.automatic = false
+        mark.needsGrading = false
         Meteor.call('grades.updatePoints', grade)
       } else {
         throw Error('questionId not in grade item')
@@ -527,11 +537,14 @@ Meteor.methods({
             responseId = response._id
               //markPoints = stats.calculateResponseGrade(response, question)
             numAnsweredTotal += 1
+
             if(markOutOf[iq] > 0){
               markPoints = calculateResponsePoints(response)
               numAnswered +=1
             }
           }
+
+
           //don't update a mark if its automatic flag is sest to false
           let automaticMark = true
           if (existingGrade){
@@ -543,12 +556,20 @@ Meteor.methods({
           }
           gradePoints += markPoints
 
+          let needsGrading = false
+          if (question && !isAutoGradeable(question.type) && automaticMark &&
+             question.sessionOptions && ('points' in question.sessionOptions) &&
+             question.sessionOptions.points > 0 && responseId !== "0") {
+             needsGrading = true
+          }
+
           let mark = {
             questionId: question._id,
             responseId: responseId,
             attempt: attempt,
             points: markPoints,
             outOf: markOutOf[iq],
+            needsGrading: needsGrading,
             automatic: automaticMark
           }
           marks.push(mark)

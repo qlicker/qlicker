@@ -3,7 +3,7 @@
 //
 // GradeViewModal
 
-import React, { PropTypes } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { ControlledForm } from './ControlledForm'
@@ -16,7 +16,7 @@ import { QuestionDisplay } from './QuestionDisplay'
  */
  //TODO: probably should not inherit from ControlledForm...
 
-export class QuestionWithResponse extends ControlledForm {
+export class QuestionWithResponseArray extends Component {
 
   constructor (props) {
     super(props)
@@ -57,18 +57,18 @@ export class QuestionWithResponse extends ControlledForm {
     const decrement = () => this.incrementResponse(-1)
 
     return (
-      <div>
+      <div className='ql-question-with-response-array'>
         { response
-          ? <div>
+          ? <div className='ql-question-with-response-array-response-control'>
               Attempt: {response.attempt}
               {this.props.responses.length > 1
-                 ? <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                 ? <div className='btn-group btn-group-justified'>
                    { prev > -1
-                     ? <a className='btn btn-default' onClick={decrement}>Previous attempt</a>
+                     ? <div className='btn btn-default' onClick={decrement}>Previous attempt</div>
                      : ''
                    }
                    { next < this.props.responses.length
-                     ? <a className='btn btn-default' onClick={increment}>Next attempt</a>
+                     ? <div className='btn btn-default' onClick={increment}>Next attempt</div>
                      : ''
                    }
                    </div>
@@ -77,18 +77,19 @@ export class QuestionWithResponse extends ControlledForm {
             </div>
           : ''
         }
+        <div className='ql-question-with-response-array-question'>
         { this.props.prof
           ? <QuestionDisplay question={this.props.question} prof readonly forReview response={response} />
           : <QuestionDisplay question={this.props.question} readonly forReview response={response} />
         }
-
+        </div>
       </div>
     )
   } //  end render
 
 }
 
-QuestionWithResponse.propTypes = {
+QuestionWithResponseArray.propTypes = {
   question: PropTypes.object,
   responses: PropTypes.array, // responses sorted by attempt number
   prof: PropTypes.bool, // passed to QuestionDisplay, to override showing correct

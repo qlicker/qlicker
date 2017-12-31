@@ -27,7 +27,7 @@ class _Course extends Component {
 
   sessionClickHandler (session) {
     // Disabled the student.results route for now:
-     if (session.status === 'done') {
+     if (session.status === 'done' && session.reviewable) {
        Router.go('session.results', { sessionId: session._id })
      } else {
        Router.go('session', { _id: session._id })

@@ -12,7 +12,7 @@ import { Questions } from '../api/questions'
 import { Responses } from '../api/responses'
 import { Grades } from '../api/grades'
 
-import { QuestionWithResponse } from './QuestionWithResponse'
+import { QuestionWithResponseArray } from './QuestionWithResponseArray'
 
 import { ROLES, QUESTION_TYPE, isAutoGradeable, QUESTION_TYPE_STRINGS_SHORT } from '../configs'
 
@@ -169,7 +169,7 @@ export class _GradeView extends Component {
                  {this.state.editGrade
                   ?  <form className={gradeInfoClass}  ref='editGradeForm' onSubmit={this.handleGradeSubmit} >
                      Grade:
-                     <input type='number' min={0} max={100} step={0.001} onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
+                     <input type='number' min={0} max={100} step={0.01} onChange={this.setGradeValue} maxLength="4" size="4" placeholder={grade.value}></input>
                      % ({grade.points} out of {grade.outOf} {gradeAutoText})
                       &nbsp; <a onClick={updateGrade}>submit</a>
                       &nbsp;&nbsp;<a onClick={toggleGradeEditable}>cancel</a>
@@ -199,7 +199,8 @@ export class _GradeView extends Component {
                  {grade.marks.map((mark) => {
                   questionCount +=1
                   let autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
-                  const infoClass =  mark.automatic ? 'ql-gradeview-question-info' : 'ql-gradeview-question-info ql-gradeview-manual'
+                  let infoClass =  mark.automatic ? 'ql-gradeview-question-info' : 'ql-gradeview-question-info ql-gradeview-manual'
+                  if (mark.needsGrading) infoClass = 'ql-gradeview-question-info ql-gradeview-needs-grading'
                   const previewClass = (this.state.questionToView && mark.questionId === this.state.questionToView._id && this.state.previewQuestion)
                                        ? 'ql-gradeview-question-preview preview'
                                        : 'ql-gradeview-question-preview'
@@ -228,7 +229,7 @@ export class _GradeView extends Component {
                      <div className={infoClass}>
                        { (this.state.markToEdit === mark.questionId) && canEdit
                          ? <form  ref='editMarkForm' onSubmit={this.handleMarkSubmit}>
-                            <input type='number' min={0} step={0.001} onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points.toFixed(2)}></input>
+                            <input type='number' min={0} step={0.01} onChange={this.setMarkPoints} maxLength="4" size="4" placeholder={mark.points.toFixed(2)}></input>
                             out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
                             &nbsp;&nbsp;<a onClick={cancelEditing}>cancel</a>
                            </form>
@@ -237,10 +238,10 @@ export class _GradeView extends Component {
                            {mark.points.toFixed(2)} out of {mark.outOf} on attempt {mark.attempt} {autoText}&nbsp;
                              { canEdit
                                 ? <div>
-                                    <a onClick={toggleMarkEditable}>edit</a>
+                                    <a onClick={toggleMarkEditable}>{mark.needsGrading? 'grade' : 'edit'}</a>
                                     { offerToAutograde
-                                    ?  <div>&nbsp;&nbsp; <a onClick={autogradeMark}> auto-grade</a> </div>
-                                    : ''
+                                      ?  <div>&nbsp;&nbsp; <a onClick={autogradeMark}> auto-grade</a> </div>
+                                      : ''
                                     }
                                   </div>
                                 : ''
@@ -259,12 +260,14 @@ export class _GradeView extends Component {
               </a>
 
               { this.state.previewQuestion
-                ? <div className='ql-gradeview-preview-container'>
-                  { isInstructor
-                    ? <QuestionWithResponse question={this.state.questionToView} prof responses={this.state.responsesToView} />
-                    : <QuestionWithResponse question={this.state.questionToView} responses={this.state.responsesToView} />
-                  }
-                  <a  onClick={this.togglePreviewQuestion}>Hide attempts</a>
+                ? <div>
+                    <div className='ql-gradeview-preview-container'>
+                    { isInstructor
+                      ? <QuestionWithResponseArray question={this.state.questionToView} prof responses={this.state.responsesToView} />
+                      : <QuestionWithResponseArray question={this.state.questionToView} responses={this.state.responsesToView} />
+                    }
+                    </div>
+                    <a  onClick={this.togglePreviewQuestion}>Hide attempts</a>
                   </div>
                 : ''
               }

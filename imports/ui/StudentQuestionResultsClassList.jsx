@@ -8,7 +8,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
 //import { QuestionDisplay } from './QuestionDisplay'
-import { QuestionWithResponse } from './QuestionWithResponse'
+import { QuestionWithResponseArray } from './QuestionWithResponseArray'
 
 import { QUESTION_TYPE } from '../configs'
 
@@ -47,7 +47,7 @@ export class _StudentQuestionResultsClassList extends Component {
 
     return (<div className='ql-student-results-list'>
       <div className='col-sm-8'>
-        <QuestionWithResponse style={{float: 'right'}} question={q} responses={this.props.responses} />
+        <QuestionWithResponseArray style={{float: 'right'}} question={q} responses={this.props.responses} />
       </div>
       <div className='col-sm-4'>
         <table style={{float: 'right', margin: '15px'}} className='ql-student-results-table'>
