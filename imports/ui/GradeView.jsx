@@ -22,7 +22,7 @@ export class _GradeView extends Component {
   constructor (props) {
     super(props)
 
-    const firstQ = this.props.questions.length > 0
+    const firstQ = this.props.questions && this.props.questions.length > 0
       ? this.props.questions[0]
       : null
 
@@ -55,7 +55,7 @@ export class _GradeView extends Component {
   }
 
   componentWillReceiveProps (nextProps){
-    const firstQ = nextProps.questions.length > 0
+    const firstQ = nextProps.questions && nextProps.questions.length > 0
       ? this.props.questions[0]
       : null
 
@@ -83,7 +83,12 @@ export class _GradeView extends Component {
 
   // toggle whether to show a question in the preview
   togglePreviewQuestion () {
-    this.setState({ previewQuestion:!this.state.previewQuestion })
+    if (!this.state.questionToView && this.props.questions &&this.props.questions.length > 0){
+      this.setState({ previewQuestion:!this.state.previewQuestion, questionToView:this.props.questions[0] })
+    } else {
+      this.setState({ previewQuestion:!this.state.previewQuestion })
+    }
+
   }
 
   // toggle whether to make one of the marks editable (set to 0 to make non editable)
@@ -151,7 +156,6 @@ export class _GradeView extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const grade = this.props.grade
-    const student = this.props.student
     const user =  Meteor.user()
     const canEdit = user.hasGreaterRole(ROLES.admin) || user.isInstructor(this.props.courseId)
     const isInstructor = user.isInstructor(this.props.courseId)
@@ -282,8 +286,7 @@ export const GradeView = createContainer((props) => {
   const courseId = props.grade.courseId
   const sessionId = props.grade.sessionId
 
-  const handle = Meteor.subscribe('users.studentsInCourse', courseId)&&
-                 Meteor.subscribe('questions.forReview', sessionId) &&
+  const handle = Meteor.subscribe('questions.forReview', sessionId) &&
                  Meteor.subscribe('sessions.single', sessionId) &&
                  Meteor.subscribe('responses.forSession', sessionId) &&
                  Meteor.subscribe('grades.single', props.grade._id)
@@ -291,9 +294,6 @@ export const GradeView = createContainer((props) => {
 
   const session = Sessions.findOne({ _id:sessionId })
   const grade = Grades.findOne({ _id: props.grade._id}) //Makes the grade reactive!
-  const student = props.student
-                    ? props.student
-                    : Meteor.users.findOne({ _id:props.grade.userId })
 
   let questions = Questions.find({ _id:{ $in:session.questions }}).fetch()
 
@@ -303,7 +303,6 @@ export const GradeView = createContainer((props) => {
   return {
     loading: !handle.ready(),
     grade: grade,
-    student: student,
     questions: questions,
     responses: responses,
     courseId: courseId
@@ -312,5 +311,4 @@ export const GradeView = createContainer((props) => {
 
 GradeView.propTypes = {
   grade: PropTypes.object,
-  student: PropTypes.object
 }

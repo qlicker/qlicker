@@ -31,8 +31,8 @@ export class QuestionWithResponseArray extends Component {
   }
 
   componentWillReceiveProps (nextProps){
-    if (this.props.question._id !== nextProps.questionId){
-      const responseToView = nextProps.responses.length > 0
+    if ( (!this.props.question && nextProps.question) || (this.props.question._id !== nextProps.question._id)){
+      const responseToView = nextProps.responses && nextProps.responses.length > 0
         ? nextProps.responses.length -1
         : 0
       this.setState ({responseToView : responseToView})
@@ -46,7 +46,7 @@ export class QuestionWithResponseArray extends Component {
   render () {
     if (!this.props.question) return <div className='ql-subs-loading'>Loading</div>
 
-    const response = this.props.responses.length > 0
+    const response = this.props.responses && this.props.responses.length > 0
      ? this.props.responses[this.state.responseToView]
      : null
 
@@ -78,10 +78,10 @@ export class QuestionWithResponseArray extends Component {
           : ''
         }
         <div className='ql-question-with-response-array-question'>
-        { this.props.prof
-          ? <QuestionDisplay question={this.props.question} prof readonly forReview response={response} />
-          : <QuestionDisplay question={this.props.question} readonly forReview response={response} />
-        }
+          { this.props.prof
+            ? <QuestionDisplay question={this.props.question} prof readonly forReview response={response} />
+            : <QuestionDisplay question={this.props.question} readonly forReview response={response} />
+          }
         </div>
       </div>
     )

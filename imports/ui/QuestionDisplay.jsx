@@ -61,6 +61,8 @@ export class QuestionDisplay extends Component {
       submittedAnswerWysiwyg: r ? r.answerWysiwyg : '',
       questionId: q._id,
       isSubmitted: r ?  true : false,
+      showCorrect: false,
+      showResponse: false
     }
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
@@ -82,7 +84,11 @@ export class QuestionDisplay extends Component {
                           (this.props.response && !nextProps.response) ||
                           (!this.props.response && nextProps.response)
 
-   const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
+    const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
+
+    // if showing a new question, go back to not showing the correct answer
+    const showCorrect = !isNewQuestion
+    const showResponse = this.state.showResponse
 
    if (isNewQuestion || isNewResponse || isNewAttempt ){
      if (nextProps.response){
@@ -94,6 +100,8 @@ export class QuestionDisplay extends Component {
          submittedAnswerWysiwyg: submittedAnswerWysiwyg,
          questionId: nextProps.question._id,
          isSubmitted: true,
+         showCorrect: showCorrect,
+         showResponse: showResponse
        })
        this.readonly = true
      } else {
@@ -103,6 +111,8 @@ export class QuestionDisplay extends Component {
          submittedAnswerWysiwyg: '',
          questionId: nextProps.question._id,
          isSubmitted: false,
+         showCorrect: showCorrect,
+         showResponse: showResponse
        })
 
        this.readonly = false
