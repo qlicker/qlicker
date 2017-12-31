@@ -154,6 +154,7 @@ export class _GradeView extends Component {
     const student = this.props.student
     const user =  Meteor.user()
     const canEdit = user.hasGreaterRole(ROLES.admin) || user.isInstructor(this.props.courseId)
+    const isInstructor = user.isInstructor(this.props.courseId)
     const gradeAutoText =  grade.automatic ? "(auto-graded)": "(manually overridden)"
     const gradeInfoClass =  grade.automatic ? 'ql-gradeview-gradeinfo' : 'ql-gradeview-gradeinfo ql-gradeview-manual'
 
@@ -259,8 +260,11 @@ export class _GradeView extends Component {
 
               { this.state.previewQuestion
                 ? <div className='ql-gradeview-preview-container'>
-                     <QuestionWithResponse question={this.state.questionToView} responses={this.state.responsesToView} />
-                     <a  onClick={this.togglePreviewQuestion}>Hide attempts</a>
+                  { isInstructor
+                    ? <QuestionWithResponse question={this.state.questionToView} prof responses={this.state.responsesToView} />
+                    : <QuestionWithResponse question={this.state.questionToView} responses={this.state.responsesToView} />
+                  }
+                  <a  onClick={this.togglePreviewQuestion}>Hide attempts</a>
                   </div>
                 : ''
               }

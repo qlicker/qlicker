@@ -77,7 +77,11 @@ export class QuestionWithResponse extends ControlledForm {
             </div>
           : ''
         }
-        <QuestionDisplay question={this.props.question} readonly forReview response={response} />
+        { this.props.prof
+          ? <QuestionDisplay question={this.props.question} prof readonly forReview response={response} />
+          : <QuestionDisplay question={this.props.question} readonly forReview response={response} />
+        }
+
       </div>
     )
   } //  end render
@@ -87,4 +91,5 @@ export class QuestionWithResponse extends ControlledForm {
 QuestionWithResponse.propTypes = {
   question: PropTypes.object,
   responses: PropTypes.array, // responses sorted by attempt number
+  prof: PropTypes.bool, // passed to QuestionDisplay, to override showing correct
 }

@@ -34,6 +34,8 @@ export class QuestionDisplay extends Component {
       submittedAnswerWysiwyg: r ? r.answerWysiwyg : '',
       questionId: q._id,
       isSubmitted: r ?  true : false,
+      showCorrect: false, // used for student review, to reveal correct answer
+      showResponse: false // used for student review, to show their attempt
     }
 
     this.readonly =  r ?  true : false
@@ -41,9 +43,13 @@ export class QuestionDisplay extends Component {
 
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
+    this.toggleShowCorrect = this.toggleShowCorrect.bind(this)
+    this.toggleShowResponse = this.toggleShowResponse.bind(this)
 
     this.setAnswer = this.setAnswer.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
+
+
   }
 
   componentWillMount () {
@@ -56,6 +62,7 @@ export class QuestionDisplay extends Component {
       questionId: q._id,
       isSubmitted: r ?  true : false,
     }
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
 
   componentDidMount () {
@@ -113,6 +120,14 @@ export class QuestionDisplay extends Component {
     const disallowResponses = q.sessionOptions && q.sessionOptions.attempts.length && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
     // const disallowResponses = q.sessionOptions && q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].closed
     return disallowResponses
+  }
+
+  toggleShowCorrect () {
+    this.setState({ showCorrect:!this.state.showCorrect})
+  }
+
+  toggleShowResponse () {
+    this.setState({ showResponse:!this.state.showResponse})
   }
 
   /**
@@ -278,14 +293,18 @@ export class QuestionDisplay extends Component {
         }
         const statsStr = '(' + stats + '%)'
         const sess = this.props.question.sessionOptions
-        const shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
-
+        let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
+        if (shouldShowCorrect && this.props.forReview && !this.props.prof && !this.state.showCorrect){
+          shouldShowCorrect = false
+        }
+        let shouldShowResponse = this.state.submittedAnswer === a.answer || this.state.submittedAnswer.indexOf(a.answer) > -1
+        if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse){
+          shouldShowResponse = false
+        }
         return (
           <div key={'question_' + a.answer}
             onClick={() => this.setAnswer(a.answer)}
-            className={'ql-answer-content-container ' +
-              (this.state.submittedAnswer === a.answer || this.state.submittedAnswer.indexOf(a.answer) > -1
-              ? 'q-submitted' : '')} >
+            className={'ql-answer-content-container ' + (shouldShowResponse ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
@@ -300,14 +319,25 @@ export class QuestionDisplay extends Component {
 
   renderShortAnswer (q) {
     if ((this.props.forReview || this.props.prof)) {
-      // return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
+      let shouldShowCorrect = !!q.options[0].content
+      if (this.props.forReview && !this.props.prof && !this.state.showCorrect){
+        shouldShowCorrect = false
+      }
+      let shouldShowResponse = !!this.props.response
+      if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse){
+        shouldShowResponse = false
+      }
       return (
-        <div>
-          {this.props.response ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg) : ''}
-          {q.options[0].content
+        <div className='ql-short-answer' >
+          {shouldShowResponse
+            ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
+            : ''
+          }
+          {shouldShowCorrect
             ? <h4 style={{'alignSelf': 'left'}}> Correct Answer: <br />{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
           : ''
-        }</div>
+          }
+        </div>
       )
     }
 
@@ -381,11 +411,17 @@ export class QuestionDisplay extends Component {
             </div>
           : ''
         }
-        { this.props.forReview && this.props.readonly
-          ? <div className='bottom-buttons'>
-               <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} >
-                   Show correct
-                 </button>
+        { this.props.forReview && this.props.readonly && !this.props.prof
+          ? <div className='btn-group btn-group-justified'>
+               <div className='btn btn-primary' onClick={this.toggleShowCorrect} >
+                   {this.state.showCorrect ? 'Hide correct' : 'Show correct'}
+                </div>
+                { this.props.response
+                  ? <div className='btn btn-primary' onClick={this.toggleShowResponse} >
+                      {this.state.showResponse ? 'Hide response' : 'Show response'}
+                   </div>
+                  : ''
+                }
             </div>
           : ''
         }
@@ -402,7 +438,7 @@ QuestionDisplay.propTypes = {
   responseStats: PropTypes.array, // distribution of answers for displaying stats
   readonly: PropTypes.bool,
   showStatsOverride: PropTypes.bool, // used for mobile session running
-  prof: PropTypes.bool,
+  prof: PropTypes.bool, // if viewed by an instructor, overrides showing correct answer
   forReview: PropTypes.bool,
   onSubmit: PropTypes.func // function to run when clicking submit
 }

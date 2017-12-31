@@ -58,10 +58,27 @@ $red-bar: rgba(167,37,38, 0.3);
       width: 100%;
       max-width: 400px;
     }
-  }
+   }
+
+   .btn-container {
+
+   }
+
+   .btn-group {
+     //max-width: 400px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-direction: row;
+     padding-top: 8px;
+     .btn {
+       width: 100%;
+       max-width: 200px;
+     }
+   }
 
   .ql-answers {
-    margin-top: 20px;
+    margin-top: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -70,7 +87,12 @@ $red-bar: rgba(167,37,38, 0.3);
     padding-right: 20px;
 
     .ql-short-answer {
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
+      font-size: 2em;
+      background: white;
+      display: inline-block;
+      position: relative;
       textarea {
         resize: vertical;
       }

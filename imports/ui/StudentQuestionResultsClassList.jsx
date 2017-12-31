@@ -7,7 +7,8 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
-import { QuestionDisplay } from './QuestionDisplay'
+//import { QuestionDisplay } from './QuestionDisplay'
+import { QuestionWithResponse } from './QuestionWithResponse'
 
 import { QUESTION_TYPE } from '../configs'
 
@@ -46,7 +47,7 @@ export class _StudentQuestionResultsClassList extends Component {
 
     return (<div className='ql-student-results-list'>
       <div className='col-sm-8'>
-        <QuestionDisplay style={{float: 'right'}} question={q} readonly forReview />
+        <QuestionWithResponse style={{float: 'right'}} question={q} responses={this.props.responses} />
       </div>
       <div className='col-sm-4'>
         <table style={{float: 'right', margin: '15px'}} className='ql-student-results-table'>
@@ -69,7 +70,8 @@ export class _StudentQuestionResultsClassList extends Component {
 export const StudentQuestionResultsClassList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
 
-  const responses = Responses.find({ questionId: props.question._id, studentUserId: Meteor.userId() }).fetch()
+  const responses = Responses.find({ questionId: props.question._id, studentUserId: Meteor.userId() },
+                                   {sort: {attempt: 1 } }).fetch()
   return {
     responses: responses,
     loading: !handle.ready()

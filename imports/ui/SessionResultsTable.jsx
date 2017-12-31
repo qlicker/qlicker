@@ -255,8 +255,9 @@ export class _SessionResultsTable extends Component {
    })
 
    let csvData = this.props.tableData.map((tableRow) => {
-     let participationGrade = tableRow.grade ? tableRow.grade.participation : 0
-     let gradeValue = tableRow.grade ? tableRow.grade.value : 0
+     if (! tableRow.grade) return []
+     let participationGrade = tableRow.grade.participation
+     let gradeValue = tableRow.grade.value
      let row = [tableRow.lastName, tableRow.firstName, tableRow.email, participationGrade, gradeValue]
      tableRow.grade.marks.forEach((m) => {
        row.push(m.points)

@@ -26,7 +26,7 @@ class _Session extends Component {
     // TODO: not sure this is the right point to join...
     if (Meteor.user().isStudent(this.props.session.courseId)) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
   }
-
+  
   toggleTryAgain (qId) {
     let questionsToTryAgain = this.state.questionsToTryAgain
     questionsToTryAgain[qId] = !(questionsToTryAgain[qId])
