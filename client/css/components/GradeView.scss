@@ -22,6 +22,12 @@
     border-radius: 5px;
     padding-right: 5px;
     padding-left: 5px;
+    &.clickable{
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
   }
 
   .ql-gradeview-needs-grading {
@@ -29,6 +35,12 @@
     border-radius: 5px;
     padding-right: 5px;
     padding-left: 5px;
+
+    &.clickable{
+      &:hover {
+        cursor: pointer;
+      }
+    }
   }
 
   .ql-gradeview-summary{
@@ -103,8 +115,12 @@
     }
   }
 
-  .ql-gradeview-preview-container {
-    font-size: 70%;
-  }
+  .ql-gradeview-preview-question-container{
+    .ql-gradeview-preview-question-container-question {
+      font-size: 65%;
+    }
+    .ql-gradeview-preview-question-container-info {
 
+    }
+  }
 }

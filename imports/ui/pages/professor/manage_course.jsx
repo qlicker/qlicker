@@ -181,6 +181,7 @@ class _ManageCourse extends Component {
 
           }
           if (ses.status === 'done'){
+            controls.push({ label: 'Grade session', click: () => Router.go('session.grade',{sessionId: sId} ) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results',{sessionId: sId} ) })
           } else {
             controls.push({ label: 'Start session', click: () => this.startSession(sId) })

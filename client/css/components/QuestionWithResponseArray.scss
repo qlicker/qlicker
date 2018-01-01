@@ -5,9 +5,23 @@
 
   .ql-question-with-response-array-response-control {
 
+    .ql-question-with-response-array-response-control-attempts {
+      font-size: 1.5em;
+    }
+
+    .btn-group-justified {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      .btn-group {
+        width: 100%;
+        max-width: 200px;
+      }
+    }
   }
 
   .ql-question-with-response-array-question {
-    
+
   }
 }

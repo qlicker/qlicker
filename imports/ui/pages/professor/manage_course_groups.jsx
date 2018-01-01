@@ -276,8 +276,16 @@ class _ManageCourseGroups extends Component {
                         </div>
                         { nGroups > 1
                           ? <div className='btn-group btn-group-justified'>
-                              {currentGroupNumber > 1 ? <div className='btn btn-default' onClick={prevGroup}> Previous group </div> : '' }
-                              {currentGroupNumber < nGroups ? <div className='btn btn-default' onClick={nextGroup}> Next group </div>  : '' }
+                              <div className='btn-group'>
+                                <button className='btn btn-default' onClick={prevGroup} disabled={currentGroupNumber < 2 }>
+                                  <span className="glyphicon glyphicon-chevron-left"></span> Previous group
+                                </button>
+                              </div>
+                              <div className='btn-group'>
+                                <button className='btn btn-default' onClick={nextGroup} disabled={currentGroupNumber >= nGroups}>
+                                  Next group <span className="glyphicon glyphicon-chevron-right"></span>
+                                </button>
+                              </div>
                             </div>
                           : ''
                         }
@@ -329,7 +337,7 @@ class _ManageCourseGroups extends Component {
                       {studentsToShowStr} ({studentsToShow.length} student{studentsToShow.length !== 1 ? 's' :''}) <br />
                       {addStudentToGroup ? '(click on a student to add to group)': ''}
                     </div>
-                    { studentsToShow.map( (sId)=>{
+                    { studentsToShow.map( (sId) => {
                         const onStudentClick = addStudentToGroup
                                                ? () => this.toggleStudentInGroup(sId)
                                                : () => this.setGroupFromStudent(sId)

@@ -88,7 +88,7 @@ export class QuestionDisplay extends Component {
 
     // if showing a new question, go back to not showing the correct answer
     const showCorrect = !isNewQuestion
-    const showResponse = this.state.showResponse
+    const showResponse = !isNewQuestion
 
    if (isNewQuestion || isNewResponse || isNewAttempt ){
      if (nextProps.response){

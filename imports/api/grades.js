@@ -58,15 +58,6 @@ _.extend(Grade.prototype, {
     if (!this.joined || this.numAnswered === 0) return false
     this.marks.forEach( (m) => {
       if (m.needsGrading) needsGrading = true
-      /*
-      if (!m.automatic) return // has already been manually graded, so continue
-      let question = Questions.findOne({ _id:m.questionId })
-      if (question && !isAutoGradeable(question.type) && m.automatic &&
-         question.sessionOptions && ('points' in question.sessionOptions) &&
-         question.sessionOptions.points > 0 && m.responseId !== "0") {
-         needsGrading = true
-      }
-      */
     })
     return needsGrading
   },

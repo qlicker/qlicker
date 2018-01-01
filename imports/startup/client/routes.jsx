@@ -216,7 +216,6 @@ Router.route('/course/:_id', {
 })
 
 import { ManageCourseGroups } from '../../ui/pages/professor/manage_course_groups'
-
 Router.route('/course/:courseId/groups', {
   name: 'course.groups',
   waitOn: function () {
@@ -259,6 +258,23 @@ Router.route('/course/:courseId/grades', {
     const isInCourse = u.isInstructor(this.params.courseId) || u.isStudent(this.params.courseId)
     if (u && isInCourse) {
       mount(AppLayout, { content: <PageContainer> <CourseGrades courseId={this.params.courseId} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { GradeSession } from '../../ui/pages/professor/grade_session'
+Router.route('/session/:sessionId/grade', {
+  name: 'session.grade',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params.sessionId) && Meteor.subscribe('courses')
+  },
+  action: function () {
+    if (!Meteor.userId()) Router.go('login')
+    const sess = Sessions.findOne({ _id: this.params.sessionId})
+    const cId = sess ? sess.courseId : 0
+    if (Meteor.user().isInstructor(cId) || Meteor.user().hasRole('admin')) {
+      mount(AppLayout, {content: <PageContainer> <GradeSession sessionId={this.params.sessionId} courseId={cId} /> </PageContainer>})
     } else Router.go('login')
   }
 })
