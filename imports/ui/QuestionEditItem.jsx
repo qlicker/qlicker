@@ -14,7 +14,7 @@ import { RadioPrompt } from './RadioPrompt'
 import { defaultSessionOptions } from '../api/questions'
 
 // constants
-import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
+import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
 
 
 export const DEFAULT_STATE = {
@@ -596,7 +596,7 @@ export class QuestionEditItem extends Component {
                      onChange={this.setPoints}
                      value={this.state.sessionOptions.points}></input>
                   </div>
-                { this.props.isQuiz
+                { this.props.isQuiz && isAutoGradeable(this.state.type)
                   ? <div>
                       <div className='qoption-label'>
                         Max attempts (1-5):

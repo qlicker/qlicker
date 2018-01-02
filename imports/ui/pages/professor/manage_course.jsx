@@ -34,7 +34,6 @@ class _ManageCourse extends Component {
       addTAModal: false,
       addStudentModal: false,
       sessionToCopy: null,
-      expandedClasslist: false,
       expandedSessionlist: false
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
@@ -226,10 +225,6 @@ class _ManageCourse extends Component {
     const maxNum = 8
     const totalStudents = students.length + TAs.length
 
-    if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
-    if (!this.state.expandedClasslist) TAs = TAs.slice(0, maxNum - students.length + 1)
-    const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
-    const expandText = !this.state.expandedClasslist ? 'Show all' : 'Show less'
     return (<div>
       {
         students.map((sId) => {
@@ -260,10 +255,6 @@ class _ManageCourse extends Component {
               controls={(isProfOrAdmin && sId !== this.props.course.owner && sId !== uid) ? controls : ''} />)
           })
       }
-      { totalStudents > maxNum
-        ? <a href='#' className='show-more-item' onClick={toggleExpandedClasslist}>
-          <div className='ql-list-item'>{expandText}</div>
-        </a> : '' }
     </div>)
   }
 
@@ -271,9 +262,8 @@ class _ManageCourse extends Component {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
-    const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
     const manageGroups = () => Router.go('course.groups', { courseId:this.props.course._id })
-    const expandText = !this.state.expandedClasslist ? 'show all' : 'show less'
+
 
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ? this.props.sessions.length : 0
@@ -324,8 +314,8 @@ class _ManageCourse extends Component {
             </div>
 
             <div className='ql-card hidden-xs'>
-              <div className='ql-header-bar' onClick={toggleExpandedClasslist}>
-                <h4>{nStudents} student{nStudents > 1 ? 's' : ''} (click to {expandText})</h4>
+              <div className='ql-header-bar' >
+                <h4>{nStudents} student{nStudents > 1 ? 's' : ''}</h4>
               </div>
               <div>
                 <div className='ql-course-classlist'>

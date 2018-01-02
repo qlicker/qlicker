@@ -26,12 +26,11 @@ class _Session extends Component {
     // TODO: not sure this is the right point to join...
     if (Meteor.user().isStudent(this.props.session.courseId)) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
   }
-  
+
   toggleTryAgain (qId) {
     let questionsToTryAgain = this.state.questionsToTryAgain
     questionsToTryAgain[qId] = !(questionsToTryAgain[qId])
     this.setState({ questionToTryAgain:questionsToTryAgain })
-
   }
 
   render () {
@@ -122,7 +121,7 @@ class _Session extends Component {
                 const askForNewAttempt = (lastResponse && myLastAttemptNumber === currentAttemptNumber &&
                                           myLastAttemptNumber < maxAttempts && !correct )
                 const response = lastResponse && currentAttemptNumber === myLastAttemptNumber ? lastResponse : null
-
+                
                 const toggleTryAgain = () => this.toggleTryAgain(qId)
                 const doNothing = () => {}
                 const toggleOnSubmit = currentAttemptNumber > myLastAttemptNumber && myLastAttemptNumber > 0

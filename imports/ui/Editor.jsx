@@ -51,6 +51,7 @@ export class Editor extends Component {
       customConfig: '/ckeditor/config.js',
       extraPlugins: 'sharedspace,confighelper,mathjax,uploadwidget,uploadimage,sourcedialog,image2',
       removePlugins: 'floatingspace,resize',
+      startupFocus: true, // TODO: Check if this is effective - also in
       sharedSpaces: {
         top: 'ckeditor-toolbar'
       }
@@ -145,6 +146,7 @@ export class Editor extends Component {
 
   render () {
     const plchldr = this.props.placeholder || ''
+
     return (<div className={'editor-wrapper ' + this.props.className}>
       <div className='ckeditor-wrapper'>
         <textarea ref='theEditor' className='wysiwyg-editor' defaultValue={this.state.val || ''} placeholder={plchldr} />

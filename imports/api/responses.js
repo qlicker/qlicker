@@ -16,7 +16,7 @@ import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
 
-import { ROLES, QUESTION_TYPE } from '../configs'
+import { ROLES, QUESTION_TYPE, isAutoGradeable } from '../configs'
 
 // expected collection pattern
 const responsePattern = {
@@ -291,9 +291,15 @@ Meteor.methods({
 
     // If this is a response in a quiz where the question has multiple possible attempts,
     // check if this answer is correct
-    if (q.sessionOptions && q.sessionOptions.maxAttempts > 1 && responseObject.attempt <= q.sessionOptions.maxAttempts && Meteor.isServer){
-      session = Sessions.findOne({ _id:q.sessionId })
-      responseObject.correct = (calculateResponsePoints(responseObject) === q.sessionOptions.points)
+    if (Meteor.isServer && isAutoGradeable(q.type) &&q.sessionOptions && q.sessionOptions.maxAttempts > 1 &&
+        responseObject.attempt <= q.sessionOptions.maxAttempts ){
+      const session = Sessions.findOne({ _id:q.sessionId })
+      const points = calculateResponsePoints(responseObject)
+      // TODO: Not great to be comparing floats with an ===
+      const weight = q.sessionOptions.attemptWeights && (responseObject.attempt-1) < q.sessionOptions.attemptWeights.length
+                     ? q.sessionOptions.attemptWeights[responseObject.attempt-1]
+                     : 1
+      responseObject.correct = ( points === q.sessionOptions.points * weight)
     }
 
     if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit answer')
