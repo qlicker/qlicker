@@ -1,0 +1,32 @@
+@import '../variables.scss';
+
+.ql-simple-studentlist {
+  padding-top: 5px;
+
+  .ql-simple-studentlist-info {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 125%;
+  }
+
+  .ql-simple-studentlist-student-container {
+    max-height: 400px;
+    overflow-y: auto;
+    .ql-simple-studentlist-student {
+      vertical-align: middle;
+      border:2px solid $grey;
+      height: 30px;
+      &:hover {
+        cursor: pointer;
+        background-color: $grey;
+      }
+      &.selected {
+        font-weight: bold;
+        background-color: $grey;
+      }
+    }
+  }
+
+}

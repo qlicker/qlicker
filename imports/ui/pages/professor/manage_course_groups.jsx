@@ -290,20 +290,22 @@ class _ManageCourseGroups extends Component {
                           : ''
                         }
                       </div>
-                      <div className='ql-manage-course-groups-studentlist'>
-                        <div className='ql-manage-course-groups-studentlist-title'>
+                      <div className='ql-simple-studentlist'>
+                        <div className='ql-simple-studentlist-info'>
                           ({studentsInGroup.length} student{studentsInGroup.length !== 1 ? 's' :''}) <br />
                           {studentsInGroup.length > 0 ? '(click on a student to remove from group)': ''}
                         </div>
-                        { studentsInGroup.map( (sId)=>{
-                            const onStudentClick =  () => this.toggleStudentInGroup(sId)
-                            return(
-                              <div key={'s2'+sId} className='ql-manage-course-groups-student' onClick={onStudentClick}>
-                                {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
-                              </div>
-                            )
-                          })
-                        }
+                        <div className='ql-simple-studentlist-student-container'>
+                          { studentsInGroup.map( (sId)=>{
+                              const onStudentClick =  () => this.toggleStudentInGroup(sId)
+                              return(
+                                <div key={'s2'+sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
+                                  {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
+                                </div>
+                              )
+                            })
+                          }
+                        </div>
                       </div>
                     </div>
                   : <div> {this.state.category ? 'Select a group in category': 'Select a category of group'}</div>
@@ -332,22 +334,24 @@ class _ManageCourseGroups extends Component {
                     }
                     <input type='text' onChange={_.throttle(this.setStudentSearchString, 200)} placeholder='Search by student name or email'></input>
                   </div>
-                  <div className='ql-manage-course-groups-studentlist'>
-                    <div className='ql-manage-course-groups-studentlist-title'>
+                  <div className='ql-simple-studentlist'>
+                    <div className='ql-simple-studentlist-info'>
                       {studentsToShowStr} ({studentsToShow.length} student{studentsToShow.length !== 1 ? 's' :''}) <br />
                       {addStudentToGroup ? '(click on a student to add to group)': ''}
                     </div>
-                    { studentsToShow.map( (sId) => {
-                        const onStudentClick = addStudentToGroup
-                                               ? () => this.toggleStudentInGroup(sId)
-                                               : () => this.setGroupFromStudent(sId)
-                        return(
-                          <div key={'s2'+sId} className='ql-manage-course-groups-student' onClick={onStudentClick}>
-                            {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
-                          </div>
-                        )
-                      })
-                    }
+                    <div className='ql-simple-studentlist-student-container'>
+                      { studentsToShow.map( (sId) => {
+                          const onStudentClick = addStudentToGroup
+                                                 ? () => this.toggleStudentInGroup(sId)
+                                                 : () => this.setGroupFromStudent(sId)
+                          return(
+                            <div key={'s2'+sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
+                              {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname}
+                            </div>
+                          )
+                        })
+                      }
+                    </div>
                   </div>
                 </div>
               </div>

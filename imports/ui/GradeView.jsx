@@ -64,7 +64,7 @@ export class _GradeView extends Component {
       ? _(nextProps.responses).where({ questionId: firstQ._id })
       : null
 
-    const showAttempts = !!nextProps.showAttempts
+    const showAttempts = !!nextProps.showAttempts && firstQ
 
     this.setState({
       questionToView: firstQ, // the question to show in preview
@@ -232,7 +232,8 @@ export class _GradeView extends Component {
                     let autoText = mark.automatic ? "(auto-graded)": "(manually graded)"
                     let infoClass =  mark.automatic ? 'ql-gradeview-question-info' : 'ql-gradeview-question-info ql-gradeview-manual'
                     if (mark.needsGrading) infoClass = 'ql-gradeview-question-info ql-gradeview-needs-grading'
-                    if (canEdit) infoClass += ' clickable'
+                    // only clickable if not already editing
+                    if (canEdit && this.state.markToEdit !== mark.questionId) infoClass += ' clickable'
                     const previewClass = (this.state.questionToView && mark.questionId === this.state.questionToView._id && this.state.previewQuestion)
                                          ? 'ql-gradeview-question-preview preview'
                                          : 'ql-gradeview-question-preview'
@@ -252,7 +253,7 @@ export class _GradeView extends Component {
                     const udpateMark = () => this.updateMark(mark.questionId, this.state.newMarkPoints)
                     const autogradeMark = () => this.autogradeMark(mark.questionId)
                     let containerClick = canEdit && (!mark.automatic || mark.needsGrading) ? toggleMarkEditable : () => {}
-                    if ((this.state.markToEdit === mark.questionId) && containerClick) containerClick =  () => {}
+                    if ((this.state.markToEdit === mark.questionId) && containerClick) containerClick =  null
 
                     return ( <div key={mark.questionId} className='ql-gradeview-question'>
                        <div className={previewClass} onClick={previewQuestion}>

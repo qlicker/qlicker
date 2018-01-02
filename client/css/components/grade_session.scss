@@ -5,32 +5,12 @@
 
   .ql-grade-session-student-search {
     .ql-grade-session-student-search-controls {
+      padding-bottom: 5px;
       input {
         width: 100%;
+      }
+      .ql-grade-session-select {
         padding-bottom: 5px;
-      }
-    }
-
-    .ql-grade-session-studentlist {
-      padding-top: 5px;
-
-      .ql-grade-session-studentlist-title {
-        padding-top: 8px;
-        padding-bottom: 8px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 125%;
-      }
-
-      .ql-grade-session-student {
-        vertical-align: middle;
-        border:2px solid $grey;
-        height: 30px;
-        &:hover {
-          cursor: pointer;
-          background-color: $grey;
-        }
-
       }
     }
   }
