@@ -24,7 +24,7 @@ class _GradeSession extends Component {
     super(props)
 
     this.state = {
-      studentToView : this.props.students[0],
+      studentToView : null,
       studentSearchString: '',
       groupCategory:null, // if searching by category of group
       group:null, // if searching by students
