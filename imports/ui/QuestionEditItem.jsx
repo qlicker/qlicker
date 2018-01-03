@@ -645,7 +645,7 @@ export class QuestionEditItem extends Component {
                 val={this.state.content}
                 className='question-editor'
                 placeholder='Question?'
-                question={this.state} />
+              />
               { this.props.onDeleteThis
                 ? <span
                   onClick={this.props.onDeleteThis}

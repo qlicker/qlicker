@@ -354,17 +354,15 @@ export class QuestionDisplay extends Component {
     let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].content
 
     return (
-      <div className='ql-answer-content-container ql-short-answer' >
+      <div className='ql-short-answer' >
         { this.readonly
           ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
-          : <div className={'small-editor-wrapper col-md-12'}>
-              <Editor
-                change={this.setShortAnswerWysiwyg}
-                placeholder='Type your answer here'
-                val={this.state.submittedAnswerWysiwyg}
-                className='answer-editor'
-                />
-            </div>
+          : <Editor
+            change={this.setShortAnswerWysiwyg}
+            placeholder='Type your answer here'
+            val={this.state.submittedAnswerWysiwyg}
+            toolbarDivId={this.props.question ? this.props.question._id+'_ckToolbar' : 'ckeditor-toolbar'} 
+            />
         }
         { showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
       </div>
@@ -406,7 +404,7 @@ export class QuestionDisplay extends Component {
 
         { this.disallowResponses() ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
-        { showToolbar ? <div id='ckeditor-toolbar' /> : '' }
+        { showToolbar ? <div id={this.props.question ? this.props.question._id+'_ckToolbar' : 'ckeditor-toolbar'} /> : '' }
 
         <div className='ql-answers'>
           {content}

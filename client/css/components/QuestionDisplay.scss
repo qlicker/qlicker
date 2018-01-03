@@ -9,16 +9,18 @@ $red-bar: rgba(167,37,38, 0.3);
 .ql-question-display {
 
   &.interactive {
+    .ql-short-answer {
+      color: black;
+      &:hover {
+        border: 1px solid $black;
+      }
+    }
     .ql-answer-content-container:hover {
       //border: 1px solid $blue;
       //color: $blue;
       border: 1px solid $black;
       font-weight: bold;
       cursor: pointer;
-
-      .ql-short-answer {
-        color: black;
-      }
 
       .ql-checkbox {
         border-color: $blue;

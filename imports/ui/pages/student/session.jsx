@@ -121,7 +121,7 @@ class _Session extends Component {
                 const askForNewAttempt = (lastResponse && myLastAttemptNumber === currentAttemptNumber &&
                                           myLastAttemptNumber < maxAttempts && !correct )
                 const response = lastResponse && currentAttemptNumber === myLastAttemptNumber ? lastResponse : null
-                
+
                 const toggleTryAgain = () => this.toggleTryAgain(qId)
                 const doNothing = () => {}
                 const toggleOnSubmit = currentAttemptNumber > myLastAttemptNumber && myLastAttemptNumber > 0
@@ -131,10 +131,19 @@ class _Session extends Component {
                   : <QuestionDisplay question={q} response={response} attemptNumber={currentAttemptNumber}
                      onSubmit={ toggleOnSubmit ? toggleTryAgain: doNothing}/>
 
+                let questionClassName = 'ql-session-question'
+                if (!lastResponse ){
+                  questionClassName += ' not-submitted'
+                } else if ( (lastResponse && askForNewAttempt) || (currentAttemptNumber > myLastAttemptNumber && myLastAttemptNumber > 0) ) {
+                  questionClassName += ' try-again'
+                } else {
+                  questionClassName += ' submitted'
+                }
+
                 return (
-                    <div className = 'ql-session-question' key={"qlist_"+qId}>
-                      <div className = 'ql-session-question-title'>
-                        Question: {qCount+"/"+qLength} ({points} points), Attempt {currentAttemptNumber} of {maxAttempts}
+                    <div className={questionClassName}  key={"qlist_"+qId}>
+                      <div className='ql-session-question-title'>
+                        Question: {qCount+"/"+qLength} (worth {points} point{points !== 1 ? 's' : ''}), Attempt {currentAttemptNumber} of {maxAttempts}
                       </div>
                       { q ? questionDisplay : '' }
                       { askForNewAttempt

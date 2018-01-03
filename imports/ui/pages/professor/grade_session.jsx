@@ -55,11 +55,12 @@ class _GradeSession extends Component {
   }
 
   setGroup (option) {
+    // reset the student to view
     if(option && this.state.groupCategory){
       const group = _(this.state.groupCategory.groups).findWhere({ groupNumber:option.value })
-      if(group) this.setState({ group:group })
+      if(group) this.setState({ group:group, studentToView:null })
     } else {
-      this.setState({ group:null })
+      this.setState({ group:null, studentToView:null  })
     }
   }
 

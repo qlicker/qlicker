@@ -35,8 +35,19 @@
 
     .ql-session-question {
         margin-bottom: 10px;
-        border:2px solid $darker-grey;
         font-size: 80%;
+
+      &.not-submitted {
+        border:2px solid $red;
+      }
+
+      &.submitted {
+        border:2px solid $dark-green;
+      }
+
+      &.try-again {
+        border:2px solid $orange;
+      }
 
       .ql-session-question-title {
         font-size: 2em;
