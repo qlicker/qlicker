@@ -339,7 +339,7 @@ class _ManageSession extends Component {
   }
 
   render () {
-    if (this.props.loading) return <div>Loading</div>
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     const increase = (childState) => {
       this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))

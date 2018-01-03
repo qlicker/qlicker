@@ -134,6 +134,7 @@ class _GradeSession extends Component {
             })
       : studentPool
 
+    studentsToShow = _(studentsToShow).sortBy( (entry) => {return entry.profile.lastname.toLowerCase()})
 
     let studentToView = this.state.studentToView
     if (!studentToView && studentsToShow.length > 0) studentToView = studentsToShow[0]
