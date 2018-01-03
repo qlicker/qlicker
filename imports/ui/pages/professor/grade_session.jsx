@@ -48,9 +48,9 @@ class _GradeSession extends Component {
   setCategory (option) {
     if(option){
       const category = _(this.props.course.groupCategories).findWhere({ categoryNumber:option.value })
-      this.setState({ groupCategory:category, group:category.groups[0] })
+      this.setState({ groupCategory:category, group:category.groups[0], studentToView:null })
     } else {
-      this.setState({ groupCategory:null, group:null })
+      this.setState({ groupCategory:null, group:null, studentToView:null })
     }
   }
 
