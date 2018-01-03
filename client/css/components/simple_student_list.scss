@@ -26,6 +26,12 @@
         font-weight: bold;
         background-color: $grey;
       }
+      &.green {
+        background-color: $light-green;
+      }
+      &.red {
+        background-color: $light-red;
+      }
     }
   }
 
