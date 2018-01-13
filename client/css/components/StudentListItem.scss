@@ -12,6 +12,10 @@
   .student-details {
     margin-left: 14px;
     display: inline-block;
+    
+    &:hover {
+      cursor: pointer;
+    }
 
     .student-name {
       font-weight: bold;
@@ -22,7 +26,7 @@
       display: block;
     }
   }
-  
+
   .btn-group.dropdown {
     margin-top: 0px!important;
   }

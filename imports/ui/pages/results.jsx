@@ -44,7 +44,7 @@ class _Results extends Component {
 export const ResultsPage = createContainer((props) => {
   const handle = Meteor.subscribe('userData') &&
     Meteor.subscribe('courses') &&
-    Meteor.subscribe('sessions')
+    Meteor.subscribe('sessions.single', props.sessionId)
 
   const session = Sessions.findOne(props.sessionId)
   const course = Courses.findOne(session.courseId)
@@ -54,4 +54,3 @@ export const ResultsPage = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _Results)
-

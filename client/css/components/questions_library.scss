@@ -22,8 +22,10 @@
   }
 
   .ql-question-list {
-    margin-top: 15px;
-
+    margin-top: 10px;
+    margin-bottom: 15px;
+    max-height: 400px;
+    overflow-y: auto;
     .selected {
       .ql-question-list-item {
         font-weight: bold;

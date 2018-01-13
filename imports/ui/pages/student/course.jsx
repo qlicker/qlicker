@@ -27,11 +27,11 @@ class _Course extends Component {
 
   sessionClickHandler (session) {
     // Disabled the student.results route for now:
-    // if (session.status === 'done') {
-    //  Router.go('student.results', { studentId: Meteor.userId(), courseId: this.props.course._id })
-    // } else {
-    Router.go('session', { _id: session._id })
-    // }
+     if (session.status === 'done' && session.reviewable) {
+       Router.go('session.results', { sessionId: session._id })
+     } else {
+       Router.go('session', { _id: session._id })
+    }
   }
 
   renderSessionList () {
@@ -67,7 +67,6 @@ class _Course extends Component {
     const toggleSubmittingQuestion = () => {
       this.setState({ submittingQuestion: !this.state.submittingQuestion })
     }
-
     return (
       <div className='container ql-manage-course'>
         <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
@@ -75,6 +74,7 @@ class _Course extends Component {
           ? <button className='submit-question-button btn btn-primary' onClick={toggleSubmittingQuestion}>Submit Question</button>
           : ''
         }
+
         { this.renderSessionList() }
 
         <br />
@@ -89,13 +89,17 @@ class _Course extends Component {
 }
 
 export const Course = createContainer((props) => {
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('sessions')
+  const handle = Meteor.subscribe('courses.single', props.courseId)
+    && Meteor.subscribe('userData')
+    && Meteor.subscribe('sessions.forCourse',props.courseId)
 
   let student = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
+  let course = Courses.find({ _id: props.courseId }).fetch()[0]
+  let sessions = Sessions.find({ courseId: props.courseId }).fetch()
   return {
-    course: Courses.find({ _id: props.courseId }).fetch()[0],
+    course: course,
     student: student,
-    sessions: Sessions.find({ courseId: props.courseId }).fetch(),
+    sessions: sessions,
     loading: !handle.ready()
   }
 }, _Course)

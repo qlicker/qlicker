@@ -44,12 +44,24 @@ class Stats {
   }
 
   calculateResponseGrade (response, question) {
-    if (!response) return 0
+    if (!response || !response.attempt) return 0
     const q = question || _(this.questions).findWhere({ _id: response.questionId })
     const resp = response.answer
     if (!q || !resp) return 0
     const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
+    const attempt = resp.attempt
+    let points = 1
 
+    let weight = 1
+    if(q.sessionOptions){
+      if('points' in q.sessionOptions){
+        points = q.sessionOptions.points
+      }
+      const qAttempt = _(q.sessionOptions).findWhere({ number:attempt})
+      if (qAttempt && qAttempt.weight){
+        weight = qAttempt.weight
+      }
+    }
     let mark = 0
     switch (q.type) {
       case QUESTION_TYPE.MC:
@@ -67,7 +79,7 @@ class Stats {
         mark = percentage > 0 ? percentage : 0
         break
     }
-    return mark
+    return mark*points
   }
 
   questionParticipation (qId, studentId) {

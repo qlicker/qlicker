@@ -1,0 +1,37 @@
+@import '../variables.scss';
+
+
+.ql-manage-course-groups {
+  font-size: 120%;
+  a {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .btn-group {
+    padding-bottom: 5px;
+  }
+  .ql-manage-course-groups-select{
+    padding-bottom: 5px;
+  }
+
+  .ql-manage-course-groups-group-info {
+
+    .ql-manage-course-groups-group-info-row {
+      padding-bottom: 5px;
+      display: flex;
+      flex-direction: row;
+      div {
+        display: flex;
+        flex-direction: row;
+       }
+    }
+  }
+
+  .ql-manage-course-groups-students-info {
+    input {
+      width: 100%;
+    }
+  }
+}

@@ -7,7 +7,7 @@
 import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
-import '../api/courses.js'
+
 import { SESSION_STATUS_STRINGS, formatDate } from '../configs'
 
 /**
@@ -34,7 +34,7 @@ export class SessionListItem extends ListItem {
   reviewSession (evt) {
     evt.stopPropagation()
     const sessionId = this.props.session._id
-    Router.go('student.session.results', { sessionId: sessionId })
+    Router.go('session.results', { sessionId: sessionId })
   }
 
   render () {
@@ -55,17 +55,21 @@ export class SessionListItem extends ListItem {
       completion = ((index + 1) / length) * 100
     }
     let link = ''
-    if (Meteor.user().isInstructor(this.props.session.courseId)) {
+    if (Meteor.user().isInstructor(session.courseId) && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a>
-    } else if (Meteor.user().hasRole('student') && session.reviewable) {
+    } else if (Meteor.user().hasRole('student') && session.reviewable && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.reviewSession(evt)}>Review</a>
-    }
+    } else {}
+
+    let statusClassName = 'ql-session-status ' + ('ql-' + status)
+    if (session.reviewable && session.status === 'done') statusClassName +=' reviewable'
+    if (!session.reviewable && session.status === 'done') statusClassName +=' not-reviewable'
 
     return (
       <div className='ql-session-list-item ql-list-item' onClick={this.click}>
         <div className='row'>
           <div className='col-md-2 col-xs-4 col-sm-3 status-col'>
-            <span className={'ql-session-status ' + ('ql-' + status)}>{strStatus} </span>
+            <span className={statusClassName}>{strStatus} </span>
           </div>
           <div className={this.props.controls ? 'col-md-6 col-sm-5 col-xs-8' : 'col-md-7 col-sm-6 col-xs-8'}>
             <span className='ql-session-name'>{ session.name }</span>
@@ -102,4 +106,3 @@ SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
   details: PropTypes.bool
 }
-

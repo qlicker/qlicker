@@ -1,4 +1,5 @@
 @import '../mixins.scss';
+@import '../variables.scss';
 
 .ql-session-list-item {
   cursor: pointer;
@@ -8,7 +9,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
     > div {
       display: flex;
       align-items: baseline;
@@ -18,7 +19,7 @@
         align-items: center;
       }
     }
-    
+
   }
 
   .ql-session-name {
@@ -39,11 +40,17 @@
   }
 
   .ql-session-status {
-    margin-left:10px; 
+    margin-left:10px;
+    &.reviewable {
+      //background: $light-green;
+    }
+    &.not-reviewable {
+      background: $light-red;
+    }
   }
 
   .completion {
-    font-size: 90%;    
+    font-size: 90%;
   }
 
 

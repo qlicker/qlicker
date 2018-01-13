@@ -14,9 +14,10 @@ import DragSortableList from 'react-drag-sortable'
 import { SingleDatePicker } from 'react-dates'
 import moment from 'moment'
 import { Creatable } from 'react-select'
+import 'react-select/dist/react-select.css'
 
 import { Sessions } from '../../../api/sessions'
-import { Questions } from '../../../api/questions'
+import { Questions, defaultSessionOptions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
@@ -42,6 +43,7 @@ class _ManageSession extends Component {
 
     this.addTag = this.addTag.bind(this)
     this.setDate = this.setDate.bind(this)
+    this.toggleQuizMode = this.toggleQuizMode.bind(this)
     this.checkReview = this.checkReview.bind(this)
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
@@ -78,7 +80,9 @@ class _ManageSession extends Component {
           Router.go('session.run', { _id: this.state.session._id })
           if (prevStatus !== 'running') {
             Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
-            Meteor.call('questions.hideQuestion', this.state.session.currentQuestion)
+            if ( !this.state.session.quiz ){
+              Meteor.call('questions.hideQuestion', this.state.session.currentQuestion)
+            }
           }
         })
       })
@@ -169,6 +173,13 @@ class _ManageSession extends Component {
     })
   }
 
+  toggleQuizMode () {
+    Meteor.call('sessions.toggleQuizMode', this.sessionId, (e) => {
+      if (e) alertify.error('Could not toggle quiz mode')
+      else alertify.success('Quiz mode changed')
+    })
+  }
+
   /**
    * checkReview(Input Event: e)
    * method to hide a session from review
@@ -219,7 +230,8 @@ class _ManageSession extends Component {
       sessionId: sessionId,
       courseId: this.state.session.courseId,
       owner: course.owner,
-      approved: true
+      approved: true,
+      sessionOptions: defaultSessionOptions
     }
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
@@ -309,11 +321,26 @@ class _ManageSession extends Component {
   updateQuery (childState) {
     let params = this.state.query
     params.options.limit = this.state.limit
-
+/*
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
     else params.query = _.omit(params.query, 'plainText')
+    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
+    else params.query = _.omit(params.query, 'tags.value')
+*/
+    if (childState.questionType > -1) params.query.type = childState.questionType
+    else params.query = _.omit(params.query, 'type')
+    if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
+    else params.query = _.omit(params.query, 'courseId')
+    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
+    else params.query = _.omit(params.query, 'plainText')
+    if (childState.userSearchString) {
+      const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
+                                               {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
+      const uids = _(users).pluck('_id')
+      params.query.creator = {$in: uids}
+    } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
 
@@ -321,7 +348,7 @@ class _ManageSession extends Component {
   }
 
   render () {
-    if (this.props.loading) return <div>Loading</div>
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     const increase = (childState) => {
       this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
@@ -440,6 +467,9 @@ class _ManageSession extends Component {
 
             <div className='ql-session-child-container session-details-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
+              <div className='ql-session-details-checkbox'>
+                <input type='checkbox' checked={this.props.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
+              </div>
               <div className='row'>
                 <div className='col-md-6 left-column'>
                   <textarea className='form-control session-description' data-name='description'
@@ -466,13 +496,16 @@ class _ManageSession extends Component {
             {
               questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.props.questions[questionId]
+                const questionNumber = this.props.session.questions.indexOf(questionId) + 1
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
                     onDeleteThis={() => this.removeQuestion(questionId)}
                     question={q}
+                    questionNumber={questionNumber}
                     sessionId={this.state.session._id}
                     courseId={this.state.session.courseId}
                     onNewQuestion={this.newQuestionSaved}
+                    isQuiz={this.state.session.quiz}
                     autoSave />
                 </div>)
               })

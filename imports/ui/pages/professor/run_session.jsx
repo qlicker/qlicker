@@ -11,7 +11,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
-import { Responses } from '../../../api/responses'
+import { Responses, responseDistribution } from '../../../api/responses'
 
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
@@ -222,23 +222,22 @@ class _RunSession extends Component {
     Meteor.call('sessions.endSession', sessionId, (error) => {
       if (error) return alertify.error('Error: could not end session ')
       alertify.success('Session Ended')
-      Router.go('course', { _id: this.state.session.courseId }) // TODO go to grades overview page for that session
+      Router.go('course', { _id: this.state.session.courseId })
     })
     if (!this.state.session.reviewable) {
       // by default, do not change reviability, but do remind prof if not reviewable:
       alertify.error('Warning: session not reviewable')
-      // Meteor.call('sessions.toggleReviewable', sessionId, (error) => {
-        // if (error) alertify.error('Error: ' + error.error)
-      // })
     }
   }
 
+  // TODO: This should not get called when ending a session (it does), which makes
+  // it call startAttempt, which it should not!
   componentWillReceiveProps (nextProps) {
     if (nextProps && nextProps.session) {
       this.setState({ session: nextProps.session }, () => {
         const current = this.state.session.currentQuestion
         const q = this.props.questions[current]
-        if (!q.sessionOptions || !q.sessionOptions.attempts) {
+        if (!q || !q.sessionOptions || !q.sessionOptions.attempts) {
           Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
         }
       })
@@ -256,66 +255,75 @@ class _RunSession extends Component {
     const q = this.props.questions[current]
     if (!q.sessionOptions) return <div>Loading</div>
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
-
+    const currentAttemptNumber = q.sessionOptions.attempts.length
+    const responseStats = _(this.props.responseStatsByQuestion[q._id]).where({ attempt:currentAttemptNumber })
     // strings
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
     const strAttemptEnabled = currentAttempt.closed ? 'Allow responses' : 'Disallow responses'
 
-    const numAnswered = this.props.responses.length
+    const numAnswered = this.props.responseCounts[q._id][currentAttemptNumber]
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
     return (
       <div className='container ql-session-display'>
-        <a className='toolbar-button' href='#' onClick={this.routeDesktop}>
-          <span className='glyphicon glyphicon-fullscreen' />&nbsp;
-          Desktop view
-        </a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }&nbsp;&nbsp;
-        Question: {questionList.indexOf(current) + 1}/{questionList.length}&nbsp;&nbsp;
-        Responses: <span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}&nbsp;&nbsp;
-        Attempt: {q.sessionOptions.attempts.length}
-        <div className='btn-group btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={this.newAttempt}>
-            New attempt
+        <div className='ql-session-display-mobile'>
+          <div className='ql-session-display-mobile-infobar'>
+            <a className='toolbar-button' href='#' onClick={this.routeDesktop}>
+              <span className='glyphicon glyphicon-fullscreen' />&nbsp;
+              Desktop view
+            </a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }&nbsp;&nbsp;
+            Question: {questionList.indexOf(current) + 1}/{questionList.length}&nbsp;&nbsp;
+            Responses: <span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}&nbsp;&nbsp;
+            Attempt: {q.sessionOptions.attempts.length}
           </div>
-          <div className='btn btn-default' onClick={() => this.toggleAttempt(q._id)}>
-            {strAttemptEnabled}
+          <div className='ql-session-display-mobile-buttons'>
+            <div className='btn-group btn-group-justified'>
+              <div className='btn btn-default' onClick={this.newAttempt}>
+                New attempt
+              </div>
+              <div className='btn btn-default' onClick={() => this.toggleAttempt(q._id)}>
+                {strAttemptEnabled}
+              </div>
+            </div>
+            <div className='btn-group btn-group-justified'>
+              <div className='btn btn-default' onClick={() => { this.toggleStats(q._id) }}>
+                {strStatsVisible}
+              </div>
+              <div className='btn btn-default' onClick={() => { this.toggleCorrect(q._id) }}>
+                {strCorrectVisible}
+              </div>
+            </div>
+            <div className='btn-group btn-group-justified'>
+              <div className='btn btn-default' onClick={this.prevQuestion}>
+                <span className='glyphicon glyphicon-arrow-left' /> &nbsp;  Previous
+              </div>
+              <div className='btn btn-default' onClick={() => this.toggleHidden(q._id)}>
+                {strQuestionVisible}
+              </div>
+              <div className='btn btn-default' onClick={this.nextQuestion}>
+                Next &nbsp;<span className='glyphicon glyphicon-arrow-right' />
+              </div>
+            </div>
           </div>
-        </div>
-        <div className='btn-group btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={() => { this.toggleStats(q._id) }}>
-            {strStatsVisible}
-          </div>
-          <div className='btn btn-default' onClick={() => { this.toggleCorrect(q._id) }}>
-            {strCorrectVisible}
-          </div>
-        </div>
-        <div className='btn-group btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={this.prevQuestion}>
-            <span className='glyphicon glyphicon-arrow-left' /> &nbsp;  Previous
-          </div>
-          <div className='btn btn-default' onClick={() => this.toggleHidden(q._id)}>
-            {strQuestionVisible}
-          </div>
-          <div className='btn btn-default' onClick={this.nextQuestion}>
-            Next &nbsp;<span className='glyphicon glyphicon-arrow-right' />
-          </div>
-        </div>
 
-        <div className='ql-question-preview'>
-          { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof showStatsOverride /> : '' }
-        </div>
-        {
-          !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
-          ? <div><ShortAnswerList question={q} /></div>
-          : ''
-        }
-        <div className='btn-group-lg btn-group-justified details-button-group'>
-          <div className='btn btn-default' onClick={this.endSession}>
-            <span className='glyphicon glyphicon-stop' />&nbsp;
-            Finish Session
+          <div className='ql-question-preview'>
+            { q ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof showStatsOverride /> : '' }
+          </div>
+          {
+            !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
+            ? <div><ShortAnswerList question={q} /></div>
+            : ''
+          }
+          <div className='ql-session-display-mobile-buttons'>
+            <div className='btn-group-lg btn-group-justified'>
+              <div className='btn btn-default' onClick={this.endSession}>
+                <span className='glyphicon glyphicon-stop' />&nbsp;
+                Finish Session
+              </div>
+            </div>
           </div>
         </div>
       </div>)
@@ -332,6 +340,11 @@ class _RunSession extends Component {
     const q = this.props.questions[current]
     if (!q.sessionOptions) return <div>Loading</div>
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
+    const currentAttemptNumber = q.sessionOptions.attempts.length
+
+    const responseStats = q.sessionOptions.stats
+                          ? _(this.props.responseStatsByQuestion[q._id]).where({ attempt:currentAttemptNumber })
+                          : null
 
     // strings
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
@@ -339,7 +352,7 @@ class _RunSession extends Component {
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
     const strAttemptEnabled = currentAttempt.closed ? 'Allow Responses' : 'Disallow Responses'
 
-    const numAnswered = this.props.responses.length
+    const numAnswered = this.props.responseCounts[q._id][currentAttemptNumber]
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
     const students = Meteor.users.find({ _id: { $in: this.state.session.joined || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
@@ -429,7 +442,7 @@ class _RunSession extends Component {
           <div className={'ql-main-content ' + (this.state.presenting ? 'presenting' : '')}>
             {
               !this.state.presenting && q && q.type !== QUESTION_TYPE.SA // option based questions
-              ? <div><AnswerDistribution question={q} title='Responses' /><div className='clear' /></div>
+              ? <div><AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[q._id]} /><div className='clear' /></div>
               : ''
             }
             {
@@ -439,7 +452,7 @@ class _RunSession extends Component {
             }
 
             <div className='ql-question-preview'>
-              { q ? <QuestionDisplay question={q} attempt={currentAttempt} readonly prof /> : '' }
+              { q ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof /> : '' }
             </div>
           </div>
 
@@ -450,26 +463,40 @@ class _RunSession extends Component {
 }
 
 export const RunSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions') &&
-    Meteor.subscribe('questions.inSession', props.sessionId) &&
+  const handle =  Meteor.subscribe('sessions.single',props.sessionId)
     Meteor.subscribe('questions.library') &&
     Meteor.subscribe('responses.forSession', props.sessionId) &&
-    Meteor.subscribe('users.myStudents', {cId: props.courseId})
+    Meteor.subscribe('users.studentsInCourse', props.courseId)
 
   const session = Sessions.findOne(props.sessionId)
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
   const questions = _.indexBy(questionsInSession, '_id')
 
+  const allResponses = Responses.find({ questionId:{ $in: session.questions }}).fetch()
+  const responsesByQuestion = _(allResponses).groupBy('questionId')
+  let responseStatsByQuestion = []
+  const responseCounts = []
+  questionsInSession.forEach( (question) => {
+    responseStatsByQuestion[question._id] = responseDistribution(responsesByQuestion[question._id], question)
+    responseCounts[question._id] = _(responsesByQuestion[question._id]).countBy('attempt')
+  })
+
+
+
+//  const responseCounts = _(allResponses).countBy('questionId')
+
+/*
   let responses = []
   const q = questions[session.currentQuestion]
   if (session.currentQuestion && q && q.sessionOptions) {
     const maxAttempt = questions[session.currentQuestion].sessionOptions.attempts.length
     responses = Responses.find({ attempt: maxAttempt, questionId: session.currentQuestion }).fetch()
   }
-
+*/
   return {
     questions: questions,
-    responses: responses,
+    responseCounts: responseCounts,
+    responseStatsByQuestion: responseStatsByQuestion,
     session: session,
     loading: !handle.ready()
   }

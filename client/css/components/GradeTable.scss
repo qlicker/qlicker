@@ -1,0 +1,77 @@
+@import '../variables.scss';
+
+// Component
+.ql-grade-table-container {
+  position: relative;
+
+  .ql-grade-table-controlbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    padding-bottom: 10px;
+
+    .ql-grade-table-controlbar-div {
+      display: flex;
+      flex-direction: row;
+    }
+
+  }
+
+  .ql-grade-table-session-header {
+    display: inline;
+     &:hover {
+       font-weight: bold;
+       color: $blue;
+       cursor: pointer;
+     }
+     &.hidden-from-students {
+       //background: $light-red;
+       color: $darker-grey;
+     }
+  }
+
+  // cell in the grade tableData
+  .ql-grade-cell {
+    &:hover {
+      font-weight: bold;
+      cursor: pointer;
+      color: $blue;
+    }
+  }
+
+  .ql-grade-cell-needs-grading{
+    background: $light-red;
+    &:hover {
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+
+  .ql-grade-cell-manual{
+    background: $light-green;
+    &:hover {
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+
+  .ql-grade-table-sort-button {
+     position: absolute;
+     top: 0px;
+     right: 0px;
+    &:hover {
+      cursor: pointer;
+      color: $blue;
+    }
+  }
+
+  .ql-grade-table-grade-calc-button {
+    display: inline;
+    &:hover {
+      cursor: pointer;
+      color: $blue;
+    }
+  }
+
+}
