@@ -11,6 +11,7 @@ import _ from 'underscore'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import Select from 'react-select'
+import 'react-select/dist/react-select.css'
 
 import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'

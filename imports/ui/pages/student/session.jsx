@@ -89,6 +89,7 @@ class _Session extends Component {
       const qlist = session.questions
       let qCount = 0
       const qLength = qlist.length
+      let nResponses = 0
       return(
         <div className='container ql-session-display'>
           <div className='ql-session-question-list'>
@@ -107,6 +108,7 @@ class _Session extends Component {
                 if (_.isEmpty(lastResponse)){
                   lastResponse = null
                 } else {
+                  nResponses += 1
                   myLastAttemptNumber = lastResponse.attempt
                   currentAttemptNumber = myLastAttemptNumber
                   if (this.state.questionsToTryAgain[qId] && myLastAttemptNumber < maxAttempts &&
@@ -140,10 +142,12 @@ class _Session extends Component {
                   questionClassName += ' submitted'
                 }
 
+                const attemptText = maxAttempts > 1 ?", Attempt "+currentAttemptNumber+" of "+maxAttempts : ''
+
                 return (
                     <div className={questionClassName}  key={"qlist_"+qId}>
                       <div className='ql-session-question-title'>
-                        Question: {qCount+"/"+qLength} (worth {points} point{points !== 1 ? 's' : ''}), Attempt {currentAttemptNumber} of {maxAttempts}
+                        Question: {qCount+"/"+qLength} (worth {points} point{points !== 1 ? 's' : ''}) {attemptText}
                       </div>
                       { q ? questionDisplay : '' }
                       { askForNewAttempt
@@ -157,6 +161,9 @@ class _Session extends Component {
                     </div>)
               })
             }
+          </div>
+          <div className={nResponses===qLength ? 'ql-quiz-summary done' : 'ql-quiz-summary not-done'}>
+            Answered {nResponses} out of {qLength}
           </div>
         </div>)
     }

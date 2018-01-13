@@ -14,6 +14,7 @@ import DragSortableList from 'react-drag-sortable'
 import { SingleDatePicker } from 'react-dates'
 import moment from 'moment'
 import { Creatable } from 'react-select'
+import 'react-select/dist/react-select.css'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions, defaultSessionOptions } from '../../../api/questions'
@@ -42,6 +43,7 @@ class _ManageSession extends Component {
 
     this.addTag = this.addTag.bind(this)
     this.setDate = this.setDate.bind(this)
+    this.toggleQuizMode = this.toggleQuizMode.bind(this)
     this.checkReview = this.checkReview.bind(this)
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
@@ -168,6 +170,13 @@ class _ManageSession extends Component {
     stateEdits.date = date ? date.toDate() : null
     this.setState({ session: stateEdits }, () => {
       this._DB_saveSessionEdits()
+    })
+  }
+
+  toggleQuizMode () {
+    Meteor.call('sessions.toggleQuizMode', this.sessionId, (e) => {
+      if (e) alertify.error('Could not toggle quiz mode')
+      else alertify.success('Quiz mode changed')
     })
   }
 
@@ -458,6 +467,9 @@ class _ManageSession extends Component {
 
             <div className='ql-session-child-container session-details-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
+              <div className='ql-session-details-checkbox'>
+                <input type='checkbox' checked={this.props.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
+              </div>
               <div className='row'>
                 <div className='col-md-6 left-column'>
                   <textarea className='form-control session-description' data-name='description'

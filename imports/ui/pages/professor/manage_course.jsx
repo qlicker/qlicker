@@ -180,9 +180,11 @@ class _ManageCourse extends Component {
 
           }
           if (ses.status === 'done'){
+            controls.push({ label: 'Restart session', click: () => this.startSession(sId) })
             controls.push({ label: 'Grade session', click: () => Router.go('session.grade',{sessionId: sId} ) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results',{sessionId: sId} ) })
-          } else {
+          }
+          if (ses.status !== 'done' && ses.status !== 'running') {
             controls.push({ label: 'Start session', click: () => this.startSession(sId) })
           }
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })

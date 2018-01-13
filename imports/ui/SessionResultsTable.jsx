@@ -211,7 +211,16 @@ export class _SessionResultsTable extends Component {
       )
      }
 
-    const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].grade.participation.toFixed(0) } </Cell>
+    const ParticipationCell =  ({rowIndex}) => {
+      const participation = tableData[rowIndex].grade && tableData[rowIndex].grade.participation
+                          ? tableData[rowIndex].grade.participation.toFixed(0)
+                          : 0
+      return (
+        <Cell>
+          { participation }
+         </Cell>
+      )
+    }
 
     const GradeCell =  ({rowIndex}) =>  {
       const grade = tableData[rowIndex].grade

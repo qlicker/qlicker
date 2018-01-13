@@ -9,6 +9,8 @@ import _ from 'underscore'
 import { ControlledForm } from './ControlledForm'
 
 import Select from 'react-select'
+import 'react-select/dist/react-select.css'
+
 import { QuestionListItem } from './QuestionListItem'
 import { StudentQuestionListItem } from './StudentQuestionListItem'
 

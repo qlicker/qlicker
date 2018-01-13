@@ -13,6 +13,7 @@ import { Courses } from '../../../api/courses'
 
 import { CreateGroupCategoryModal } from '../../modals/CreateGroupCategoryModal'
 import Select from 'react-select'
+import 'react-select/dist/react-select.css'
 
 import { ROLES } from '../../../configs'
 

@@ -243,6 +243,10 @@ export class _GradeView extends Component {
 
                     const offerToAutograde = autoGradeable && !mark.automatic
                     const responses = _(this.props.responses).where({ questionId:mark.questionId })
+
+                    if (mark.needsGrading) {
+                      autoText = "(not yet graded)"
+                    }
                     if (!responses || responses.length < 1){
                       autoText = "(no response)"
                     }

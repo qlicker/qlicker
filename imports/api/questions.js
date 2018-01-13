@@ -143,7 +143,17 @@ if (Meteor.isServer) {
         const questionsCursor = Questions.find({ sessionId: sessionId })
         const handle = questionsCursor.observeChanges({
           added: (id, fields) => {
-            this.added('questions', id, fields)
+            const newFields = fields
+            const so = newFields.sessionOptions
+            if (so && so.correct) { // correct should be visible
+              const q = Questions.findOne({_id: id})
+              newFields['options'] = q.options
+            } else if (so && !so.correct) { // correct should be hidden
+              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false } })
+              newFields['options'] = q.options
+            }
+
+            this.added('questions', id, newFields)
           },
           changed: (id, fields) => {
             const newFields = fields
@@ -317,7 +327,8 @@ Meteor.methods({
     question.owner = Meteor.userId()
     question.sessionOptions = defaultSessionOptions
 
-    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
+    //const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
+    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
     return copiedQuestion._id
   },
@@ -478,7 +489,7 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
     if (!q) return
-    
+
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
     if (q.sessionOptions) { // add another attempt (if first is closed)
       const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]

@@ -7,6 +7,7 @@ import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 
 import Select, { Creatable } from 'react-select'
+import 'react-select/dist/react-select.css'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'

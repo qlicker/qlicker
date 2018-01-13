@@ -41,6 +41,8 @@ Router.route('/login', {
   },
   action: function () {
     if (Meteor.userId()) {
+      // TODO: These should all go to the same page, for example, a user could be a professor
+      // for some courses and a student for others, as well as an admin...
       let user = Meteor.user()
       if (user.hasRole('admin')) Router.go('admin')
       if (user.hasRole('professor')) Router.go('professor')

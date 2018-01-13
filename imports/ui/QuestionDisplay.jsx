@@ -86,9 +86,8 @@ export class QuestionDisplay extends Component {
 
     const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
 
-    // if showing a new question, go back to not showing the correct answer
-    const showCorrect = !isNewQuestion
-    const showResponse = !isNewQuestion
+    const showCorrect = false
+    const showResponse = false
 
    if (isNewQuestion || isNewResponse || isNewAttempt ){
      if (nextProps.response){
@@ -361,7 +360,7 @@ export class QuestionDisplay extends Component {
             change={this.setShortAnswerWysiwyg}
             placeholder='Type your answer here'
             val={this.state.submittedAnswerWysiwyg}
-            toolbarDivId={this.props.question ? this.props.question._id+'_ckToolbar' : 'ckeditor-toolbar'} 
+            toolbarDivId={this.props.question ? this.props.question._id+'_ckToolbar' : 'ckeditor-toolbar'}
             />
         }
         { showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
@@ -379,7 +378,7 @@ export class QuestionDisplay extends Component {
     let content
 
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
-
+    let msInfo = ''
     switch (type) {
       case QUESTION_TYPE.MC:
         content = this.renderOptionQuestion('mc', q)
@@ -392,6 +391,7 @@ export class QuestionDisplay extends Component {
         break
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)
+        if (!this.props.readonly && !this.state.isSubmitted && !this.props.prof ) msInfo = <div className='msInfo'>Select all that apply</div>
         break
     }
 
@@ -407,6 +407,7 @@ export class QuestionDisplay extends Component {
         { showToolbar ? <div id={this.props.question ? this.props.question._id+'_ckToolbar' : 'ckeditor-toolbar'} /> : '' }
 
         <div className='ql-answers'>
+          {msInfo}
           {content}
         </div>
 

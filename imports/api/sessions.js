@@ -341,6 +341,21 @@ Meteor.methods({
   },
 
   /**
+   * toggles whether the session is a quiz
+   * @param {MongoId} sessionId
+   */
+  'sessions.toggleQuizMode' (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    const session = Sessions.findOne({ _id: sessionId })
+    if(!session){
+        throw Error('No session with this id')
+    }
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, { $set: { quiz: !session.quiz }})
+
+  },
+  /**
    * returns a list of autocomplete tag sugguestions specific for session (different than questions)
    * @returns {String[]} array of string tags
    */

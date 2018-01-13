@@ -66,11 +66,20 @@
           max-width: 400px;
         }
       }
-
    }
-
   }
 
-
+  .ql-quiz-summary {
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    font-size: 2em;
+    &.done{
+      background: $light-green;
+    }
+    &.not-done{
+      background: $light-red;
+    }
+  }
 
 }
