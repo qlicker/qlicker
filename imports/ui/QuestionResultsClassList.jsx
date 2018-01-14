@@ -10,13 +10,14 @@ import _ from 'underscore'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
+import { calculateResponsePoints } from '../api/grades'
 import { QUESTION_TYPE } from '../configs'
-import { Stats } from '../stats'
+//import { Stats } from '../stats'
 
 export class _QuestionResultsClassList extends Component {
 
   render () {
-    const stats = new Stats([this.props.question], this.props.responses)
+    //const stats = new Stats([this.props.question], this.props.responses)
     const students = this.props.students || []
     const attempts = (this.props.question && this.props.question.sessionOptions &&
        this.props.question.sessionOptions.attempts)
@@ -36,8 +37,11 @@ export class _QuestionResultsClassList extends Component {
         </thead>
         <tbody>
           {students.map((user) => {
-            const responses = _(this.props.responses).where({studentUserId: user._id})
-            let grade = (this.props.question.type === QUESTION_TYPE.SA) ? 'N/A' : 0
+            const responses = _(this.props.responses).where({ studentUserId:user._id })
+            let markByAttempt = 0
+            const maxPoints = this.props.question && this.props.question.sessionOptions && 'points' in this.props.question.sessionOptions
+                           ? this.props.question.sessionOptions.points
+                           : 1
             return (<tr key={user._id}>
               <td>{user.getName()}</td>
               {attempts.map((attempt) => {
@@ -46,17 +50,13 @@ export class _QuestionResultsClassList extends Component {
                 let answer = response ? response.answer : ''
                 answer = (response && this.props.question.type === QUESTION_TYPE.SA && response.answerWysiwyg) ? WysiwygHelper.htmlDiv(response.answerWysiwyg) : answer
 
-                if (response && this.props.question.type !== QUESTION_TYPE.SA) {
-                  grade = stats.calculateResponseGrade(response, this.props.question)
-                }
+                markByAttempt = calculateResponsePoints(response)
 
-                return (<td key={key}>{answer} ({grade})</td>)
+                return (<td key={key}>{answer} ({markByAttempt})</td>)
               })
-                }
-              <td>{this.props.question.type !== QUESTION_TYPE.SA
-                  ? 100 * grade // stats.calculateResponseGrade(response)
-                  : 'N/A'
-                }</td></tr>)
+              }
+              <td>{markByAttempt}/{maxPoints}</td>
+            </tr>)
           })
           }
         </tbody>
@@ -68,7 +68,7 @@ export class _QuestionResultsClassList extends Component {
 
 export const QuestionResultsClassList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id) &&
-    Meteor.subscribe('users.studentsInCourse', props.session.courseId)
+                 Meteor.subscribe('users.studentsInCourse', props.session.courseId)
 
   const responses = Responses.find({ questionId: props.question._id }).fetch()
   const students = Meteor.users.find({_id: { $in: _(responses).pluck('studentUserId') }}, {sort: {'profile.lastname': 1}}).fetch()

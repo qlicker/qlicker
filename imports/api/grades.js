@@ -15,8 +15,6 @@ import { Courses } from './courses.js'
 import { Questions } from './questions.js'
 import { Responses } from './responses.js'
 
-import { Stats } from '../stats.js'
-
 import { ROLES, QUESTION_TYPE, isAutoGradeable } from '../configs'
 
 // expected collection pattern
@@ -132,7 +130,9 @@ if (Meteor.isServer) {
       }
     } else this.ready()
   })
-
+  /*
+  // This is untested... it needs to find the grades for which there is a mark with that
+  // question ID, not sure if this is the righ query...
   Meteor.publish('grades.forQuestion', function (questionId) {
     check(questionId, Helpers.MongoID)
     if (this.userId) {
@@ -143,12 +143,12 @@ if (Meteor.isServer) {
       const courseId = sess ? sess.courseId: ''
 
       if (user.hasGreaterRole(ROLES.admin) || user.isInstructor(courseId)) {
-        return Grades.find({ questionId: questionId}) // finds all the course owned
+        return Grades.find({ questionId: questionId})
       } else {
         return Grades.find({ userId: this.userId, questionId: questionId, visibleToStudents: true } )
       }
     } else this.ready()
-  })
+  }) */
 }
 
 /**
@@ -483,7 +483,6 @@ Meteor.methods({
       }
 
       const studentIds = course.students ? course.students : []
-      const stats = new Stats(questions, responses)
 
       const defaultGrade = {
         courseId: courseId,
@@ -526,7 +525,6 @@ Meteor.methods({
           if(response && response.attempt){
             attempt = response.attempt
             responseId = response._id
-              //markPoints = stats.calculateResponseGrade(response, question)
             numAnsweredTotal += 1
 
             if(markOutOf[iq] > 0){

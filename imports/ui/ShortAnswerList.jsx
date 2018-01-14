@@ -26,7 +26,12 @@ class _ShortAnswerList extends Component {
       </div>
     )
   }
-
+  componentDidMount () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+  componentDidUpdate () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
   render () {
     if (this.props.loading) return <div>Loading</div>
     return (<div className='ql-short-answer-list'>

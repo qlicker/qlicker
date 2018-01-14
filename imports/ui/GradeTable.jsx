@@ -18,8 +18,6 @@ import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 import { Grades } from '../api/grades'
 
-import { Stats } from '../stats'
-
 import { GradeViewModal } from './modals/GradeViewModal'
 import { ProfileViewModal } from './modals/ProfileViewModal'
 

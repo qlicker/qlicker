@@ -338,7 +338,7 @@ class _RunSession extends Component {
     let questionList = this.state.session.questions || []
 
     const q = this.props.questions[current]
-    if (!q.sessionOptions) return <div>Loading</div>
+    if (!q || !q.sessionOptions) return <div>Loading</div>
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
     const currentAttemptNumber = q.sessionOptions.attempts.length
 

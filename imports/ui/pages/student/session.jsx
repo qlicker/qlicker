@@ -14,6 +14,7 @@ import { Sessions } from '../../../api/sessions'
 import { Responses, responseDistribution } from '../../../api/responses'
 
 import { QuestionDisplay } from '../../QuestionDisplay'
+import { ShortAnswerList } from '../../ShortAnswerList'
 import { QUESTION_TYPE } from '../../../configs'
 
 class _Session extends Component {
@@ -81,8 +82,15 @@ class _Session extends Component {
         : <QuestionDisplay question={q} style={{float: 'right'}} attemptNumber={currentAttemptNumber}
            response={response} responseStats={responseStats} />
       return (
-        <div className='container ql-session-display'>
-           { questionDisplay }
+        <div className='container'>
+          <div className='ql-session-display'>
+            { questionDisplay }
+          </div>
+          { q.sessionOptions.stats && q.type === QUESTION_TYPE.SA
+            ? <ShortAnswerList question={q} />
+            : ''
+          }
+
         </div>)
     }else{
       // for questions in a quiz (all questions at once, possible multiple attempts allowed)
@@ -162,8 +170,14 @@ class _Session extends Component {
               })
             }
           </div>
-          <div className={nResponses===qLength ? 'ql-quiz-summary done' : 'ql-quiz-summary not-done'}>
-            Answered {nResponses} out of {qLength}
+          <div className={nResponses === qLength ? 'ql-quiz-summary done' : 'ql-quiz-summary not-done'}>
+            Answered {nResponses} out of {qLength} <br/>
+            { nResponses === qLength
+              ? <div className='btn btn-secondary' onClick={() => {Router.go('/course/' + this.props.session.courseId)}}>
+                  Done!
+                </div>
+              : ''
+            }
           </div>
         </div>)
     }

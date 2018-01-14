@@ -340,7 +340,7 @@ Meteor.methods({
   'questions.copyToLibrary' (questionId) {
     check(questionId, Helpers.MongoID)
 
-    const omittedFields = ['_id', 'originalQuestion', 'sessionId']
+    const omittedFields = ['_id', 'originalQuestion', 'sessionId', 'sessionOptions']
     // quetion below was const, but changed to let, right???
     let question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     // Don't copy if we already own or created
