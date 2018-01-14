@@ -162,8 +162,14 @@ class _Session extends Component {
               })
             }
           </div>
-          <div className={nResponses===qLength ? 'ql-quiz-summary done' : 'ql-quiz-summary not-done'}>
-            Answered {nResponses} out of {qLength}
+          <div className={nResponses === qLength ? 'ql-quiz-summary done' : 'ql-quiz-summary not-done'}>
+            Answered {nResponses} out of {qLength} <br/>
+            { nResponses === qLength
+              ? <div className='btn btn-secondary' onClick={() => {Router.go('/course/' + this.props.session.courseId)}}>
+                  Done!
+                </div>
+              : ''
+            }
           </div>
         </div>)
     }
