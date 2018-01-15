@@ -46,22 +46,28 @@ const questionPattern = {
     hidden: Boolean, // temporarily hide question on screen
     stats: Boolean, // students able to see distribution of answers
     correct: Boolean, // students able to see which is correct
+    points: Match.Maybe(Number), // number of points question is work
+    maxAttempts: Match.Maybe(Number), // max number of attempts in a quiz setting
+    attemptWeights: [Match.Maybe(Number)], // weight of each attempt
     attempts: [{
       number: Number,
-      closed: Boolean
+      closed: Boolean,
     }]
   }),
   imagePath: Match.Maybe(String),
   studentCopyOfPublic: Match.Maybe(Boolean) // true if this a student's copy from a public library
 }
 
-const defaultSessionOptions = {
+export const defaultSessionOptions = {
   hidden: false,
   stats: false,
   correct: false,
+  points: 1,
+  maxAttempts: 1,
+  attemptWeights: [1],
   attempts: [{
     number: 1,
-    closed: false
+    closed: false,
   }]
 }
 
@@ -88,14 +94,31 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // questions for reviewing a session
+  // questions for reviewing a session (sends the correct flag)
+  // only send to students if the reviewable flag is turned on
   Meteor.publish('questions.forReview', function (sessionId) {
     if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      const session = Sessions.findOne({_id: sessionId})
+
+      if (user.hasRole(ROLES.admin) || user.isInstructor(session.courseId)){
+        return Questions.find({ sessionId: sessionId })
+      }
+      if (user.hasRole(ROLES.student)) {
+        if (session.reviewable) {
+          return Questions.find({ sessionId: sessionId })
+        } else{
+          return this.ready()
+        }
+      }
+
       return Questions.find({ sessionId: sessionId })
     } else this.ready()
   })
 
   // questions in a specific session
+  // TODO: For Short answer, cannot send options[0].content, since that is the solution!!!
+  // TODO: Should move the solution to options.correct for SA???
   Meteor.publish('questions.inSession', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
@@ -120,7 +143,17 @@ if (Meteor.isServer) {
         const questionsCursor = Questions.find({ sessionId: sessionId })
         const handle = questionsCursor.observeChanges({
           added: (id, fields) => {
-            this.added('questions', id, fields)
+            const newFields = fields
+            const so = newFields.sessionOptions
+            if (so && so.correct) { // correct should be visible
+              const q = Questions.findOne({_id: id})
+              newFields['options'] = q.options
+            } else if (so && !so.correct) { // correct should be hidden
+              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false } })
+              newFields['options'] = q.options
+            }
+
+            this.added('questions', id, newFields)
           },
           changed: (id, fields) => {
             const newFields = fields
@@ -292,9 +325,10 @@ Meteor.methods({
     question.sessionId = sessionId
     question.courseId = session.courseId
     question.owner = Meteor.userId()
-    // question.sessionOptions = defaultSessionOptions
+    question.sessionOptions = defaultSessionOptions
 
-    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
+    //const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
+    const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
     return copiedQuestion._id
   },
@@ -306,7 +340,7 @@ Meteor.methods({
   'questions.copyToLibrary' (questionId) {
     check(questionId, Helpers.MongoID)
 
-    const omittedFields = ['_id', 'originalQuestion', 'sessionId']
+    const omittedFields = ['_id', 'originalQuestion', 'sessionId', 'sessionOptions']
     // quetion below was const, but changed to let, right???
     let question = _(Questions.findOne({ _id: questionId })).omit(omittedFields)
     // Don't copy if we already own or created
@@ -454,6 +488,8 @@ Meteor.methods({
     }
     check(questionId, Helpers.MongoID)
     const q = Questions.findOne({ _id: questionId })
+    if (!q) return
+
     if (!Meteor.user().isInstructor(q.courseId)) throw Error('Not authorized')
     if (q.sessionOptions) { // add another attempt (if first is closed)
       const maxAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]

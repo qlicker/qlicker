@@ -8,8 +8,13 @@ import React, { Component, PropTypes } from 'react'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 
 export class StudentQuestionResultsListItem extends Component {
-
   componentWillMount () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+  componentDidMount () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+  componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
 

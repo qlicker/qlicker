@@ -9,16 +9,18 @@ $red-bar: rgba(167,37,38, 0.3);
 .ql-question-display {
 
   &.interactive {
+    .ql-short-answer {
+      color: black;
+      &:hover {
+        border: 1px solid $black;
+      }
+    }
     .ql-answer-content-container:hover {
       //border: 1px solid $blue;
       //color: $blue;
       border: 1px solid $black;
       font-weight: bold;
       cursor: pointer;
-
-      .ql-short-answer {
-        color: black;
-      }
 
       .ql-checkbox {
         border-color: $blue;
@@ -52,16 +54,33 @@ $red-bar: rgba(167,37,38, 0.3);
     padding-left: 25px;
     padding-right: 25px;
     margin-top: 20px;
-    margin-bottom: 40px;
+    margin-bottom: 5px;
 
     .submit-button {
       width: 100%;
       max-width: 400px;
     }
-  }
+   }
+
+   .btn-container {
+
+   }
+
+   .btn-group {
+     //max-width: 400px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-direction: row;
+     padding-top: 8px;
+     .btn {
+       width: 100%;
+       max-width: 200px;
+     }
+   }
 
   .ql-answers {
-    margin-top: 20px;
+    margin-top: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,8 +88,17 @@ $red-bar: rgba(167,37,38, 0.3);
     padding-left: 20px;
     padding-right: 20px;
 
+    .msInfo {
+      font-size: 1.5em;
+    }
+
     .ql-short-answer {
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
+      font-size: 2em;
+      background: white;
+      display: inline-block;
+      position: relative;
       textarea {
         resize: vertical;
       }

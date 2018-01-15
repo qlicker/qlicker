@@ -5,8 +5,7 @@
 // QuestionDisplay.jsx: Component for displaying question in session
 
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
-import { Responses } from '../api/responses'
+
 import { _ } from 'underscore'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
@@ -16,10 +15,10 @@ import { Editor } from './Editor'
  * React Component (meteor reactive) to display Question object and send question reponses.
  * @prop {Question} question - question object
  * @prop {Boolean} [readonly] - turn off all interactivity
- * @prop {Boolean} [noStats] - turn off response stats fetching
  * @prop {Boolean} [prof] - pass true if component used by professor account
  */
-export class _QuestionDisplay extends Component {
+
+export class QuestionDisplay extends Component {
 
   /**
    * setup Question display inital state.
@@ -27,29 +26,45 @@ export class _QuestionDisplay extends Component {
   constructor (p) {
     super(p)
     const q = this.props.question
-    const attemptNumber = q.sessionOptions
-      ? q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1].number
-      : 0
+    const r = this.props.response
 
     this.state = {
       btnDisabled: true,
-      submittedAnswer: '',
-      submittedAnswerWysiwyg: '',
-      questionId: this.props.question._id,
-      isSubmitted: false,
-      attemptNumber: attemptNumber,
-      wasVisited: false
+      submittedAnswer: r ? r.answer : '',
+      submittedAnswerWysiwyg: r ? r.answerWysiwyg : '',
+      questionId: q._id,
+      isSubmitted: r ?  true : false,
+      showCorrect: false, // used for student review, to reveal correct answer
+      showResponse: false // used for student review, to show their attempt
     }
 
-    this.readonly = false
+    this.readonly =  r ?  true : false
     if (this.props.readonly) this.readonly = this.props.readonly
 
     this.submitResponse = this.submitResponse.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
+    this.toggleShowCorrect = this.toggleShowCorrect.bind(this)
+    this.toggleShowResponse = this.toggleShowResponse.bind(this)
+
     this.setAnswer = this.setAnswer.bind(this)
-    //this.setShortAnswer = this.setShortAnswer.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
-    this.resetState = this.resetState.bind(this)
+
+
+  }
+
+  componentWillMount () {
+    const q = this.props.question
+    const r = this.props.response
+    this.state = {
+      btnDisabled: true,
+      submittedAnswer: r ? r.answer : '',
+      submittedAnswerWysiwyg: r ? r.answerWysiwyg : '',
+      questionId: q._id,
+      isSubmitted: r ?  true : false,
+      showCorrect: false,
+      showResponse: false
+    }
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
 
   componentDidMount () {
@@ -58,59 +73,50 @@ export class _QuestionDisplay extends Component {
 
   componentDidUpdate () {
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
-
-    this.resetState()
   }
 
-  /**
-   * Decide whether to reset the state (e.g. if the question or attempt number changed)
-   * Since this is reactive to the response collection, it gets called anytime someone (else)
-   * submits a response to a question.
-   */
-  resetState () {
-    // Don't reset if still loading
-    if(this.props.loading){
-      return
-    }
+  componentWillReceiveProps (nextProps){
+    const isNewQuestion = (this.props.question._id !== nextProps.question._id) ||
+                          (this.state.questionId !== nextProps.question._id)
 
-    const q1 = this.props.question
-    const attemptNumber = q1.sessionOptions
-      ? q1.sessionOptions.attempts[q1.sessionOptions.attempts.length - 1].number
-      : 0
+    // Was a new response passed as prop (TODO: check that this doesn't break in session stuff...)
+    const isNewResponse = (this.props.response && nextProps.response && (this.props.response._id !== nextProps.response._id)) ||
+                          (this.props.response && !nextProps.response) ||
+                          (!this.props.response && nextProps.response)
 
-    const myResponses = _(this.props.responses).where({ studentUserId: Meteor.userId(), attempt: attemptNumber })
+    const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
 
-    if (this.state.questionId !== this.props.question._id || //the question changed
-      (this.state.questionId === this.props.question._id && this.state.attemptNumber !== attemptNumber) || //the attempt changed
-      (this.state.questionId === this.props.question._id && this.state.attemptNumber === attemptNumber && myResponses.length > 0)) { //there is already a response
-      if (myResponses.length > 0 && (!this.state.wasVisited)) {
-        // Fill the state with the exsiting response
-        const submittedAnswerWysiwyg = (q1.type === QUESTION_TYPE.SA) ? myResponses[0].answerWysiwyg : ''
-        this.setState({
-          btnDisabled: true,
-          submittedAnswer: myResponses[0].answer,
-          submittedAnswerWysiwyg: submittedAnswerWysiwyg,
-          questionId: this.props.question._id,
-          isSubmitted: true,
-          attemptNumber: attemptNumber,
-          wasVisited: true
-        })
-        this.readonly = true
-      } else if (myResponses.length <= 0) {
-        // reset the state to for an empty response
-        this.setState({
-          btnDisabled: true,
-          submittedAnswer: '',
-          submittedAnswerWysiwyg: '',
-          questionId: this.props.question._id,
-          isSubmitted: false,
-          attemptNumber: attemptNumber,
-          wasVisited: false
-        })
+    const showCorrect = false
+    const showResponse = false
 
-        this.readonly = false
-        if (this.props.readonly) this.readonly = this.props.readonly
-      }
+   if (isNewQuestion || isNewResponse || isNewAttempt ){
+     if (nextProps.response){
+       const response = nextProps.response
+       const submittedAnswerWysiwyg = (nextProps.question.type === QUESTION_TYPE.SA) ? response.answerWysiwyg : ''
+       this.setState({
+         btnDisabled: true,
+         submittedAnswer: response.answer,
+         submittedAnswerWysiwyg: submittedAnswerWysiwyg,
+         questionId: nextProps.question._id,
+         isSubmitted: true,
+         showCorrect: showCorrect,
+         showResponse: showResponse
+       })
+       this.readonly = true
+     } else {
+       this.setState({
+         btnDisabled: true,
+         submittedAnswer: '',
+         submittedAnswerWysiwyg: '',
+         questionId: nextProps.question._id,
+         isSubmitted: false,
+         showCorrect: showCorrect,
+         showResponse: showResponse
+       })
+
+       this.readonly = false
+       if (nextProps.readonly) this.readonly = nextProps.readonly
+     }
     }
   }
 
@@ -125,17 +131,13 @@ export class _QuestionDisplay extends Component {
     return disallowResponses
   }
 
-  /**
-   * set answer in state for short answer questions
-   * @param {Event} e - form event object
+  toggleShowCorrect () {
+    this.setState({ showCorrect:!this.state.showCorrect})
+  }
 
-  setShortAnswer (e) {
-    if (this.disallowResponses() || this.readonly) return
-    this.setState({
-      btnDisabled: false,
-      submittedAnswer: e.target.value
-    })
-  }*/
+  toggleShowResponse () {
+    this.setState({ showResponse:!this.state.showResponse})
+  }
 
   /**
    * set answer in state for short answer questions
@@ -182,6 +184,9 @@ export class _QuestionDisplay extends Component {
    */
   submitResponse () {
     if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
+    const q = this.props.question
+
+    // TODO: Check if attempt number is higher than allowed (needs an additional prop to know if it's in a quiz)
     // Can't choose responses after submission
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
@@ -192,21 +197,23 @@ export class _QuestionDisplay extends Component {
       isSubmitted: true
     })
 
-    const l = this.props.question.sessionOptions.attempts.length
-    const attemptNumber = this.props.question.sessionOptions.attempts[l - 1].number
-
-    const answerObject = {
+    const responseObject = {
       studentUserId: Meteor.userId(),
       answer: answer,
       answerWysiwyg: answerWysiwyg,
-      attempt: attemptNumber,
+      attempt: this.props.attemptNumber,
       questionId: this.props.question._id
     }
+    if (this.props.onSubmit){
+      this.props.onSubmit()
+    }
 
-    Meteor.call('responses.add', answerObject, (err, answerId) => {
+    Meteor.call('responses.add', responseObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
       alertify.success('Answer Submitted')
     })
+
+
   }
 
   /**
@@ -214,12 +221,13 @@ export class _QuestionDisplay extends Component {
    * @param {String} answer
    */
   calculateStats (answer) {
-    const stats = this.props.distribution
+    const stats = this.props.responseStats
+    if (!stats) return 0
     let answerStat = 0
     stats.forEach((a) => {
       if (a) {
-        if (a.answer === answer && a.counts) {
-          answerStat = a.counts[0].pct
+        if (a.answer === answer) {
+          answerStat = a.pct
         }
       }
     })
@@ -236,7 +244,7 @@ export class _QuestionDisplay extends Component {
   wysiwygContent (answer, content, correct) {
     let classContent = 'ql-wysiwyg-content'
 
-    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
+    if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'ql-wysiwyg-content correct-color' : 'ql-wysiwyg-content incorrect-color'
     }
     return (
@@ -254,7 +262,7 @@ export class _QuestionDisplay extends Component {
    */
   commonContent (typeStr, answer, content, correct) {
     let classContent = ''
-    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
+    if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.correct) {
       classContent = correct ? 'correct-color' : 'incorrect-color'
     }
     return (
@@ -275,17 +283,17 @@ export class _QuestionDisplay extends Component {
         if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
 
-        let showStats = !this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
+        let showStats = !this.props.forReview && this.props.responseStats && this.props.question.sessionOptions && this.props.question.sessionOptions.stats
         if (this.props.showStatsOverride) showStats = true
         if (showStats) {
           stats = this.calculateStats(a.answer)
 
           if (stats > 0) {
             statClass += ' show-stats'
-
-            if (this.props.question.sessionOptions.correct && a.correct) {
+            // don't show colours if it's for review
+            if (!this.props.forReview && this.props.question.sessionOptions.correct && a.correct) {
               statClass += ' show-stats-correct'
-            } else if (this.props.question.sessionOptions.correct && !(a.correct)) {
+            } else if (!this.props.forReview && this.props.question.sessionOptions.correct && !(a.correct)) {
               statClass += ' show-stats-incorrect'
             }
           }
@@ -294,20 +302,24 @@ export class _QuestionDisplay extends Component {
         }
         const statsStr = '(' + stats + '%)'
         const sess = this.props.question.sessionOptions
-        const shouldShow = this.props.forReview || this.props.prof || (sess && sess.correct)
-
+        let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
+        if (shouldShowCorrect && this.props.forReview && !this.props.prof && !this.state.showCorrect){
+          shouldShowCorrect = false
+        }
+        let shouldShowResponse = this.state.submittedAnswer === a.answer || this.state.submittedAnswer.indexOf(a.answer) > -1
+        if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse){
+          shouldShowResponse = false
+        }
         return (
           <div key={'question_' + a.answer}
             onClick={() => this.setAnswer(a.answer)}
-            className={'ql-answer-content-container ' +
-              (this.state.submittedAnswer === a.answer || this.state.submittedAnswer.indexOf(a.answer) > -1
-              ? 'q-submitted' : '')} >
+            className={'ql-answer-content-container ' + (shouldShowResponse ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span>
                  : '' }
-              {content} {(shouldShow && a.correct) ? '✓' : ''} {showStats ? statsStr : ''}
+              {content} {(shouldShowCorrect && a.correct) ? '✓' : ''} {showStats ? statsStr : ''}
             </div>
           </div>)
       })
@@ -316,32 +328,42 @@ export class _QuestionDisplay extends Component {
 
   renderShortAnswer (q) {
     if ((this.props.forReview || this.props.prof)) {
-      // return <h4 style={{'alignSelf': 'left'}}>{q.options[0].plainText}</h4>
+      let shouldShowCorrect = !!q.options[0].content
+      if (this.props.forReview && !this.props.prof && !this.state.showCorrect){
+        shouldShowCorrect = false
+      }
+      let shouldShowResponse = !!this.props.response
+      if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse){
+        shouldShowResponse = false
+      }
       return (
-        <div>
-          {q.options[0].content
-            ? <h4 style={{'alignSelf': 'left'}}>{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
+        <div className='ql-short-answer' >
+          {shouldShowResponse
+            ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
+            : ''
+          }
+          {shouldShowCorrect
+            ? <h4 style={{'alignSelf': 'left'}}> Correct Answer: <br />{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
           : ''
-        }</div>
+          }
+        </div>
       )
     }
 
-    let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].plainText
+    let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].content
 
     return (
-      <div className='ql-answer-content-container ql-short-answer' >
-        { showAns ? <h4>Correct Answer: {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
-
-        { this.readonly ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
-        : <div className={'small-editor-wrapper col-md-12'}>
-          <Editor
+      <div className='ql-short-answer' >
+        { this.readonly
+          ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
+          : <Editor
             change={this.setShortAnswerWysiwyg}
             placeholder='Type your answer here'
             val={this.state.submittedAnswerWysiwyg}
-            className='answer-editor'
+            toolbarDivId={this.props.question ? this.props.question._id+'_ckToolbar' : 'ckeditor-toolbar'}
             />
-        </div>
         }
+        { showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
       </div>
     )
   }
@@ -349,14 +371,14 @@ export class _QuestionDisplay extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (!this.props.noStats && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
+    if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
     const type = q.type
     let content
 
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
-
+    let msInfo = ''
     switch (type) {
       case QUESTION_TYPE.MC:
         content = this.renderOptionQuestion('mc', q)
@@ -369,8 +391,10 @@ export class _QuestionDisplay extends Component {
         break
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)
+        if (!this.props.readonly && !this.state.isSubmitted && !this.props.prof ) msInfo = <div className='msInfo'>Select all that apply</div>
         break
     }
+
     return (
       <div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
 
@@ -378,79 +402,52 @@ export class _QuestionDisplay extends Component {
           {WysiwygHelper.htmlDiv(q.content)}
         </div>
 
-        { this.disallowResponses() && (!this.props.noStats) ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
+        { this.disallowResponses() ? <div className='ql-subs-loading'>Answering Disabled</div> : '' }
 
-        { showToolbar ? <div id='ckeditor-toolbar' /> : '' }
+        { showToolbar ? <div id={this.props.question ? this.props.question._id+'_ckToolbar' : 'ckeditor-toolbar'} /> : '' }
+
         <div className='ql-answers'>
+          {msInfo}
           {content}
         </div>
 
-        <div className='bottom-buttons'>
-          { !this.props.readonly
-            ? <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
-              {this.state.isSubmitted ? 'Submitted' : 'Submit'}
-            </button>
-          : ''}
-        </div>
+
+        { ! this.props.readonly
+          ? <div className='bottom-buttons'>
+               <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
+                   {this.state.isSubmitted ? 'Submitted' : 'Submit'}
+                 </button>
+            </div>
+          : ''
+        }
+        { this.props.forReview && this.props.readonly && !this.props.prof
+          ? <div className='btn-group btn-group-justified'>
+               <div className='btn btn-primary' onClick={this.toggleShowCorrect} >
+                   {this.state.showCorrect ? 'Hide correct' : 'Show correct'}
+                </div>
+                { this.props.response
+                  ? <div className='btn btn-primary' onClick={this.toggleShowResponse} >
+                      {this.state.showResponse ? 'Hide response' : 'Show response'}
+                   </div>
+                  : ''
+                }
+            </div>
+          : ''
+        }
 
       </div>
     )
   } // end render
 }
 
-export const QuestionDisplay = createContainer((props) => {
-  const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
-  let formattedData = []
-  let total
-  let responses
-
-  const question = props.question
-  // Get the number of last attempt
-  const attemptNumber = (question && question.sessionOptions && question.sessionOptions.attempts) ? question.sessionOptions.attempts.length : 0
-  // Get the responses for that attempt:
-  responses = Responses.find({ questionId: question._id, attempt: attemptNumber }).fetch()
-
-  if (!props.noStats && question.type !== QUESTION_TYPE.SA && question.sessionOptions) {
-    // Get the valid options for the question (e.g A, B, C)
-    const validOptions = _(question.options).pluck('answer')
-    // Get the total number of responses:
-    total = responses.length
-    let answerDistribution = {}
-
-    // pull out all the answers from the responses, this gives an array of arrays of answers
-    // e.g. [[A,B], [B], [B,C]], then flatten it
-    let allAnswers = _(_(responses).pluck('answer')).flatten()
-    // then we count each occurrence of answer in the array
-    // we add a new key to answerDistribution if it that answer doesn't exist yet, or increment otherwise
-    allAnswers.forEach((a) => {
-      if (answerDistribution[a]) answerDistribution[a] += 1
-      else answerDistribution[a] = 1
-    })
-
-    validOptions.forEach((o) => {
-      if (!answerDistribution[o]) answerDistribution[o] = 0
-      let pct = Math.round(100.0 * (total !== 0 ? answerDistribution[o] / total : 0))
-      // counts does not need to be an array, but leave the flexibility to be able to hold
-      // the values for more than one attempt
-      formattedData.push({ answer: o, counts: [ {attempt: attemptNumber, count: answerDistribution[o], pct: pct} ] })
-    })
-  }
-
-  return {
-    question: question,
-    readonly: props.readonly,
-    totalAnswered: total,
-    distribution: formattedData,
-    responses: responses,
-    loading: !handle.ready()
-  }
-}, _QuestionDisplay)
-
 QuestionDisplay.propTypes = {
   question: PropTypes.object.isRequired,
+  response: PropTypes.object, // response to display with the question
+  attemptNumber: PropTypes.number,
+  responseStats: PropTypes.array, // distribution of answers for displaying stats
   readonly: PropTypes.bool,
-  noStats: PropTypes.bool, // seems confusing...
   showStatsOverride: PropTypes.bool, // used for mobile session running
-  prof: PropTypes.bool,
-  forReview: PropTypes.bool
+  prof: PropTypes.bool, // if viewed by an instructor, overrides showing correct answer
+  forReview: PropTypes.bool,
+  onSubmit: PropTypes.func // function to run when clicking submit
 }

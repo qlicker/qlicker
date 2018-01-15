@@ -18,8 +18,6 @@ class _PageContainer extends Component {
   constructor (props) {
     super(props)
     this.state = { promotingAccount: false }
-    this.state.user = Meteor.user() || this.props.user
-
     alertify.logPosition('bottom right')
   }
 
@@ -30,18 +28,22 @@ class _PageContainer extends Component {
   }
 
   render () {
-    const isInstructor = Courses.findOne({instructors: Meteor.userId()}) && !this.state.user.hasRole('admin')
-    // const isProfOrAdmin = this.state.user.hasGreaterRole('professor') || isInstructor
+    const user = Meteor.user()
+    const isInstructor = user.isInstructorAnyCourse() // to view student submissions
+    const isProfessor = user.hasGreaterRole('professor') // to promote accounts
+    const isAdmin = user.hasRole('admin')
+
     const logout = () => {
       Meteor.logout(() => Router.go('login'))
     }
 
     const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }
 
-    const homePath = Router.routes[this.state.user.profile.roles[0]].path()
-    const coursesPage = this.state.user.hasGreaterRole('professor')
+    const homePath = Router.routes[user.profile.roles[0]].path()
+    const coursesPage = user.hasGreaterRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
+
     return (
       <div className='ql-page-container'>
         <nav className='navbar navbar-default navbar-fixed-top'>
@@ -57,25 +59,48 @@ class _PageContainer extends Component {
             </div>
             <div id='navbar' className='collapse navbar-collapse'>
               <ul className='nav navbar-nav'>
-                {this.state.user.hasRole('admin') ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li> : '' }
-                {this.state.user.hasRole('admin') ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
-                : <li className='dropdown'>
-                  <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
-                  <ul className='dropdown-menu' >
-                    <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
-                    <li role='separator' className='divider' >&nbsp;</li>
-                    <li className='dropdown-header'>My Active Courses</li>
-                    {
-                      this.props.courses.map((c) => {
-                        return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
-                      })
-                    }
-                  </ul>
-                </li>
+                { isAdmin
+                   ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li>
+                   : ''
+                 }
+                { isAdmin
+                   ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
+                   : <li className='dropdown'>
+                        <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
+                        <ul className='dropdown-menu' >
+                          <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
+                          <li role='separator' className='divider' >&nbsp;</li>
+                          <li className='dropdown-header'>My Active Courses</li>
+                          {
+                            this.props.courses.map((c) => {
+                              return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
+                            })
+                          }
+                        </ul>
+                    </li>
                }
+               { isAdmin
+                  ? ''
+                  : <li className='dropdown'>
+                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
+                       <ul className='dropdown-menu' >
+                         { isProfessor
+                           ? <li><a className='close-nav'  href={Router.routes['results.overview'].path()} >All Courses</a></li>
+                           : ''
+                         }
+                         <li role='separator' className='divider' >&nbsp;</li>
+                         <li className='dropdown-header'>My Active Courses</li>
+                         {
+                           this.props.courses.map((c) => {
+                             return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course.results', { courseId: c._id })}>{c.fullCourseCode()}</a></li>)
+                           })
+                         }
+                       </ul>
+                   </li>
+              }
                 <li className='dropdown'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
-                    aria-haspopup='true' aria-expanded='false'>Questions <span className='caret' /></a>
+                    aria-haspopup='true' aria-expanded='false'>Question library <span className='caret' /></a>
                   <ul className='dropdown-menu'>
                     <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
                     <li role='separator' className='divider'>&nbsp;</li>
@@ -86,20 +111,19 @@ class _PageContainer extends Component {
                         Submissions</a></li> : ''}
                   </ul>
                 </li>
-                {
-                  isInstructor ? <li><a className='close-nav bootstrap-overrides' href={Router.routes['results.overview'].path()}>Response Results</a></li>
-                  : '' }
               </ul>
 
               <ul className='nav navbar-nav navbar-right'>
                 <li className='dropdown bootstrap-overrides-padding'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
-                    <img src={this.state.user.getThumbnailUrl()} className='nav-profile img-circle' /> {this.state.user.getName()} <span className='caret' />
+                    <img src={user.getThumbnailUrl()} className='nav-profile img-circle' /> {user.getName()} <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
                     <li><a className='close-nav' href={Router.routes['profile'].path()}>Edit user profile</a></li>
-                    {/* <li><a href='#'>Settings</a></li> */}
-                    {this.state.user.hasGreaterRole('professor') ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote an account to professor</a></li> : ''}
+                    {isProfessor
+                      ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote an account to professor</a></li>
+                      : ''
+                    }
                     <li><a className='close-nav' href={userGuideUrl}>Visit user guide</a></li>
                     <li role='separator' className='divider' />
                     <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
@@ -112,7 +136,7 @@ class _PageContainer extends Component {
 
         <div className='ql-child-container'>
           { this.props.children }
-          { this.state.user.hasGreaterRole('professor') && this.state.promotingAccount
+          { isProfessor && this.state.promotingAccount
             ? <PromoteAccountModal done={togglePromotingAccount} />
             : '' }
         </div>
@@ -123,24 +147,10 @@ class _PageContainer extends Component {
 
 export const PageContainer = createContainer(() => {
   const handle = Meteor.subscribe('courses')
-  let courses
-  const user = Meteor.user()
-/*
-  const cArr = user.profile.courses || []
-  courses = Courses.find({$or: [ { instructors: Meteor.userId() , inactive: { $in: [null, false] } },
-                                 { _id: { $in: cArr }, inactive: { $in: [null, false] } } ] })
-*/
-
-  if (user.hasGreaterRole('professor')) {
-    // courses = Courses.find({ owner: Meteor.userId(), inactive: { $in: [null, false] } })
-    courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } })
-  } else {
-    const cArr = user.profile.courses || []
-    courses = Courses.find({ _id: { $in: cArr }, inactive: { $in: [null, false] } })
-  }
+  const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
 
   return {
-    courses: courses.fetch(),
+    courses: courses,
     loading: !handle.ready()
   }
 }, _PageContainer)

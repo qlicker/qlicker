@@ -10,6 +10,8 @@ import { check, Match } from 'meteor/check'
 import { _ } from 'underscore'
 
 import { Courses, profHasCoursePermission } from './courses.js'
+import { Grades } from './grades.js'
+
 import Helpers from './helpers.js'
 
 import { ROLES } from '../configs'
@@ -33,17 +35,26 @@ const sessionPattern = {
 
 // Create Session class
 const Session = function (doc) { _.extend(this, doc) }
-_.extend(Session.prototype, {})
+// Add some methods:
+_.extend(Session.prototype, {
+  gradesViewable: function () {
+    grades = Grades.find({ sessionId:this._id, visibleToStudents:true }).fetch()
+    return grades.length > 0
+  },
+})
+
+
 
 // Create course collection
 export const Sessions = new Mongo.Collection('sessions',
   { transform: (doc) => { return new Session(doc) } })
 // data publishing
 if (Meteor.isServer) {
+// TODO : Should make more robust, check if students, etc, like the other publications
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (Courses.findOne({ instructors: user._id })) {
+      if ( user.isInstructorAnyCourse() ) {
         const courseIdArray = user.profile.courses || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasGreaterRole(ROLES.prof)) {
@@ -51,7 +62,45 @@ if (Meteor.isServer) {
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasRole(ROLES.student)) {
         const courseIdArray = user.profile.courses || []
+        // TODO should check, but for a student, should not need to know who joined, right?
+        // return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } }, {fields: {joined: false}})
         return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } })
+      }
+    } else this.ready()
+  })
+
+  // TODO: where appropriate, switch to this publication!
+  Meteor.publish('sessions.forCourse', function (courseId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const course = Courses.findOne({ _id:courseId })
+      if (!course || !user) return this.ready()
+
+      if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
+        return Sessions.find({ courseId: courseId })
+      } else if ( user.isStudent(courseId) ) {
+        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
+      } else {
+        return this.ready()
+      }
+    } else this.ready()
+  })
+// TODO: where appropriate, switch to this publication!
+  Meteor.publish('sessions.single', function (sessionId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const session = Sessions.findOne({ _id: sessionId})
+      if (!session || !user) return this.ready()
+      const courseId = session.courseId
+      const course = Courses.findOne({ _id:courseId })
+      if (!course) return this.ready()
+
+      if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
+        return Sessions.find({ courseId: courseId })
+      } else if ( user.isStudent(courseId) ) {
+        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
+      } else {
+        return this.ready()
       }
     } else this.ready()
   })
@@ -216,7 +265,7 @@ Meteor.methods({
     const s = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(s.courseId)
     if (s.status === 'running') return
-    return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0] } })
+    return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0], status:'running' } })
   },
 
   /**
@@ -272,15 +321,40 @@ Meteor.methods({
   'sessions.toggleReviewable' (sessionId) {
     check(sessionId, Helpers.MongoID)
     const session = Sessions.findOne({ _id: sessionId })
+    if(!session){
+        throw Error('No session with this id')
+    }
     profHasCoursePermission(session.courseId)
 
-    return Sessions.update({ _id: sessionId }, {
-      $set: {
-        reviewable: !session.reviewable
+    return Sessions.update({ _id: sessionId }, { $set: { reviewable: !session.reviewable }}, () => {
+      // If making the session reviewable, calculate/update the grades
+      if (!session.reviewable) {
+        Meteor.call('grades.calcSessionGrades',session._id)
+      } else {// If the session is made non-reviewable, hide the grades from students
+        const grades = Grades.find({ sessionId: session._id }).fetch()
+        if(grades.length > 0){
+          Meteor.call('grades.hideFromStudents', session._id)
+        }
       }
     })
+
   },
 
+  /**
+   * toggles whether the session is a quiz
+   * @param {MongoId} sessionId
+   */
+  'sessions.toggleQuizMode' (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    const session = Sessions.findOne({ _id: sessionId })
+    if(!session){
+        throw Error('No session with this id')
+    }
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, { $set: { quiz: !session.quiz }})
+
+  },
   /**
    * returns a list of autocomplete tag sugguestions specific for session (different than questions)
    * @returns {String[]} array of string tags

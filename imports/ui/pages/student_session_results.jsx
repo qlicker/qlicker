@@ -43,7 +43,7 @@ class _StudentSessionResultsPage extends Component {
 export const StudentSessionResultsPage = createContainer((props) => {
   const handle = Meteor.subscribe('userData') &&
     Meteor.subscribe('courses') &&
-    Meteor.subscribe('sessions')
+    Meteor.subscribe('sessions.single', props.sessionId)
 
   const session = Sessions.findOne(props.sessionId)
   const course = Courses.findOne(session.courseId)
@@ -54,4 +54,3 @@ export const StudentSessionResultsPage = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _StudentSessionResultsPage)
-

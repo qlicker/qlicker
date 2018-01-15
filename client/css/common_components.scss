@@ -24,7 +24,7 @@
   height: 100%;
   background: rgba(30, 30, 30, 0.8);
   overflow: auto;
-	
+
   display: -ms-flexbox;
 	display: -webkit-flex;
 	display: flex;
@@ -89,7 +89,7 @@
     .ql-modal {
       width: 95%;
     }
-  }  
+  }
 }
 
 // session status badges
@@ -319,9 +319,12 @@ select.ql-unstyled-select {
   margin-top: 15px;
   margin-bottom: 15px;
   background: white;
-  
+
   .ql-card-content {
     padding: 15px;
+    label {
+      padding-right: 3px;
+    }
   }
 }
 

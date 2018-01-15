@@ -26,7 +26,12 @@ class _ShortAnswerList extends Component {
       </div>
     )
   }
-
+  componentDidMount () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+  componentDidUpdate () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
   render () {
     if (this.props.loading) return <div>Loading</div>
     return (<div className='ql-short-answer-list'>
@@ -42,7 +47,7 @@ class _ShortAnswerList extends Component {
 export const ShortAnswerList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const question = props.question
-  const attemptNumber = question.sessionOptions.attempts.length
+  const attemptNumber =  question.sessionOptions ? question.sessionOptions.attempts.length : 0
   // Get the responses for that attempt:
   const responses = Responses.find({ questionId: question._id, attempt: attemptNumber }, { sort: { createdAt: -1 } }).fetch()
   // const responses = Responses.find({ questionId: props.question._id }, { sort: { createdAt: -1 } }).fetch()

@@ -7,12 +7,16 @@ import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 
 import Select, { Creatable } from 'react-select'
+import 'react-select/dist/react-select.css'
 
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
+import { defaultSessionOptions } from '../api/questions'
+
 // constants
-import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
+import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
+
 
 export const DEFAULT_STATE = {
   plainText: '',
@@ -21,16 +25,7 @@ export const DEFAULT_STATE = {
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
-  sessionOptions: {
-    hidden: false,
-    stats: false,
-    correct: false,
-    attempts: [{
-      number: 1,
-      closed: false
-    }]
-  }
-
+  sessionOptions: defaultSessionOptions
 }
 
 /**
@@ -60,13 +55,17 @@ export class QuestionEditItem extends Component {
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.setCourse = this.setCourse.bind(this)
+    this.setPoints = this.setPoints.bind(this)
+    this.setMaxAttempts = this.setMaxAttempts.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
     // if editing pre-exsiting question
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
       this.state.owner = Meteor.userId()
-
+      if (this.props.sessionId && !this.props.question.sessionOptions){
+        this.state.sessionOptions = defaultSessionOptions
+      }
       this.currentAnswer = this.state.options ? this.state.options.length : 0
       switch (this.state.type) {
         case QUESTION_TYPE.MC:
@@ -139,6 +138,37 @@ export class QuestionEditItem extends Component {
       })
     }
   } // end constructor
+
+   /**
+   * For a question in a session, change the number of points that it is worth
+   * @param {Object} event
+   */
+  setPoints (e) {
+    const points = parseFloat(e.target.value)
+    let sessionOptions = this.state.sessionOptions
+    sessionOptions.points = points
+    this.setState({sessionOptions: sessionOptions}, () => {
+      this._DB_saveQuestion()
+    })
+  }
+  /**
+  * For a question in a session, change the number of points that it is worth
+  * @param {Object} event
+  */
+ setMaxAttempts (e) {
+   const maxAttempts = parseInt(e.target.value)
+   let sessionOptions = this.state.sessionOptions
+   sessionOptions.maxAttempts = maxAttempts
+   let attemptWeights = [1.0]
+   // Each attempt is worth half as much as the previous one
+   for(let i = 1; i < maxAttempts; i++){
+     attemptWeights.push( attemptWeights[i-1]/2. )
+   }
+   sessionOptions.attemptWeights = attemptWeights
+   this.setState({sessionOptions: sessionOptions}, () => {
+     this._DB_saveQuestion()
+   })
+ }
 
   /**
    * change question type to MC, TF or SA
@@ -553,6 +583,43 @@ export class QuestionEditItem extends Component {
 
             </div>
             : '' }
+          { this.props.sessionId
+            ? <div className='row session-options'>
+                <div className='qnumber'>
+                  Question {this.props.questionNumber}
+                </div>
+                <div>
+                  <div className='qoption-label'>
+                    Points:
+                  </div>
+                  <input type='number'
+                     min={0} step={0.5}
+                     onChange={this.setPoints}
+                     value={this.state.sessionOptions.points}></input>
+                  </div>
+                { this.props.isQuiz && isAutoGradeable(this.state.type)
+                  ? <div>
+                      <div className='qoption-label'>
+                        Max attempts (1-5):
+                      </div>
+                      <input type='number'
+                         min={1} max={5} step={1}
+                         onChange={this.setMaxAttempts}
+                         value={this.state.sessionOptions.maxAttempts}></input>
+                      { this.state.sessionOptions.maxAttempts > 1
+                        ? <div> &nbsp;weights:
+                            {this.state.sessionOptions.attemptWeights.map( (w) =>{
+                              return (<div key={this.props.questionNumer+'_'+w}>&nbsp; {w.toFixed(2)} </div>)
+                              })}
+                          </div>
+                        : ''
+                      }
+                    </div>
+                  : ''
+                }
+              </div>
+            : ''
+          }
           <div className='row'>
             <div className='col-md-12 metadata-row'>
               {selectOnly ? <Select
@@ -579,7 +646,7 @@ export class QuestionEditItem extends Component {
                 val={this.state.content}
                 className='question-editor'
                 placeholder='Question?'
-                question={this.state} />
+              />
               { this.props.onDeleteThis
                 ? <span
                   onClick={this.props.onDeleteThis}
@@ -614,8 +681,10 @@ export class QuestionEditItem extends Component {
 QuestionEditItem.propTypes = {
   done: PropTypes.func,
   question: PropTypes.object,
+  questionNumber: PropTypes.number,
   onNewQuestion: PropTypes.func,
   metadata: PropTypes.bool,
   deleted: PropTypes.func,
+  isQuiz: PropTypes.bool,
   autoSave: PropTypes.bool
 }

@@ -183,7 +183,7 @@ class _QuestionsFromStudent extends Component {
                   </button>
                 <div className='ql-preview-item-container'>
                   {this.state.selected
-                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly noStats />
+                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
                     : ''
                   }
                 </div>

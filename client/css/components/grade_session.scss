@@ -1,0 +1,21 @@
+@import '../variables.scss';
+
+
+.ql-grade-session {
+
+  .ql-grade-session-student-search {
+    .ql-grade-session-student-search-controls {
+      padding-bottom: 5px;
+      input {
+        width: 100%;
+      }
+      .ql-grade-session-select {
+        padding-bottom: 5px;
+      }
+    }
+  }
+
+  .ql-grade-session-gradeview {
+
+  }
+}

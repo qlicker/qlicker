@@ -29,7 +29,16 @@ const coursePattern = {
   sessions: Match.Maybe([Helpers.MongoID]),
   createdAt: Date,
   requireVerified: Match.Maybe(Boolean),
-  allowStudentQuestions: Match.Maybe(Boolean)
+  allowStudentQuestions: Match.Maybe(Boolean),
+  groupCategories: Match.Maybe([{
+    categoryNumber:  Match.Maybe(Helpers.Number),
+    categoryName: Match.Maybe(Helpers.NEString),
+    groups: Match.Maybe([{
+      groupNumber: Match.Maybe(Helpers.Number),
+      groupName: Match.Maybe(Helpers.NEString),
+      students:  Match.Maybe([Helpers.MongoID])
+    }])
+  }]),
 }
 
 // Create course class
@@ -48,59 +57,240 @@ export const Courses = new Mongo.Collection('courses',
   { transform: (doc) => { return new Course(doc) } })
 
 // data publishing
+// TODO implement this to improve perf http://stackoverflow.com/a/21148698 (note from ET)
 if (Meteor.isServer) {
-  Meteor.publish('courses', function () {
+  // TODO: where appropriate, switch to this publication!
+  Meteor.publish('courses.single', function (courseId) {
     if (this.userId) {
-      let user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole(ROLES.admin)) {
-        return Courses.find()
-      } else if (user.hasGreaterRole(ROLES.prof) || Courses.findOne({ instructors: user._id })) {
-        return Courses.find({ _id: { $in: user.profile.courses || [] } }) // finds all the course owned
-      } else {
-        let coursesArray = user.profile.courses || []
-        return Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
-      }
-    } else this.ready()
-  })
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const c = Courses.findOne({ _id:courseId })
+      if (!c || !user) return this.ready()
 
-  Meteor.publish('courses.userObserveChanges', function () {
-    if (this.userId) {
-      let user = Meteor.users.findOne({ _id: this.userId })
-      if (user.hasGreaterRole(ROLES.student)) {
-        // manually add courses to array
-        // When student is enrolling in a course,
-        //  regular cursor find depends on user object which doesn't always trigger an update
-        let coursesArray = user.profile.courses || []
-        const courses = Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } }).fetch()
-        courses.forEach((c) => {
-          this.added('courses', c._id, c)
-        })
+      if (user.hasGreaterRole(ROLES.admin)) {
+        return Courses.find({ _id:courseId })
+      } else if (user.isInstructor(courseId) ) {
+        return Courses.find({ _id:courseId })
+      } else if (user.isStudent(courseId)){
+        //return Courses.find({ _id:courseId }, { fields: { students: false } })
+        let course = Courses.findOne({ _id:courseId })
+        const students = [this.userId]
+        course.students = students
+        course.instructors = []
+        if (course.groupCategories){
+          let groupCategories = []
+          course.groupCategories.forEach( (cat) => {
+            cat.groups.forEach( (g) => {
+              if ( _(g.students).contains(this.userId) ){
+                groupCategories.push({
+                  categoryNumber: cat.categoryNumber,
+                  categoryName: cat.categoryName,
+                  groups: [{
+                    groupName: g.groupName,
+                    groupNumber: g.groupNumber,
+                    students: [this.userId]
+                    }]
+                })
+              }
+            })
+          })
+          course.groupCategories = groupCategories
+        }
+
+        this.added('courses', course._id, course)
         this.ready()
 
-        // manually observe changes on the student user object
-        const userCursor = Meteor.users.find({ _id: this.userId })
-        const handle = userCursor.observeChanges({
-          changed: (id, fields) => {
-            const updatedCoursesArray = fields.profile && fields.profile.courses ? fields.profile.courses : []
-            const newCourseIds = _.difference(updatedCoursesArray, coursesArray)
+        const cCursor = Courses.find({ _id:courseId })
+        const cHandle = cCursor.observeChanges({
+          added: (id, fields) => {
+            fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories){
+              let groupCategories = []
+              fields.groupCategories.forEach( (cat) => {
+                cat.groups.forEach( (g) => {
+                  if ( _(g.students).contains(this.userId) ){
+                    groupCategories.push({
+                      categoryNumber: cat.categoryNumber,
+                      categoryName: cat.categoryName,
+                      groups: [{
+                        groupName: g.groupName,
+                        groupNumber: g.groupNumber,
+                        students: [this.userId]
+                        }]
+                    })
+                  }
+                })
+              })
+              fields.groupCategories = groupCategories
+            }
 
-            newCourseIds.forEach((cId) => {
-              const newCourse = Courses.findOne({ _id: cId }, { fields: { students: false } })
-              this.added('courses', cId, newCourse) // add newly enrolled course to subscription
-            })
-            this.ready()
+            this.added('courses', id, fields)
+          },
+          changed: (id, fields) => {
+            fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories){
+              let groupCategories = []
+              fields.groupCategories.forEach( (cat) => {
+                cat.groups.forEach( (g) => {
+                  if ( _(g.students).contains(this.userId) ){
+                    groupCategories.push({
+                      categoryNumber: cat.categoryNumber,
+                      categoryName: cat.categoryName,
+                      groups: [{
+                        groupName: g.groupName,
+                        groupNumber: g.groupNumber,
+                        students: [this.userId]
+                        }]
+                    })
+                  }
+                })
+              })
+              fields.groupCategories = groupCategories
+            }
+            this.changed('courses', id, fields)
+          },
+          removed: (id) => {
+            this.removed('courses', id)
           }
         })
 
         this.onStop(function () {
-          handle.stop()
+          cHandle.stop()
         })
-        // TODO implement this to improve perf http://stackoverflow.com/a/21148698
+
+      } else{
+        return this.ready()
+      }
+    } else this.ready()
+  })
+
+  Meteor.publish('courses', function () {
+    // This handles publishing of student data differently depending on whether
+    // the user is an instructor or student of a course. This is somewhat complicated
+    // by the fact that a user could be a student in some courses and an instructor
+    // for others.
+
+    if (this.userId) {
+      let user = Meteor.users.findOne({ _id: this.userId })
+      if (user.hasGreaterRole(ROLES.admin)) {
+        return Courses.find()
+      } else { //could be a student or a prof
+
+        // Initial subscription to existing courses
+        const studentCourses = Courses.find({ students: this.userId }).fetch()
+        const instructorCourses = Courses.find({ instructors: this.userId }).fetch()
+        studentCourses.forEach( c => {
+          let course = c
+          course.students = [this.userId]
+          course.instructors = []
+
+          if (course.groupCategories){
+            let groupCategories = []
+            course.groupCategories.forEach( (cat) => {
+              cat.groups.forEach( (g) => {
+                if ( _(g.students).contains(this.userId) ){
+                  groupCategories.push({
+                    categoryNumber: cat.categoryNumber,
+                    categoryName: cat.categoryName,
+                    groups: [{
+                      groupName: g.groupName,
+                      groupNumber: g.groupNumber,
+                      students: [this.userId]
+                      }]
+                  })
+                }
+              })
+            })
+            course.groupCategories = groupCategories
+          }
+          this.added('courses', c._id, course)
+        })
+        instructorCourses.forEach( c => {
+          this.added('courses', c._id, c)
+        })
+        this.ready()
+        // Watch for changes:
+        // courses where user is a student:
+        const sCursor = Courses.find({ students: this.userId })
+        // courses where user is an instructor:
+        const iCursor = Courses.find({ instructors: this.userId })
+        const sHandle = sCursor.observeChanges({
+          added: (id, fields) => {
+            fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories){
+              let groupCategories = []
+              fields.groupCategories.forEach( (cat) => {
+                cat.groups.forEach( (g) => {
+                  if ( _(g.students).contains(this.userId) ){
+                    groupCategories.push({
+                      categoryNumber: cat.categoryNumber,
+                      categoryName: cat.categoryName,
+                      groups: [{
+                        groupName: g.groupName,
+                        groupNumber: g.groupNumber,
+                        students: [this.userId]
+                        }]
+                    })
+                  }
+                })
+              })
+              fields.groupCategories = groupCategories
+            }
+            this.added('courses', id, fields)
+          },
+          changed: (id, fields) => {
+            fields.students = [this.userId]
+            fields.instructors = []
+            //only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories){
+              let groupCategories = []
+              fields.groupCategories.forEach( (cat) => {
+                cat.groups.forEach( (g) => {
+                  if ( _(g.students).contains(this.userId) ){
+                    groupCategories.push({
+                      categoryNumber: cat.categoryNumber,
+                      categoryName: cat.categoryName,
+                      groups: [{
+                        groupName: g.groupName,
+                        groupNumber: g.groupNumber,
+                        students: [this.userId]
+                        }]
+                    })
+                  }
+                })
+              })
+              fields.groupCategories = groupCategories
+            }
+            this.changed('courses', id, fields)
+          },
+          removed: (id) => {
+            this.removed('courses', id)
+          }
+        })
+        const iHandle = iCursor.observeChanges({
+          added: (id, fields) => {
+            this.added('courses', id, fields)
+          },
+          changed: (id, fields) => {
+            this.changed('courses', id, fields)
+          },
+          removed: (id) => {
+            this.removed('courses', id)
+          }
+        })
+        this.onStop(function () {
+          sHandle.stop()
+          iHandle.stop()
+        })
       }
     } else this.ready()
   })
 }
-
 // course permissions helper
 export const profHasCoursePermission = (courseId) => {
   check(courseId, Helpers.MongoID)
@@ -196,26 +386,28 @@ Meteor.methods({
    */
   'courses.checkAndEnroll' (enrollmentCode) {
     check(enrollmentCode, Helpers.NEString)
-    const c = Courses.findOne({
-      enrollmentCode: enrollmentCode.toLowerCase()
-    })
+    if (Meteor.isServer){
+      const c = Courses.findOne({
+        enrollmentCode: enrollmentCode.toLowerCase()
+      })
 
-    if (!c) throw new Meteor.Error('code-not-found', 'Couldn\'t enroll in course')
+      if (!c) throw new Meteor.Error('code-not-found', 'Couldn\'t enroll in course')
 
-    if (!c.inactive) {
-      const hasVerified = _.some(Meteor.user().emails, (email) => email.verified)
-      if (c.requireVerified && !hasVerified) {
-        throw new Meteor.Error('could-not-enroll', 'Verified email required')
+      if (!c.inactive) {
+        const hasVerified = _.some(Meteor.user().emails, (email) => email.verified)
+        if (c.requireVerified && !hasVerified) {
+          throw new Meteor.Error('could-not-enroll', 'Verified email required')
+        }
+        Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
+          $addToSet: { 'profile.courses': c._id }
+        })
+        Courses.update({ _id: c._id }, {
+          $addToSet: { students: Meteor.userId() }
+        })
+        return c
       }
-      Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
-        $addToSet: { 'profile.courses': c._id }
-      })
-      Courses.update({ _id: c._id }, {
-        $addToSet: { students: Meteor.userId() }
-      })
-      return c
+      throw new Meteor.Error('could-not-enroll', 'Couldn\'t enroll in course')
     }
-    throw new Meteor.Error('could-not-enroll', 'Couldn\'t enroll in course')
   },
 
   /**
@@ -488,7 +680,6 @@ Meteor.methods({
   /**
    * generates and sets a new enrollment code for the course
    * @param {MongoID} courseId
-   * @returns {Boolean}
    */
   'courses.toggleAllowStudentQuestions' (courseId) {
     profHasCoursePermission(courseId)
@@ -499,5 +690,153 @@ Meteor.methods({
         allowStudentQuestions: !previous
       }
     })
+  },
+  /**
+   * Creates a new category of groups
+   * @param {MongoID} courseId
+   * @param {String} categoryName
+   */
+  'courses.createGroupCategory' (courseId, categoryName) {
+    check(courseId, Helpers.MongoID)
+    check(categoryName, Helpers.NEString)
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (course.groupCategories && _(course.groupCategories).findWhere({ categoryName: categoryName }) ){
+      throw new Meteor.Error('Category already exists!')
+    }
+    let categories = course.groupCategories ? course.groupCategories : []
+    categories.push({
+      categoryNumber:categories.length + 1,
+      categoryName:categoryName,
+      groups: []
+    })
+    Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
+  /**
+   * Adds a given number of groups to a category (creates the category if it doesn't exist)
+   * @param {MongoID} courseId
+   * @param {String} categoryName
+   * @param {Number} nGroups // number of groups to create
+   */
+  'courses.addGroupsToCategory' (courseId, categoryName, nGroups = 1) {
+    check(courseId, Helpers.MongoID)
+    check(categoryName, Helpers.NEString)
+    check(nGroups,Number)
+
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+
+    let categories = course.groupCategories ? course.groupCategories : []
+    if (!_(categories).findWhere({ categoryName: categoryName }) ){
+      categories.push({
+        categoryNumber:categories.length + 1,
+        categoryName:categoryName,
+        groups: []
+       })
+    }
+    let category = _(categories).findWhere({ categoryName: categoryName })
+    let groups = category.groups
+    let offset = groups.length
+    for (let ig = 0; ig < nGroups; ig++){
+      const groupNumber = ig+offset+1
+      const groupName = 'Group'+ groupNumber.toString()
+      const group = {
+        groupNumber: groupNumber,
+        groupName: groupName,
+        students: []
+      }
+      groups.push(group)
+    }
+    Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
+  /**
+   * Adds or removes a student to/from a group (by category and group number)
+   * @param {MongoID} courseId
+   * @param {MongoID} studentId
+   * @param {Number} categoryNumber
+   * @param {Number} groupNumber // number of groups to create
+   */
+  'courses.addRemoveStudentToGroup' (courseId, categoryNumber, groupNumber, studentId) {
+    check(courseId, Helpers.MongoID)
+    check(studentId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
+
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })){
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber:groupNumber })
+    if(!group){
+      throw new Meteor.Error('Group does not exist!')
+    }
+    const index = _(group.students).indexOf(studentId)
+    if(  index ===-1 ){ // add the student
+      group.students.push(studentId)
+    } else { // removed the student
+      group.students.splice(index,1)
+    }
+    Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
+  /**
+   * Adds or removes a student to/from a group (by category and group number)
+   * @param {MongoID} courseId
+   * @param {String} newGroupName
+   * @param {Number} categoryNumber
+   * @param {Number} groupNumber // number of groups to create
+   */
+  'courses.changeGroupName' (courseId, categoryNumber, groupNumber, newGroupName) {
+    check(courseId, Helpers.MongoID)
+    check(newGroupName, Helpers.NEString)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
+
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })){
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber:groupNumber })
+    if(!group){
+      throw new Meteor.Error('Group does not exist!')
+    }
+    group.groupName = newGroupName
+    Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
   }
 }) // end Meteor.methods
+
+
+/*
+groupCategories: Match.Maybe([{
+  categoryNumber: Match.Maybe(Number)
+  categoryName: Match.Maybe(Helpers.NEString),
+  groups: Match.Maybe([{
+    groupNumber: Match.Maybe(Helpers.Number),
+    groupName: Match.Maybe(Helpers.NEString),
+    students:  Match.Maybe([Helpers.MongoID])
+  }])
+}]),
+*/

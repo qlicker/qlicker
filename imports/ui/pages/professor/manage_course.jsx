@@ -34,16 +34,15 @@ class _ManageCourse extends Component {
       addTAModal: false,
       addStudentModal: false,
       sessionToCopy: null,
-      expandedClasslist: false,
       expandedSessionlist: false
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
     this.copySession = this.copySession.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
+    this.startSession = this.startSession.bind(this)
+    this.endSession = this.endSession.bind(this)
     this.removeStudent = this.removeStudent.bind(this)
-    // this.deleteCourse = this.deleteCourse.bind(this)
-    // this.setActive = this.setActive.bind(this)
     this.toggleVerification = this.toggleVerification.bind(this)
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
@@ -58,6 +57,24 @@ class _ManageCourse extends Component {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
 
+  startSession (sessionId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('sessions.startSession', sessionId, (error) => {
+        if (error) return alertify.error('Couldn\'t start session')
+        alertify.success('Session live!')
+      })
+    }
+  }
+
+  endSession (sessionId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('sessions.endSession', sessionId, (error) => {
+        if (error) return alertify.error('Couldn\'t start session')
+        alertify.success('Session completed!')
+      })
+    }
+  }
+
   copySession (sessionId, courseId = null) {
     Meteor.call('sessions.copy', sessionId, courseId, (error) => {
       if (error) return alertify.error('Error copying session')
@@ -68,23 +85,6 @@ class _ManageCourse extends Component {
       }
     })
   }
-/*
-  deleteCourse () {
-    if (confirm('Are you sure?')) {
-      Meteor.call('courses.delete', this.props.course._id, (error) => {
-        if (error) return alertify.error('Error deleting course')
-        alertify.success('Course Deleted')
-        Router.go('courses')
-      })
-    }
-  }
-
-  setActive () {
-    Meteor.call('courses.setActive', this.props.course._id, this.props.course.inactive || false, (error) => {
-      if (error) return alertify.error('Error: could not set course property')
-      alertify.success('Course set to: ' + (this.props.course.inactive ? 'Archived' : 'Active'))
-    })
-  } */
 
   deleteSession (sessionId) {
     if (confirm('Are you sure?')) {
@@ -125,6 +125,7 @@ class _ManageCourse extends Component {
       alertify.success('Email verification' + (this.props.course.requireVerified ? '' : ' not') + ' required')
     })
   }
+
   generateNewCourseCode () {
     if (confirm('Are sure?')) {
       Meteor.call('courses.regenerateCode', this.props.course._id, (error) => {
@@ -133,12 +134,14 @@ class _ManageCourse extends Component {
       })
     }
   }
+
   toggleAllowStudentQuestions () {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
       if (error) return alertify.error('Error allowing/refusing student questions ' + error.error)
       alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
+
   renderSessionList () {
     let sessions = this.props.sessions
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
@@ -169,10 +172,21 @@ class _ManageCourse extends Component {
               label: 'Open Session Display',
               click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') }
             })
+            controls.push({
+              label: 'End session',
+              click: () => { this.endSession(sId) }
+            })
             controls.push({ divider: true })
-          }
 
-          controls.push({ label: 'Review results', click: () => Router.go('/results/session/' + sId) })
+          }
+          if (ses.status === 'done'){
+            controls.push({ label: 'Restart session', click: () => this.startSession(sId) })
+            controls.push({ label: 'Grade session', click: () => Router.go('session.grade',{sessionId: sId} ) })
+            controls.push({ label: 'Review results', click: () => Router.go('session.results',{sessionId: sId} ) })
+          }
+          if (ses.status !== 'done' && ses.status !== 'running') {
+            controls.push({ label: 'Start session', click: () => this.startSession(sId) })
+          }
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
           controls.push({ divider: true })
@@ -199,24 +213,20 @@ class _ManageCourse extends Component {
     // then sort alphabetically
     students = _(students).sortBy(function (id) {
       return (this.props.students[id]
-        ? this.props.students[id].profile.lastname
+        ? this.props.students[id].profile.lastname.toLowerCase()
                    : '0')
     }.bind(this))
 
     let TAs = this.props.course.instructors || []
     TAs = _(TAs).sortBy(function (id) {
       return (this.props.TAs[id]
-        ? this.props.TAs[id].profile.lastname
+        ? this.props.TAs[id].profile.lastname.toLowerCase()
                    : '0')
     }.bind(this))
 
     const maxNum = 8
     const totalStudents = students.length + TAs.length
 
-    if (!this.state.expandedClasslist) students = students.slice(0, maxNum)
-    if (!this.state.expandedClasslist) TAs = TAs.slice(0, maxNum - students.length + 1)
-    const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
-    const expandText = !this.state.expandedClasslist ? 'Show all' : 'Show less'
     return (<div>
       {
         students.map((sId) => {
@@ -247,10 +257,6 @@ class _ManageCourse extends Component {
               controls={(isProfOrAdmin && sId !== this.props.course.owner && sId !== uid) ? controls : ''} />)
           })
       }
-      { totalStudents > maxNum
-        ? <a href='#' className='show-more-item' onClick={toggleExpandedClasslist}>
-          <div className='ql-list-item'>{expandText}</div>
-        </a> : '' }
     </div>)
   }
 
@@ -258,8 +264,8 @@ class _ManageCourse extends Component {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
-    const toggleExpandedClasslist = () => { this.setState({ expandedClasslist: !this.state.expandedClasslist }) }
-    const expandText = !this.state.expandedClasslist ? 'show all' : 'show less'
+    const manageGroups = () => Router.go('course.groups', { courseId:this.props.course._id })
+
 
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ? this.props.sessions.length : 0
@@ -275,6 +281,9 @@ class _ManageCourse extends Component {
                 <h4>Course Details</h4>
               </div>
               <div className='ql-card-content'>
+                <div className='btn-group btn-group-justified details-button-group'>
+                  <div className='btn btn-default' onClick={manageGroups}> Manage Groups </div>
+                </div>
                 {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA
@@ -307,8 +316,8 @@ class _ManageCourse extends Component {
             </div>
 
             <div className='ql-card hidden-xs'>
-              <div className='ql-header-bar' onClick={toggleExpandedClasslist}>
-                <h4>{nStudents} student{nStudents > 1 ? 's' : ''} (click to {expandText})</h4>
+              <div className='ql-header-bar' >
+                <h4>{nStudents} student{nStudents > 1 ? 's' : ''}</h4>
               </div>
               <div>
                 <div className='ql-course-classlist'>
@@ -323,7 +332,7 @@ class _ManageCourse extends Component {
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { _id: this.props.course._id }) }}>Review Session Results</button>
+                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>Review Session Results</button>
               </div>
               { this.renderSessionList() }
             </div>
@@ -350,12 +359,12 @@ class _ManageCourse extends Component {
 }
 
 export const ManageCourse = createContainer((props) => {
-  const handle = Meteor.subscribe('courses', {isInstructor: props.isInstructor}) &&
-    Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) &&
-    Meteor.subscribe('users.myStudents', {cId: props.courseId}) &&
-    Meteor.subscribe('users.myTAs', {cId: props.courseId})
+  const handle = Meteor.subscribe('courses.single', props.courseId) &&
+    Meteor.subscribe('sessions.forCourse', props.courseId) &&
+    Meteor.subscribe('users.studentsInCourse', props.courseId) &&
+    Meteor.subscribe('users.instructorsInCourse', props.courseId)
 
-  const course = Courses.find({ _id: props.courseId }).fetch()[0]
+  const course = Courses.findOne({ _id: props.courseId })
 
   const TAIds = course.instructors || []
   const TAs = Meteor.users.find({ _id: { $in: TAIds }, 'profile.roles': { $ne: 'admin' } }).fetch()
@@ -364,7 +373,8 @@ export const ManageCourse = createContainer((props) => {
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
   const sessionIds = course.sessions || []
-  const sessions = Sessions.find({ _id: { $in: sessionIds } }, { sort: { date: -1 } }).fetch()
+  //const sessions = Sessions.find({ _id: { $in: sessionIds } }, { sort: { date: -1 } }).fetch()
+  const sessions = Sessions.find({ courseId: props.courseId }, { sort: { date: -1 } }).fetch()
 
   return {
     course: course,
