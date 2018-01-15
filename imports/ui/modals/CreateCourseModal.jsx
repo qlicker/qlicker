@@ -8,15 +8,18 @@ import _ from 'underscore'
 
 import { ControlledForm } from '../ControlledForm'
 
-export const DEFAULT_STATE = {
+export const FORM_INPUTS = {
   name: '',
   deptCode: '',
   courseNumber: '',
   section: '',
-  semester: '',
+  semester: ''
+}
+
+export const DEFAULT_STATE = Object.assign({}, FORM_INPUTS, {
   requireVerified: true,
   allowStudentQuestions: true
-}
+})
 
 /**
  * modal dialog to prompt for course details
