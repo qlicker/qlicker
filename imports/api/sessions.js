@@ -38,12 +38,10 @@ const Session = function (doc) { _.extend(this, doc) }
 // Add some methods:
 _.extend(Session.prototype, {
   gradesViewable: function () {
-    grades = Grades.find({ sessionId:this._id, visibleToStudents:true }).fetch()
+    let grades = Grades.find({ sessionId: this._id, visibleToStudents: true }).fetch()
     return grades.length > 0
-  },
+  }
 })
-
-
 
 // Create course collection
 export const Sessions = new Mongo.Collection('sessions',
@@ -54,7 +52,7 @@ if (Meteor.isServer) {
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if ( user.isInstructorAnyCourse() ) {
+      if (user.isInstructorAnyCourse()) {
         const courseIdArray = user.profile.courses || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
       } else if (user.hasGreaterRole(ROLES.prof)) {
@@ -73,12 +71,12 @@ if (Meteor.isServer) {
   Meteor.publish('sessions.forCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      const course = Courses.findOne({ _id:courseId })
+      const course = Courses.findOne({ _id: courseId })
       if (!course || !user) return this.ready()
 
-      if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
+      if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
         return Sessions.find({ courseId: courseId })
-      } else if ( user.isStudent(courseId) ) {
+      } else if (user.isStudent(courseId)) {
         return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
         return this.ready()
@@ -89,15 +87,15 @@ if (Meteor.isServer) {
   Meteor.publish('sessions.single', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      const session = Sessions.findOne({ _id: sessionId})
+      const session = Sessions.findOne({_id: sessionId})
       if (!session || !user) return this.ready()
       const courseId = session.courseId
-      const course = Courses.findOne({ _id:courseId })
+      const course = Courses.findOne({ _id: courseId })
       if (!course) return this.ready()
 
-      if ( user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ){
+      if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
         return Sessions.find({ courseId: courseId })
-      } else if ( user.isStudent(courseId) ) {
+      } else if (user.isStudent(courseId)) {
         return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
         return this.ready()
@@ -265,7 +263,7 @@ Meteor.methods({
     const s = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(s.courseId)
     if (s.status === 'running') return
-    return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0], status:'running' } })
+    return Sessions.update({ _id: sessionId }, { $set: { currentQuestion: s.questions[0], status: 'running' } })
   },
 
   /**
@@ -321,23 +319,22 @@ Meteor.methods({
   'sessions.toggleReviewable' (sessionId) {
     check(sessionId, Helpers.MongoID)
     const session = Sessions.findOne({ _id: sessionId })
-    if(!session){
-        throw Error('No session with this id')
+    if (!session) {
+      throw Error('No session with this id')
     }
     profHasCoursePermission(session.courseId)
 
-    return Sessions.update({ _id: sessionId }, { $set: { reviewable: !session.reviewable }}, () => {
+    return Sessions.update({ _id: sessionId }, {$set: { reviewable: !session.reviewable }}, () => {
       // If making the session reviewable, calculate/update the grades
       if (!session.reviewable) {
-        Meteor.call('grades.calcSessionGrades',session._id)
-      } else {// If the session is made non-reviewable, hide the grades from students
+        Meteor.call('grades.calcSessionGrades', session._id)
+      } else { // If the session is made non-reviewable, hide the grades from students
         const grades = Grades.find({ sessionId: session._id }).fetch()
-        if(grades.length > 0){
+        if (grades.length > 0) {
           Meteor.call('grades.hideFromStudents', session._id)
         }
       }
     })
-
   },
 
   /**
@@ -347,13 +344,12 @@ Meteor.methods({
   'sessions.toggleQuizMode' (sessionId) {
     check(sessionId, Helpers.MongoID)
     const session = Sessions.findOne({ _id: sessionId })
-    if(!session){
-        throw Error('No session with this id')
+    if (!session) {
+      throw Error('No session with this id')
     }
     profHasCoursePermission(session.courseId)
 
-    return Sessions.update({ _id: sessionId }, { $set: { quiz: !session.quiz }})
-
+    return Sessions.update({ _id: sessionId }, {$set: { quiz: !session.quiz }})
   },
   /**
    * returns a list of autocomplete tag sugguestions specific for session (different than questions)

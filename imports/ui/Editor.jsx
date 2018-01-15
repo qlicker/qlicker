@@ -51,7 +51,7 @@ export class Editor extends Component {
       customConfig: '/ckeditor/config.js',
       extraPlugins: 'sharedspace,confighelper,mathjax,uploadwidget,uploadimage,sourcedialog,image2',
       removePlugins: 'floatingspace,resize',
-      //startupFocus: true, // TODO: Check if this is effective - also added this in the config file...
+      // startupFocus: true, // TODO: Check if this is effective - also added this in the config file...
       sharedSpaces: {
         top: this.props.toolbarDivId || 'ckeditor-toolbar'
       }

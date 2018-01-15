@@ -39,7 +39,7 @@ _.extend(User.prototype, {
     return !!Courses.findOne({ instructors: this._id })
   },
   coursesInstructed: function () {
-    return  _(Courses.find({ instructors: this._id  }).fetch()).pluck('_id') || []
+    return _(Courses.find({ instructors: this._id }).fetch()).pluck('_id') || []
   },
   isInstructor: function (courseId) {
     if (!courseId) return false
@@ -91,15 +91,15 @@ if (Meteor.isServer) {
   Meteor.publish('users.studentsInCourse', function (courseId) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
-    const course = Courses.findOne({ _id:courseId })
+    const course = Courses.findOne({ _id: courseId })
     if (!course || !user) return this.ready()
 
-    if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ) {
+    if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
       let students = course.students ? course.students : []
       return Meteor.users.find({_id: {$in: students}}, {fields: {services: false}})
     } else {
-      if (_.indexOf(course.students,this.userId) > -1){
-        return Meteor.users.find({_id: this.userId }, {fields: {services: false}})
+      if (_.indexOf(course.students, this.userId) > -1) {
+        return Meteor.users.find({_id: this.userId}, {fields: {services: false}})
       } else {
         return this.ready()
       }
@@ -110,28 +110,27 @@ if (Meteor.isServer) {
   Meteor.publish('users.instructorsInCourse', function (courseId) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
-    const course = Courses.findOne({ _id:courseId })
+    const course = Courses.findOne({ _id: courseId })
     if (!course || !user) return this.ready()
 
-    if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) ) {
+    if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
       let instructors = course.instructors ? course.instructors : []
       return Meteor.users.find({_id: {$in: instructors}}, {fields: {services: false}})
     } else return this.ready()
-
   })
 
   Meteor.publish('users.myStudents', function (params) {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
 
-    if (user && (user.hasGreaterRole(ROLES.prof) || user.isInstructorAnyCourse() )) {
+    if (user && (user.hasGreaterRole(ROLES.prof) || user.isInstructorAnyCourse())) {
       let studentRefs = []
       Courses.find({ instructors: user._id }).fetch().forEach((c) => {
         studentRefs = studentRefs.concat(c.students || [])
       })
       return Meteor.users.find({_id: {$in: studentRefs}}, {fields: {services: false}})
-    } else if (user && user.hasGreaterRole(ROLES.student) ) {
-      return Meteor.users.find({_id: this.userId }, {fields: {services: false}})
+    } else if (user && user.hasGreaterRole(ROLES.student)) {
+      return Meteor.users.find({_id: this.userId}, {fields: {services: false}})
     } else return this.ready()
   })
 

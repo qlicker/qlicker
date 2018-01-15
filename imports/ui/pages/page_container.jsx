@@ -66,37 +66,37 @@ class _PageContainer extends Component {
                 { isAdmin
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
                    : <li className='dropdown'>
-                        <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
-                        <ul className='dropdown-menu' >
-                          <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
-                          <li role='separator' className='divider' >&nbsp;</li>
-                          <li className='dropdown-header'>My Active Courses</li>
-                          {
+                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
+                     <ul className='dropdown-menu' >
+                       <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
+                       <li role='separator' className='divider' >&nbsp;</li>
+                       <li className='dropdown-header'>My Active Courses</li>
+                       {
                             this.props.courses.map((c) => {
                               return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
                             })
                           }
-                        </ul>
-                    </li>
+                     </ul>
+                   </li>
                }
-               { isAdmin
+                { isAdmin
                   ? ''
                   : <li className='dropdown'>
-                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
-                       <ul className='dropdown-menu' >
-                         { isProfessor
-                           ? <li><a className='close-nav'  href={Router.routes['results.overview'].path()} >All Courses</a></li>
+                    <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
+                    <ul className='dropdown-menu' >
+                      { isProfessor
+                           ? <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
                            : ''
                          }
-                         <li role='separator' className='divider' >&nbsp;</li>
-                         <li className='dropdown-header'>My Active Courses</li>
-                         {
+                      <li role='separator' className='divider' >&nbsp;</li>
+                      <li className='dropdown-header'>My Active Courses</li>
+                      {
                            this.props.courses.map((c) => {
                              return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course.results', { courseId: c._id })}>{c.fullCourseCode()}</a></li>)
                            })
                          }
-                       </ul>
-                   </li>
+                    </ul>
+                  </li>
               }
                 <li className='dropdown'>
                   <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'

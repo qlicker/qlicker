@@ -25,7 +25,7 @@ export class _CourseGrades extends Component {
 
           <div className='ql-card-content'>
             <div>
-              <GradeTable courseId={this.props.courseId}  />
+              <GradeTable courseId={this.props.courseId} />
             </div>
           </div>
         </div>
@@ -35,18 +35,15 @@ export class _CourseGrades extends Component {
 
 }
 
-
 export const CourseGrades = createContainer((props) => {
-
   const handle = Meteor.subscribe('courses.single', props.courseId)
 
-    const course = Courses.findOne(props.courseId)
-    const courseName = course.fullCourseCode()
-    return {
-      courseId: props.courseId,
-      courseName: course.name,
-      loading: !handle.ready(),
-    }
+  const course = Courses.findOne(props.courseId)
+  return {
+    courseId: props.courseId,
+    courseName: course.name,
+    loading: !handle.ready()
+  }
 }, _CourseGrades)
 
 CourseGrades.propTypes = {

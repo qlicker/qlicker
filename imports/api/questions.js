@@ -51,7 +51,7 @@ const questionPattern = {
     attemptWeights: [Match.Maybe(Number)], // weight of each attempt
     attempts: [{
       number: Number,
-      closed: Boolean,
+      closed: Boolean
     }]
   }),
   imagePath: Match.Maybe(String),
@@ -67,7 +67,7 @@ export const defaultSessionOptions = {
   attemptWeights: [1],
   attempts: [{
     number: 1,
-    closed: false,
+    closed: false
   }]
 }
 
@@ -101,13 +101,13 @@ if (Meteor.isServer) {
       const user = Meteor.users.findOne({_id: this.userId})
       const session = Sessions.findOne({_id: sessionId})
 
-      if (user.hasRole(ROLES.admin) || user.isInstructor(session.courseId)){
+      if (user.hasRole(ROLES.admin) || user.isInstructor(session.courseId)) {
         return Questions.find({ sessionId: sessionId })
       }
       if (user.hasRole(ROLES.student)) {
         if (session.reviewable) {
           return Questions.find({ sessionId: sessionId })
-        } else{
+        } else {
           return this.ready()
         }
       }
@@ -327,7 +327,7 @@ Meteor.methods({
     question.owner = Meteor.userId()
     question.sessionOptions = defaultSessionOptions
 
-    //const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
+    // const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
     const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
     return copiedQuestion._id
