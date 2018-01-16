@@ -483,11 +483,11 @@ Meteor.methods({
 
     // not checking if user.profile also contains course, probably should//TODO
     let course = Courses.findOne({ _id: courseId })
-    if (course.students.includes(user._id)) {
+    if (course.students && course.students.includes(user._id)) {
       throw new Meteor.Error('student already in course', 'student already in course')
     }
 
-    if (course.instructors.includes(user._id)) {
+    if (course.instructors && course.instructors.includes(user._id)) {
       throw new Meteor.Error('student already instructor for course', 'student already instructor for course')
     }
 
