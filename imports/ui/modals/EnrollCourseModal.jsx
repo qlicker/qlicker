@@ -7,9 +7,11 @@ import React from 'react'
 
 import { ControlledForm } from '../ControlledForm'
 
-export const DEFAULT_STATE = {
+export const FORM_INPUTS = {
   enrollmentCode: ''
 }
+
+export const DEFAULT_STATE = Object.assign({}, FORM_INPUTS)
 
 /**
  * modal dialog to prompt for course Enrollment details

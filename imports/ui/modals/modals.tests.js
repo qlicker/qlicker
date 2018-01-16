@@ -10,15 +10,15 @@ import { expect } from 'meteor/practicalmeteor:chai'
 import { sinon } from 'meteor/practicalmeteor:sinon'
 import { _ } from 'underscore'
 
-import { CreateCourseModal, DEFAULT_STATE as CREATE_DEFAULT_STATE } from './CreateCourseModal'
-import { EnrollCourseModal, DEFAULT_STATE as ENROLL_DEFAULT_STATE } from './EnrollCourseModal'
+import { CreateCourseModal, FORM_INPUTS as CREATE_FORM_INPUTS } from './CreateCourseModal'
+import { EnrollCourseModal, FORM_INPUTS as ENROLL_FORM_INPUTS } from './EnrollCourseModal'
 import { CreateQuestionModal } from './CreateQuestionModal'
 import { CreateSessionModal } from './CreateSessionModal'
 
 if (Meteor.isClient) {
   describe('<CreateCourseModal />', () => {
     const TEST_VALUE = 'test value'
-    const NUM_INPUTS = _.keys(CREATE_DEFAULT_STATE).length + 1
+    const NUM_INPUTS = _.keys(CREATE_FORM_INPUTS).length + 1
 
     it('should render', () => {
       const modal = shallow(<CreateCourseModal />)
@@ -38,7 +38,7 @@ if (Meteor.isClient) {
 
       // check each value by key in component state
       let count = 0
-      _.keys(CREATE_DEFAULT_STATE).forEach((k) => {
+      _.keys(CREATE_FORM_INPUTS).forEach((k) => {
         expect(modal.state()[k]).to.equal(TEST_VALUE + (count++))
       })
     })
@@ -54,7 +54,7 @@ if (Meteor.isClient) {
 
   describe('<EnrollCourseModal />', () => {
     const TEST_VALUE = 'test value'
-    const NUM_INPUTS = _.keys(ENROLL_DEFAULT_STATE).length + 1
+    const NUM_INPUTS = _.keys(ENROLL_FORM_INPUTS).length + 1
 
     it('should render', () => {
       const modal = shallow(<EnrollCourseModal />)
@@ -74,7 +74,7 @@ if (Meteor.isClient) {
 
       // check each value by key in component state
       let count = 0
-      _.keys(ENROLL_DEFAULT_STATE).forEach((k) => {
+      _.keys(ENROLL_FORM_INPUTS).forEach((k) => {
         expect(modal.state()[k]).to.equal(TEST_VALUE + (count++))
       })
     })

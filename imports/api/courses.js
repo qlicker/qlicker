@@ -31,14 +31,14 @@ const coursePattern = {
   requireVerified: Match.Maybe(Boolean),
   allowStudentQuestions: Match.Maybe(Boolean),
   groupCategories: Match.Maybe([{
-    categoryNumber:  Match.Maybe(Helpers.Number),
+    categoryNumber: Match.Maybe(Helpers.Number),
     categoryName: Match.Maybe(Helpers.NEString),
     groups: Match.Maybe([{
       groupNumber: Match.Maybe(Helpers.Number),
       groupName: Match.Maybe(Helpers.NEString),
-      students:  Match.Maybe([Helpers.MongoID])
+      students: Match.Maybe([Helpers.MongoID])
     }])
-  }]),
+  }])
 }
 
 // Create course class
@@ -63,24 +63,24 @@ if (Meteor.isServer) {
   Meteor.publish('courses.single', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      const c = Courses.findOne({ _id:courseId })
+      const c = Courses.findOne({ _id: courseId })
       if (!c || !user) return this.ready()
 
       if (user.hasGreaterRole(ROLES.admin)) {
-        return Courses.find({ _id:courseId })
-      } else if (user.isInstructor(courseId) ) {
-        return Courses.find({ _id:courseId })
-      } else if (user.isStudent(courseId)){
-        //return Courses.find({ _id:courseId }, { fields: { students: false } })
-        let course = Courses.findOne({ _id:courseId })
+        return Courses.find({ _id: courseId })
+      } else if (user.isInstructor(courseId)) {
+        return Courses.find({ _id: courseId })
+      } else if (user.isStudent(courseId)) {
+        // return Courses.find({ _id:courseId }, { fields: { students: false } })
+        let course = Courses.findOne({ _id: courseId })
         const students = [this.userId]
         course.students = students
         course.instructors = []
-        if (course.groupCategories){
+        if (course.groupCategories) {
           let groupCategories = []
-          course.groupCategories.forEach( (cat) => {
-            cat.groups.forEach( (g) => {
-              if ( _(g.students).contains(this.userId) ){
+          course.groupCategories.forEach((cat) => {
+            cat.groups.forEach((g) => {
+              if (_(g.students).contains(this.userId)) {
                 groupCategories.push({
                   categoryNumber: cat.categoryNumber,
                   categoryName: cat.categoryName,
@@ -88,7 +88,7 @@ if (Meteor.isServer) {
                     groupName: g.groupName,
                     groupNumber: g.groupNumber,
                     students: [this.userId]
-                    }]
+                  }]
                 })
               }
             })
@@ -99,17 +99,17 @@ if (Meteor.isServer) {
         this.added('courses', course._id, course)
         this.ready()
 
-        const cCursor = Courses.find({ _id:courseId })
+        const cCursor = Courses.find({ _id: courseId })
         const cHandle = cCursor.observeChanges({
           added: (id, fields) => {
             fields.students = [this.userId]
             fields.instructors = []
-            //only publish those groups and categories to which this student belongs.
-            if (fields.groupCategories){
+            // only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories) {
               let groupCategories = []
-              fields.groupCategories.forEach( (cat) => {
-                cat.groups.forEach( (g) => {
-                  if ( _(g.students).contains(this.userId) ){
+              fields.groupCategories.forEach((cat) => {
+                cat.groups.forEach((g) => {
+                  if (_(g.students).contains(this.userId)) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
@@ -117,7 +117,7 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId]
-                        }]
+                      }]
                     })
                   }
                 })
@@ -130,12 +130,12 @@ if (Meteor.isServer) {
           changed: (id, fields) => {
             fields.students = [this.userId]
             fields.instructors = []
-            //only publish those groups and categories to which this student belongs.
-            if (fields.groupCategories){
+            // only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories) {
               let groupCategories = []
-              fields.groupCategories.forEach( (cat) => {
-                cat.groups.forEach( (g) => {
-                  if ( _(g.students).contains(this.userId) ){
+              fields.groupCategories.forEach((cat) => {
+                cat.groups.forEach((g) => {
+                  if (_(g.students).contains(this.userId)) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
@@ -143,7 +143,7 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId]
-                        }]
+                      }]
                     })
                   }
                 })
@@ -160,8 +160,7 @@ if (Meteor.isServer) {
         this.onStop(function () {
           cHandle.stop()
         })
-
-      } else{
+      } else {
         return this.ready()
       }
     } else this.ready()
@@ -177,21 +176,22 @@ if (Meteor.isServer) {
       let user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin)) {
         return Courses.find()
-      } else { //could be a student or a prof
+      } else {
+ // could be a student or a prof
 
         // Initial subscription to existing courses
         const studentCourses = Courses.find({ students: this.userId }).fetch()
         const instructorCourses = Courses.find({ instructors: this.userId }).fetch()
-        studentCourses.forEach( c => {
+        studentCourses.forEach(c => {
           let course = c
           course.students = [this.userId]
           course.instructors = []
 
-          if (course.groupCategories){
+          if (course.groupCategories) {
             let groupCategories = []
-            course.groupCategories.forEach( (cat) => {
-              cat.groups.forEach( (g) => {
-                if ( _(g.students).contains(this.userId) ){
+            course.groupCategories.forEach((cat) => {
+              cat.groups.forEach((g) => {
+                if (_(g.students).contains(this.userId)) {
                   groupCategories.push({
                     categoryNumber: cat.categoryNumber,
                     categoryName: cat.categoryName,
@@ -199,7 +199,7 @@ if (Meteor.isServer) {
                       groupName: g.groupName,
                       groupNumber: g.groupNumber,
                       students: [this.userId]
-                      }]
+                    }]
                   })
                 }
               })
@@ -208,7 +208,7 @@ if (Meteor.isServer) {
           }
           this.added('courses', c._id, course)
         })
-        instructorCourses.forEach( c => {
+        instructorCourses.forEach(c => {
           this.added('courses', c._id, c)
         })
         this.ready()
@@ -221,12 +221,12 @@ if (Meteor.isServer) {
           added: (id, fields) => {
             fields.students = [this.userId]
             fields.instructors = []
-            //only publish those groups and categories to which this student belongs.
-            if (fields.groupCategories){
+            // only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories) {
               let groupCategories = []
-              fields.groupCategories.forEach( (cat) => {
-                cat.groups.forEach( (g) => {
-                  if ( _(g.students).contains(this.userId) ){
+              fields.groupCategories.forEach((cat) => {
+                cat.groups.forEach((g) => {
+                  if (_(g.students).contains(this.userId)) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
@@ -234,7 +234,7 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId]
-                        }]
+                      }]
                     })
                   }
                 })
@@ -246,12 +246,12 @@ if (Meteor.isServer) {
           changed: (id, fields) => {
             fields.students = [this.userId]
             fields.instructors = []
-            //only publish those groups and categories to which this student belongs.
-            if (fields.groupCategories){
+            // only publish those groups and categories to which this student belongs.
+            if (fields.groupCategories) {
               let groupCategories = []
-              fields.groupCategories.forEach( (cat) => {
-                cat.groups.forEach( (g) => {
-                  if ( _(g.students).contains(this.userId) ){
+              fields.groupCategories.forEach((cat) => {
+                cat.groups.forEach((g) => {
+                  if (_(g.students).contains(this.userId)) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
@@ -259,7 +259,7 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId]
-                        }]
+                      }]
                     })
                   }
                 })
@@ -386,7 +386,7 @@ Meteor.methods({
    */
   'courses.checkAndEnroll' (enrollmentCode) {
     check(enrollmentCode, Helpers.NEString)
-    if (Meteor.isServer){
+    if (Meteor.isServer) {
       const c = Courses.findOne({
         enrollmentCode: enrollmentCode.toLowerCase()
       })
@@ -701,13 +701,13 @@ Meteor.methods({
     check(categoryName, Helpers.NEString)
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
-    if (course.groupCategories && _(course.groupCategories).findWhere({ categoryName: categoryName }) ){
+    if (course.groupCategories && _(course.groupCategories).findWhere({ categoryName: categoryName })) {
       throw new Meteor.Error('Category already exists!')
     }
     let categories = course.groupCategories ? course.groupCategories : []
     categories.push({
-      categoryNumber:categories.length + 1,
-      categoryName:categoryName,
+      categoryNumber: categories.length + 1,
+      categoryName: categoryName,
       groups: []
     })
     Courses.update({ _id: courseId }, {
@@ -725,25 +725,25 @@ Meteor.methods({
   'courses.addGroupsToCategory' (courseId, categoryName, nGroups = 1) {
     check(courseId, Helpers.MongoID)
     check(categoryName, Helpers.NEString)
-    check(nGroups,Number)
+    check(nGroups, Number)
 
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
 
     let categories = course.groupCategories ? course.groupCategories : []
-    if (!_(categories).findWhere({ categoryName: categoryName }) ){
+    if (!_(categories).findWhere({ categoryName: categoryName })) {
       categories.push({
-        categoryNumber:categories.length + 1,
-        categoryName:categoryName,
+        categoryNumber: categories.length + 1,
+        categoryName: categoryName,
         groups: []
-       })
+      })
     }
     let category = _(categories).findWhere({ categoryName: categoryName })
     let groups = category.groups
     let offset = groups.length
-    for (let ig = 0; ig < nGroups; ig++){
-      const groupNumber = ig+offset+1
-      const groupName = 'Group'+ groupNumber.toString()
+    for (let ig = 0; ig < nGroups; ig++) {
+      const groupNumber = ig + offset + 1
+      const groupName = 'Group' + groupNumber.toString()
       const group = {
         groupNumber: groupNumber,
         groupName: groupName,
@@ -772,21 +772,21 @@ Meteor.methods({
 
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
-    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })){
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
       throw new Meteor.Error('Category does not exist!')
     }
     let categories = course.groupCategories
     let category = _(categories).findWhere({ categoryNumber: categoryNumber })
     let groups = category.groups
-    let group = _(groups).findWhere({ groupNumber:groupNumber })
-    if(!group){
+    let group = _(groups).findWhere({ groupNumber: groupNumber })
+    if (!group) {
       throw new Meteor.Error('Group does not exist!')
     }
     const index = _(group.students).indexOf(studentId)
-    if(  index ===-1 ){ // add the student
+    if (index === -1) { // add the student
       group.students.push(studentId)
     } else { // removed the student
-      group.students.splice(index,1)
+      group.students.splice(index, 1)
     }
     Courses.update({ _id: courseId }, {
       $set: {
@@ -809,14 +809,14 @@ Meteor.methods({
 
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
-    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })){
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
       throw new Meteor.Error('Category does not exist!')
     }
     let categories = course.groupCategories
     let category = _(categories).findWhere({ categoryNumber: categoryNumber })
     let groups = category.groups
-    let group = _(groups).findWhere({ groupNumber:groupNumber })
-    if(!group){
+    let group = _(groups).findWhere({ groupNumber: groupNumber })
+    if (!group) {
       throw new Meteor.Error('Group does not exist!')
     }
     group.groupName = newGroupName
@@ -827,7 +827,6 @@ Meteor.methods({
     })
   }
 }) // end Meteor.methods
-
 
 /*
 groupCategories: Match.Maybe([{

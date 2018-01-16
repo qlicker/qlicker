@@ -256,7 +256,7 @@ class _RunSession extends Component {
     if (!q.sessionOptions) return <div>Loading</div>
     const currentAttempt = q.sessionOptions.attempts[q.sessionOptions.attempts.length - 1]
     const currentAttemptNumber = q.sessionOptions.attempts.length
-    const responseStats = _(this.props.responseStatsByQuestion[q._id]).where({ attempt:currentAttemptNumber })
+    const responseStats = _(this.props.responseStatsByQuestion[q._id]).where({ attempt: currentAttemptNumber })
     // strings
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
@@ -343,7 +343,7 @@ class _RunSession extends Component {
     const currentAttemptNumber = q.sessionOptions.attempts.length
 
     const responseStats = q.sessionOptions.stats
-                          ? _(this.props.responseStatsByQuestion[q._id]).where({ attempt:currentAttemptNumber })
+                          ? _(this.props.responseStatsByQuestion[q._id]).where({ attempt: currentAttemptNumber })
                           : null
 
     // strings
@@ -463,8 +463,8 @@ class _RunSession extends Component {
 }
 
 export const RunSession = createContainer((props) => {
-  const handle =  Meteor.subscribe('sessions.single',props.sessionId)
-    Meteor.subscribe('questions.library') &&
+  const handle = Meteor.subscribe('sessions.single', props.sessionId)
+  Meteor.subscribe('questions.library') &&
     Meteor.subscribe('responses.forSession', props.sessionId) &&
     Meteor.subscribe('users.studentsInCourse', props.courseId)
 
@@ -472,16 +472,14 @@ export const RunSession = createContainer((props) => {
   const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
   const questions = _.indexBy(questionsInSession, '_id')
 
-  const allResponses = Responses.find({ questionId:{ $in: session.questions }}).fetch()
+  const allResponses = Responses.find({questionId: { $in: session.questions }}).fetch()
   const responsesByQuestion = _(allResponses).groupBy('questionId')
   let responseStatsByQuestion = []
   const responseCounts = []
-  questionsInSession.forEach( (question) => {
+  questionsInSession.forEach((question) => {
     responseStatsByQuestion[question._id] = responseDistribution(responsesByQuestion[question._id], question)
     responseCounts[question._id] = _(responsesByQuestion[question._id]).countBy('attempt')
   })
-
-
 
 //  const responseCounts = _(allResponses).countBy('questionId')
 

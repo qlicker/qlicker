@@ -12,12 +12,12 @@ import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
 import { calculateResponsePoints } from '../api/grades'
 import { QUESTION_TYPE } from '../configs'
-//import { Stats } from '../stats'
+// import { Stats } from '../stats'
 
 export class _QuestionResultsClassList extends Component {
 
   render () {
-    //const stats = new Stats([this.props.question], this.props.responses)
+    // const stats = new Stats([this.props.question], this.props.responses)
     const students = this.props.students || []
     const attempts = (this.props.question && this.props.question.sessionOptions &&
        this.props.question.sessionOptions.attempts)
@@ -37,7 +37,7 @@ export class _QuestionResultsClassList extends Component {
         </thead>
         <tbody>
           {students.map((user) => {
-            const responses = _(this.props.responses).where({ studentUserId:user._id })
+            const responses = _(this.props.responses).where({ studentUserId: user._id })
             let markByAttempt = 0
             const maxPoints = this.props.question && this.props.question.sessionOptions && 'points' in this.props.question.sessionOptions
                            ? this.props.question.sessionOptions.points
