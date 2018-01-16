@@ -12,7 +12,7 @@ import { ROLES } from '../../configs'
  * @augments ControlledForm
  * @prop {Func} done - done callback
  */
-  //TODO: probably should not inherit from ControlledForm...
+  // TODO: probably should not inherit from ControlledForm...
 export class ProfileViewModal extends ControlledForm {
 
   constructor (props) {
@@ -128,7 +128,7 @@ export class ProfileViewModal extends ControlledForm {
           <div className='col-md-3' />
         </div>
       </div>
-      )
+    )
   } //  end render
 
 } // end profileViewModal

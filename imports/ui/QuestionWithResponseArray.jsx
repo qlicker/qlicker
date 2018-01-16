@@ -4,9 +4,6 @@
 // GradeViewModal
 
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
-
-import { ControlledForm } from './ControlledForm'
 import { QuestionDisplay } from './QuestionDisplay'
 
 /**
@@ -14,28 +11,28 @@ import { QuestionDisplay } from './QuestionDisplay'
  * @augments ControlledForm
  * @prop {Func} done - done callback
  */
- //TODO: probably should not inherit from ControlledForm...
+ // TODO: probably should not inherit from ControlledForm...
 
 export class QuestionWithResponseArray extends Component {
 
   constructor (props) {
     super(props)
     const responseIndexToView = this.props.responses && this.props.responses.length > 0
-      ? this.props.responses.length -1
+      ? this.props.responses.length - 1
       : 0
     this.state = {
-      responseIndexToView : responseIndexToView
+      responseIndexToView: responseIndexToView
     }
 
     this.incrementResponse = this.incrementResponse.bind(this)
   }
 
-  componentWillReceiveProps (nextProps){
-    if ( (!this.props.question && nextProps.question) || (this.props.question._id !== nextProps.question._id) ){
+  componentWillReceiveProps (nextProps) {
+    if ((!this.props.question && nextProps.question) || (this.props.question._id !== nextProps.question._id)) {
       const responseIndexToView = nextProps.responses && nextProps.responses.length > 0
-        ? nextProps.responses.length -1
+        ? nextProps.responses.length - 1
         : 0
-      this.setState ({ responseIndexToView : responseIndexToView })
+      this.setState({ responseIndexToView: responseIndexToView })
     }
   }
 
@@ -60,25 +57,25 @@ export class QuestionWithResponseArray extends Component {
       <div className='ql-question-with-response-array'>
         { response
           ? <div className='ql-question-with-response-array-response-control'>
-              <div className='ql-question-with-response-array-response-control-attempts'>
+            <div className='ql-question-with-response-array-response-control-attempts'>
                 Attempt: {response.attempt}
-              </div>
-              {this.props.responses.length > 1
+            </div>
+            {this.props.responses.length > 1
                  ? <div className='btn-group btn-group-justified'>
-                    <div className='btn-group'>
-                      <button className='btn btn-default' onClick={decrement} disabled={prev < 0}>
-                        <span className="glyphicon glyphicon-chevron-left"></span> Previous attempt
+                   <div className='btn-group'>
+                     <button className='btn btn-default' onClick={decrement} disabled={prev < 0}>
+                       <span className='glyphicon glyphicon-chevron-left' /> Previous attempt
                       </button>
-                    </div>
-                    <div className='btn-group'>
-                      <button className='btn btn-default' onClick={increment} disabled={next >= this.props.responses.length}>
-                        Next attempt <span className="glyphicon glyphicon-chevron-right"></span>
-                      </button>
-                    </div>
                    </div>
+                   <div className='btn-group'>
+                     <button className='btn btn-default' onClick={increment} disabled={next >= this.props.responses.length}>
+                        Next attempt <span className='glyphicon glyphicon-chevron-right' />
+                     </button>
+                   </div>
+                 </div>
                  : ''
               }
-            </div>
+          </div>
           : ''
         }
         <div className='ql-question-with-response-array-question'>
@@ -96,5 +93,5 @@ export class QuestionWithResponseArray extends Component {
 QuestionWithResponseArray.propTypes = {
   question: PropTypes.object,
   responses: PropTypes.array, // responses sorted by attempt number
-  prof: PropTypes.bool, // passed to QuestionDisplay, to override showing correct
+  prof: PropTypes.bool // passed to QuestionDisplay, to override showing correct
 }

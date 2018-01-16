@@ -9,8 +9,6 @@ import { _ } from 'underscore'
 
 import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
-import { Responses, responseDistribution } from '../api/responses'
-
 /**
  * React Component (meteor reactive) for attempt distributions for a question
  * @prop {Question} question - question object
@@ -50,19 +48,19 @@ export class _AnswerDistribution extends Component {
 
 export const AnswerDistribution = createContainer((props) => {
   const responseStats = props.responseStats
-  const maxEntry = _(responseStats).max( (s) => {return s.attempt})
+  const maxEntry = _(responseStats).max((s) => { return s.attempt })
   const maxAttempt = !(_.isEmpty(maxEntry)) ? maxEntry.attempt : 0
   // create the data for plotting, an array like:
   // [{answer:A, attempt_1:5, attempt_2:0}, {answer:B, attempt_1:8, attempt_2:3},... ]
   // (one object per answer)
   const answersByAttempt = _(responseStats).groupBy('answer')
   let distribution = []
-  _(answersByAttempt).keys().forEach( (answer) => {
+  _(answersByAttempt).keys().forEach((answer) => {
     const responseStatsByAttempt = _(answersByAttempt[answer]).groupBy('attempt')
     let answerEntry = {}
-    answerEntry[answer]=answer
+    answerEntry[answer] = answer
 
-    _(responseStatsByAttempt).keys().forEach( (aNumber) => {
+    _(responseStatsByAttempt).keys().forEach((aNumber) => {
       answerEntry['attempt_' + aNumber] = responseStatsByAttempt[aNumber][0]['counts']
       answerEntry['pct_attempt_' + aNumber] = responseStatsByAttempt[aNumber][0]['pct']
     })
