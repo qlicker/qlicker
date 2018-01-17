@@ -3,9 +3,9 @@ import { Slingshot } from 'meteor/edgee:slingshot'
 
 import { Settings } from '../imports/api/settings.js'
 
-let hasS3Credentials = Meteor.settings.AWSAccessKeyId &&
+let hasS3Credentials = !!(Meteor.settings.AWSAccessKeyId &&
     Meteor.settings.AWSSecretAccessKey &&
-    Meteor.settings.bucket
+    Meteor.settings.bucket)
 
 if (hasS3Credentials) {
   Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
