@@ -85,8 +85,11 @@ export class Editor extends Component {
     let slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
-        if (e) alertify.error('Error uploading')
-        else if (save) {
+        if (e) {
+          return alertify.error(e)
+        }
+
+        if (save) {
           img.url = downloadUrl.slice(0, -(meta.type.length + 1))
           img.UID = meta.UID
           this.addImage(img)
