@@ -32,17 +32,19 @@ curl https://install.meteor.com/ | sh
 }
 ```
 
+If you do not include the s3 credentials, the app will still run but image uploading will not work. If you do not have these credentials, you can use an [S3 Emulator](https://github.com/jubos/fake-s3).
+
 3. Install the node packages.
 ```
 meteor npm install
 ```
 
+Note, if you use `npm install` instead of `meteor npm install`, you will need to manually delete the `node_modules` directory, and then run `meteor npm install`.
+
 4. Run the program.
 ```
 meteor --settings settings.json
 ```
-
-Note, if you use `npm install` instead of `meteor npm install`, you will need to manually delete the `node_modules` directory, and then run `meteor npm install`.
 
 To run tests locally
 `npm run test:unit-watch` or `npm run test:app-watch`
