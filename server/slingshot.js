@@ -3,6 +3,8 @@ import { Slingshot } from 'meteor/edgee:slingshot'
 
 import { Settings } from '../imports/api/settings.js'
 
+// Checks if Meteor settings has the minimum required s3 credentials
+// for use with Slingshot.
 let hasS3Credentials = !!(Meteor.settings.AWSAccessKeyId &&
     Meteor.settings.AWSSecretAccessKey &&
     Meteor.settings.bucket)
@@ -27,6 +29,10 @@ if (hasS3Credentials) {
     }
   })
 } else {
+  // This creates a fake storage service. Every time Slingshot is used to upload a file,
+  // Meteor should throw an error. This could turn into a bootstrapper for storing images
+  // into MongoDB if a user does not want to use s3.
+
   let fakeStorageService = {
     directiveMatch: {},
     directiveDefault: {
@@ -41,9 +47,9 @@ if (hasS3Credentials) {
 
   Slingshot.createDirective('QuestionImages', fakeStorageService, {})
 
-  console.log(
+  console.warn(
     'WARNING: ' +
-    'Missing S3 credentials in meteor settings. Image uploading' +
+    'Missing S3 credentials in meteor settings. File uploading' +
     ' will not work. This is fine if you are doing some sort of minor' +
     ' testing. Do NOT deploy if you are seeing this message in prod!')
 }
