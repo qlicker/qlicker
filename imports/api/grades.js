@@ -173,7 +173,7 @@ export const calculateResponsePoints = (response) => {
     if('points' in q.sessionOptions){
       points = q.sessionOptions.points
     }
-    if(q.sessionOptions.maxAttempts && q.sessionOptions.attemptWeights){
+    if(q.sessionOptions.maxAttempts > 1 && q.sessionOptions.attemptWeights){
       if(attemptNumber < q.sessionOptions.maxAttempts + 1 && attemptNumber < q.sessionOptions.attemptWeights.length + 1){
         weight =  q.sessionOptions.attemptWeights[attemptNumber - 1]
       } else {
@@ -181,6 +181,8 @@ export const calculateResponsePoints = (response) => {
       }
     }
   }
+  console.log(points)
+  console.log(weight)
   points *= weight
   // No point in grading it if the question is not worth any points!
   if (points === 0) return 0
@@ -529,12 +531,12 @@ Meteor.methods({
 
             if(markOutOf[iq] > 0){
               markPoints = calculateResponsePoints(response)
-              numAnswered +=1
+              numAnswered += 1
             }
           }
 
 
-          //don't update a mark if its automatic flag is sest to false
+          //don't update a mark if its automatic flag is set to false
           let automaticMark = true
           if (existingGrade){
             let existingMark = _(existingGrade.marks).findWhere({ questionId: question._id})
