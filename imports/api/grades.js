@@ -173,6 +173,8 @@ export const calculateResponsePoints = (response) => {
     if('points' in q.sessionOptions){
       points = q.sessionOptions.points
     }
+    // weights are only different from 1 if multiple attempts are allowed through maxAttempts
+    // which is not incremented in a live session, only in quiz mode:
     if(q.sessionOptions.maxAttempts > 1 && q.sessionOptions.attemptWeights){
       if(attemptNumber < q.sessionOptions.maxAttempts + 1 && attemptNumber < q.sessionOptions.attemptWeights.length + 1){
         weight =  q.sessionOptions.attemptWeights[attemptNumber - 1]
