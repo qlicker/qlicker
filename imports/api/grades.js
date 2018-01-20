@@ -181,8 +181,6 @@ export const calculateResponsePoints = (response) => {
       }
     }
   }
-  console.log(points)
-  console.log(weight)
   points *= weight
   // No point in grading it if the question is not worth any points!
   if (points === 0) return 0
