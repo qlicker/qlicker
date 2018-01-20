@@ -95,8 +95,9 @@ class _Profile extends Component {
     }
 
     /* eslint-disable no-unused-vars */
-    // The drop
-    if (this.dropzone){
+    // The Dropzone
+    // Don't create it if it already exists
+    if (this.dropzone) {
       return
     }
     this.dropzone = new Dropzone('#profile-image-uploader', {
