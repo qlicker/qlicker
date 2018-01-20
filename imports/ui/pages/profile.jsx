@@ -11,7 +11,7 @@ import $ from 'jquery'
 
 import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
-import { Dropzone } from 'dropzone'
+import Dropzone from 'dropzone' // cannot have { } around Dropzone!
 
 import { Images } from '../../api/images'
 
@@ -96,7 +96,10 @@ class _Profile extends Component {
 
     /* eslint-disable no-unused-vars */
     // The drop
-    let dropzone = new Dropzone('#profile-image-uploader', {
+    if (this.dropzone){
+      return
+    }
+    this.dropzone = new Dropzone('#profile-image-uploader', {
       url: '/some/random/url',
       acceptedFiles: 'image/jpeg,image/png,image/gif',
       accept: (file, done) => {
@@ -228,4 +231,3 @@ export const ProfilePage = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _Profile)
-
