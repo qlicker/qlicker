@@ -27,10 +27,10 @@ class _Course extends Component {
 
   sessionClickHandler (session) {
     // Disabled the student.results route for now:
-     if (session.status === 'done' && session.reviewable) {
-       Router.go('session.results', { sessionId: session._id })
-     } else {
-       Router.go('session', { _id: session._id })
+    if (session.status === 'done' && session.reviewable) {
+      Router.go('session.results', { sessionId: session._id })
+    } else {
+      Router.go('session', { _id: session._id })
     }
   }
 
@@ -89,9 +89,9 @@ class _Course extends Component {
 }
 
 export const Course = createContainer((props) => {
-  const handle = Meteor.subscribe('courses.single', props.courseId)
-    && Meteor.subscribe('userData')
-    && Meteor.subscribe('sessions.forCourse',props.courseId)
+  const handle = Meteor.subscribe('courses.single', props.courseId) &&
+    Meteor.subscribe('userData') &&
+    Meteor.subscribe('sessions.forCourse', props.courseId)
 
   let student = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
   let course = Courses.find({ _id: props.courseId }).fetch()[0]

@@ -177,12 +177,11 @@ class _ManageCourse extends Component {
               click: () => { this.endSession(sId) }
             })
             controls.push({ divider: true })
-
           }
-          if (ses.status === 'done'){
+          if (ses.status === 'done') {
             controls.push({ label: 'Restart session', click: () => this.startSession(sId) })
-            controls.push({ label: 'Grade session', click: () => Router.go('session.grade',{sessionId: sId} ) })
-            controls.push({ label: 'Review results', click: () => Router.go('session.results',{sessionId: sId} ) })
+            controls.push({ label: 'Grade session', click: () => Router.go('session.grade', {sessionId: sId}) })
+            controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId}) })
           }
           if (ses.status !== 'done' && ses.status !== 'running') {
             controls.push({ label: 'Start session', click: () => this.startSession(sId) })
@@ -224,9 +223,6 @@ class _ManageCourse extends Component {
                    : '0')
     }.bind(this))
 
-    const maxNum = 8
-    const totalStudents = students.length + TAs.length
-
     return (<div>
       {
         students.map((sId) => {
@@ -264,8 +260,7 @@ class _ManageCourse extends Component {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
-    const manageGroups = () => Router.go('course.groups', { courseId:this.props.course._id })
-
+    const manageGroups = () => Router.go('course.groups', { courseId: this.props.course._id })
 
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ? this.props.sessions.length : 0
@@ -372,8 +367,6 @@ export const ManageCourse = createContainer((props) => {
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
-  const sessionIds = course.sessions || []
-  //const sessions = Sessions.find({ _id: { $in: sessionIds } }, { sort: { date: -1 } }).fetch()
   const sessions = Sessions.find({ courseId: props.courseId }, { sort: { date: -1 } }).fetch()
 
   return {

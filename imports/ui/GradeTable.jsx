@@ -23,65 +23,64 @@ import { ProfileViewModal } from './modals/ProfileViewModal'
 
 import { ROLES } from '../configs'
 
-
 /**
  * React Component (meteor reactive) to display Question object and send question reponses.
  * @prop {Id} courseId - Id of course to show
  */
 export class _GradeTable extends Component {
 
-   constructor (props) {
-     super(props)
+  constructor (props) {
+    super(props)
 
-     this.state = { gradeViewModal: false,
-                    profileViewModal: false,
-                    studentSearchString: '',
-                    sortByColumn: 'name',
-                    sortAsc: true
-                  }
-     this.calculateAllGrades = this.calculateAllGrades.bind(this)
-     this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
-     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
-     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
-     this.setStudentSearchString = this.setStudentSearchString.bind(this)
-     this.setSortByColumn = this.setSortByColumn.bind(this)
-   }
+    this.state = { gradeViewModal: false,
+      profileViewModal: false,
+      studentSearchString: '',
+      sortByColumn: 'name',
+      sortAsc: true
+    }
+    this.calculateAllGrades = this.calculateAllGrades.bind(this)
+    this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
+    this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
+    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
+    this.setStudentSearchString = this.setStudentSearchString.bind(this)
+    this.setSortByColumn = this.setSortByColumn.bind(this)
+  }
 
-   done (e) {
-     this.refs.searchStudentForm.reset()
-     this.props.done()
-   }
+  done (e) {
+    this.refs.searchStudentForm.reset()
+    this.props.done()
+  }
 
-   toggleGradeViewModal (gradeToView = null) {
-    const studentToView = _(this.props.students).findWhere({ _id:gradeToView.userId })
-    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView:studentToView })
-   }
+  toggleGradeViewModal (gradeToView = null) {
+    const studentToView = _(this.props.students).findWhere({ _id: gradeToView.userId })
+    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView: studentToView })
+  }
 
-   toggleProfileViewModal (studentToView = null) {
-    this.setState({ profileViewModal: !this.state.profileViewModal, studentToView:studentToView })
-   }
+  toggleProfileViewModal (studentToView = null) {
+    this.setState({ profileViewModal: !this.state.profileViewModal, studentToView: studentToView })
+  }
 
-   calculateSessionGrades (sessionId) {
+  calculateSessionGrades (sessionId) {
     if (confirm('Are you sure?')) {
-       Meteor.call('grades.calcSessionGrades',sessionId, (err) => {
-         if(err){
-           alertify.error('Error: ' + err.error)
-         } else {
-           alertify.success('Grades calculated')
-         }
-       })
-     }
-   }
+      Meteor.call('grades.calcSessionGrades', sessionId, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Grades calculated')
+        }
+      })
+    }
+  }
 
   calculateAllGrades () {
     if (confirm('Are you sure?')) {
       const sessions = this.props.sessions
-      for(let i = 0; i<sessions.length; i++){
-        Meteor.call('grades.calcSessionGrades',sessions[i]._id, (err) => {
-          if(err){
+      for (let i = 0; i < sessions.length; i++) {
+        Meteor.call('grades.calcSessionGrades', sessions[i]._id, (err) => {
+          if (err) {
             alertify.error('Error: ' + err.error)
           } else {
-            alertify.success('Grades calculated for '+sessions[i].name)
+            alertify.success('Grades calculated for ' + sessions[i].name)
           }
         })
       }
@@ -97,7 +96,7 @@ export class _GradeTable extends Component {
   setSortByColumn (colName) {
     let sortAsc = (colName === this.state.sortByColumn) ? !this.state.sortAsc : true
 
-    this.setState({ sortByColumn:colName, sortAsc:sortAsc })
+    this.setState({ sortByColumn: colName, sortAsc: sortAsc })
   }
 
   render () {
@@ -107,7 +106,7 @@ export class _GradeTable extends Component {
     const sessions = this.props.sessions
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
 
-    if ( (!this.props.grades || this.props.grades.length < 1) && isInstructor ){
+    if ((!this.props.grades || this.props.grades.length < 1) && isInstructor) {
       return (<div>
         <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
           Calculate grades!
@@ -128,44 +127,43 @@ export class _GradeTable extends Component {
     const sortByColumn = this.state.sortByColumn
     const sortAsc = this.state.sortAsc
 
-
     // Grab only the rows we need if the search string is set
     let tableData = studentSearchString
-      ? _(this.props.tableData).filter( (entry) => {
+      ? _(this.props.tableData).filter((entry) => {
         return entry.name.toLowerCase().includes(studentSearchString.toLowerCase()) ||
               entry.email.toLowerCase().includes(studentSearchString.toLowerCase())
-            })
+      })
       : this.props.tableData
 
     // Sort if needed
     if (sortByColumn) {
-      if (sortByColumn === 'name'){
-        tableData = _(tableData).sortBy( (entry) => {return entry.name.toLowerCase()})
-      } else if (sortByColumn === 'participation'){
-        tableData = _(tableData).sortBy( (entry) => {return entry.participation})
+      if (sortByColumn === 'name') {
+        tableData = _(tableData).sortBy((entry) => { return entry.name.toLowerCase() })
+      } else if (sortByColumn === 'participation') {
+        tableData = _(tableData).sortBy((entry) => { return entry.participation })
       } else {
-        tableData = _(tableData).sortBy( (entry) => {
-          const grade = _(entry.grades).findWhere({ sessionId:sortByColumn })
-          return ( (grade && grade.value) ? grade.value : 0 )
-         })
+        tableData = _(tableData).sortBy((entry) => {
+          const grade = _(entry.grades).findWhere({ sessionId: sortByColumn })
+          return ((grade && grade.value) ? grade.value : 0)
+        })
       }
-      if (!sortAsc){
+      if (!sortAsc) {
         tableData = tableData.reverse()
       }
     }
 
     const nRows = tableData.length
 
-      const NameHeaderCell = ({rowIndex}) => {
+    const NameHeaderCell = ({rowIndex}) => {
       let sortButtonClass = 'glyphicon glyphicon-minus'
-      if (sortByColumn === 'name' ){
+      if (sortByColumn === 'name') {
         sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
       }
-      sortButtonClass +=' ql-grade-table-sort-button'
-      const onClickSort =  () => this.setSortByColumn('name')
-      return(
+      sortButtonClass += ' ql-grade-table-sort-button'
+      const onClickSort = () => this.setSortByColumn('name')
+      return (
         <Cell>
-          {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } /> : '' }
+          {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
           Last, First
         </Cell>
       )
@@ -173,27 +171,27 @@ export class _GradeTable extends Component {
 
     const ParticipationHeaderCell = ({rowIndex}) => {
       let sortButtonClass = 'glyphicon glyphicon-minus'
-      if (sortByColumn === 'participation' ){
+      if (sortByColumn === 'participation') {
         sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
       }
-      sortButtonClass +=' ql-grade-table-sort-button'
-      const onClickSort =  () => this.setSortByColumn('participation')
-      return(
+      sortButtonClass += ' ql-grade-table-sort-button'
+      const onClickSort = () => this.setSortByColumn('participation')
+      return (
         <Cell>
-          {nRows > 1 ? <div className={sortButtonClass} onClick={ onClickSort } /> : '' }
+          {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
           Participation
         </Cell>
       )
     }
 
     const SessionHeaderCell = ({sessionId}) => {
-      const session = _(sessions).findWhere({ _id:sessionId })
+      const session = _(sessions).findWhere({ _id: sessionId })
       let sortButtonClass = 'glyphicon glyphicon-minus'
-      if (sortByColumn === sessionId ){
+      if (sortByColumn === sessionId) {
         sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
       }
-      sortButtonClass +=' ql-grade-table-sort-button'
-      const onClickSort =  () => this.setSortByColumn(sessionId)
+      sortButtonClass += ' ql-grade-table-sort-button'
+      const onClickSort = () => this.setSortByColumn(sessionId)
       const calcSessionGrades = () => this.calculateSessionGrades(sessionId)
       const viewSession = () => Router.go('session.results', { sessionId: sessionId })
       const headerClass = session.gradesViewable()
@@ -208,7 +206,7 @@ export class _GradeTable extends Component {
       */
       return (
         <Cell>
-          {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} />: '' }
+          {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
           <div className={headerClass} onClick={viewSession} >{session.name} </div>
           {isInstructor ? <div onClick={calcSessionGrades} className='glyphicon glyphicon-repeat ql-grade-table-grade-calc-button' /> : ''}
         </Cell>
@@ -216,74 +214,74 @@ export class _GradeTable extends Component {
     }
 
     const NameCell = ({rowIndex}) => {
-      const student = _(this.props.students).findWhere({ _id:tableData[rowIndex].userId })
+      const student = _(this.props.students).findWhere({ _id: tableData[rowIndex].userId })
       const viewStudent = () => this.toggleProfileViewModal(student)
-      return(
+      return (
         <Cell onClick={viewStudent}>
-           <div className='ql-grade-cell'>
-             { tableData[rowIndex].name }
-           </div>
+          <div className='ql-grade-cell'>
+            { tableData[rowIndex].name }
+          </div>
         </Cell>
       )
-     }
+    }
 
-    const ParticipationCell =  ({rowIndex}) =>  <Cell>{ tableData[rowIndex].participation.toFixed(0) } </Cell>
+    const ParticipationCell = ({rowIndex}) => <Cell>{ tableData[rowIndex].participation.toFixed(0) } </Cell>
 
     const GradeCell = ({rowIndex, sessionId}) => {
       const grades = tableData[rowIndex].grades
-      const grade = _(grades).findWhere({ sessionId: sessionId})
+      const grade = _(grades).findWhere({sessionId: sessionId})
       let cellClass = 'ql-grade-cell'
       if (grade) {
-        if (grade.hasManualMarks() ) cellClass = 'ql-grade-cell-manual'
-        if (grade.hasUngradedMarks() )  cellClass = 'ql-grade-cell-needs-grading'
+        if (grade.hasManualMarks()) cellClass = 'ql-grade-cell-manual'
+        if (grade.hasUngradedMarks()) cellClass = 'ql-grade-cell-needs-grading'
       }
 
       const onClick = () => this.toggleGradeViewModal(grade)
-      return ( grade
-        ? <Cell onClick = {onClick}>
-            <div className={cellClass}>
-              {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
-            </div>
-          </Cell>
+      return (grade
+        ? <Cell onClick={onClick}>
+          <div className={cellClass}>
+            {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) } / { grade.value.toFixed(0) }
+          </div>
+        </Cell>
         : <Cell > No grade </Cell>
       )
     }
 
    // Setup data for CSV downloader:
-   let cvsHeaders = ['Last name', 'First name', 'Email', 'Particpation']
+    let cvsHeaders = ['Last name', 'First name', 'Email', 'Particpation']
 
-   sessions.forEach((s) => {
-     cvsHeaders.push(s.name + ' Participation')
-     cvsHeaders.push(s.name + ' Mark')
-   })
+    sessions.forEach((s) => {
+      cvsHeaders.push(s.name + ' Participation')
+      cvsHeaders.push(s.name + ' Mark')
+    })
 
-   let csvData = this.props.tableData.map((tableRow) => {
-     let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.participation]
-     tableRow.grades.forEach((g) => {
-       row.push(g.participation)
-       row.push(g.value)
-     })
-     return row
-   })
-   const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
-   const handleSubmit = (e) => {e.preventDefault()}
+    let csvData = this.props.tableData.map((tableRow) => {
+      let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.participation]
+      tableRow.grades.forEach((g) => {
+        row.push(g.participation)
+        row.push(g.value)
+      })
+      return row
+    })
+    const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
+    const handleSubmit = (e) => { e.preventDefault() }
 
-   const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
-   const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
+    const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
+    const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
-          {this.props.students.length > 1 ?
-            <div className='ql-grade-table-controlbar-divh'>
+          {this.props.students.length > 1
+            ? <div className='ql-grade-table-controlbar-divh'>
               <form ref='searchStudentForm' onSubmit={handleSubmit}>
-                <input type='text' maxLength="32" size="32" placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
+                <input type='text' maxLength='32' size='32' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
               </form>
-             </div>
+            </div>
             : ''
           }
-          {isInstructor ?
-            <div className='ql-grade-table-controlbar-div'>
+          {isInstructor
+            ? <div className='ql-grade-table-controlbar-div'>
               <div>
                 <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
                   Re-calculate all grades
@@ -296,7 +294,7 @@ export class _GradeTable extends Component {
                   </div>
                 </CSVLink>
               </div>
-           </div>
+            </div>
             : ''
           }
         </div>
@@ -304,7 +302,7 @@ export class _GradeTable extends Component {
           rowHeight={35}
           rowsCount={nRows}
           width={0.8 * window.innerWidth}
-          height={0.7 * window.innerHeight }
+          height={0.7 * window.innerHeight}
           headerHeight={50}>
           <Column
             header={<NameHeaderCell />}
@@ -329,21 +327,19 @@ export class _GradeTable extends Component {
         </Table>
         { showGradeViewModal
           ? <GradeViewModal
-              grade={this.state.gradeToView}
-              student={this.state.studentToView}
-              done={this.toggleGradeViewModal} />
+            grade={this.state.gradeToView}
+            student={this.state.studentToView}
+            done={this.toggleGradeViewModal} />
           : '' }
         { showProfileViewModal
           ? <ProfileViewModal
-              user={this.state.studentToView}
-              done={this.toggleProfileViewModal} />
+            user={this.state.studentToView}
+            done={this.toggleProfileViewModal} />
           : '' }
       </div>
     )
-
   } // end render
 }
-
 
 // meteor reactive data container
 export const GradeTable = createContainer((props) => {
@@ -360,29 +356,27 @@ export const GradeTable = createContainer((props) => {
 
   if (course) {
     students = Meteor.users.find({ _id: { $in: course.students || [] } }).fetch()
-    students = _(students).sortBy( (entry) => {return entry.profile.lastname.toLowerCase()})
+    students = _(students).sortBy((entry) => { return entry.profile.lastname.toLowerCase() })
 
     const sessionQuery = { courseId: course._id }
-    if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(props.courseId)){
-       sessionQuery.status = { $ne: 'hidden' }
-       sessionQuery.reviewable = true
-     }
+    if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(props.courseId)) {
+      sessionQuery.status = { $ne: 'hidden' }
+      sessionQuery.reviewable = true
+    }
     sessions = Sessions.find(sessionQuery, { sort: { date: 1 } }).fetch()
-
   }
 
   const tableData = []
   const numStudents = students.length
-  const numSessions = sessions.length
 
-  for(let iStu = 0; iStu < numStudents; iStu++){
-    let sgrades = _(grades).where({ userId: students[iStu]._id})
+  for (let iStu = 0; iStu < numStudents; iStu++) {
+    let sgrades = _(grades).where({userId: students[iStu]._id})
 
     let participation = 0
-    if (sgrades.length > 0){
-      participation = _(sgrades).reduce( (total, grade) => {
+    if (sgrades.length > 0) {
+      participation = _(sgrades).reduce((total, grade) => {
         let gpart = 0
-        if (grade && grade.participation){
+        if (grade && grade.participation) {
           gpart = grade.participation
         }
         return total + gpart
@@ -390,7 +384,7 @@ export const GradeTable = createContainer((props) => {
     }
 
     let dataItem = {
-      name: students[iStu].profile.lastname+', '+ students[iStu].profile.firstname,
+      name: students[iStu].profile.lastname + ', ' + students[iStu].profile.firstname,
       firstName: students[iStu].profile.firstname,
       lastName: students[iStu].profile.lastname,
       userId: students[iStu]._id,
@@ -408,10 +402,9 @@ export const GradeTable = createContainer((props) => {
     grades: grades,
     tableData: tableData,
     sessions: sessions,
-    loading: !handle.ready(),
+    loading: !handle.ready()
   }
 }, _GradeTable)
-
 
 GradeTable.propTypes = {
   courseId: PropTypes.string

@@ -31,7 +31,7 @@ export class _SessionResults extends Component {
          Number of students in session: { total }
         <SessionResultsTable session={this.props.session} />
 
-      {
+        {
         this.props.session.questions.map(qId => {
           const q = this.props.questions[qId]
           return (<div key={'questionResult_' + qId}>
@@ -47,7 +47,7 @@ export class _SessionResults extends Component {
                 <div className='col-sm-6'>
                   {
                     q && q.type !== QUESTION_TYPE.SA // option based questions
-                    ? <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[qId]}  /> : ''
+                    ? <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[qId]} /> : ''
                   }
                   {
                     q && q.type === QUESTION_TYPE.SA // short answer
@@ -65,7 +65,7 @@ export class _SessionResults extends Component {
           </div>)
         })
       }
-    </div>)
+      </div>)
   } //  end render
 
 }
@@ -77,10 +77,10 @@ export const SessionResults = createContainer((props) => {
   const questionsInSession = Questions.find({ _id: { $in: props.session.questions } }).fetch()
   const questions = _.indexBy(questionsInSession, '_id')
 
-  const allResponses = Responses.find({ questionId:{ $in: props.session.questions }}).fetch()
+  const allResponses = Responses.find({questionId: { $in: props.session.questions }}).fetch()
   const responsesByQuestion = _(allResponses).groupBy('questionId')
   let responseStatsByQuestion = []
-  questionsInSession.forEach( (question) => {
+  questionsInSession.forEach((question) => {
     responseStatsByQuestion[question._id] = responseDistribution(responsesByQuestion[question._id], question)
   })
 

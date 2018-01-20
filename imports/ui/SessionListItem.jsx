@@ -62,8 +62,8 @@ export class SessionListItem extends ListItem {
     } else {}
 
     let statusClassName = 'ql-session-status ' + ('ql-' + status)
-    if (session.reviewable && session.status === 'done') statusClassName +=' reviewable'
-    if (!session.reviewable && session.status === 'done') statusClassName +=' not-reviewable'
+    if (session.reviewable && session.status === 'done') statusClassName += ' reviewable'
+    if (!session.reviewable && session.status === 'done') statusClassName += ' not-reviewable'
 
     return (
       <div className='ql-session-list-item ql-list-item' onClick={this.click}>

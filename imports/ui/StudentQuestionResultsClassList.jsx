@@ -7,7 +7,7 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
-//import { QuestionDisplay } from './QuestionDisplay'
+// import { QuestionDisplay } from './QuestionDisplay'
 import { QuestionWithResponseArray } from './QuestionWithResponseArray'
 
 import { QUESTION_TYPE } from '../configs'
@@ -71,7 +71,7 @@ export const StudentQuestionResultsClassList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
 
   const responses = Responses.find({ questionId: props.question._id, studentUserId: Meteor.userId() },
-                                   {sort: {attempt: 1 } }).fetch()
+                                   {sort: {attempt: 1}}).fetch()
   return {
     responses: responses,
     loading: !handle.ready()

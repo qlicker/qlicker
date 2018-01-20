@@ -205,7 +205,7 @@ Router.route('/course/:_id', {
   name: 'course',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params._id)
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params._id)
   },
   action: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -222,7 +222,7 @@ Router.route('/course/:courseId/groups', {
   name: 'course.groups',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params.courseId)
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
   },
   action: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -253,7 +253,7 @@ Router.route('/course/:courseId/grades', {
   name: 'course.results',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single',this.params.courseId)
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
   },
   action: function () {
     const u = Meteor.user()
@@ -269,11 +269,11 @@ Router.route('/session/:sessionId/grade', {
   name: 'session.grade',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params.sessionId) && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params.sessionId) && Meteor.subscribe('courses')
   },
   action: function () {
     if (!Meteor.userId()) Router.go('login')
-    const sess = Sessions.findOne({ _id: this.params.sessionId})
+    const sess = Sessions.findOne({_id: this.params.sessionId})
     const cId = sess ? sess.courseId : 0
     if (Meteor.user().isInstructor(cId) || Meteor.user().hasRole('admin')) {
       mount(AppLayout, {content: <PageContainer> <GradeSession sessionId={this.params.sessionId} courseId={cId} /> </PageContainer>})
@@ -288,20 +288,19 @@ Router.route('/session/:sessionId/results', {
   name: 'session.results',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params.sessionId) && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params.sessionId) && Meteor.subscribe('courses')
   },
   action: function () {
     const sess = Sessions.findOne({_id: this.params.sessionId})
     const cId = sess ? sess.courseId : 0
     let user = Meteor.user()
-    if (user){
-      if (user.hasRole('admin') || user.isInstructor(cId)){
+    if (user) {
+      if (user.hasRole('admin') || user.isInstructor(cId)) {
         mount(AppLayout, { content: <PageContainer> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
-      } else if (user.isStudent(cId)){
+      } else if (user.isStudent(cId)) {
         mount(AppLayout, { content: <PageContainer>
           <StudentSessionResultsPage sessionId={this.params.sessionId} studentId={Meteor.userId()} /> </PageContainer> })
       } else Router.go('login')
-
     } else Router.go('login')
   }
 })
@@ -312,7 +311,7 @@ Router.route('/session/edit/:_id', {
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') &&
-      Meteor.subscribe('sessions.single',this.params._id) &&
+      Meteor.subscribe('sessions.single', this.params._id) &&
       Meteor.subscribe('courses') &&
       Meteor.subscribe('images') &&
       Meteor.subscribe('questions.inSession', this.params._id)
@@ -331,7 +330,7 @@ Router.route('/session/run/:_id', {
   name: 'session.run',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
     const sess = Sessions.findOne(this.params._id)
@@ -346,7 +345,7 @@ Router.route('/session/run/:_id/mobile', {
   name: 'session.run.mobile',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
   },
   action: function () {
     const sess = Sessions.findOne(this.params._id)
@@ -362,7 +361,7 @@ Router.route('/session/present/:_id', {
   name: 'session',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single',this.params._id) && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params._id) && Meteor.subscribe('courses')
   },
   action: function () {
     const user = Meteor.user()

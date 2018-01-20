@@ -10,23 +10,23 @@ export class CreateGroupCategoryModal extends Component {
 
   constructor (props) {
     super(props)
-    this.state = { categoryName:'', nGroups:1 }
+    this.state = { categoryName: '', nGroups: 1 }
     this.setNGroups = this.setNGroups.bind(this)
     this.setCategoryName = this.setCategoryName.bind(this)
     this.createCategory = this.createCategory.bind(this)
   }
 
   setCategoryName (e) {
-    this.setState({ categoryName:e.target.value })
+    this.setState({ categoryName: e.target.value })
   }
 
   setNGroups (e) {
     const nGroups = parseInt(e.target.value)
-    this.setState({ nGroups:nGroups })
+    this.setState({ nGroups: nGroups })
   }
 
   createCategory () {
-    if (!this.state.categoryName){
+    if (!this.state.categoryName) {
       alertify.error('Specoify category')
       return
     }
@@ -35,8 +35,6 @@ export class CreateGroupCategoryModal extends Component {
       alertify.success('New category created')
       this.props.done()
     })
-
-
   }
 
   render () {
@@ -46,10 +44,10 @@ export class CreateGroupCategoryModal extends Component {
         <div className='ql-card-content'>
           <div className='ql-modal-create-group-category-input'>
             <div>
-              Category name: <input type='text' onChange={this.setCategoryName} size="16" value={this.state.categoryName}></input>
+              Category name: <input type='text' onChange={this.setCategoryName} size='16' value={this.state.categoryName} />
             </div>
             <div className='ql-modal-create-group-category-input-number'>
-              Number of groups: <input type='number' min={0} onChange={this.setNGroups} maxLength="4" size="4" value={this.state.nGroups}></input>
+              Number of groups: <input type='number' min={0} onChange={this.setNGroups} maxLength='4' size='4' value={this.state.nGroups} />
             </div>
           </div>
           <div className='btn-group btn-group-justified'>
@@ -65,5 +63,5 @@ export class CreateGroupCategoryModal extends Component {
 
 CreateGroupCategoryModal.propTypes = {
   done: PropTypes.func,
-  courseId: PropTypes.string,
+  courseId: PropTypes.string
 }

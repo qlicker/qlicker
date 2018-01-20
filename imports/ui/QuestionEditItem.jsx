@@ -17,7 +17,6 @@ import { defaultSessionOptions } from '../api/questions'
 // constants
 import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
 
-
 export const DEFAULT_STATE = {
   plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
@@ -63,7 +62,7 @@ export class QuestionEditItem extends Component {
     if (this.props.question) {
       this.state = _.extend({}, this.props.question)
       this.state.owner = Meteor.userId()
-      if (this.props.sessionId && !this.props.question.sessionOptions){
+      if (this.props.sessionId && !this.props.question.sessionOptions) {
         this.state.sessionOptions = defaultSessionOptions
       }
       this.currentAnswer = this.state.options ? this.state.options.length : 0
@@ -155,20 +154,20 @@ export class QuestionEditItem extends Component {
   * For a question in a session, change the number of points that it is worth
   * @param {Object} event
   */
- setMaxAttempts (e) {
-   const maxAttempts = parseInt(e.target.value)
-   let sessionOptions = this.state.sessionOptions
-   sessionOptions.maxAttempts = maxAttempts
-   let attemptWeights = [1.0]
+  setMaxAttempts (e) {
+    const maxAttempts = parseInt(e.target.value)
+    let sessionOptions = this.state.sessionOptions
+    sessionOptions.maxAttempts = maxAttempts
+    let attemptWeights = [1.0]
    // Each attempt is worth half as much as the previous one
-   for(let i = 1; i < maxAttempts; i++){
-     attemptWeights.push( attemptWeights[i-1]/2. )
-   }
-   sessionOptions.attemptWeights = attemptWeights
-   this.setState({sessionOptions: sessionOptions}, () => {
-     this._DB_saveQuestion()
-   })
- }
+    for (let i = 1; i < maxAttempts; i++) {
+      attemptWeights.push(attemptWeights[i - 1] / 2.0)
+    }
+    sessionOptions.attemptWeights = attemptWeights
+    this.setState({sessionOptions: sessionOptions}, () => {
+      this._DB_saveQuestion()
+    })
+  }
 
   /**
    * change question type to MC, TF or SA
@@ -585,39 +584,39 @@ export class QuestionEditItem extends Component {
             : '' }
           { this.props.sessionId
             ? <div className='row session-options'>
-                <div className='qnumber'>
+              <div className='qnumber'>
                   Question {this.props.questionNumber}
-                </div>
-                <div>
-                  <div className='qoption-label'>
+              </div>
+              <div>
+                <div className='qoption-label'>
                     Points:
                   </div>
-                  <input type='number'
-                     min={0} step={0.5}
-                     onChange={this.setPoints}
-                     value={this.state.sessionOptions.points}></input>
-                  </div>
-                { this.props.isQuiz && isAutoGradeable(this.state.type)
+                <input type='number'
+                  min={0} step={0.5}
+                  onChange={this.setPoints}
+                  value={this.state.sessionOptions.points} />
+              </div>
+              { this.props.isQuiz && isAutoGradeable(this.state.type)
                   ? <div>
-                      <div className='qoption-label'>
+                    <div className='qoption-label'>
                         Max attempts (1-5):
                       </div>
-                      <input type='number'
-                         min={1} max={5} step={1}
-                         onChange={this.setMaxAttempts}
-                         value={this.state.sessionOptions.maxAttempts}></input>
-                      { this.state.sessionOptions.maxAttempts > 1
+                    <input type='number'
+                      min={1} max={5} step={1}
+                      onChange={this.setMaxAttempts}
+                      value={this.state.sessionOptions.maxAttempts} />
+                    { this.state.sessionOptions.maxAttempts > 1
                         ? <div> &nbsp;weights:
-                            {this.state.sessionOptions.attemptWeights.map( (w) =>{
-                              return (<div key={this.props.questionNumer+'_'+w}>&nbsp; {w.toFixed(2)} </div>)
-                              })}
-                          </div>
+                            {this.state.sessionOptions.attemptWeights.map((w) => {
+                              return (<div key={this.props.questionNumer + '_' + w}>&nbsp; {w.toFixed(2)} </div>)
+                            })}
+                        </div>
                         : ''
                       }
-                    </div>
+                  </div>
                   : ''
                 }
-              </div>
+            </div>
             : ''
           }
           <div className='row'>
