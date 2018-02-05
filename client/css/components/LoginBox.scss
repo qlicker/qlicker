@@ -87,31 +87,4 @@
 }
 
 
-.ql-profile-image-container, .ql-login-box {
-
-  .ql-profile-image-dropzone {
-    margin-bottom: 10px;
-    border-radius: 4px;
-    border: 2px dashed rgba(0, 0, 0, 0.3);
-    background: transparent;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    .dz-preview.dz-image-preview {
-      background: transparent;
-    }
-
-    .glyphicon-camera {
-      font-size: 3.8em;
-      margin-bottom: 8px;
-      display: block;
-      text-align: center;
-    }
-  }
-
-}
-
 

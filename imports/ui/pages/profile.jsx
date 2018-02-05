@@ -5,15 +5,14 @@
 
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
-// import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import $ from 'jquery'
 
 import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
-import Dropzone from 'dropzone' // cannot have { } around Dropzone!
 
 import { Images } from '../../api/images'
+import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
 let UUID = require('uuid-1345')
 
@@ -25,7 +24,6 @@ class _Profile extends Component {
     this.state = {
       showResendLink: true,
       uploadActive: false,
-      user: this.props.user,
       changingEmail: false,
       changingPassword: false
     }
@@ -33,6 +31,43 @@ class _Profile extends Component {
     this.addImage = this.addImage.bind(this)
     this.saveProfileImage = this.saveProfileImage.bind(this)
     this.resizeImage = this.resizeImage.bind(this)
+    this.updateProfileImage = this.updateProfileImage.bind(this)
+  }
+
+  updateProfileImage (file, done) {
+    let reader = new window.FileReader()
+    reader.readAsDataURL(file)
+    reader.addEventListener('loadend', function (e) {
+      const fileURL = reader.result
+      const UID = UUID.v5({
+        namespace: '00000000-0000-0000-0000-000000000000',
+        name: fileURL})
+      let image = {UID: UID}
+      const existing = Images.findOne(image)
+
+      if (existing) {
+        this.saveProfileImage(existing.url)
+        return
+      }
+
+      let img = new window.Image()
+      img.onload = function () {
+        const meta = {UID: UID, type: 'image'}
+        Meteor.call('settings.find', (e, obj) => {
+          if (e) alertify.error('Error while getting settings')
+          if (obj) this.resizeImage(obj.maxImageWidth, img, meta, true)
+        })
+      }.bind(this)
+
+      img.src = fileURL
+      // Makes a thumbnail
+      let thumb = new window.Image()
+      thumb.onload = function () {
+        const meta = {UID: UID, type: 'thumbnail'}
+        this.resizeImage(50, thumb, meta, false)
+      }.bind(this)
+      thumb.src = e.target.result
+    }.bind(this))
   }
 
   addImage (image) {
@@ -47,8 +82,6 @@ class _Profile extends Component {
       setTimeout(() => {
         alertify.success('Profile image updated')
         this.setState({ uploadActive: false })
-        $('.dz-success.dz-complete').remove()
-        $('.dz-preview.dz-image-preview').remove()
       }, 800)
     })
   }
@@ -58,6 +91,12 @@ class _Profile extends Component {
       if (e) alertify.error('Error sending email')
       else this.setState({ showResendLink: false })
     })
+  }
+
+  shouldComponentUpdate (nextState, nextProps) {
+    const userHasChanged = this.props.user !== nextProps.user
+    const stateHasChanged = this.state !== nextState
+    return userHasChanged || stateHasChanged
   }
 
   resizeImage (size, img, meta, save) {
@@ -85,66 +124,8 @@ class _Profile extends Component {
     })
   }
 
-  componentDidUpdate () {
-    if (!this.state.uploadActive) {
-      return
-    }
-
-    if (Meteor.isTest) {
-      return
-    }
-
-    /* eslint-disable no-unused-vars */
-    // The Dropzone
-    // Don't create it if it already exists
-    if (this.dropzone) {
-      return
-    }
-    this.dropzone = new Dropzone('#profile-image-uploader', {
-      url: '/some/random/url',
-      acceptedFiles: 'image/jpeg,image/png,image/gif',
-      accept: (file, done) => {
-        let reader = new window.FileReader()
-        reader.readAsDataURL(file)
-        reader.addEventListener('loadend', function (e) {
-          const fileURL = reader.result
-          const UID = UUID.v5({
-            namespace: '00000000-0000-0000-0000-000000000000',
-            name: fileURL})
-          let image = {UID: UID}
-          const existing = Images.find(image).fetch()[0]
-          if (existing) {
-            this.saveProfileImage(existing.url)
-          } else {
-            let img = new window.Image()
-            img.onload = function () {
-              const meta = {UID: UID, type: 'image'}
-              Meteor.call('settings.find', (e, obj) => {
-                if (e) alertify.error('Error while getting settings')
-                if (obj) this.resizeImage(obj.maxImageWidth, img, meta, true)
-              })
-            }.bind(this)
-            img.src = fileURL
-            // Makes a thumbnail
-            let thumb = new window.Image()
-            thumb.onload = function () {
-              const meta = {UID: UID, type: 'thumbnail'}
-              this.resizeImage(50, thumb, meta, false)
-            }.bind(this)
-            thumb.src = e.target.result
-          }
-        }.bind(this))
-      }
-    })
-    /* eslint-enable no-unused-vars */
-  }
-
-  componentWillReceiveProps (nextProps) {
-    this.setState({ user: nextProps.user })
-  }
-
   render () {
-    const user = this.state.user
+    const user = this.props.user
     const needsEmailVerification = !user.emails[0].verified
 
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
@@ -184,12 +165,17 @@ class _Profile extends Component {
                         : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>}
                     </div>
                     )
-                    : (<div id='profile-image-uploader' className='dropzone ql-profile-image-dropzone'>
-                      <div className='dz-default dz-message'>
-                        <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-                        Drag and Drop a new picture
-                      </div>
-                    </div>) }
+                    : (
+                      <DragAndDropArea onDrop={this.updateProfileImage}>
+                        <div className='ql-profile-image-droparea dropzone'>
+                          <div className='dz-default dz-message'>
+                            <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                              Drag and Drop an image to upload
+                          </div>
+                        </div>
+                      </DragAndDropArea>
+                    )
+                    }
                 </div>
 
                 <div className='btn-group btn-group-justified' role='group' aria-label='...'>
@@ -210,7 +196,7 @@ class _Profile extends Component {
         </div>
 
         { this.state.changingEmail
-          ? <ChangeEmailModal oldEmail={this.state.user.getEmail()} done={toggleChangeEmailModal} />
+          ? <ChangeEmailModal oldEmail={user.getEmail()} done={toggleChangeEmailModal} />
           : '' }
 
         { this.state.changingPassword
