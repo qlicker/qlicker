@@ -385,8 +385,8 @@ class _RunSession extends Component {
           </span>
           <span className='toolbar-button' onClick={togglePresenting}>
             <span className='glyphicon glyphicon-fullscreen' />&nbsp;
-            Presentation Mode
-          </span>
+             { !this.state.presenting ? 'Presentation Mode' : 'Prof Mode'} 
+            </span>
           <span className='toolbar-button' onClick={secondDisplay}>
             <span className='glyphicon glyphicon-blackboard' />&nbsp;
             2nd Display
@@ -452,7 +452,15 @@ class _RunSession extends Component {
             }
 
             <div className='ql-question-preview'>
-              { q ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof /> : '' }
+              { q
+                 ? <div>
+                     { !this.state.presenting // Remove prof prop if presenting (don't show answer by default)
+                       ? <QuestionDisplay question={q} responseStats={responseStats} readonly prof />
+                       : <QuestionDisplay question={q} responseStats={responseStats} readonly />
+                     }
+                   </div>
+                 : ''
+               }
             </div>
           </div>
 

@@ -366,7 +366,7 @@ Router.route('/session/present/:_id', {
   action: function () {
     const user = Meteor.user()
     const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
-    if (user && user.isInstructor(cId)) {
+    if (user && user.isInstructor(cId)) { // If it's an instructor, then this is called when using "2nd display" while running session
       mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
     } else if (user) {
       mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })

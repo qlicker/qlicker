@@ -78,7 +78,7 @@ class _Session extends Component {
 
       const responseStats = q.sessionOptions.stats ? this.props.responseStatsByQuestion[q._id] : null
       const questionDisplay = user.isInstructor(session.courseId)
-        ? <QuestionDisplay question={q} readonly />
+        ? <QuestionDisplay question={q} readonly responseStats={responseStats} attemptNumber={currentAttemptNumber} />
         : <QuestionDisplay question={q} style={{float: 'right'}} attemptNumber={currentAttemptNumber}
           response={response} responseStats={responseStats} />
       return (
