@@ -6,7 +6,6 @@
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
 import { createContainer } from 'meteor/react-meteor-data'
-import $ from 'jquery'
 
 import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
