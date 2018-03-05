@@ -6,8 +6,6 @@
 import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import $ from 'jquery'
-
 import { PromoteAccountModal } from '../modals/PromoteAccountModal'
 import { Courses } from '../../api/courses'
 

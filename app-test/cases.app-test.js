@@ -6,7 +6,6 @@
 
 import { Meteor } from 'meteor/meteor'
 import { expect } from 'meteor/practicalmeteor:chai'
-import { $ } from 'meteor/jquery'
 
 import { generateData } from './../imports/api/generate-data.app-test.js'
 
@@ -76,7 +75,7 @@ if (Meteor.isClient) {
             triggerChange('emailField', 'student@email.com')
             triggerChange('passwordField', 'p3ssw0rd')
 
-            $('#submitButton').click()
+            document.getElementById('submitButton').click()
           })
           .then(waitForSubscriptions)
           .then(() => {
@@ -104,7 +103,7 @@ if (Meteor.isClient) {
             triggerChange('emailField', 'professor@email.com')
             triggerChange('passwordField', 'p3ssw0rd')
 
-            $('#submitButton').click()
+            document.getElementById('submitButton').click()
           })
           .then(waitForSubscriptions)
           .then(() => {
