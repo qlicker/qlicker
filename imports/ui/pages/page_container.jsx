@@ -21,7 +21,9 @@ class _PageContainer extends Component {
   }
 
   componentDidMount () {
-    $('.navbar-collapse a.close-nav').click(function () {
+    // Close the dropdown when selecting a link during mobile
+    // view.
+    $('.navbar-collapse .dropdown-menu').click(function () {
       $('.navbar-collapse').collapse('hide')
     })
   }
