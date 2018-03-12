@@ -10,6 +10,7 @@ import { PromoteAccountModal } from '../modals/PromoteAccountModal'
 import { Courses } from '../../api/courses'
 
 import { userGuideUrl } from '../../configs.js'
+import $ from 'jquery'
 
 class _PageContainer extends Component {
 

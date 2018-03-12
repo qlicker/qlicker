@@ -24,6 +24,7 @@ import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
+import $ from 'jquery'
 
 class _ManageSession extends Component {
 

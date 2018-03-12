@@ -14,6 +14,7 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { Questions } from '../../../api/questions'
 
 import { createNav } from './questions_library'
+import $ from 'jquery'
 
 class _QuestionsPublic extends Component {
 
