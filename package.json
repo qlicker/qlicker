@@ -4,8 +4,8 @@
   "scripts": {
     "doc": "jsdoc imports/* docs/README.md -d docs/.jsdocs -t node_modules/docdash/",
     "start": "meteor --settings settings.json",
-    "lint": "node_modules/.bin/standard \"client/**/*.js*\" \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
-    "fix-lint": "node_modules/.bin/standard --fix \"client/**/*.js*\" \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
+    "lint": "node_modules/.bin/standard \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
+    "fix-lint": "node_modules/.bin/standard --fix \"imports/**/*.js*\" \"server/**/*.js*\" \"app-test/**/*.js*\"",
     "test:unit": "node_modules/.bin/spacejam test --once --driver-package practicalmeteor:mocha --settings settings.json",
     "test:app": "node_modules/.bin/spacejam test --once --full-app --driver-package practicalmeteor:mocha --settings settings.json",
     "test:unit-watch": "meteor test --driver-package practicalmeteor:mocha --settings settings.json",
