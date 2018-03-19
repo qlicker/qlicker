@@ -29,7 +29,7 @@
     "fixed-data-table": "^0.6.3",
     "fixed-data-table-2": "^0.8.6",
     "immutable": "^3.8.1",
-    "jquery": "^2.2.0",
+    "jquery": "^3.3.1",
     "jshint": "^2.9.4",
     "meteor-node-stubs": "~0.2.0",
     "moment": "^2.18.1",
