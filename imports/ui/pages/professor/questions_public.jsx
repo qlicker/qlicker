@@ -7,7 +7,6 @@ import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
-import $ from 'jquery'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionDisplay } from '../../QuestionDisplay'
@@ -15,6 +14,7 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { Questions } from '../../../api/questions'
 
 import { createNav } from './questions_library'
+import $ from 'jquery'
 
 class _QuestionsPublic extends Component {
 

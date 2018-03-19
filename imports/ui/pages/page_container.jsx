@@ -6,12 +6,11 @@
 import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import $ from 'jquery'
-
 import { PromoteAccountModal } from '../modals/PromoteAccountModal'
 import { Courses } from '../../api/courses'
 
 import { userGuideUrl } from '../../configs.js'
+import $ from 'jquery'
 
 class _PageContainer extends Component {
 
@@ -22,7 +21,9 @@ class _PageContainer extends Component {
   }
 
   componentDidMount () {
-    $('.navbar-collapse a.close-nav').click(function () {
+    // Close the dropdown when selecting a link during mobile
+    // view.
+    $('.navbar-collapse .dropdown-menu').click(function () {
       $('.navbar-collapse').collapse('hide')
     })
   }

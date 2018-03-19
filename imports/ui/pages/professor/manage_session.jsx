@@ -7,7 +7,6 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import _ from 'underscore'
-import $ from 'jquery'
 
 import { createContainer } from 'meteor/react-meteor-data'
 import DragSortableList from 'react-drag-sortable'
@@ -25,6 +24,7 @@ import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
+import $ from 'jquery'
 
 class _ManageSession extends Component {
 
@@ -380,14 +380,14 @@ class _ManageSession extends Component {
       let query = {}
       let options = {}
       if (this.state.questionPool === 'student') {
-        query = $.extend({}, this.props.studentParams.query, this.state.query.query)
-        options = $.extend({}, this.props.studentParams.options, this.state.query.options)
+        query = Object.assign({}, this.props.studentParams.query, this.state.query.query)
+        options = Object.assign({}, this.props.studentParams.options, this.state.query.options)
       } else if (this.state.questionPool === 'public') {
-        query = $.extend({}, this.props.publicParams.query, this.state.query.query)
-        options = $.extend({}, this.props.publicParams.options, this.state.query.options)
+        query = Object.assign({}, this.props.publicParams.query, this.state.query.query)
+        options = Object.assign({}, this.props.publicParams.options, this.state.query.options)
       } else {
-        query = $.extend({}, this.props.libraryParams.query, this.state.query.query)
-        options = $.extend({}, this.props.libraryParams.options, this.state.query.options)
+        query = Object.assign({}, this.props.libraryParams.query, this.state.query.query)
+        options = Object.assign({}, this.props.libraryParams.options, this.state.query.options)
       }
       return Questions.find(query, options).fetch()
     }
