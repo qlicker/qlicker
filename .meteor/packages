@@ -25,7 +25,6 @@ practicalmeteor:mocha
 dburles:factory
 lmieulet:meteor-coverage
 practicalmeteor:mocha-console-runner
-twbs:bootstrap
 xolvio:cleaner
 email@1.1.18
 255kb:meteor-status
