@@ -13,6 +13,7 @@ import { QuestionSidebar } from '../../QuestionSidebar'
 import { Questions } from '../../../api/questions'
 
 import { createNav } from './questions_library'
+import { Tooltip } from 'react-tippy'
 
 class _QuestionsFromStudent extends Component {
 
@@ -80,14 +81,6 @@ class _QuestionsFromStudent extends Component {
 
   questionDeleted () {
     this.setState({ selected: null })
-  }
-
-  componentDidMount () {
-    this.componentDidUpdate()
-  }
-
-  componentDidUpdate () {
-    $('[data-toggle="tooltip"]').tooltip()
   }
 
   updateQuery (childState) {
@@ -159,27 +152,27 @@ class _QuestionsFromStudent extends Component {
             { this.state.selected
               ? <div>
                 <h3>Preview Question</h3>
-                <button className='btn btn-default'
-                  onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
-                  data-toggle='tooltip'
-                  data-placement='left'
-                  title='Create a copy to use in your own sessions'>
-                  {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
-                </button>
-                <button className='btn btn-default'
-                  onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
-                  data-toggle='tooltip'
-                  data-placement='left'
-                  title='Make the question public'>
-                  Make Public
-                </button>
+                <Tooltip position='right' title='Create a copy to use in your own sessions'>
+                  <button className='btn btn-default'
+                    onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
+                    data-toggle='tooltip'
+                    data-placement='left'>
+                    {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
+                  </button>
+                </Tooltip>
+
+                <Tooltip position='right' title='Make the question public'>
+                  <button className='btn btn-default'
+                    onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
+                    data-toggle='tooltip'>
+                    Make Public
+                  </button>
+                </Tooltip>
 
                 <button className='btn btn-default'
-                  onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
-                  data-toggle='tooltip'
-                  data-placement='left'>
+                  onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}>
                     Delete
-                  </button>
+                </button>
                 <div className='ql-preview-item-container'>
                   {this.state.selected
                     ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
