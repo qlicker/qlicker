@@ -13,7 +13,6 @@ import { QuestionSidebar } from '../../QuestionSidebar'
 import { Questions } from '../../../api/questions'
 
 import { createNav } from './questions_library'
-import $ from 'jquery'
 
 class _QuestionsFromStudent extends Component {
 
