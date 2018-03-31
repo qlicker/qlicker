@@ -165,7 +165,7 @@ class _Profile extends Component {
                     </div>
                     )
                     : (
-                      <DragAndDropArea onDrop={this.updateProfileImage}>
+                      <DragAndDropArea onDrop={this.updateProfileImage} maxFiles={1}>
                         <div className='ql-profile-image-droparea dropzone'>
                           <div className='dz-default dz-message'>
                             <span className='glyphicon glyphicon-camera' aria-hidden='true' />
