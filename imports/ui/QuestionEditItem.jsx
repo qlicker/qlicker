@@ -565,8 +565,7 @@ export class QuestionEditItem extends Component {
                     title={!this.state.public ? 'Allow others to view and copy this question' : ''}>
                     <button
                       className='btn btn-default'
-                      onClick={this.togglePublic}
-                      data-placement='top'>
+                      onClick={this.togglePublic}>
                       {strMakePublic}
                     </button>
                   </Tooltip>

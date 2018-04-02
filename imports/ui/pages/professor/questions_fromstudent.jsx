@@ -154,17 +154,14 @@ class _QuestionsFromStudent extends Component {
                 <h3>Preview Question</h3>
                 <Tooltip position='right' title='Create a copy to use in your own sessions'>
                   <button className='btn btn-default'
-                    onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
-                    data-toggle='tooltip'
-                    data-placement='left'>
+                    onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}>
                     {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
                   </button>
                 </Tooltip>
 
                 <Tooltip position='right' title='Make the question public'>
                   <button className='btn btn-default'
-                    onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
-                    data-toggle='tooltip'>
+                    onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}>
                     Make Public
                   </button>
                 </Tooltip>
