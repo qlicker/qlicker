@@ -23,6 +23,7 @@ export class DragAndDropArea extends Component {
     this.dropzone = new Dropzone(ReactDOM.findDOMNode(this), {
       url: this.props.url || '/dummy/url/to/send/post',
       acceptedFiles: this.props.acceptedFiles || 'image/jpeg,image/png,image/gif',
+      maxFiles: this.props.maxFiles || null,
       accept: this.props.onDrop
     })
   }
