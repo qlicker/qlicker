@@ -14,7 +14,7 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { Questions } from '../../../api/questions'
 
 import { createNav } from './questions_library'
-import $ from 'jquery'
+import { Tooltip } from 'react-tippy'
 
 class _QuestionsPublic extends Component {
 
@@ -50,10 +50,6 @@ class _QuestionsPublic extends Component {
 
   componentDidMount () {
     this.componentDidUpdate()
-  }
-
-  componentDidUpdate () {
-    $('[data-toggle="tooltip"]').tooltip()
   }
 
   updateQuery (childState) {
@@ -127,14 +123,13 @@ class _QuestionsPublic extends Component {
                 <h3>Preview Question</h3>
                 { (this.state.questionMap[this.state.selected].owner !== userId &&
                    this.state.questionMap[this.state.selected].creator !== userId)
-                  ? <button className='btn btn-default'
-                    onClick={() => { this.copyPublicQuestion(this.state.questionMap[this.state.selected]._id) }}
-                    data-toggle='tooltip'
-                    data-placement='left'
-                    title='Create a copy for your library'>
+                  ? <Tooltip position='right' title='Create a copy for your library'>
+                    <button className='btn btn-default'
+                      onClick={() => { this.copyPublicQuestion(this.state.questionMap[this.state.selected]._id) }}>
                     Copy to Library
                     </button>
-                   : ''
+                  </Tooltip>
+                  : ''
                 }
                 <div className='ql-preview-item-container'>
                   {this.state.selected
