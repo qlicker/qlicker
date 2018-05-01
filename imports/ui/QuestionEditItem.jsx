@@ -13,7 +13,6 @@ import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
 import { defaultSessionOptions } from '../api/questions'
-import { Tooltip } from 'react-tippy'
 
 // constants
 import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
@@ -546,29 +545,27 @@ export class QuestionEditItem extends Component {
               <div className='col-md-6'>
                 <div className='btn-group'>
                   {this.state._id
-                    ? <Tooltip title='Create a copy of this question' position='top'>
-                      <button className='btn btn-default'
-                        onClick={this.duplicateQuestion}>
-                        Duplicate
-                      </button>
-                    </Tooltip> : ''
+                    ? <button className='btn btn-default'
+                      onClick={this.duplicateQuestion}
+                      data-toggle='tooltip'
+                      data-placement='top'
+                      title='Create a copy of this question'>
+                      Duplicate
+                    </button> : ''
                   }
-
                   <button
                     className='btn btn-default'
                     onClick={this.deleteQuestion}>
                     Delete
                   </button>
-
-                  <Tooltip
-                    position='top'
+                  <button
+                    className='btn btn-default'
+                    onClick={this.togglePublic}
+                    data-toggle='tooltip'
+                    data-placement='top'
                     title={!this.state.public ? 'Allow others to view and copy this question' : ''}>
-                    <button
-                      className='btn btn-default'
-                      onClick={this.togglePublic}>
-                      {strMakePublic}
-                    </button>
-                  </Tooltip>
+                    {strMakePublic}
+                  </button>
                 </div>
               </div>
               <div className='col-md-6'>

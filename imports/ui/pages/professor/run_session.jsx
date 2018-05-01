@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 import { _ } from 'underscore'
-import { Tooltip } from 'react-tippy'
+import ReactTooltip from 'react-tooltip'
 
 import { createContainer } from 'meteor/react-meteor-data'
 
@@ -370,26 +370,14 @@ class _RunSession extends Component {
             Edit Session
           </span>
           <span className='divider'>&nbsp;</span>
-
-          <Tooltip
-            position='bottom'
-            interactive
-            html={
-              <div>
-                {students.map(student =>
-                  (<div key={student._id}>
-                    {student.profile.lastname + ', ' + student.profile.firstname}
-                  </div>)
-                )}
+          <span data-tip data-for='students' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <ReactTooltip id='students' place='bottom' type='dark' effect='solid'>
+            {students.map((student) =>
+              <div key={student._id}>
+                <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>
               </div>
-            }>
-
-            <span data-tip data-for='students' className='session-title'>
-              <span className='glyphicon glyphicon-user' />{numJoined}
-            </span>
-
-          </Tooltip>
-
+            )}
+          </ReactTooltip>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
@@ -501,6 +489,16 @@ export const RunSession = createContainer((props) => {
     responseCounts[question._id] = _(responsesByQuestion[question._id]).countBy('attempt')
   })
 
+//  const responseCounts = _(allResponses).countBy('questionId')
+
+/*
+  let responses = []
+  const q = questions[session.currentQuestion]
+  if (session.currentQuestion && q && q.sessionOptions) {
+    const maxAttempt = questions[session.currentQuestion].sessionOptions.attempts.length
+    responses = Responses.find({ attempt: maxAttempt, questionId: session.currentQuestion }).fetch()
+  }
+*/
   return {
     questions: questions,
     responseCounts: responseCounts,
