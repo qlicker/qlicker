@@ -1,0 +1,19 @@
+@import '../mixins.scss';
+@import '../variables.scss';
+
+.student-list {
+
+  overflow-y: auto;
+  background-color: #333;
+
+  .student-item {
+
+    &:hover {
+      cursor: pointer;
+      background-color: $hover-color;
+    }
+
+  }
+
+
+}
