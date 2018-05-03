@@ -381,7 +381,6 @@ class _RunSession extends Component {
 
           <Tooltip
             position='bottom'
-            animation='scale'
             interactive='true'
             theme='light'
             hideOnClick='true'
@@ -404,10 +403,20 @@ class _RunSession extends Component {
             <span className='glyphicon glyphicon-fullscreen' />&nbsp;
             { !this.state.presenting ? 'Presentation Mode' : 'Prof Mode'}
           </span>
-          <span className='toolbar-button' onClick={secondDisplay}>
-            <span className='glyphicon glyphicon-blackboard' />&nbsp;
-            2nd Display
-          </span>
+
+          <Tooltip
+            position='bottom'
+            html={ 
+              <div>
+                Open the session in a new window in presentation mode
+                </div> 
+            }>   
+            <span className='toolbar-button' onClick={secondDisplay}>
+              <span className='glyphicon glyphicon-blackboard' />&nbsp;
+              2nd Display
+            </span>
+          </Tooltip>
+
           <a className='toolbar-button' href='#' onClick={this.routeMobile}>
             <span className='glyphicon glyphicon-phone' />&nbsp;
             Mobile view
@@ -428,7 +437,15 @@ class _RunSession extends Component {
             <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
             <span className='divider'>&nbsp;</span>
             <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
-            <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+            <Tooltip
+              position='bottom'
+              html={ 
+                <div>
+                  Reset student answers and replay question
+                  </div>
+              }>
+                <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+            </Tooltip>
             <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
             <span className='divider'>&nbsp;</span>
           </div>
