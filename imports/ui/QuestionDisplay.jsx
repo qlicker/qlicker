@@ -425,7 +425,9 @@ export class QuestionDisplay extends Component {
           </div>
           : ''
         }
-
+        <div className='ql-question-solution'>
+          {this.props.question.solution}
+        </div>
       </div>
     )
   } // end render

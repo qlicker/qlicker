@@ -24,7 +24,8 @@ export const DEFAULT_STATE = {
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
-  sessionOptions: defaultSessionOptions
+  sessionOptions: defaultSessionOptions,
+  solution: null
 }
 
 /**
@@ -277,7 +278,7 @@ export class QuestionEditItem extends Component {
    * Update wysiwyg contents for actual question in state
    * @param {Object} content
    */
-  onEditorStateChange (content, plainText) {
+  onEditorStateChange (content, plainText, solution) {
     let stateEdits = { content: content, plainText: plainText, solution: solution }
     this.setState(stateEdits, () => {
       this._DB_saveQuestion()
@@ -675,7 +676,7 @@ export class QuestionEditItem extends Component {
           change={this.onEditorStateChange}
           val={this.state.solution}
           className='solution-editor'
-          placeholder='solution'
+          placeholder='Solution'
         />
       </div>)
   } //  end render
