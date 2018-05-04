@@ -22,6 +22,8 @@ import { ROLES } from '../../../configs'
 import { SessionListItem } from '../../SessionListItem'
 import { StudentListItem } from '../../StudentListItem'
 
+import { Tooltip } from 'react-tippy'
+
 class _ManageCourse extends Component {
 
   constructor (props) {
@@ -276,9 +278,16 @@ class _ManageCourse extends Component {
                 <h4>Course Details</h4>
               </div>
               <div className='ql-card-content'>
-                <div className='btn-group btn-group-justified details-button-group'>
-                  <div className='btn btn-default' onClick={manageGroups}> Manage Groups </div>
-                </div>
+                <Tooltip
+                  html={
+                    <div>
+                      Create and manage groups of students
+                    </div>
+                  }>
+                  <div className='btn-group btn-group-justified details-button-group'>                  
+                    <div className='btn btn-default' onClick={manageGroups}> Manage Groups </div>
+                  </div>
+                </Tooltip>
                 {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA

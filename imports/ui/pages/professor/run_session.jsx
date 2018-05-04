@@ -384,6 +384,7 @@ class _RunSession extends Component {
             interactive='true'
             theme='light'
             hideOnClick='true'
+            size='big'
             html={
               <StudentListTooltip students={students} toggleProfileViewModal={this.toggleProfileViewModal} />
             }>
@@ -409,7 +410,7 @@ class _RunSession extends Component {
             html={ 
               <div>
                 Open the session in a new window in presentation mode
-                </div> 
+              </div> 
             }>   
             <span className='toolbar-button' onClick={secondDisplay}>
               <span className='glyphicon glyphicon-blackboard' />&nbsp;
