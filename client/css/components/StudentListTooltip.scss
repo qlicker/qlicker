@@ -5,6 +5,9 @@
 
   overflow-y: auto;
   background-color: #333;
+  color: white;
+  width: 100%;
+  border-radius: 4px;
 
   .student-item {
 
@@ -12,8 +15,5 @@
       cursor: pointer;
       background-color: $hover-color;
     }
-
   }
-
-
 }

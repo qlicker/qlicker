@@ -22,6 +22,8 @@ import { ROLES } from '../../../configs'
 import { SessionListItem } from '../../SessionListItem'
 import { StudentListItem } from '../../StudentListItem'
 
+import { Tooltip } from 'react-tippy'
+
 class _ManageCourse extends Component {
 
   constructor (props) {
@@ -276,9 +278,16 @@ class _ManageCourse extends Component {
                 <h4>Course Details</h4>
               </div>
               <div className='ql-card-content'>
-                <div className='btn-group btn-group-justified details-button-group'>
-                  <div className='btn btn-default' onClick={manageGroups}> Manage Groups </div>
-                </div>
+                <Tooltip
+                  html={
+                    <div>
+                      Create and manage groups of students
+                    </div>
+                  }>
+                  <div className='btn-group btn-group-justified details-button-group'>                  
+                    <div className='btn btn-default' onClick={manageGroups}> Manage Groups </div>
+                  </div>
+                </Tooltip>
                 {Meteor.user().hasGreaterRole(ROLES.prof) ? <div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={toggleAddTA}>Add Instructor/TA
@@ -326,8 +335,25 @@ class _ManageCourse extends Component {
             <h3>Sessions ({nSessions} session{nSessions > 1 ? 's' : '' })</h3>
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
-                <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>Review Session Results</button>
+              <Tooltip
+                  position='bottom'
+                  html={
+                    <div>
+                      Create session/quiz
+                    </div>
+                  }>
+                  <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
+                </Tooltip>
+                <Tooltip
+                  position='bottom'
+                  html={
+                    <div>
+                      Calculate grades across all sessions
+                    </div>
+                  }>
+                  <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>Review Session Results</button>
+                </Tooltip>
+                
               </div>
               { this.renderSessionList() }
             </div>
