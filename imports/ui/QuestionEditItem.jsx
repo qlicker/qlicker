@@ -278,7 +278,7 @@ export class QuestionEditItem extends Component {
    * @param {Object} content
    */
   onEditorStateChange (content, plainText) {
-    let stateEdits = { content: content, plainText: plainText }
+    let stateEdits = { content: content, plainText: plainText, solution: solution }
     this.setState(stateEdits, () => {
       this._DB_saveQuestion()
     })
@@ -673,9 +673,9 @@ export class QuestionEditItem extends Component {
           : '' }
         <Editor
           change={this.onEditorStateChange}
-          val={this.state.content}
-          className='answer-editor'
-          placeholder='Solution'
+          val={this.state.solution}
+          className='solution-editor'
+          placeholder='solution'
         />
       </div>)
   } //  end render

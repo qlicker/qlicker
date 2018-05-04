@@ -18,6 +18,13 @@
       border-top-left-radius: 0px;
     }
 
+    &.solution-editor {
+      font-size: 2em;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      margin-top: 20px;
+    }
+
     .cke_textarea_inline {
       padding: 8px;
       // padding-bottom: 2px;
