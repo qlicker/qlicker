@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// run_session.jsx: page for managing a currently running session
+// session.jsx: page for managing a currently running session
 
 import React, { Component } from 'react'
 import { _ } from 'underscore'
@@ -18,6 +18,9 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { AnswerDistribution } from '../../AnswerDistribution'
 import { ShortAnswerList } from '../../ShortAnswerList'
 
+import { StudentListTooltip } from '../../StudentListTooltip'
+import { ProfileViewModal } from '../../modals/ProfileViewModal'
+
 import { QUESTION_TYPE } from '../../../configs'
 
 class _RunSession extends Component {
@@ -25,7 +28,7 @@ class _RunSession extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { presenting: false, session: _.extend({}, this.props.session) }
+    this.state = { presenting: false, session: _.extend({}, this.props.session), profileViewModal: false }
 
     this.sessionId = this.props.sessionId
 
@@ -42,6 +45,7 @@ class _RunSession extends Component {
     this.toggleAttempt = this.toggleAttempt.bind(this)
     this.routeMobile = this.routeMobile.bind(this)
     this.routeDesktop = this.routeDesktop.bind(this)
+    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
 
     Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
   }
@@ -329,6 +333,10 @@ class _RunSession extends Component {
       </div>)
   }
 
+  toggleProfileViewModal (userToView = null) {
+    this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
+  }
+
   render () {
     if (this.props.mobile) return this.renderMobile()
     if (this.state.session.status !== 'running') return <div className='ql-subs-loading'>Session not running</div>
@@ -373,15 +381,11 @@ class _RunSession extends Component {
 
           <Tooltip
             position='bottom'
-            interactive
+            interactive='true'
+            theme='light'
+            hideOnClick='true'
             html={
-              <div>
-                {students.map(student =>
-                  (<div key={student._id}>
-                    {student.profile.lastname + ', ' + student.profile.firstname}
-                  </div>)
-                )}
-              </div>
+              <StudentListTooltip students={students} toggleProfileViewModal={this.toggleProfileViewModal} />
             }>
 
             <span data-tip data-for='students' className='session-title'>
@@ -399,10 +403,20 @@ class _RunSession extends Component {
             <span className='glyphicon glyphicon-fullscreen' />&nbsp;
             { !this.state.presenting ? 'Presentation Mode' : 'Prof Mode'}
           </span>
-          <span className='toolbar-button' onClick={secondDisplay}>
-            <span className='glyphicon glyphicon-blackboard' />&nbsp;
-            2nd Display
-          </span>
+
+          <Tooltip
+            position='bottom'
+            html={ 
+              <div>
+                Open the session in a new window in presentation mode
+                </div> 
+            }>   
+            <span className='toolbar-button' onClick={secondDisplay}>
+              <span className='glyphicon glyphicon-blackboard' />&nbsp;
+              2nd Display
+            </span>
+          </Tooltip>
+
           <a className='toolbar-button' href='#' onClick={this.routeMobile}>
             <span className='glyphicon glyphicon-phone' />&nbsp;
             Mobile view
@@ -423,7 +437,15 @@ class _RunSession extends Component {
             <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
             <span className='divider'>&nbsp;</span>
             <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
-            <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+            <Tooltip
+              position='bottom'
+              html={ 
+                <div>
+                  Reset student answers and replay question
+                  </div>
+              }>
+                <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+            </Tooltip>
             <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
             <span className='divider'>&nbsp;</span>
           </div>
@@ -477,6 +499,11 @@ class _RunSession extends Component {
           </div>
 
         </div>
+        { this.state.profileViewModal
+          ? <ProfileViewModal
+            user={this.state.userToView}
+            done={this.toggleProfileViewModal} />
+        : '' }
       </div>)
   }
 
