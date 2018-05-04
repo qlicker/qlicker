@@ -292,7 +292,7 @@ class _RunSession extends Component {
                 {strAttemptEnabled}
               </div>
             </div>
-            <div className='btn-group btn-group-justified'>
+            <div className='btn-group btn-group-justified'>             
               <div className='btn btn-default' onClick={() => { this.toggleStats(q._id) }}>
                 {strStatsVisible}
               </div>
@@ -433,9 +433,33 @@ class _RunSession extends Component {
             <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
             <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>
             <span className='divider'>&nbsp;</span>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
+            <Tooltip
+              position='bottom'
+              html={
+                <div>
+                  Toggle show question
+                </div>
+              }>
+              <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
+            </Tooltip>
+            <Tooltip
+              position='bottom'
+              html={
+                <div>
+                  Toggle show correct answer
+                </div>
+              }>
+              <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
+            </Tooltip>
+            <Tooltip
+              position='bottom'
+              html={
+                <div>
+                  Toggle show answer statistics
+                </div>
+              }>
+              <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
+            </Tooltip>   
             <span className='divider'>&nbsp;</span>
             <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
             <Tooltip
