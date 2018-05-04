@@ -671,7 +671,12 @@ export class QuestionEditItem extends Component {
             </div>
           </div>
           : '' }
-
+        <Editor
+          change={this.onEditorStateChange}
+          val={this.state.content}
+          className='answer-editor'
+          placeholder='Solution'
+        />
       </div>)
   } //  end render
 
