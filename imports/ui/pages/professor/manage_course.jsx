@@ -335,8 +335,25 @@ class _ManageCourse extends Component {
             <h3>Sessions ({nSessions} session{nSessions > 1 ? 's' : '' })</h3>
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
-                <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>Review Session Results</button>
+              <Tooltip
+                  position='bottom'
+                  html={
+                    <div>
+                      Create session/quiz
+                    </div>
+                  }>
+                  <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
+                </Tooltip>
+                <Tooltip
+                  position='bottom'
+                  html={
+                    <div>
+                      Calculate grades across all sessions
+                    </div>
+                  }>
+                  <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>Review Session Results</button>
+                </Tooltip>
+                
               </div>
               { this.renderSessionList() }
             </div>
