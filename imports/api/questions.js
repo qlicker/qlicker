@@ -38,6 +38,8 @@ const questionPattern = {
   courseId: Match.Maybe(Helpers.MongoID),
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
+  solution: String,
+  solution_plaintext: String,
   createdAt: Date,
   approved: Boolean,
   tags: [ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ],

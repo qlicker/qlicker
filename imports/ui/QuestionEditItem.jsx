@@ -19,13 +19,14 @@ import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isA
 
 export const DEFAULT_STATE = {
   plainText: '',
+  solution: null,  
+  solution_plaintext: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
-  sessionOptions: defaultSessionOptions,
-  solution: null
+  sessionOptions: defaultSessionOptions
 }
 
 /**
@@ -43,6 +44,7 @@ export class QuestionEditItem extends Component {
 
     // binding methods for calling within react context
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
+    this.onEditorSolutionChange = this.onEditorSolutionChange.bind(this)
     // this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
     this.setOptionState = this.setOptionState.bind(this)
@@ -278,13 +280,18 @@ export class QuestionEditItem extends Component {
    * Update wysiwyg contents for actual question in state
    * @param {Object} content
    */
-  onEditorStateChange (content, plainText, solution) {
-    let stateEdits = { content: content, plainText: plainText, solution: solution }
+  onEditorStateChange (content, plainText) {
+    let stateEdits = { content: content, plainText: plainText }
     this.setState(stateEdits, () => {
       this._DB_saveQuestion()
     })
   }
-
+  onEditorSolutionChange (solution, solution_plaintext) {
+    let stateEdits = { solution: solution, solution_plaintext: solution_plaintext }
+    this.setState(stateEdits, () => {
+      this._DB_saveQuestion()
+    })
+  }
   /**
    * Update wysiwyg content in the state based on the answer
    * @param {String} answerKey
@@ -316,7 +323,7 @@ export class QuestionEditItem extends Component {
       options: this.state.options.concat([{
         correct: this.currentAnswer === 0,
         answer: answerKey,
-        wysiwyg: wysiwyg
+        wysiwyg: wysiwyg,
       }])
     }, () => {
       this.currentAnswer++
@@ -394,8 +401,9 @@ export class QuestionEditItem extends Component {
     const user = Meteor.user()
     let question = _.extend({
       createdAt: new Date(),
-      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
+      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
     }, _.omit(this.state, 'courses'))
+    console.log(question)
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
@@ -673,11 +681,13 @@ export class QuestionEditItem extends Component {
           </div>
           : '' }
         <Editor
-          change={this.onEditorStateChange}
+          change={this.onEditorSolutionChange}
           val={this.state.solution}
           className='solution-editor'
           placeholder='Solution'
         />
+        {console.log('Content' + this.state.content)}
+        {console.log('Solution' + this.state.solution)}
       </div>)
   } //  end render
 
