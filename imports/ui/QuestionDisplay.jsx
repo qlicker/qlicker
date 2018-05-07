@@ -425,8 +425,8 @@ export class QuestionDisplay extends Component {
           </div>
           : ''
         }
-        <div className='ql-question-solution'>
-          {this.props.question.solution}
+        <div className='ql-question-content'>
+          {WysiwygHelper.htmlDiv(q.solution)}
         </div>
       </div>
     )
