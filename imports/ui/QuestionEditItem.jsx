@@ -91,7 +91,7 @@ export class QuestionEditItem extends Component {
       this.currentAnswer = 0
       this.answerOrder = MC_ORDER
     }
-
+   
     // populate tagging suggestions
     this.tagSuggestions = []
     let user = Meteor.user()

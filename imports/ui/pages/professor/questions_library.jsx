@@ -61,6 +61,8 @@ class _QuestionsLibrary extends Component {
         plainText: '', // plain text version of question
         type: -1,
         content: '', // wysiwyg display content
+        solution: '',
+        solution_plaintext: '',
         options: [],
         tags: [],
         owner: Meteor.userId(),
