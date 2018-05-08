@@ -311,7 +311,6 @@ export class QuestionDisplay extends Component {
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span>
                  : '' }
-              {content} {(shouldShowCorrect && a.correct) ? '✓' : ''} {showStats ? statsStr : ''}
             </div>
           </div>)
       })
@@ -425,9 +424,8 @@ export class QuestionDisplay extends Component {
           </div>
           : ''
         }
-        <div className='ql-question-solution'>
-          {WysiwygHelper.htmlDiv(q.solution)}
-        </div>
+        {this.state.showCorrect || q.sessionOptions.correct ? <div className='ql-question-solution'>{WysiwygHelper.htmlDiv(q.solution)}</div> : ''}
+    
       </div>
     )
   } // end render
