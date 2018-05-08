@@ -47,7 +47,13 @@ $red-bar: rgba(167,37,38, 0.3);
     background: white;
     padding: 16px;
     margin-top: 20px;
+
+    .ql-question-solution-content {
+      font-size: 0.5em; 
+    }
   }
+
+  
   .ql-subs-loading {
     padding: 10px;
   }
