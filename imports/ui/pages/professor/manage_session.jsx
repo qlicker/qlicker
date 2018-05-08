@@ -16,12 +16,11 @@ import { Creatable } from 'react-select'
 import 'react-select/dist/react-select.css'
 
 import { Sessions } from '../../../api/sessions'
-import { Questions, defaultSessionOptions } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
-import { QuestionEditItem } from '../../QuestionEditItem'
+import { QuestionEditItem, DEFAULT_STATE } from '../../QuestionEditItem'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
@@ -221,20 +220,12 @@ class _ManageSession extends Component {
     tags.push({ value: code, label: code })
     tags.push({ value: semester, label: semester })
 
-    const blankQuestion = {
-      plainText: '', // plain text version of question
-      type: -1,
-      content: '', // wysiwyg display content
-      solution:'',
-      solution_plainText: '',
-      options: [],
-      tags: tags,
+    const blankQuestion = _.extend({   
       sessionId: sessionId,
       courseId: this.state.session.courseId,
       owner: course.owner,
       approved: true,
-      sessionOptions: defaultSessionOptions
-    }
+    }, DEFAULT_STATE)
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
       alertify.success('New Blank Question Added')

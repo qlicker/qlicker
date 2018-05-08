@@ -19,10 +19,10 @@ import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isA
 
 export const DEFAULT_STATE = {
   plainText: '',
-  solution: null,  
+  solution: '',  
   solution_plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
-  content: null,
+  content: '',
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
