@@ -533,7 +533,7 @@ export const ManageSession = createContainer((props) => {
 
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
-  const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
+  const questionsInSession = questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
   let libraryParams = {
     query: {'$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}], sessionId: {$exists: false}},
