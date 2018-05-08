@@ -311,6 +311,7 @@ export class QuestionDisplay extends Component {
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span>
                  : '' }
+              {content} {(shouldShowCorrect && a.correct) ? '✓' : ''} {showStats ? statsStr : ''} 
             </div>
           </div>)
       })
@@ -367,7 +368,7 @@ export class QuestionDisplay extends Component {
     const q = this.props.question
     const type = q.type
     let content
-
+   
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
     let msInfo = ''
     switch (type) {
@@ -412,7 +413,7 @@ export class QuestionDisplay extends Component {
         }
         { this.props.forReview && this.props.readonly && !this.props.prof
           ? <div className='btn-group btn-group-justified'>
-            <div className='btn btn-primary' onClick={this.toggleShowCorrect} >
+            <div className='btn btn-primary' onClick={this.toggleShowCorrect}>
               {this.state.showCorrect ? 'Hide correct' : 'Show correct'}
             </div>
             { this.props.response
@@ -424,8 +425,8 @@ export class QuestionDisplay extends Component {
           </div>
           : ''
         }
-        {this.state.showCorrect || q.sessionOptions.correct ? <div className='ql-question-solution'>{WysiwygHelper.htmlDiv(q.solution)}</div> : ''}
-    
+        {(this.state.showCorrect || q.sessionOptions.correct) && q.solution.length > 0 ? <div className='ql-question-solution'>{WysiwygHelper.htmlDiv(q.solution)}</div> : ''}
+        {console.log('solution ' + q.solution)}
       </div>
     )
   } // end render
