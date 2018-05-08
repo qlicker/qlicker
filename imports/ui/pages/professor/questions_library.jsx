@@ -62,7 +62,7 @@ class _QuestionsLibrary extends Component {
         type: -1,
         content: '', // wysiwyg display content
         solution: '',
-        solution_plaintext: '',
+        solution_plainText: '',
         options: [],
         tags: [],
         owner: Meteor.userId(),

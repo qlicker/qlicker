@@ -20,7 +20,7 @@ import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isA
 export const DEFAULT_STATE = {
   plainText: '',
   solution: null,  
-  solution_plaintext: '',
+  solution_plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: null,
   options: [], // { correct: false, answer: 'A', content: editor content }
@@ -286,8 +286,8 @@ export class QuestionEditItem extends Component {
       this._DB_saveQuestion()
     })
   }
-  onEditorSolutionChange (solution, solution_plaintext) {
-    let stateEdits = { solution: solution, solution_plaintext: solution_plaintext }
+  onEditorSolutionChange (solution, solution_plainText) {
+    let stateEdits = { solution: solution, solution_plainText: solution_plainText }
     this.setState(stateEdits, () => {
       this._DB_saveQuestion()
     })
@@ -323,7 +323,7 @@ export class QuestionEditItem extends Component {
       options: this.state.options.concat([{
         correct: this.currentAnswer === 0,
         answer: answerKey,
-        wysiwyg: wysiwyg,
+        wysiwyg: wysiwyg
       }])
     }, () => {
       this.currentAnswer++
