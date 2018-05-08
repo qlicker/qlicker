@@ -426,7 +426,7 @@ export class QuestionDisplay extends Component {
           : ''
         }
         {(this.state.showCorrect || q.sessionOptions.correct) && q.solution.length > 0 ? <div className='ql-question-solution'>{WysiwygHelper.htmlDiv(q.solution)}</div> : ''}
-        {console.log('solution ' + q.solution)}
+      
       </div>
     )
   } // end render

@@ -403,7 +403,7 @@ export class QuestionEditItem extends Component {
       createdAt: new Date(),
       approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
     }, _.omit(this.state, 'courses'))
-    console.log(question)
+
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
@@ -686,8 +686,7 @@ export class QuestionEditItem extends Component {
           className='solution-editor'
           placeholder='Solution'
         />
-        {console.log('Content' + this.state.content)}
-        {console.log('Solution' + this.state.solution)}
+      
       </div>)
   } //  end render
 
