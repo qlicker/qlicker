@@ -39,7 +39,7 @@ const questionPattern = {
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   solution: Match.Maybe(String), // solution is the full guide to answering the question
-  solution_plainText: Match.Maybe(String), // plain text version of solution
+  solution_plaintext: Match.Maybe(String), // plain text version of solution
   createdAt: Date,
   approved: Boolean,
   tags: [ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ],
