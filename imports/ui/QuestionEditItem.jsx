@@ -592,8 +592,17 @@ export class QuestionEditItem extends Component {
               </div>
               <div>
                 <div className='qoption-label'>
+                  <Tooltip
+                    position='bottom'
+                    html={
+                      <div>
+                        Change the amount of points a question is worth
+                      </div>
+                    }>
+  
                     Points:
-                  </div>
+                  </Tooltip>
+                </div>
                 <input type='number'
                   min={0} step={0.5}
                   onChange={this.setPoints}
