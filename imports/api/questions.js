@@ -73,6 +73,18 @@ export const defaultSessionOptions = {
   }]
 }
 
+export const defaultQuestion = {
+  plainText: '',
+  solution: '',  
+  solution_plaintext: '',
+  type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
+  content: '',
+  options: [], // { correct: false, answer: 'A', content: editor content }
+  creator: '',
+  tags: [],
+  sessionOptions: defaultSessionOptions
+}
+
 // Create Question class
 const Question = function (doc) { _.extend(this, doc) }
 _.extend(Question.prototype, {

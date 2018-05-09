@@ -8,11 +8,11 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
-import { QuestionEditItem, DEFAULT_STATE } from '../../QuestionEditItem'
+import { QuestionEditItem } from '../../QuestionEditItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { QuestionSidebar } from '../../QuestionSidebar'
 
-import { Questions } from '../../../api/questions'
+import { Questions, defaultQuestion } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
@@ -60,7 +60,7 @@ class _QuestionsLibrary extends Component {
       const blankQuestion = _.extend({
         owner: Meteor.userId(),
         approved: true
-      }, DEFAULT_STATE)
+      }, defaultQuestion)
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')
         alertify.success('New Blank Question Added')

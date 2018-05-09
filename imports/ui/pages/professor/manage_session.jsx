@@ -20,11 +20,11 @@ import { Courses } from '../../../api/courses'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
-import { QuestionEditItem, DEFAULT_STATE } from '../../QuestionEditItem'
+import { QuestionEditItem } from '../../QuestionEditItem'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
-import { Questions } from '../../../api/questions'
+import { Questions, defaultQuestion } from '../../../api/questions'
 
 class _ManageSession extends Component {
 
@@ -226,7 +226,7 @@ class _ManageSession extends Component {
       courseId: this.state.session.courseId,
       owner: course.owner,
       approved: true,
-    }, DEFAULT_STATE)
+    }, defaultQuestion)
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
       alertify.success('New Blank Question Added')

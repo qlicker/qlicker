@@ -12,22 +12,10 @@ import 'react-select/dist/react-select.css'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
-import { defaultSessionOptions } from '../api/questions'
+import { defaultSessionOptions, defaultQuestion } from '../api/questions'
 
 // constants
 import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
-
-export const DEFAULT_STATE = {
-  plainText: '',
-  solution: '',  
-  solution_plainText: '',
-  type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
-  content: '',
-  options: [], // { correct: false, answer: 'A', content: editor content }
-  creator: '',
-  tags: [],
-  sessionOptions: defaultSessionOptions
-}
 
 /**
  * React Component for editing an individual question
@@ -84,7 +72,7 @@ export class QuestionEditItem extends Component {
           break
       }
     } else { // if adding new question
-      this.state = _.extend({}, DEFAULT_STATE)
+      this.state = _.extend({}, defaultQuestion)
       this.state.creator = Meteor.userId()
       this.state.owner = Meteor.userId()
       // tracking for adding new mulitple choice answers
