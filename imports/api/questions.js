@@ -39,7 +39,7 @@ const questionPattern = {
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   solution: Match.Maybe(String), // solution is the full guide to answering the question
-  solution_plaintext: Match.Maybe(String), // plain text version of solution
+  solution_plainText: Match.Maybe(String), // plain text version of solution
   createdAt: Date,
   approved: Boolean,
   tags: [ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ],
@@ -76,7 +76,7 @@ export const defaultSessionOptions = {
 export const defaultQuestion = {
   plainText: '',
   solution: '',  
-  solution_plaintext: '',
+  solution_plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: '',
   options: [], // { correct: false, answer: 'A', content: editor content }
