@@ -366,6 +366,9 @@ export class QuestionDisplay extends Component {
     if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
     const q = this.props.question
+
+    if (q.sessionOptions.correct === undefined) q.sessionOptions.correct = false
+
     const type = q.type
     let content
    
@@ -425,6 +428,7 @@ export class QuestionDisplay extends Component {
           </div>
           : ''
         }
+        
         {(this.state.showCorrect || q.sessionOptions.correct) && q.solution.length > 0 ? <div className='ql-question-solution'>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
       
       </div>
