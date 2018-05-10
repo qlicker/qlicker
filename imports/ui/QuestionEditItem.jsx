@@ -12,20 +12,10 @@ import 'react-select/dist/react-select.css'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
-import { defaultSessionOptions } from '../api/questions'
+import { defaultSessionOptions, defaultQuestion } from '../api/questions'
 
 // constants
 import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
-
-export const DEFAULT_STATE = {
-  plainText: '',
-  type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
-  content: null,
-  options: [], // { correct: false, answer: 'A', content: editor content }
-  creator: '',
-  tags: [],
-  sessionOptions: defaultSessionOptions
-}
 
 /**
  * React Component for editing an individual question
@@ -42,6 +32,7 @@ export class QuestionEditItem extends Component {
 
     // binding methods for calling within react context
     this.onEditorStateChange = this.onEditorStateChange.bind(this)
+    this.onEditorSolutionChange = this.onEditorSolutionChange.bind(this)
     // this.uploadImageCallBack = this.uploadImageCallBack.bind(this)
     this.addAnswer = this.addAnswer.bind(this)
     this.setOptionState = this.setOptionState.bind(this)
@@ -81,14 +72,14 @@ export class QuestionEditItem extends Component {
           break
       }
     } else { // if adding new question
-      this.state = _.extend({}, DEFAULT_STATE)
+      this.state = _.extend({}, defaultQuestion)
       this.state.creator = Meteor.userId()
       this.state.owner = Meteor.userId()
       // tracking for adding new mulitple choice answers
       this.currentAnswer = 0
       this.answerOrder = MC_ORDER
     }
-
+   
     // populate tagging suggestions
     this.tagSuggestions = []
     let user = Meteor.user()
@@ -283,7 +274,12 @@ export class QuestionEditItem extends Component {
       this._DB_saveQuestion()
     })
   }
-
+  onEditorSolutionChange (solution, solution_plainText) {
+    let stateEdits = { solution: solution, solution_plainText: solution_plainText }
+    this.setState(stateEdits, () => {
+      this._DB_saveQuestion()
+    })
+  }
   /**
    * Update wysiwyg content in the state based on the answer
    * @param {String} answerKey
@@ -393,8 +389,9 @@ export class QuestionEditItem extends Component {
     const user = Meteor.user()
     let question = _.extend({
       createdAt: new Date(),
-      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
+      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
     }, _.omit(this.state, 'courses'))
+
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
@@ -671,7 +668,13 @@ export class QuestionEditItem extends Component {
             </div>
           </div>
           : '' }
-
+        <Editor
+          change={this.onEditorSolutionChange}
+          val={this.state.solution}
+          className='solution-editor'
+          placeholder='Solution'
+        />
+      
       </div>)
   } //  end render
 
