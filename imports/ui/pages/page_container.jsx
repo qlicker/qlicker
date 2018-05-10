@@ -81,7 +81,12 @@ class _PageContainer extends Component {
                    </li>
                }
                 { isAdmin
-                  ? ''
+                  ? <li className='dropdown'>
+                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
+                      <ul className='dropdown-menu' >
+                        <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
+                      </ul>
+                    </li>
                   : <li className='dropdown'>
                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
                     <ul className='dropdown-menu' >
