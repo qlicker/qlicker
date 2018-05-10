@@ -51,6 +51,7 @@ class _ManageSession extends Component {
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
+    this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
     this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
@@ -137,6 +138,12 @@ class _ManageSession extends Component {
     Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question Copied to Library')
+    })
+  }
+
+  addAllToLibrary (questionList) {
+    questionList.forEach((questionId) => {
+      this.addToLibrary(questionId)
     })
   }
 
@@ -409,6 +416,10 @@ class _ManageSession extends Component {
           <span className='toolbar-button' onClick={this.runSession}>
             <span className='glyphicon glyphicon-play' />&nbsp;
             {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
+          </span>
+          <span className='divider'>&nbsp;</span>
+          <span className='toolbar-button' onClick={() => this.addAllToLibrary(questionList)}>
+            Copy Questions to Library
           </span>
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
