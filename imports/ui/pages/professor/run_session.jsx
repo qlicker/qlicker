@@ -28,7 +28,11 @@ class _RunSession extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { presenting: false, session: _.extend({}, this.props.session), profileViewModal: false }
+    this.state = { 
+      presenting: false, 
+      session: _.extend({}, this.props.session), 
+      profileViewModal: false, 
+    }
 
     this.sessionId = this.props.sessionId
 
@@ -182,7 +186,7 @@ class _RunSession extends Component {
     this.setState({ session: session })
 
     Meteor.call('sessions.batchEdit', this.sessionId, questionIdList, (e) => {
-      if (e) alertify.error('An error occured while reordering questions')
+      if (e) alertify.error('An error occu#F74E4E while reordering questions')
       else alertify.success('Order Saved')
     })
   }
@@ -262,10 +266,15 @@ class _RunSession extends Component {
     const currentAttemptNumber = q.sessionOptions.attempts.length
     const responseStats = _(this.props.responseStatsByQuestion[q._id]).where({ attempt: currentAttemptNumber })
     // strings
+    const toggleQuestionVisible = 'Toggle Show Question'
+    const toggleCorrectVisible = 'Toggle Show Correct'
+    const toggleStatsVisible = 'Toggle Show Stats'
+    const strAttemptEnabled = currentAttempt.closed ? 'Allow responses' : 'Disallow responses'
+
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
-    const strAttemptEnabled = currentAttempt.closed ? 'Allow responses' : 'Disallow responses'
+  
 
     const numAnswered = this.props.responseCounts[q._id][currentAttemptNumber]
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
@@ -355,10 +364,14 @@ class _RunSession extends Component {
                           : null
 
     // strings
+    const toggleQuestionVisible = 'Toggle Show Question'
+    const toggleCorrectVisible = 'Toggle Show Correct'
+    const toggleStatsVisible = 'Toggle Show Stats'
+    const strAttemptEnabled = currentAttempt.closed ? 'Allow responses' : 'Disallow responses'
+
     const strQuestionVisible = q.sessionOptions.hidden ? 'Show Question' : 'Hide Question'
     const strCorrectVisible = q.sessionOptions.correct ? 'Hide Correct' : 'Show Correct'
     const strStatsVisible = q.sessionOptions.stats ? 'Hide Stats' : 'Show Stats'
-    const strAttemptEnabled = currentAttempt.closed ? 'Allow Responses' : 'Disallow Responses'
 
     const numAnswered = this.props.responseCounts[q._id][currentAttemptNumber]
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
@@ -382,7 +395,6 @@ class _RunSession extends Component {
           <Tooltip
             position='bottom'
             interactive='true'
-            theme='light'
             hideOnClick='true'
             size='big'
             html={
@@ -437,28 +449,28 @@ class _RunSession extends Component {
               position='bottom'
               html={
                 <div>
-                  Toggle show question
+                  {strQuestionVisible}
                 </div>
               }>
-              <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
+              <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{toggleQuestionVisible}</a>
             </Tooltip>
             <Tooltip
               position='bottom'
               html={
                 <div>
-                  Toggle show correct answer
+                  {strCorrectVisible}
                 </div>
               }>
-              <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
+              <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{toggleCorrectVisible}</a>
             </Tooltip>
             <Tooltip
               position='bottom'
               html={
                 <div>
-                  Toggle show answer statistics
+                  {strStatsVisible}
                 </div>
               }>
-              <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
+              <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{toggleStatsVisible}</a>
             </Tooltip>   
             <span className='divider'>&nbsp;</span>
             <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
@@ -467,7 +479,7 @@ class _RunSession extends Component {
               html={ 
                 <div>
                   Reset student answers and replay question
-                  </div>
+                </div>
               }>
                 <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
             </Tooltip>
