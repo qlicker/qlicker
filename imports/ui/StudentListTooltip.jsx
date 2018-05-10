@@ -16,14 +16,18 @@ export class StudentListTooltip extends Component {
   render(){
     students = this.props.students
     return (
-      <div className='student-list'>
-        {students.map(student =>
-          (<div key={student._id} onClick={(e) => this.props.toggleProfileViewModal(student)} className='student-item'>
-            <div>
-              {student.profile.lastname + ', ' + student.profile.firstname}
-            </div>
-          </div>)
-        )}
+      <div>
+      {students.length > 0 
+        ? <div className='student-list'>
+            {students.map(student =>
+              (<div key={student._id} onClick={(e) => this.props.toggleProfileViewModal(student)} className='student-item'>
+                <div>
+                  {student.profile.lastname + ', ' + student.profile.firstname}
+                </div>
+              </div>)
+            )}
+          </div>
+        : <div>No Students in Session</div>}
       </div>
     )
   }

@@ -395,7 +395,6 @@ class _RunSession extends Component {
           <Tooltip
             position='bottom'
             interactive='true'
-            theme='light'
             hideOnClick='true'
             size='big'
             html={
