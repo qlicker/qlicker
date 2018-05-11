@@ -154,16 +154,26 @@ class _QuestionsPublic extends Component {
 
 export const QuestionsPublic = createContainer(() => {
   const handle = Meteor.subscribe('questions.public')
+  const user = Meteor.user()
+  // if(user.getRole() === 'student') let query = {
+  //     public: true,
+  // }
+  let query
+  if(user.getRole() === 'student') query = {
+    public: true,
+    courseId: user.profile.courses[0]
+  }
+  else query = {
+    public: true
+  }
   let params = {
-    query: {
-      public: true
-    },
+    query: query,
     options: {
       sort: { createdAt: -1 },
       limit: 11
     }
   }
-
+ 
   const library = Questions.find(params.query, params.options).fetch()
 
   return {
