@@ -79,6 +79,7 @@ class _QuestionsPublic extends Component {
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
     } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+    
   }
 
   limitAndUpdate (data) {
@@ -89,7 +90,7 @@ class _QuestionsPublic extends Component {
     const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({questions: newQuestions})
+    } else this.setState({questions: newQuestions})  
   }
 
   render () {
@@ -105,7 +106,7 @@ class _QuestionsPublic extends Component {
     const decrease = (childState) => {
       this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
     }
-
+    
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
@@ -114,7 +115,7 @@ class _QuestionsPublic extends Component {
         <div className='row'>
           <div className='col-md-4'>
             <QuestionSidebar
-              questions={library}
+              questions={this.props.library}
               onSelect={this.selectQuestion}
               increase={increase}
               decrease={decrease}
@@ -155,27 +156,40 @@ class _QuestionsPublic extends Component {
 export const QuestionsPublic = createContainer(() => {
   const handle = Meteor.subscribe('questions.public')
   const user = Meteor.user()
-  // if(user.getRole() === 'student') let query = {
-  //     public: true,
-  // }
   let query
-  if(user.getRole() === 'student') query = {
-    public: true,
-    courseId: user.profile.courses[0]
-  }
-  else query = {
-    public: true
-  }
-  let params = {
-    query: query,
-    options: {
-      sort: { createdAt: -1 },
-      limit: 11
+  let params
+  let library = []
+
+  if (user.getRole() === 'student') { 
+    for (i = 0; i < user.profile.courses.length; i++) {
+      params = {
+        query: {
+          public: true,
+          courseId: user.profile.courses[i]
+        },
+        options: {
+          sort: { createdAt: -1 },
+          limit: 11
+        }
+      }
+      library.push(Questions.find(params.query, params.options).fetch())
+      library = _.flatten(library)
     }
   }
- 
-  const library = Questions.find(params.query, params.options).fetch()
-
+    
+  else{
+    params = {
+      query: {
+        public: true
+      },
+      options: {
+        sort: { createdAt: -1 },
+        limit: 11
+      }
+    }
+    library = Questions.find(params.query, params.options).fetch()
+  }
+  
   return {
     query: params,
     library: library,
