@@ -34,7 +34,6 @@ export class QuestionListItem extends ListItem {
     const s = this.props.session
     const c = Courses.findOne({ _id: this.props.question.courseId })
     const controls = this.makeControls()
-    if(c !== undefined) console.log(c.name)
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
     // console.log(s.questions.indexOf(q._id) !== -1 ? q.content : '')
