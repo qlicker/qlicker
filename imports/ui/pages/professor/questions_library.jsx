@@ -12,7 +12,7 @@ import { QuestionEditItem } from '../../QuestionEditItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { QuestionSidebar } from '../../QuestionSidebar'
 
-import { Questions } from '../../../api/questions'
+import { Questions, defaultQuestion } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
 export const createNav = (active) => {
@@ -57,15 +57,10 @@ class _QuestionsLibrary extends Component {
     if (questionId === -1) {
       // reset the query
       this.setState({query: this.props.query, resetSidebar: true})
-      const blankQuestion = {
-        plainText: '', // plain text version of question
-        type: -1,
-        content: '', // wysiwyg display content
-        options: [],
-        tags: [],
+      const blankQuestion = _.extend({
         owner: Meteor.userId(),
         approved: true
-      }
+      }, defaultQuestion)
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')
         alertify.success('New Blank Question Added')
