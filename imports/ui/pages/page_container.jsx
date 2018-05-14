@@ -18,7 +18,8 @@ class _PageContainer extends Component {
     super(props)
     this.state = { 
       promotingAccount: false,
-      course: null
+      course: null,
+      showCourse: false
     }
     alertify.logPosition('bottom right')
 
@@ -34,7 +35,7 @@ class _PageContainer extends Component {
   }
 
   changeCourse (course) {
-    this.setState({ course: course})
+    this.setState({ course: course, showCourse: true})
     Router.go('course', { _id: course._id })
   }
 
@@ -74,16 +75,16 @@ class _PageContainer extends Component {
                    ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li>
                    : ''
                 }
-                { isAdmin 
-                   ? ''
-                   : <li role='button'><a className='close-nav' onClick={() => this.changeCourse(this.state.course)}>Course Home</a></li>
+                {  this.state.showCourse
+                   ? <li role='button'><a className='close-nav' onClick={() => this.changeCourse(this.state.course)}>Course Home</a></li>
+                   : ''
                 }
                 { isAdmin 
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
                    : <li className='dropdown'>
                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
                      <ul className='dropdown-menu' >
-                       <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
+                       <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ course: null, showCourse: false })}>All Courses</a></li>
                        <li role='separator' className='divider' >&nbsp;</li>
                        <li className='dropdown-header'>My Active Courses</li>
                        {
