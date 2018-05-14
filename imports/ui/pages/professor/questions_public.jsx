@@ -87,14 +87,33 @@ class _QuestionsPublic extends Component {
   }
 
   componentWillReceiveProps () {
-    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+    const user = Meteor.user()
+    let newQuestions = []
+    if (user.getRole() === 'student') {
+      let params = this.state.query
+      for (i = 0; i <= user.profile.courses.length; i++) {
+        params = {
+          query: {
+            public: true,
+            courseId: user.profile.courses[i]
+          },
+          options: {
+            sort: { createdAt: -1 },
+            limit: 11
+          }
+        }
+        newQuestions.push(Questions.find(params.query, params.options).fetch())
+        newQuestions = _.flatten(newQuestions)
+      }
+    }
+    else newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({questions: newQuestions})  
+    } else this.setState({questions: newQuestions})
   }
 
   render () {
-    let library = this.state.questions || []
+    let library = this.state.questions
     let userId = Meteor.userId()
     // let isInstructor = Meteor.user().isInstructorAnyCourse()
     const atMax = library.length !== this.state.limit
@@ -115,7 +134,7 @@ class _QuestionsPublic extends Component {
         <div className='row'>
           <div className='col-md-4'>
             <QuestionSidebar
-              questions={this.props.library}
+              questions={library}
               onSelect={this.selectQuestion}
               increase={increase}
               decrease={decrease}
@@ -174,7 +193,7 @@ export const QuestionsPublic = createContainer(() => {
       }
       library.push(Questions.find(params.query, params.options).fetch())
       library = _.flatten(library)
-    }
+    }   
   }
     
   else{
