@@ -223,7 +223,12 @@ if (Meteor.isServer) {
   // truly public questions
   Meteor.publish('questions.public', function () {
     if (this.userId) {
-      return Questions.find({ public: true })
+      const user = Meteor.users.findOne({_id: this.userId})
+      if(user.getRole() === 'student') {
+        let cArr = _(Courses.find({ students: this.userId }).fetch()).pluck('_id')
+        return Questions.find({ public: true, courseId: {$in: cArr} })
+      }
+      return Questions.find({ public: true }) 
     } else this.ready()
   })
 
