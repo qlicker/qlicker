@@ -16,8 +16,13 @@ class _PageContainer extends Component {
 
   constructor (props) {
     super(props)
-    this.state = { promotingAccount: false }
+    this.state = { 
+      promotingAccount: false,
+      course: null
+    }
     alertify.logPosition('bottom right')
+
+    this.changeCourse = this.changeCourse.bind(this)
   }
 
   componentDidMount () {
@@ -26,6 +31,11 @@ class _PageContainer extends Component {
     $('.navbar-collapse .dropdown-menu').click(function () {
       $('.navbar-collapse').collapse('hide')
     })
+  }
+
+  changeCourse (course) {
+    this.setState({ course: course})
+    Router.go('course', { _id: course._id })
   }
 
   render () {
@@ -63,8 +73,12 @@ class _PageContainer extends Component {
                 { isAdmin
                    ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li>
                    : ''
-                 }
-                { isAdmin
+                }
+                { isAdmin 
+                   ? ''
+                   : <li role='button'><a className='close-nav' onClick={() => this.changeCourse(this.state.course)}>Course Home</a></li>
+                }
+                { isAdmin 
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
                    : <li className='dropdown'>
                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
@@ -74,12 +88,12 @@ class _PageContainer extends Component {
                        <li className='dropdown-header'>My Active Courses</li>
                        {
                             this.props.courses.map((c) => {
-                              return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
+                              return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => this.changeCourse(c)}>{c.fullCourseCode()}</a></li>)
                             })
                           }
                      </ul>
                    </li>
-               }
+                }
                 { isAdmin
                   ? <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
