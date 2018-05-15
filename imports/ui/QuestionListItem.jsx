@@ -11,6 +11,8 @@ import { ListItem } from './ListItem'
 
 import HTMLEllipsis from 'react-lines-ellipsis/lib/html'
 
+import { Courses } from '../api/courses'
+
 /**
  * React component list item for each question.
  * typically used in session screens.
@@ -30,6 +32,7 @@ export class QuestionListItem extends ListItem {
 
   render () {
     const s = this.props.session
+    const c = Courses.findOne({ _id: this.props.question.courseId })
     const controls = this.makeControls()
     // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
     const q = this.props.question || { question: 'Question?', type: 0 }
@@ -55,7 +58,7 @@ export class QuestionListItem extends ListItem {
         <div>
           <span className='ql-question-details'>
             {this.props.question.public ? '(public) ' : ''}
-            {this.props.question.courseId ? '(in course) ' : ''}
+            {this.props.question.courseId && c !== undefined ? '('+ c.deptCode.toUpperCase() + ' ' + c.courseNumber + ') ' : ''}
             {this.props.question.approved ? '(approved) ' : '(un-approved) '}
           </span>
         </div>

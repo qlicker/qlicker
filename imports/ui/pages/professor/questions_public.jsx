@@ -79,6 +79,7 @@ class _QuestionsPublic extends Component {
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
     } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+    
   }
 
   limitAndUpdate (data) {
@@ -105,7 +106,7 @@ class _QuestionsPublic extends Component {
     const decrease = (childState) => {
       this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
     }
-
+    
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
@@ -154,7 +155,7 @@ class _QuestionsPublic extends Component {
 
 export const QuestionsPublic = createContainer(() => {
   const handle = Meteor.subscribe('questions.public')
-  let params = {
+  const params = {
     query: {
       public: true
     },
@@ -165,7 +166,7 @@ export const QuestionsPublic = createContainer(() => {
   }
 
   const library = Questions.find(params.query, params.options).fetch()
-
+  
   return {
     query: params,
     library: library,
