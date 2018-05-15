@@ -18,7 +18,7 @@ class _PageContainer extends Component {
     super(props)
     this.state = { 
       promotingAccount: false,
-      course: this.props.course,
+      course: this.props && this.props.course ? this.props.course : null,
       showCourse: this.props && this.props.course ? true : false
     }
     alertify.logPosition('bottom right')
@@ -90,9 +90,10 @@ class _PageContainer extends Component {
                       </ul>
                     </li>
                   : this.state.showCourse 
-                    ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
+                    ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.course._id })}>Grades</a></li>
                     : ''
                 }
+                {console.log(this.state.course ? this.state.course._id : '')}
                 { this.state.showCourse 
                   ? <li className='dropdown'>
                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
@@ -170,7 +171,7 @@ export const PageContainer = createContainer(props => {
   const handle = Meteor.subscribe('courses')
   const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
   const course = props && props.courseId ? Courses.findOne({ _id: props.courseId }) : null
-  console.log(props)
+
   return {
     courses: courses,
     course: course,
