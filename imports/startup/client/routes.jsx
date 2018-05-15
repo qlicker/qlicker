@@ -210,9 +210,9 @@ Router.route('/course/:_id', {
   action: function () {
     if (!Meteor.userId()) Router.go('login')
     if (Meteor.user().isInstructor(this.params._id) || Meteor.user().hasRole('admin')) {
-      mount(AppLayout, {content: <PageContainer> <ManageCourse isInstructor courseId={this.params._id} /> </PageContainer>})
+      mount(AppLayout, {content: <PageContainer courseId={this.params._id}> <ManageCourse isInstructor courseId={this.params._id} /> </PageContainer>})
     } else if (Meteor.user().isStudent(this.params._id)) {
-      mount(AppLayout, { content: <PageContainer> <Course courseId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={this.params._id}> <Course courseId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
