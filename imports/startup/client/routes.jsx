@@ -132,7 +132,7 @@ Router.route('/questions/library/:_id?', {
   },
   action: function () {
     if (Meteor.userId() /* && isInstructor */) {
-      mount(AppLayout, { content: <PageContainer user={Meteor.user()}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={Meteor.user()} courseId={this.params.courseId}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -147,7 +147,7 @@ Router.route('/questions/public', {
   action: function () {
     let user = Meteor.user()
     if (Meteor.userId() /* && isInstructor */) {
-      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsPublic /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user} courseId={this.params.courseId}> <QuestionsPublic /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -163,7 +163,7 @@ Router.route('/questions/submissions', {
     let user = Meteor.user()
     const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
     if (Meteor.userId() && isInstructor) {
-      mount(AppLayout, { content: <PageContainer user={user}> <QuestionsFromStudent /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user} courseId={this.params.courseId}> <QuestionsFromStudent /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -259,7 +259,7 @@ Router.route('/course/:courseId/grades', {
     const u = Meteor.user()
     const isInCourse = u.isInstructor(this.params.courseId) || u.isStudent(this.params.courseId)
     if (u && isInCourse) {
-      mount(AppLayout, { content: <PageContainer> <CourseGrades courseId={this.params.courseId} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <CourseGrades courseId={this.params.courseId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -276,7 +276,7 @@ Router.route('/session/:sessionId/grade', {
     const sess = Sessions.findOne({_id: this.params.sessionId})
     const cId = sess ? sess.courseId : 0
     if (Meteor.user().isInstructor(cId) || Meteor.user().hasRole('admin')) {
-      mount(AppLayout, {content: <PageContainer> <GradeSession sessionId={this.params.sessionId} courseId={cId} /> </PageContainer>})
+      mount(AppLayout, {content: <PageContainer courseId={this.params.courseId}> <GradeSession sessionId={this.params.sessionId} courseId={cId} /> </PageContainer>})
     } else Router.go('login')
   }
 })
@@ -296,7 +296,7 @@ Router.route('/session/:sessionId/results', {
     let user = Meteor.user()
     if (user) {
       if (user.hasRole('admin') || user.isInstructor(cId)) {
-        mount(AppLayout, { content: <PageContainer> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
+        mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
       } else if (user.isStudent(cId)) {
         mount(AppLayout, { content: <PageContainer>
           <StudentSessionResultsPage sessionId={this.params.sessionId} studentId={Meteor.userId()} /> </PageContainer> })
@@ -320,7 +320,7 @@ Router.route('/session/edit/:_id', {
     const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
     const isInstructor = Meteor.user().isInstructor(cId)
     if (Meteor.userId() && isInstructor) {
-      mount(AppLayout, { content: <PageContainer> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -336,7 +336,7 @@ Router.route('/session/run/:_id', {
     const sess = Sessions.findOne(this.params._id)
     const cId = sess ? sess.courseId : ''
     if (Meteor.userId() && Meteor.user().isInstructor(cId)) {
-      mount(AppLayout, { content: <PageContainer> <RunSession sessionId={this.params._id} courseId={cId} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={cId}> <RunSession sessionId={this.params._id} courseId={cId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -369,7 +369,7 @@ Router.route('/session/present/:_id', {
     if (user && user.isInstructor(cId)) { // If it's an instructor, then this is called when using "2nd display" while running session
       mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
     } else if (user) {
-      mount(AppLayout, { content: <PageContainer> <Session sessionId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={cId}> <Session sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })

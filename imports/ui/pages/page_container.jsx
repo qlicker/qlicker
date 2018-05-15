@@ -35,7 +35,7 @@ class _PageContainer extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ course: nextProps.course, showCourse: nextProps && nextProps.course ? true : false })
+    this.setState({ course: nextProps.course ? nextProps.course : this.state.course, showCourse: nextProps.course ? true : false })
   }
 
   changeCourse (course) {
@@ -93,7 +93,6 @@ class _PageContainer extends Component {
                     ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.course._id })}>Grades</a></li>
                     : ''
                 }
-                {console.log(this.state.course ? this.state.course._id : '')}
                 { this.state.showCourse 
                   ? <li className='dropdown'>
                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
@@ -109,9 +108,7 @@ class _PageContainer extends Component {
                     </li>
                   : ''
 
-                }
-                
-                
+                }      
                 { isAdmin 
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
                    : <li className='dropdown'>
