@@ -35,7 +35,7 @@ const questionPattern = {
   // null if question template, sessionId if copy attached to question
   sessionId: Match.Maybe(Helpers.MongoID),
   // null if prof created, populated for students creating question for enrolled course
-  courseId: Match.Maybe(Helpers.MongoID),
+  courseId: String,
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   solution: Match.Maybe(String), // solution is the full guide to answering the question
@@ -252,7 +252,7 @@ Meteor.methods({
    * @param {Question} question
    * @returns {Question} new question
    */
-  'questions.insert' (question) {
+  'questions.insert' (question, courseId) {
     if (question._id) { // if _id already exists, update the question
       return Meteor.call('questions.update', question)
     }
@@ -260,6 +260,7 @@ Meteor.methods({
     question.createdAt = new Date()
     question.public = false
     question.creator = Meteor.userId()
+    question.courseId = courseId
 
     check(question, questionPattern)
 

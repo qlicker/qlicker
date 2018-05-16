@@ -61,7 +61,7 @@ class _QuestionsLibrary extends Component {
         owner: Meteor.userId(),
         approved: true
       }, defaultQuestion)
-      Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
+      Meteor.call('questions.insert', blankQuestion, this.props.courseId, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')
         alertify.success('New Blank Question Added')
         this.setState({ selected: null }, () => {
