@@ -124,36 +124,38 @@ Router.route('/manage', {
 })
 
 import { QuestionsLibrary } from '../../ui/pages/professor/questions_library'
-Router.route('/questions/library/:_id?', {
+Router.route('/course/:courseId/questions/library/:_id?', {
   name: 'questions',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
   },
   action: function () {
+    const cId = this.params.courseId
     if (Meteor.userId() /* && isInstructor */) {
-      mount(AppLayout, { content: <PageContainer user={Meteor.user()} courseId={this.params.courseId}> <QuestionsLibrary selected={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={Meteor.user()} courseId={cId}> <QuestionsLibrary courseId={cId} selected={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })
 
 import { QuestionsPublic } from '../../ui/pages/professor/questions_public'
-Router.route('/questions/public', {
+Router.route('/course/:courseId/questions/public', {
   name: 'questions.public',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.public')
   },
   action: function () {
+    const cId = this.params.courseId
     let user = Meteor.user()
     if (Meteor.userId() /* && isInstructor */) {
-      mount(AppLayout, { content: <PageContainer user={user} courseId={this.params.courseId}> <QuestionsPublic /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user} courseId={cId}> <QuestionsPublic courseId={cId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
 
 import { QuestionsFromStudent } from '../../ui/pages/professor/questions_fromstudent'
-Router.route('/questions/submissions', {
+Router.route('/course/:courseId/questions/submissions', {
   name: 'questions.fromStudent',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')

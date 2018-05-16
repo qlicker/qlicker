@@ -111,7 +111,7 @@ class _QuestionsPublic extends Component {
     return (
       <div className='container ql-questions-library'>
         <h1>Public Question Pool</h1>
-        {createNav('public')}
+        {createNav('public', this.props.courseId)}
         <div className='row'>
           <div className='col-md-4'>
             <QuestionSidebar
@@ -153,8 +153,9 @@ class _QuestionsPublic extends Component {
 
 }
 
-export const QuestionsPublic = createContainer(() => {
+export const QuestionsPublic = createContainer(props => {
   const handle = Meteor.subscribe('questions.public')
+  const courseId = props.courseId
   const params = {
     query: {
       public: true
@@ -170,6 +171,7 @@ export const QuestionsPublic = createContainer(() => {
   return {
     query: params,
     library: library,
+    courseId: props.courseId,
     loading: !handle.ready()
   }
 }, _QuestionsPublic)

@@ -95,16 +95,8 @@ class _PageContainer extends Component {
                 }
                 { this.state.showCourse && !isAdmin
                   ? <li className='dropdown'>
-                    <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
-                      aria-haspopup='true' aria-expanded='false'>Question library <span className='caret' /></a>
-                    <ul className='dropdown-menu'>
-                      <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
-                      <li role='separator' className='divider'>&nbsp;</li>
-                      <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a>
-                      </li>
-                      {isInstructor
-                        ? <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li> : ''}
-                    </ul>
+                    <a className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
+                      aria-haspopup='true' aria-expanded='false' onClick={() => Router.go('questions', { courseId: this.state.course._id })}>Question library</a>
                     </li>
                   : ''
 

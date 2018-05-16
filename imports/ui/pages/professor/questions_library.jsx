@@ -15,13 +15,13 @@ import { QuestionSidebar } from '../../QuestionSidebar'
 import { Questions, defaultQuestion } from '../../../api/questions'
 import { Courses } from '../../../api/courses'
 
-export const createNav = (active) => {
+export const createNav = (active, courseId) => {
   const isInstructor = Meteor.user().isInstructorAnyCourse()
   return (<ul className='nav nav-pills'>
     <li role='presentation' className={active === 'library' ? 'active' : ''}>
-      <a href={Router.routes['questions'].path()}>Question Library</a>
+      <a onClick={() => Router.go('questions', { courseId: courseId })}>Question Library</a>
     </li>
-    <li role='presentation' className={active === 'public' ? 'active' : ''}><a href={Router.routes['questions.public'].path()}>Public Questions</a></li>
+    <li role='presentation' className={active === 'public' ? 'active' : ''}><a onClick={() => Router.go('questions.public', { courseId: courseId })}>Public Questions</a></li>
     { isInstructor
       ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
       : '' }
@@ -131,7 +131,7 @@ class _QuestionsLibrary extends Component {
     return (
       <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
-        {createNav('library')}
+        {createNav('library', this.props.courseId)}
         <div className='row'>
           <div className='col-md-4'>
             <br />
@@ -173,9 +173,10 @@ class _QuestionsLibrary extends Component {
   }
 }
 
-export const QuestionsLibrary = createContainer(() => {
+export const QuestionsLibrary = createContainer(props => {
   const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
+  const courseId = props.courseId
   let params = {
     query: {
       // '$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
@@ -192,6 +193,7 @@ export const QuestionsLibrary = createContainer(() => {
     query: params,
     library: library,
     courses: courses,
+    courseId: courseId,
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)
