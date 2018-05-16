@@ -265,7 +265,7 @@ Router.route('/course/:courseId/grades', {
 })
 
 import { GradeSession } from '../../ui/pages/professor/grade_session'
-Router.route('/session/:sessionId/grade', {
+Router.route('/course/:courseId/session/:sessionId/grade', {
   name: 'session.grade',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -284,7 +284,7 @@ Router.route('/session/:sessionId/grade', {
 import { ResultsPage } from '../../ui/pages/results'
 import { StudentSessionResultsPage } from '../../ui/pages/student_session_results'
 
-Router.route('/session/:sessionId/results', {
+Router.route('/course/:courseId/session/:sessionId/results', {
   name: 'session.results',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -296,9 +296,9 @@ Router.route('/session/:sessionId/results', {
     let user = Meteor.user()
     if (user) {
       if (user.hasRole('admin') || user.isInstructor(cId)) {
-        mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
+        mount(AppLayout, { content: <PageContainer courseId={cId}> <ResultsPage sessionId={this.params.sessionId} /> </PageContainer> })
       } else if (user.isStudent(cId)) {
-        mount(AppLayout, { content: <PageContainer>
+        mount(AppLayout, { content: <PageContainer courseId={cId}>
           <StudentSessionResultsPage sessionId={this.params.sessionId} studentId={Meteor.userId()} /> </PageContainer> })
       } else Router.go('login')
     } else Router.go('login')
@@ -306,7 +306,7 @@ Router.route('/session/:sessionId/results', {
 })
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
-Router.route('/session/edit/:_id', {
+Router.route('/course/:courseId/session/edit/:_id', {
   name: 'session.edit',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -326,7 +326,7 @@ Router.route('/session/edit/:_id', {
 })
 
 import { RunSession } from '../../ui/pages/professor/run_session'
-Router.route('/session/run/:_id', {
+Router.route('/course/:courseId/session/run/:_id', {
   name: 'session.run',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -341,7 +341,7 @@ Router.route('/session/run/:_id', {
   }
 })
 
-Router.route('/session/run/:_id/mobile', {
+Router.route('/course/:courseId/session/run/:_id/mobile', {
   name: 'session.run.mobile',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -357,7 +357,7 @@ Router.route('/session/run/:_id/mobile', {
 })
 
 import { Session } from '../../ui/pages/student/session'
-Router.route('/session/present/:_id', {
+Router.route('/course/:courseId/session/present/:_id', {
   name: 'session',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')

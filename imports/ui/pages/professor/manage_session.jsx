@@ -78,7 +78,7 @@ class _ManageSession extends Component {
       this.setDate(moment())
       this.setState({ session: sessionEdits }, () => {
         this.saveSessionEdits(() => {
-          Router.go('session.run', { _id: this.state.session._id })
+          Router.go('session.run', { _id: this.state.session._id, courseId: this.state.session.courseId })
           if (prevStatus !== 'running') {
             Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
             if (!this.state.session.quiz) {
