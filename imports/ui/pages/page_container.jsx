@@ -78,7 +78,7 @@ class _PageContainer extends Component {
                    ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li>
                    : ''
                 }
-                {  this.state.showCourse
+                {  this.state.showCourse && !isAdmin
                    ? <li><a className='close-nav' role='button' onClick={() => this.changeCourse(this.state.course)}>Course Home</a></li>
                    : ''
                 }
@@ -93,7 +93,7 @@ class _PageContainer extends Component {
                     ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.course._id })}>Grades</a></li>
                     : ''
                 }
-                { this.state.showCourse 
+                { this.state.showCourse && !isAdmin
                   ? <li className='dropdown'>
                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
                       aria-haspopup='true' aria-expanded='false'>Question library <span className='caret' /></a>
