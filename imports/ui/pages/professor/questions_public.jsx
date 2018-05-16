@@ -116,6 +116,7 @@ class _QuestionsPublic extends Component {
           <div className='col-md-4'>
             <QuestionSidebar
               questions={library}
+              courseId={this.props.courseId}
               onSelect={this.selectQuestion}
               increase={increase}
               decrease={decrease}

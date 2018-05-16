@@ -19,11 +19,11 @@ export const createNav = (active, courseId) => {
   const isInstructor = Meteor.user().isInstructorAnyCourse()
   return (<ul className='nav nav-pills'>
     <li role='presentation' className={active === 'library' ? 'active' : ''}>
-      <a onClick={() => Router.go('questions', { courseId: courseId })}>Question Library</a>
+      <a role='button' onClick={() => Router.go('questions', { courseId: courseId })}>Question Library</a>
     </li>
-    <li role='presentation' className={active === 'public' ? 'active' : ''}><a onClick={() => Router.go('questions.public', { courseId: courseId })}>Public Questions</a></li>
+    <li role='presentation' className={active === 'public' ? 'active' : ''}><a role='button' onClick={() => Router.go('questions.public', { courseId: courseId })}>Public Questions</a></li>
     { isInstructor
-      ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a href={Router.routes['questions.fromStudent'].path()}>Student Submissions</a></li>
+      ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a role='button' onClick={() => Router.go('questions.fromStudent', { courseId: courseId })}>Student Submissions</a></li>
       : '' }
   </ul>)
 }
@@ -140,6 +140,7 @@ class _QuestionsLibrary extends Component {
                 : ''}
             <QuestionSidebar
               questions={library}
+              course={this.props.courseId}
               onSelect={this.editQuestion}
               increase={increase}
               decrease={decrease}

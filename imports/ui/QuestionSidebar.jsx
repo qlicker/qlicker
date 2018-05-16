@@ -29,7 +29,7 @@ export class QuestionSidebar extends ControlledForm {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
       questionType: -1,
-      courseId: -1,
+      courseId: this.props.courseId,
       tags: []
     }
 
@@ -299,6 +299,7 @@ export class QuestionSidebar extends ControlledForm {
 
 QuestionSidebar.propTypes = {
   session: PropTypes.object,
+  courseId: PropTypes.string.isRequired,
   questions: PropTypes.array.isRequired,
   onSelect: PropTypes.func,
   clickMessage: PropTypes.string,
