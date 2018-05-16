@@ -235,7 +235,7 @@ class _ManageSession extends Component {
       approved: true,
     }, defaultQuestion)
 
-    Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
+    Meteor.call('questions.insert', blankQuestion, this.props.session.courseId, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
       alertify.success('New Blank Question Added')
       Meteor.call('sessions.addQuestion', sessionId, newQuestion._id)
@@ -497,7 +497,6 @@ class _ManageSession extends Component {
                   </div>
                 </div>
               </div>
-
             </div>
             {
               questionList.map((questionId) => {
