@@ -37,7 +37,6 @@ export class QuestionSidebar extends ControlledForm {
     this.setSearchString = this.setSearchString.bind(this)
     this.setUserSearchString = this.setUserSearchString.bind(this)
     this.setType = this.setType.bind(this)
-    this.setCourseId = this.setCourseId.bind(this)
     this.setTags = this.setTags.bind(this)
     this.resetFilter = this.resetFilter.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
@@ -45,6 +44,16 @@ export class QuestionSidebar extends ControlledForm {
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
     // populate tagging suggestions
     this.tagSuggestions = []
+    Meteor.call('courses.getCourseCodeTag', this.state.courseId, (error, tag) => {
+      let tags = this.state.tags
+      if (error) return alertify.error('Error: ' + error.error)
+      // this does not seem to work, it adds it regardless...
+      let tlabels = _(tags).pluck('label')
+      if (tag && !tlabels.includes(tag.label)) {
+        tags.push(tag)
+        this.setTags(tags)
+      }
+    })
     Meteor.call('questions.possibleTags', (e, tags) => {
       // non-critical, if e: silently fail
       tags.forEach((t) => {
@@ -52,10 +61,7 @@ export class QuestionSidebar extends ControlledForm {
       })
       this.forceUpdate()
     })
-
-    Meteor.call('courses.getCourseTagsProfile', (e, d) => {
-      this.setState({courses: d})
-    })
+    
   }
 
   /**
@@ -105,30 +111,7 @@ export class QuestionSidebar extends ControlledForm {
       this.props.updateQuery(this.state)
     })
   }
-  /**
-   * Set course id & invoke filter
-   * @param {Event} e
-   */
-  setCourseId (e) {
-    let cId = e.target.value
-    if (parseInt(cId) !== -1) {
-      // set the corresponding course tag (user can always remove it)
-      let tags = this.state.tags
-      Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
-        if (error) return alertify.error('Error: ' + error.error)
-        // this does not seem to work, it adds it regardless...
-        let tlabels = _(tags).pluck('label')
-        if (tag && !tlabels.includes(tag.label)) {
-          tags.push(tag)
-          this.setTags(tags)
-        }
-      })
-    }
-
-    this.setState({ courseId: cId }, () => {
-      this.props.updateQuery(this.state)
-    })
-  }
+  
   /**
    * delete the question
    * @param {MongoId} questionId
@@ -190,7 +173,7 @@ export class QuestionSidebar extends ControlledForm {
 
   resetFilter () {
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', userSearchString: '', questionType: -1, courseId: -1, tags: [] }, () => {
+    this.setState({ searchString: '', userSearchString: '', questionType: -1, tags: [] }, () => {
       this.props.updateQuery(this.state)
     })
   }
@@ -224,18 +207,7 @@ export class QuestionSidebar extends ControlledForm {
               })
             }
           </select>
-          {this.state.courses && this.state.courses.length > 1
-            ? <select value={this.state.courseId} onChange={this.setCourseId} className='ql-header-button question-type form-control'>
-              <option key={-1} value={-1} >Any course</option>
-              { this.state.courses
-               ? this.state.courses.map((obj) => {
-                 return <option key={obj._id} value={obj._id} >{ obj.code }</option>
-               })
-               : ''
-              }
-            </select>
-            : ''
-          }
+          
 
           <Select
             name='tag-input'

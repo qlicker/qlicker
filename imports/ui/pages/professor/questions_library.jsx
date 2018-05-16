@@ -140,7 +140,7 @@ class _QuestionsLibrary extends Component {
                 : ''}
             <QuestionSidebar
               questions={library}
-              course={this.props.courseId}
+              courseId={this.props.courseId}
               onSelect={this.editQuestion}
               increase={increase}
               decrease={decrease}
@@ -176,7 +176,6 @@ class _QuestionsLibrary extends Component {
 
 export const QuestionsLibrary = createContainer(props => {
   const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
-  const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   const courseId = props.courseId
   let params = {
     query: {
@@ -193,7 +192,6 @@ export const QuestionsLibrary = createContainer(props => {
   return {
     query: params,
     library: library,
-    courses: courses,
     courseId: courseId,
     loading: !handle.ready()
   }

@@ -29,7 +29,7 @@ class _QuestionsPublic extends Component {
       query: props.query,
       questionMap: _(props.library).indexBy('_id')
     }
-
+    
     this.copyPublicQuestion = this.copyPublicQuestion.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
@@ -112,7 +112,7 @@ class _QuestionsPublic extends Component {
       <div className='container ql-questions-library'>
         <h1>Public Question Pool</h1>
         {createNav('public', this.props.courseId)}
-        <div className='row'>
+        <div className='row'> 
           <div className='col-md-4'>
             <QuestionSidebar
               questions={library}
@@ -172,7 +172,7 @@ export const QuestionsPublic = createContainer(props => {
   return {
     query: params,
     library: library,
-    courseId: props.courseId,
+    courseId: courseId,
     loading: !handle.ready()
   }
 }, _QuestionsPublic)
