@@ -252,7 +252,7 @@ Meteor.methods({
    * @param {Question} question
    * @returns {Question} new question
    */
-  'questions.insert' (question, courseId) {
+  'questions.insert' (question) {
     if (question._id) { // if _id already exists, update the question
       return Meteor.call('questions.update', question)
     }
@@ -260,7 +260,6 @@ Meteor.methods({
     question.createdAt = new Date()
     question.public = false
     question.creator = Meteor.userId()
-    question.courseId = courseId
 
     check(question, questionPattern)
 

@@ -398,7 +398,7 @@ export class QuestionEditItem extends Component {
     if (this.props.courseId) question.courseId = this.props.courseId
 
     // insert (or edit)
-    Meteor.call('questions.insert', question, this.props.courseId, (error, newQuestion) => {
+    Meteor.call('questions.insert', question, (error, newQuestion) => {
       if (error) {
         alertify.error('Error: ' + error.error)
       } else {

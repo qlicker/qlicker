@@ -233,9 +233,10 @@ class _ManageSession extends Component {
       courseId: this.state.session.courseId,
       owner: Meteor.userId(), // Owner is either TA or Professor since students cannot manage session
       approved: true,
+      courseId: this.props.session.courseId
     }, defaultQuestion)
 
-    Meteor.call('questions.insert', blankQuestion, this.props.session.courseId, (e, newQuestion) => {
+    Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
       alertify.success('New Blank Question Added')
       Meteor.call('sessions.addQuestion', sessionId, newQuestion._id)
