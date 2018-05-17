@@ -35,7 +35,7 @@ const questionPattern = {
   // null if question template, sessionId if copy attached to question
   sessionId: Match.Maybe(Helpers.MongoID),
   // null if prof created, populated for students creating question for enrolled course
-  courseId: String,
+  courseId: Match.Maybe(Helpers.MongoID),
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   solution: Match.Maybe(String), // solution is the full guide to answering the question

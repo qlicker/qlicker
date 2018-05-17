@@ -402,6 +402,7 @@ class _ManageSession extends Component {
     const sidebar = <QuestionSidebar
       session={this.state.session}
       questions={library}
+      courseId={this.props.session.courseId}
       onSelect={this.addToSession}
       increase={increase}
       decrease={decrease}
