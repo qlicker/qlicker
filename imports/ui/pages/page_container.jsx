@@ -39,7 +39,9 @@ class _PageContainer extends Component {
   }
 
   changeCourse (course) {
-    Router.go('course', { _id: course._id })
+    const pageName = Router.current().route.getName()
+    if (!pageName.includes('session')) Router.go(pageName, { courseId: course._id })
+    else Router.go('course', { courseId: course._id })
   }
 
   render () {
@@ -79,7 +81,7 @@ class _PageContainer extends Component {
                    : ''
                 }
                 {  this.state.showCourse && !isAdmin
-                   ? <li><a className='close-nav' role='button' onClick={() => this.changeCourse(this.state.course)}>Course Home</a></li>
+                   ? <li><a className='close-nav' role='button' onClick={() => Router.go('course', { courseId: this.state.course._id })}>Course Home</a></li>
                    : ''
                 }
                 { isAdmin

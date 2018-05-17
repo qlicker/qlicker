@@ -81,7 +81,7 @@ class _ManageCourse extends Component {
       alertify.success('Session copied')
       if (courseId) {
         this.toggleCopySessionModal()
-        Router.go('course', { _id: courseId })
+        Router.go('course', { courseId: courseId })
       }
     })
   }

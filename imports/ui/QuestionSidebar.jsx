@@ -37,6 +37,7 @@ export class QuestionSidebar extends ControlledForm {
     this.setSearchString = this.setSearchString.bind(this)
     this.setUserSearchString = this.setUserSearchString.bind(this)
     this.setType = this.setType.bind(this)
+    this.setCourseId = this.setCourseId.bind(this)
     this.setTags = this.setTags.bind(this)
     this.resetFilter = this.resetFilter.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
@@ -44,16 +45,8 @@ export class QuestionSidebar extends ControlledForm {
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
     // populate tagging suggestions
     this.tagSuggestions = []
-    Meteor.call('courses.getCourseCodeTag', this.state.courseId, (error, tag) => {
-      let tags = this.state.tags
-      if (error) return alertify.error('Error: ' + error.error)
-      // this does not seem to work, it adds it regardless...
-      let tlabels = _(tags).pluck('label')
-      if (tag && !tlabels.includes(tag.label)) {
-        tags.push(tag)
-        this.setTags(tags)
-      }
-    })
+    
+    this.setCourseId(this.state.courseId)
     Meteor.call('questions.possibleTags', (e, tags) => {
       // non-critical, if e: silently fail
       tags.forEach((t) => {
@@ -112,6 +105,26 @@ export class QuestionSidebar extends ControlledForm {
     })
   }
   
+   /**
+   * Set course id & invoke filter
+   * @param {Event} e
+   */
+  setCourseId (cId) {
+    if (parseInt(cId) !== -1) {
+      // set the corresponding course tag (user can always remove it)
+      let tags = this.state.tags
+      Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        // this does not seem to work, it adds it regardless...
+        let tlabels = _(tags).pluck('label')
+        if (tag && !tlabels.includes(tag.label)) {
+          tags.push(tag)
+          this.setTags(tags)
+        }
+      })
+    }
+  }
+
   /**
    * delete the question
    * @param {MongoId} questionId
@@ -179,8 +192,10 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice() })
+    this.setState({ questionPool: nextProps.questions.slice(), courseId: nextProps.courseId })
     if (nextProps.resetFilter) this.resetFilter()
+    if(nextProps.courseId !== this.state.courseId) this.setTags([])
+    this.setCourseId(nextProps.courseId)
   }
 
   render () {
