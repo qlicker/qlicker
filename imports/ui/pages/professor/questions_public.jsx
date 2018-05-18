@@ -113,6 +113,7 @@ class _QuestionsPublic extends Component {
         {createNav('public', this.props.courseId)}
         <div className='row'> 
           <div className='col-md-4'>
+          {console.log(library)}
             <QuestionSidebar
               questions={library}
               courseId={this.props.courseId}
@@ -157,7 +158,8 @@ export const QuestionsPublic = createContainer(props => {
   const courseId = props.courseId
   const params = {
     query: {
-      public: true
+      public: true,
+      courseId: courseId
     },
     options: {
       sort: { createdAt: -1 },

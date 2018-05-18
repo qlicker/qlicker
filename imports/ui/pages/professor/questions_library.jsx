@@ -136,6 +136,7 @@ class _QuestionsLibrary extends Component {
 
     return (
       <div className='container ql-questions-library'>
+      {console.log(library)}
         <h1>My Question Library</h1>
         {createNav('library', this.props.courseId)}
         <div className='row'>
@@ -184,8 +185,7 @@ export const QuestionsLibrary = createContainer(props => {
   const courseId = props.courseId
   let params = {
     query: {
-      // '$or': [{owner: Meteor.userId()}, {creator: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}],
-      // sessionId: {$exists: false}
+      courseId: courseId
     },
     options: {
       sort: { createdAt: -1 },

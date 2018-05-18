@@ -193,14 +193,15 @@ class _QuestionsFromStudent extends Component {
         </div>
       </div>)
   }
-
 }
 
 export const QuestionsFromStudent = createContainer(props => {
 
+  const courseId = props.courseId
+
   let params = {
     query: {
-      courseId: {$exists: true},
+      courseId: courseId,
       sessionId: {$exists: false},
       approved: false,
       public: false
@@ -214,7 +215,7 @@ export const QuestionsFromStudent = createContainer(props => {
   const library = Questions.find(params.query, params.options).fetch()
 
   return {
-    courseId: props.courseId,
+    courseId: courseId,
     query: params,
     library: library,
   }

@@ -56,7 +56,6 @@ export class QuestionEditItem extends Component {
       if (this.props.sessionId && !this.props.question.sessionOptions) {
         this.state.sessionOptions = defaultSessionOptions
       }
-      console.log('yes')
       this.currentAnswer = this.state.options ? this.state.options.length : 0
       switch (this.state.type) {
         case QUESTION_TYPE.MC:
@@ -73,7 +72,6 @@ export class QuestionEditItem extends Component {
           break
       }
     } else { // if adding new question
-      console.log('no')
       this.state = _.extend({}, defaultQuestion)
       this.state.creator = Meteor.userId()
       this.state.owner = Meteor.userId()
