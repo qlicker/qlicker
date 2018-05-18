@@ -57,10 +57,15 @@ class _QuestionsLibrary extends Component {
     if (questionId === -1) {
       // reset the query
       this.setState({query: this.props.query, resetSidebar: true})
+      let tags = []
+      Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
+        if (tag) tags = [tag]
+      })
       const blankQuestion = _.extend({
         owner: Meteor.userId(),
         approved: true,
-        courseId: this.props.courseId
+        courseId: this.props.courseId,
+        tags: tags
       }, defaultQuestion)
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')
@@ -69,6 +74,7 @@ class _QuestionsLibrary extends Component {
           this.setState({ selected: newQuestion._id })
         })
       })
+      
     } else {
       this.setState({ selected: null }, () => {
         this.setState({ selected: questionId })

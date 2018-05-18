@@ -165,7 +165,7 @@ Router.route('/course/:courseId/questions/submissions', {
     let user = Meteor.user()
     const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
     if (Meteor.userId() && isInstructor) {
-      mount(AppLayout, { content: <PageContainer user={user} courseId={this.params.courseId}> <QuestionsFromStudent /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={user} courseId={this.params.courseId}> <QuestionsFromStudent courseId={this.params.courseId}/> </PageContainer> })
     } else Router.go('login')
   }
 })

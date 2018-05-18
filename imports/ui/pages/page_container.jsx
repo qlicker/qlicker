@@ -40,7 +40,7 @@ class _PageContainer extends Component {
 
   changeCourse (course) {
     const pageName = Router.current().route.getName()
-    if (!pageName.includes('session')) Router.go(pageName, { courseId: course._id })
+    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor')) Router.go(pageName, { courseId: course._id })
     else Router.go('course', { courseId: course._id })
   }
 

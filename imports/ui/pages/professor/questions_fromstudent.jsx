@@ -144,7 +144,8 @@ class _QuestionsFromStudent extends Component {
     return (
       <div className='container ql-questions-library'>
         <h1>Student Submitted Questions</h1>
-        {createNav('student')}
+        {console.log(this.props.courseId)}
+        {createNav('student', this.props.courseId)}
 
         <div className='row'>
           <div className='col-md-4'>
@@ -196,7 +197,7 @@ class _QuestionsFromStudent extends Component {
 
 }
 
-export const QuestionsFromStudent = createContainer(() => {
+export const QuestionsFromStudent = createContainer(props => {
   const handle = Meteor.subscribe('questions.fromStudent') && Meteor.subscribe('users.myStudents')
 
   let params = {
@@ -215,6 +216,7 @@ export const QuestionsFromStudent = createContainer(() => {
   const library = Questions.find(params.query, params.options).fetch()
 
   return {
+    courseId: props.courseId,
     query: params,
     library: library,
     loading: !handle.ready()
