@@ -107,6 +107,7 @@ class _QuestionsPublic extends Component {
       this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
     }
     
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
         <h1>Public Question Pool</h1>
@@ -155,6 +156,8 @@ class _QuestionsPublic extends Component {
 }
 
 export const QuestionsPublic = createContainer(props => {
+  const handle = Meteor.subscribe('questions.public')
+  const courseId = props.courseId
   const params = {
     query: {
       public: true,
@@ -171,6 +174,7 @@ export const QuestionsPublic = createContainer(props => {
   return {
     query: params,
     library: library,
-    courseId: props.courseId,
+    courseId: courseId,
+    loading: !handle.ready()
   }
 }, _QuestionsPublic)

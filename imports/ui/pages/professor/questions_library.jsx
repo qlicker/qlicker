@@ -116,9 +116,10 @@ class _QuestionsLibrary extends Component {
 
   componentWillReceiveProps () {
     const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+    console.log(newQuestions)
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
+    } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
   }
 
   render () {
@@ -134,6 +135,7 @@ class _QuestionsLibrary extends Component {
       this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
     }
 
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
         <h1>My Question Library</h1>
@@ -181,6 +183,7 @@ class _QuestionsLibrary extends Component {
 }
 
 export const QuestionsLibrary = createContainer(props => {
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
   const courseId = props.courseId
   let params = {
     query: {
@@ -197,5 +200,6 @@ export const QuestionsLibrary = createContainer(props => {
     query: params,
     library: library,
     courseId: courseId,
+    loading: !handle.ready()
   }
 }, _QuestionsLibrary)

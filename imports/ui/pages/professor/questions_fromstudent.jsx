@@ -140,6 +140,7 @@ class _QuestionsFromStudent extends Component {
       this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
     }
 
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
         <h1>Student Submitted Questions</h1>
@@ -196,6 +197,7 @@ class _QuestionsFromStudent extends Component {
 }
 
 export const QuestionsFromStudent = createContainer(props => {
+  const handle = Meteor.subscribe('questions.fromStudent') && Meteor.subscribe('users.myStudents')
 
   const courseId = props.courseId
 
@@ -218,5 +220,6 @@ export const QuestionsFromStudent = createContainer(props => {
     courseId: courseId,
     query: params,
     library: library,
+    loading: !handle.ready()
   }
 }, _QuestionsFromStudent)
