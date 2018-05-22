@@ -159,14 +159,12 @@ class _PageContainer extends Component {
 }
 
 export const PageContainer = createContainer(props => {
-  const handle = Meteor.subscribe('courses')
   const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
   const course = props && props.courseId ? Courses.findOne({ _id: props.courseId }) : null
 
   return {
     courses: courses,
     course: course,
-    loading: !handle.ready()
   }
 }, _PageContainer)
 
