@@ -105,21 +105,18 @@ class _QuestionsLibrary extends Component {
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
 
-    const newQuestions = Questions.find(params.query, params.options).fetch()
-    if (!_.findWhere(newQuestions, {_id: this.state.selected})) this.setState({selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
-    else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
   }
 
   limitAndUpdate (data) {
     this.setState({limit: 11}, () => this.updateQuery(data))
   }
 
-  componentWillReceiveProps () {
-    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+  componentWillReceiveProps (nextProps) {
+    const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
     console.log(newQuestions)
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
-      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
+      this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') }) 
   }
 
   render () {

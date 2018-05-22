@@ -109,19 +109,14 @@ class _QuestionsFromStudent extends Component {
     } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
-
-    const newQuestions = Questions.find(params.query, params.options).fetch()
-    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
-      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({questions: newQuestions})
   }
 
   limitAndUpdate (data) {
     this.setState({limit: 11}, () => this.updateQuery(data))
   }
 
-  componentWillReceiveProps () {
-    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+  componentWillReceiveProps (nextProps) {
+    const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
     } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
@@ -144,7 +139,6 @@ class _QuestionsFromStudent extends Component {
     return (
       <div className='container ql-questions-library'>
         <h1>Student Submitted Questions</h1>
-        {console.log(this.props.courseId)}
         {createNav('student', this.props.courseId)}
 
         <div className='row'>
