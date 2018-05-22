@@ -19,12 +19,25 @@ class _PageContainer extends Component {
     this.state = { 
       promotingAccount: false,
       courseId: this.props && this.props.courseId ? this.props.courseId : '',
-      courseCode: null,
+      courseCode: '',
       showCourse: this.props && this.props.courseId ? true : false
     }
     alertify.logPosition('bottom right')
 
     this.changeCourse = this.changeCourse.bind(this)
+    this.setCourseCode = this.setCourseCode.bind(this)
+
+    if(this.state.courseId !== '') {
+      this.setCourseCode(this.state.courseId)
+    }
+  }
+  
+  setCourseCode (courseId) {
+    Meteor.call('courses.getCourseCode', courseId, (e, c) => {
+      if(c) {
+        this.setState({ courseCode: c})
+      }
+    })
   }
 
   componentDidMount () {
@@ -37,15 +50,10 @@ class _PageContainer extends Component {
 
   componentWillReceiveProps (nextProps) {
     this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false })
+    if(nextProps.courseId) this.setCourseCode(nextProps.courseId)
   }
 
   changeCourse (courseId) {
-    let courseCode = ''
-    Meteor.call('courses.getCourseCode', courseId, (e, c) => {
-      if(c) {
-        this.setState({ courseCode: c})
-      }
-    })
     const pageName = Router.current().route.getName()
     if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor')) Router.go(pageName, { courseId: courseId })
     else Router.go('course', { courseId: courseId })

@@ -155,7 +155,6 @@ class _QuestionsPublic extends Component {
 }
 
 export const QuestionsPublic = createContainer(props => {
-  const courseId = props.courseId
   const params = {
     query: {
       public: true,
@@ -172,6 +171,6 @@ export const QuestionsPublic = createContainer(props => {
   return {
     query: params,
     library: library,
-    courseId: courseId,
+    courseId: props.courseId,
   }
 }, _QuestionsPublic)

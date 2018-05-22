@@ -29,7 +29,6 @@ export class QuestionSidebar extends ControlledForm {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
       questionType: -1,
-      courseId: this.props.courseId,
       tags: []
     }
 
@@ -170,9 +169,9 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice(), courseId: nextProps.courseId })
+    this.setState({ questionPool: nextProps.questions.slice() })
     if (nextProps.resetFilter) this.resetFilter()
-    if(nextProps.courseId !== this.state.courseId) this.setTags([])
+    if(nextProps.courseId !== this.props.courseId) this.setTags([])
   }
 
   render () {

@@ -74,7 +74,7 @@ class _QuestionsLibrary extends Component {
           this.setState({ selected: newQuestion._id })
         })
       })
-      
+
     } else {
       this.setState({ selected: null }, () => {
         this.setState({ selected: questionId })
@@ -136,7 +136,6 @@ class _QuestionsLibrary extends Component {
 
     return (
       <div className='container ql-questions-library'>
-      {console.log(library)}
         <h1>My Question Library</h1>
         {createNav('library', this.props.courseId)}
         <div className='row'>
