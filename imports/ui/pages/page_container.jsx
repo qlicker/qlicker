@@ -18,8 +18,9 @@ class _PageContainer extends Component {
     super(props)
     this.state = { 
       promotingAccount: false,
-      course: this.props && this.props.course ? this.props.course : null,
-      showCourse: this.props && this.props.course ? true : false
+      courseId: this.props && this.props.courseId ? this.props.courseId : '',
+      courseCode: null,
+      showCourse: this.props && this.props.courseId ? true : false
     }
     alertify.logPosition('bottom right')
 
@@ -35,13 +36,19 @@ class _PageContainer extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ course: nextProps.course ? nextProps.course : this.state.course, showCourse: nextProps.course ? true : false })
+    this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false })
   }
 
-  changeCourse (course) {
+  changeCourse (courseId) {
+    let courseCode = ''
+    Meteor.call('courses.getCourseCode', courseId, (e, c) => {
+      if(c) {
+        this.setState({ courseCode: c})
+      }
+    })
     const pageName = Router.current().route.getName()
-    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor')) Router.go(pageName, { courseId: course._id })
-    else Router.go('course', { courseId: course._id })
+    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor')) Router.go(pageName, { courseId: courseId })
+    else Router.go('course', { courseId: courseId })
   }
 
   render () {
@@ -81,7 +88,7 @@ class _PageContainer extends Component {
                    : ''
                 }
                 {  this.state.showCourse && !isAdmin
-                   ? <li><a className='close-nav' role='button' onClick={() => Router.go('course', { courseId: this.state.course._id })}>Course Home</a></li>
+                   ? <li><a className='close-nav' role='button' onClick={() => Router.go('course', { courseId: this.state.courseId })}>Course Home</a></li>
                    : ''
                 }
                 { isAdmin
@@ -92,13 +99,13 @@ class _PageContainer extends Component {
                       </ul>
                     </li>
                   : this.state.showCourse 
-                    ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.course._id })}>Grades</a></li>
+                    ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
                     : ''
                 }
                 { this.state.showCourse && !isAdmin
                   ? <li className='dropdown'>
                     <a className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
-                      aria-haspopup='true' aria-expanded='false' onClick={() => Router.go('questions', { courseId: this.state.course._id })}>Question library</a>
+                      aria-haspopup='true' aria-expanded='false' onClick={() => Router.go('questions', { courseId: this.state.courseId })}>Question library</a>
                     </li>
                   : ''
 
@@ -107,19 +114,19 @@ class _PageContainer extends Component {
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
                    : <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
-                        { this.state.course 
-                          ? this.state.course.deptCode.toUpperCase() + ' ' + this.state.course.courseNumber + ' - ' + this.state.course.name + ' '
+                        { this.state.courseId
+                          ?  this.state.courseCode.substring(0, 4) + ' ' + this.state.courseCode.substring(4)
                           : 'Courses'
                         }
                       <span className='caret' />
                       </a>
                       <ul className='dropdown-menu' >
-                        <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ course: '', showCourse: false })}>All Courses</a></li>
+                        <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
                         <li role='separator' className='divider' >&nbsp;</li>
                         <li className='dropdown-header'>My Active Courses</li>
                         {
                           this.props.courses.map((c) => {
-                            return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => this.changeCourse(c)}>{c.fullCourseCode()}</a></li>)
+                            return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => this.changeCourse(c._id)}>{c.fullCourseCode()}</a></li>)
                           })
                         }
                       </ul>
@@ -159,12 +166,13 @@ class _PageContainer extends Component {
 }
 
 export const PageContainer = createContainer(props => {
+  const handle = Meteor.subscribe('courses')
   const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
-  const course = props && props.courseId ? Courses.findOne({ _id: props.courseId }) : null
 
   return {
     courses: courses,
-    course: course,
+    courseId: props.courseId,
+    loading: !handle.ready()
   }
 }, _PageContainer)
 
