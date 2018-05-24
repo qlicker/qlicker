@@ -30,7 +30,11 @@ class _AdminDashboard extends Component {
       size: p.settings.maxImageSize,
       width: p.settings.maxImageWidth,
       supportEmail: p.settings.email,
-      requireVerified: p.settings.requireVerified
+      requireVerified: p.settings.requireVerified,
+      bucket: '',
+      region: '',
+      accessKey: '',
+      secret: ''      
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -142,7 +146,11 @@ class _AdminDashboard extends Component {
     const setImageSize = (e) => { this.setState({ size: e.target.value }) }
     const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
-
+    const setBucket = (e) => { this.setState({ bucket: e.target.value }) }
+    const setRegion = (e) => { this.setState({ region: e.target.value }) }
+    const setAccessKey = (e) => { this.setState({ accessKey: e.target.value }) }
+    const setSecret = (e) => { this.setState({ secret: e.target.value }) }
+    
     return (
       <div className='container ql-admin-page'>
         <h2>Admin User Management</h2>
@@ -168,6 +176,30 @@ class _AdminDashboard extends Component {
 
         <h4>Require verified email to login</h4>
         <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
+
+        <h4>AWS Bucket Name</h4>
+        <form ref='supportForm' onSubmit={this.saveBucket} className='form-inline'>
+          <input className='form-control' value={this.state.bucket} type='text' onChange={setBucket} />
+          <input type='submit' className='btn btn-primary' value='Set' />
+        </form>
+
+        <h4>AWS Bucket Region</h4>
+        <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
+          <input className='form-control' value={this.state.region} type='text' onChange={setRegion} />
+          <input type='submit' className='btn btn-primary' value='Set' />
+        </form>
+
+        <h4>AWS Access Key Id</h4>
+        <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
+          <input className='form-control' value={this.state.accessKey} type='text' onChange={setAccessKey} />
+          <input type='submit' className='btn btn-primary' value='Set' />
+        </form>
+
+        <h4>AWS Secret</h4>
+        <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
+          <input className='form-control' value={this.state.secret} type='text' onChange={setSecret} />
+          <input type='submit' className='btn btn-primary' value='Set' />
+        </form>
 
         <RestrictDomainForm
           done={() => { return true }}
