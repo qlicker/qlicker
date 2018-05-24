@@ -10,6 +10,10 @@ import { RestrictDomainForm } from '../../RestrictDomainForm'
 
 import { Settings } from '../../../api/settings'
 
+import { Images } from '../../../api/images'
+
+import { Slingshot } from 'meteor/edgee:slingshot'
+
 import { Courses } from '../../../api/courses'
 
 import { ROLES } from '../../../configs'
@@ -72,6 +76,30 @@ class _AdminDashboard extends Component {
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
       else alertify.success('Settings updated')
+    })
+  }
+
+  saveBucket (e) {
+    e.preventDefault
+    let settings = Settings.findOne()
+    settings.bucket = this.state.bucket
+    settings.AWSAccessKeyId = this.state.accessKey
+    settings.AWSSecretAccessKey = this.state.secret
+    settings.region = this.state.region
+   
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
+      //   Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
+      //   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
+      //   maxSize: null, // Unlimited, handled in authorized() instead
+      //   bucket: settings.bucket,
+      //   region: settings.region,
+      //   AWSAccessKeyId: settings.accessKey,
+      //   AWSSecretAccessKey: settings.secret,
+      //   acl: 'public-read',
+      // })
+
     })
   }
 
