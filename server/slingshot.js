@@ -29,23 +29,30 @@ if (hasS3Credentials) {
     }
   })
 } else {
-  // This creates a fake storage service. Every time Slingshot is used to upload a file,
-  // Meteor should throw an error. This could turn into a bootstrapper for storing images
-  // into MongoDB if a user does not want to use s3.
+  // This creates an AWS S3 storage with no credentials
+  // Credentials can be changed in admin_dashboard
 
-  let fakeStorageService = {
-    directiveMatch: {},
-    directiveDefault: {
-      authorize: function (file, metaContext) {
-        throw new Meteor.Error('no-s3-credentials', 'Missing S3 credentials. Are you in a dev environment?')
-      },
-      maxSize: null,
-      allowedFileTypes: null
+  Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
+   
+    allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
+    maxSize: null, // Unlimited, handled in authorized() instead
+    bucket: '',
+    AWSAccessKeyId: '',
+    AWSSecretAccessKey: '',
+    acl: 'public-read',
+
+    authorize: function (file, metaContext) {
+      if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {
+        alertify.error('Image too large')
+        return false
+      }
+      return Meteor.userId()
     },
-    upload: function (method, directive, file, meta) {}
-  }
 
-  Slingshot.createDirective('QuestionImages', fakeStorageService, {})
+    key: function (file, metaContext) {
+      return metaContext.UID + '/' + metaContext.type
+    }
+  })
 
   console.warn(
     'WARNING: ' +
