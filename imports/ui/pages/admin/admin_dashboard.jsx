@@ -16,6 +16,8 @@ import { ROLES } from '../../../configs'
 
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
+import { Slingshot } from 'meteor/edgee:slingshot'
+
 class _AdminDashboard extends Component {
 
   constructor (p) {
@@ -38,6 +40,7 @@ class _AdminDashboard extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.saveImageSize = this.saveImageSize.bind(this)
     this.saveImageWidth = this.saveImageWidth.bind(this)
+    this.saveCredentials = this.saveCredentials.bind(this)
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
@@ -79,6 +82,19 @@ class _AdminDashboard extends Component {
     })
   }
 
+  saveCredentials (e) {
+    e.preventDefault
+
+    Meteor.call('updateCredentials', this.state.bucket, this.state.region, this.state.accessKey, this.state.secret, (err, result) => {
+      if (err) {
+        alertify.error('Error')
+      }
+      else {
+        console.log(result)
+        alertify.success('Updated')
+      }
+    })
+  }
   verifyUserEmail (email) {
     Meteor.call('users.verifyEmail', email, (e, d) => {
       if (e) alertify.error(e)
@@ -150,7 +166,7 @@ class _AdminDashboard extends Component {
         <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
 
         <h4>AWS Bucket Name</h4>
-        <form ref='supportForm' onSubmit={this.saveBucket} className='form-inline'>
+        <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
           <input className='form-control' value={this.state.bucket} type='text' onChange={setBucket} />
           <input type='submit' className='btn btn-primary' value='Set' />
         </form>
@@ -172,6 +188,8 @@ class _AdminDashboard extends Component {
           <input className='form-control' value={this.state.secret} type='text' onChange={setSecret} />
           <input type='submit' className='btn btn-primary' value='Set' />
         </form>
+
+        <input className='btn btn-primary' value='Set' onClick={this.saveCredentials} />
 
         <RestrictDomainForm
           done={() => { return true }}

@@ -12,6 +12,8 @@ import Helpers from './helpers.js'
 
 import { _ } from 'underscore'
 
+import { Slingshot } from 'meteor/edgee:slingshot'
+
 // expected collection pattern
 const imagePattern = {
   _id: Match.Maybe(Helpers.MongoID),
@@ -115,6 +117,22 @@ Meteor.methods({
         }
       })
     }))
+  },
+  /**
+   * Updates the AWS credentials set by admin
+   */
+  'updateCredentials' (bucket, region, AWSAccessKeyId, AWSSecretAccessKey) {
+    if (!Meteor.user().hasRole('admin')) throw new Error('Not authorized')
+
+    if (Meteor.isServer) {
+      directive = Slingshot.getDirective('QuestionImages')
+      if(directive === undefined) throw new Error('No Directive')
+      directive._directive.bucket = bucket
+      directive._directive.region = region
+      directive._directive.AWSAccessKeyId = AWSAccessKeyId
+      directive._directive.AWSSecretAccessKey = AWSSecretAccessKey
+      return directive
+    }
   }
 
 }) // end Meteor.methods
