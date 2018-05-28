@@ -64,7 +64,6 @@ class _AdminDashboard extends Component {
     e.preventDefault()
 
     let settings = Settings.findOne()
-    console.log(settings.bucket)
     settings.maxImageSize = !isNaN(Number(this.state.size)) ? Number(this.state.size) : 0
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
