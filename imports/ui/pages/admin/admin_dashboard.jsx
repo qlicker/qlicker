@@ -29,10 +29,10 @@ class _AdminDashboard extends Component {
       width: p.settings.maxImageWidth,
       supportEmail: p.settings.email,
       requireVerified: p.settings.requireVerified,
-      bucket: '',
-      region: '',
-      accessKey: '',
-      secret: ''      
+      bucket:  p.settings.bucket,
+      region: p.settings.region,
+      accessKey: p.settings.accessKey,
+      secret: p.settings.secret
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -64,6 +64,7 @@ class _AdminDashboard extends Component {
     e.preventDefault()
 
     let settings = Settings.findOne()
+    console.log(settings.bucket)
     settings.maxImageSize = !isNaN(Number(this.state.size)) ? Number(this.state.size) : 0
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
@@ -85,15 +86,17 @@ class _AdminDashboard extends Component {
   saveCredentials (e) {
     e.preventDefault
 
-    Meteor.call('updateCredentials', this.state.bucket, this.state.region, this.state.accessKey, this.state.secret, (err, result) => {
-      if (err) {
-        alertify.error('Error')
-      }
-      else {
-        console.log(result)
-        alertify.success('Updated')
-      }
+    let settings = Settings.findOne()
+    settings.bucket = this.state.bucket
+    settings.region = this.state.region
+    settings.accessKey = this.state.accessKey
+    settings.secret = this.state.secret
+
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
     })
+    
   }
   verifyUserEmail (email) {
     Meteor.call('users.verifyEmail', email, (e, d) => {
@@ -171,14 +174,14 @@ class _AdminDashboard extends Component {
               
                 
             <form className='ql-admin-login-box col-md-4' onSubmit={this.saveCredentials}>
-              <h4>Change AWS Credentials</h4> 
+              <h4>Image Storage Settings</h4> 
               <div className='ql-card-content inputs-container'>
                 <input className='form-control' type='text' value={this.state.bucket} onChange={setBucket} placeholder='Bucket Name' /><br />
                 <input className='form-control' type='text' value={this.state.region} onChange={setRegion} placeholder='Region' /><br />
                 <input className='form-control' type='text' value={this.state.accessKey} onChange={setAccessKey} placeholder='AWS Access Key Id' /><br />
                 <input className='form-control' type='text' value={this.state.secret} onChange={setSecret} placeholder='AWS Secret' /><br />
                 <div className='spacer1'>&nbsp;</div>
-                <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
+                <input type='submit' id='submitStorage' className='btn btn-primary btn-block' value='Submit' />
               </div>
             </form>        
           </div>

@@ -5,7 +5,7 @@
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
-import { check } from 'meteor/check'
+import { check, Match } from 'meteor/check'
 
 import { _ } from 'underscore'
 
@@ -20,7 +20,11 @@ const pattern = {
   maxImageSize: Number,
   maxImageWidth: Number,
   email: String,
-  requireVerified: Boolean
+  requireVerified: Boolean,
+  bucket: Match.Maybe(String),
+  region: Match.Maybe(String),
+  accessKey: Match.Maybe(String),
+  secret: Match.Maybe(String)
 }
 
 // Create course class
@@ -88,6 +92,14 @@ Meteor.methods({
       if (user.hasRole(ROLES.admin)) {
         if (settings.email && settings.email !== Settings.findOne().email && Meteor.isServer) {
           Accounts.emailTemplates.from = 'Qlicker Admin <' + settings.email + '>'
+        }
+        if (Meteor.isServer && settings.bucket) {
+          directive = Slingshot.getDirective('QuestionImages')._directive
+          if(directive === undefined) throw new Error('No Directive')
+          directive.bucket = settings.bucket
+          directive.region = settings.region
+          directive.AWSAccessKeyId = settings.accessKey
+          directive.AWSSecretAccessKey = settings.secret
         }
         return Settings.update(settings._id, settings)
       }
