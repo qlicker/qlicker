@@ -152,11 +152,11 @@ class _AdminDashboard extends Component {
           </form>
         </div>
         
-
-        <h2>Image Settings</h2>
-        <br />
         <div className='ql-admin-settings'>
-          <div> 
+          <div>
+            <h2>Image Settings</h2>
+            <br />      
+        
             <h4>Maximum image size (in MB, after rescaling to max width)</h4>
             <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
               <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
@@ -168,51 +168,51 @@ class _AdminDashboard extends Component {
               <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
               <input type='submit' className='btn btn-primary' value='Set' />
             </form>
-          </div>   
-            
-          <form className='ql-admin-login-box col-md-4' onSubmit={this.saveCredentials}>
-            <h4>Change AWS Credentials</h4> 
-            <div className='ql-card-content inputs-container'>
-              <div className='input-group'>
-                <input className='form-control' type='text' value={this.state.bucket} onChange={setBucket} placeholder='Bucket Name' />
-                <input className='form-control' type='text' value={this.state.region} onChange={setRegion} placeholder='Region' />
-              </div>         
-              <input className='form-control' type='text' value={this.state.accessKey} onChange={setAccessKey} placeholder='AWS Access Key Id' /><br />
-              <input className='form-control' type='text' value={this.state.secret} onChange={setSecret} placeholder='AWS Secret' /><br />
-              <div className='spacer1'>&nbsp;</div>
-              <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
-            </div>
-          </form>        
-        </div>
+              
+                
+            <form className='ql-admin-login-box col-md-4' onSubmit={this.saveCredentials}>
+              <h4>Change AWS Credentials</h4> 
+              <div className='ql-card-content inputs-container'>
+                <input className='form-control' type='text' value={this.state.bucket} onChange={setBucket} placeholder='Bucket Name' /><br />
+                <input className='form-control' type='text' value={this.state.region} onChange={setRegion} placeholder='Region' /><br />
+                <input className='form-control' type='text' value={this.state.accessKey} onChange={setAccessKey} placeholder='AWS Access Key Id' /><br />
+                <input className='form-control' type='text' value={this.state.secret} onChange={setSecret} placeholder='AWS Secret' /><br />
+                <div className='spacer1'>&nbsp;</div>
+                <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
+              </div>
+            </form>        
+          </div>
 
-        <h2>User Settings</h2>
-        <br />
-        <div className='ql-admin-settings'>
           <div>
+            <h2>User Settings</h2>
+            <br /> 
+            
             <h4>Require verified email to login</h4>
             <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
+            <br />
 
             <RestrictDomainForm
               done={() => { return true }}
               settings={this.props.settings}
             />
-          </div>
-          
-          <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
-            <h4>Add user manually</h4>  
-            <div className='ql-card-content inputs-container'>
-              <div className='input-group'>
-                <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
-                <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+            <br />
+            
+            <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
+              <h4>Add user manually</h4>  
+              <div className='ql-card-content inputs-container'>
+                <div className='input-group'>
+                  <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
+                  <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+                </div>
+                <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' />
+                <br />
+                <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
+                <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div>
+                <div className='spacer1'>&nbsp;</div>
+                <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
               </div>
-              <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' />
-              <br />
-              <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-              <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div>
-              <div className='spacer1'>&nbsp;</div>
-              <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
 
         <div>
