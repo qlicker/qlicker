@@ -95,12 +95,14 @@ Meteor.methods({
           Accounts.emailTemplates.from = 'Qlicker Admin <' + settings.email + '>'
         }
         if (Meteor.isServer) {
-          directive = Slingshot.getDirective('QuestionImages')._directive
-          if(directive === undefined) throw new Error('No Directive')
-          directive.bucket = settings.bucket
-          directive.region = settings.region
-          directive.AWSAccessKeyId = settings.accessKey
-          directive.AWSSecretAccessKey = settings.secret
+          directive = Slingshot.getDirective(settings.storageType)._directive
+          if (settings.storageType === 'AWS') {      
+            if(!directive) throw new Error('No Directive')
+            directive.bucket = settings.bucket
+            directive.region = settings.region
+            directive.AWSAccessKeyId = settings.accessKey
+            directive.AWSSecretAccessKey = settings.secret
+          } 
         }
         return Settings.update(settings._id, settings)
       }

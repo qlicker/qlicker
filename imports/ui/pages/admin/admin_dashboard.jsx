@@ -99,7 +99,7 @@ class _AdminDashboard extends Component {
       settings.accessKey = ''
       settings.secret = ''
     }
-  
+    
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
       else alertify.success('Settings updated')

@@ -7,6 +7,7 @@
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
 import { Images } from '../api/images'
+import { ReactiveVar } from 'meteor/reactive-var'
 
 let UUID = require('uuid-1345')
 
@@ -23,10 +24,11 @@ export class Editor extends Component {
   constructor (p) {
     super(p)
 
-    this.state = { val: this.props.val }
+    this.state = { val: this.props.val, storageType: '' }
     this.editor = null
     this.addImage = this.addImage.bind(this)
     this.resizeImage = this.resizeImage.bind(this)
+    this.setStorageType = this.setStorageType.bind(this)
   }
 
   setupCKEditor () {
@@ -71,7 +73,13 @@ export class Editor extends Component {
     })
   }
 
-  resizeImage (size, img, meta, save) {
+  setStorageType() {
+    Meteor.call('settings.find', (e, d) => {
+      this.setState({ storageType: d.storageType})
+    })
+  }
+
+  resizeImage (size, storageType, img, meta, save) {
     let width = img.width
     let height = img.height
     if (width > size) {
@@ -82,7 +90,8 @@ export class Editor extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    let slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
+    this.setStorageType()
+    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)  
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
         if (e) {
@@ -121,7 +130,9 @@ export class Editor extends Component {
           img.onload = function () {
             const meta = {UID: UID, type: 'image'}
             Meteor.call('settings.find', (e, obj) => {
-              if (obj) this.resizeImage(obj.maxImageWidth, img, meta, true)
+              if (obj) {
+                this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
+              }
             })
           }.bind(this)
           img.src = fileURL
@@ -130,7 +141,7 @@ export class Editor extends Component {
           let thumb = new window.Image()
           thumb.onload = function () {
             const meta = {UID: UID, type: 'thumbnail'}
-            this.resizeImage(50, thumb, meta, false)
+            this.resizeImage(50, this.state.storageType,thumb, meta, false)
           }.bind(this)
           thumb.src = e.target.result
         }
