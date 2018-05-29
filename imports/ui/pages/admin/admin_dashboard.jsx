@@ -164,7 +164,6 @@ class _AdminDashboard extends Component {
             <input type='submit' className='btn btn-primary' value='Set' />
           </form>
         </div>
-        
         <div className='ql-admin-settings'>
           <div>
             <h2>Image Settings</h2>
@@ -186,8 +185,9 @@ class _AdminDashboard extends Component {
               <h4>Image Storage Settings</h4> 
               <div className='ql-card-content inputs-container'>
                 <select className='form-control' onChange={setStorageType} value={this.state.storageType}>
-                  <option value='AWS'>AWS</option>
                   <option value='None'>None</option>
+                  <option value='AWS'>AWS S3</option>
+                  <option value='Azure'>Microsoft Azure Blob</option>
                 </select>
                 <br />
                 { this.state.storageType === 'AWS' 

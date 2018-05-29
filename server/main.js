@@ -20,7 +20,8 @@ Meteor.startup(() => {
       bucket: '',
       region: '',
       accessKey: '',
-      secret: ''
+      secret: '',
+      storageType: 'None'
     })
   }
 

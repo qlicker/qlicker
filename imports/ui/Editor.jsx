@@ -73,10 +73,8 @@ export class Editor extends Component {
     })
   }
 
-  setStorageType() {
-    Meteor.call('settings.find', (e, d) => {
-      this.setState({ storageType: d.storageType})
-    })
+  setStorageType(storageType) {
+    this.setState({ storageType: storageType})
   }
 
   resizeImage (size, storageType, img, meta, save) {
@@ -90,7 +88,7 @@ export class Editor extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    this.setStorageType()
+    console.log(storageType)
     let slingshotThumbnail = new Slingshot.Upload(storageType, meta)  
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
@@ -132,6 +130,7 @@ export class Editor extends Component {
             Meteor.call('settings.find', (e, obj) => {
               if (obj) {
                 this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
+                this.setStorageType(obj.storageType)
               }
             })
           }.bind(this)
