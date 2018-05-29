@@ -21,6 +21,7 @@ const pattern = {
   maxImageWidth: Number,
   email: String,
   requireVerified: Boolean,
+  storageType: Match.Maybe(String),
   bucket: Match.Maybe(String),
   region: Match.Maybe(String),
   accessKey: Match.Maybe(String),
@@ -93,7 +94,7 @@ Meteor.methods({
         if (settings.email && settings.email !== Settings.findOne().email && Meteor.isServer) {
           Accounts.emailTemplates.from = 'Qlicker Admin <' + settings.email + '>'
         }
-        if (Meteor.isServer && settings.bucket) {
+        if (Meteor.isServer) {
           directive = Slingshot.getDirective('QuestionImages')._directive
           if(directive === undefined) throw new Error('No Directive')
           directive.bucket = settings.bucket
