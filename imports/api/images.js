@@ -12,8 +12,6 @@ import Helpers from './helpers.js'
 
 import { _ } from 'underscore'
 
-import { Slingshot } from 'meteor/edgee:slingshot'
-
 // expected collection pattern
 const imagePattern = {
   _id: Match.Maybe(Helpers.MongoID),
