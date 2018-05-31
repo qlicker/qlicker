@@ -37,6 +37,8 @@ let azureBlobStorageService = {
   directiveMatch: {
     accountName: String,
     accountKey: String,
+    containerName: String,
+    fileURL: String,
     options: Object
   },
 
@@ -64,40 +66,71 @@ let azureBlobStorageService = {
    
     var accountName = directive.accountName
     var accountKey = directive.accountKey
+    var containerName = directive.containerName
+
+    var fileURL = directive.fileURL
 
     var fooData = directive.foo && directive.foo.call(method, file, meta)
+    
+    console.log(meta)
 
     var azure = require('azure-storage')
-    var tableSvc = azure.createTableService(accountName, accountKey)
+    var blobService = azure.createBlobService(accountName, accountKey);
 
+    blobService.createContainerIfNotExists('taskcontainer', {
+      publicAccessLevel: 'blob'
+    }, function(error, result, response) {
+      if (!error) {
+        console.log('Created')
+      }
+    })
+
+    var startDate = new Date()
+    var expiryDate = new Date(startDate)
+    expiryDate.setMinutes(startDate.getMinutes() + 100)
+    startDate.setMinutes(startDate.getMinutes() - 100)
+    
+    var sharedAccessPolicy = {
+      AccessPolicy: {
+        Permissions: azure.BlobUtilities.SharedAccessPermissions.READ,
+        Start: startDate,
+        Expiry: expiryDate
+      }
+    }
+    
+    var token = blobService.generateSharedAccessSignature('taskcontainer', meta.UID + meta.type, sharedAccessPolicy);
+    var sasUrl = blobService.getUrl('taskcontainer', meta.UID + meta.type, token);
+    console.log(sasUrl)
+    
     //Here you need to make sure that all parameters passed in the directive
     //are going to be enforced by the server receiving the file.
 
-    alertify.error('fired')
+    
     return {
       // Endpoint where the file is to be uploaded:
-      upload: "https://qlickerblob.blob.core.windows.net/",
+      upload: "",
 
       // Download URL, once the file uploaded:
-      download: "https://qlickerblob.blob.core.windows.net/blob1/" + file.name,
+      download: "https://qlickerblob.blob.core.windows.net/qlickerblob/blob1",
 
       // POST data to be attached to the file-upload:
       postData: [
         {
-          name: "accessKey",
-          value: accessKey
+          name: "accountKey",//accessKey",
+          value: accountKey
         },
         {
-          name: "signature",
-          value: signature
-        }
-        //...
+          name: "accountName",//accessKey",
+          value: accountName
+        },
+        {
+          name: "containerName",//accessKey",
+          value: containerName
+        },
       ],
 
       // HTTP headers to send when uploading:
-      headers: {
-        "x-foo-bar": fooData
-      }
+      headers: {}
     };
   },
   
@@ -114,6 +147,8 @@ Slingshot.createDirective('Azure', azureBlobStorageService, {
   maxSize: 1024 * 1024,
   accountName: '',
   accountKey: '',
+  containerName: 'blob1',
+  fileURL: '',
 
   authorize: function (file, metaContext) {
     if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {

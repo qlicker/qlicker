@@ -28,7 +28,6 @@ export class Editor extends Component {
     this.editor = null
     this.addImage = this.addImage.bind(this)
     this.resizeImage = this.resizeImage.bind(this)
-    this.setStorageType = this.setStorageType.bind(this)
   }
 
   setupCKEditor () {
@@ -62,19 +61,25 @@ export class Editor extends Component {
     this.editor.on('change', () => {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
+
+    Meteor.call('settings.find', (e, obj) => {
+      if (obj) {
+        this.setState({ storageType: obj.storageType})
+      }
+    })
   }
 
   addImage (image) {
     var element = this.editor.document.createElement('img')
     this.editor.insertElement(element)
-    this.editor.widgets.initOn(element, 'image', {src: image.url + '/image'})
+    let src
+    if( this.state.storageType === 'AWS') {
+      src = image.url + '/image'
+    } else src = image.url
+    this.editor.widgets.initOn(element, 'image', {src: src})
     Meteor.call('images.insert', image, (e) => {
       if (e) return alertify.error('Error updating image')
     })
-  }
-
-  setStorageType(storageType) {
-    this.setState({ storageType: storageType})
   }
 
   resizeImage (size, storageType, img, meta, save) {
@@ -88,7 +93,6 @@ export class Editor extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    console.log(storageType)
     let slingshotThumbnail = new Slingshot.Upload(storageType, meta)  
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
@@ -97,7 +101,8 @@ export class Editor extends Component {
         }
 
         if (save) {
-          img.url = downloadUrl.slice(0, -(meta.type.length + 1))
+          if (this.state.storageType === 'AWS') img.url = downloadUrl.slice(0, -(meta.type.length + 1))
+          else img.url = downloadUrl
           img.UID = meta.UID
           this.addImage(img)
         }
@@ -126,11 +131,10 @@ export class Editor extends Component {
         else {
           let img = new window.Image()
           img.onload = function () {
-            const meta = {UID: UID, type: 'image'}
+            const meta = {UID: UID, type: 'image', name: file.name}
             Meteor.call('settings.find', (e, obj) => {
               if (obj) {
-                this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
-                this.setStorageType(obj.storageType)
+                this.resizeImage(obj.maxImageWidth, this.state.storageType, img, meta, true)
               }
             })
           }.bind(this)
@@ -139,8 +143,8 @@ export class Editor extends Component {
           // Makes a thumbnail
           let thumb = new window.Image()
           thumb.onload = function () {
-            const meta = {UID: UID, type: 'thumbnail'}
-            this.resizeImage(50, this.state.storageType,thumb, meta, false)
+            const meta = {UID: UID, type: 'thumbnail', name: file.name}
+            this.resizeImage(50, this.state.storageType, thumb, meta, false)
           }.bind(this)
           thumb.src = e.target.result
         }
