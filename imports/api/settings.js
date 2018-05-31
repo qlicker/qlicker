@@ -24,7 +24,12 @@ const pattern = {
   bucket: Match.Maybe(String),
   region: Match.Maybe(String),
   accessKey: Match.Maybe(String),
-  secret: Match.Maybe(String)
+  secret: Match.Maybe(String),
+  AWS_bucket: Match.Maybe(String),
+  AWS_region: Match.Maybe(String),
+  AWS_accessKey: Match.Maybe(String),
+  AWS_secret: Match.Maybe(String),
+  AWS_: Match.Maybe(String)
 }
 
 // Create course class
@@ -93,14 +98,15 @@ Meteor.methods({
         if (settings.email && settings.email !== Settings.findOne().email && Meteor.isServer) {
           Accounts.emailTemplates.from = 'Qlicker Admin <' + settings.email + '>'
         }
-        if (Meteor.isServer && settings.bucket) {
+        if (Meteor.isServer && settings.AWS_bucket) {
           directive = Slingshot.getDirective('QuestionImages')._directive
           if(directive === undefined) throw new Error('No Directive')
-          directive.bucket = settings.bucket
-          directive.region = settings.region
-          directive.AWSAccessKeyId = settings.accessKey
-          directive.AWSSecretAccessKey = settings.secret
+          directive.bucket = settings.AWS_bucket
+          directive.region = settings.AWS_region
+          directive.AWSAccessKeyId = settings.AWS_accessKey
+          directive.AWSSecretAccessKey = settings.AWS_secret
         }
+        settings = _.omit(settings, 'AWS_')
         return Settings.update(settings._id, settings)
       }
     }

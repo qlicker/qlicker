@@ -29,10 +29,10 @@ class _AdminDashboard extends Component {
       width: p.settings.maxImageWidth,
       supportEmail: p.settings.email,
       requireVerified: p.settings.requireVerified,
-      bucket:  p.settings.bucket,
-      region: p.settings.region,
-      accessKey: p.settings.accessKey,
-      secret: p.settings.secret
+      AWS_bucket:  p.settings.AWS_bucket,
+      AWS_region: p.settings.AWS_region,
+      AWS_accessKey: p.settings.AWS_accessKey,
+      AWS_secret: p.settings.AWS_secret,
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -86,10 +86,10 @@ class _AdminDashboard extends Component {
     e.preventDefault
 
     let settings = Settings.findOne()
-    settings.bucket = this.state.bucket
-    settings.region = this.state.region
-    settings.accessKey = this.state.accessKey
-    settings.secret = this.state.secret
+    settings.AWS_bucket = this.state.AWS_bucket
+    settings.AWS_region = this.state.AWS_region
+    settings.AWS_accessKey = this.state.AWS_accessKey
+    settings.AWS_secret = this.state.AWS_secret
 
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
@@ -136,10 +136,10 @@ class _AdminDashboard extends Component {
     const setImageSize = (e) => { this.setState({ size: e.target.value }) }
     const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
-    const setBucket = (e) => { this.setState({ bucket: e.target.value }) }
-    const setRegion = (e) => { this.setState({ region: e.target.value }) }
-    const setAccessKey = (e) => { this.setState({ accessKey: e.target.value }) }
-    const setSecret = (e) => { this.setState({ secret: e.target.value }) }
+    const setAWS_bucket = (e) => { this.setState({ AWS_bucket: e.target.value }) }
+    const setAWS_region = (e) => { this.setState({ AWS_region: e.target.value }) }
+    const setAWS_accessKey = (e) => { this.setState({ AWS_accessKey: e.target.value }) }
+    const setAWS_secret = (e) => { this.setState({ AWS_secret: e.target.value }) }
     
     return (
       <div className='container ql-admin-page'>
@@ -175,10 +175,10 @@ class _AdminDashboard extends Component {
             <form className='ql-admin-login-box col-md-4' onSubmit={this.saveCredentials}>
               <h4>Image Storage Settings</h4> 
               <div className='ql-card-content inputs-container'>
-                <input className='form-control' type='text' value={this.state.bucket} onChange={setBucket} placeholder='Bucket Name' /><br />
-                <input className='form-control' type='text' value={this.state.region} onChange={setRegion} placeholder='Region' /><br />
-                <input className='form-control' type='text' value={this.state.accessKey} onChange={setAccessKey} placeholder='AWS Access Key Id' /><br />
-                <input className='form-control' type='text' value={this.state.secret} onChange={setSecret} placeholder='AWS Secret' /><br />
+                <input className='form-control' type='text' value={this.state.AWS_bucket} onChange={setAWS_bucket} placeholder='AWS_bucket Name' /><br />
+                <input className='form-control' type='text' value={this.state.AWS_region} onChange={setAWS_region} placeholder='AWS_region' /><br />
+                <input className='form-control' type='text' value={this.state.AWS_accessKey} onChange={setAWS_accessKey} placeholder='AWS Access Key Id' /><br />
+                <input className='form-control' type='text' value={this.state.AWS_secret} onChange={setAWS_secret} placeholder='AWS AWS_secret' /><br />
                 <div className='spacer1'>&nbsp;</div>
                 <input type='submit' id='submitStorage' className='btn btn-primary btn-block' value='Submit' />
               </div>
