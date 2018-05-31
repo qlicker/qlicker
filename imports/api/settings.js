@@ -22,10 +22,12 @@ const pattern = {
   email: String,
   requireVerified: Boolean,
   storageType: Match.Maybe(String),
-  bucket: Match.Maybe(String),
-  region: Match.Maybe(String),
-  accessKey: Match.Maybe(String),
-  secret: Match.Maybe(String)
+  AWS_bucket: Match.Maybe(String),
+  AWS_region: Match.Maybe(String),
+  AWS_accessKey: Match.Maybe(String),
+  AWS_secret: Match.Maybe(String),
+  Azure_accountName: Match.Maybe(String),
+  Azure_accountKey: Match.Maybe(String)
 }
 
 // Create course class
@@ -97,12 +99,17 @@ Meteor.methods({
         if (Meteor.isServer) {
           directive = Slingshot.getDirective(settings.storageType)._directive
           if (settings.storageType === 'AWS') {      
-            if(!directive) throw new Error('No Directive')
-            directive.bucket = settings.bucket
-            directive.region = settings.region
-            directive.AWSAccessKeyId = settings.accessKey
-            directive.AWSSecretAccessKey = settings.secret
-          } 
+            if (!directive) throw new Error('No Directive')
+            directive.bucket = settings.AWS_bucket
+            directive.region = settings.AWS_region
+            directive.AWSAccessKeyId = settings.AWS_accessKey
+            directive.AWSSecretAccessKey = settings.AWS_secret
+          }
+          if (settings.storageType === 'Azure') {
+            if (!directive) throw new Error('No Directive')
+            directive.accountName = settings.Azure_accountName
+            directive.accountKey = settings.Azure_accountKey
+          }
         }
         return Settings.update(settings._id, settings)
       }

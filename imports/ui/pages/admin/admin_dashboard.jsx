@@ -30,10 +30,12 @@ class _AdminDashboard extends Component {
       supportEmail: p.settings.email,
       requireVerified: p.settings.requireVerified,
       storageType: p.settings.storageType,
-      bucket:  p.settings.bucket,
-      region: p.settings.region,
-      accessKey: p.settings.accessKey,
-      secret: p.settings.secret
+      AWS_bucket:  p.settings.AWS_bucket,
+      AWS_region: p.settings.AWS_region,
+      AWS_accessKey: p.settings.AWS_accessKey,
+      AWS_secret: p.settings.AWS_secret,
+      Azure_accountName: p.settings.Azure_accountName,
+      Azure_accountKey: p.settings.Azure_accountKey
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -88,16 +90,27 @@ class _AdminDashboard extends Component {
 
     let settings = Settings.findOne()
     settings.storageType = this.state.storageType
-    if(settings.storageType === 'AWS') {
-      settings.bucket = this.state.bucket
-      settings.region = this.state.region
-      settings.accessKey = this.state.accessKey
-      settings.secret = this.state.secret
+    if (settings.storageType === 'AWS') {
+      settings.AWS_bucket = this.state.AWS_bucket
+      settings.AWS_region = this.state.AWS_region
+      settings.AWS_accessKey = this.state.AWS_accessKey
+      settings.AWS_secret = this.state.AWS_secret
+      settings.Azure_accountName = ''
+      settings.Azure_accountKey = ''
+    } else if (settings.storageType === 'Azure') {
+      settings.AWS_bucket = ''
+      settings.AWS_region = ''
+      settings.AWS_accessKey = ''
+      settings.AWS_secret = ''
+      settings.Azure_accountName = this.state.Azure_accountName
+      settings.Azure_accountKey = this.state.Azure_accountKey
     } else {
-      settings.bucket = ''
-      settings.region = ''
-      settings.accessKey = ''
-      settings.secret = ''
+      settings.AWS_bucket = ''
+      settings.AWS_region = ''
+      settings.AWS_accessKey = ''
+      settings.AWS_secret = ''
+      settings.Azure_accountName = ''
+      settings.Azure_accountKey = ''
     }
     
     Meteor.call('settings.update', settings, (e, d) => {
@@ -147,10 +160,12 @@ class _AdminDashboard extends Component {
     const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
     const setStorageType = (e) => { this.setState({ storageType: e.target.value })}
-    const setBucket = (e) => { this.setState({ bucket: e.target.value }) }
-    const setRegion = (e) => { this.setState({ region: e.target.value }) }
-    const setAccessKey = (e) => { this.setState({ accessKey: e.target.value }) }
-    const setSecret = (e) => { this.setState({ secret: e.target.value }) }
+    const setAWSBucket = (e) => { this.setState({ AWS_bucket: e.target.value }) }
+    const setAWSRegion = (e) => { this.setState({ AWS_region: e.target.value }) }
+    const setAWSAccessKey = (e) => { this.setState({ AWS_accessKey: e.target.value }) }
+    const setAWSSecret = (e) => { this.setState({ AWS_secret: e.target.value }) }
+    const setAzureAccount = (e) => { this.setState({ Azure_accountName: e.target.value })}
+    const setAzureKey = (e) => { this.setState({ Azure_accountKey: e.target.value })}
     
     return (
       <div className='container ql-admin-page'>
@@ -192,13 +207,21 @@ class _AdminDashboard extends Component {
                 <br />
                 { this.state.storageType === 'AWS' 
                   ? <div>
-                      <input className='form-control' type='text' value={this.state.bucket} onChange={setBucket} placeholder='Bucket Name' /><br />
-                      <input className='form-control' type='text' value={this.state.region} onChange={setRegion} placeholder='Region' /><br />
-                      <input className='form-control' type='text' value={this.state.accessKey} onChange={setAccessKey} placeholder='AWS Access Key Id' /><br />
-                      <input className='form-control' type='text' value={this.state.secret} onChange={setSecret} placeholder='AWS Secret' /><br />
+                      <input className='form-control' type='text' value={this.state.AWS_bucket} onChange={setAWSBucket} placeholder='Bucket Name' /><br />
+                      <input className='form-control' type='text' value={this.state.AWS_region} onChange={setAWSRegion} placeholder='Region' /><br />
+                      <input className='form-control' type='text' value={this.state.AWS_accessKey} onChange={setAWSAccessKey} placeholder='AWS Access Key Id' /><br />
+                      <input className='form-control' type='text' value={this.state.AWS_secret} onChange={setAWSSecret} placeholder='AWS Secret' /><br />
                     </div>
                   : ''
                 }
+                { this.state.storageType === 'Azure' 
+                  ? <div>
+                      <input className='form-control' type='text' value={this.state.Azure_accountName} onChange={setAzureAccount} placeholder='Azure Account Name' /><br />
+                      <input className='form-control' type='text' value={this.state.Azure_accountKey} onChange={setAzureKey} placeholder='Azure Account Key' /><br />
+                    </div>
+                  : ''
+                }
+                      
                 <div className='spacer1'>&nbsp;</div>
                 <input type='submit' id='submitStorage' className='btn btn-primary btn-block' value='Submit' />
               </div>

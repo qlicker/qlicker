@@ -17,10 +17,12 @@ Meteor.startup(() => {
       maxImageWidth: 700, // ROOT_URL can be https://qlicker.org:3000/ or htpps://qlicker.org/:
       email: 'admin@' + process.env.ROOT_URL.split('//')[1].split(':')[0].split('/')[0],
       requireVerified: false,
-      bucket: '',
-      region: '',
-      accessKey: '',
-      secret: '',
+      AWS_bucket: '',
+      AWS_region: '',
+      AWS_accessKey: '',
+      AWS_secret: '',
+      Azure_accountName: '',
+      Azure_accountKey: '',
       storageType: 'None'
     })
   }
