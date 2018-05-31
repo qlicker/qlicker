@@ -16,6 +16,8 @@ import { ROLES } from '../../../configs'
 
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
+import { Slingshot } from 'meteor/edgee:slingshot'
+
 class _AdminDashboard extends Component {
 
   constructor (p) {
@@ -26,7 +28,11 @@ class _AdminDashboard extends Component {
       size: p.settings.maxImageSize,
       width: p.settings.maxImageWidth,
       supportEmail: p.settings.email,
-      requireVerified: p.settings.requireVerified
+      requireVerified: p.settings.requireVerified,
+      AWS_bucket:  p.settings.AWS_bucket,
+      AWS_region: p.settings.AWS_region,
+      AWS_accessKey: p.settings.AWS_accessKey,
+      AWS_secret: p.settings.AWS_secret,
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -34,6 +40,7 @@ class _AdminDashboard extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.saveImageSize = this.saveImageSize.bind(this)
     this.saveImageWidth = this.saveImageWidth.bind(this)
+    this.saveCredentials = this.saveCredentials.bind(this)
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
@@ -75,6 +82,21 @@ class _AdminDashboard extends Component {
     })
   }
 
+  saveCredentials (e) {
+    e.preventDefault
+
+    let settings = Settings.findOne()
+    settings.AWS_bucket = this.state.AWS_bucket
+    settings.AWS_region = this.state.AWS_region
+    settings.AWS_accessKey = this.state.AWS_accessKey
+    settings.AWS_secret = this.state.AWS_secret
+
+    Meteor.call('settings.update', settings, (e, d) => {
+      if (e) alertify.error('Error updating settings')
+      else alertify.success('Settings updated')
+    })
+    
+  }
   verifyUserEmail (email) {
     Meteor.call('users.verifyEmail', email, (e, d) => {
       if (e) alertify.error(e)
@@ -114,99 +136,131 @@ class _AdminDashboard extends Component {
     const setImageSize = (e) => { this.setState({ size: e.target.value }) }
     const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
-
+    const setAWS_bucket = (e) => { this.setState({ AWS_bucket: e.target.value }) }
+    const setAWS_region = (e) => { this.setState({ AWS_region: e.target.value }) }
+    const setAWS_accessKey = (e) => { this.setState({ AWS_accessKey: e.target.value }) }
+    const setAWS_secret = (e) => { this.setState({ AWS_secret: e.target.value }) }
+    
     return (
       <div className='container ql-admin-page'>
-        <h2>Admin User Management</h2>
+        <h1>Dashboard</h1>
         <br />
 
-        <h4>Maximum image size (in MB, after rescaling to max width)</h4>
-        <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
-          <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
-          <input type='submit' className='btn btn-primary' value='Set' />
-        </form>
+        <div>
+          <h4>Support email</h4>
+          <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
+            <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
+            <input type='submit' className='btn btn-primary' value='Set' />
+          </form>
+        </div>
+        
+        <div className='ql-admin-settings'>
+          <div>
+            <h2>Image Settings</h2>
+            <br />      
+        
+            <h4>Maximum image size (in MB, after rescaling to max width)</h4>
+            <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
+              <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
+              <input type='submit' className='btn btn-primary' value='Set' />
+            </form>
 
-        <h4>Maximum image width (px)</h4>
-        <form ref='imageWidthForm' onSubmit={this.saveImageWidth} className='form-inline'>
-          <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
-          <input type='submit' className='btn btn-primary' value='Set' />
-        </form>
-
-        <h4>Support email</h4>
-        <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
-          <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
-          <input type='submit' className='btn btn-primary' value='Set' />
-        </form>
-
-        <h4>Require verified email to login</h4>
-        <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
-
-        <RestrictDomainForm
-          done={() => { return true }}
-          settings={this.props.settings}
-        />
-
-        <br />
-        <h4>Users (with elevated permissions first)</h4>
-        <table className='table table-bordered'>
-          <tbody>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Courses</th>
-              <th>Change Role</th>
-            </tr>
-
-            {
-              this.props.allUsers.map((u) => {
-                let courseList = ''
-                if (u.profile.courses && this.props) {
-                  u.profile.courses.forEach(function (cId) {
-                    courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] + ' ' : ''
-                  }.bind(this))
-                }
-                return (<tr key={u._id}>
-                  <td>
-                    <a href='#' onClick={(e) => this.toggleProfileViewModal(u)}>{u.getName()}</a>
-                  </td>
-                  <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)'
-                      : <a href='#' onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
-                  </td>
-                  <td>{courseList}</td>
-                  <td>
-                    <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
-                      { Object.keys(ROLES).map((r) => <option key={'role_' + ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
-                    </select>
-                    &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
-                  </td>
-                </tr>)
-              })
-            }
-          </tbody>
-        </table>
-
-        <h4>Add user manually</h4>
-        <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
-          <div className='ql-card-content inputs-container'>
-            <div className='input-group'>
-              <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
-              <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
-            </div>
-
-            <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
-
-            <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-            <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div>
-
-            <div className='spacer1'>&nbsp;</div>
-            <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
+            <h4>Maximum image width (px)</h4>
+            <form ref='imageWidthForm' onSubmit={this.saveImageWidth} className='form-inline'>
+              <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
+              <input type='submit' className='btn btn-primary' value='Set' />
+            </form>
+              
+                
+            <form className='ql-admin-login-box col-md-4' onSubmit={this.saveCredentials}>
+              <h4>Image Storage Settings</h4> 
+              <div className='ql-card-content inputs-container'>
+                <input className='form-control' type='text' value={this.state.AWS_bucket} onChange={setAWS_bucket} placeholder='AWS_bucket Name' /><br />
+                <input className='form-control' type='text' value={this.state.AWS_region} onChange={setAWS_region} placeholder='AWS_region' /><br />
+                <input className='form-control' type='text' value={this.state.AWS_accessKey} onChange={setAWS_accessKey} placeholder='AWS Access Key Id' /><br />
+                <input className='form-control' type='text' value={this.state.AWS_secret} onChange={setAWS_secret} placeholder='AWS AWS_secret' /><br />
+                <div className='spacer1'>&nbsp;</div>
+                <input type='submit' id='submitStorage' className='btn btn-primary btn-block' value='Submit' />
+              </div>
+            </form>        
           </div>
-        </form>
-        { this.state.profileViewModal
-          ? <ProfileViewModal
-            user={this.state.userToView}
-            done={this.toggleProfileViewModal} />
-        : '' }
+
+          <div>
+            <h2>User Settings</h2>
+            <br /> 
+            
+            <h4>Require verified email to login</h4>
+            <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
+            <br />
+
+            <RestrictDomainForm
+              done={() => { return true }}
+              settings={this.props.settings}
+            />
+            <br />
+            
+            <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
+              <h4>Add user manually</h4>  
+              <div className='ql-card-content inputs-container'>
+                <div className='input-group'>
+                  <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
+                  <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+                </div>
+                <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' />
+                <br />
+                <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
+                <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div>
+                <div className='spacer1'>&nbsp;</div>
+                <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <h1>Users (with elevated permissions first)</h1>
+          <table className='table table-bordered'>
+            <tbody>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Courses</th>
+                <th>Change Role</th>
+              </tr>
+
+              {
+                this.props.allUsers.map((u) => {
+                  let courseList = ''
+                  if (u.profile.courses && this.props) {
+                    u.profile.courses.forEach(function (cId) {
+                      courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] + ' ' : ''
+                    }.bind(this))
+                  }
+                  return (<tr key={u._id}>
+                    <td>
+                      <a href='#' onClick={(e) => this.toggleProfileViewModal(u)}>{u.getName()}</a>
+                    </td>
+                    <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)'
+                        : <a href='#' onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
+                    </td>
+                    <td>{courseList}</td>
+                    <td>
+                      <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
+                        { Object.keys(ROLES).map((r) => <option key={'role_' + ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
+                      </select>
+                      &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
+                    </td>
+                  </tr>)
+                })
+              }
+            </tbody>
+          </table>
+          { this.state.profileViewModal
+            ? <ProfileViewModal
+              user={this.state.userToView}
+              done={this.toggleProfileViewModal} />
+          : '' }
+        </div>
       </div>)
   }
 }
