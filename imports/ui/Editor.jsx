@@ -7,7 +7,6 @@
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
 import { Images } from '../api/images'
-import { ReactiveVar } from 'meteor/reactive-var'
 
 let UUID = require('uuid-1345')
 
@@ -73,9 +72,10 @@ export class Editor extends Component {
     var element = this.editor.document.createElement('img')
     this.editor.insertElement(element)
     let src
-    if( this.state.storageType === 'AWS') {
+    if(this.state.storageType === 'AWS') {
       src = image.url + '/image'
-    } else src = image.url
+    } else if (this.state.storageType === 'Azure') src = image.url
+    else src = ''
     this.editor.widgets.initOn(element, 'image', {src: src})
     Meteor.call('images.insert', image, (e) => {
       if (e) return alertify.error('Error updating image')
@@ -122,6 +122,7 @@ export class Editor extends Component {
       evt.stop()
       reader.addEventListener('loadend', function (e) {
         const fileURL = reader.result
+        //use uid as file name
         const UID = UUID.v5({
           namespace: '00000000-0000-0000-0000-000000000000',
           name: fileURL})
@@ -131,7 +132,7 @@ export class Editor extends Component {
         else {
           let img = new window.Image()
           img.onload = function () {
-            const meta = {UID: UID, type: 'image', name: file.name, src: img.src}
+            const meta = {UID: UID, type: 'image', src: img.src}
             Meteor.call('settings.find', (e, obj) => {
               if (obj) {
                 this.resizeImage(obj.maxImageWidth, this.state.storageType, img, meta, true)
@@ -143,7 +144,7 @@ export class Editor extends Component {
           // Makes a thumbnail
           let thumb = new window.Image()
           thumb.onload = function () {
-            const meta = {UID: UID, type: 'thumbnail', name: file.name, src: img.src}
+            const meta = {UID: UID, type: 'thumbnail', src: img.src}
             this.resizeImage(50, this.state.storageType, thumb, meta, false)
           }.bind(this)
           thumb.src = e.target.result

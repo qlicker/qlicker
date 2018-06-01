@@ -86,7 +86,7 @@ let azureBlobStorageService = {
     var type = matches[1];
     var buffer = new Buffer(matches[2], 'base64');
 
-    blobService.createBlockBlobFromText(containerName, meta.name, buffer, {contentType:type}, function (error) {
+    blobService.createBlockBlobFromText(containerName, meta.UID, buffer, {contentType:type}, function (error) {
       if(!error) console.log('Blob Created')
       else console.log(error)
     })
@@ -96,7 +96,7 @@ let azureBlobStorageService = {
       upload: "",
 
       // Download URL, once the file uploaded:
-      download: "https://" + accountName + ".blob.core.windows.net/" + containerName + "/" + meta.name,
+      download: "https://" + accountName + ".blob.core.windows.net/" + containerName + "/" + meta.UID,
 
       // POST data to be attached to the file-upload:
       postData: [

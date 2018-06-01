@@ -46,7 +46,7 @@ if (Meteor.isServer) {
       if (user.hasGreaterRole(ROLES.admin)) {
         return Settings.find()
       }
-    } else return Settings.find() // Added in case anything sensitive is added to prof settings
+    } else return [] 
   })
 
   Accounts.validateLoginAttempt((options) => {

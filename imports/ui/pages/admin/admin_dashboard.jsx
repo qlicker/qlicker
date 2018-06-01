@@ -16,8 +16,6 @@ import { ROLES } from '../../../configs'
 
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
-import { Slingshot } from 'meteor/edgee:slingshot'
-
 class _AdminDashboard extends Component {
 
   constructor (p) {
