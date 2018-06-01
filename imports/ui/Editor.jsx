@@ -131,7 +131,8 @@ export class Editor extends Component {
         else {
           let img = new window.Image()
           img.onload = function () {
-            const meta = {UID: UID, type: 'image', name: file.name}
+            console.log(img.src)
+            const meta = {UID: UID, type: 'image', name: file.name, src: img.src}
             Meteor.call('settings.find', (e, obj) => {
               if (obj) {
                 this.resizeImage(obj.maxImageWidth, this.state.storageType, img, meta, true)
@@ -143,7 +144,7 @@ export class Editor extends Component {
           // Makes a thumbnail
           let thumb = new window.Image()
           thumb.onload = function () {
-            const meta = {UID: UID, type: 'thumbnail', name: file.name}
+            const meta = {UID: UID, type: 'thumbnail', name: file.name, src: img.src}
             this.resizeImage(50, this.state.storageType, thumb, meta, false)
           }.bind(this)
           thumb.src = e.target.result

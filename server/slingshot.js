@@ -63,7 +63,7 @@ let azureBlobStorageService = {
    */
 
   upload: function (method, directive, file, meta) {
-    
+
     var accountName = directive.accountName
     var accountKey = directive.accountKey
     var containerName = directive.containerName
@@ -75,8 +75,17 @@ let azureBlobStorageService = {
     var azure = require('azure-storage')
     var blobService = azure.createBlobService(accountName, accountKey);
 
-    blobService.createBlockBlobFromText(containerName, meta.name, 'Hello', function (error) {
-      if(!error) console.log('blob created')
+    blobService.createContainerIfNotExists(containerName, {
+      publicAccessLevel: 'blob'
+    }, function(error, result, response) {
+      if (!error) console.log('Container Created')
+      else console.log(error)
+    })
+
+    //Upload pure image string
+    blobService.createBlockBlobFromText(containerName, meta.UID, meta.src, function (error) {
+      if(!error) console.log('Blob Created')
+      else console.log(error)
     })
     
     var startDate = new Date()
@@ -91,21 +100,13 @@ let azureBlobStorageService = {
         Expiry: expiryDate
       }
     }
-
-    var token = blobService.generateSharedAccessSignature('taskcontainer', meta.name, sharedAccessPolicy)
-    var sasUrl = blobService.getUrl('taskcontainer', meta.name, token)
-    console.log(sasUrl)
-
-    //Here you need to make sure that all parameters passed in the directive
-    //are going to be enforced by the server receiving the file.
-
     
     return {
       // Endpoint where the file is to be uploaded:
-      upload: "https://qlickerblob.blob.core.windows.net/blob1",
+      upload: "",
 
       // Download URL, once the file uploaded:
-      download: "https://qlickerblob.blob.core.windows.net/qlickerblob/blob1",
+      download: "https://qlickerblob.blob.core.windows.net/qlickerblob/sleepyboi.jpg",
 
       // POST data to be attached to the file-upload:
       postData: [
@@ -139,8 +140,8 @@ Slingshot.createDirective('Azure', azureBlobStorageService, {
   
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
   maxSize: 1024 * 1024,
-  accountName: '',
-  accountKey: '',
+  accountName: 'qlickerblob',
+  accountKey: 'eEuXI4Ocngty23E7Cz+4Ca1dgIk7xYHQLuA25Iwno+965L6LaVSqVwpwh0gYOF34RpB984RE47OE2IOIPHXWMg==',
   containerName: 'blob1',
   fileURL: '',
 
