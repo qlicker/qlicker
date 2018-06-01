@@ -102,7 +102,7 @@ class _Profile extends Component {
   }
 
   setStorageType() {
-    Meteor.call('settings.find', (e, d) => {
+    Meteor.call('settings.findImage', (e, d) => {
       this.setState({ storageType: d.storageType})
     })
   }

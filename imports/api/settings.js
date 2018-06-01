@@ -118,14 +118,6 @@ Meteor.methods({
     }
   },
 
-  'settings.find' () {
-    if (Meteor.userId()) {
-      let user = Meteor.users.findOne({_id: Meteor.userId()})
-      if (user.hasRole(ROLES.admin)) return Settings.findOne()
-    }
-    return []
-  },
-
   'settings.findImage' () {
     settings = Settings.findOne()
     return {
