@@ -63,7 +63,7 @@ let azureBlobStorageService = {
    */
 
   upload: function (method, directive, file, meta) {
-   
+    
     var accountName = directive.accountName
     var accountKey = directive.accountKey
     var containerName = directive.containerName
@@ -72,19 +72,13 @@ let azureBlobStorageService = {
 
     var fooData = directive.foo && directive.foo.call(method, file, meta)
     
-    console.log(meta)
-
     var azure = require('azure-storage')
     var blobService = azure.createBlobService(accountName, accountKey);
 
-    blobService.createContainerIfNotExists('taskcontainer', {
-      publicAccessLevel: 'blob'
-    }, function(error, result, response) {
-      if (!error) {
-        console.log('Created')
-      }
+    blobService.createBlockBlobFromText(containerName, meta.name, 'Hello', function (error) {
+      if(!error) console.log('blob created')
     })
-
+    
     var startDate = new Date()
     var expiryDate = new Date(startDate)
     expiryDate.setMinutes(startDate.getMinutes() + 100)
@@ -97,18 +91,18 @@ let azureBlobStorageService = {
         Expiry: expiryDate
       }
     }
-    
-    var token = blobService.generateSharedAccessSignature('taskcontainer', meta.UID + meta.type, sharedAccessPolicy);
-    var sasUrl = blobService.getUrl('taskcontainer', meta.UID + meta.type, token);
+
+    var token = blobService.generateSharedAccessSignature('taskcontainer', meta.name, sharedAccessPolicy)
+    var sasUrl = blobService.getUrl('taskcontainer', meta.name, token)
     console.log(sasUrl)
-    
+
     //Here you need to make sure that all parameters passed in the directive
     //are going to be enforced by the server receiving the file.
 
     
     return {
       // Endpoint where the file is to be uploaded:
-      upload: "",
+      upload: "https://qlickerblob.blob.core.windows.net/blob1",
 
       // Download URL, once the file uploaded:
       download: "https://qlickerblob.blob.core.windows.net/qlickerblob/blob1",
