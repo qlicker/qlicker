@@ -38,7 +38,6 @@ let azureBlobStorageService = {
     accountName: String,
     accountKey: String,
     containerName: String,
-    fileURL: String,
     options: Object
   },
 
@@ -68,12 +67,9 @@ let azureBlobStorageService = {
     var accountKey = directive.accountKey
     var containerName = directive.containerName
 
-    var fileURL = directive.fileURL
-
-    var fooData = directive.foo && directive.foo.call(method, file, meta)
-    
     var azure = require('azure-storage')
-    var blobService = azure.createBlobService(accountName, accountKey);
+    var blobService = azure.createBlobService(accountName, accountKey)
+
     blobService.createContainerIfNotExists(containerName, {
       publicAccessLevel: 'blob'
     }, function(error, result, response) {
@@ -82,9 +78,9 @@ let azureBlobStorageService = {
     })
 
     var rawdata = meta.src
-    var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
     var type = matches[1];
-    var buffer = new Buffer(matches[2], 'base64');
+    var buffer = new Buffer(matches[2], 'base64')
 
     blobService.createBlockBlobFromText(containerName, meta.UID, buffer, {contentType:type}, function (error) {
       if(!error) console.log('Blob Created')
@@ -116,7 +112,7 @@ let azureBlobStorageService = {
 
       // HTTP headers to send when uploading:
       headers: {}
-    };
+    }
   },
   
   /**
@@ -133,7 +129,6 @@ Slingshot.createDirective('Azure', azureBlobStorageService, {
   accountName: '',
   accountKey: '',
   containerName: '',
-  fileURL: '',
 
   authorize: function (file, metaContext) {
     if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {

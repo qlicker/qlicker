@@ -13,8 +13,6 @@ import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 import { Images } from '../../api/images'
 import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
-import { Settings } from '../../api/settings'
-
 let UUID = require('uuid-1345')
 
 class _Profile extends Component {
