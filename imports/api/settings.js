@@ -123,7 +123,15 @@ Meteor.methods({
       let user = Meteor.users.findOne({_id: Meteor.userId()})
       if (user.hasRole(ROLES.admin)) return Settings.findOne()
     }
-    return Settings.findOne() // Added in case anything sensitive is added to prof settings
+    return []
+  },
+
+  'settings.findImage' () {
+    settings = Settings.findOne()
+    return {
+      maxImageWidth: settings.maxImageWidth,
+      storageType: settings.storageType
+    }
   },
 
   'confirmAccount' (email) {

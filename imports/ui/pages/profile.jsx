@@ -55,7 +55,7 @@ class _Profile extends Component {
       let img = new window.Image()
       img.onload = function () {
         const meta = {UID: UID, type: 'image'}
-        Meteor.call('settings.find', (e, obj) => {
+        Meteor.call('settings.findImage', (e, obj) => {
           if (e) alertify.error('Error while getting settings')
           if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
         })

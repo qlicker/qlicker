@@ -61,7 +61,7 @@ export class Editor extends Component {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
 
-    Meteor.call('settings.find', (e, obj) => {
+    Meteor.call('settings.findImage', (e, obj) => {
       if (obj) {
         this.setState({ storageType: obj.storageType})
       }
@@ -133,7 +133,7 @@ export class Editor extends Component {
           let img = new window.Image()
           img.onload = function () {
             const meta = {UID: UID, type: 'image', src: img.src}
-            Meteor.call('settings.find', (e, obj) => {
+            Meteor.call('settings.findImage', (e, obj) => {
               if (obj) {
                 this.resizeImage(obj.maxImageWidth, this.state.storageType, img, meta, true)
               }
