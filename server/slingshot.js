@@ -74,7 +74,6 @@ let azureBlobStorageService = {
     
     var azure = require('azure-storage')
     var blobService = azure.createBlobService(accountName, accountKey);
-
     blobService.createContainerIfNotExists(containerName, {
       publicAccessLevel: 'blob'
     }, function(error, result, response) {
@@ -82,44 +81,35 @@ let azureBlobStorageService = {
       else console.log(error)
     })
 
-    //Upload pure image string
-    blobService.createBlockBlobFromText(containerName, meta.UID, meta.src, function (error) {
+    var rawdata = meta.src
+    var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    var type = matches[1];
+    var buffer = new Buffer(matches[2], 'base64');
+
+    blobService.createBlockBlobFromText(containerName, meta.name, buffer, {contentType:type}, function (error) {
       if(!error) console.log('Blob Created')
       else console.log(error)
     })
-    
-    var startDate = new Date()
-    var expiryDate = new Date(startDate)
-    expiryDate.setMinutes(startDate.getMinutes() + 100)
-    startDate.setMinutes(startDate.getMinutes() - 100)
-    
-    var sharedAccessPolicy = {
-      AccessPolicy: {
-        Permissions: azure.BlobUtilities.SharedAccessPermissions.READ,
-        Start: startDate,
-        Expiry: expiryDate
-      }
-    }
     
     return {
       // Endpoint where the file is to be uploaded:
       upload: "",
 
       // Download URL, once the file uploaded:
-      download: "https://qlickerblob.blob.core.windows.net/qlickerblob/sleepyboi.jpg",
+      download: "https://" + accountName + ".blob.core.windows.net/" + containerName + "/" + meta.name,
 
       // POST data to be attached to the file-upload:
       postData: [
         {
-          name: "accountKey",//accessKey",
+          name: "accountKey",
           value: accountKey
         },
         {
-          name: "accountName",//accessKey",
+          name: "accountName",
           value: accountName
         },
         {
-          name: "containerName",//accessKey",
+          name: "containerName",
           value: containerName
         },
       ],

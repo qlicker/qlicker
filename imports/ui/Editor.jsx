@@ -131,7 +131,6 @@ export class Editor extends Component {
         else {
           let img = new window.Image()
           img.onload = function () {
-            console.log(img.src)
             const meta = {UID: UID, type: 'image', name: file.name, src: img.src}
             Meteor.call('settings.find', (e, obj) => {
               if (obj) {
