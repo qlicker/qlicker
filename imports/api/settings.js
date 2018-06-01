@@ -27,7 +27,8 @@ const pattern = {
   AWS_accessKey: Match.Maybe(String),
   AWS_secret: Match.Maybe(String),
   Azure_accountName: Match.Maybe(String),
-  Azure_accountKey: Match.Maybe(String)
+  Azure_accountKey: Match.Maybe(String),
+  Azure_containerName: Match.Maybe(String)
 }
 
 // Create course class
@@ -109,6 +110,7 @@ Meteor.methods({
             if (!directive) throw new Error('No Directive')
             directive.accountName = settings.Azure_accountName
             directive.accountKey = settings.Azure_accountKey
+            directive.containerName = settings.Azure_containerName
           }
         }
         return Settings.update(settings._id, settings)

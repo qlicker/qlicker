@@ -23,6 +23,7 @@ Meteor.startup(() => {
       AWS_secret: '',
       Azure_accountName: '',
       Azure_accountKey: '',
+      Azure_containerName: '',
       storageType: 'None'
     })
   }

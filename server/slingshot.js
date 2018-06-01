@@ -130,9 +130,9 @@ Slingshot.createDirective('Azure', azureBlobStorageService, {
   
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
   maxSize: 1024 * 1024,
-  accountName: 'qlickerblob',
-  accountKey: 'eEuXI4Ocngty23E7Cz+4Ca1dgIk7xYHQLuA25Iwno+965L6LaVSqVwpwh0gYOF34RpB984RE47OE2IOIPHXWMg==',
-  containerName: 'blob1',
+  accountName: '',
+  accountKey: '',
+  containerName: '',
   fileURL: '',
 
   authorize: function (file, metaContext) {
