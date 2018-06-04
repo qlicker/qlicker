@@ -5,7 +5,7 @@
 
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
-import { check } from 'meteor/check'
+import { check, Match } from 'meteor/check'
 
 import { _ } from 'underscore'
 
@@ -20,7 +20,15 @@ const pattern = {
   maxImageSize: Number,
   maxImageWidth: Number,
   email: String,
-  requireVerified: Boolean
+  requireVerified: Boolean,
+  storageType: Match.Maybe(String),
+  AWS_bucket: Match.Maybe(String),
+  AWS_region: Match.Maybe(String),
+  AWS_accessKey: Match.Maybe(String),
+  AWS_secret: Match.Maybe(String),
+  Azure_accountName: Match.Maybe(String),
+  Azure_accountKey: Match.Maybe(String),
+  Azure_containerName: Match.Maybe(String)
 }
 
 // Create course class
@@ -38,7 +46,7 @@ if (Meteor.isServer) {
       if (user.hasGreaterRole(ROLES.admin)) {
         return Settings.find()
       }
-    } else return Settings.find() // Added in case anything sensitive is added to prof settings
+    } else return [] 
   })
 
   Accounts.validateLoginAttempt((options) => {
@@ -89,17 +97,33 @@ Meteor.methods({
         if (settings.email && settings.email !== Settings.findOne().email && Meteor.isServer) {
           Accounts.emailTemplates.from = 'Qlicker Admin <' + settings.email + '>'
         }
+        if (Meteor.isServer) {
+          directive = Slingshot.getDirective(settings.storageType)._directive
+          if (settings.storageType === 'AWS') {      
+            if (!directive) throw new Error('No Directive')
+            directive.bucket = settings.AWS_bucket
+            directive.region = settings.AWS_region
+            directive.AWSAccessKeyId = settings.AWS_accessKey
+            directive.AWSSecretAccessKey = settings.AWS_secret
+          }
+          if (settings.storageType === 'Azure') {
+            if (!directive) throw new Error('No Directive')
+            directive.accountName = settings.Azure_accountName
+            directive.accountKey = settings.Azure_accountKey
+            directive.containerName = settings.Azure_containerName
+          }
+        }
         return Settings.update(settings._id, settings)
       }
     }
   },
 
-  'settings.find' () {
-    if (Meteor.userId()) {
-      let user = Meteor.users.findOne({_id: Meteor.userId()})
-      if (user.hasRole(ROLES.admin)) return Settings.findOne()
+  'settings.getImageSettings' () {
+    settings = Settings.findOne()
+    return {
+      maxImageWidth: settings.maxImageWidth,
+      storageType: settings.storageType
     }
-    return Settings.findOne() // Added in case anything sensitive is added to prof settings
   },
 
   'confirmAccount' (email) {

@@ -24,7 +24,8 @@ class _Profile extends Component {
       showResendLink: true,
       uploadActive: false,
       changingEmail: false,
-      changingPassword: false
+      changingPassword: false,
+      storageType: ''
     }
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.addImage = this.addImage.bind(this)
@@ -52,9 +53,9 @@ class _Profile extends Component {
       let img = new window.Image()
       img.onload = function () {
         const meta = {UID: UID, type: 'image'}
-        Meteor.call('settings.find', (e, obj) => {
+        Meteor.call('settings.getImageSettings', (e, obj) => {
           if (e) alertify.error('Error while getting settings')
-          if (obj) this.resizeImage(obj.maxImageWidth, img, meta, true)
+          if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
         })
       }.bind(this)
 
@@ -63,7 +64,7 @@ class _Profile extends Component {
       let thumb = new window.Image()
       thumb.onload = function () {
         const meta = {UID: UID, type: 'thumbnail'}
-        this.resizeImage(50, thumb, meta, false)
+        this.resizeImage(50, this.state.storageType, thumb, meta, false)
       }.bind(this)
       thumb.src = e.target.result
     }.bind(this))
@@ -98,7 +99,13 @@ class _Profile extends Component {
     return userHasChanged || stateHasChanged
   }
 
-  resizeImage (size, img, meta, save) {
+  setStorageType() {
+    Meteor.call('settings.getImageSettings', (e, d) => {
+      this.setState({ storageType: d.storageType})
+    })
+  }
+
+  resizeImage (size, storageType, img, meta, save) {
     let width = img.width
     let height = img.height
     if (width > size) {
@@ -109,7 +116,8 @@ class _Profile extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    let slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
+    this.setStorageType()
+    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
         if (e) alertify.error('Error uploading')
