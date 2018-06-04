@@ -3,53 +3,154 @@ import { Slingshot } from 'meteor/edgee:slingshot'
 
 import { Settings } from '../imports/api/settings.js'
 
-// Checks if Meteor settings has the minimum required s3 credentials
-// for use with Slingshot.
-let hasS3Credentials = !!(Meteor.settings.AWSAccessKeyId &&
-    Meteor.settings.AWSSecretAccessKey &&
-    Meteor.settings.bucket)
+/**
+ * Directive names correspond to storageType property in Settings.js
+ */
 
-if (hasS3Credentials) {
-  Slingshot.createDirective('QuestionImages', Slingshot.S3Storage, {
-    allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
-    maxSize: null, // Unlimited, handled in authorized() instead
-    bucket: Meteor.settings.bucket,
-    acl: 'public-read',
 
-    authorize: function (file, metaContext) {
-      if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {
-        alertify.error('Image too large')
-        return false
-      }
-      return Meteor.userId()
-    },
+// This creates an AWS S3 storage with no credentials
+// Credentials can be changed in admin_dashboard
 
-    key: function (file, metaContext) {
-      return metaContext.UID + '/' + metaContext.type
+Slingshot.createDirective('AWS', Slingshot.S3Storage, {
+  
+  allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
+  maxSize: null, // Unlimited, handled in authorized() instead
+  bucket: '',
+  AWSAccessKeyId: '',
+  AWSSecretAccessKey: '',
+  acl: 'public-read',
+
+  authorize: function (file, metaContext) {
+    if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {
+      alertify.error('Image too large')
+      return false
     }
-  })
-} else {
-  // This creates a fake storage service. Every time Slingshot is used to upload a file,
-  // Meteor should throw an error. This could turn into a bootstrapper for storing images
-  // into MongoDB if a user does not want to use s3.
+    return Meteor.userId()
+  },
 
-  let fakeStorageService = {
-    directiveMatch: {},
-    directiveDefault: {
-      authorize: function (file, metaContext) {
-        throw new Meteor.Error('no-s3-credentials', 'Missing S3 credentials. Are you in a dev environment?')
-      },
-      maxSize: null,
-      allowedFileTypes: null
-    },
-    upload: function (method, directive, file, meta) {}
+  key: function (file, metaContext) {
+    return metaContext.UID + '/' + metaContext.type
   }
+})
 
-  Slingshot.createDirective('QuestionImages', fakeStorageService, {})
+let azureBlobStorageService = {
+  directiveMatch: {
+    accountName: String,
+    accountKey: String,
+    containerName: String,
+    options: Object
+  },
 
-  console.warn(
-    'WARNING: ' +
-    'Missing S3 credentials in meteor settings. File uploading' +
-    ' will not work. This is fine if you are doing some sort of minor' +
-    ' testing. Do NOT deploy if you are seeing this message in prod!')
+  /**
+   * Here you can set default parameters that your service will use.
+   */
+
+  directiveDefault: {
+    options: {}
+  },
+
+
+  /**
+   *
+   * @param {Object} method - This is the Meteor Method context.
+   * @param {Object} directive - All the parameters from the directive.
+   * @param {Object} file - Information about the file as gathered by the
+   * browser.
+   * @param {Object} [meta] - Meta data that was passed to the uploader.
+   *
+   * @returns {UploadInstructions}
+   */
+
+  upload: function (method, directive, file, meta) {
+
+    var accountName = directive.accountName
+    var accountKey = directive.accountKey
+    var containerName = directive.containerName
+
+    var azure = require('azure-storage')
+    var blobService = azure.createBlobService(accountName, accountKey)
+
+    blobService.createContainerIfNotExists(containerName, {
+      publicAccessLevel: 'blob'
+    }, function(error, result, response) {
+      if (!error) console.log('Container Created')
+      else console.log(error)
+    })
+
+    var rawdata = meta.src
+    var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
+    var type = matches[1];
+    var buffer = new Buffer(matches[2], 'base64')
+
+    blobService.createBlockBlobFromText(containerName, meta.UID, buffer, {contentType:type}, function (error) {
+      if(!error) console.log('Blob Created')
+      else console.log(error)
+    })
+    
+    return {
+      // Endpoint where the file is to be uploaded:
+      upload: "",
+
+      // Download URL, once the file uploaded:
+      download: "https://" + accountName + ".blob.core.windows.net/" + containerName + "/" + meta.UID,
+
+      // POST data to be attached to the file-upload:
+      postData: [
+        {
+          name: "accountKey",
+          value: accountKey
+        },
+        {
+          name: "accountName",
+          value: accountName
+        },
+        {
+          name: "containerName",
+          value: containerName
+        },
+      ],
+
+      // HTTP headers to send when uploading:
+      headers: {}
+    }
+  },
+  
+  /**
+   * Absolute maximum file-size allowable by the storage service.
+   */
+
+  maxSize: 5 * 1024 * 1024 * 1024
 }
+
+Slingshot.createDirective('Azure', azureBlobStorageService, {
+  
+  allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
+  maxSize: 1024 * 1024,
+  accountName: '',
+  accountKey: '',
+  containerName: '',
+
+  authorize: function (file, metaContext) {
+    if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {
+      alertify.error('Image too large')
+      return false
+    }
+    return Meteor.userId()
+  }
+})
+
+let fakeStorageService = {
+  directiveMatch: {},
+  directiveDefault: {
+    authorize: function (file, metaContext) {
+      throw new Meteor.Error('Image Uploading Unspecified')
+    },
+    maxSize: null,
+    allowedFileTypes: null
+  },
+  upload: function (method, directive, file, meta) {
+    throw new Meteor.Error('Image Uploading Unspecified')
+  }
+}
+
+Slingshot.createDirective('None', fakeStorageService, {})
