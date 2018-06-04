@@ -118,7 +118,7 @@ Meteor.methods({
     }
   },
 
-  'settings.findImage' () {
+  'settings.getImageSettings' () {
     settings = Settings.findOne()
     return {
       maxImageWidth: settings.maxImageWidth,
