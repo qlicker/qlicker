@@ -82,6 +82,7 @@ Meteor.methods({
   'cleanDB' () {
     if (!Meteor.user().hasRole('admin')) throw new Error('Not authorized')
     var AWS = require('aws-sdk')
+    var azure = require('azure-storage')
 
     AWS.config.update({
       accessKeyId: Meteor.settings.AWSAccessKeyId,

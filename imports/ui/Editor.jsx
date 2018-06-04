@@ -23,7 +23,7 @@ export class Editor extends Component {
   constructor (p) {
     super(p)
 
-    this.state = { val: this.props.val }
+    this.state = { val: this.props.val, storageType: '' }
     this.editor = null
     this.addImage = this.addImage.bind(this)
     this.resizeImage = this.resizeImage.bind(this)
@@ -60,18 +60,29 @@ export class Editor extends Component {
     this.editor.on('change', () => {
       this.props.change(this.editor.getData(), this.editor.editable().getText())
     })
+
+    Meteor.call('settings.getImageSettings', (e, obj) => {
+      if (obj) {
+        this.setState({ storageType: obj.storageType})
+      }
+    })
   }
 
   addImage (image) {
     var element = this.editor.document.createElement('img')
     this.editor.insertElement(element)
-    this.editor.widgets.initOn(element, 'image', {src: image.url + '/image'})
+    let src
+    if(this.state.storageType === 'AWS') {
+      src = image.url + '/image'
+    } else if (this.state.storageType === 'Azure') src = image.url
+    else src = ''
+    this.editor.widgets.initOn(element, 'image', {src: src})
     Meteor.call('images.insert', image, (e) => {
       if (e) return alertify.error('Error updating image')
     })
   }
 
-  resizeImage (size, img, meta, save) {
+  resizeImage (size, storageType, img, meta, save) {
     let width = img.width
     let height = img.height
     if (width > size) {
@@ -82,7 +93,7 @@ export class Editor extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    let slingshotThumbnail = new Slingshot.Upload('QuestionImages', meta)
+    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)  
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
         if (e) {
@@ -90,7 +101,8 @@ export class Editor extends Component {
         }
 
         if (save) {
-          img.url = downloadUrl.slice(0, -(meta.type.length + 1))
+          if (this.state.storageType === 'AWS') img.url = downloadUrl.slice(0, -(meta.type.length + 1))
+          else img.url = downloadUrl
           img.UID = meta.UID
           this.addImage(img)
         }
@@ -110,6 +122,7 @@ export class Editor extends Component {
       evt.stop()
       reader.addEventListener('loadend', function (e) {
         const fileURL = reader.result
+        //use uid as file name
         const UID = UUID.v5({
           namespace: '00000000-0000-0000-0000-000000000000',
           name: fileURL})
@@ -119,9 +132,11 @@ export class Editor extends Component {
         else {
           let img = new window.Image()
           img.onload = function () {
-            const meta = {UID: UID, type: 'image'}
-            Meteor.call('settings.find', (e, obj) => {
-              if (obj) this.resizeImage(obj.maxImageWidth, img, meta, true)
+            const meta = {UID: UID, type: 'image', src: img.src}
+            Meteor.call('settings.getImageSettings', (e, obj) => {
+              if (obj) {
+                this.resizeImage(obj.maxImageWidth, this.state.storageType, img, meta, true)
+              }
             })
           }.bind(this)
           img.src = fileURL
@@ -129,8 +144,8 @@ export class Editor extends Component {
           // Makes a thumbnail
           let thumb = new window.Image()
           thumb.onload = function () {
-            const meta = {UID: UID, type: 'thumbnail'}
-            this.resizeImage(50, thumb, meta, false)
+            const meta = {UID: UID, type: 'thumbnail', src: img.src}
+            this.resizeImage(50, this.state.storageType, thumb, meta, false)
           }.bind(this)
           thumb.src = e.target.result
         }
