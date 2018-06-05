@@ -120,11 +120,7 @@ class _Profile extends Component {
     let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
-        if (e) {
-          console.log(blob)
-          alertify.error('Error uploading')
-          console.warn(e)
-        }
+        if (e) alertify.error('Error uploading')        
         else if (save) {
           this.saveProfileImage(downloadUrl)
           img.url = downloadUrl
