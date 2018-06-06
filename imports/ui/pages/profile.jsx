@@ -164,7 +164,7 @@ class _Profile extends Component {
 
               <div className='ql-card-content'>
                 <div className='ql-profile-image-container'>
-                  { this.state.uploadActive
+                  { !this.state.uploadActive
                     ? (<div>
                       <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
                       {!needsEmailVerification
