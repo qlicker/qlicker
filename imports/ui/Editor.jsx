@@ -74,7 +74,7 @@ export class Editor extends Component {
     let src
     if(this.state.storageType === 'AWS') {
       src = image.url + '/image'
-    } else if (this.state.storageType === 'Azure') src = image.url
+    } else if (this.state.storageType === 'Azure' || this.state.storageType === 'Local') src = image.url
     else src = ''
     this.editor.widgets.initOn(element, 'image', {src: src})
     Meteor.call('images.insert', image, (e) => {

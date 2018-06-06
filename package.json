@@ -16,10 +16,8 @@
     "test:all": "npm run test:unit-watch && npm run test:app-watch"
   },
   "dependencies": {
-    "atob": "^2.1.1",
     "aws-sdk": "^2.94.0",
     "azure-storage": "^2.9.0-preview",
-    "b64-to-blob": "^1.2.19",
     "babel-eslint": "^7.1.1",
     "babel-runtime": "^6.18.0",
     "bcrypt": "^0.8.7",

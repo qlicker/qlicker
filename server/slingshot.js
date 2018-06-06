@@ -134,19 +134,9 @@ let localStorageService = {
 
   upload: function (method, directive, file, meta) {
     
-    var rawdata = meta.src
-    var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
-    var type = matches[1];
-    var data = matches[2]
-    
-    var b64toBlob = require('b64-to-blob');
-
-    var blob = b64toBlob(data, type)
-    var blobUrl = URL.createObjectURL(blob);
-
     return {
       upload: "",
-      download: blobUrl,
+      download: meta.src,
       postData: []
     }
   },
