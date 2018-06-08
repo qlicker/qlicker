@@ -120,12 +120,18 @@ class _Profile extends Component {
     let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
+        console.log(downloadUrl)
         if (e) alertify.error('Error uploading')        
         else if (save) {
-          this.saveProfileImage(downloadUrl)
-          img.url = downloadUrl
-          img.UID = meta.UID
-          this.addImage(img)
+          if (this.state.storageType === 'AWS') {
+            this.saveProfileImage(downloadUrl.slice(0, -(meta.type.length + 1)))
+            img.url = downloadUrl.slice(0, -(meta.type.length + 1))
+          } else {
+            this.saveProfileImage(downloadUrl)
+            img.url = downloadUrl
+            img.UID = meta.UID
+            this.addImage(img)
+          }
         }
       })
     })
@@ -167,7 +173,7 @@ class _Profile extends Component {
                   { !this.state.uploadActive
                     ? (<div>
                       <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
-                      {needsEmailVerification
+                      {!needsEmailVerification
                         ? ''
                         : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>}
                     </div>

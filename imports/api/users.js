@@ -59,11 +59,11 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    return this.profile.profileImage ? this.profile.profileImage + '/image' : '/images/avatar.png'
   },
 
   getThumbnailUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    return this.profile.profileImage ? this.profile.profileImage + '/thumbnail' : '/images/avatar.png'
   }
 })
 

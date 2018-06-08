@@ -206,7 +206,7 @@ class _AdminDashboard extends Component {
                   <option value='None'>None</option>
                   <option value='AWS'>Amazon S3</option>
                   <option value='Azure'>Microsoft Azure Blob</option>
-                  <option value='Local'>Local Storage</option>
+                  <option value='Local'>Local Storage (Not Recommended)</option>
                 </select>
                 <br />
                 { this.state.storageType === 'AWS' 
