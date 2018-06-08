@@ -1,7 +1,7 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// profiile.jsx: page for user profile
+// profile.jsx: page for user profile
 
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
@@ -120,7 +120,6 @@ class _Profile extends Component {
     let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
-        console.log(downloadUrl)
         if (e) alertify.error('Error uploading')        
         else if (save) {
           if (this.state.storageType === 'AWS') {

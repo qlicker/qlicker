@@ -122,7 +122,7 @@ Meteor.methods({
     settings = Settings.findOne()
     return {
       maxImageWidth: settings ? settings.maxImageWidth : 700,
-      storageType: settings.storageType
+      storageType: settings ? settings.storageType : 'None'
     }
   },
 
