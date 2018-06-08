@@ -16,26 +16,35 @@ import 'react-select/dist/react-select.css'
 import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
 import { Grades } from '../../../api/grades'
+import { Questions } from '../../../api/questions'
 
-import { GradeView } from '../../GradeView'
+import {ResponseList } from '../../ResponseList'
 
 class _GradeSession extends Component {
 
   constructor (props) {
     super(props)
+    
+    const firstQ = this.props.questions && this.props.questions.length > 0
+    ? this.props.questions[0]
+    : null
 
     this.state = {
       studentToView: null,
       studentSearchString: '',
       groupCategory: null, // if searching by category of group
-      group: null // if searching by students
+      group: null, // if searching by students
+      questionToView: firstQ,
+      questionIndex: 1
     }
 
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.setStudentToView = this.setStudentToView.bind(this)
     this.setCategory = this.setCategory.bind(this)
     this.setGroup = this.setGroup.bind(this)
+    this.setQuestion = this.setQuestion.bind(this)
     this.calculateGrades = this.calculateGrades.bind(this)
+
   }
 
   setStudentSearchString (e) {
@@ -65,6 +74,15 @@ class _GradeSession extends Component {
     }
   }
 
+  setQuestion (increment) {
+    const newIndex = this.state.questionIndex + increment
+    const nextQuestion = this.props.questions[newIndex - 1]
+  
+    if (newIndex <= this.props.questions.length && newIndex > 0) {
+      this.setState({ questionToView: nextQuestion, questionIndex: newIndex })
+    }
+  }
+
   calculateGrades () {
     if (confirm('Are you sure?')) {
       Meteor.call('grades.calcSessionGrades', this.props.session._id, (err) => {
@@ -75,6 +93,13 @@ class _GradeSession extends Component {
         }
       })
     }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const firstQ = nextProps.questions && nextProps.questions.length > 0
+    ? nextProps.questions[0]
+    : null
+    this.setState({ questionToView: firstQ }) 
   }
 
   render () {
@@ -138,7 +163,8 @@ class _GradeSession extends Component {
     let studentToView = this.state.studentToView
     if (!studentToView && studentsToShow.length > 0) studentToView = studentsToShow[0]
 
-    const gradeToView = studentToView ? _(this.props.grades).findWhere({ userId: studentToView._id }) : null
+    const incrementQuestion = () => this.setQuestion(1)
+    const decrementQuestion = () => this.setQuestion(-1)
 
     return (
       <div className='container ql-grade-session'>
@@ -209,18 +235,16 @@ class _GradeSession extends Component {
 
           <div className='col-md-8'>
             <div className='ql-card'>
-              <div className='ql-header-bar'>
-                { studentToView
-                  ? <h4> {studentToView.profile.lastname}, {studentToView.profile.firstname} for {this.props.session ? this.props.session.name : ''} </h4>
-                  : <h4> {this.props.session ? this.props.session.name : ''} </h4>
-                }
+              <div className='response-header'>
+                <h2>
+                  <span className='response-header-btn left' onClick={decrementQuestion}>&lt;</span>
+                  <span className='respone-header-content'>Question {this.state.questionIndex}</span>
+                  <span className='response-header-btn right' onClick={incrementQuestion}>&gt;</span>
+                </h2>
               </div>
               <div className='ql-card-content'>
                 <div className='ql-grade-session-gradeview'>
-                  { gradeToView
-                    ? <GradeView grade={gradeToView} showAttempts />
-                    : 'Select a student'
-                  }
+                  <ResponseList question={this.state.questionToView} students={studentsToShow} />
                 </div>
               </div>
             </div>
@@ -238,6 +262,8 @@ export const GradeSession = createContainer((props) => {
                  Meteor.subscribe('grades.forSession', props.sessionId) &&
                  Meteor.subscribe('courses.single', props.courseId) &&
                  Meteor.subscribe('users.studentsInCourse', props.courseId)
+                 Meteor.subscribe('questions.forReview', props.sessionId) &&
+                 Meteor.subscribe('responses.forSession', props.sessionId)
 
   const course = Courses.findOne({ _id: props.courseId })
   const session = Sessions.findOne({ _id: props.sessionId })
@@ -246,12 +272,15 @@ export const GradeSession = createContainer((props) => {
   const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
+  let questions = Questions.find({_id: { $in: session.questions }}).fetch()
+
   return {
     loading: !handle.ready(),
     grades: grades,
     students: students,
     course: course,
-    session: session
+    session: session,
+    questions: questions
   }
 }, _GradeSession)
 

@@ -1,0 +1,20 @@
+@import '../common_components.scss';
+
+.response-header-btn {
+    
+    @extend .btn;
+    color: white;
+    height: 100%;
+    width: 20%;
+    display: inline-block;
+}
+
+.response-header {
+    @extend .ql-header-bar;
+}
+
+.response-header-content {
+    display: inline-block;
+    width: 60%;
+    background-color: red;
+}
