@@ -244,7 +244,7 @@ class _GradeSession extends Component {
               </div>
               <div className='ql-card-content'>
                 <div className='ql-grade-session-gradeview'>
-                  <ResponseList question={this.state.questionToView} students={studentsToShow} />
+                  <ResponseList question={this.state.questionToView} students={studentsToShow} session={this.props.session}/>
                 </div>
               </div>
             </div>

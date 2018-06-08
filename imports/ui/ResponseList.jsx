@@ -14,6 +14,8 @@ import { Grades } from '../api/grades'
 
 import { QuestionDisplay } from './QuestionDisplay'
 
+import { AnswerDistribution } from './AnswerDistribution'
+
 class _ResponseList extends Component {
 
   constructor(props) {
@@ -27,17 +29,21 @@ class _ResponseList extends Component {
   render() {
 
     const q = this.props.question
+    
     return (
-      <div>
+      <div className='response-card-content'>
         <QuestionDisplay question={this.props.question} prof readonly forReview />
         {
-          q && q.type !== QUESTION_TYPE.SA // option based questions
-          ? <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseDist} /> : ''
+          q && q.type !== 2 // option based questions
+          ? <div className='response-card-item'>
+              <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseDist} />
+            </div>
+          : ''
         }
         { 
           this.props.responses.map((response) => {
             return(
-              <div>{response._id}</div>
+              <div key={response._id}>{response._id}</div>
             )
           })
         }
@@ -47,15 +53,15 @@ class _ResponseList extends Component {
 }
 
 export const ResponseList = createContainer((props) => {
-  const handle = Meteor.subscribe('responses.forSession', props.sessionId) &&
-                 Meteor.subscribe('grades.forSession', props.sessionId)
+  const handle = Meteor.subscribe('responses.forSession', props.session._id) &&
+                 Meteor.subscribe('grades.forSession', props.session._id)
   
   const responses = Responses.find({ questionId: props.question._id }).fetch()
   
   const allResponses = Responses.find({questionId: { $in: props.session.questions }}).fetch()
   const responsesByQuestion = _(allResponses).groupBy('questionId')
 
-  responseDist = responseDistribution(responsesByQuestion[question._id], question)
+  responseDist = responseDistribution(responsesByQuestion[props.question._id], props.question)
 
   return {
     students: props.students,
