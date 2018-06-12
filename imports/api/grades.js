@@ -256,6 +256,29 @@ Meteor.methods({
     if (r) return grade
     else throw Error('Unable to update')
   },
+  
+  /**
+   * Updates a mark in a grade item
+   * @param {MongoID} mark - mark object with points, outOf, studentId, questionId
+   */
+  'grades.updateMark' (mark) {
+    const grade = Grades.findOne({ _id: mark.gradeId })
+    if (!grade) throw Error('Undefined grade in update!')
+    let done = false
+    grade.marks.forEach(markItem => {   
+      if (markItem.questionId === mark.questionId) {   
+        markItem.points = mark.points
+        markItem.outOf = mark.outOf
+        done = true
+        console.log(mark.points)
+        console.log(markItem)
+      }
+    })
+    console.log(mark.questionId)
+    console.log(grade)
+    if (done) return Grades.update(grade._id, grade)
+    else throw Error('Unable to update mark')
+  },
 
   /**
    * Hide the grades from the students

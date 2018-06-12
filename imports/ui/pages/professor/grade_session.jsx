@@ -159,17 +159,17 @@ class _GradeSession extends Component {
       : studentPool
 
     studentsToShow = _(studentsToShow).sortBy((entry) => { return entry.profile.lastname.toLowerCase() })
-
+    
     let studentToView = this.state.studentToView
     if (!studentToView && studentsToShow.length > 0) studentToView = studentsToShow[0]
 
     const incrementQuestion = () => this.setQuestion(1)
     const decrementQuestion = () => this.setQuestion(-1)
-
+    
     return (
       <div className='container ql-grade-session'>
         <div className='row'>
-          <div className='col-md-4'>
+          <div className='col-md-3'>
             <div className='ql-card'>
               <div className='ql-header-bar'>
                 <h4> Select student to grade </h4>
@@ -233,7 +233,7 @@ class _GradeSession extends Component {
             </div>
           </div>
 
-          <div className='col-md-8'>
+          <div className='col-md-9'>
             <div className='ql-card'>
               <div className='response-header'>
                 <h2>
@@ -244,7 +244,11 @@ class _GradeSession extends Component {
               </div>
               <div className='ql-card-content'>
                 <div className='ql-grade-session-gradeview'>
-                  <ResponseList question={this.state.questionToView} students={studentsToShow} session={this.props.session}/>
+                  <ResponseList 
+                    session={this.props.session} 
+                    question={this.state.questionToView} 
+                    students={studentsToShow} 
+                    grades={this.props.grades} />
                 </div>
               </div>
             </div>

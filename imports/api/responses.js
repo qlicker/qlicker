@@ -27,7 +27,8 @@ const responsePattern = {
   answer: Helpers.AnswerItem,
   answerWysiwyg: Match.Maybe(String),
   correct: Match.Maybe(Boolean), // whether or not this response was correct (used in a quiz with multiple attempts)
-  createdAt: Date
+  createdAt: Date,
+  feedback: Match.Maybe(String)
 }
 
 // Create Response class
@@ -321,6 +322,20 @@ Meteor.methods({
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
     }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg } })
-  }
+  },
 
+  /**
+   * Update a response item's feedback
+   * @param {Response} responseObject
+   */
+  'responses.updateFeedback' (responseObject) {
+
+    if (!responseObject) throw Error('Response not found')
+
+    let response = Responses.findOne({ _id: responseObject._id })
+    response.feedback = responseObject.feedback
+
+    return Responses.update(response._id, response)
+  }
+  
 }) // end Meteor.methods
