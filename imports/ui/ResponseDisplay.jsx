@@ -14,10 +14,11 @@ export class ResponseDisplay extends Component {
       outOf: this.props.mark.outOf,
       feedback: this.props.response.feedback ? this.props.response.feedback : ''
     }
+
   }
 
   render() {
-
+    
     const setPoints = (e) => this.setState({ points: e.target.value })
     const setOutOf = (e) => this.setState({ outOf: e.target.value})
     const setFeedback = (e) => this.setState({ feedback: e.target.value })

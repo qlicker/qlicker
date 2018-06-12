@@ -52,7 +52,7 @@ class _GradeSession extends Component {
   }
 
   setStudentToView (student) {
-    this.setState({studentToView: student})
+    this.setState({studentToView: student}) 
   }
 
   setCategory (option) {
@@ -79,7 +79,7 @@ class _GradeSession extends Component {
     const nextQuestion = this.props.questions[newIndex - 1]
   
     if (newIndex <= this.props.questions.length && newIndex > 0) {
-      this.setState({ questionToView: nextQuestion, questionIndex: newIndex })
+      this.setState({ questionToView: nextQuestion, questionIndex: newIndex, studentToView: null })
     }
   }
 
@@ -247,7 +247,8 @@ class _GradeSession extends Component {
                   <ResponseList 
                     session={this.props.session} 
                     question={this.state.questionToView} 
-                    students={studentsToShow} 
+                    students={studentsToShow}
+                    studentToView={this.state.studentToView}
                     grades={this.props.grades} />
                 </div>
               </div>

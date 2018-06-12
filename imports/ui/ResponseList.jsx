@@ -6,6 +6,7 @@
 
 import React, { PropTypes, Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
+import ReactDOM from 'react-dom'
 
 import _ from 'underscore'
 
@@ -21,10 +22,6 @@ class _ResponseList extends Component {
 
   constructor(props) {
       super(props)
-
-      this.state = {
-          selectedStudent: null
-      }
 
       this.submitGrade = this.submitGrade.bind(this)
       this.submitFeedback = this.submitFeedback.bind(this)
@@ -56,13 +53,20 @@ class _ResponseList extends Component {
     })
   }
 
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.studentToView) {
+      const node = ReactDOM.findDOMNode(this.refs[nextProps.studentToView._id])
+      window.scrollTo(0, node.offsetTop)
+    }
+  }
+  
   render () {
-
+    
     const q = this.props.question
     const responses = this.props.responses
     const students = this.props.students
     let index = 0
-    
+
     return (
       <div>
         <QuestionDisplay question={q} prof readonly forReview />
@@ -76,10 +80,11 @@ class _ResponseList extends Component {
         { 
           responses.map((response) => {
             const mark = this.props.marks[index]
-            const studentName = students[index].profile.lastname + ', ' + students[index].profile.firstname
+            const student = students[index]
+            const studentName = student.profile.lastname + ', ' + student.profile.firstname
             index += 1
             return(
-              <div key={response._id}>
+              <div key={response._id} ref={student._id}>
                 <ResponseDisplay
                   studentName={studentName} 
                   response={response} 
@@ -92,7 +97,7 @@ class _ResponseList extends Component {
           })
         }
       </div>
-  )
+    )
   }
 }
 
@@ -121,6 +126,7 @@ export const ResponseList = createContainer((props) => {
 
   return {
     students: props.students,
+    studentToView: props.studentToView,
     question: props.question,
     responses: responses,
     responseDist: responseDist,
@@ -132,5 +138,6 @@ ResponseList.propTypes = {
   session: PropTypes.object,
   question: PropTypes.object,
   students: PropTypes.array,
+  studentToView: PropTypes.object,
   grades: PropTypes.array
 }
