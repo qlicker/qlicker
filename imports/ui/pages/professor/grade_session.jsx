@@ -170,7 +170,7 @@ class _GradeSession extends Component {
       <div className='container ql-grade-session'>
         <div className='row'>
           <div className='col-md-3'>
-            <div className='ql-card'>
+            <div className='ql-card-fixed'>
               <div className='ql-header-bar'>
                 <h4> Select student to grade </h4>
               </div>
