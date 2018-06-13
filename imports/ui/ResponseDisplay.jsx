@@ -12,7 +12,7 @@ export class ResponseDisplay extends Component {
     this.state = {
       points: this.props.mark.points,
       outOf: this.props.mark.outOf,
-      feedback: this.props.response.feedback ? this.props.response.feedback : ''
+      feedback: this.props.mark.feedback ? this.props.mark.feedback : ''
     }
 
   }
@@ -43,18 +43,17 @@ export class ResponseDisplay extends Component {
               <input className='box' value={this.state.points} type='text' onChange={setPoints} />
               <div className='text'>Out Of</div>
               <input className='box' value={this.state.outOf} type='text' onChange={setOutOf} />
-              <input 
-                className='btn btn-primary' 
-                type='button' 
-                value='Submit Grade' 
-                onClick={() => this.props.submitGrade(this.state.points, this.state.outOf, this.props.mark.gradeId)} />
             </div>
           </span>
           <span>
             <h2>Feedback:</h2>
             <div className='response-feedback'>
               <textarea className='text-input' value={this.state.feedback} onChange={setFeedback} />
-              <input className='btn btn-primary' type='button' value='Submit Feedback' onClick={() => this.props.submitFeedback(this.state.feedback, response._id)} />
+              <input 
+                className='btn btn-primary' 
+                type='button' 
+                value='Submit Mark' 
+                onClick={() => this.props.submitGrade(this.state.points, this.state.outOf, this.state.feedback, this.props.mark.gradeId)} />
             </div>
           </span>
         </div>
@@ -68,6 +67,5 @@ ResponseDisplay.propTypes = {
   response: PropTypes.object,
   mark: PropTypes.object.isRequired,
   questionType: PropTypes.number.isRequired,
-  submitGrade: PropTypes.func,
-  submitFeedback: PropTypes.func
+  submitGrade: PropTypes.func
 }

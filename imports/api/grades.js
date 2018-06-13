@@ -31,7 +31,8 @@ const gradePattern = {
     points: Match.Maybe(Number), // value of the mark for that question
     outOf: Match.Maybe(Number), // value of the mark for that question
     automatic: Match.Maybe(Boolean), // whehter the value was automatically calculated (and should be automatically updated)
-    needsGrading: Match.Maybe(Boolean) // whether the points need to be set manually (for a non-autogradeable question)
+    needsGrading: Match.Maybe(Boolean), // whether the points need to be set manually (for a non-autogradeable question)
+    feedback: Match.Maybe(String)
   } ]),
   joined: Match.Maybe(Boolean), // whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
@@ -284,6 +285,7 @@ Meteor.methods({
     if (gradeMark) {
       gradeMark.points = mark.points
       gradeMark.outOf = mark.outOf
+      gradeMark.feedback = mark.feedback
       Meteor.call('grades.calcSessionGrades', grade.sessionId, (err) => {
         if (err) throw Error('Unable to update grade')
       })

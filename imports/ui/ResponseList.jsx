@@ -24,13 +24,14 @@ class _ResponseList extends Component {
       super(props)
 
       this.submitGrade = this.submitGrade.bind(this)
-      this.submitFeedback = this.submitFeedback.bind(this)
   }
 
-  submitGrade (points, outOf, gradeId) {
+  submitGrade (points, outOf, feedback, gradeId) {
+    console.log('fired')
     mark = {
       points: points,
       outOf: outOf,
+      feedback: feedback,
       questionId: this.props.question._id,
       gradeId: gradeId
     }
@@ -38,18 +39,6 @@ class _ResponseList extends Component {
     Meteor.call('grades.updateMark', mark, (err) => {
       if (err) alertify.error(err)
       else alertify.success('Updated Mark')
-    })
-  }
-
-  submitFeedback (feedback, responseId) {
-    response = {
-      _id: responseId,
-      feedback: feedback
-    }
-
-    Meteor.call('responses.updateFeedback', response, (err) => {
-      if(err) alertify.error(err.message)
-      else alertify.success('Updated Feedback')
     })
   }
 
@@ -90,8 +79,7 @@ class _ResponseList extends Component {
                   response={response} 
                   mark={mark} 
                   questionType={q.type}
-                  submitGrade={this.submitGrade}
-                  submitFeedback={this.submitFeedback}/>
+                  submitGrade={this.submitGrade}/>
               </div>
             )
           })
