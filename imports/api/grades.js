@@ -31,7 +31,8 @@ const gradePattern = {
     points: Match.Maybe(Number), // value of the mark for that question
     outOf: Match.Maybe(Number), // value of the mark for that question
     automatic: Match.Maybe(Boolean), // whehter the value was automatically calculated (and should be automatically updated)
-    needsGrading: Match.Maybe(Boolean) // whether the points need to be set manually (for a non-autogradeable question)
+    needsGrading: Match.Maybe(Boolean), // whether the points need to be set manually (for a non-autogradeable question)
+    feedback: Match.Maybe(String)
   } ]),
   joined: Match.Maybe(Boolean), // whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
@@ -255,6 +256,43 @@ Meteor.methods({
 
     if (r) return grade
     else throw Error('Unable to update')
+  },
+  
+  /**
+   * Updates a mark in a grade item
+   * @param {MongoID} mark - mark object with points, outOf, studentId, questionId
+   */
+  'grades.updateMark' (mark) {
+    
+    if (!mark) throw Error('No mark inputted')
+    
+    // points must be positive
+    if (mark.points < 0 || mark.outOf < mark.points) throw Error('Invalid mark')
+
+    const grade = Grades.findOne({ _id: mark.gradeId })
+    if (!grade) throw Error('Undefined grade in update!')
+    
+    const user = Meteor.user()
+
+    if (!user.hasRole(ROLES.admin) &&
+          !user.isInstructor(grade.courseId)) {
+      throw new Meteor.Error('not-authorized')
+    }
+ 
+    let gradeMarks = grade.marks
+    let gradeMark = _(gradeMarks).findWhere({ questionId: mark.questionId })
+
+    if (gradeMark) {
+      gradeMark.points = mark.points
+      gradeMark.outOf = mark.outOf
+      gradeMark.feedback = mark.feedback
+      Meteor.call('grades.updatePoints', grade, (err) => {
+        if (err) throw Error(err)
+        else return Grades.update(grade._id, grade)
+      })   
+    }
+
+    throw Error('Unable to update mark')
   },
 
   /**

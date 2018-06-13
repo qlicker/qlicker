@@ -220,11 +220,45 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
+  Meteor.publish('questions.libraryInCourse', function (courseId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      if (user.hasRole(ROLES.admin)) {
+        return Questions.find({
+          approved: true,
+          studentCopyOfPublic: {$exists: false},
+          sessionId: {$exists: false},
+          courseId: courseId
+         })
+      } else if (user.isInstructor(courseId)) {
+        return Questions.find({
+          owner: this.userId,
+          courseId: courseId,
+          approved: true,
+          sessionId: {$exists: false}
+        })
+      } else {
+        // students. By checking for creator, they can see the questions they submitted
+        // that have been moved to a course library (which changes the owner w/o copying)
+        return Questions.find({
+          '$or': [{creator: this.userId}, {owner: this.userId}],
+          courseId: courseId,
+          sessionId: {$exists: false} })
+      }
+    } else this.ready()
+  })
+
   // truly public questions
   Meteor.publish('questions.public', function () {
     if (this.userId) {   
       let cArr = _(Courses.find({ students: this.userId }).fetch()).pluck('_id').concat(_(Courses.find({ instructors: this.userId }).fetch()).pluck('_id'))
       return Questions.find({ public: true, courseId: {$in: cArr} })
+    } else this.ready()
+  })
+
+  Meteor.publish('questions.publicInCourse', function (courseId) {
+    if (this.userId) {
+      return Questions.find({ public: true, courseId: courseId })
     } else this.ready()
   })
 

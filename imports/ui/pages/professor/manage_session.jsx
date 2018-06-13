@@ -78,7 +78,7 @@ class _ManageSession extends Component {
       this.setDate(moment())
       this.setState({ session: sessionEdits }, () => {
         this.saveSessionEdits(() => {
-          Router.go('session.run', { _id: this.state.session._id })
+          Router.go('session.run', { _id: this.state.session._id, courseId: this.state.session.courseId })
           if (prevStatus !== 'running') {
             Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
             if (!this.state.session.quiz) {
@@ -233,6 +233,7 @@ class _ManageSession extends Component {
       courseId: this.state.session.courseId,
       owner: Meteor.userId(), // Owner is either TA or Professor since students cannot manage session
       approved: true,
+      courseId: this.props.session.courseId
     }, defaultQuestion)
 
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
@@ -402,6 +403,7 @@ class _ManageSession extends Component {
     const sidebar = <QuestionSidebar
       session={this.state.session}
       questions={library}
+      courseId={this.props.session.courseId}
       onSelect={this.addToSession}
       increase={increase}
       decrease={decrease}
@@ -497,7 +499,6 @@ class _ManageSession extends Component {
                   </div>
                 </div>
               </div>
-
             </div>
             {
               questionList.map((questionId) => {

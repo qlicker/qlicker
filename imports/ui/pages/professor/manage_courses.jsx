@@ -46,7 +46,7 @@ class _ManageCourses extends Component {
       <CourseListItem
         key={course._id}
         course={course}
-        click={() => { Router.go('course', { _id: course._id }) }}
+        click={() => { Router.go('course', { courseId: course._id }) }}
         controls={[{ label: 'Delete', click: () => this.deleteCourse(course._id) }]} />
     ))
   }

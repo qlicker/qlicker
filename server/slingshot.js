@@ -41,14 +41,9 @@ let azureBlobStorageService = {
     options: Object
   },
 
-  /**
-   * Here you can set default parameters that your service will use.
-   */
-
   directiveDefault: {
     options: {}
   },
-
 
   /**
    *
@@ -73,18 +68,16 @@ let azureBlobStorageService = {
     blobService.createContainerIfNotExists(containerName, {
       publicAccessLevel: 'blob'
     }, function(error, result, response) {
-      if (!error) console.log('Container Created')
-      else console.log(error)
+      if (error) console.log(error)
     })
 
     var rawdata = meta.src
     var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
     var type = matches[1];
     var buffer = new Buffer(matches[2], 'base64')
-
+  
     blobService.createBlockBlobFromText(containerName, meta.UID, buffer, {contentType:type}, function (error) {
-      if(!error) console.log('Blob Created')
-      else console.log(error)
+      if(error) console.log(error)
     })
     
     return {
@@ -114,10 +107,6 @@ let azureBlobStorageService = {
       headers: {}
     }
   },
-  
-  /**
-   * Absolute maximum file-size allowable by the storage service.
-   */
 
   maxSize: 5 * 1024 * 1024 * 1024
 }
@@ -129,6 +118,36 @@ Slingshot.createDirective('Azure', azureBlobStorageService, {
   accountName: '',
   accountKey: '',
   containerName: '',
+  
+  authorize: function (file, metaContext) {
+    if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {
+      alertify.error('Image too large')
+      return false
+    }
+    return Meteor.userId()
+  }
+})
+
+let localStorageService = {
+  
+  directiveMatch: {},
+
+  upload: function (method, directive, file, meta) {
+    
+    return {
+      upload: "",
+      download: meta.src,
+      postData: []
+    }
+  },
+
+  maxSize: 5 * 1024 * 1024 * 1024
+}
+
+Slingshot.createDirective('Local', localStorageService, {
+  
+  allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
+  maxSize: 1024 * 1024,
 
   authorize: function (file, metaContext) {
     if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {
@@ -139,7 +158,7 @@ Slingshot.createDirective('Azure', azureBlobStorageService, {
   }
 })
 
-let fakeStorageService = {
+let noStorageService = {
   directiveMatch: {},
   directiveDefault: {
     authorize: function (file, metaContext) {
@@ -153,4 +172,4 @@ let fakeStorageService = {
   }
 }
 
-Slingshot.createDirective('None', fakeStorageService, {})
+Slingshot.createDirective('None', noStorageService, {})
