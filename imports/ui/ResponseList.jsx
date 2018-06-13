@@ -36,7 +36,7 @@ class _ResponseList extends Component {
     }
 
     Meteor.call('grades.updateMark', mark, (err) => {
-      if (err) alertify.error(err.message)
+      if (err) alertify.error(err)
       else alertify.success('Updated Mark')
     })
   }

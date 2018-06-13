@@ -262,19 +262,35 @@ Meteor.methods({
    * @param {MongoID} mark - mark object with points, outOf, studentId, questionId
    */
   'grades.updateMark' (mark) {
+    
+    if (!mark) throw Error('No mark inputted')
+    
+    // points must be positive
+    if (mark.points < 0 || mark.outOf < mark.points) throw Error('Invalid mark')
+
     const grade = Grades.findOne({ _id: mark.gradeId })
     if (!grade) throw Error('Undefined grade in update!')
-    let done = false
-    grade.marks.forEach(markItem => {   
-      if (markItem.questionId === mark.questionId) {   
-        markItem.points = mark.points
-        markItem.outOf = mark.outOf
-        done = trueq    
-      }
-    })
-   
-    if (done) return Grades.update(grade._id, grade)
-    else throw Error('Unable to update mark')
+    
+    const user = Meteor.user()
+
+    if (!user.hasRole(ROLES.admin) &&
+          !user.isInstructor(grade.courseId)) {
+      throw new Meteor.Error('not-authorized')
+    }
+ 
+    let gradeMarks = grade.marks
+    let gradeMark = _(gradeMarks).findWhere({ questionId: mark.questionId })
+
+    if (gradeMark) {
+      gradeMark.points = mark.points
+      gradeMark.outOf = mark.outOf
+      Meteor.call('grades.calcSessionGrades', grade.sessionId, (err) => {
+        if (err) throw Error('Unable to update grade')
+      })
+      return Grades.update(grade._id, grade)
+    }
+
+    throw Error('Unable to update mark')
   },
 
   /**
