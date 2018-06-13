@@ -81,7 +81,7 @@ class _ManageCourse extends Component {
       alertify.success('Session copied')
       if (courseId) {
         this.toggleCopySessionModal()
-        Router.go('course', { _id: courseId })
+        Router.go('course', { courseId: courseId })
       }
     })
   }
@@ -163,8 +163,8 @@ class _ManageCourse extends Component {
           if (!ses) return
           const sId = ses._id
           const nav = () => {
-            if (ses.status === 'running') Router.go('session.run', { _id: sId })
-            else Router.go('session.edit', { _id: sId })
+            if (ses.status === 'running') Router.go('session.run', { _id: sId, courseId: this.props.course._id })
+            else Router.go('session.edit', { _id: sId, courseId: this.props.course._id })
           }
           const controls = []
           if (ses.status === 'running') {
@@ -180,8 +180,8 @@ class _ManageCourse extends Component {
           }
           if (ses.status === 'done') {
             controls.push({ label: 'Restart session', click: () => this.startSession(sId) })
-            controls.push({ label: 'Grade session', click: () => Router.go('session.grade', {sessionId: sId}) })
-            controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId}) })
+            controls.push({ label: 'Grade session', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
+            controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
           }
           if (ses.status !== 'done' && ses.status !== 'running') {
             controls.push({ label: 'Start session', click: () => this.startSession(sId) })

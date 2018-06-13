@@ -77,7 +77,7 @@ export class QuestionEditItem extends Component {
       this.state.owner = Meteor.userId()
       // tracking for adding new mulitple choice answers
       this.currentAnswer = 0
-      this.answerOrder = MC_ORDER
+      this.answerOrder = MC_ORDER      
     }
    
     // populate tagging suggestions
@@ -102,7 +102,6 @@ export class QuestionEditItem extends Component {
     }
 
     // Default value of courseId depends on courseId of question and prop
-    // this.state.courseId =
     if (this.props.courseId || this.props.question.courseId) {
       if (this.props.courseId && this.props.question &&
          this.props.question.courseId && this.props.courseId === this.props.question.courseId) {
@@ -112,13 +111,6 @@ export class QuestionEditItem extends Component {
       } else if (this.props.courseId) {
         this.state.courseId = this.props.courseId
       } else {}
-    }
-
-    if (this.props.courseId) {
-      // add course code tag
-      Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
-        if (tag) this.setState({ tags: [tag] })
-      })
     }
 
     // if (!this.props.courseId && !this.props.question.courseId) {
@@ -241,8 +233,7 @@ export class QuestionEditItem extends Component {
    * Set CourseId and add corresponding tag (called from dropdown)
    * @param {course} e
    */
-  setCourse (e) {
-    let cId = e.target.value
+  setCourse (cId) {
     if (parseInt(cId) !== -1) {
       let tags = this.state.tags
       Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
@@ -264,6 +255,7 @@ export class QuestionEditItem extends Component {
       })
     }
   }
+
   /**
    * Update wysiwyg contents for actual question in state
    * @param {Object} content
@@ -432,6 +424,7 @@ export class QuestionEditItem extends Component {
 
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
+    this.setCourse(nextProps.question.courseId)
   }
 
   /**
@@ -564,17 +557,6 @@ export class QuestionEditItem extends Component {
                     {strMakePublic}
                   </button>
                 </div>
-              </div>
-              <div className='col-md-6'>
-                <select value={this.state.courseId ? this.state.courseId : -1} className='ql-header-button question-type form-control pull-right' onChange={this.setCourse}>
-                  <option key={-1} value={-1} >No course</option>
-                  { this.state.courses
-                   ? this.state.courses.map((obj) => {
-                     return <option key={obj._id} value={obj._id} >{ obj.code }</option>
-                   })
-                   : ''
-                  }
-                </select>
               </div>
 
             </div>

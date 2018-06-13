@@ -16,8 +16,28 @@ class _PageContainer extends Component {
 
   constructor (props) {
     super(props)
-    this.state = { promotingAccount: false }
+    this.state = { 
+      promotingAccount: false,
+      courseId: this.props && this.props.courseId ? this.props.courseId : '',
+      courseCode: '',
+      showCourse: this.props && this.props.courseId ? true : false
+    }
     alertify.logPosition('bottom right')
+
+    this.changeCourse = this.changeCourse.bind(this)
+    this.setCourseCode = this.setCourseCode.bind(this)
+
+    if(this.state.courseId !== '') {
+      this.setCourseCode(this.state.courseId)
+    }
+  }
+  
+  setCourseCode (courseId) {
+    Meteor.call('courses.getCourseCode', courseId, (e, c) => {
+      if(c) {
+        this.setState({ courseCode: c})
+      }
+    })
   }
 
   componentDidMount () {
@@ -26,6 +46,17 @@ class _PageContainer extends Component {
     $('.navbar-collapse .dropdown-menu').click(function () {
       $('.navbar-collapse').collapse('hide')
     })
+  }
+
+  componentWillReceiveProps (nextProps) {
+    this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false })
+    if(nextProps.courseId) this.setCourseCode(nextProps.courseId)
+  }
+
+  changeCourse (courseId) {
+    const pageName = Router.current().route.getName()
+    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor')) Router.go(pageName, { courseId: courseId })
+    else Router.go('course', { courseId: courseId })
   }
 
   render () {
@@ -63,23 +94,11 @@ class _PageContainer extends Component {
                 { isAdmin
                    ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li>
                    : ''
-                 }
-                { isAdmin
-                   ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
-                   : <li className='dropdown'>
-                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Courses <span className='caret' /></a>
-                     <ul className='dropdown-menu' >
-                       <li><a className='close-nav' href={coursesPage}>All Courses</a></li>
-                       <li role='separator' className='divider' >&nbsp;</li>
-                       <li className='dropdown-header'>My Active Courses</li>
-                       {
-                            this.props.courses.map((c) => {
-                              return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course', { _id: c._id })}>{c.fullCourseCode()}</a></li>)
-                            })
-                          }
-                     </ul>
-                   </li>
-               }
+                }
+                {  this.state.showCourse && !isAdmin
+                   ? <li><a className='close-nav' role='button' onClick={() => Router.go('course', { courseId: this.state.courseId })}>Course Home</a></li>
+                   : ''
+                }
                 { isAdmin
                   ? <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
@@ -87,36 +106,40 @@ class _PageContainer extends Component {
                         <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
                       </ul>
                     </li>
-                  : <li className='dropdown'>
-                    <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
-                    <ul className='dropdown-menu' >
-                      { isProfessor
-                           ? <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
-                           : ''
-                         }
-                      <li role='separator' className='divider' >&nbsp;</li>
-                      <li className='dropdown-header'>My Active Courses</li>
-                      {
-                           this.props.courses.map((c) => {
-                             return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => Router.go('course.results', { courseId: c._id })}>{c.fullCourseCode()}</a></li>)
-                           })
-                         }
-                    </ul>
-                  </li>
-              }
-                <li className='dropdown'>
-                  <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
-                    aria-haspopup='true' aria-expanded='false'>Question library <span className='caret' /></a>
-                  <ul className='dropdown-menu'>
-                    <li><a className='close-nav' href={Router.routes['questions'].path()}>My Question Library</a></li>
-                    <li role='separator' className='divider'>&nbsp;</li>
-                    <li><a className='close-nav' href={Router.routes['questions.public'].path()}>Public Questions</a>
+                  : this.state.showCourse 
+                    ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
+                    : ''
+                }
+                { this.state.showCourse && !isAdmin
+                  ? <li className='dropdown'>
+                    <a className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
+                      aria-haspopup='true' aria-expanded='false' onClick={() => Router.go('questions', { courseId: this.state.courseId })}>Question library</a>
                     </li>
-                    {isInstructor
-                      ? <li><a className='close-nav' href={Router.routes['questions.fromStudent'].path()}>Student
-                        Submissions</a></li> : ''}
-                  </ul>
-                </li>
+                  : ''
+
+                }      
+                { isAdmin 
+                   ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
+                   : <li className='dropdown'>
+                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+                        { this.state.courseId
+                          ?  this.state.courseCode.substring(0, 4) + ' ' + this.state.courseCode.substring(4)
+                          : 'Courses'
+                        }
+                      <span className='caret' />
+                      </a>
+                      <ul className='dropdown-menu' >
+                        <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
+                        <li role='separator' className='divider' >&nbsp;</li>
+                        <li className='dropdown-header'>My Active Courses</li>
+                        {
+                          this.props.courses.map((c) => {
+                            return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => this.changeCourse(c._id)}>{c.fullCourseCode()}</a></li>)
+                          })
+                        }
+                      </ul>
+                     </li>
+                }
               </ul>
 
               <ul className='nav navbar-nav navbar-right'>
@@ -148,15 +171,17 @@ class _PageContainer extends Component {
         </div>
       </div>)
   }
-
 }
 
-export const PageContainer = createContainer(() => {
+export const PageContainer = createContainer(props => {
   const handle = Meteor.subscribe('courses')
   const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
 
   return {
     courses: courses,
+    courseId: props.courseId,
     loading: !handle.ready()
   }
 }, _PageContainer)
+
+

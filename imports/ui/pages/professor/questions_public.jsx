@@ -29,7 +29,7 @@ class _QuestionsPublic extends Component {
       query: props.query,
       questionMap: _(props.library).indexBy('_id')
     }
-
+    
     this.copyPublicQuestion = this.copyPublicQuestion.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
@@ -74,20 +74,14 @@ class _QuestionsPublic extends Component {
     } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
-
-    const newQuestions = Questions.find(params.query, params.options).fetch()
-    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
-      this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({questions: newQuestions, questionMap: _(newQuestions).indexBy('_id')})
-    
   }
 
   limitAndUpdate (data) {
     this.setState({limit: 11}, () => this.updateQuery(data))
   }
 
-  componentWillReceiveProps () {
-    const newQuestions = Questions.find(this.state.query.query, this.state.query.options).fetch()
+  componentWillReceiveProps (nextProps) {
+    const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ selected: null, questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') })
     } else this.setState({questions: newQuestions})
@@ -111,11 +105,12 @@ class _QuestionsPublic extends Component {
     return (
       <div className='container ql-questions-library'>
         <h1>Public Question Pool</h1>
-        {createNav('public')}
-        <div className='row'>
+        {createNav('public', this.props.courseId)}
+        <div className='row'> 
           <div className='col-md-4'>
             <QuestionSidebar
               questions={library}
+              courseId={this.props.courseId}
               onSelect={this.selectQuestion}
               increase={increase}
               decrease={decrease}
@@ -150,14 +145,15 @@ class _QuestionsPublic extends Component {
 
       </div>)
   }
-
 }
 
-export const QuestionsPublic = createContainer(() => {
-  const handle = Meteor.subscribe('questions.public')
+export const QuestionsPublic = createContainer(props => {
+  const handle = Meteor.subscribe('questions.publicInCourse', props.courseId)
+  const courseId = props.courseId
   const params = {
     query: {
-      public: true
+      public: true,
+      courseId: courseId
     },
     options: {
       sort: { createdAt: -1 },
@@ -165,11 +161,12 @@ export const QuestionsPublic = createContainer(() => {
     }
   }
 
-  const library = Questions.find(params.query, params.options).fetch()
+  const library = Questions.find().fetch()
   
   return {
     query: params,
     library: library,
+    courseId: courseId,
     loading: !handle.ready()
   }
 }, _QuestionsPublic)
