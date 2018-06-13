@@ -269,13 +269,10 @@ Meteor.methods({
       if (markItem.questionId === mark.questionId) {   
         markItem.points = mark.points
         markItem.outOf = mark.outOf
-        done = true
-        console.log(mark.points)
-        console.log(markItem)
+        done = trueq    
       }
     })
-    console.log(mark.questionId)
-    console.log(grade)
+   
     if (done) return Grades.update(grade._id, grade)
     else throw Error('Unable to update mark')
   },
