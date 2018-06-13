@@ -74,7 +74,6 @@ class _QuestionsLibrary extends Component {
           this.setState({ selected: newQuestion._id })
         })
       })
-
     } else {
       this.setState({ selected: null }, () => {
         this.setState({ selected: questionId })
@@ -180,7 +179,7 @@ class _QuestionsLibrary extends Component {
 }
 
 export const QuestionsLibrary = createContainer(props => {
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
+  const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.libraryInCourse', props.courseId)
   const courseId = props.courseId
   let params = {
     query: {
@@ -191,7 +190,7 @@ export const QuestionsLibrary = createContainer(props => {
       limit: 11
     }
   }
-  const library = Questions.find(params.query, params.options).fetch()
+  const library = Questions.find().fetch()
 
   return {
     query: params,

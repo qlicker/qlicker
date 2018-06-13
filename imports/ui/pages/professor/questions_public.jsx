@@ -148,7 +148,7 @@ class _QuestionsPublic extends Component {
 }
 
 export const QuestionsPublic = createContainer(props => {
-  const handle = Meteor.subscribe('questions.public')
+  const handle = Meteor.subscribe('questions.publicInCourse', props.courseId)
   const courseId = props.courseId
   const params = {
     query: {
@@ -161,7 +161,7 @@ export const QuestionsPublic = createContainer(props => {
     }
   }
 
-  const library = Questions.find(params.query, params.options).fetch()
+  const library = Questions.find().fetch()
   
   return {
     query: params,
