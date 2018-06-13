@@ -286,7 +286,7 @@ Meteor.methods({
       gradeMark.points = mark.points
       gradeMark.outOf = mark.outOf
       gradeMark.feedback = mark.feedback
-      Meteor.call('grades.calcSessionGrades', grade.sessionId, (err) => {
+      Meteor.call('grades.updatePoints', grade, (err) => {
         if (err) throw Error('Unable to update grade')
       })
       return Grades.update(grade._id, grade)
