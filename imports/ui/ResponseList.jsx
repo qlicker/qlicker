@@ -27,7 +27,6 @@ class _ResponseList extends Component {
   }
 
   submitGrade (points, outOf, feedback, gradeId) {
-    console.log('fired')
     mark = {
       points: Number(points),
       outOf: Number(outOf),
