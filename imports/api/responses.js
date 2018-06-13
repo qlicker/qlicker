@@ -322,5 +322,4 @@ Meteor.methods({
       studentUserId: responseObject.studentUserId
     }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg } })
   }
-
 }) // end Meteor.methods

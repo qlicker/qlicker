@@ -342,7 +342,7 @@ export const GradeView = createContainer((props) => {
   const grade = Grades.findOne({_id: props.grade._id}) // Makes the grade reactive!
 
   let questions = Questions.find({_id: { $in: session.questions }}).fetch()
-
+  
   const questionIds = questions ? _(questions).pluck('_id') : []
   const responses = Responses.find({ questionId: { $in: questionIds }, studentUserId: props.grade.userId }, { sort: { attempt: 1 } }).fetch()
 
