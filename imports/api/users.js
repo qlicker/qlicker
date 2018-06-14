@@ -257,6 +257,13 @@ Meteor.methods({
       '$set': { 'profile.roles': [ newRole ] } // system only supports users having one role at a time
     })
   },
+  
+  'users.getUserByEmail' (email) {
+    check(email, Helpers.Email)
+    if (!Meteor.user().hasGreaterRole('professor')) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    const user = Meteor.users.findOne({ 'emails.0.adress': email })
+    return user
+  },
 
   /**
    * find user by email and call user.changeRole

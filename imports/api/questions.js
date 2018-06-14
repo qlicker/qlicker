@@ -273,6 +273,12 @@ if (Meteor.isServer) {
       })
     } else this.ready()
   })
+
+  Meteor.publish('questions.imported', function () {
+    if (this.userId) {
+      return Questions.find()
+    } else this.ready()
+  })
 }
 
 /**

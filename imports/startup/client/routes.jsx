@@ -170,6 +170,22 @@ Router.route('/course/:courseId/questions/submissions', {
   }
 })
 
+import { QuestionsFromImport } from '../../ui/pages/professor/questions_imported'
+Router.route('/course/:courseId/questions/imported', {
+  name: 'questions.imported',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.fromStudent')
+  },
+  action: function () {
+    let user = Meteor.user()
+    const isInstructor = Courses.findOne({instructors: user._id}) || Meteor.user().hasRole('professor')
+    if (Meteor.userId() && isInstructor) {
+      mount(AppLayout, { content: <PageContainer user={user} courseId={this.params.courseId}> <QuestionsFromImport courseId={this.params.courseId}/> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
 import { ManageCourses } from '../../ui/pages/professor/manage_courses'
 Router.route('/courses', {
   name: 'courses',

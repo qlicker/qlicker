@@ -25,6 +25,9 @@ export const createNav = (active, courseId) => {
     { isInstructor
       ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a role='button' onClick={() => Router.go('questions.fromStudent', { courseId: courseId })}>Student Submissions</a></li>
       : '' }
+    { isInstructor 
+      ? <li role='presentation' className={active === 'imports' ? 'active' : ''}><a role='button' onClick={() => Router.go('questions.imported', { courseId: courseId })}>Imported Questions</a></li>
+      : '' }
   </ul>)
 }
 
@@ -112,7 +115,7 @@ class _QuestionsLibrary extends Component {
 
   componentWillReceiveProps (nextProps) {
     const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
-    console.log(newQuestions)
+  
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id') })
     } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') }) 

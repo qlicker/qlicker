@@ -12,6 +12,8 @@ import 'react-select/dist/react-select.css'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
+import {ExportModal } from './modals/ExportModal'
+
 import { defaultSessionOptions, defaultQuestion } from '../api/questions'
 
 // constants
@@ -44,6 +46,7 @@ export class QuestionEditItem extends Component {
     this.togglePublic = this.togglePublic.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
+    this.toggleExport = this.toggleExport.bind(this)
     this.setCourse = this.setCourse.bind(this)
     this.setPoints = this.setPoints.bind(this)
     this.setMaxAttempts = this.setMaxAttempts.bind(this)
@@ -51,7 +54,7 @@ export class QuestionEditItem extends Component {
 
     // if editing pre-exsiting question
     if (this.props.question) {
-      this.state = _.extend({}, this.props.question)
+      this.state = _.extend({ showExport: false }, this.props.question)
       this.state.owner = Meteor.userId()
       if (this.props.sessionId && !this.props.question.sessionOptions) {
         this.state.sessionOptions = defaultSessionOptions
@@ -377,12 +380,12 @@ export class QuestionEditItem extends Component {
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
-  saveQuestion () {
-    const user = Meteor.user()
+  saveQuestion (user) {
+    if (!user) user = Meteor.user()
     let question = _.extend({
       createdAt: new Date(),
       approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
-    }, _.omit(this.state, 'courses'))
+    }, _.omit(this.state, 'courses', 'showExport'))
 
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
@@ -422,6 +425,10 @@ export class QuestionEditItem extends Component {
     }
   }
 
+  toggleExport () {
+    this.setState({ showExport: !this.state.showExport })
+  }
+
   componentWillReceiveProps (nextProps) {
     this.setState(nextProps.question)
     this.setCourse(nextProps.question.courseId)
@@ -450,7 +457,7 @@ export class QuestionEditItem extends Component {
               change={changeHandler}
               val={a.content}
               className='answer-editor'
-              question={this.state}
+              question={_.omit(this.state, 'showExport')}
               />
 
             <span
@@ -526,13 +533,18 @@ export class QuestionEditItem extends Component {
     ]
 
     const strMakePublic = this.state.public ? 'Make Private' : 'Make Public'
-
+   
     return (
       <div className='ql-question-edit-item'>
+        {
+          this.state.showExport && user.hasGreaterRole('professor')
+            ? <ExportModal questionId={this.state._id} done={this.toggleExport} submit={this.saveQuestion} />
+            : ''
+        }
         <div className='header'>
           { this.props.metadata
             ? <div className='row metadata-row'>
-              <div className='col-md-6'>
+              <div className='col-md-10'>
                 <div className='btn-group'>
                   {this.state._id
                     ? <button className='btn btn-default'
@@ -553,8 +565,13 @@ export class QuestionEditItem extends Component {
                     onClick={this.togglePublic}
                     data-toggle='tooltip'
                     data-placement='top'
-                    title={!this.state.public ? 'Allow others to view and copy this question' : ''}>
+                    title={!this.state.public ? 'Allow users in this course to view and copy this question' : ''}>
                     {strMakePublic}
+                  </button>
+                  <button
+                    className='btn btn-default'
+                    onClick={this.toggleExport}>
+                    Export This Question
                   </button>
                 </div>
               </div>
