@@ -380,13 +380,28 @@ export class QuestionEditItem extends Component {
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
-  saveQuestion (user) {
-    if (!user) user = Meteor.user()
+  saveQuestion (user, approved, isBeingExported) {
+    
+    let keysToOmit = ['courses', 'showExport']
+    //If not exporting question
+    if (!user) {
+      user = Meteor.user()
+      isBeingExported = false
+      
+    }
+
+    else {
+      keysToOmit.push(['owner', 'shared'])
+    }
+
+    console.log(isBeingExported)
     let question = _.extend({
       createdAt: new Date(),
-      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
-    }, _.omit(this.state, 'courses', 'showExport'))
-
+      approved:  approved || user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
+      shared: isBeingExported,
+      owner: user._id,
+    }, _.omit(this.state, keysToOmit))
+    console.log(question)
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId

@@ -38,6 +38,7 @@ const questionPattern = {
   courseId: Match.Maybe(Helpers.MongoID),
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
+  shared: Match.Maybe(Boolean),
   solution: Match.Maybe(String), // solution is the full guide to answering the question
   solution_plainText: Match.Maybe(String), // plain text version of solution
   createdAt: Date,
@@ -276,7 +277,7 @@ if (Meteor.isServer) {
 
   Meteor.publish('questions.imported', function () {
     if (this.userId) {
-      return Questions.find()
+      return Questions.find({ shared: true, owner: this.userId })
     } else this.ready()
   })
 }

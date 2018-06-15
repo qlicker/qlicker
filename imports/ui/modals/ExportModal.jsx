@@ -19,14 +19,14 @@ export class ExportModal extends ControlledForm {
 
   handleSubmit (e) {
     super.handleSubmit(e)
-
     Meteor.call('users.getUserByEmail', this.state.recipientEmail, (err, result) => {
       if (err) alertify.error('Cannot find user')
-      else user = result
+      else {
+        console.log(result)
+        this.props.submit(result.user, result.approved, true)
+        this.props.done()
+      }
     })
-    
-    this.props.submit(user)
-
   }
   
   render () {

@@ -138,7 +138,7 @@ class _QuestionsFromImport extends Component {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
       <div className='container ql-questions-library'>
-        <h1>Student Submitted Questions</h1>
+        <h1>Imported Questions</h1>
         {createNav('imports', this.props.courseId)}
 
         <div className='row'>
@@ -195,7 +195,9 @@ export const QuestionsFromImport = createContainer(props => {
   const courseId = props.courseId
 
   let params = {
-    query: { },
+    query: {
+      shared: true
+    },
     options: {sort:
       { createdAt: -1 },
       limit: 11

@@ -259,10 +259,13 @@ Meteor.methods({
   },
   
   'users.getUserByEmail' (email) {
-    check(email, Helpers.Email)
+  
     if (!Meteor.user().hasGreaterRole('professor')) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
-    const user = Meteor.users.findOne({ 'emails.0.adress': email })
-    return user
+    
+    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    if (user) return { user: user, approved: user.hasGreaterRole('professor') }
+    else throw new Meteor.Error('User not found')
+    
   },
 
   /**
