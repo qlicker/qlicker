@@ -15,6 +15,9 @@ export class ExportModal extends ControlledForm {
     super(props)
 
     this.state = { recipientEmail: '' }
+
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.submitToSelf = this.submitToSelf.bind(this)
   }
 
   handleSubmit (e) {
@@ -28,6 +31,15 @@ export class ExportModal extends ControlledForm {
     })
   }
   
+  submitToSelf (e) {
+    console.log(this.props)
+    super.handleSubmit(e)
+    const user = Meteor.user()
+    console.log(user.hasGreaterRole('professor'))
+    this.props.submit(user, user.hasGreaterRole('professor'), true)
+    this.props.done()
+  }
+
   render () {
 
     const setRecipient = (e) => this.setState({ recipientEmail: e.target.value })
@@ -45,6 +57,7 @@ export class ExportModal extends ControlledForm {
 
               <div className='ql-buttongroup'>
               <a className='btn btn-default' onClick={this.props.done}>Cancel</a>
+              <a className='btn btn-default' onClick={this.submitToSelf}>Send Question to Self</a>
                 <input className='btn btn-default' type='submit' id='submit' />
               </div>
             </form>
