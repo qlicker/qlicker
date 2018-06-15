@@ -44,14 +44,23 @@ class _QuestionsFromImport extends Component {
 
   approveQuestion (questionId) {
     let question = this.state.questionMap[questionId]
+    delete question._id
+    question.shared = false
+    question.courseId = this.props.courseId
     question.approved = true
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
-    Meteor.call('questions.update', question, (error, newQuestionId) => {
+    question.tags = [{ label: '1', value: '1'}]
+    Meteor.call('courses.getCourseCodeTag', this.props.courseId, (error, tag) => {
       if (error) return alertify.error('Error: ' + error.error)
-      alertify.success('Question moved to library')
-    })
+      else question.tags = [tag]
+      Meteor.call('questions.insert', question, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question moved to library')
+      })
+    })   
+    
     this.selectQuestion(null)
   }
 
@@ -205,7 +214,7 @@ export const QuestionsFromImport = createContainer(props => {
   }
 
   const library = Questions.find().fetch()
-  console.log(library)
+
   return {
     courseId: courseId,
     query: params,

@@ -22,7 +22,6 @@ export class ExportModal extends ControlledForm {
     Meteor.call('users.getUserByEmail', this.state.recipientEmail, (err, result) => {
       if (err) alertify.error('Cannot find user')
       else {
-        console.log(result)
         this.props.submit(result.user, result.approved, true)
         this.props.done()
       }

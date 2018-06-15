@@ -394,14 +394,14 @@ export class QuestionEditItem extends Component {
       keysToOmit.push(['owner', 'shared'])
     }
 
-    console.log(isBeingExported)
+    
     let question = _.extend({
       createdAt: new Date(),
       approved:  approved || user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
       shared: isBeingExported,
       owner: user._id,
     }, _.omit(this.state, keysToOmit))
-    console.log(question)
+    
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId
