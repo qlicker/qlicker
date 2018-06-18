@@ -50,6 +50,8 @@ class _ResponseList extends Component {
   
   render () {
     
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    
     const q = this.props.question
     const responses = this.props.responses
     const students = this.props.students
@@ -92,7 +94,9 @@ export const ResponseList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forSession', props.session._id) &&
                  Meteor.subscribe('grades.forSession', props.session._id)
   
-  const responses = Responses.find({ questionId: props.question._id }).fetch()
+  const questionId = props.question ? props.question._id : ''
+
+  const responses = Responses.find({ questionId: questionId }).fetch()
   
   const allResponses = Responses.find({questionId: { $in: props.session.questions }}).fetch()
   const responsesByQuestion = _(allResponses).groupBy('questionId')
@@ -112,6 +116,7 @@ export const ResponseList = createContainer((props) => {
   
 
   return {
+    loading: !handle.ready(),
     students: props.students,
     studentToView: props.studentToView,
     question: props.question,
