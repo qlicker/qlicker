@@ -23,7 +23,7 @@ export class ExportModal extends ControlledForm {
   handleSubmit (e) {
     super.handleSubmit(e)
     Meteor.call('users.getUserByEmail', this.state.recipientEmail, (err, result) => {
-      if (err) alertify.error('Cannot find user')
+      if (err || !result) alertify.error('Cannot find user')
       else {
         this.props.submit(result.user, result.approved, true)
         this.props.done()
@@ -32,10 +32,8 @@ export class ExportModal extends ControlledForm {
   }
   
   submitToSelf (e) {
-    console.log(this.props)
     super.handleSubmit(e)
     const user = Meteor.user()
-    console.log(user.hasGreaterRole('professor'))
     this.props.submit(user, user.hasGreaterRole('professor'), true)
     this.props.done()
   }

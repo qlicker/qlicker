@@ -387,7 +387,7 @@ export class QuestionEditItem extends Component {
     if (!user) {
       user = Meteor.user()
       isBeingExported = false
-      
+      approved = user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
     }
 
     else {
@@ -397,7 +397,7 @@ export class QuestionEditItem extends Component {
     
     let question = _.extend({
       createdAt: new Date(),
-      approved:  approved || user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
+      approved:  approved,
       shared: isBeingExported,
       owner: user._id,
     }, _.omit(this.state, keysToOmit))
@@ -586,7 +586,7 @@ export class QuestionEditItem extends Component {
                   <button
                     className='btn btn-default'
                     onClick={this.toggleExport}>
-                    Export This Question
+                    Export
                   </button>
                 </div>
               </div>
