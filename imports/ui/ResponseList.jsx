@@ -13,10 +13,8 @@ import _ from 'underscore'
 import { Responses, responseDistribution } from '../api/responses'
 import { Grades } from '../api/grades'
 
-import { QuestionDisplay } from './QuestionDisplay'
 import { ResponseDisplay } from './ResponseDisplay'
 
-import { AnswerDistribution } from './AnswerDistribution'
 
 class _ResponseList extends Component {
 
@@ -58,33 +56,25 @@ class _ResponseList extends Component {
     let index = 0
 
     return (
-      <div>
-        <QuestionDisplay question={q} prof readonly forReview />
-        {
-          q && q.type !== 2 // option based questions
-          ? <div className='response-distribution'>
-              <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseDist} />
+      <div className='response-list'>
+      { 
+        responses.map((response) => {
+          const mark = this.props.marks[index]
+          const student = students[index]
+          const studentName = student.profile.lastname + ', ' + student.profile.firstname
+          index += 1
+          return(
+            <div key={response._id} ref={this.props.studentToView}>
+              <ResponseDisplay
+                studentName={studentName} 
+                response={response} 
+                mark={mark} 
+                questionType={q.type}
+                submitGrade={this.submitGrade}/>
             </div>
-          : ''
-        }
-        { 
-          responses.map((response) => {
-            const mark = this.props.marks[index]
-            const student = students[index]
-            const studentName = student.profile.lastname + ', ' + student.profile.firstname
-            index += 1
-            return(
-              <div key={response._id} ref={student._id}>
-                <ResponseDisplay
-                  studentName={studentName} 
-                  response={response} 
-                  mark={mark} 
-                  questionType={q.type}
-                  submitGrade={this.submitGrade}/>
-              </div>
-            )
-          })
-        }
+          )
+        })
+      }
       </div>
     )
   }
@@ -97,12 +87,7 @@ export const ResponseList = createContainer((props) => {
   const questionId = props.question ? props.question._id : ''
 
   const responses = Responses.find({ questionId: questionId }).fetch()
-  
-  const allResponses = Responses.find({questionId: { $in: props.session.questions }}).fetch()
-  const responsesByQuestion = _(allResponses).groupBy('questionId')
 
-  let responseDist = responseDistribution(responsesByQuestion[props.question._id], props.question)
-  
   let marks = []
  
   props.grades.forEach(grade => {
@@ -121,7 +106,6 @@ export const ResponseList = createContainer((props) => {
     studentToView: props.studentToView,
     question: props.question,
     responses: responses,
-    responseDist: responseDist,
     marks: marks
   }               
 }, _ResponseList)

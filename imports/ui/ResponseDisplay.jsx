@@ -27,10 +27,10 @@ export class ResponseDisplay extends Component {
     
     return(
       <div className='response-card-container'>
-        <h1 className='response-name'>{this.props.studentName}</h1>
+        <h2 className='response-name'>{this.props.studentName}</h2>
         <div className='response-card-content'>
           <div className='response-card-item'>
-            <h2>Response:</h2>
+            <h4>Response:</h4>
           {
             this.props.questionType === 2 
             ? <div className='response-short-answer'>{WysiwygHelper.htmlDiv(response.answerWysiwyg)}</div>
@@ -38,7 +38,7 @@ export class ResponseDisplay extends Component {
           }
           </div>
           <span className='response-grade-container'>
-            <h2>Points:</h2>
+            <h4>Points:</h4>
             <div className='response-grade'>
               <input className='box' value={this.state.points} type='text' onChange={setPoints} />
               <div className='text'>Out Of</div>
@@ -46,7 +46,7 @@ export class ResponseDisplay extends Component {
             </div>
           </span>
           <span>
-            <h2>Feedback:</h2>
+            <h4>Feedback:</h4>
             <div className='response-feedback'>
               <textarea className='text-input' value={this.state.feedback} onChange={setFeedback} />
               <input 
