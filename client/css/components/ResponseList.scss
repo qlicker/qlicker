@@ -52,6 +52,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      text-align: center;
       background: $grey;
     }
 
@@ -61,13 +62,15 @@
       max-height: 100px;
       background: white;
       border: 2px solid $grey;
-      display: inline-block;
-      position: relative;
       textarea {
-        text-align-last: center;
+        text-align: center;
         resize: vertical;
       }
       overflow-y: auto;
+    }
+
+    input {
+      text-align: center;
     }
   }
 }
