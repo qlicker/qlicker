@@ -23,73 +23,54 @@
       width: 20%;
     }
   }
-  
 }
 
-.response-list {
-
-}
 
 .response-card-container {
-  
-}
-
-.response-name {
-  background: $blue;
-  color: white;
-}
-
-.response-card-content {
-  display: flex;
-}
-
-.response-card-item {
-  width: 60%;
-}
-
-.response-short-answer {
-  width: 100%;
   height: 100%;
-  max-width: 400px;
-  max-height: 100px;
-  background: white;
-  border: 2px solid $grey;
-  display: inline-block;
-  position: relative;
-  textarea {
-    text-align-last: center;
-    resize: vertical;
-  }
-  overflow-y: auto;
-}
 
-.response-grade-container {
-  padding-left: 50px;
-}
-
-.response-grade {
-
-
-  display: flex;
-  margin-right: 0px;
- 
-  .box {
-    border: 2px solid $grey;
-    width: 10%;
+  .name {
+    background: $blue;
+    color: white;
   }
 
-  .text {
-    padding: 10px;
-    font-size: 0.7em;
+  .content {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    
+    .answer {
+      width: 40%;
+    }
+
+    .feedback {
+      display: flex;  
+      width: 60%;
+    }
+
+    .grade {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: $grey;
+    }
+
+    .textField {
+      width: 100%;
+      height: 100%;
+      max-height: 100px;
+      background: white;
+      border: 2px solid $grey;
+      display: inline-block;
+      position: relative;
+      textarea {
+        text-align-last: center;
+        resize: vertical;
+      }
+      overflow-y: auto;
+    }
   }
 }
 
-.response-feedback {
 
-  display: flex;
-  
-  .text-input {
-    border: 2px solid $grey;
-  }
-}
 

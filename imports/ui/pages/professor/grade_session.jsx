@@ -19,7 +19,7 @@ import { Grades } from '../../../api/grades'
 import { Questions } from '../../../api/questions'
 import { Responses, responseDistribution } from '../../../api/responses'
 
-import { QuestionDisplay } from '../../QuestionDisplay'
+import { WysiwygHelper } from '../../../wysiwyg-helpers'
 import {ResponseList } from '../../ResponseList'
 
 class _GradeSession extends Component {
@@ -252,7 +252,7 @@ class _GradeSession extends Component {
                   </h2>
                 </div>
                 <div className='preview'>
-                  <QuestionDisplay question={q} prof readonly forReview />
+                  <h1>{WysiwygHelper.htmlDiv(this.state.questionToView.content)}</h1>
                 </div>
               </div>
               <div>

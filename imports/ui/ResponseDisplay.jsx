@@ -27,35 +27,30 @@ export class ResponseDisplay extends Component {
     
     return(
       <div className='response-card-container'>
-        <h2 className='response-name'>{this.props.studentName}</h2>
-        <div className='response-card-content'>
-          <div className='response-card-item'>
-            <h4>Response:</h4>
+        <h3 className='name'>{this.props.studentName}</h3>
+        <div className='content'>
           {
-            this.props.questionType === 2 
-            ? <div className='response-short-answer'>{WysiwygHelper.htmlDiv(response.answerWysiwyg)}</div>
-            : <div className='response-mc-answer'>{response.answer}</div>
-          }
+            this.props.questionType == 2
+            ? <div className='answer'>
+                <div className='textField'>
+                  {WysiwygHelper.htmlDiv(response.answerWysiwyg)}
+                </div>
+              </div>
+            : <div className='answer'>{response.answer}</div>
+          } 
+          <div className='grade'>
+            <input value={this.state.points} type='text' onChange={setPoints} placeholder='Mark' />
+            <div>Out Of</div>
+            <input value={this.state.outOf} type='text' onChange={setOutOf} placeholder='Max Mark'/>
           </div>
-          <span className='response-grade-container'>
-            <h4>Points:</h4>
-            <div className='response-grade'>
-              <input className='box' value={this.state.points} type='text' onChange={setPoints} />
-              <div className='text'>Out Of</div>
-              <input className='box' value={this.state.outOf} type='text' onChange={setOutOf} />
-            </div>
-          </span>
-          <span>
-            <h4>Feedback:</h4>
-            <div className='response-feedback'>
-              <textarea className='text-input' value={this.state.feedback} onChange={setFeedback} />
-              <input 
-                className='btn btn-primary' 
-                type='button' 
-                value='Submit Mark' 
-                onClick={() => this.props.submitGrade(this.state.points, this.state.outOf, this.state.feedback, this.props.mark.gradeId)} />
-            </div>
-          </span>
+          <div className='feedback'>
+            <textarea className='textField' value={this.state.feedback} onChange={setFeedback} placeholder='Feedback:' />            
+            <input 
+              className='btn btn-primary' 
+              type='button' 
+              value='Submit Mark' 
+              onClick={() => this.props.submitGrade(this.state.points, this.state.outOf, this.state.feedback, this.props.mark.gradeId)} />        
+          </div>
         </div>
       </div>
     )
