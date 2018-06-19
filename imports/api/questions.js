@@ -264,20 +264,19 @@ if (Meteor.isServer) {
   })
 
   // questions submitted to specific course
-  Meteor.publish('questions.fromStudent', function () {
+  Meteor.publish('questions.student', function (courseId) {
     if (this.userId) {
-      let cArr = _(Courses.find({ instructors: this.userId }).fetch()).pluck('_id')
       return Questions.find({
-        courseId: {$in: cArr},
         sessionId: {$exists: false},
-        approved: false
+        approved: false,
+        courseId: courseId
       })
     } else this.ready()
   })
 
-  Meteor.publish('questions.imported', function () {
+  Meteor.publish('questions.shared', function (courseId) {
     if (this.userId) {
-      return Questions.find({ shared: true, owner: this.userId })
+      return Questions.find({ shared: true, owner: this.userId, courseId: !courseId })
     } else this.ready()
   })
 }

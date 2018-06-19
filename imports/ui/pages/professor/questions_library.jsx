@@ -13,23 +13,6 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { QuestionSidebar } from '../../QuestionSidebar'
 
 import { Questions, defaultQuestion } from '../../../api/questions'
-import { Courses } from '../../../api/courses'
-
-export const createNav = (active, courseId) => {
-  const isInstructor = Meteor.user().isInstructorAnyCourse()
-  return (<ul className='nav nav-pills'>
-    <li role='presentation' className={active === 'library' ? 'active' : ''}>
-      <a role='button' onClick={() => Router.go('questions', { courseId: courseId })}>Question Library</a>
-    </li>
-    <li role='presentation' className={active === 'public' ? 'active' : ''}><a role='button' onClick={() => Router.go('questions.public', { courseId: courseId })}>Public Questions</a></li>
-    { isInstructor
-      ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a role='button' onClick={() => Router.go('questions.fromStudent', { courseId: courseId })}>Student Submissions</a></li>
-      : '' }
-    { isInstructor 
-      ? <li role='presentation' className={active === 'imports' ? 'active' : ''}><a role='button' onClick={() => Router.go('questions.imported', { courseId: courseId })}>Imported Questions</a></li>
-      : '' }
-  </ul>)
-}
 
 class _QuestionsLibrary extends Component {
 
@@ -39,10 +22,9 @@ class _QuestionsLibrary extends Component {
     this.state = {
       edits: {},
       selected: null,
-      questions: props.library,
-      limit: 11,
+      questions: props.questions,
       query: props.query,
-      questionMap: _(props.library).indexBy('_id'),
+      questionMap: _(props.questions).indexBy('_id'),
       resetSidebar: false // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
     }
 
@@ -54,6 +36,11 @@ class _QuestionsLibrary extends Component {
     this.questionDeleted = this.questionDeleted.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
     this.limitAndUpdate = _.throttle(this.limitAndUpdate.bind(this), 800)
+
+    Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
+      if (e) alertify.error('Cannot get course code')
+      else this.setState({ courseCode: c })
+    })
   }
 
   editQuestion (questionId) {
@@ -136,9 +123,7 @@ class _QuestionsLibrary extends Component {
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
-      <div className='container ql-questions-library'>
-        <h1>My Question Library</h1>
-        {createNav('library', this.props.courseId)}
+      <div>
         <div className='row'>
           <div className='col-md-4'>
             <br />
@@ -182,22 +167,73 @@ class _QuestionsLibrary extends Component {
 }
 
 export const QuestionsLibrary = createContainer(props => {
-  const handle = Meteor.subscribe('courses') && Meteor.subscribe('questions.libraryInCourse', props.courseId)
+
+  //This step is done since questions.library and questions.public are used in other components
+  let inCourse = ''
+  props.library === 'library' || props.library === 'public' ? inCourse = 'InCourse' : null
+  
+  const subscription = 'questions.' + props.library + inCourse
+  const handle =  Meteor.subscribe(subscription, props.courseId)
   const courseId = props.courseId
-  let params = {
-    query: {
-      courseId: courseId
-    },
-    options: {
-      sort: { createdAt: -1 },
-      limit: 11
+  console.log(subscription)
+  
+  let params = {}
+  
+  if (props.library === 'library') {
+    params = {
+      query: {
+        courseId: courseId,
+      },
+      options: {
+        sort: { createdAt: -1 }
+      }
     }
   }
-  const library = Questions.find().fetch()
 
+  if (props.library === 'public') {
+    params = {
+      query: {
+        public: true,
+        courseId: courseId
+      },
+      options: {
+        sort: { createdAt: -1 },
+      }
+    }
+  }
+  
+  if (props.library === 'student') {
+    params = {
+      query: {
+        courseId: courseId,
+        sessionId: {$exists: false},
+        approved: false,
+        public: false
+      },
+      options: {sort:
+        { createdAt: -1 },   
+      }
+    }
+  }
+
+  if (props.library === 'shared') {
+    params = {
+      query: {
+        shared: true
+      },
+      options: {sort:
+        { createdAt: -1 },
+        limit: 11
+      }
+    }
+  }
+
+  const questions = Questions.find().fetch()
+  console.log(questions)
+  console.log(params)
   return {
     query: params,
-    library: library,
+    questions: questions,
     courseId: courseId,
     loading: !handle.ready()
   }
