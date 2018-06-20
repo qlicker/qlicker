@@ -63,7 +63,6 @@ class _QuestionsLibrary extends Component {
     Meteor.call('courses.getCourseCode', courseId, (err, result) => {
       if (err) a.download = 'questions' + courseId + date + '.json'
       else a.download = 'Questions' + result + date + '.json'
-
       a.click()
     })
   }
@@ -80,7 +79,6 @@ class _QuestionsLibrary extends Component {
         questions.forEach(question => {
           question.courseId = this.props.courseId
           question.createdAt = new Date()
-          console.log(question)
           delete question._id
           Meteor.call('questions.insert', question, (err, result) => {
             if (err) alertify.error('Error: ' + err.error)

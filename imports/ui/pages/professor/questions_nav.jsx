@@ -17,7 +17,14 @@ class _QuestionsNav extends Component {
       courseCode: ''
     }
 
-    Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
+    Meteor.call('courses.getCourseCode', props.courseId, (e, c) => {
+      if (e) alertify.error('Cannot get course code')
+      else this.setState({ courseCode: c })
+    })
+  }
+
+  componentWillReceiveProps (props) {
+    Meteor.call('courses.getCourseCode', props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
       else this.setState({ courseCode: c })
     })
