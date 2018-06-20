@@ -32,6 +32,7 @@ class _QuestionsLibrary extends Component {
       if (this.props.selected in this.state.questionMap) this.state.selected = this.props.selected
     }
 
+    this.exportQuestions = this.exportQuestions.bind(this)
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
@@ -40,6 +41,29 @@ class _QuestionsLibrary extends Component {
     Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
       else this.setState({ courseCode: c })
+    })
+  }
+
+  exportQuestions () {
+    const courseId = this.props.courseId
+    const date = new Date()
+    let data = {
+      originalCourse: courseId,
+      date: date,
+      questions: this.props.questions
+    }
+
+    const jsonData = JSON.stringify(data)
+    
+    const a = document.createElement("a")
+    const file = new Blob([jsonData], {type: 'text/plain'})
+    a.href = URL.createObjectURL(file)
+
+    Meteor.call('courses.getCourseCode', courseId, (err, result) => {
+      if (err) a.download = 'questions' + courseId + date + '.json'
+      else a.download = 'Questions' + result + date + '.json'
+
+      a.click()
     })
   }
 
@@ -120,7 +144,7 @@ class _QuestionsLibrary extends Component {
             {isInstructor && this.props.library === 'library'
               ? <div>
                   <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
-                  <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>Export to File</button>
+                  <a className='btn btn-primary' onClick={this.exportQuestions}>Export to File</a>
                 </div>
                 : ''}
             <QuestionSidebar
