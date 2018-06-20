@@ -33,6 +33,7 @@ class _QuestionsLibrary extends Component {
     }
 
     this.exportQuestions = this.exportQuestions.bind(this)
+    this.importQuestions = this.importQuestions.bind(this)
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
@@ -65,6 +66,10 @@ class _QuestionsLibrary extends Component {
 
       a.click()
     })
+  }
+
+  importQuestions (e) {
+    console.log(e.target.files[0])
   }
 
   editQuestion (questionId) {
@@ -142,9 +147,13 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-4'>
             <br />
             {isInstructor && this.props.library === 'library'
-              ? <div>
+              ? <div className='ql-questions-library ql-sidebar-buttons'>
                   <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
-                  <a className='btn btn-primary' onClick={this.exportQuestions}>Export to File</a>
+                  <button className='btn btn-primary' onClick={this.exportQuestions}>Export to File</button>
+                  <label className='btn btn-primary'>
+                    <input style={{'display' : 'none'}} type='file' onChange={this.importQuestions} />
+                    Import from File
+                  </label>
                 </div>
                 : ''}
             <QuestionSidebar
@@ -247,6 +256,7 @@ export const QuestionsLibrary = createContainer(props => {
     query: params,
     questions: questions,
     courseId: courseId,
+    selected: questions[0]._id,
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)

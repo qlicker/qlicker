@@ -3,6 +3,11 @@
 
 .ql-questions-library {
 
+  .ql-sidebar-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  
   .ql-edit-item-container {
     background: white;
     border: 1px solid #ddd;
@@ -34,3 +39,5 @@
   }
 
 }
+
+
