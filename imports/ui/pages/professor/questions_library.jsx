@@ -68,8 +68,28 @@ class _QuestionsLibrary extends Component {
     })
   }
 
-  importQuestions (e) {
-    console.log(e.target.files[0])
+  importQuestions (event) {
+    const file = event.target.files[0]
+    if (file && file.type === 'application/json') {
+      const reader = new FileReader()
+      reader.readAsText(file, 'UTF-8')
+      reader.onload = (e) => {
+        const data = JSON.parse(e.target.result)
+        const questions = data.questions
+
+        questions.forEach(question => {
+          question.courseId = this.props.courseId
+          question.createdAt = new Date()
+          console.log(question)
+          delete question._id
+          Meteor.call('questions.insert', question, (err, result) => {
+            if (err) alertify.error('Error: ' + err.error)
+            else alertify.success('Questions saved')
+          })
+        })
+      }
+    }
+    else alertify.error('Error: Incorrect file format')
   }
 
   editQuestion (questionId) {
