@@ -32,7 +32,7 @@ class _QuestionsNav extends Component {
         <h1>Questions for {this.state.courseCode}</h1>
         <ul className='nav nav-pills'>
           <li role='presentation' className={active === 'library' ? 'active' : ''}>
-            <a role='button' onClick={() => this.setState({ selected: 'library' })}>Question Library</a>
+            <a role='button' onClick={() => this.setState({ selected: 'library' })}>My Questions</a>
           </li>
           <li role='presentation' className={active === 'public' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'public' })}>Public Questions</a></li>
           { isInstructor

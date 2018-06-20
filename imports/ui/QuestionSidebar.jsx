@@ -175,13 +175,6 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   render () {
-    const showMore = !this.props.atMax ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.questions.length === 10 ? '12' : '6')} onClick={() => this.props.increase(this.state)}>
-      <span className='ql-question-name'> <span className='glyphicon glyphicon-plus' /> Show more</span>
-    </div> : ''
-
-    const showLess = this.props.questions.length > 10 ? <div className={'cursor-pointer ql-list-item col-md-' + (this.props.atMax ? '12' : '6')} onClick={() => this.props.decrease(this.state)}>
-      <span className='ql-question-name'> <span className='glyphicon glyphicon-minus' /> Show less</span>
-    </div> : ''
 
     const isInstructor = Meteor.user().isInstructorAnyCourse()
     const userId = Meteor.userId()
@@ -248,11 +241,6 @@ export class QuestionSidebar extends ControlledForm {
                 </div>)
               })
             }
-            <br />
-            <div className='row border-between'>
-              {showMore}
-              {showLess}
-            </div>
           </div>
         </form>
       </div>)

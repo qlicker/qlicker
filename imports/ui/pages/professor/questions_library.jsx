@@ -78,7 +78,6 @@ class _QuestionsLibrary extends Component {
   updateQuery (childState) {
     this.setState({resetSidebar: false})
     let params = this.state.query
-    params.options.limit = this.state.limit
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
     if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
@@ -97,7 +96,7 @@ class _QuestionsLibrary extends Component {
   }
 
   limitAndUpdate (data) {
-    this.setState({limit: 11}, () => this.updateQuery(data))
+    this.updateQuery(data)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -110,16 +109,7 @@ class _QuestionsLibrary extends Component {
 
   render () {
     let library = this.state.questions || []
-    const atMax = library.length !== this.state.limit
-    if (!atMax) library = library.slice(0, -1)
     const isInstructor = Meteor.user().isInstructorAnyCourse()
-
-    const increase = (childState) => {
-      this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
-    }
-    const decrease = (childState) => {
-      this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
-    }
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
@@ -127,16 +117,16 @@ class _QuestionsLibrary extends Component {
         <div className='row'>
           <div className='col-md-4'>
             <br />
-            {isInstructor
-              ? <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
+            {isInstructor && this.props.library === 'library'
+              ? <div>
+                  <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
+                  <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>Export to File</button>
+                </div>
                 : ''}
             <QuestionSidebar
               questions={library}
               courseId={this.props.courseId}
               onSelect={this.editQuestion}
-              increase={increase}
-              decrease={decrease}
-              atMax={atMax}
               updateQuery={this.limitAndUpdate}
               resetFilter={this.state.resetSidebar} />
           </div>
@@ -175,7 +165,7 @@ export const QuestionsLibrary = createContainer(props => {
   const subscription = 'questions.' + props.library + inCourse
   const handle =  Meteor.subscribe(subscription, props.courseId)
   const courseId = props.courseId
-  console.log(subscription)
+  
   
   let params = {}
   
@@ -223,14 +213,12 @@ export const QuestionsLibrary = createContainer(props => {
       },
       options: {sort:
         { createdAt: -1 },
-        limit: 11
       }
     }
   }
 
   const questions = Questions.find().fetch()
-  console.log(questions)
-  console.log(params)
+
   return {
     query: params,
     questions: questions,
