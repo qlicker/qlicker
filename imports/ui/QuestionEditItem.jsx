@@ -378,31 +378,37 @@ export class QuestionEditItem extends Component {
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
   saveQuestion () {
-    const user = Meteor.user()
-    let question = _.extend({
-      createdAt: new Date(),
-      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
-    }, _.omit(this.state, 'courses'))
 
-    if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
+    Meteor.call('courses.getCourseApproved', this.props.courseId, (err, approved) => {
+      if (err) alertify.error('Cannot get question permissions')
+      else {
+        const user = Meteor.user()
+        let question = _.extend({
+          createdAt: new Date(),
+          approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId) || approved,
+        }, _.omit(this.state, 'courses'))
 
-    if (this.props.sessionId) question.sessionId = this.props.sessionId
-    if (this.props.courseId) question.courseId = this.props.courseId
+        if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
-    // insert (or edit)
-    Meteor.call('questions.insert', question, (error, newQuestion) => {
-      if (error) {
-        alertify.error('Error: ' + error.error)
-      } else {
-        if (!this.state._id) {
-          alertify.success('Question Saved')
-          if (this.props.onNewQuestion) this.props.onNewQuestion(newQuestion._id)
-        } else {
-          alertify.success('Edits Saved')
-        }
-        this.setState(newQuestion)
+        if (this.props.sessionId) question.sessionId = this.props.sessionId
+        if (this.props.courseId) question.courseId = this.props.courseId
+
+        // insert (or edit)
+        Meteor.call('questions.insert', question, (error, newQuestion) => {
+          if (error) {
+            alertify.error('Error: ' + error.error)
+          } else {
+            if (!this.state._id) {
+              alertify.success('Question Saved')
+              if (this.props.onNewQuestion) this.props.onNewQuestion(newQuestion._id)
+            } else {
+              alertify.success('Edits Saved')
+            }
+            this.setState(newQuestion)
+          }
+        })
       }
-    })
+    })  
   } // end saveQuestion
 
   deleteQuestion () {
@@ -670,5 +676,6 @@ QuestionEditItem.propTypes = {
   metadata: PropTypes.bool,
   deleted: PropTypes.func,
   isQuiz: PropTypes.bool,
-  autoSave: PropTypes.bool
+  autoSave: PropTypes.bool,
+  courseId: PropTypes
 }
