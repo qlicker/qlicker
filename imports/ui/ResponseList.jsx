@@ -64,7 +64,7 @@ class _ResponseList extends Component {
           const studentName = student.profile.lastname + ', ' + student.profile.firstname
           index += 1
           return(
-            <div key={response._id} ref={this.props.studentToView}>
+            <div key={response._id} ref={student._id}>
               <ResponseDisplay
                 studentName={studentName} 
                 response={response} 
