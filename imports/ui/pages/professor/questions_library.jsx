@@ -13,6 +13,7 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { QuestionSidebar } from '../../QuestionSidebar'
 
 import { Questions, defaultQuestion } from '../../../api/questions'
+import { URLSearchParams } from 'url';
 
 class _QuestionsLibrary extends Component {
 
@@ -37,7 +38,6 @@ class _QuestionsLibrary extends Component {
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
-    this.limitAndUpdate = _.throttle(this.limitAndUpdate.bind(this), 800)
 
     Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
@@ -140,16 +140,14 @@ class _QuestionsLibrary extends Component {
     } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
+    if(!params.query.courseId) delete params.query.courseId
     
-    console.log(params.query)
-    let newQuestions = _.filter(this.state.questions, params.query)
-    console.log(newQuestions)
-    this.setState({ questions: newQuestions })
-   
-  }
-
-  limitAndUpdate (data) {
-    this.updateQuery(data)
+    if (this.props.library !== 'shared') {
+      params.query.courseId = this.props.courseId
+    }
+    const newQuestions = Questions.find(params.query, params.options).fetch()
+  
+    this.setState({ questions: newQuestions })  
   }
 
   componentWillReceiveProps (nextProps) {
@@ -184,7 +182,7 @@ class _QuestionsLibrary extends Component {
               questions={library}
               courseId={this.props.courseId}
               onSelect={this.editQuestion}
-              updateQuery={this.limitAndUpdate}
+              updateQuery={this.updateQuery}
               resetFilter={this.state.resetSidebar} />
           </div>
           <div className='col-md-8'>
