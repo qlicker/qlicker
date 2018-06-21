@@ -380,13 +380,13 @@ export class QuestionEditItem extends Component {
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
-  saveQuestion (user, approved, isBeingExported) {
+  saveQuestion (user, approved, isBeingShared) {
     
     let keysToOmit = ['courses', 'showExport']
     //If not exporting question
     if (!user) {
       user = Meteor.user()
-      isBeingExported = false
+      isBeingShared = false
       approved = user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
     }
 
@@ -398,7 +398,7 @@ export class QuestionEditItem extends Component {
     let question = _.extend({
       createdAt: new Date(),
       approved:  approved,
-      shared: isBeingExported,
+      shared: isBeingShared,
       owner: user._id,
     }, _.omit(this.state, keysToOmit))
     
@@ -586,7 +586,7 @@ export class QuestionEditItem extends Component {
                   <button
                     className='btn btn-default'
                     onClick={this.toggleExport}>
-                    Export
+                    Share
                   </button>
                 </div>
               </div>

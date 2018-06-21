@@ -97,7 +97,7 @@ export class QuestionSidebar extends ControlledForm {
    * @param {Event} e
    */
   setType (e) {
-    this.setState({ questionType: parseInt(e.target.value) }, () => {
+    this.setState({ questionType: parseInt(e.target.value), courseId: this.props.courseId }, () => {
       this.props.updateQuery(this.state)
     })
   }
@@ -254,9 +254,6 @@ QuestionSidebar.propTypes = {
   questions: PropTypes.array.isRequired,
   onSelect: PropTypes.func,
   clickMessage: PropTypes.string,
-  increase: PropTypes.func,
-  decrease: PropTypes.func,
   updateQuery: PropTypes.func,
-  atMax: PropTypes.bool,
   resetFilter: PropTypes.bool
 }

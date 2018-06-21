@@ -123,6 +123,7 @@ class _QuestionsLibrary extends Component {
   }
 
   updateQuery (childState) {
+    
     this.setState({resetSidebar: false})
     let params = this.state.query
     if (childState.questionType > -1) params.query.type = childState.questionType
@@ -139,7 +140,12 @@ class _QuestionsLibrary extends Component {
     } else params.query = _.omit(params.query, 'creator')
     if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
     else params.query = _.omit(params.query, 'tags.value')
-
+    
+    console.log(params.query)
+    let newQuestions = _.filter(this.state.questions, params.query)
+    console.log(newQuestions)
+    this.setState({ questions: newQuestions })
+   
   }
 
   limitAndUpdate (data) {
