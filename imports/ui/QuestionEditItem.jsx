@@ -650,12 +650,14 @@ export class QuestionEditItem extends Component {
             </div>
           </div>
           : '' }
-        <Editor
-          change={this.onEditorSolutionChange}
-          val={this.state.solution}
-          className='solution-editor'
-          placeholder='Solution'
-        />
+        { this.state.type !== QUESTION_TYPE.SA
+          ? <Editor
+              change={this.onEditorSolutionChange}
+              val={this.state.solution}
+              className='solution-editor'
+              placeholder='Solution' />
+          : ''
+        }
       
       </div>)
   } //  end render
