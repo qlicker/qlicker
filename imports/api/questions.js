@@ -228,7 +228,6 @@ if (Meteor.isServer) {
         sessionId: {$exists: false},
         courseId: courseId,
       }
-      console.log(course)
       if (course.requireApprovedQuestions) {
         query = _.extend({ approved: true }, query)
       }
