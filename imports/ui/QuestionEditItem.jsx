@@ -618,6 +618,7 @@ export class QuestionEditItem extends Component {
             }
 
             </div>
+            
             <div className='col-md-12 question-row'>
               <Editor
                 change={this.onEditorStateChange}
@@ -638,8 +639,11 @@ export class QuestionEditItem extends Component {
           options={radioOptions}
           value={this.state.type}
           onChange={this.changeType} />
-
-        {editorRows}
+      
+        { this.state.type !== QUESTION_TYPE.SA 
+          ? editorRows
+          : ''
+        }
 
         { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
           ? <div className='row' onClick={this.addAnswer}>
@@ -650,15 +654,11 @@ export class QuestionEditItem extends Component {
             </div>
           </div>
           : '' }
-        { this.state.type !== QUESTION_TYPE.SA
-          ? <Editor
-              change={this.onEditorSolutionChange}
-              val={this.state.solution}
-              className='solution-editor'
-              placeholder='Solution' />
-          : ''
-        }
-      
+        <Editor
+          change={this.onEditorSolutionChange}
+          val={this.state.solution}
+          className='solution-editor'
+          placeholder='Solution' />  
       </div>)
   } //  end render
 
