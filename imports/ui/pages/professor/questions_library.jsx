@@ -91,6 +91,8 @@ class _QuestionsLibrary extends Component {
     params.options.limit = this.state.limit
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
+    if (childState.questionApproved !== null) params.query.approved = childState.questionApproved
+    else params.query = _.omit(params.query, 'approved')
     if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
     else params.query = _.omit(params.query, 'courseId')
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
