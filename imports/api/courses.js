@@ -601,12 +601,10 @@ Meteor.methods({
     return Meteor.call('sessions.delete', courseId, sessionId)
   },
 
-  'courses.getCourseApproved' (courseid) {
+  'courses.courseRequiresApprovedQuestions' (courseid) {
     check(courseid, Helpers.MongoID)
     const course = Courses.findOne(courseid)
-    if (!course) throw new Error('Course not found')
-    if (!course.requireApprovedQuestions) course.requireApprovedQuestions = false
-    const approved = course ? course.requireApprovedQuestions : null
+    const approved = course.requireApprovedQuestions ? course.requireApprovedQuestions : false
     return approved
   },
 
