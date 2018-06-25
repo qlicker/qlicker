@@ -223,28 +223,28 @@ if (Meteor.isServer) {
   Meteor.publish('questions.libraryInCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
+      const course = Courses.findOne({ _id: courseId})
+      let query = { 
+        sessionId: {$exists: false},
+        courseId: courseId,
+      }
+      console.log(course)
+      if (course.requireApprovedQuestions) {
+        query = _.extend({ approved: true }, query)
+      }
       if (user.hasRole(ROLES.admin)) {
-        return Questions.find({
-          approved: true,
-          studentCopyOfPublic: {$exists: false},
-          sessionId: {$exists: false},
-          courseId: courseId
-         })
+        query = _.extend({ studentCopyOfPublic: {$exists: false} }, query)
       } else if (user.isInstructor(courseId)) {
-        return Questions.find({
-          owner: this.userId,
-          courseId: courseId,
-          approved: true,
-          sessionId: {$exists: false}
-        })
+        query = _.extend({ owner: this.userId }, query)
       } else {
         // students. By checking for creator, they can see the questions they submitted
         // that have been moved to a course library (which changes the owner w/o copying)
-        return Questions.find({
+        query = {
           '$or': [{creator: this.userId}, {owner: this.userId}],
           courseId: courseId,
-          sessionId: {$exists: false} })
+          sessionId: {$exists: false} }
       }
+      return Questions.find(query)
     } else this.ready()
   })
 
@@ -258,7 +258,11 @@ if (Meteor.isServer) {
 
   Meteor.publish('questions.publicInCourse', function (courseId) {
     if (this.userId) {
-      return Questions.find({ public: true, courseId: courseId })
+      const course = Courses.findOne({ _id: courseId })
+      let query = { courseId: courseId }
+      if (course.requireApprovedQuestions) query = _.extend({ public: true }, query)
+      else query = _.extend({ '$or': [{public: true, approved: true}, {public: false, approved: false}]}, query)
+      return Questions.find(query)
     } else this.ready()
   })
 
