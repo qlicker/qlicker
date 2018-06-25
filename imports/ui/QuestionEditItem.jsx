@@ -501,14 +501,7 @@ export class QuestionEditItem extends Component {
         {this.answerEditor(this.state.options[1])}
       </div>
       editorRows.push(row)
-    } else if (this.state.type === QUESTION_TYPE.SA) {
-      const row = this.state.options.forEach((option, i) => {
-        editorRows.push(<div key={'row_' + i} className='row'>
-          { this.shortAnswerEditor(option) }
-        </div>)
-      })
-      editorRows.push(row)
-    } else {
+    } else if (this.state.type !== QUESTION_TYPE.SA) {
       this.state.options.forEach((option, i) => {
         editorRows.push(<div key={'row_' + i} className='row'>
           { this.answerEditor(option) }
