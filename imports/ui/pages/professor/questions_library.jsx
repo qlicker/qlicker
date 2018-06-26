@@ -146,9 +146,9 @@ class _QuestionsLibrary extends Component {
     if (this.props.library !== 'shared') {
       params.query.courseId = this.props.courseId
     }
-    console.log(this.state.query)
+  
     const query = _.extend(params.query, this.state.query.query)
-    console.log(query)
+  
     const newQuestions = Questions.find(query, params.options).fetch()
   
     this.setState({ questions: newQuestions })  
@@ -162,7 +162,7 @@ class _QuestionsLibrary extends Component {
   }
 
   render () {
-    console.log(this.state.query)
+   
     let library = this.state.questions || []
     const isInstructor = Meteor.user().isInstructorAnyCourse()
 

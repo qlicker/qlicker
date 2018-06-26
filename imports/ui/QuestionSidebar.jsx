@@ -53,7 +53,11 @@ export class QuestionSidebar extends ControlledForm {
       })
       this.forceUpdate()
     })
-    
+
+    Meteor.call('courses.courseRequiresApprovedQuestions',this.props.courseId, (e, approved) => {
+      if (e) alertify.error('Error updating sidebar')
+      else this.setState({ allowApproved: approved })
+    })
   }
 
   /**
@@ -198,8 +202,8 @@ export class QuestionSidebar extends ControlledForm {
                 return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
               })
             }
-          </select>
-          
+          </select>       
+
           <div onClick={this.setApproved} className='btn btn-primary' style={{'width': '100%'}}>
             {this.state.questionApproved ? 'Show all questions' : 'Limit to Approved Questions' }
           </div>
