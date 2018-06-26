@@ -718,5 +718,5 @@ QuestionEditItem.propTypes = {
   deleted: PropTypes.func,
   isQuiz: PropTypes.bool,
   autoSave: PropTypes.bool,
-  courseId: PropTypes
+  courseId: PropTypes.string
 }
