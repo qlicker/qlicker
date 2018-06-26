@@ -708,6 +708,7 @@ Meteor.methods({
   'courses.toggleRequireApprovedQuestions' (courseId) {
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
+    if (!course) throw new Error('Cannot find course')
     const previous = course.requireApprovedQuestions
     Courses.update({ _id: courseId }, {
       $set: {

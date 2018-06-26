@@ -29,7 +29,7 @@ export class QuestionSidebar extends ControlledForm {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
       questionType: -1,
-      questionApproved: null,
+      questionApproved: true,
       tags: []
     }
 
@@ -37,6 +37,7 @@ export class QuestionSidebar extends ControlledForm {
     this.setSearchString = this.setSearchString.bind(this)
     this.setUserSearchString = this.setUserSearchString.bind(this)
     this.setType = this.setType.bind(this)
+    this.setApproved = this.setApproved.bind(this)
     this.setTags = this.setTags.bind(this)
     this.resetFilter = this.resetFilter.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
@@ -103,8 +104,8 @@ export class QuestionSidebar extends ControlledForm {
     })
   }
 
-  setApproved (e) {
-    this.setState({ questionApproved: e.target.value }, () => {
+  setApproved () {
+    this.setState({ questionApproved: !this.state.questionApproved }, () => {
       this.props.updateQuery(this.state)
     })
   }
@@ -199,11 +200,9 @@ export class QuestionSidebar extends ControlledForm {
             }
           </select>
           
-          <select onChange={this.setApproved} className='ql-header-button question-type form-control'>
-            <option key={-1} value={null}>Any Approval</option>
-            <option key={0} value={true}>Approved</option>
-            <option key={1} value={false}>Not Approved</option>
-          </select>
+          <div onClick={this.setApproved} className='btn btn-primary' style={{'width': '100%'}}>
+            {this.state.questionApproved ? 'Limit to Approved Questions' : 'Show all questions'}
+          </div>
 
           <Select
             name='tag-input'

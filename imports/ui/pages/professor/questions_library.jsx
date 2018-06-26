@@ -128,7 +128,7 @@ class _QuestionsLibrary extends Component {
     let params = this.state.query
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
-    if (childState.questionApproved !== null) params.query.approved = childState.questionApproved
+    if (childState.questionApproved) params.query.approved = childState.questionApproved
     else params.query = _.omit(params.query, 'approved')
     if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
     else params.query = _.omit(params.query, 'courseId')
@@ -147,17 +147,16 @@ class _QuestionsLibrary extends Component {
     if (this.props.library !== 'shared') {
       params.query.courseId = this.props.courseId
     }
-    const newQuestions = Questions.find(params.query, params.options).fetch()
+    console.log(this.state.query.query)
+    const query = _.extend(params.query, this.state.query.query)
+    console.log(query)
+    const newQuestions = Questions.find(query, params.options).fetch()
   
     this.setState({ questions: newQuestions })  
   }
 
   componentWillReceiveProps (nextProps) {
     const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
-<<<<<<< HEAD
-  
-=======
->>>>>>> require-approval
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id') })
     } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') }) 
