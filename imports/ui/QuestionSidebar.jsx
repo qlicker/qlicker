@@ -29,7 +29,7 @@ export class QuestionSidebar extends ControlledForm {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
       questionType: -1,
-      questionApproved: true,
+      questionApproved: false,
       tags: []
     }
 
@@ -201,7 +201,7 @@ export class QuestionSidebar extends ControlledForm {
           </select>
           
           <div onClick={this.setApproved} className='btn btn-primary' style={{'width': '100%'}}>
-            {this.state.questionApproved ? 'Limit to Approved Questions' : 'Show all questions'}
+            {this.state.questionApproved ? 'Show all questions' : 'Limit to Approved Questions' }
           </div>
 
           <Select

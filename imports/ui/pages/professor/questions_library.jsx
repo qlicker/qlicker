@@ -28,7 +28,6 @@ class _QuestionsLibrary extends Component {
       questionMap: _(props.questions).indexBy('_id'),
       resetSidebar: false // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
     }
-
     if (this.props.selected) {
       if (this.props.selected in this.state.questionMap) this.state.selected = this.props.selected
     }
@@ -147,7 +146,7 @@ class _QuestionsLibrary extends Component {
     if (this.props.library !== 'shared') {
       params.query.courseId = this.props.courseId
     }
-    console.log(this.state.query.query)
+    console.log(this.state.query)
     const query = _.extend(params.query, this.state.query.query)
     console.log(query)
     const newQuestions = Questions.find(query, params.options).fetch()
@@ -158,11 +157,12 @@ class _QuestionsLibrary extends Component {
   componentWillReceiveProps (nextProps) {
     const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
-      this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') }) 
+      this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query })
+    } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query }) 
   }
 
   render () {
+    console.log(this.state.query)
     let library = this.state.questions || []
     const isInstructor = Meteor.user().isInstructorAnyCourse()
 
