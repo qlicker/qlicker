@@ -128,6 +128,8 @@ class _QuestionsLibrary extends Component {
     let params = this.state.query
     if (childState.questionType > -1) params.query.type = childState.questionType
     else params.query = _.omit(params.query, 'type')
+    if (childState.questionApproved !== null) params.query.approved = childState.questionApproved
+    else params.query = _.omit(params.query, 'approved')
     if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
     else params.query = _.omit(params.query, 'courseId')
     if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
@@ -152,7 +154,10 @@ class _QuestionsLibrary extends Component {
 
   componentWillReceiveProps (nextProps) {
     const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
+<<<<<<< HEAD
   
+=======
+>>>>>>> require-approval
     if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
       this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id') })
     } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id') }) 

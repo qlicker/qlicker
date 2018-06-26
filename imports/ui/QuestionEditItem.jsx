@@ -380,6 +380,7 @@ export class QuestionEditItem extends Component {
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
+<<<<<<< HEAD
   saveQuestion (user, approved, isBeingShared) {
     
     let keysToOmit = ['courses', 'showExport']
@@ -395,6 +396,10 @@ export class QuestionEditItem extends Component {
     }
 
     
+=======
+  saveQuestion () {     
+    const user = Meteor.user()
+>>>>>>> require-approval
     let question = _.extend({
       createdAt: new Date(),
       approved:  approved,
@@ -420,7 +425,7 @@ export class QuestionEditItem extends Component {
         }
         this.setState(newQuestion)
       }
-    })
+    })  
   } // end saveQuestion
 
   deleteQuestion () {
@@ -702,5 +707,6 @@ QuestionEditItem.propTypes = {
   metadata: PropTypes.bool,
   deleted: PropTypes.func,
   isQuiz: PropTypes.bool,
-  autoSave: PropTypes.bool
+  autoSave: PropTypes.bool,
+  courseId: PropTypes
 }
