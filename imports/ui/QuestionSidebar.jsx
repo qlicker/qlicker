@@ -29,6 +29,7 @@ export class QuestionSidebar extends ControlledForm {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
       questionType: -1,
+      questionApproved: null,
       tags: []
     }
 
@@ -98,6 +99,12 @@ export class QuestionSidebar extends ControlledForm {
    */
   setType (e) {
     this.setState({ questionType: parseInt(e.target.value) }, () => {
+      this.props.updateQuery(this.state)
+    })
+  }
+
+  setApproved (e) {
+    this.setState({ questionApproved: e.target.value }, () => {
       this.props.updateQuery(this.state)
     })
   }
@@ -199,6 +206,11 @@ export class QuestionSidebar extends ControlledForm {
             }
           </select>
           
+          <select onChange={this.setApproved} className='ql-header-button question-type form-control'>
+            <option key={-1} value={null}>Any Approval</option>
+            <option key={0} value={true}>Approved</option>
+            <option key={1} value={false}>Not Approved</option>
+          </select>
 
           <Select
             name='tag-input'

@@ -377,7 +377,7 @@ export class QuestionEditItem extends Component {
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
-  saveQuestion () {
+  saveQuestion () {     
     const user = Meteor.user()
     let question = _.extend({
       createdAt: new Date(),
@@ -402,7 +402,7 @@ export class QuestionEditItem extends Component {
         }
         this.setState(newQuestion)
       }
-    })
+    })  
   } // end saveQuestion
 
   deleteQuestion () {
@@ -665,5 +665,6 @@ QuestionEditItem.propTypes = {
   metadata: PropTypes.bool,
   deleted: PropTypes.func,
   isQuiz: PropTypes.bool,
-  autoSave: PropTypes.bool
+  autoSave: PropTypes.bool,
+  courseId: PropTypes
 }

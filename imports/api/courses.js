@@ -30,6 +30,7 @@ const coursePattern = {
   createdAt: Date,
   requireVerified: Match.Maybe(Boolean),
   allowStudentQuestions: Match.Maybe(Boolean),
+  requireApprovedQuestions: Match.Maybe(Boolean),
   groupCategories: Match.Maybe([{
     categoryNumber: Match.Maybe(Helpers.Number),
     categoryName: Match.Maybe(Helpers.NEString),
@@ -600,6 +601,13 @@ Meteor.methods({
     return Meteor.call('sessions.delete', courseId, sessionId)
   },
 
+  'courses.courseRequiresApprovedQuestions' (courseid) {
+    check(courseid, Helpers.MongoID)
+    const course = Courses.findOne(courseid)
+    const approved = course.requireApprovedQuestions ? course.requireApprovedQuestions : false
+    return approved
+  },
+
   /**
    * get tag object for a specific courseid for react multi select component
    * @param {MongoID} courseId
@@ -687,10 +695,27 @@ Meteor.methods({
     const previous = course.allowStudentQuestions
     Courses.update({ _id: courseId }, {
       $set: {
-        allowStudentQuestions: !previous
+        allowStudentQuestions: !previous,
+        requireApprovedQuestions: true
       }
     })
   },
+
+  /**
+   * generates and sets a new enrollment code for the course
+   * @param {MongoID} courseId
+   */
+  'courses.toggleRequireApprovedQuestions' (courseId) {
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    const previous = course.requireApprovedQuestions
+    Courses.update({ _id: courseId }, {
+      $set: {
+        requireApprovedQuestions: !previous
+      }
+    })
+  },
+
   /**
    * Creates a new category of groups
    * @param {MongoID} courseId
@@ -716,6 +741,8 @@ Meteor.methods({
       }
     })
   },
+
+  
   /**
    * Adds a given number of groups to a category (creates the category if it doesn't exist)
    * @param {MongoID} courseId

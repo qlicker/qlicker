@@ -47,6 +47,7 @@ class _ManageCourse extends Component {
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
+    this.toggleRequireApprovedQuestions = this.toggleRequireApprovedQuestions.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -139,6 +140,13 @@ class _ManageCourse extends Component {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
       if (error) return alertify.error('Error allowing/refusing student questions ' + error.error)
       alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
+    })
+  }
+
+  toggleRequireApprovedQuestions () {
+    Meteor.call('courses.toggleRequireApprovedQuestions', this.props.course._id, (error) => {
+      if (error) return alertify.error('Error allowing/refusing question approval ' + error.error)
+      alertify.success('Students ' + (this.props.course.requireApprovedQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
 
@@ -298,6 +306,17 @@ class _ManageCourse extends Component {
                       {this.props.course.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
                     </div>
                   </div>
+                  {
+                    this.props.course.allowStudentQuestions
+                    ? <div className='btn-group btn-group-justified details-button-group'>
+                        <div className='btn btn-default' onClick={this.toggleRequireApprovedQuestions}>
+                        {
+                          this.props.course.requireApprovedQuestions ? 'Allow All Questions' : 'Require Approval'
+                        }
+                        </div>
+                      </div>
+                    : ''
+                  }
                 </div> : ''
                 }
                 <div className='ql-course-details'>
