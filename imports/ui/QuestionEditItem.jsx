@@ -538,15 +538,14 @@ export class QuestionEditItem extends Component {
         {this.answerEditor(this.state.question.options[1])}
       </div>
       editorRows.push(row)
-    } else if (this.state.question.type === QUESTION_TYPE.SA) {
-      const row = this.state.question.options.forEach((option, i) => {
+
+    } else if (this.state.type !== QUESTION_TYPE.SA) {
+      this.state.options.forEach((option, i) => {
         editorRows.push(<div key={'row_' + i} className='row'>
-          { this.shortAnswerEditor(option) }
+          { this.answerEditor(option) }
         </div>)
       })
-      editorRows.push(row)
-    } else {
-      this.state.question.options.forEach((option, i) => {
+    }
         editorRows.push(<div key={'row_' + i} className='row'>
           { this.answerEditor(option) }
         </div>)
@@ -665,6 +664,7 @@ export class QuestionEditItem extends Component {
             }
 
             </div>
+            
             <div className='col-md-12 question-row'>
               <Editor
                 change={this.onEditorStateChange}
@@ -685,8 +685,11 @@ export class QuestionEditItem extends Component {
           options={radioOptions}
           value={this.state.question.type}
           onChange={this.changeType} />
-
-        {editorRows}
+      
+        { this.state.type !== QUESTION_TYPE.SA 
+          ? editorRows
+          : ''
+        }
 
         { this.state.question.type === QUESTION_TYPE.MC || this.state.question.type === QUESTION_TYPE.MS
           ? <div className='row' onClick={this.addAnswer}>
@@ -701,9 +704,7 @@ export class QuestionEditItem extends Component {
           change={this.onEditorSolutionChange}
           val={this.state.question.solution}
           className='solution-editor'
-          placeholder='Solution'
-        />
-      
+          placeholder='Solution' />  
       </div>)
   } //  end render
 
