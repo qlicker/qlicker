@@ -545,11 +545,10 @@ export class QuestionEditItem extends Component {
           { this.answerEditor(option) }
         </div>)
       })
-    }
+    } else {
         editorRows.push(<div key={'row_' + i} className='row'>
           { this.answerEditor(option) }
         </div>)
-      })
     }
     let user = Meteor.user()
     const selectOnly = (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
