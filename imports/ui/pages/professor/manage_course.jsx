@@ -139,14 +139,14 @@ class _ManageCourse extends Component {
   toggleAllowStudentQuestions () {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
       if (error) return alertify.error('Error allowing/refusing student questions ' + error.error)
-      alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
+      else alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
 
   toggleRequireApprovedQuestions () {
     Meteor.call('courses.toggleRequireApprovedQuestions', this.props.course._id, (error) => {
       if (error) return alertify.error('Error allowing/refusing question approval ' + error.error)
-      alertify.success('Students ' + (this.props.course.requireApprovedQuestions ? 'can' : 'cannot') + ' submit questions')
+      else alertify.success('Students ' + (this.props.course.requireApprovedQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
 

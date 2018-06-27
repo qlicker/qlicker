@@ -148,9 +148,9 @@ class _QuestionsLibrary extends Component {
     }
   
     const query = _.extend(params.query, this.state.query.query)
-  
+    
+   
     const newQuestions = Questions.find(query, params.options).fetch()
-  
     this.setState({ questions: newQuestions })  
   }
 
@@ -164,6 +164,7 @@ class _QuestionsLibrary extends Component {
   render () {
    
     let library = this.state.questions || []
+
     const isInstructor = Meteor.user().isInstructorAnyCourse()
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>

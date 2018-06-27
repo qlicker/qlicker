@@ -52,9 +52,10 @@ export class QuestionEditItem extends Component {
     this.setMaxAttempts = this.setMaxAttempts.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
 
+    //Set state
+    this.state = {}
     // if editing pre-exsiting question
     if (this.props.question) {
-      this.state = {}
       this.state.question = this.props.question
       this.state.owner = Meteor.userId()
       this.state.showExport = false
@@ -389,9 +390,11 @@ export class QuestionEditItem extends Component {
   togglePublic () {
     let question = this.state.question
     question.public = !this.state.question.public
-    this.setState({ question: question }, () => {
-      this.saveQuestion()
-    })
+    if (this.state) {
+      this.setState({ question: question }, () => {
+        this.saveQuestion()
+      })
+    }
   }
 
   /**
@@ -411,14 +414,12 @@ export class QuestionEditItem extends Component {
       keysToOmit.push(['owner', 'shared'])
     }
 
-    
     let question = _.extend({
       createdAt: new Date(),
       approved:  approved,
       shared: isBeingShared,
       owner: user._id,
     }, _.omit(this.state.question, keysToOmit))
-    
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
 
     if (this.props.sessionId) question.sessionId = this.props.sessionId

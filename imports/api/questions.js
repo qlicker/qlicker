@@ -300,19 +300,16 @@ Meteor.methods({
       return Meteor.call('questions.update', question)
     }
 
+    const course = Courses.findOne({_id: question.courseId })
+
     question.createdAt = new Date()
-    question.public = false
+    question.public = !course.requireApprovedQuestions
     question.creator = Meteor.userId()
 
     check(question, questionPattern)
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (user.hasRole(ROLES.student)) {
-      // if student, can only add question to enrolled courses
-      const courses = Courses.find({ _id: { $in: (user.profile.courses || []) } }).fetch()
-      const courseIds = _(courses).pluck('_id')
-      if (question.courseId && courseIds.indexOf(question.courseId) === -1) throw Error('Can\'t add question to this course')
-    }
+    
     check(question, questionPattern)
     const id = Questions.insert(question)
     return Questions.findOne({ _id: id })

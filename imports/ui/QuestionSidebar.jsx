@@ -56,7 +56,7 @@ export class QuestionSidebar extends ControlledForm {
 
     Meteor.call('courses.courseRequiresApprovedQuestions',this.props.courseId, (e, approved) => {
       if (e) alertify.error('Error updating sidebar')
-      else this.setState({ allowApproved: approved })
+      else this.state.allowApproved = approved
     })
   }
 
@@ -187,7 +187,7 @@ export class QuestionSidebar extends ControlledForm {
   }
 
   render () {
-
+    
     const isInstructor = Meteor.user().isInstructorAnyCourse()
     const userId = Meteor.userId()
     return (

@@ -13,6 +13,7 @@ import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
 
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
+import { defaultQuestion } from '../../../api/questions'
 import { SessionListItem } from '../../SessionListItem'
 
 class _Course extends Component {
@@ -20,8 +21,16 @@ class _Course extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { submittingQuestion: false,
-      expandedSessionlist: false }
+    this.state = { 
+      submittingQuestion: false,
+      expandedSessionlist: false 
+    }
+
+    Meteor.call('courses.courseRequiresApprovedQuestions', this.props.courseId, (err, result) => {
+      if (err) alertify.error('Error getting course properties')
+      else this.state.allowApproved = result
+    })
+
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
   }
 
@@ -67,6 +76,14 @@ class _Course extends Component {
     const toggleSubmittingQuestion = () => {
       this.setState({ submittingQuestion: !this.state.submittingQuestion })
     }
+
+    const blankQuestion = _.extend({
+      owner: Meteor.userId(),
+      approved: false,
+      courseId: this.props.courseId,
+      public: !this.state.allowApproved
+    }, _.omit(defaultQuestion, 'public'))
+
     return (
       <div className='container ql-manage-course'>
         <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
@@ -80,7 +97,7 @@ class _Course extends Component {
         <br />
 
         { this.state.submittingQuestion
-          ? <CreateQuestionModal courseId={this.props.course._id} semester={this.props.course.semester} done={toggleSubmittingQuestion} />
+          ? <CreateQuestionModal question={blankQuestion} courseId={this.props.course._id} semester={this.props.course.semester} done={toggleSubmittingQuestion} />
           : '' }
 
       </div>)
