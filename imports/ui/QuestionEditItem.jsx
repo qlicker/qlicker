@@ -313,18 +313,18 @@ export class QuestionEditItem extends Component {
   addAnswer (_, e, wysiwyg = true, done = null) {
     const answerKey = this.answerOrder[this.currentAnswer]
     if (this.currentAnswer >= this.answerOrder.length) return
-    this.setState({
-      options: this.state.question.options.concat([{
-        correct: this.currentAnswer === 0,
-        answer: answerKey,
-        wysiwyg: wysiwyg
-      }])
-    }, () => {
+    let question = this.state.question
+    question.options = this.state.question.options.concat([{
+      correct: this.currentAnswer === 0,
+      answer: answerKey,
+      wysiwyg: wysiwyg
+    }])
+    this.setState({ question: question }, () => {
       this.currentAnswer++
 
       if (wysiwyg) this.setOptionState(answerKey, '', '')
       else this.setOptionState(answerKey, answerKey, answerKey)
-
+      
       if (done) done()
     })
   } // end addAnswer
@@ -539,16 +539,12 @@ export class QuestionEditItem extends Component {
       </div>
       editorRows.push(row)
 
-    } else if (this.state.type !== QUESTION_TYPE.SA) {
-      this.state.options.forEach((option, i) => {
+    } else if (this.state.question.type !== QUESTION_TYPE.SA) {
+      this.state.question.options.forEach((option, i) => {
         editorRows.push(<div key={'row_' + i} className='row'>
           { this.answerEditor(option) }
         </div>)
       })
-    } else {
-        editorRows.push(<div key={'row_' + i} className='row'>
-          { this.answerEditor(option) }
-        </div>)
     }
     let user = Meteor.user()
     const selectOnly = (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
