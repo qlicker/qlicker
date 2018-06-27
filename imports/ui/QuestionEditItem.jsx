@@ -506,7 +506,7 @@ export class QuestionEditItem extends Component {
       </div>)
     }
 
-    return (<div className={'small-editor-wrapper' + (a.wysiwyg ? 'col-md-12' : 'col-md-6')} key={'answer_' + a.answer}>
+    return (<div className={'small-editor-wrapper ' + (a.wysiwyg ? 'col-md-12' : 'col-md-6')} key={'answer_' + a.answer}>
       { item }
     </div>)
   } // end answerEditor
