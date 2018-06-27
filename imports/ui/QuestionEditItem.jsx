@@ -121,7 +121,7 @@ export class QuestionEditItem extends Component {
     // if (!this.props.courseId && !this.props.question.courseId) {
     if (user.isInstructorAnyCourse()) {
       Meteor.call('courses.getCourseTags', (e, d) => {
-        this.setState({courses: d})
+        this.state.courses = d
       })
     }
   } // end constructor
@@ -221,9 +221,11 @@ export class QuestionEditItem extends Component {
     })
     let question = this.state.question
     question.tags = _tags
-    this.setState({ question: question }, () => {
-      this._DB_saveQuestion()
-    })
+    if (this.state.question) {
+      this.setState({ question: question }, () => {
+        this._DB_saveQuestion()
+      })
+    }  
   }
 
   /**
