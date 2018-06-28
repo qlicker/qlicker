@@ -36,6 +36,7 @@ class _QuestionsLibrary extends Component {
     this.importQuestions = this.importQuestions.bind(this)
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
+    this.deleteAllQuestions = this.deleteAllQuestions.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
 
     Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
@@ -121,6 +122,18 @@ class _QuestionsLibrary extends Component {
     this.setState({ selected: null, resetSidebar: false })
   }
 
+  deleteAllQuestions () {
+    if (confirm('Are you sure?')) {
+      this.state.questions.forEach(question => {
+        Meteor.call('questions.delete', question._id, (err) => {
+          if (err) alertify.error('Error deleting questions')
+          else alertify.success('All questions deleted')
+        })
+      })
+      this.setState({ selected: null, resetSidebar: false })
+    }
+  }
+
   updateQuery (childState) {
     
     this.setState({resetSidebar: false})
@@ -183,6 +196,7 @@ class _QuestionsLibrary extends Component {
                   </label>
                 </div>
                 : ''}
+            <button className='btn btn-primary' style={{'width':'100%'}} onClick={this.deleteAllQuestions}>Clear library</button>
             <QuestionSidebar
               questions={library}
               courseId={this.props.courseId}
