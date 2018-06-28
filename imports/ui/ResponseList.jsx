@@ -54,17 +54,17 @@ class _ResponseList extends Component {
     const responses = this.props.responses
     const students = this.props.students
     let index = 0
-
+    console.log(this.props.students)
     return (
       <div className='response-list'>
       { 
-        responses.map((response) => {
+        students.map((student) => {
           const mark = this.props.marks[index]
-          const student = students[index]
+          const response = responses[index]
           const studentName = student.profile.lastname + ', ' + student.profile.firstname
           index += 1
           return(
-            <div key={response._id} ref={student._id}>
+            <div key={student._id} ref={student._id}>
               <ResponseDisplay
                 studentName={studentName} 
                 response={response} 

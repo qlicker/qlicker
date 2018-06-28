@@ -23,21 +23,24 @@ export class ResponseDisplay extends Component {
     const setOutOf = (e) => this.setState({ outOf: e.target.value})
     const setFeedback = (e) => this.setState({ feedback: e.target.value })
 
-    const response = this.props.response
+    const response = this.props.response ? this.props.response : null
     
     return(
       <div className='response-card-container'>
         <h3 className='name'>{this.props.studentName}</h3>
         <div className='content'>
           {
-            this.props.questionType == 2
-            ? <div className='answer'>
-                <div className='textField'>
-                  {WysiwygHelper.htmlDiv(response.answerWysiwyg)}
+            response
+            ? this.props.questionType == 2
+              ? <div className='answer'>
+                  <div className='textField'>
+                    {WysiwygHelper.htmlDiv(response.answerWysiwyg)}
+                  </div>
                 </div>
-              </div>
-            : <div className='answer'>{response.answer}</div>
-          } 
+              : <div className='answer'>{response.answer}</div>
+            : ''
+          }
+          
           <div className='grade'>
             <input value={this.state.points} type='text' onChange={setPoints} placeholder='Mark' />
             <div>Out Of</div>
