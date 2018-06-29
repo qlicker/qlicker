@@ -204,9 +204,12 @@ export class QuestionSidebar extends ControlledForm {
             }
           </select>       
 
-          <div onClick={this.setApproved} className='btn btn-primary' style={{'width': '100%'}}>
-            {this.state.questionApproved ? 'Show all questions' : 'Limit to Approved Questions' }
+          <div className='btn btn-primary' style={{'display':'flex'}} onClick={this.setApproved}>
+            <span><input className='checkbox' type='checkbox' checked={this.state.questionApproved}/></span>
+            <span>Approved Only</span>
           </div>
+
+          
 
           <Select
             name='tag-input'
