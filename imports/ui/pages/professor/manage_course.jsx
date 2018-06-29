@@ -311,7 +311,7 @@ class _ManageCourse extends Component {
                     ? <div className='btn-group btn-group-justified details-button-group'>
                         <div className='btn btn-default' onClick={this.toggleRequireApprovedQuestions}>
                         {
-                          this.props.course.requireApprovedQuestions ? 'Allow All Questions' : 'Require Approval'
+                          this.props.course.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approval'
                         }
                         </div>
                       </div>

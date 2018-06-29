@@ -41,7 +41,12 @@ class _QuestionsLibrary extends Component {
 
     Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
-      else this.setState({ courseCode: c })
+      else this.state.courseCode = c
+    })
+
+    Meteor.call('courses.hasAllowedStudentQuestions', this.props.courseId, (e, allowed) => {
+      if (e) alertify.error('Cannot get course permissions')
+      else this.state.allowedStudentQuestions = allowed
     })
   }
 
@@ -181,12 +186,13 @@ class _QuestionsLibrary extends Component {
     const isInstructor = Meteor.user().isInstructorAnyCourse()
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    
     return (
       <div>
         <div className='row'>
           <div className='col-md-4'>
             <br />
-            {isInstructor && this.props.library === 'library'
+            {(isInstructor || this.state.allowedStudentQuestions) && this.props.library === 'library'
               ? <div className='ql-questions-library ql-sidebar-buttons'>
                   <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
                   <button className='btn btn-primary' onClick={this.exportQuestions}>Export to File</button>
@@ -208,7 +214,7 @@ class _QuestionsLibrary extends Component {
             { this.state.selected
             ? <div>
               <div id='ckeditor-toolbar' />
-              {isInstructor
+              {isInstructor || this.state.allowedStudentQuestions
                 ? <div className='ql-edit-item-container'>
                   <QuestionEditItem
                     question={this.state.questionMap[this.state.selected]}

@@ -701,6 +701,12 @@ Meteor.methods({
     })
   },
 
+  'courses.hasAllowedStudentQuestions' (courseId) {
+    const course = Courses.findOne(courseId)
+    if (!course) throw new Error('Course not found')
+    return course.allowStudentQuestions
+  },
+
   /**
    * generates and sets a new enrollment code for the course
    * @param {MongoID} courseId
