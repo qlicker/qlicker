@@ -44,6 +44,7 @@ export class QuestionEditItem extends Component {
     this.changeType = this.changeType.bind(this)
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
+    this.togglePrivate = this.togglePrivate.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.toggleExport = this.toggleExport.bind(this)
@@ -119,12 +120,18 @@ export class QuestionEditItem extends Component {
       } else {}
     }
 
-    // if (!this.props.courseId && !this.props.question.courseId) {
     if (user.isInstructorAnyCourse()) {
       Meteor.call('courses.getCourseTags', (e, d) => {
+        if (e) alertify.error('Cannot get course tags')
         this.state.courses = d
       })
     }
+   
+    Meteor.call('courses.courseRequiresApprovedQuestions', this.props.courseId, (e, approved) => {
+      if (e) alertify.error('Cannot get course permissions')
+      else this.state.requireApprovedQuestions = approved
+    })
+   
   } // end constructor
 
    /**
@@ -390,6 +397,18 @@ export class QuestionEditItem extends Component {
   togglePublic () {
     let question = this.state.question
     question.public = !this.state.question.public
+    if (question.public) question.private = false
+    if (this.state) {
+      this.setState({ question: question }, () => {
+        this.saveQuestion()
+      })
+    }
+  }
+
+  togglePrivate () {
+    let question = this.state.question
+    question.private = !this.state.question.private
+    if (question.private) question.public = false
     if (this.state) {
       this.setState({ question: question }, () => {
         this.saveQuestion()
@@ -559,8 +578,8 @@ export class QuestionEditItem extends Component {
       { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
     ]
 
-    const strMakePublic = this.state.question.public ? 'Make Private' : 'Make Public'
-   
+    
+    console.log(this.state.requireApprovedQuestions)
     return (
       <div className='ql-question-edit-item'>
         {
@@ -571,39 +590,51 @@ export class QuestionEditItem extends Component {
         <div className='header'>
           { this.props.metadata
             ? <div className='row metadata-row'>
-              <div className='col-md-10'>
-                <div className='btn-group'>
-                  {this.state.question._id
-                    ? <button className='btn btn-default'
-                      onClick={this.duplicateQuestion}
-                      data-toggle='tooltip'
-                      data-placement='top'
-                      title='Create a copy of this question'>
-                      Duplicate
-                    </button> : ''
-                  }
-                  <button
-                    className='btn btn-default'
-                    onClick={this.deleteQuestion}>
-                    Delete
-                  </button>
-                  <button
-                    className='btn btn-default'
-                    onClick={this.togglePublic}
-                    data-toggle='tooltip'
-                    data-placement='top'
-                    title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
-                    {strMakePublic}
-                  </button>
-                  <button
-                    className='btn btn-default'
-                    onClick={this.toggleExport}>
-                    Share
-                  </button>
+                <div className='col-md-10'>
+                  <div className='btn-group'>
+                    {this.state.question._id
+                      ? <button className='btn btn-default'
+                        onClick={this.duplicateQuestion}
+                        data-toggle='tooltip'
+                        data-placement='top'
+                        title='Create a copy of this question'>
+                        Duplicate
+                      </button> : ''
+                    }
+                    <button
+                      className='btn btn-default'
+                      onClick={this.deleteQuestion}>
+                      Delete
+                    </button>
+                    <button
+                      className='btn btn-default'
+                      onClick={this.toggleExport}>
+                      Share
+                    </button>
+                    
+                    { !user.isInstructorAnyCourse() && this.state.requireApprovedQuestions 
+                      ? <button
+                          className='btn btn-default'
+                          onClick={this.togglePrivate}
+                          data-toggle='tooltip'
+                          data-placement='top'
+                          title={this.state.question.private ? 'Hide question from submissions' : ''}>
+                          <input type='checkbox' checked={this.state.question.private} readOnly style={{'height':'1em'}} />
+                          Private
+                        </button>
+                      : <button
+                          className='btn btn-default'
+                          onClick={this.togglePublic}
+                          data-toggle='tooltip'
+                          data-placement='top'
+                          title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
+                          <input type='checkbox' checked={this.state.question.public} readOnly />
+                          Public
+                        </button>
+                    }
+                  </div>
                 </div>
               </div>
-
-            </div>
             : '' }
           { this.props.sessionId
             ? <div className='row session-options'>
@@ -710,12 +741,12 @@ export class QuestionEditItem extends Component {
 
 QuestionEditItem.propTypes = {
   done: PropTypes.func,
-  question: PropTypes.object,
+  question: PropTypes.object.isRequired,
   questionNumber: PropTypes.number,
   onNewQuestion: PropTypes.func,
   metadata: PropTypes.bool,
   deleted: PropTypes.func,
   isQuiz: PropTypes.bool,
   autoSave: PropTypes.bool,
-  courseId: PropTypes.string
+  courseId: PropTypes.string.isRequired
 }

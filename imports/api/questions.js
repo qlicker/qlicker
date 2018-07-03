@@ -236,7 +236,8 @@ if (Meteor.isServer) {
       return Questions.find({
         sessionId: {$exists: false},
         approved: false,
-        courseId: courseId
+        courseId: courseId,
+        '$or': [{private: false}, {private: {$exists: false}}]
       })
     } else this.ready()
   })

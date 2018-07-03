@@ -46,7 +46,7 @@ class _QuestionsNav extends Component {
 
     return(
       <div className='container ql-questions-library'>
-        <h1>Questions for {this.state.courseCode}</h1>
+        <h1>Questions for {this.state.courseCode || 'Course'}</h1>
         <ul className='nav nav-pills'>
           <li role='presentation' className={active === 'library' ? 'active' : ''}>
             <a role='button' onClick={() => this.setState({ selected: 'library' })}>{isInstructor ? 'Course Library' : 'My Library'}</a>

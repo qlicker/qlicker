@@ -257,6 +257,7 @@ class _QuestionsLibrary extends Component {
                       <div id='ckeditor-toolbar' />
                       <div className='ql-edit-item-container'>
                         <QuestionEditItem
+                          courseId={this.props.courseId}
                           question={this.state.questionMap[this.state.selected]}
                           deleted={this.questionDeleted}
                           metadata autoSave />
@@ -347,6 +348,7 @@ export const QuestionsLibrary = createContainer(props => {
         courseId: courseId,
         sessionId: {$exists: false},
         approved: false,
+        '$or': [{private: false}, {private: {$exists: false}}]
       },
       options: {sort:
         { createdAt: -1 },   
