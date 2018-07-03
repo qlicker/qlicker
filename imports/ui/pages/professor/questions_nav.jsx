@@ -19,7 +19,12 @@ class _QuestionsNav extends Component {
 
     Meteor.call('courses.getCourseCode', props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
-      else this.setState({ courseCode: c })
+      else this.state.courseCode = c
+    })
+
+    Meteor.call('courses.courseRequiresApprovedQuestions', props.courseId, (e, c) => {
+      if (e) alertify.error('Cannot get course permissions')
+      else this.state.requireApprovedQuestions = c
     })
   }
 
@@ -27,6 +32,11 @@ class _QuestionsNav extends Component {
     Meteor.call('courses.getCourseCode', props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
       else this.setState({ courseCode: c })
+    })
+
+    Meteor.call('courses.courseRequiresApprovedQuestions', props.courseId, (e, c) => {
+      if (e) alertify.error('Cannot get course permissions')
+      else this.setState({ requireApprovedQuestions: c })
     })
   }
 
@@ -39,10 +49,10 @@ class _QuestionsNav extends Component {
         <h1>Questions for {this.state.courseCode}</h1>
         <ul className='nav nav-pills'>
           <li role='presentation' className={active === 'library' ? 'active' : ''}>
-            <a role='button' onClick={() => this.setState({ selected: 'library' })}>My Questions</a>
+            <a role='button' onClick={() => this.setState({ selected: 'library' })}>{isInstructor ? 'Course Library' : 'My Library'}</a>
           </li>
           <li role='presentation' className={active === 'public' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'public' })}>Public Questions</a></li>
-          { isInstructor
+          { isInstructor && this.state.requireApprovedQuestions
             ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'student' })}>Student Submissions</a></li>
             : '' }
           { isInstructor 

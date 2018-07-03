@@ -138,15 +138,15 @@ class _ManageCourse extends Component {
 
   toggleAllowStudentQuestions () {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
-      if (error) return alertify.error('Error allowing/refusing student questions ' + error.error)
+      if (error) alertify.error('Error allowing/refusing student questions ' + error.error)
       else alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
   }
 
   toggleRequireApprovedQuestions () {
     Meteor.call('courses.toggleRequireApprovedQuestions', this.props.course._id, (error) => {
-      if (error) return alertify.error('Error allowing/refusing question approval ' + error.error)
-      else alertify.success('Students ' + (this.props.course.requireApprovedQuestions ? 'can' : 'cannot') + ' submit questions')
+      if (error) alertify.error('Error allowing/refusing question approval ' + error.error)
+      else alertify.success('Students ' + (this.props.course.requireApprovedQuestions ? 'can' : 'cannot') + ' view unapproved questions')
     })
   }
 
@@ -311,7 +311,7 @@ class _ManageCourse extends Component {
                     ? <div className='btn-group btn-group-justified details-button-group'>
                         <div className='btn btn-default' onClick={this.toggleRequireApprovedQuestions}>
                         {
-                          this.props.course.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approval'
+                          this.props.course.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
                         }
                         </div>
                       </div>

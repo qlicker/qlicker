@@ -38,6 +38,7 @@ const questionPattern = {
   courseId: Match.Maybe(Helpers.MongoID),
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
+  private: Match.Maybe(Boolean),
   shared: Match.Maybe(Boolean),
   solution: Match.Maybe(String), // solution is the full guide to answering the question
   solution_plainText: Match.Maybe(String), // plain text version of solution
@@ -196,41 +197,13 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // question library for a user (student can see those they own or created)
-  Meteor.publish('questions.library', function () {
-    if (this.userId) {
-      const user = Meteor.users.findOne({_id: this.userId})
-      if (user.hasRole(ROLES.admin)) {
-        return Questions.find({
-          approved: true,
-          studentCopyOfPublic: {$exists: false},
-          sessionId: {$exists: false} })
-      } else if (user.isInstructorAnyCourse()) {
-        const courses = _.pluck(Courses.find({instructors: this.userId}).fetch(), '_id')
-        return Questions.find({
-          '$or': [{owner: this.userId}, {courseId: { '$in': courses }, approved: true}],
-          studentCopyOfPublic: {$exists: false},
-          sessionId: {$exists: false} })
-      } else {
-        // students. By checking for creator, they can see the questions they submitted
-        // that have been moved to a course library (which changes the owner w/o copying)
-        return Questions.find({
-          '$or': [{creator: this.userId}, {owner: this.userId}],
-          sessionId: {$exists: false} })
-      }
-    } else this.ready()
-  })
-
-  Meteor.publish('questions.libraryInCourse', function (courseId) {
+  Meteor.publish('questions.library', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       const course = Courses.findOne({ _id: courseId})
       let query = { 
         sessionId: {$exists: false},
         courseId: courseId,
-      }
-      if (course.requireApprovedQuestions) {
-        query = _.extend({ approved: true }, query)
       }
       if (user.hasRole(ROLES.admin)) {
         query = _.extend({ studentCopyOfPublic: {$exists: false} }, query)
@@ -248,20 +221,11 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  // truly public questions
-  Meteor.publish('questions.public', function () {
-    if (this.userId) {   
-      let cArr = _(Courses.find({ students: this.userId }).fetch()).pluck('_id').concat(_(Courses.find({ instructors: this.userId }).fetch()).pluck('_id'))
-      return Questions.find({ public: true, courseId: {$in: cArr} })
-    } else this.ready()
-  })
-
-  Meteor.publish('questions.publicInCourse', function (courseId) {
+  Meteor.publish('questions.public', function (courseId) {
     if (this.userId) {
       const course = Courses.findOne({ _id: courseId })
-      let query = { courseId: courseId }
-      if (course.requireApprovedQuestions) query = _.extend({ public: true }, query)
-      else query = _.extend({ '$or': [{public: true, approved: true}, {public: false, approved: false}]}, query)
+      let query = { courseId: courseId, public: true }
+      if (course.requireApprovedQuestions) query = _.extend({ approved: true }, query)
       return Questions.find(query)
     } else this.ready()
   })

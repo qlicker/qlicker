@@ -13,7 +13,6 @@ import { QuestionDisplay } from '../../QuestionDisplay'
 import { QuestionSidebar } from '../../QuestionSidebar'
 
 import { Questions, defaultQuestion } from '../../../api/questions'
-import { URLSearchParams } from 'url';
 
 class _QuestionsLibrary extends Component {
 
@@ -38,6 +37,9 @@ class _QuestionsLibrary extends Component {
     this.questionDeleted = this.questionDeleted.bind(this)
     this.deleteAllQuestions = this.deleteAllQuestions.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
+    this.approveQuestion = this.approveQuestion.bind(this)
+    this.deleteQuestion = this.deleteQuestion.bind(this)
+    this.makeQuestionPublic = this.makeQuestionPublic.bind(this)
 
     Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
@@ -105,7 +107,7 @@ class _QuestionsLibrary extends Component {
       })
       const blankQuestion = _.extend({
         owner: Meteor.userId(),
-        approved: true,
+        approved: Meteor.user().isInstructor(this.props.courseId),
         courseId: this.props.courseId,
         tags: tags
       }, defaultQuestion)
@@ -121,6 +123,43 @@ class _QuestionsLibrary extends Component {
         this.setState({ selected: questionId })
       })
     }
+  }
+
+  approveQuestion (questionId) {
+    let question = this.state.questionMap[questionId]
+    question.approved = true
+    question.public = false
+    question.owner = Meteor.userId()
+    question.createdAt = new Date()
+    Meteor.call('questions.update', question, (error, newQuestionId) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question moved to library')
+    })
+    this.selectQuestion(null)
+  }
+
+  deleteQuestion (questionId) {
+    Meteor.call('questions.delete', questionId, (error) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question Deleted')
+      this.questionDeleted()
+    })
+  }
+
+  makeQuestionPublic (questionId) {
+   // by making it public, you take over ownership, so student cannot delete it anymore
+   // it will also show in the library for any instructor of the course
+    let question = this.state.questionMap[questionId]
+    question.approved = true // this makes it editable by any instructor of the course
+
+    question.public = true
+    question.owner = Meteor.userId()
+    question.createdAt = new Date()
+    Meteor.call('questions.update', question, (error, newQuestionId) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question moved to public area')
+    })
+    this.selectQuestion(null)
   }
 
   questionDeleted () {
@@ -186,7 +225,7 @@ class _QuestionsLibrary extends Component {
     const isInstructor = Meteor.user().isInstructorAnyCourse()
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    
+   
     return (
       <div>
         <div className='row'>
@@ -213,22 +252,53 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-8'>
             { this.state.selected
             ? <div>
-              <div id='ckeditor-toolbar' />
-              {isInstructor || this.state.allowedStudentQuestions
-                ? <div className='ql-edit-item-container'>
-                  <QuestionEditItem
-                    question={this.state.questionMap[this.state.selected]}
-                    deleted={this.questionDeleted}
-                    metadata autoSave />
-                </div> : ''
-              }
-              <div className='ql-preview-item-container'>
-                {this.state.selected
-                  ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
-                  : ''
+                {(isInstructor || this.state.allowedStudentQuestions) && this.props.editable 
+                  ? <div>
+                      <div id='ckeditor-toolbar' />
+                      <div className='ql-edit-item-container'>
+                        <QuestionEditItem
+                          question={this.state.questionMap[this.state.selected]}
+                          deleted={this.questionDeleted}
+                          metadata autoSave />
+                      </div>
+                    </div>
+                  : <div>
+                      <h3>Preview Question</h3>
+                      <button className='btn btn-default'
+                        onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
+                        data-toggle='tooltip'
+                        data-placement='left'
+                        title='Create a copy to use in your own sessions'>
+                        {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
+                      </button>
+                      <button className='btn btn-default'
+                        onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
+                        data-toggle='tooltip'
+                        data-placement='left'
+                        title='Make the question public'>
+                        Make Public
+                      </button>
+                      <button className='btn btn-default'
+                        onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
+                        data-toggle='tooltip'
+                        data-placement='left'>
+                          Delete
+                        </button>
+                      <div className='ql-preview-item-container'>
+                        {this.state.selected
+                          ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
+                          : ''
+                        }
+                      </div>
+                    </div>
                 }
+                <div className='ql-preview-item-container'>
+                  {this.state.selected
+                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
+                    : ''
+                  }
+                </div>
               </div>
-            </div>
             : '' }
           </div>
         </div>
@@ -239,15 +309,14 @@ class _QuestionsLibrary extends Component {
 export const QuestionsLibrary = createContainer(props => {
 
   //This step is done since questions.library and questions.public are used in other components
-  let inCourse = ''
-  props.library === 'library' || props.library === 'public' ? inCourse = 'InCourse' : null
   
-  const subscription = 'questions.' + props.library + inCourse
+  const subscription = 'questions.' + props.library
   const handle =  Meteor.subscribe(subscription, props.courseId)
   const courseId = props.courseId
   
   
   let params = {}
+  let editable = true
   
   if (props.library === 'library') {
     params = {
@@ -278,12 +347,12 @@ export const QuestionsLibrary = createContainer(props => {
         courseId: courseId,
         sessionId: {$exists: false},
         approved: false,
-        public: false
       },
       options: {sort:
         { createdAt: -1 },   
       }
     }
+    editable = false
   }
 
   if (props.library === 'shared') {
@@ -295,15 +364,18 @@ export const QuestionsLibrary = createContainer(props => {
         { createdAt: -1 },
       }
     }
+    editable = false
   }
 
   const questions = Questions.find().fetch()
-
+  const selected = questions[0] ? questions[0]._id : ''
+ 
   return {
     query: params,
     questions: questions,
     courseId: courseId,
-    selected: questions[0]._id,
+    selected: selected,
+    editable: editable,
     loading: !handle.ready()
   }
 }, _QuestionsLibrary)
