@@ -578,8 +578,6 @@ export class QuestionEditItem extends Component {
       { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
     ]
 
-    
-    console.log(this.state.requireApprovedQuestions)
     return (
       <div className='ql-question-edit-item'>
         {
