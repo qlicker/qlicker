@@ -31,7 +31,7 @@ class _QuestionsLibrary extends Component {
       if (this.props.selected in this.state.questionMap) this.state.selected = this.props.selected
     }
   
-    this.convertImageToBase64 = this.convertImageToBase64.bind(this)
+    this.convertField = this.convertField.bind(this)
     this.exportQuestions = this.exportQuestions.bind(this)
     this.importQuestions = this.importQuestions.bind(this)
     this.editQuestion = this.editQuestion.bind(this)
@@ -71,52 +71,52 @@ class _QuestionsLibrary extends Component {
     }
   }
 
-  convertField (field) {
-    
+  convertField (questions, question, date, courseId, count, content) {
+    let newContent = ''
+    content.forEach(item => {
+      let newItem = item
+      if(item.search('src=') !== -1) {
+        let url = item.split('src=')[1]
+        url = url.slice(1, url.length - 1)
+        //Callback executes asynchronously
+        this.convertImageToBase64(url, count, (result, done) => {
+          if (done) {
+            const dataURL = 'src=' + result
+            newContent = newContent.replace(newItem, dataURL)
+            question.solution = newContent
+            let data = {
+              originalCourse: courseId,
+              date: date,
+              questions: questions
+            }
+        
+            const jsonData = JSON.stringify(data)
+            
+            const a = document.createElement("a")
+            const file = new Blob([jsonData], {type: 'text/plain'})
+            a.href = URL.createObjectURL(file)
+            
+            Meteor.call('courses.getCourseCode', courseId, (err, result) => {
+              if (err) a.download = 'Questions.json'
+              else a.download = 'Questions' + result + '.json'
+              a.click()
+            })
+          }
+        })
+        count += 1
+      }  
+      newContent = newContent + ' ' +  newItem      
+    })
   }
+
   exportQuestions () {
     const courseId = this.props.courseId
     const date = new Date()
     let questions = this.props.questions
     let count = 0
     questions.forEach(question => {
-      const content = question.solution.split(' ')
-      let newContent = ''
-      
-      content.forEach(item => {
-        let newItem = item
-        if(item.search('src=') !== -1) {
-          let url = item.split('src=')[1]
-          url = url.slice(1, url.length - 1)
-          //Callback executes asynchronously
-          this.convertImageToBase64(url, count, (result, done) => {
-            if (done) {
-              const dataURL = 'src=' + result
-              newContent = newContent.replace(newItem, dataURL)
-              question.solution = newContent
-              let data = {
-                originalCourse: courseId,
-                date: date,
-                questions: questions
-              }
-          
-              const jsonData = JSON.stringify(data)
-              
-              const a = document.createElement("a")
-              const file = new Blob([jsonData], {type: 'text/plain'})
-              a.href = URL.createObjectURL(file)
-              
-              Meteor.call('courses.getCourseCode', courseId, (err, result) => {
-                if (err) a.download = 'Questions.json'
-                else a.download = 'Questions' + result + '.json'
-                a.click()
-              })
-            }
-          })
-          count += 1
-        }  
-        newContent = newContent + ' ' +  newItem      
-      })
+      this.convertField(questions, question, date, courseId, count, question.content.split(' '))
+      this.convertField(questions, question, date, courseId, count, question.solution.split(' '))
     })
   }
 
