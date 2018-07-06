@@ -75,11 +75,12 @@ class _QuestionsLibrary extends Component {
     let newContent = ''
     content.forEach(item => {
       let newItem = item
-      if(item.search('src=') !== -1) {
+      if (item.search('src=') !== -1 && item.search('data') === -1) { // convert image to data uri if image source is a url
         let url = item.split('src=')[1]
         url = url.slice(1, url.length - 1)
         //Callback executes asynchronously
         this.convertImageToBase64(url, count, (result, done) => {
+          console.log(question._id)
           if (done) {
             const dataURL = 'src=' + result
             newContent = newContent.replace(newItem, dataURL)
@@ -89,7 +90,7 @@ class _QuestionsLibrary extends Component {
               date: date,
               questions: questions
             }
-        
+            
             const jsonData = JSON.stringify(data)
             
             const a = document.createElement("a")
@@ -116,7 +117,11 @@ class _QuestionsLibrary extends Component {
     let count = 0
     questions.forEach(question => {
       this.convertField(questions, question, date, courseId, count, question.content.split(' '))
+      count += 1
       this.convertField(questions, question, date, courseId, count, question.solution.split(' '))
+      question.options.forEach(option => {
+        this.convertField(questions, question, date, courseId, count, option.content.split(' '))
+      })
     })
   }
 
