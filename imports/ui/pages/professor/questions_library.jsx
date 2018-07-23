@@ -80,7 +80,6 @@ class _QuestionsLibrary extends Component {
         url = url.slice(1, url.length - 1)
         //Callback executes asynchronously
         this.convertImageToBase64(url, count, (result, done) => {
-          console.log(question._id)
           if (done) {
             const dataURL = 'src=' + result
             newContent = newContent.replace(newItem, dataURL)
@@ -374,6 +373,7 @@ export const QuestionsLibrary = createContainer(props => {
     params = {
       query: {
         courseId: courseId,
+        shared: false
       },
       options: {
         sort: { createdAt: -1 }
@@ -385,6 +385,7 @@ export const QuestionsLibrary = createContainer(props => {
     params = {
       query: {
         public: true,
+        shared: false,
         courseId: courseId
       },
       options: {
@@ -399,6 +400,7 @@ export const QuestionsLibrary = createContainer(props => {
         courseId: courseId,
         sessionId: {$exists: false},
         approved: false,
+        shared: false,
         '$or': [{private: false}, {private: {$exists: false}}]
       },
       options: {sort:
@@ -422,7 +424,6 @@ export const QuestionsLibrary = createContainer(props => {
 
   const questions = Questions.find().fetch()
   const selected = questions[0] ? questions[0]._id : ''
- 
   return {
     query: params,
     questions: questions,

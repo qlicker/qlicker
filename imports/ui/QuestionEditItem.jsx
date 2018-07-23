@@ -12,7 +12,7 @@ import 'react-select/dist/react-select.css'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
-import {ExportModal } from './modals/ExportModal'
+import {ShareModal } from './modals/ShareModal'
 
 import { defaultSessionOptions, defaultQuestion } from '../api/questions'
 
@@ -47,19 +47,20 @@ export class QuestionEditItem extends Component {
     this.togglePrivate = this.togglePrivate.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
-    this.toggleExport = this.toggleExport.bind(this)
+    this.toggleShareModal = this.toggleShareModal.bind(this)
     this.setCourse = this.setCourse.bind(this)
     this.setPoints = this.setPoints.bind(this)
     this.setMaxAttempts = this.setMaxAttempts.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
+    this.shareQuestion = this.shareQuestion.bind(this)
 
     //Set state
-    this.state = {}
+    this.state = { resetDuplicate: 0 }
     // if editing pre-exsiting question
-    if (this.props.question) {
+    if (this.props.question) {    
       this.state.question = this.props.question
-      this.state.owner = Meteor.userId()
-      this.state.showExport = false
+      this.state.question.owner = Meteor.userId()
+      this.state.showShareModal = false
       if (this.props.sessionId && !this.props.question.sessionOptions) {
         this.state.question.sessionOptions = defaultSessionOptions
       }
@@ -419,31 +420,28 @@ export class QuestionEditItem extends Component {
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
-  saveQuestion (user, approved, isBeingShared) {
-    
+  saveQuestion (user, approved) {
+    console.log(this.state.resetDuplicate)
+    if (this.state.resetDuplicate > 0 ) return
     let keysToOmit = []
     //If not exporting question
     if (!user) {
       user = Meteor.user()
-      isBeingShared = false
       approved = user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
     }
 
     else {
-      keysToOmit.push(['owner', 'shared'])
+      keysToOmit.push(['owner'])
     }
-
     let question = _.extend({
       createdAt: new Date(),
       approved:  approved,
-      shared: isBeingShared,
       owner: user._id,
     }, _.omit(this.state.question, keysToOmit))
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
-
     if (this.props.sessionId) question.sessionId = this.props.sessionId
     if (this.props.courseId) question.courseId = this.props.courseId
-
+    
     // insert (or edit)
     Meteor.call('questions.insert', question, (error, newQuestion) => {
       if (error) {
@@ -456,8 +454,10 @@ export class QuestionEditItem extends Component {
           alertify.success('Edits Saved')
         }
         this.setState({ question: newQuestion })
+        return
       }
     })  
+    this.setState({ resetDuplicate: this.state.resetDuplicate + 1})
   } // end saveQuestion
 
   deleteQuestion () {
@@ -468,17 +468,27 @@ export class QuestionEditItem extends Component {
     })
   }
 
-  duplicateQuestion () {
-    if (this.state.question._id && (this.state.question.options.length !== 0 || this.state.question.type === QUESTION_TYPE.SA)) {
+  duplicateQuestion (user, approved) {
+    console.log(1)
+    if ( this.state.question._id && (this.state.question.options.length !== 0 || this.state.question.type === QUESTION_TYPE.SA)) {
       delete this.state.question._id
-      this.saveQuestion()
+      this.saveQuestion(user, approved)
+      this.setState({ resetDuplicate: 0 })
     } else {
       alertify.error('Error: question must be saved')
     }
   }
 
-  toggleExport () {
-    this.setState({ showExport: !this.state.showExport })
+  toggleShareModal () {
+    this.setState({ showShareModal: !this.state.showShareModal })
+  }
+
+  shareQuestion (user, approved) {
+    let question = this.state.question
+    question.shared = true
+    this.setState({ question: question }, () => {
+      this.duplicateQuestion(user, approved)
+    })
   }
 
   componentWillReceiveProps (nextProps) {
@@ -551,7 +561,8 @@ export class QuestionEditItem extends Component {
     </div>)
   } // end shortAnswerEditor
 
-  render () {
+  render () {   
+
     let editorRows = []
 
     if (this.state.question.type === QUESTION_TYPE.TF) {
@@ -581,8 +592,8 @@ export class QuestionEditItem extends Component {
     return (
       <div className='ql-question-edit-item'>
         {
-          this.state.showExport && user.hasGreaterRole('professor')
-            ? <ExportModal questionId={this.state.question._id} done={this.toggleExport} submit={this.saveQuestion} />
+          this.state.showShareModal && user.hasGreaterRole('professor')
+            ? <ShareModal questionId={this.state.question._id} done={this.toggleShareModal} submit={this.shareQuestion} />
             : ''
         }
         <div className='header'>
@@ -592,7 +603,7 @@ export class QuestionEditItem extends Component {
                   <div className='btn-group'>
                     {this.state.question._id
                       ? <button className='btn btn-default'
-                        onClick={this.duplicateQuestion}
+                        onClick={() => this.duplicateQuestion(Meteor.user())}
                         data-toggle='tooltip'
                         data-placement='top'
                         title='Create a copy of this question'>
@@ -606,7 +617,7 @@ export class QuestionEditItem extends Component {
                     </button>
                     <button
                       className='btn btn-default'
-                      onClick={this.toggleExport}>
+                      onClick={this.toggleShareModal}>
                       Share
                     </button>
                     

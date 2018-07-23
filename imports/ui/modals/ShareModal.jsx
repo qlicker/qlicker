@@ -9,7 +9,7 @@ import { ControlledForm } from '../ControlledForm'
 
 import '../../api/users.js'
 
-export class ExportModal extends ControlledForm {
+export class ShareModal extends ControlledForm {
 
   constructor (props) {
     super(props)
@@ -25,7 +25,7 @@ export class ExportModal extends ControlledForm {
     Meteor.call('users.getUserByEmail', this.state.recipientEmail, (err, result) => {
       if (err || !result) alertify.error('Cannot find user')
       else {
-        this.props.submit(result.user, result.approved, true)
+        this.props.submit(result.user, result.approved)
         this.props.done()
       }
     })
@@ -34,7 +34,7 @@ export class ExportModal extends ControlledForm {
   submitToSelf (e) {
     super.handleSubmit(e)
     const user = Meteor.user()
-    this.props.submit(user, user.hasGreaterRole('professor'), true)
+    this.props.submit(user, user.hasGreaterRole('professor'))
     this.props.done()
   }
 
@@ -65,7 +65,7 @@ export class ExportModal extends ControlledForm {
   }
 }
 
-ExportModal.proptypes = {
+ShareModal.proptypes = {
   questionId: PropTypes.string.isRequired,
   done: PropTypes.func.isRequired,
   submit: PropTypes.func.isRequired

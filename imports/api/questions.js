@@ -84,6 +84,8 @@ export const defaultQuestion = {
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
+  shared: false,
+  private: false,
   sessionOptions: defaultSessionOptions
 }
 
@@ -213,8 +215,9 @@ if (Meteor.isServer) {
         // students. By checking for creator, they can see the questions they submitted
         // that have been moved to a course library (which changes the owner w/o copying)
         query = {
-          '$or': [{creator: this.userId}, {owner: this.userId}],
+          '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
           courseId: courseId,
+          shared: false,
           sessionId: {$exists: false} }
       }
       return Questions.find(query)
@@ -224,7 +227,11 @@ if (Meteor.isServer) {
   Meteor.publish('questions.public', function (courseId) {
     if (this.userId) {
       const course = Courses.findOne({ _id: courseId })
-      let query = { courseId: courseId, public: true }
+      let query = { 
+        courseId: courseId, 
+        public: true, shared: false, 
+        '$or': [{private: false}, {private: {$exists: false}}] 
+      }
       if (course.requireApprovedQuestions) query = _.extend({ approved: true }, query)
       return Questions.find(query)
     } else this.ready()
@@ -236,6 +243,7 @@ if (Meteor.isServer) {
       return Questions.find({
         sessionId: {$exists: false},
         approved: false,
+        shared: false,
         courseId: courseId,
         '$or': [{private: false}, {private: {$exists: false}}]
       })
@@ -244,7 +252,7 @@ if (Meteor.isServer) {
 
   Meteor.publish('questions.shared', function (courseId) {
     if (this.userId) {
-      return Questions.find({ shared: true, owner: this.userId, courseId: !courseId })
+      return Questions.find({ shared: true, owner: this.userId })
     } else this.ready()
   })
 }
@@ -264,7 +272,6 @@ Meteor.methods({
     if (question._id) { // if _id already exists, update the question
       return Meteor.call('questions.update', question)
     }
-
     const course = Courses.findOne({_id: question.courseId })
 
     question.createdAt = new Date()
