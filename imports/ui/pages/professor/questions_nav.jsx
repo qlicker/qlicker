@@ -24,7 +24,7 @@ class _QuestionsNav extends Component {
       else this.setState({ courseCode: c })
     })
 
-    Meteor.call('courses.courseRequiresApprovedQuestions', this.props.courseId, (e, c) => {
+    Meteor.call('courses.publicQuestionsRequireApproval', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course permissions')
       else this.setState({ requireApprovedPublicQuestions: c })
     })
@@ -36,7 +36,7 @@ class _QuestionsNav extends Component {
       else this.setState({ courseCode: c })
     })
 
-    Meteor.call('courses.courseRequiresApprovedQuestions', props.courseId, (e, c) => {
+    Meteor.call('courses.publicQuestionsRequireApproval', props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course permissions')
       else this.setState({ requireApprovedPublicQuestions: c })
     })

@@ -601,7 +601,7 @@ Meteor.methods({
     return Meteor.call('sessions.delete', courseId, sessionId)
   },
 
-  'courses.courseRequiresApprovedQuestions' (courseid) {
+  'courses.publicQuestionsRequireApproval' (courseid) {
     check(courseid, Helpers.MongoID)
     const course = Courses.findOne(courseid)
     const approved = course.requireApprovedPublicQuestions ? course.requireApprovedPublicQuestions : false

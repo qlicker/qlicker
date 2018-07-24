@@ -29,7 +29,7 @@ export class QuestionSidebar extends ControlledForm {
     super(props)
     this.state = { questionPool: this.props.questions.slice(),
       questionType: -1,
-      questionApproved: false,
+      showOnlyApprovedQuestions: false,
       tags: []
     }
 
@@ -37,7 +37,7 @@ export class QuestionSidebar extends ControlledForm {
     this.setSearchString = this.setSearchString.bind(this)
     this.setUserSearchString = this.setUserSearchString.bind(this)
     this.setType = this.setType.bind(this)
-    this.setApproved = this.setApproved.bind(this)
+    this.showApproved = this.showApproved.bind(this)
     this.setTags = this.setTags.bind(this)
     this.resetFilter = this.resetFilter.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
@@ -54,7 +54,7 @@ export class QuestionSidebar extends ControlledForm {
       this.forceUpdate()
     })
 
-    Meteor.call('courses.courseRequiresApprovedQuestions',this.props.courseId, (e, approved) => {
+    Meteor.call('courses.publicQuestionsRequireApproval',this.props.courseId, (e, approved) => {
       if (e) alertify.error('Error updating sidebar')
       else this.state.allowApproved = approved
     })
@@ -108,8 +108,8 @@ export class QuestionSidebar extends ControlledForm {
     })
   }
 
-  setApproved () {
-    this.setState({ questionApproved: !this.state.questionApproved }, () => {
+  showApproved () {
+    this.setState({ showOnlyApprovedQuestions: !this.state.showOnlyApprovedQuestions }, () => {
       this.props.updateQuery(this.state)
     })
   }
@@ -204,8 +204,8 @@ export class QuestionSidebar extends ControlledForm {
             }
           </select>       
 
-          <div className='btn btn-primary' style={{'display':'flex'}} onClick={this.setApproved}>
-            <span><input className='checkbox' type='checkbox' checked={this.state.questionApproved}/></span>
+          <div className='btn btn-primary' style={{'display':'flex'}} onClick={this.showApproved}>
+            <span><input className='checkbox' type='checkbox' checked={this.state.showOnlyApprovedQuestions}/></span>
             <span>Approved Only</span>
           </div>
 
