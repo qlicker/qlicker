@@ -232,7 +232,7 @@ if (Meteor.isServer) {
         public: true, shared: false, 
         '$or': [{private: false}, {private: {$exists: false}}] 
       }
-      if (course.requireApprovedQuestions) query = _.extend({ approved: true }, query)
+      if (course.requireApprovedPublicQuestions) query = _.extend({ approved: true }, query)
       return Questions.find(query)
     } else this.ready()
   })
@@ -275,7 +275,7 @@ Meteor.methods({
     const course = Courses.findOne({_id: question.courseId })
 
     question.createdAt = new Date()
-    question.public = !course.requireApprovedQuestions
+    question.public = !course.requireApprovedPublicQuestions
     question.creator = Meteor.userId()
 
     check(question, questionPattern)

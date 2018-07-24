@@ -37,7 +37,7 @@ class _ManageCourse extends Component {
       expandedSessionlist: false,
       requireVerified: this.props.course.requireVerified,
       allowStudentQuestions: this.props.course.allowStudentQuestions,
-      requireApprovedQuestions: this.props.course.allowStudentQuestions
+      requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
@@ -50,7 +50,7 @@ class _ManageCourse extends Component {
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
-    this.toggleRequireApprovedQuestions = this.toggleRequireApprovedQuestions.bind(this)
+    this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -148,19 +148,19 @@ class _ManageCourse extends Component {
     this.setState({ allowStudentQuestions: !this.state.allowStudentQuestions })
   }
 
-  toggleRequireApprovedQuestions () {
-    Meteor.call('courses.toggleRequireApprovedQuestions', this.props.course._id, (error) => {
+  toggleRequireApprovedPublicQuestions () {
+    Meteor.call('courses.toggleRequireApprovedPublicQuestions', this.props.course._id, (error) => {
       if (error) alertify.error('Error allowing/refusing question approval ' + error.error)
-      else alertify.success('Students ' + (this.props.course.requireApprovedQuestions ? 'can' : 'cannot') + ' view unapproved questions')
+      else alertify.success('Students ' + (this.props.course.requireApprovedPublicQuestions ? 'can' : 'cannot') + ' view unapproved questions')
     })
-    this.setState({ requireApprovedQuestions: !this.state.requireApprovedQuestions })
+    this.setState({ requireApprovedPublicQuestions: !this.state.requireApprovedPublicQuestions })
   }
 
   componentWillReceiveProps (nextProps) {
     const course = nextProps.course
-    this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions, requireApprovedQuestions: course.requireApprovedQuestions })
+    this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions, requireApprovedPublicQuestions: course.requireApprovedPublicQuestions })
   }
-  
+
   renderSessionList () {
     let sessions = this.props.sessions
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
@@ -321,12 +321,12 @@ class _ManageCourse extends Component {
                     this.props.course.allowStudentQuestions
                     ? <div className='btn-group btn-group-justified details-button-group'>
                         <div className='btn btn-default' 
-                          onClick={this.toggleRequireApprovedQuestions}
+                          onClick={this.toggleRequireApprovedPublicQuestions}
                           data-toggle='tooltip'
                           data-placement='left'
                           title='Change what questions are allowed to be public'>
                           {
-                            this.state.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
+                            this.state.requireApprovedPublicQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
                           }
                         </div>
                       </div>

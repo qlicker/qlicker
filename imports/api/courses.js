@@ -30,7 +30,7 @@ const coursePattern = {
   createdAt: Date,
   requireVerified: Match.Maybe(Boolean),
   allowStudentQuestions: Match.Maybe(Boolean),
-  requireApprovedQuestions: Match.Maybe(Boolean),
+  requireApprovedPublicQuestions: Match.Maybe(Boolean),
   groupCategories: Match.Maybe([{
     categoryNumber: Match.Maybe(Helpers.Number),
     categoryName: Match.Maybe(Helpers.NEString),
@@ -604,7 +604,7 @@ Meteor.methods({
   'courses.courseRequiresApprovedQuestions' (courseid) {
     check(courseid, Helpers.MongoID)
     const course = Courses.findOne(courseid)
-    const approved = course.requireApprovedQuestions ? course.requireApprovedQuestions : false
+    const approved = course.requireApprovedPublicQuestions ? course.requireApprovedPublicQuestions : false
     return approved
   },
 
@@ -696,7 +696,7 @@ Meteor.methods({
     Courses.update({ _id: courseId }, {
       $set: {
         allowStudentQuestions: !previous,
-        requireApprovedQuestions: true
+        requireApprovedPublicQuestions: true
       }
     })
   },
@@ -711,14 +711,14 @@ Meteor.methods({
    * generates and sets a new enrollment code for the course
    * @param {MongoID} courseId
    */
-  'courses.toggleRequireApprovedQuestions' (courseId) {
+  'courses.togglerequireApprovedPublicQuestions' (courseId) {
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
     if (!course) throw new Error('Cannot find course')
-    const previous = course.requireApprovedQuestions
+    const previous = course.requireApprovedPublicQuestions
     return Courses.update({ _id: courseId }, {
       $set: {
-        requireApprovedQuestions: !previous
+        requireApprovedPublicQuestions: !previous
       }
     })
   },

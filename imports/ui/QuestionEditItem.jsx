@@ -130,7 +130,7 @@ export class QuestionEditItem extends Component {
    
     Meteor.call('courses.courseRequiresApprovedQuestions', this.props.courseId, (e, approved) => {
       if (e) alertify.error('Cannot get course permissions')
-      else this.state.requireApprovedQuestions = approved
+      else this.state.requireApprovedPublicQuestions = approved
     })
    
   } // end constructor
@@ -621,7 +621,7 @@ export class QuestionEditItem extends Component {
                       Share
                     </button>
                     
-                    { !user.isInstructorAnyCourse() && this.state.requireApprovedQuestions 
+                    { !user.isInstructorAnyCourse() && this.state.requireApprovedPublicQuestions 
                       ? <button
                           className='btn btn-default'
                           onClick={this.togglePrivate}
