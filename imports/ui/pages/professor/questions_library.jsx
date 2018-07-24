@@ -181,6 +181,8 @@ class _QuestionsLibrary extends Component {
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
+    question.courseId = this.props.courseId
+    question.shared = false
     Meteor.call('questions.update', question, (error, newQuestionId) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question moved to library')
@@ -320,7 +322,7 @@ class _QuestionsLibrary extends Component {
                         data-toggle='tooltip'
                         data-placement='left'
                         title='Create a copy to use in your own sessions'>
-                        {Meteor.user().hasGreaterRole('professor') ? 'Copy to Library' : 'Approve for course'}
+                        {Meteor.user().hasGreaterRole('professor') ? 'Approve for course' : 'Copy to Library'}
                       </button>
                       <button className='btn btn-default'
                         onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
