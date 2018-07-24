@@ -34,7 +34,10 @@ class _ManageCourse extends Component {
       addTAModal: false,
       addStudentModal: false,
       sessionToCopy: null,
-      expandedSessionlist: false
+      expandedSessionlist: false,
+      requireVerified: this.props.course.requireVerified,
+      allowStudentQuestions: this.props.course.allowStudentQuestions,
+      requireApprovedQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
@@ -125,6 +128,7 @@ class _ManageCourse extends Component {
       if (error) return alertify.error('Error: could not set course property')
       alertify.success('Email verification' + (this.props.course.requireVerified ? '' : ' not') + ' required')
     })
+    this.setState({ requireVerified: !this.state.requireVerified })
   }
 
   generateNewCourseCode () {
@@ -141,6 +145,7 @@ class _ManageCourse extends Component {
       if (error) alertify.error('Error allowing/refusing student questions ' + error.error)
       else alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
+    this.setState({ allowStudentQuestions: !this.state.allowStudentQuestions })
   }
 
   toggleRequireApprovedQuestions () {
@@ -148,8 +153,14 @@ class _ManageCourse extends Component {
       if (error) alertify.error('Error allowing/refusing question approval ' + error.error)
       else alertify.success('Students ' + (this.props.course.requireApprovedQuestions ? 'can' : 'cannot') + ' view unapproved questions')
     })
+    this.setState({ requireApprovedQuestions: !this.state.requireApprovedQuestions })
   }
 
+  componentWillReceiveProps (nextProps) {
+    const course = nextProps.course
+    this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions, requireApprovedQuestions: course.requireApprovedQuestions })
+  }
+  
   renderSessionList () {
     let sessions = this.props.sessions
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
@@ -298,12 +309,12 @@ class _ManageCourse extends Component {
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={this.toggleVerification}>
-                      {this.props.course.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
+                      {this.state.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
                     </div>
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={this.toggleAllowStudentQuestions}>
-                      {this.props.course.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
+                      {this.state.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
                     </div>
                   </div>
                   {
@@ -315,7 +326,7 @@ class _ManageCourse extends Component {
                           data-placement='left'
                           title='Change what questions are allowed to be public'>
                           {
-                            this.props.course.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
+                            this.state.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
                           }
                         </div>
                       </div>

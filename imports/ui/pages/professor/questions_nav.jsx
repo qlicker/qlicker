@@ -14,17 +14,19 @@ class _QuestionsNav extends Component {
 
     this.state = {
       selected: 'library',
-      courseCode: ''
+      courseCode: '',
     }
+  }
 
-    Meteor.call('courses.getCourseCode', props.courseId, (e, c) => {
+  componentDidMount () {
+    Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
-      else this.state.courseCode = c
+      else this.setState({ courseCode: c })
     })
 
-    Meteor.call('courses.courseRequiresApprovedQuestions', props.courseId, (e, c) => {
+    Meteor.call('courses.courseRequiresApprovedQuestions', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course permissions')
-      else this.state.requireApprovedQuestions = c
+      else this.setState({ requireApprovedQuestions: c })
     })
   }
 
@@ -43,7 +45,7 @@ class _QuestionsNav extends Component {
   render () {
     const isInstructor = Meteor.user().isInstructorAnyCourse()
     const active = this.state.selected
-
+    console.log(this.state.requireApprovedQuestions)
     return(
       <div className='container ql-questions-library'>
         <h1>Questions for {this.state.courseCode || 'Course'}</h1>

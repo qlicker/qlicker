@@ -716,7 +716,7 @@ Meteor.methods({
     let course = Courses.findOne(courseId)
     if (!course) throw new Error('Cannot find course')
     const previous = course.requireApprovedQuestions
-    Courses.update({ _id: courseId }, {
+    return Courses.update({ _id: courseId }, {
       $set: {
         requireApprovedQuestions: !previous
       }
@@ -748,8 +748,7 @@ Meteor.methods({
       }
     })
   },
-
-  
+ 
   /**
    * Adds a given number of groups to a category (creates the category if it doesn't exist)
    * @param {MongoID} courseId
