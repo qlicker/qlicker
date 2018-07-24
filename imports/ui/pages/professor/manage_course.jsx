@@ -309,10 +309,14 @@ class _ManageCourse extends Component {
                   {
                     this.props.course.allowStudentQuestions
                     ? <div className='btn-group btn-group-justified details-button-group'>
-                        <div className='btn btn-default' onClick={this.toggleRequireApprovedQuestions}>
-                        {
-                          this.props.course.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
-                        }
+                        <div className='btn btn-default' 
+                          onClick={this.toggleRequireApprovedQuestions}
+                          data-toggle='tooltip'
+                          data-placement='left'
+                          title='Change what questions are allowed to be public'>
+                          {
+                            this.props.course.requireApprovedQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
+                          }
                         </div>
                       </div>
                     : ''
