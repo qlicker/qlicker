@@ -203,6 +203,7 @@ if (Meteor.isServer) {
 
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
+      if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) throw new Error('User does not have permission to access this publication')
       let query = { 
         sessionId: {$exists: false},
         courseId: courseId,
@@ -233,7 +234,9 @@ if (Meteor.isServer) {
 
   Meteor.publish('questions.public', function (courseId) {
     if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
       const course = Courses.findOne({ _id: courseId })
+      if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) throw new Error('User does not have permission to access this publication')
       let query = { 
         courseId: courseId, 
         public: true, shared: false, 
@@ -248,7 +251,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.hasRole(ROLES.prof)) throw new Error('User does not have permission to access this publication')
+      if (!user.isInstructor(courseId) && !user.isStudent(courseId)) throw new Error('User does not have permission to access this publication') 
       return Questions.find({
         sessionId: {$exists: false},
         approved: false,
@@ -261,6 +264,8 @@ if (Meteor.isServer) {
 
   Meteor.publish('questions.sharedWithUser', function (courseId) {
     if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      if (!user.isInstructor(courseId) && !user.isStudent(courseId)) throw new Error('User does not have permission to access this publication')
       return Questions.find({ shared: true, owner: this.userId })
     } else this.ready()
   })
