@@ -252,7 +252,7 @@ class _QuestionsLibrary extends Component {
     else params.query = _.omit(params.query, 'tags.value')
     if(!params.query.courseId) delete params.query.courseId
     
-    if (this.props.library !== 'shared') {
+    if (this.props.library !== 'sharedWithUser') {
       params.query.courseId = this.props.courseId
     }
   
@@ -412,7 +412,7 @@ export const QuestionsLibrary = createContainer(props => {
     editable = false
   }
 
-  if (props.library === 'shared') {
+  if (props.library === 'sharedWithUser') {
     params = {
       query: {
         shared: true

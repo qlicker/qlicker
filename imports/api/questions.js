@@ -259,7 +259,7 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  Meteor.publish('questions.shared', function (courseId) {
+  Meteor.publish('questions.sharedWithUser', function (courseId) {
     if (this.userId) {
       return Questions.find({ shared: true, owner: this.userId })
     } else this.ready()
@@ -278,6 +278,11 @@ Meteor.methods({
    * @returns {Question} new question
    */
   'questions.insert' (question) {
+    
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    
+    if (!user.isInstructor(question.courseId) && !user.isStudent(question.courseId)) throw new Error('Cannot insert question (user not in course)')
+
     if (question._id) { // if _id already exists, update the question
       return Meteor.call('questions.update', question)
     }
@@ -286,12 +291,10 @@ Meteor.methods({
     question.createdAt = new Date()
     question.public = !course.requireApprovedPublicQuestions
     question.creator = Meteor.userId()
+    if (user.isStudent(question.courseId)) question.approved = false
 
     check(question, questionPattern)
 
-    const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    
-    check(question, questionPattern)
     const id = Questions.insert(question)
     return Questions.findOne({ _id: id })
   },

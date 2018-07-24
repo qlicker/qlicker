@@ -56,7 +56,7 @@ class _QuestionsNav extends Component {
           { isInstructor && this.state.requireApprovedPublicQuestions
             ? <li role='presentation' className={active === 'unapprovedFromStudents' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'unapprovedFromStudents' })}>Student Submissions</a></li>
             : '' }          
-          <li role='presentation' className={active === 'shared' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'shared' })}>Questions Shared With Me</a></li> 
+          <li role='presentation' className={active === 'sharedWithUser' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'sharedWithUser' })}>Questions Shared With Me</a></li> 
         </ul>
 
         <QuestionsLibrary
