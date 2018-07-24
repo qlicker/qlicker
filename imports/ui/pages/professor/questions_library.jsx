@@ -302,9 +302,10 @@ class _QuestionsLibrary extends Component {
               resetFilter={this.state.resetSidebar} />
           </div>
           <div className='col-md-8'>
+          {console.log(this.state.selected)}
             { this.state.selected
             ? <div>
-                {(isInstructor || this.state.allowedStudentQuestions) && this.props.editable 
+                {(isInstructor || this.state.allowedStudentQuestions) && this.props.editable && (isInstructor || !this.state.questionMap[this.state.selected].approved)
                   ? <div>
                       <div id='ckeditor-toolbar' />
                       <div className='ql-edit-item-container'>
@@ -317,26 +318,31 @@ class _QuestionsLibrary extends Component {
                     </div>
                   : <div>
                       <h3>Preview Question</h3>
-                      <button className='btn btn-default'
-                        onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
-                        data-toggle='tooltip'
-                        data-placement='left'
-                        title='Create a copy to use in your own sessions'>
-                        {Meteor.user().hasGreaterRole('professor') ? 'Approve for course' : 'Copy to Library'}
-                      </button>
-                      <button className='btn btn-default'
-                        onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
-                        data-toggle='tooltip'
-                        data-placement='left'
-                        title='Make the question public'>
-                        Make Public
-                      </button>
-                      <button className='btn btn-default'
-                        onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
-                        data-toggle='tooltip'
-                        data-placement='left'>
-                          Delete
-                        </button>
+                      { this.props.library === 'sharedWithUser'
+                        ? <div>
+                            <button className='btn btn-default'
+                              onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
+                              data-toggle='tooltip'
+                              data-placement='left'
+                              title='Create a copy to use in your own sessions'>
+                              {Meteor.user().hasGreaterRole('professor') ? 'Approve for course' : 'Copy to Library'}
+                            </button>
+                            <button className='btn btn-default'
+                              onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
+                              data-toggle='tooltip'
+                              data-placement='left'
+                              title='Make the question public'>
+                              Make Public
+                            </button>
+                            <button className='btn btn-default'
+                              onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
+                              data-toggle='tooltip'
+                              data-placement='left'>
+                                Delete
+                            </button>
+                          </div>
+                        : ''
+                      }             
                       <div className='ql-preview-item-container'>
                         {this.state.selected
                           ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
