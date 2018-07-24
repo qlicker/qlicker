@@ -711,7 +711,7 @@ Meteor.methods({
    * generates and sets a new enrollment code for the course
    * @param {MongoID} courseId
    */
-  'courses.togglerequireApprovedPublicQuestions' (courseId) {
+  'courses.toggleRequireApprovedPublicQuestions' (courseId) {
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
     if (!course) throw new Error('Cannot find course')

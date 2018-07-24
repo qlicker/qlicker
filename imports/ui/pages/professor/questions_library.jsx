@@ -396,7 +396,7 @@ export const QuestionsLibrary = createContainer(props => {
     }
   }
   
-  if (props.library === 'student') {
+  if (props.library === 'unapprovedFromStudents') {
     params = {
       query: {
         courseId: courseId,

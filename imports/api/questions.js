@@ -200,25 +200,32 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('questions.library', function (courseId) {
+
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      const course = Courses.findOne({ _id: courseId})
       let query = { 
         sessionId: {$exists: false},
         courseId: courseId,
       }
       if (user.hasRole(ROLES.admin)) {
-        query = _.extend({ studentCopyOfPublic: {$exists: false} }, query)
-      } else if (user.isInstructor(courseId)) {
-        query = _.extend({ owner: this.userId }, query)
+        query = _.extend({ approved: true }, query)
       } else {
         // students. By checking for creator, they can see the questions they submitted
         // that have been moved to a course library (which changes the owner w/o copying)
-        query = {
-          '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
-          courseId: courseId,
-          shared: false,
-          sessionId: {$exists: false} }
+        if (courseId) {
+          query = {
+            '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
+            courseId: courseId,
+            shared: false,
+            sessionId: {$exists: false} 
+          }
+        } else { // If the user is not in a course and calls this method (should not happen), then query all of their questions
+          query = { 
+            '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
+            shared: false,
+            sessionId: {$exists: false} 
+          }
+        }
       }
       return Questions.find(query)
     } else this.ready()
@@ -238,8 +245,10 @@ if (Meteor.isServer) {
   })
 
   // questions submitted to specific course
-  Meteor.publish('questions.student', function (courseId) {
+  Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      if (!user.hasRole(ROLES.prof)) throw new Error('User does not have permission to access this publication')
       return Questions.find({
         sessionId: {$exists: false},
         approved: false,

@@ -45,7 +45,6 @@ class _QuestionsNav extends Component {
   render () {
     const isInstructor = Meteor.user().isInstructorAnyCourse()
     const active = this.state.selected
-    console.log(this.state.requireApprovedPublicQuestions)
     return(
       <div className='container ql-questions-library'>
         <h1>Questions for {this.state.courseCode || 'Course'}</h1>
@@ -55,7 +54,7 @@ class _QuestionsNav extends Component {
           </li>
           <li role='presentation' className={active === 'public' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'public' })}>Public Questions</a></li>
           { isInstructor && this.state.requireApprovedPublicQuestions
-            ? <li role='presentation' className={active === 'student' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'student' })}>Student Submissions</a></li>
+            ? <li role='presentation' className={active === 'unapprovedFromStudents' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'unapprovedFromStudents' })}>Student Submissions</a></li>
             : '' }          
           <li role='presentation' className={active === 'shared' ? 'active' : ''}><a role='button' onClick={() => this.setState({ selected: 'shared' })}>Questions Shared With Me</a></li> 
         </ul>
