@@ -421,7 +421,6 @@ export class QuestionEditItem extends Component {
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
   saveQuestion (user, approved) {
-    console.log(this.state.resetDuplicate)
     if (this.state.resetDuplicate > 0 ) return
     let keysToOmit = []
     //If not exporting question
@@ -469,7 +468,6 @@ export class QuestionEditItem extends Component {
   }
 
   duplicateQuestion (user, approved) {
-    console.log(1)
     if ( this.state.question._id && (this.state.question.options.length !== 0 || this.state.question.type === QUESTION_TYPE.SA)) {
       delete this.state.question._id
       this.saveQuestion(user, approved)

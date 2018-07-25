@@ -75,13 +75,13 @@ class _QuestionsLibrary extends Component {
     let newContent = ''
     content.forEach(item => {
       let newItem = item
-      if (item.search('src=') !== -1 && item.search('data') === -1) { // convert image to data uri if image source is a url
-        let url = item.split('src=')[1]
-        url = url.slice(1, url.length - 1)
-        //Callback executes asynchronously
+      if (item.search(/src(s*)=/) !== -1 && item.search('data') === -1) { // convert image to data uri if image source is a url
+        let url = item.split(/src(s*)=/)[2]
+        url = url.replace(/"/g, '') //Trim any quotations
+        // Callback executes asynchronously
         this.convertImageToBase64(url, count, (result, done) => {
           if (done) {
-            const dataURL = 'src=' + result
+            const dataURL = '<img src=' + result + ' />'
             newContent = newContent.replace(newItem, dataURL)
             question.solution = newContent
             let data = {
@@ -95,7 +95,7 @@ class _QuestionsLibrary extends Component {
             const a = document.createElement("a")
             const file = new Blob([jsonData], {type: 'text/plain'})
             a.href = URL.createObjectURL(file)
-            
+
             Meteor.call('courses.getCourseCode', courseId, (err, result) => {
               if (err) a.download = 'Questions.json'
               else a.download = 'Questions' + result + '.json'
@@ -107,19 +107,39 @@ class _QuestionsLibrary extends Component {
       }  
       newContent = newContent + ' ' +  newItem      
     })
+    if (count === 0) {
+      let data = {
+        originalCourse: courseId,
+        date: date,
+        questions: questions
+      }
+      
+      const jsonData = JSON.stringify(data)
+      
+      const a = document.createElement("a")
+      const file = new Blob([jsonData], {type: 'text/plain'})
+      a.href = URL.createObjectURL(file)
+
+      Meteor.call('courses.getCourseCode', courseId, (err, result) => {
+        if (err) a.download = 'Questions.json'
+        else a.download = 'Questions' + result + '.json'
+        a.click()
+      })
+    }
   }
 
   exportQuestions () {
     const courseId = this.props.courseId
     const date = new Date()
-    let questions = this.props.questions
+    let questions = this.state.questions
     let count = 0
+    const splitPattern = /<\s*img(.*)\/>/
     questions.forEach(question => {
-      this.convertField(questions, question, date, courseId, count, question.content.split(' '))
+      this.convertField(questions, question, date, courseId, count, question.content.split(splitPattern))
       count += 1
-      this.convertField(questions, question, date, courseId, count, question.solution.split(' '))
+      this.convertField(questions, question, date, courseId, count, question.solution.split(splitPattern))
       question.options.forEach(option => {
-        this.convertField(questions, question, date, courseId, count, option.content.split(' '))
+        this.convertField(questions, question, date, courseId, count, option.content.split(splitPattern))
       })
     })
   }
@@ -302,7 +322,6 @@ class _QuestionsLibrary extends Component {
               resetFilter={this.state.resetSidebar} />
           </div>
           <div className='col-md-8'>
-          {console.log(this.state.selected)}
             { this.state.selected
             ? <div>
                 {(isInstructor || this.state.allowedStudentQuestions) && this.props.editable && (isInstructor || !this.state.questionMap[this.state.selected].approved)
