@@ -197,15 +197,20 @@ class _QuestionsLibrary extends Component {
 
   approveQuestion (questionId) {
     let question = this.state.questionMap[questionId]
-    question.approved = true
+    let user = Meteor.user()
+    if (user.hasRole('student')) {
+      delete question._id
+      question.approved = false
+    }
+    else question.approved = true
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
     question.courseId = this.props.courseId
     question.shared = false
-    Meteor.call('questions.update', question, (error, newQuestionId) => {
+    Meteor.call('questions.insert', question, (error, newQuestionId) => {
       if (error) return alertify.error('Error: ' + error.error)
-      alertify.success('Question moved to library')
+      alertify.success('Question copied to library')
     })
     this.selectQuestion(null)
   }
@@ -346,13 +351,17 @@ class _QuestionsLibrary extends Component {
                               title='Create a copy to use in your own sessions'>
                               {Meteor.user().hasGreaterRole('professor') ? 'Approve for course' : 'Copy to Library'}
                             </button>
-                            <button className='btn btn-default'
-                              onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
-                              data-toggle='tooltip'
-                              data-placement='left'
-                              title='Make the question public'>
-                              Make Public
-                            </button>
+                            { !Meteor.user().hasRole('student') 
+                              ? <button className='btn btn-default'
+                                  onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
+                                  data-toggle='tooltip'
+                                  data-placement='left'
+                                  title='Make the question public'>
+                                  Make Public
+                                </button>
+                              : ''
+                            }
+                            
                             <button className='btn btn-default'
                               onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
                               data-toggle='tooltip'
