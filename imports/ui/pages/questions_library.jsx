@@ -337,7 +337,7 @@ class _QuestionsLibrary extends Component {
                     </div>
                   : <div>
                       <h3>Preview Question</h3>
-                      { this.props.library === 'sharedWithUser'
+                      { this.props.library !== 'library'
                         ? <div>
                             <button className='btn btn-default'
                               onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
