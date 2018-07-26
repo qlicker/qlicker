@@ -8,11 +8,11 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
-import { QuestionEditItem } from '../../QuestionEditItem'
-import { QuestionDisplay } from '../../QuestionDisplay'
-import { QuestionSidebar } from '../../QuestionSidebar'
+import { QuestionEditItem } from '../QuestionEditItem'
+import { QuestionDisplay } from '../QuestionDisplay'
+import { QuestionSidebar } from '../QuestionSidebar'
 
-import { Questions, defaultQuestion } from '../../../api/questions'
+import { Questions, defaultQuestion } from '../../api/questions'
 
 class _QuestionsLibrary extends Component {
 

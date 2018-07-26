@@ -123,7 +123,7 @@ Router.route('/manage', {
   }
 })
 
-import { QuestionsNav } from '../../ui/pages/professor/questions_nav'
+import { QuestionsNav } from '../../ui/pages/questions_nav'
 Router.route('/course/:courseId/questions', {
   name: 'questions',
   waitOn: function () {
