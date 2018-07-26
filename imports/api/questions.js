@@ -208,7 +208,7 @@ if (Meteor.isServer) {
         sessionId: {$exists: false},
         courseId: courseId,
       }
-      if (user.hasRole(ROLES.admin)) {
+      if (user.hasGreaterRole(ROLES.prof)) {
         query = _.extend({ approved: true }, query)
       } else {
         // students. By checking for creator, they can see the questions they submitted
