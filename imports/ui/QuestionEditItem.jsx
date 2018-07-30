@@ -473,12 +473,9 @@ export class QuestionEditItem extends Component {
     this.setState({ showShareModal: !this.state.showShareModal })
   }
 
-  shareQuestion (user) {
-    let question = this.state.question
-    question.sharedCopy = true
-    this.setState({ question: question }, () => {
-      this.duplicateQuestion(user)
-    })
+  shareQuestion (user) {  
+    let question = _.extend({ sharedCopy: true}, _.omit(this.state.question, 'sharedCopy'))
+    Meteor.call('questions.duplicate', question, user._id)
   }
 
   componentWillReceiveProps (nextProps) {
