@@ -579,7 +579,7 @@ export class QuestionEditItem extends Component {
     return (
       <div className='ql-question-edit-item'>
         {
-          this.state.showShareModal && user.hasGreaterRole('professor')
+          this.state.showShareModal
             ? <ShareModal questionId={this.state.question._id} done={this.toggleShareModal} submit={this.shareQuestion} />
             : ''
         }
