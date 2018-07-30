@@ -59,7 +59,6 @@ export class QuestionEditItem extends Component {
     // if editing pre-exsiting question
     if (this.props.question) {    
       this.state.question = this.props.question
-      this.state.question.owner = Meteor.userId()
       this.state.showShareModal = false
       if (this.props.sessionId && !this.props.question.sessionOptions) {
         this.state.question.sessionOptions = defaultSessionOptions
@@ -420,21 +419,18 @@ export class QuestionEditItem extends Component {
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
-  saveQuestion (user, approved) {
+  saveQuestion (user) {
     if (this.state.resetDuplicate > 0 ) return
     let keysToOmit = []
     //If not exporting question
     if (!user) {
       user = Meteor.user()
-      approved = user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId)
-    }
-
-    else {
+    } else {
       keysToOmit.push(['owner'])
     }
+
     let question = _.extend({
       createdAt: new Date(),
-      approved:  approved,
       owner: user._id,
     }, _.omit(this.state.question, keysToOmit))
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
@@ -467,10 +463,10 @@ export class QuestionEditItem extends Component {
     })
   }
 
-  duplicateQuestion (user, approved) {
+  duplicateQuestion (user) {
     if ( this.state.question._id && (this.state.question.options.length !== 0 || this.state.question.type === QUESTION_TYPE.SA)) {
       delete this.state.question._id
-      this.saveQuestion(user, approved)
+      this.saveQuestion(user)
       this.setState({ resetDuplicate: 0 })
     } else {
       alertify.error('Error: question must be saved')
@@ -481,11 +477,11 @@ export class QuestionEditItem extends Component {
     this.setState({ showShareModal: !this.state.showShareModal })
   }
 
-  shareQuestion (user, approved) {
+  shareQuestion (user) {
     let question = this.state.question
     question.sharedCopy = true
     this.setState({ question: question }, () => {
-      this.duplicateQuestion(user, approved)
+      this.duplicateQuestion(user)
     })
   }
 

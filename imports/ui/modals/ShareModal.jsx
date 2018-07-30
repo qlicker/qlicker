@@ -25,7 +25,7 @@ export class ShareModal extends ControlledForm {
     Meteor.call('users.getUserByEmail', this.state.recipientEmail, (err, result) => {
       if (err || !result) alertify.error('Cannot find user')
       else {
-        this.props.submit(result.user, result.approved)
+        this.props.submit(result)
         this.props.done()
       }
     })
