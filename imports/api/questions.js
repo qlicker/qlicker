@@ -209,14 +209,17 @@ if (Meteor.isServer) {
         courseId: courseId,
       }
       if (user.hasGreaterRole(ROLES.prof)) {
-        query = _.extend({ approved: true }, query)
+        query = _.extend({ 
+          approved: true, 
+          '$or': [{owner: this.userId, private: true}, {'$or': [{ private: false }, { private: {$exists: false}}]}], 
+        }, query)
       } else {
         // students. By checking for creator, they can see the questions they submitted
         // that have been moved to a course library (which changes the owner w/o copying)
         try {
           check(courseId, Helpers.MongoID)
           query = {
-            '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
+            '$or': [{creator: this.userId, '$or': [{ private: false}, { private: { $exists: false }}]}, {owner: this.userId}],
             courseId: courseId,
             sharedCopy: false,
             sessionId: {$exists: false} 
