@@ -601,11 +601,14 @@ Meteor.methods({
     return Meteor.call('sessions.delete', courseId, sessionId)
   },
 
-  'courses.publicQuestionsRequireApproval' (courseid) {
-    check(courseid, Helpers.MongoID)
-    const course = Courses.findOne(courseid)
-    const approved = course.requireApprovedPublicQuestions ? course.requireApprovedPublicQuestions : false
-    return approved
+  'courses.publicQuestionsRequireApproval' (courseId) {
+    check(courseId, Helpers.MongoID)
+    const course = Courses.findOne(courseId)
+    const user = Meteor.users.findOne({ _id: this.userId })
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      const approved = course.requireApprovedPublicQuestions ? course.requireApprovedPublicQuestions : false
+      return approved
+    } else return true
   },
 
   /**
@@ -704,7 +707,10 @@ Meteor.methods({
   'courses.hasAllowedStudentQuestions' (courseId) {
     const course = Courses.findOne(courseId)
     if (!course) throw new Error('Course not found')
-    return course.allowStudentQuestions
+    const user = Meteor.users.findOne({ _id: this.userId })
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      return course.allowStudentQuestions
+    } else return false
   },
 
   /**
