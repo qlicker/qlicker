@@ -203,7 +203,7 @@ if (Meteor.isServer) {
 
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) throw new Error('User does not have permission to access this publication')
+      if (!user.isInstructor(courseId) && !user.isStudent(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
       let query = { 
         sessionId: {$exists: false},
         courseId: courseId,
@@ -213,19 +213,23 @@ if (Meteor.isServer) {
       } else {
         // students. By checking for creator, they can see the questions they submitted
         // that have been moved to a course library (which changes the owner w/o copying)
-        if (courseId) {
+        try {
+          check(courseId, Helpers.MongoID)
           query = {
             '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
             courseId: courseId,
             sharedCopy: false,
             sessionId: {$exists: false} 
           }
-        } else { // If the user is not in a course and calls this method (should not happen), then query all of their questions
+        }
+        catch (err) {
           query = { 
             '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
+            courseId: {$exists: false},
             sharedCopy: false,
             sessionId: {$exists: false} 
           }
+      
         }
       }
       return Questions.find(query)
