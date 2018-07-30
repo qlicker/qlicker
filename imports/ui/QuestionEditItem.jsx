@@ -55,7 +55,7 @@ export class QuestionEditItem extends Component {
     this.shareQuestion = this.shareQuestion.bind(this)
 
     //Set state
-    this.state = { resetDuplicate: 0 }
+    this.state = {}
     // if editing pre-exsiting question
     if (this.props.question) {    
       this.state.question = this.props.question
@@ -420,7 +420,6 @@ export class QuestionEditItem extends Component {
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
   saveQuestion (user) {
-    if (this.state.resetDuplicate > 0 ) return
     let keysToOmit = []
     //If not exporting question
     if (!user) {
@@ -452,7 +451,6 @@ export class QuestionEditItem extends Component {
         return
       }
     })  
-    this.setState({ resetDuplicate: this.state.resetDuplicate + 1})
   } // end saveQuestion
 
   deleteQuestion () {
@@ -463,11 +461,9 @@ export class QuestionEditItem extends Component {
     })
   }
 
-  duplicateQuestion (user) {
+  duplicateQuestion (user) { 
     if ( this.state.question._id && (this.state.question.options.length !== 0 || this.state.question.type === QUESTION_TYPE.SA)) {
-      delete this.state.question._id
-      this.saveQuestion(user)
-      this.setState({ resetDuplicate: 0 })
+      Meteor.call('questions.duplicate', this.state.question, user._id)
     } else {
       alertify.error('Error: question must be saved')
     }

@@ -85,6 +85,7 @@ export const defaultQuestion = {
   creator: '',
   tags: [],
   sharedCopy: false,
+  public: false,
   private: false,
   sessionOptions: defaultSessionOptions
 }
@@ -333,6 +334,21 @@ Meteor.methods({
     else throw Error('Unable to update')
   },
 
+  /**
+   * Copies an existing question to a user's library
+   * @param {Question} question
+   * @returns {MongoID} id of updated question
+   */
+  'questions.duplicate' (question, userId) {
+    check(question._id, Helpers.MongoID)
+    check(question, questionPattern)
+    check(userId, Helpers.MongoID)
+
+    delete question._id
+    question.owner = userId
+
+    return Meteor.call('questions.insert', question)
+  },
   /**
    * Deletes a question by id
    * @param {MongoId} questionId
