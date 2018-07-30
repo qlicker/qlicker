@@ -301,8 +301,10 @@ Meteor.methods({
     const course = Courses.findOne({_id: question.courseId })
 
     question.createdAt = new Date()
-    question.public = !course.requireApprovedPublicQuestions
     question.creator = Meteor.userId()
+
+    if (user.isStudent(question.courseId) && course.requireApprovedPublicQuestions && question.public) question.public = false
+
     if (user.isStudent(question.courseId)) question.approved = false
 
     check(question, questionPattern)
