@@ -483,7 +483,7 @@ export class QuestionEditItem extends Component {
 
   shareQuestion (user, approved) {
     let question = this.state.question
-    question.shared = true
+    question.sharedCopy = true
     this.setState({ question: question }, () => {
       this.duplicateQuestion(user, approved)
     })

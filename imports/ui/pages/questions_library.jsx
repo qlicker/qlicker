@@ -207,7 +207,7 @@ class _QuestionsLibrary extends Component {
     question.owner = Meteor.userId()
     question.createdAt = new Date()
     question.courseId = this.props.courseId
-    question.shared = false
+    question.sharedCopy = false
     Meteor.call('questions.insert', question, (error, newQuestionId) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question copied to library')
@@ -409,7 +409,7 @@ export const QuestionsLibrary = createContainer(props => {
     params = {
       query: {
         courseId: courseId,
-        shared: false
+        sharedCopy: false
       },
       options: {
         sort: { createdAt: -1 }
@@ -421,7 +421,7 @@ export const QuestionsLibrary = createContainer(props => {
     params = {
       query: {
         public: true,
-        shared: false,
+        sharedCopy: false,
         courseId: courseId
       },
       options: {
@@ -436,7 +436,7 @@ export const QuestionsLibrary = createContainer(props => {
         courseId: courseId,
         sessionId: {$exists: false},
         approved: false,
-        shared: false,
+        sharedCopy: false,
         '$or': [{private: false}, {private: {$exists: false}}]
       },
       options: {sort:
@@ -449,7 +449,7 @@ export const QuestionsLibrary = createContainer(props => {
   if (props.library === 'sharedWithUser') {
     params = {
       query: {
-        shared: true
+        sharedCopy: true
       },
       options: {sort:
         { createdAt: -1 },

@@ -39,7 +39,7 @@ const questionPattern = {
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
   private: Match.Maybe(Boolean),
-  shared: Match.Maybe(Boolean),
+  sharedCopy: Match.Maybe(Boolean), // Copy of question that has been shared with the user
   solution: Match.Maybe(String), // solution is the full guide to answering the question
   solution_plainText: Match.Maybe(String), // plain text version of solution
   createdAt: Date,
@@ -84,7 +84,7 @@ export const defaultQuestion = {
   options: [], // { correct: false, answer: 'A', content: editor content }
   creator: '',
   tags: [],
-  shared: false,
+  sharedCopy: false,
   private: false,
   sessionOptions: defaultSessionOptions
 }
@@ -217,13 +217,13 @@ if (Meteor.isServer) {
           query = {
             '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
             courseId: courseId,
-            shared: false,
+            sharedCopy: false,
             sessionId: {$exists: false} 
           }
         } else { // If the user is not in a course and calls this method (should not happen), then query all of their questions
           query = { 
             '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
-            shared: false,
+            sharedCopy: false,
             sessionId: {$exists: false} 
           }
         }
@@ -239,7 +239,7 @@ if (Meteor.isServer) {
       if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) throw new Error('User does not have permission to access this publication')
       let query = { 
         courseId: courseId, 
-        public: true, shared: false, 
+        public: true, sharedCopy: false, 
         '$or': [{private: false}, {private: {$exists: false}}] 
       }
       if (course.requireApprovedPublicQuestions) query = _.extend({ approved: true }, query)
@@ -255,7 +255,7 @@ if (Meteor.isServer) {
       return Questions.find({
         sessionId: {$exists: false},
         approved: false,
-        shared: false,
+        sharedCopy: false,
         courseId: courseId,
         '$or': [{private: false}, {private: {$exists: false}}]
       })
@@ -266,7 +266,7 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       if (!user.isInstructor(courseId) && !user.isStudent(courseId)) throw new Error('User does not have permission to access this publication')
-      return Questions.find({ shared: true, owner: this.userId })
+      return Questions.find({ sharedCopy: true, owner: this.userId })
     } else this.ready()
   })
 }
