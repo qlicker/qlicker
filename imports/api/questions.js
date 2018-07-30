@@ -350,6 +350,20 @@ Meteor.methods({
     return Meteor.call('questions.insert', question)
   },
   /**
+   * Shares a question via duplicating to a specified user's shared library
+   * @param {Question} question
+   * @returns {MongoID} id of updated question
+   */
+  'questions.share' (question, userId) {
+    check(question._id, Helpers.MongoID)
+    check(question, questionPattern)
+    check(userId, Helpers.MongoID)
+
+    const copiedQuestion = _.extend({ sharedCopy: true }, _.omit(question, 'sharedCopy'))
+    
+    return Meteor.call('questions.duplicate', copiedQuestion, userId)
+  },
+  /**
    * Deletes a question by id
    * @param {MongoId} questionId
    */
