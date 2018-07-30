@@ -606,28 +606,25 @@ export class QuestionEditItem extends Component {
                       className='btn btn-default'
                       onClick={this.toggleShareModal}>
                       Share
+                    </button>  
+                    <button
+                      className='btn btn-default'
+                      onClick={this.togglePrivate}
+                      data-toggle='tooltip'
+                      data-placement='top'
+                      title={this.state.question.private ? 'Hide question from submissions' : ''}>
+                      <input type='checkbox' checked={this.state.question.private} readOnly style={{'height':'1em'}} />
+                      Private
                     </button>
-                    
-                    { !user.isInstructorAnyCourse() && this.state.requireApprovedPublicQuestions 
-                      ? <button
-                          className='btn btn-default'
-                          onClick={this.togglePrivate}
-                          data-toggle='tooltip'
-                          data-placement='top'
-                          title={this.state.question.private ? 'Hide question from submissions' : ''}>
-                          <input type='checkbox' checked={this.state.question.private} readOnly style={{'height':'1em'}} />
-                          Private
-                        </button>
-                      : <button
-                          className='btn btn-default'
-                          onClick={this.togglePublic}
-                          data-toggle='tooltip'
-                          data-placement='top'
-                          title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
-                          <input type='checkbox' checked={this.state.question.public} readOnly />
-                          Public
-                        </button>
-                    }
+                    <button
+                      className='btn btn-default'
+                      onClick={this.togglePublic}
+                      data-toggle='tooltip'
+                      data-placement='top'
+                      title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
+                      <input type='checkbox' checked={this.state.question.public} readOnly />
+                      Public
+                    </button>
                   </div>
                 </div>
               </div>
