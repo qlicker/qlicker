@@ -36,7 +36,6 @@ class _QuestionsLibrary extends Component {
     this.importQuestions = this.importQuestions.bind(this)
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
-    this.deleteAllQuestions = this.deleteAllQuestions.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
     this.approveQuestion = this.approveQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
@@ -243,18 +242,6 @@ class _QuestionsLibrary extends Component {
     this.setState({ selected: null, resetSidebar: false })
   }
 
-  deleteAllQuestions () {
-    if (confirm('Are you sure?')) {
-      this.state.questions.forEach(question => {
-        Meteor.call('questions.delete', question._id, (err) => {
-          if (err) alertify.error('Error deleting questions')
-          else alertify.success('All questions deleted')
-        })
-      })
-      this.setState({ selected: null, resetSidebar: false })
-    }
-  }
-
   updateQuery (childState) {
     
     this.setState({resetSidebar: false})
@@ -309,16 +296,17 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-4'>
             <br />
             {(isInstructor || this.state.allowedStudentQuestions) && this.props.library === 'library'
-              ? <div className='ql-questions-library ql-sidebar-buttons'>
-                  <button className='btn btn-primary' onClick={() => this.editQuestion(-1)}>New Question</button>
-                  <button className='btn btn-primary' onClick={this.exportQuestions}>Export to File</button>
-                  <label className='btn btn-primary'>
-                    <input style={{'display' : 'none'}} type='file' onChange={this.importQuestions} />
-                    Import from File
-                  </label>
+              ? <div>
+                  <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(-1)}>New Question</button>
+                  <div className='ql-questions-library ql-sidebar-buttons'>                  
+                    <button className='btn btn-primary' onClick={this.exportQuestions}>Export to File</button>
+                    <label className='btn btn-primary'>
+                      <input style={{'display' : 'none'}} type='file' onChange={this.importQuestions} />
+                      Import from File
+                    </label>
+                  </div>
                 </div>
                 : ''}
-            <button className='btn btn-primary' style={{'width':'100%'}} onClick={this.deleteAllQuestions}>Clear library</button>
             <QuestionSidebar
               questions={library}
               courseId={this.props.courseId}
