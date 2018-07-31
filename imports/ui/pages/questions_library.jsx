@@ -360,7 +360,7 @@ class _QuestionsLibrary extends Component {
                         : ''
                       }             
                       <div className='ql-preview-item-container'>
-                        {this.state.selected
+                        {this.state.selected && this.state.questionMap[this.state.selected]
                           ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
                           : ''
                         }

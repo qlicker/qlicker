@@ -127,11 +127,6 @@ export class QuestionEditItem extends Component {
       })
     }
    
-    Meteor.call('courses.publicQuestionsRequireApproval', this.props.courseId, (e, approved) => {
-      if (e) alertify.error('Cannot get course permissions')
-      else this.state.requireApprovedPublicQuestions = approved
-    })
-   
   } // end constructor
 
    /**
@@ -734,7 +729,7 @@ export class QuestionEditItem extends Component {
 
 QuestionEditItem.propTypes = {
   done: PropTypes.func,
-  question: PropTypes.object.isRequired,
+  question: PropTypes.object,
   questionNumber: PropTypes.number,
   onNewQuestion: PropTypes.func,
   metadata: PropTypes.bool,
