@@ -206,7 +206,7 @@ export class QuestionSidebar extends ControlledForm {
 
           <div className='ql-header-button question-type form-control' style={{'display':'flex'}} onClick={this.showApproved}>
             <span><input className='checkbox' type='checkbox' checked={this.state.showOnlyApprovedQuestions}/></span>
-            <span>Approved Only</span>
+            <span>   Approved Only</span>
           </div>
 
           

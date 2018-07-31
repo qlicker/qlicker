@@ -8,6 +8,9 @@
     align-content: stretch;
   }
   
+  .ql-sidebar-buttons > * {
+    flex: 1;
+  }
   .ql-edit-item-container {
     background: white;
     border: 1px solid #ddd;
