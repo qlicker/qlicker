@@ -228,7 +228,7 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       const course = Courses.findOne({ _id: courseId })
-      if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) return this.ready()
+      if ((courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) || !user.hasRole(ROLES.admin)) return this.ready()
       let query = { 
         courseId: courseId, 
         public: true, 
@@ -244,7 +244,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.isInstructor(courseId)) return this.ready()
+      if (!user.isInstructor(courseId) || !user.hasRole(ROLES.admin)) return this.ready()
       return Questions.find({
         sessionId: {$exists: false},
         approved: false,
@@ -258,7 +258,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.sharedWithUser', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.isInstructor(courseId) && !user.isStudent(courseId)) return this.ready()
+      if ((!user.isInstructor(courseId) && !user.isStudent(courseId)) || !user.hasRole(ROLES.admin)) return this.ready()
       return Questions.find({ sharedCopy: true, owner: this.userId })
     } else this.ready()
   })
