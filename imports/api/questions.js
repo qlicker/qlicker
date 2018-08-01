@@ -330,7 +330,6 @@ Meteor.methods({
    * @returns {MongoID} id of updated question
    */
   'questions.duplicate' (question, userId) {
-    check(question._id, Helpers.MongoID)
     check(question, questionPattern)
     check(userId, Helpers.MongoID)
 
@@ -345,7 +344,6 @@ Meteor.methods({
    * @returns {MongoID} id of updated question
    */
   'questions.share' (question, userId) {
-    check(question._id, Helpers.MongoID)
     check(question, questionPattern)
     check(userId, Helpers.MongoID)
 
