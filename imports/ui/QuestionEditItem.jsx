@@ -468,9 +468,9 @@ export class QuestionEditItem extends Component {
     this.setState({ showShareModal: !this.state.showShareModal })
   }
 
-  shareQuestion (user) {  
+  shareQuestion (email) {  
     let question = _.extend({}, this.state.question)
-    Meteor.call('questions.share', question, user._id)
+    Meteor.call('questions.share', question, email)
   }
 
   componentWillReceiveProps (nextProps) {

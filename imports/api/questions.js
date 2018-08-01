@@ -343,13 +343,16 @@ Meteor.methods({
    * @param {Question} question
    * @returns {MongoID} id of updated question
    */
-  'questions.share' (question, userId) {
+  'questions.share' (question, email) {
     check(question, questionPattern)
-    check(userId, Helpers.MongoID)
 
-    const copiedQuestion = _.extend({ sharedCopy: true }, _.omit(question, 'sharedCopy'))
-    
-    return Meteor.call('questions.duplicate', copiedQuestion, userId)
+    const copiedQuestion = _.extend({ sharedCopy: true }, _.omit(question, 'sharedCopy')) 
+
+    Meteor.call('users.getUserIdByEmail', email, (err, userId) => {
+      if (err) throw new Error('Could not retrieve user')
+      check(userId, Helpers.MongoID)
+      return Meteor.call('questions.duplicate', copiedQuestion, userId)
+    })  
   },
   /**
    * Deletes a question by id

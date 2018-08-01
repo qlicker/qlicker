@@ -22,13 +22,15 @@ export class ShareModal extends ControlledForm {
 
   handleSubmit (e) {
     super.handleSubmit(e)
-    Meteor.call('users.getUserByEmail', this.state.recipientEmail, (err, result) => {
-      if (err || !result) alertify.error('Cannot find user')
-      else {
-        this.props.submit(result)
-        this.props.done()
-      }
-    })
+    this.props.submit(this.state.recipientEmail)
+    this.props.done()
+    // Meteor.call('users.getUserByEmail', this.state.recipientEmail, (err, result) => {
+    //   if (err || !result) alertify.error('Cannot find user')
+    //   else {
+    //     this.props.submit(result)
+    //     this.props.done()
+    //   }
+    // })
   }
   
   submitToSelf (e) {
