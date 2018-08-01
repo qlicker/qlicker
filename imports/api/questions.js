@@ -244,7 +244,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.isInstructor(courseId) && !user.isStudent(courseId)) return this.ready()
+      if (!user.isInstructor(courseId)) return this.ready()
       return Questions.find({
         sessionId: {$exists: false},
         approved: false,
