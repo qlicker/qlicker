@@ -58,6 +58,7 @@ export class QuestionListItem extends ListItem {
         <div>
           <span className='ql-question-details'>
             {this.props.question.public ? '(public) ' : ''}
+            {this.props.question.private ? '(private) ' : ''}
             {this.props.question.courseId && c !== undefined ? '('+ c.deptCode.toUpperCase() + ' ' + c.courseNumber + ') ' : ''}
             {this.props.question.approved ? '(approved) ' : '(un-approved) '}
           </span>
