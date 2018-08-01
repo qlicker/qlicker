@@ -231,7 +231,8 @@ if (Meteor.isServer) {
       if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) return this.ready()
       let query = { 
         courseId: courseId, 
-        public: true, sharedCopy: false, 
+        public: true, 
+        sharedCopy: false, 
         '$or': [{private: false}, {private: {$exists: false}}] 
       }
       if (course.requireApprovedPublicQuestions) query = _.extend({ approved: true }, query)
@@ -292,6 +293,11 @@ Meteor.methods({
 
     if (user.isStudent(question.courseId)) question.approved = false
 
+    // Question cannot be both public and private
+    if (question.public && question.private) {
+      question.public = false
+      question.private = false
+    }
     check(question, questionPattern)
 
     const id = Questions.insert(question)
