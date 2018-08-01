@@ -295,7 +295,7 @@ Meteor.methods({
 
     // Question cannot be both public and private
     if (question.public && question.private) {
-      question.public = false
+      question.public = true
       question.private = false
     }
     check(question, questionPattern)
