@@ -200,41 +200,25 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  Meteor.publish('questions.library', function (courseId) {
+  Meteor.publish('questions.library', function (courseId = null) {
 
     if (this.userId) {
-      const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.isInstructor(courseId) && !user.isStudent(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
       let query = { 
         sessionId: {$exists: false},
-        courseId: courseId,
-      }
-      if (user.hasGreaterRole(ROLES.prof)) {
-        query = _.extend({ 
-          approved: true, 
-          '$or': [{owner: this.userId, private: true}, {'$or': [{ private: false }, { private: {$exists: false}}]}], 
-        }, query)
+        owner: this.userId,
+        sharedCopy: false
+     }
+      if (courseId) {
+        const user = Meteor.users.findOne({_id: this.userId})
+        if (!user.isInstructor(courseId) && !user.isStudent(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
+        query = _.extend({ courseId: courseId }, query)
+        if (user.hasGreaterRole(ROLES.prof)) {
+          query = _.extend({ 
+            approved: true 
+          }, query)
+        }        
       } else {
-        // students. By checking for creator, they can see the questions they submitted
-        // that have been moved to a course library (which changes the owner w/o copying)
-        try {
-          check(courseId, Helpers.MongoID)
-          query = {
-            '$or': [{creator: this.userId, '$or': [{ private: false}, { private: { $exists: false }}]}, {owner: this.userId}],
-            courseId: courseId,
-            sharedCopy: false,
-            sessionId: {$exists: false} 
-          }
-        }
-        catch (err) {
-          query = { 
-            '$or': [{creator: this.userId, private: false}, {owner: this.userId}],
-            courseId: {$exists: false},
-            sharedCopy: false,
-            sessionId: {$exists: false} 
-          }
-      
-        }
+
       }
       return Questions.find(query)
     } else this.ready()
