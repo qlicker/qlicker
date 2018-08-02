@@ -13,6 +13,7 @@ import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
 
 import { Questions, defaultQuestion } from '../../api/questions'
+import { Courses } from '../../api/courses'
 
 class _QuestionsLibrary extends Component {
 
@@ -323,6 +324,7 @@ class _QuestionsLibrary extends Component {
                       <div className='ql-edit-item-container'>
                         <QuestionEditItem
                           courseId={this.props.courseId}
+                          publicQuestionsRequireApproval={this.props.publicQuestionsRequireApproval}
                           question={this.state.questionMap[this.state.selected]}
                           deleted={this.questionDeleted}
                           metadata autoSave />
@@ -448,10 +450,15 @@ export const QuestionsLibrary = createContainer(props => {
 
   const questions = Questions.find().fetch()
   const selected = questions[0] ? questions[0]._id : ''
+
+  const course = Courses.findOne({ _id: props.courseId })
+  const publicQuestionsRequireApproval = course.requireApprovedPublicQuestions
+
   return {
     query: params,
     questions: questions,
     courseId: courseId,
+    publicQuestionsRequireApproval: publicQuestionsRequireApproval,
     selected: selected,
     editable: editable,
     loading: !handle.ready()

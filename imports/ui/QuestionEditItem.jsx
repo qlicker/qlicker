@@ -15,9 +15,10 @@ import { RadioPrompt } from './RadioPrompt'
 import {ShareModal } from './modals/ShareModal'
 
 import { defaultSessionOptions, defaultQuestion } from '../api/questions'
+import { Courses } from '../api/courses'
 
 // constants
-import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
+import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable, ROLES } from '../configs'
 
 /**
  * React Component for editing an individual question
@@ -55,7 +56,7 @@ export class QuestionEditItem extends Component {
     this.shareQuestion = this.shareQuestion.bind(this)
 
     //Set state
-    this.state = {}
+    this.state = { }
     // if editing pre-exsiting question
     if (this.props.question) {    
       this.state.question = this.props.question
@@ -106,6 +107,7 @@ export class QuestionEditItem extends Component {
         })
         this.forceUpdate()
       })
+
     }
 
     // Default value of courseId depends on courseId of question and prop
@@ -126,7 +128,6 @@ export class QuestionEditItem extends Component {
         this.state.courses = d
       })
     }
-   
   } // end constructor
 
    /**
@@ -474,6 +475,7 @@ export class QuestionEditItem extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
+
     this.setState({ question: nextProps.question })
     this.setCourse(nextProps.question.courseId)
   }
@@ -544,16 +546,15 @@ export class QuestionEditItem extends Component {
   } // end shortAnswerEditor
 
   render () {   
-
+    
     let editorRows = []
-
     if (this.state.question.type === QUESTION_TYPE.TF) {
       const row = <div key='row_0' className='row'>
         {this.answerEditor(this.state.question.options[0])}
         {this.answerEditor(this.state.question.options[1])}
       </div>
       editorRows.push(row)
-
+     
     } else if (this.state.question.type !== QUESTION_TYPE.SA) {
       this.state.question.options.forEach((option, i) => {
         editorRows.push(<div key={'row_' + i} className='row'>
@@ -561,6 +562,7 @@ export class QuestionEditItem extends Component {
         </div>)
       })
     }
+    
     let user = Meteor.user()
     const selectOnly = (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
@@ -570,7 +572,7 @@ export class QuestionEditItem extends Component {
       { value: QUESTION_TYPE.TF, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.TF] },
       { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
     ]
-
+  
     return (
       <div className='ql-question-edit-item'>
         {
@@ -611,15 +613,19 @@ export class QuestionEditItem extends Component {
                       <input type='checkbox' checked={this.state.question.private} readOnly style={{'height':'1em'}} />
                       Private
                     </button>
-                    <button
-                      className='btn btn-default'
-                      onClick={this.togglePublic}
-                      data-toggle='tooltip'
-                      data-placement='top'
-                      title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
-                      <input type='checkbox' checked={this.state.question.public} readOnly />
-                      Public
-                    </button>
+                    { !user.hasRole(ROLES.student) || !this.props.publicQuestionsRequireApproval
+                      ? <button
+                          className='btn btn-default'
+                          onClick={this.togglePublic}
+                          data-toggle='tooltip'
+                          data-placement='top'
+                          title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
+                          <input type='checkbox' checked={this.state.question.public} readOnly />
+                          Public
+                        </button>
+                      : ''
+                    }
+                    
                   </div>
                 </div>
               </div>
@@ -736,5 +742,6 @@ QuestionEditItem.propTypes = {
   deleted: PropTypes.func,
   isQuiz: PropTypes.bool,
   autoSave: PropTypes.bool,
-  courseId: PropTypes.string.isRequired
+  courseId: PropTypes.string.isRequired,
+  publicQuestionsRequireApproval: PropTypes.bool
 }
