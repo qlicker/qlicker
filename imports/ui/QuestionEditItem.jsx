@@ -471,7 +471,10 @@ export class QuestionEditItem extends Component {
 
   shareQuestion (email) {  
     let question = _.extend({}, this.state.question)
-    Meteor.call('questions.share', question, email)
+    Meteor.call('questions.share', question, email, (err) => {
+      if (err) alertify.error('Error sharing question')
+      else alertify.success('Question shared')
+    })
   }
 
   componentWillReceiveProps (nextProps) {

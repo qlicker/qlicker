@@ -244,8 +244,8 @@ if (Meteor.isServer) {
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.isInstructor(courseId) || !user.hasRole(ROLES.admin)) return this.ready()
-      return Questions.find({
+      if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
+      return Questions.find({      
         sessionId: {$exists: false},
         approved: false,
         sharedCopy: false,
