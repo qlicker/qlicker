@@ -36,7 +36,8 @@ export class ShareModal extends ControlledForm {
   submitToSelf (e) {
     super.handleSubmit(e)
     const user = Meteor.user()
-    this.props.submit(user, user.hasGreaterRole('professor'))
+    const email = user.emails[0].address
+    this.props.submit(email)
     this.props.done()
   }
 

@@ -19,7 +19,7 @@ class _QuestionsLibrary extends Component {
 
   constructor (props) {
     super(props)
-
+   
     this.state = {
       edits: {},
       selected: null,
@@ -199,10 +199,10 @@ class _QuestionsLibrary extends Component {
     let question = this.state.questionMap[questionId]
     let user = Meteor.user()
     if (user.hasRole('student')) {
-      delete question._id
       question.approved = false
     }
     else question.approved = true
+    delete question._id
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
@@ -284,7 +284,7 @@ class _QuestionsLibrary extends Component {
   }
 
   render () {
-   
+  
     let library = this.state.questions || []
 
     const isInstructor = Meteor.user().isInstructorAnyCourse()
@@ -391,7 +391,6 @@ export const QuestionsLibrary = createContainer(props => {
   const handle =  Meteor.subscribe(subscription, props.courseId)
   const courseId = props.courseId
   
-  
   let params = {}
   let editable = true
   
@@ -435,11 +434,12 @@ export const QuestionsLibrary = createContainer(props => {
     }
     editable = false
   }
-
+ 
   if (props.library === 'sharedWithUser') {
     params = {
       query: {
-        sharedCopy: true
+        sharedCopy: true,
+        owner: Meteor.userId()
       },
       options: {sort:
         { createdAt: -1 },
@@ -450,7 +450,6 @@ export const QuestionsLibrary = createContainer(props => {
 
   const questions = Questions.find().fetch()
   const selected = questions[0] ? questions[0]._id : ''
-
   const course = Courses.findOne({ _id: props.courseId })
   const publicQuestionsRequireApproval = course.requireApprovedPublicQuestions
 

@@ -258,7 +258,7 @@ if (Meteor.isServer) {
   Meteor.publish('questions.sharedWithUser', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
-      if ((!user.isInstructor(courseId) && !user.isStudent(courseId)) || !user.hasRole(ROLES.admin)) return this.ready()
+      if ((!user.isInstructor(courseId) && !user.isStudent(courseId)) || user.hasRole(ROLES.admin)) return this.ready()
       return Questions.find({ sharedCopy: true, owner: this.userId })
     } else this.ready()
   })
@@ -276,7 +276,6 @@ Meteor.methods({
    * @returns {Question} new question
    */
   'questions.insert' (question) {
-    
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     
     if (!user.isInstructor(question.courseId) && !user.isStudent(question.courseId)) throw new Error('Cannot insert question (user not in course)')
@@ -299,7 +298,6 @@ Meteor.methods({
       question.private = false
     }
     check(question, questionPattern)
-
     const id = Questions.insert(question)
     return Questions.findOne({ _id: id })
   },
@@ -332,11 +330,9 @@ Meteor.methods({
   'questions.duplicate' (question, userId) {
     check(question, questionPattern)
     check(userId, Helpers.MongoID)
-
     delete question._id
-    question.owner = userId
-
-    return Meteor.call('questions.insert', question)
+    const copiedQuestion = _.extend({ owner: userId }, _.omit(question, 'owner'))
+    return Meteor.call('questions.insert', copiedQuestion)
   },
   /**
    * Shares a question via duplicating to a specified user's shared library
@@ -353,6 +349,7 @@ Meteor.methods({
       check(userId, Helpers.MongoID)
       return Meteor.call('questions.duplicate', copiedQuestion, userId)
     })  
+    
   },
   /**
    * Deletes a question by id

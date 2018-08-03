@@ -259,7 +259,6 @@ Meteor.methods({
   },
   
   'users.getUserIdByEmail' (email) {   
-    check(email, Helpers.email) 
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (user) return user._id
     else throw new Meteor.Error('User not found')
