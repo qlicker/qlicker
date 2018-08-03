@@ -90,6 +90,30 @@ export const defaultQuestion = {
   sessionOptions: defaultSessionOptions
 }
 
+export const questionQueries = {
+  library: {
+    sessionId: {$exists: false},
+    sharedCopy: false
+  },
+  public: {
+    public: true, 
+    sharedCopy: false, 
+    '$or': [{private: false}, {private: {$exists: false}}] 
+  },
+  unapprovedFromStudents: {
+    sessionId: {$exists: false},
+    approved: false,
+    sharedCopy: false,
+    '$or': [{private: false}, {private: {$exists: false}}]
+  },
+  sharedWithUser: {
+    sharedCopy: true,
+  },
+  options: {sort:
+    { createdAt: -1 },
+  }
+}
+
 // Create Question class
 const Question = function (doc) { _.extend(this, doc) }
 _.extend(Question.prototype, {
@@ -202,42 +226,32 @@ if (Meteor.isServer) {
 
   Meteor.publish('questions.library', function (courseId = null) {
 
-    if (this.userId) {
-      let query = { 
-        sessionId: {$exists: false},
-        owner: this.userId,
-        sharedCopy: false
-     }
-      if (courseId) {
-        const user = Meteor.users.findOne({_id: this.userId})
-        if (!user.isInstructor(courseId) && !user.isStudent(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
-        query = _.extend({ courseId: courseId }, query)
-        if (user.hasGreaterRole(ROLES.prof)) {
-          query = _.extend({ 
-            approved: true 
-          }, query)
-        }        
-      } else {
-
-      }
+    if (this.userId ) {
+      let query = _.extend({ courseId: courseId, owner: this.userId }, _.omit(questionQueries.library, 'owner'))
+      
+      const user = Meteor.users.findOne({_id: this.userId})
+      if (!user.isInstructor(courseId) && !user.isStudent(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
+      query = _.extend({ courseId: courseId }, query)
+      if (user.hasGreaterRole(ROLES.prof)) {
+        query = _.extend({ 
+          approved: true 
+        }, query)
+      }            
       return Questions.find(query)
     } else this.ready()
   })
 
-  Meteor.publish('questions.public', function (courseId) {
+  Meteor.publish('questions.public', function (courseId = null) {
+   
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       const course = Courses.findOne({ _id: courseId })
-      if ((courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) || !user.hasRole(ROLES.admin)) return this.ready()
-      let query = { 
-        courseId: courseId, 
-        public: true, 
-        sharedCopy: false, 
-        '$or': [{private: false}, {private: {$exists: false}}] 
-      }
+      if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) return this.ready()
+      let query = _.extend({ courseId: courseId }, questionQueries.public)
       if (course.requireApprovedPublicQuestions) query = _.extend({ approved: true }, query)
       return Questions.find(query)
-    } else this.ready()
+    } else {
+      return this.ready()
   })
 
   // questions submitted to specific course
@@ -246,12 +260,8 @@ if (Meteor.isServer) {
       const user = Meteor.users.findOne({_id: this.userId})
       if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
       return Questions.find({      
-        sessionId: {$exists: false},
-        approved: false,
-        sharedCopy: false,
-        courseId: courseId,
-        '$or': [{private: false}, {private: {$exists: false}}]
-      })
+      let query = _.extend({ courseId: courseId }, questionQueries.unapprovedFromStudents)
+      return Questions.find(query)
     } else this.ready()
   })
 
@@ -259,7 +269,8 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       if ((!user.isInstructor(courseId) && !user.isStudent(courseId)) || user.hasRole(ROLES.admin)) return this.ready()
-      return Questions.find({ sharedCopy: true, owner: this.userId })
+      const query = _.extend({ owner: this.userId }, questionQueries.sharedWithUser)
+      return Questions.find(query)
     } else this.ready()
   })
 }

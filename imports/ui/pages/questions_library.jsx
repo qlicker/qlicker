@@ -12,7 +12,7 @@ import { QuestionEditItem } from '../QuestionEditItem'
 import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
 
-import { Questions, defaultQuestion } from '../../api/questions'
+import { Questions, defaultQuestion, questionQueries } from '../../api/questions'
 import { Courses } from '../../api/courses'
 
 class _QuestionsLibrary extends Component {
@@ -396,54 +396,30 @@ export const QuestionsLibrary = createContainer(props => {
   
   if (props.library === 'library') {
     params = {
-      query: {
-        courseId: courseId,
-        sharedCopy: false
-      },
-      options: {
-        sort: { createdAt: -1 }
-      }
+      query: _.extend({ courseId: courseId, owner: Meteor.userId() }, questionQueries.library),
+      options: questionQueries.options
     }
   }
 
   if (props.library === 'public') {
     params = {
-      query: {
-        public: true,
-        sharedCopy: false,
-        courseId: courseId
-      },
-      options: {
-        sort: { createdAt: -1 },
-      }
+      query: _.extend({ courseId: courseId }, questionQueries.public),
+      options: questionQueries.options
     }
   }
   
   if (props.library === 'unapprovedFromStudents') {
     params = {
-      query: {
-        courseId: courseId,
-        sessionId: {$exists: false},
-        approved: false,
-        sharedCopy: false,
-        '$or': [{private: false}, {private: {$exists: false}}]
-      },
-      options: {sort:
-        { createdAt: -1 },   
-      }
+      query: _.extend({ courseId: courseId }, questionQueries.unapprovedFromStudents),
+      options: questionQueries.options
     }
     editable = false
   }
  
   if (props.library === 'sharedWithUser') {
     params = {
-      query: {
-        sharedCopy: true,
-        owner: Meteor.userId()
-      },
-      options: {sort:
-        { createdAt: -1 },
-      }
+      query: _.extend({ owner: Meteor.userId() }, questionQueries.sharedWithUser),
+      options: questionQueries.options
     }
     editable = false
   }
@@ -452,7 +428,7 @@ export const QuestionsLibrary = createContainer(props => {
   const selected = questions[0] ? questions[0]._id : ''
   const course = Courses.findOne({ _id: props.courseId })
   const publicQuestionsRequireApproval = course.requireApprovedPublicQuestions
-
+ 
   return {
     query: params,
     questions: questions,
