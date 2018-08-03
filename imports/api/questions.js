@@ -252,6 +252,7 @@ if (Meteor.isServer) {
       return Questions.find(query)
     } else {
       return this.ready()
+    }
   })
 
   // questions submitted to specific course
@@ -259,7 +260,6 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
-      return Questions.find({      
       let query = _.extend({ courseId: courseId }, questionQueries.unapprovedFromStudents)
       return Questions.find(query)
     } else this.ready()
