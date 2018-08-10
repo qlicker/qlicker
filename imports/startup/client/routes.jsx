@@ -51,6 +51,15 @@ Router.route('/login', {
   }
 })
 
+Router.route('/logout', {
+  name: 'logout',
+  action: function () {
+    if (Meteor.userId()) {
+      Meteor.logout( () => Router.go('login'))
+    } else { Router.go('login') }
+  }
+})
+
 Router.route('/reset/:token', function () {
   mount(AppLayout, { content: <ResetPasswordPage token={this.params.token} /> })
 }, {

@@ -66,7 +66,7 @@ class _PageContainer extends Component {
     const isAdmin = user.hasRole('admin')
 
     const logout = () => {
-      Meteor.logout(() => Router.go('login'))
+      Router.go('logout')
     }
 
     const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }

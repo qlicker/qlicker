@@ -32,6 +32,13 @@ export class LoginBox extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.changeForm = this.changeForm.bind(this)
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
+    this.loginSSO = this.loginSSO.bind(this)
+  }
+
+  
+  loginSSO(e){
+   e.preventDefault()
+   Meteor.loginWithSaml()
   }
 
   sendVerificationEmail () {
@@ -132,6 +139,7 @@ export class LoginBox extends Component {
           <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
           <div className='bottom-account-message'>{haveAccountMessage}</div>
           <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
+          <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.loginSSO}>Login through SSO</button>
         </div>
       </form>
     )

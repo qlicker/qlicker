@@ -6,3 +6,4 @@ settings.json
 Dockerfile
 .DS_Store
 logs.txt
+private/
