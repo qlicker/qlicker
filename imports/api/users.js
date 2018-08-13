@@ -9,8 +9,6 @@ import { check } from 'meteor/check'
 import { ROLES } from '../configs'
 import Helpers from './helpers'
 
-import { Settings } from './settings'
-
 /*
  * profile: {
  *  firstname: '',
@@ -61,15 +59,11 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    let settings = Settings.findOne()
-    if (settings && settings.storageType === 'AWS') return this.profile.profileImage ? this.profile.profileImage + '/image' : '/images/avatar.png'
-    else return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
   },
 
   getThumbnailUrl: function () {
-    let settings = Settings.findOne()
-    if ( settings && settings.storageType === 'AWS') return this.profile.profileImage ? this.profile.profileImage + '/thumbnail' : '/images/avatar.png'
-    else return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
   }
 })
 
