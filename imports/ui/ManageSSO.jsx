@@ -5,20 +5,24 @@
 
 import React, { Component } from 'react'
 
+import { _ } from 'underscore'
+
+import { Settings } from '../api/settings'
+
 export class ManageSSO extends Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      SSO_enabled: false,
-      SSO_entrypoint: '',
-      SSO_logoutUrl: '',
-      SSO_cert: '',
-      SSO_identifierFormat: '',
-      SSO_nameIdentifier: '',
-      SSO_emailIdentifier: '',
-      SSO_firstNameIdentifier: '',
-      SSO_lastNameIdentifier: ''
+      SSO_enabled: props.settings.SSO_enabled,
+      SSO_entrypoint: props.settings.SSO_entrypoint,
+      SSO_logoutUrl: props.settings.SSO_logoutUrl,
+      SSO_cert: props.settings.SSO_cert,
+      SSO_identifierFormat: props.settings.SSO_identifierFormat,
+      SSO_institutionName: props.settings.SSO_institutionName,
+      SSO_emailIdentifier: props.settings.SSO_emailIdentifier,
+      SSO_firstNameIdentifier: props.settings.SSO_firstNameIdentifier,
+      SSO_lastNameIdentifier: props.settings.SSO_lastNameIdentifier
     }
 
     this.setValue = this.setValue.bind(this)
@@ -32,10 +36,22 @@ export class ManageSSO extends Component {
   }
 
   setSSO (e) {
-    e.preventDefault
+    e.preventDefault()
 
     let settings = Settings.findOne()
-    // set SSO settings here
+    settings = _.extend({ 
+      SSO_enabled: this.state.SSO_enabled || '',
+      SSO_entrypoint: this.state.SSO_entrypoint || '',
+      SSO_logoutUrl: this.state.SSO_logoutUrl || '',
+      SSO_cert: this.state.SSO_cert || '',
+      SSO_identifierFormat: this.state.SSO_identifierFormat || '',
+      SSO_emailIdentifier: this.state.SSO_emailIdentifier || '',
+      SSO_firstNameIdentifier: this.state.SSO_firstNameIdentifier || '',
+      SSO_lastNameIdentifier: this.state.SSO_lastNameIdentifier || '',
+      SSO_institutionName: this.state.SSO_institutionName || ''
+    }, settings)
+    
+    console.log(settings)
     
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
@@ -63,7 +79,7 @@ export class ManageSSO extends Component {
                 <input className='form-control' type='text' data-name='SSO_cert' onChange={this.setValue} placeholder='Certificate' />
                 <br />
                 <input className='form-control' type='text' data-name='SSO_identifierFormat' onChange={this.setValue} placeholder='Identifier Format' /><br />
-                <div><input className='form-control' type='text' data-name='SSO_nameIdentifier' onChange={this.setValue} placeholder='Name Identifier' /><br /></div>
+                <div><input className='form-control' type='text' data-name='SSO_institutionName' onChange={this.setValue} placeholder='Name Identifier' /><br /></div>
                 <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' /><br />
                 <input className='form-control' type='text' data-name='SSO_firstNameIdentifier' onChange={this.setValue} placeholder='First Name Identifier' /><br />
                 <input className='form-control' type='text' data-name='SSO_lastNameIdentfier' onChange={this.setValue} placeholder='Last Name Identifier' /><br />

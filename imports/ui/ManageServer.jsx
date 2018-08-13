@@ -34,7 +34,7 @@ export class ManageServer extends Component {
 
     let settings = Settings.findOne()
     settings.maxImageSize = !isNaN(Number(this.state.size)) ? Number(this.state.size) : 0
-    Meteor.call('settings.update', settings, (e, d) => {
+    Meteor.call('settings.updateImageSettings', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
       else alertify.success('Settings updated')
     })
@@ -52,7 +52,7 @@ export class ManageServer extends Component {
   }
 
   setStorage (e) {
-    e.preventDefault
+    e.preventDefault()
 
     let settings = Settings.findOne()
     settings.storageType = this.state.storageType

@@ -58,7 +58,7 @@ class _AdminDashboard extends Component {
             : ''  
           } 
           { this.state.tab === 'sso' 
-           ? <ManageSSO />
+           ? <ManageSSO settings={this.props.settings}/>
            : ''
           }
         </div>
