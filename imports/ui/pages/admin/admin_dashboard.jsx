@@ -12,8 +12,9 @@ import { Courses } from '../../../api/courses'
 
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
-import { ManageUsers } from '../../ManageUsers.jsx'
-import { ManageServer } from '../../ManageServer.jsx'
+import { ManageUsers } from '../../ManageUsers'
+import { ManageServer } from '../../ManageServer'
+import { ManageSSO } from '../../ManageSSO'
 
 class _AdminDashboard extends Component {
 
@@ -40,11 +41,11 @@ class _AdminDashboard extends Component {
         <span className='ql-admin-toolbar'>
           <span className='title'>Dashboard</span>
           <span className='divider'>&nbsp;</span>
-          <span className='button' onClick={() => setTab('users')}>User Settings</span>
+          <span className='button' onClick={() => setTab('users')}>Users</span>
           <span className='divider'>&nbsp;</span>
-          <span className='button' onClick={() => setTab('server')}>Server Settings</span>
+          <span className='button' onClick={() => setTab('server')}>Server</span>
           <span className='divider'>&nbsp;</span>
-          <span className='button' onClick={() => setTab('sso')}>Single Sign On Settings</span>
+          <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
         </span>
         
         <div className='ql-admin-settings'>
@@ -56,7 +57,10 @@ class _AdminDashboard extends Component {
             ? <ManageServer settings={this.props.settings} />  
             : ''  
           } 
-          
+          { this.state.tab === 'sso' 
+           ? <ManageSSO />
+           : ''
+          }
         </div>
         { this.state.profileViewModal
             ? <ProfileViewModal
