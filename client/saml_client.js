@@ -1,3 +1,5 @@
+import { Random } from 'meteor/random'
+
 if (!Accounts.saml) {
   Accounts.saml = {};
 }

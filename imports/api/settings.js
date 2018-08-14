@@ -146,6 +146,11 @@ Meteor.methods({
     }
   },
 
+  'settings.getInstitution' () {
+    const settings = Settings.findOne()
+    if (settings) return settings.SSO_institutionName
+  },
+
   'confirmAccount' (email) {
     check(email, String)
     var domain = email.substring(email.lastIndexOf('@') + 1)

@@ -35,7 +35,6 @@ export class LoginBox extends Component {
     this.loginSSO = this.loginSSO.bind(this)
   }
 
-  
   loginSSO(e){
    e.preventDefault()
    Meteor.loginWithSaml()
@@ -111,6 +110,12 @@ export class LoginBox extends Component {
     this.setState(stateEdits)
   }
 
+  componentWillMount () {
+    Meteor.call('settings.getInstitution', (err, institution) => {
+      this.setState({ ssoInstitution: institution})
+    })
+  }
+  
   render () {
     const switchFormString = this.state.login ? 'Create an Account' : 'Login'
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
@@ -139,7 +144,7 @@ export class LoginBox extends Component {
           <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
           <div className='bottom-account-message'>{haveAccountMessage}</div>
           <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
-          <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.loginSSO}>Login through SSO</button>
+          <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.loginSSO}>Login through {this.state.ssoInstitution}</button>
         </div>
       </form>
     )
