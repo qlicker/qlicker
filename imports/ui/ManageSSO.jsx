@@ -27,6 +27,7 @@ export class ManageSSO extends Component {
 
     this.setValue = this.setValue.bind(this)
     this.setSSO = this.setSSO.bind(this)
+    this.toggleSSO = this.toggleSSO.bind(this)
   }
 
   setValue (e) {
@@ -39,8 +40,8 @@ export class ManageSSO extends Component {
     e.preventDefault()
 
     let settings = Settings.findOne()
-    settings = _.extend({ 
-      SSO_enabled: this.state.SSO_enabled || '',
+    settings = _.extend(settings, { 
+      SSO_enabled: this.state.SSO_enabled || false,
       SSO_entrypoint: this.state.SSO_entrypoint || '',
       SSO_logoutUrl: this.state.SSO_logoutUrl || '',
       SSO_cert: this.state.SSO_cert || '',
@@ -49,9 +50,7 @@ export class ManageSSO extends Component {
       SSO_firstNameIdentifier: this.state.SSO_firstNameIdentifier || '',
       SSO_lastNameIdentifier: this.state.SSO_lastNameIdentifier || '',
       SSO_institutionName: this.state.SSO_institutionName || ''
-    }, settings)
-    
-    console.log(settings)
+    })
     
     Meteor.call('settings.update', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
@@ -60,32 +59,33 @@ export class ManageSSO extends Component {
     
   } // end setSSO
 
+  toggleSSO (e) { 
+    e.persist()
+    this.setState({ SSO_enabled: !this.state.SSO_enabled }, () => {
+      this.setSSO(e)
+    })    
+  }  
+
   render() {
 
-    const toggleSSO = () => { this.setState({ SSO_enabled: !this.state.SSO_enabled })}    
     return(
-      <div>        
+      <div className='col-md-4'>        
         <h4>Enable single sign on</h4>
-        <input type='checkbox' checked={this.state.SSO_enabled} onChange={toggleSSO} />
+        <input type='checkbox' checked={this.state.SSO_enabled} onChange={this.toggleSSO} />
         <br />
         { this.state.SSO_enabled
-          ? <form className='ql-admin-login-box col-md-4' onSubmit={this.setSSO}>
-              <h4>SSO Settings</h4>  
-              <div className='ql-card-content inputs-container'>
-                <div className='input-group'>
-                  <input className='form-control' type='text' data-name='SSO_entrypoint' onChange={this.setValue} placeholder='Entry Point' />
-                  <input className='form-control' type='text' data-name='SSO_logoutUrl' onChange={this.setValue} placeholder='Logout URL' />
-                </div>
-                <input className='form-control' type='text' data-name='SSO_cert' onChange={this.setValue} placeholder='Certificate' />
-                <br />
-                <input className='form-control' type='text' data-name='SSO_identifierFormat' onChange={this.setValue} placeholder='Identifier Format' /><br />
-                <div><input className='form-control' type='text' data-name='SSO_institutionName' onChange={this.setValue} placeholder='Name Identifier' /><br /></div>
-                <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' /><br />
-                <input className='form-control' type='text' data-name='SSO_firstNameIdentifier' onChange={this.setValue} placeholder='First Name Identifier' /><br />
-                <input className='form-control' type='text' data-name='SSO_lastNameIdentfier' onChange={this.setValue} placeholder='Last Name Identifier' /><br />
+          ? <form className='ql-admin-login-box col-md-12' onSubmit={this.setSSO}>
+              <h4>SSO Settings</h4>         
+                <input className='form-control' type='text' data-name='SSO_entrypoint' onChange={this.setValue} placeholder='Entry Point' value={this.state.SSO_entrypoint}/><br />
+                <input className='form-control' type='text' data-name='SSO_logoutUrl' onChange={this.setValue} placeholder='Logout URL' value={this.state.SSO_logoutUrl} /><br />
+                <input className='form-control' type='text' data-name='SSO_cert' onChange={this.setValue} placeholder='Certificate' value={this.state.SSO_cert} /><br />
+                <input className='form-control' type='text' data-name='SSO_identifierFormat' onChange={this.setValue} placeholder='Identifier Format' value={this.state.SSO_identifierFormat} /><br />
+                <input className='form-control' type='text' data-name='SSO_institutionName' onChange={this.setValue} placeholder='Institution Name' value={this.state.SSO_institutionName} /><br />
+                <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' value={this.state.SSO_emailIdentifier} /><br />
+                <input className='form-control' type='text' data-name='SSO_firstNameIdentifier' onChange={this.setValue} placeholder='First Name Identifier' value={this.state.SSO_firstNameIdentifier} /><br />
+                <input className='form-control' type='text' data-name='SSO_lastNameIdentifier' onChange={this.setValue} placeholder='Last Name Identifier' value={this.state.SSO_lastNameIdentifier} /><br />
                 <div className='spacer1'>&nbsp;</div>
-                <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
-              </div>
+                <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />          
             </form>
           : ''
         }
