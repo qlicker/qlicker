@@ -28,7 +28,16 @@ const pattern = {
   AWS_secret: Match.Maybe(String),
   Azure_accountName: Match.Maybe(String),
   Azure_accountKey: Match.Maybe(String),
-  Azure_containerName: Match.Maybe(String)
+  Azure_containerName: Match.Maybe(String),
+  SSO_enabled: Match.Maybe(Boolean),
+  SSO_entrypoint: Match.Maybe(String),
+  SSO_logoutUrl: Match.Maybe(String),
+  SSO_cert: Match.Maybe(String),
+  SSO_identifierFormat: Match.Maybe(String),
+  SSO_emailIdentifier: Match.Maybe(String),
+  SSO_firstNameIdentifier: Match.Maybe(String),
+  SSO_lastNameIdentifier: Match.Maybe(String),
+  SSO_institutionName: Match.Maybe(String)
 }
 
 // Create course class
@@ -97,6 +106,17 @@ Meteor.methods({
         if (settings.email && settings.email !== Settings.findOne().email && Meteor.isServer) {
           Accounts.emailTemplates.from = 'Qlicker Admin <' + settings.email + '>'
         }
+        return Settings.update(settings._id, settings)
+      }
+    } else throw new Error('Error updating settings')
+  },
+
+  'settings.updateImageSettings' (settings) {
+    check(settings, pattern)
+    if (this.userId) {
+      let user = Meteor.users.findOne({_id: this.userId})
+      if (!user) throw new Error('User not found')
+      if (user.hasRole(ROLES.admin)) {
         if (Meteor.isServer) {
           directive = Slingshot.getDirective(settings.storageType)._directive
           if (settings.storageType === 'AWS') {      
@@ -113,7 +133,7 @@ Meteor.methods({
             directive.containerName = settings.Azure_containerName
           }
         }
-        return Settings.update(settings._id, settings)
+        return Meteor.call('settings.update', (settings))
       }
     }
   },
@@ -124,6 +144,11 @@ Meteor.methods({
       maxImageWidth: settings ? settings.maxImageWidth : 700,
       storageType: settings ? settings.storageType : 'None'
     }
+  },
+
+  'settings.getInstitution' () {
+    const settings = Settings.findOne()
+    if (settings) return settings.SSO_institutionName
   },
 
   'confirmAccount' (email) {

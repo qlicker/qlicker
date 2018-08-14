@@ -6,15 +6,15 @@
 import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { RestrictDomainForm } from '../../RestrictDomainForm'
-
 import { Settings } from '../../../api/settings'
 
 import { Courses } from '../../../api/courses'
 
-import { ROLES } from '../../../configs'
-
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
+
+import { ManageUsers } from '../../ManageUsers'
+import { ManageServer } from '../../ManageServer'
+import { ManageSSO } from '../../ManageSSO'
 
 class _AdminDashboard extends Component {
 
@@ -22,293 +22,51 @@ class _AdminDashboard extends Component {
     super(p)
 
     this.state = {
-      role: '',
-      size: p.settings.maxImageSize,
-      width: p.settings.maxImageWidth,
-      supportEmail: p.settings.email,
-      requireVerified: p.settings.requireVerified,
-      storageType: p.settings.storageType,
-      AWS_bucket:  p.settings.AWS_bucket,
-      AWS_region: p.settings.AWS_region,
-      AWS_accessKey: p.settings.AWS_accessKey,
-      AWS_secret: p.settings.AWS_secret,
-      Azure_accountName: p.settings.Azure_accountName,
-      Azure_accountKey: p.settings.Azure_accountKey,
-      Azure_containerName: p.settings.Azure_containerName
+      tab: 'users',
     }
-
-    this.saveRoleChange = this.saveRoleChange.bind(this)
-    this.setValue = this.setValue.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.saveImageSize = this.saveImageSize.bind(this)
-    this.saveImageWidth = this.saveImageWidth.bind(this)
-    this.setStorage = this.setStorage.bind(this)
-    this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
-  }
-
-  saveRoleChange (uId, newRole) {
-    if (confirm('Are you sure?')) {
-      Meteor.call('users.changeRole', uId, newRole, (e) => {
-        if (e) return alertify.error('Error: ' + e.message)
-        alertify.success('Role changed')
-      })
-    }
-  }
-
-  setValue (e) {
-    let stateEdits = {}
-    stateEdits[e.target.dataset.name] = e.target.value
-    this.setState(stateEdits)
-  }
-
-  saveImageSize (e) {
-    e.preventDefault()
-
-    let settings = Settings.findOne()
-    settings.maxImageSize = !isNaN(Number(this.state.size)) ? Number(this.state.size) : 0
-    Meteor.call('settings.update', settings, (e, d) => {
-      if (e) alertify.error('Error updating settings')
-      else alertify.success('Settings updated')
-    })
-  }
-
-  saveImageWidth (e) {
-    e.preventDefault()
-
-    let settings = Settings.findOne()
-    settings.maxImageWidth = !isNaN(Number(this.state.width)) ? Number(this.state.width) : 0
-    Meteor.call('settings.update', settings, (e, d) => {
-      if (e) alertify.error('Error updating settings')
-      else alertify.success('Settings updated')
-    })
-  }
-
-  setStorage (e) {
-    e.preventDefault
-
-    let settings = Settings.findOne()
-    settings.storageType = this.state.storageType
-    if (settings.storageType === 'AWS') {
-      settings.AWS_bucket = this.state.AWS_bucket
-      settings.AWS_region = this.state.AWS_region
-      settings.AWS_accessKey = this.state.AWS_accessKey
-      settings.AWS_secret = this.state.AWS_secret
-      settings.Azure_accountName = ''
-      settings.Azure_accountKey = ''
-      settings.Azure_containerName = ''
-    } else if (settings.storageType === 'Azure') {
-      settings.AWS_bucket = ''
-      settings.AWS_region = ''
-      settings.AWS_accessKey = ''
-      settings.AWS_secret = ''
-      settings.Azure_accountName = this.state.Azure_accountName
-      settings.Azure_accountKey = this.state.Azure_accountKey
-      settings.Azure_containerName = this.state.Azure_containerName
-    } else {
-      settings.AWS_bucket = ''
-      settings.AWS_region = ''
-      settings.AWS_accessKey = ''
-      settings.AWS_secret = ''
-      settings.Azure_accountName = ''
-      settings.Azure_accountKey = ''
-      settings.Azure_containerName = ''
-    }
-    
-    Meteor.call('settings.update', settings, (e, d) => {
-      if (e) alertify.error('Error updating settings')
-      else alertify.success('Settings updated')
-    })
-    
-  }
-
-  verifyUserEmail (email) {
-    Meteor.call('users.verifyEmail', email, (e, d) => {
-      if (e) alertify.error(e)
-      if (d) alertify.success('Email verified')
-    })
   }
 
   toggleProfileViewModal (userToView = null) {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
 
-  handleSubmit (e) {
-    e.preventDefault()
-      // signup
-    if (this.state.password !== this.state.password_verify) {
-      alertify.error('Passwords don\'t match')
-    } else {
-      let role = 'student'
-      const user = {
-        email: this.state.email,
-        password: this.state.password,
-        profile: {
-          firstname: this.state.firstname,
-          lastname: this.state.lastname,
-          profileImage: this.state.profileImage,
-          roles: [role]
-        }
-      }
-      Meteor.call('users.createFromAdmin', user, (e, data) => {
-        if (e) alertify.error(e.reason)
-        else alertify.success('User created')
-      })
-    }
-  } // end handleSubmit
-
   render () {
-    const setImageSize = (e) => { this.setState({ size: e.target.value }) }
-    const setImageWidth = (e) => { this.setState({ width: e.target.value }) }
-    const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
-    const setStorageType = (e) => { this.setState({ storageType: e.target.value })}
-    const setAWSBucket = (e) => { this.setState({ AWS_bucket: e.target.value }) }
-    const setAWSRegion = (e) => { this.setState({ AWS_region: e.target.value }) }
-    const setAWSAccessKey = (e) => { this.setState({ AWS_accessKey: e.target.value }) }
-    const setAWSSecret = (e) => { this.setState({ AWS_secret: e.target.value }) }
-    const setAzureAccount = (e) => { this.setState({ Azure_accountName: e.target.value })}
-    const setAzureKey = (e) => { this.setState({ Azure_accountKey: e.target.value })}
-    const setAzureContainer = (e) => { this.setState({ Azure_containerName: e.target.value })}
-    
+
+    const setTab = (tab) => { this.setState({ tab: tab })} 
+
     return (
-      <div className='container ql-admin-page'>
-        <h1>Dashboard</h1>
-        <br />
+      <div className='ql-admin-page'>
 
-        <div>
-          <h4>Support email</h4>
-          <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
-            <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
-            <input type='submit' className='btn btn-primary' value='Set' />
-          </form>
-        </div>
-        <div className='ql-admin-settings'>
-          <div>
-            <h2>Image Settings</h2>
-            <br />      
+        <span className='ql-admin-toolbar'>
+          <span className='title'>Dashboard</span>
+          <span className='divider'>&nbsp;</span>
+          <span className='button' onClick={() => setTab('users')}>Users</span>
+          <span className='divider'>&nbsp;</span>
+          <span className='button' onClick={() => setTab('server')}>Server</span>
+          <span className='divider'>&nbsp;</span>
+          <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
+        </span>
         
-            <h4>Maximum image size (in MB, after rescaling to max width)</h4>
-            <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
-              <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
-              <input type='submit' className='btn btn-primary' value='Set' />
-            </form>
-
-            <h4>Maximum image width (px)</h4>
-            <form ref='imageWidthForm' onSubmit={this.saveImageWidth} className='form-inline'>
-              <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
-              <input type='submit' className='btn btn-primary' value='Set' />
-            </form>
-              
-            <form className='ql-admin-login-box col-md-4' onSubmit={this.setStorage}>
-              <h4>Image Storage Settings</h4> 
-              <div className='ql-card-content inputs-container'>
-                <select className='form-control' onChange={setStorageType} value={this.state.storageType}>
-                  <option value='None'>None</option>
-                  <option value='AWS'>Amazon S3</option>
-                  <option value='Azure'>Microsoft Azure Blob</option>
-                  <option value='Local'>Local Storage (Not Recommended)</option>
-                </select>
-                <br />
-                { this.state.storageType === 'AWS' 
-                  ? <div>
-                      <input className='form-control' type='text' value={this.state.AWS_bucket} onChange={setAWSBucket} placeholder='Bucket Name' /><br />
-                      <input className='form-control' type='text' value={this.state.AWS_region} onChange={setAWSRegion} placeholder='Region' /><br />
-                      <input className='form-control' type='text' value={this.state.AWS_accessKey} onChange={setAWSAccessKey} placeholder='AWS Access Key Id' /><br />
-                      <input className='form-control' type='text' value={this.state.AWS_secret} onChange={setAWSSecret} placeholder='AWS Secret' /><br />
-                    </div>
-                  : ''
-                }
-                { this.state.storageType === 'Azure' 
-                  ? <div>
-                      <input className='form-control' type='text' value={this.state.Azure_accountName} onChange={setAzureAccount} placeholder='Azure Account Name' /><br />
-                      <input className='form-control' type='text' value={this.state.Azure_accountKey} onChange={setAzureKey} placeholder='Azure Account Key' /><br />
-                      <input className='form-control' type='text' value={this.state.Azure_containerName} onChange={setAzureContainer} placeholder='Azure Container' /><br />
-                    </div>
-                  : ''
-                }
-                      
-                <div className='spacer1'>&nbsp;</div>
-                <input type='submit' id='submitStorage' className='btn btn-primary btn-block' value='Submit' />
-              </div>
-            </form>        
-          </div>
-                  
-          <div>
-            <h2>User Settings</h2>
-            <br /> 
-            
-            <h4>Require verified email to login</h4>
-            <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
-            <br />
-
-            <RestrictDomainForm
-              done={() => { return true }}
-              settings={this.props.settings}
-            />
-            <br />
-            
-            <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
-              <h4>Add user manually</h4>  
-              <div className='ql-card-content inputs-container'>
-                <div className='input-group'>
-                  <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
-                  <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
-                </div>
-                <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' />
-                <br />
-                <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-                <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div>
-                <div className='spacer1'>&nbsp;</div>
-                <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
-              </div>
-            </form>
-          </div>
+        <div className='ql-admin-settings'>
+          { this.state.tab === 'users'
+            ? <ManageUsers settings={this.props.settings} allUsers={this.props.allUsers} courseNames={this.props.courseNames} />
+            : ''
+          }
+          { this.state.tab === 'server'
+            ? <ManageServer settings={this.props.settings} />  
+            : ''  
+          } 
+          { this.state.tab === 'sso' 
+           ? <ManageSSO settings={this.props.settings}/>
+           : ''
+          }
         </div>
-
-        <div>
-          <h1>Users (with elevated permissions first)</h1>
-          <table className='table table-bordered'>
-            <tbody>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Courses</th>
-                <th>Change Role</th>
-              </tr>
-
-              {
-                this.props.allUsers.map((u) => {
-                  let courseList = ''
-                  if (u.profile.courses && this.props) {
-                    u.profile.courses.forEach(function (cId) {
-                      courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] + ' ' : ''
-                    }.bind(this))
-                  }
-                  return (<tr key={u._id}>
-                    <td>
-                      <a href='#' onClick={(e) => this.toggleProfileViewModal(u)}>{u.getName()}</a>
-                    </td>
-                    <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)'
-                        : <a href='#' onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
-                    </td>
-                    <td>{courseList}</td>
-                    <td>
-                      <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
-                        { Object.keys(ROLES).map((r) => <option key={'role_' + ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
-                      </select>
-                      &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
-                    </td>
-                  </tr>)
-                })
-              }
-            </tbody>
-          </table>
-          { this.state.profileViewModal
+        { this.state.profileViewModal
             ? <ProfileViewModal
               user={this.state.userToView}
               done={this.toggleProfileViewModal} />
           : '' }
-        </div>
       </div>)
   }
 }
