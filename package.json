@@ -51,6 +51,7 @@
     "react-tools": "^0.13.3",
     "react-tooltip": "^3.6.1",
     "recharts": "^0.21.2",
+    "semver": "^5.5.0",
     "streamsearch": "^0.1.2",
     "syntastic-react": "^1.0.3",
     "underscore": "^1.9.1",
