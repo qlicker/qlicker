@@ -8,6 +8,7 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
+import { questionLibraries } from '../pages/questions_nav'
 import { QuestionEditItem } from '../QuestionEditItem'
 import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
@@ -245,42 +246,42 @@ class _QuestionsLibrary extends Component {
 
   updateQuery (childState) {
     
-    this.setState({resetSidebar: false})
-    let params = this.state.query
-    if (childState.questionType > -1) params.query.type = childState.questionType
-    else params.query = _.omit(params.query, 'type')
-    if (childState.questionApproved) params.query.approved = childState.questionApproved
-    else params.query = _.omit(params.query, 'approved')
-    if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
-    else params.query = _.omit(params.query, 'courseId')
-    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
-    else params.query = _.omit(params.query, 'plainText')
-    if (childState.userSearchString) {
-      const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
-                                               {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
-      const uids = _(users).pluck('_id')
-      params.query.creator = {$in: uids}
-    } else params.query = _.omit(params.query, 'creator')
-    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
-    else params.query = _.omit(params.query, 'tags.value')
-    if(!params.query.courseId) delete params.query.courseId
+    // this.setState({resetSidebar: false})
+    // let params = this.state.query
+    // if (childState.questionType > -1) params.query.type = childState.questionType
+    // else params.query = _.omit(params.query, 'type')
+    // if (childState.questionApproved) params.query.approved = childState.questionApproved
+    // else params.query = _.omit(params.query, 'approved')
+    // if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
+    // else params.query = _.omit(params.query, 'courseId')
+    // if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
+    // else params.query = _.omit(params.query, 'plainText')
+    // if (childState.userSearchString) {
+    //   const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
+    //                                            {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
+    //   const uids = _(users).pluck('_id')
+    //   params.query.creator = {$in: uids}
+    // } else params.query = _.omit(params.query, 'creator')
+    // if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
+    // else params.query = _.omit(params.query, 'tags.value')
+    // if(!params.query.courseId) delete params.query.courseId
     
-    if (this.props.library !== 'sharedWithUser') {
-      params.query.courseId = this.props.courseId
-    }
+    // if (this.props.library !== 'sharedWithUser') {
+    //   params.query.courseId = this.props.courseId
+    // }
   
-    const query = _.extend(params.query, this.state.query.query)
+    // const query = _.extend(params.query, this.state.query.query)
     
    
-    const newQuestions = Questions.find(query, params.options).fetch()
-    this.setState({ questions: newQuestions })  
+    // const newQuestions = Questions.find(query, params.options).fetch()
+    // this.setState({ questions: newQuestions })  
   }
 
   componentWillReceiveProps (nextProps) {
-    const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
-    if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
-      this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query })
-    } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query }) 
+    // const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
+    // if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
+    //   this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query })
+    // } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query }) 
   }
 
   render () {

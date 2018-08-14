@@ -91,16 +91,6 @@ export const defaultQuestion = {
 }
 
 export const questionQueries = {
-  
-  unapprovedFromStudents: {
-    sessionId: {$exists: false},
-    approved: false,
-    sharedCopy: false,
-    '$or': [{private: false}, {private: {$exists: false}}]
-  },
-  sharedWithUser: {
-    sharedCopy: true,
-  },
   options: {sort:
     { createdAt: -1 },
   }
@@ -250,7 +240,7 @@ if (Meteor.isServer) {
         sharedCopy: false, 
         '$or': [{private: false}, {private: {$exists: false}}] 
       }
-      
+     
       const course = courseId ? Courses.findOne({ _id: courseId }) : null
       if (course) {
         query = _.extend({ courseId: courseId }, query)
@@ -265,20 +255,38 @@ if (Meteor.isServer) {
   // questions submitted to specific course
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
+      let query = {
+        sessionId: {$exists: false},
+        approved: false,
+        sharedCopy: false,
+        '$or': [{private: false}, {private: {$exists: false}}]
+      }
+
+      const course = courseId ? Courses.findOne({ _id: courseId }) : null
+      if (course) {
+        if (!course.requireApprovedPublicQuestions) return this.ready()
+        query = _.extend({ courseId: courseId }, query)
+      }
+
       const user = Meteor.users.findOne({_id: this.userId})
       if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
-      let query = _.extend({ courseId: courseId }, questionQueries.unapprovedFromStudents)
+     
       return Questions.find(query)
     } else this.ready()
   })
 
   Meteor.publish('questions.sharedWithUser', function (courseId) {
     if (this.userId) {
-      const user = Meteor.users.findOne({_id: this.userId})
-      if ((!user.isInstructor(courseId) && !user.isStudent(courseId)) || user.hasRole(ROLES.admin)) return this.ready()
-      const query = _.extend({ owner: this.userId }, questionQueries.sharedWithUser)
+      let query = {
+        sharedCopy: true,
+        owner: this.userId
+      }    
       return Questions.find(query)
     } else this.ready()
+  })
+
+  Meteor.publish('questions.all', function (courseId) {
+    return Questions.find()
   })
 }
 

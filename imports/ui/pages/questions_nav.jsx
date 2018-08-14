@@ -8,12 +8,19 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { QuestionsLibrary } from './questions_library';
 
+export const questionLibraries = {
+  library: 'library',
+  public: 'public',
+  unapprovedFromStudents: 'unapprovedFromStudents',
+  sharedWithUser: 'sharedWithUser'
+}
+
 class _QuestionsNav extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
-      selected: 'library',
+      selected: questionLibraries.library,
       courseCode: '',
     }
   }
