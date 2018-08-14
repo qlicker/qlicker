@@ -1,17 +1,61 @@
 @import '../bootstrap-style.scss';
 
 .ql-admin-page {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
 }
 
 .ql-admin-settings {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
+.ql-admin-toolbar {
+  height: 80px;
+  font-size: 1.5em;
+  background: #F8F8F8;
+  padding: 4px;
+  padding-left: 8px;
+  border-bottom: 2px solid #ccc;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  z-index: 99;
+  flex-flow: row wrap;
 
+  .divider {
+    border-left: 1px solid #d7d7d7;
+    width: 0;
+    margin-left: 8px;
+    margin-right: 8px;
+    }
+
+  .button {
+    padding: 8px;
+    padding-left: 12px;
+    padding-right: 12px;
+    display: inline-block;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: 2px;
+    color: $main-text;
+
+    &:hover {
+      background: #d7d7d7;
+      color: $main-text;
+      text-decoration: none;
+    }
+  }
+
+  .title {
+    font-weight: bold;
+    font-size: 120%;
+    padding-left: 10px;
+    padding-right: 8px;
+  }
+}
 
 
 

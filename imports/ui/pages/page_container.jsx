@@ -20,6 +20,7 @@ class _PageContainer extends Component {
       promotingAccount: false,
       courseId: this.props && this.props.courseId ? this.props.courseId : '',
       courseCode: '',
+      ssoLogoutUrl: null,
       showCourse: this.props && this.props.courseId ? true : false
     }
     alertify.logPosition('bottom right')
@@ -30,6 +31,9 @@ class _PageContainer extends Component {
     if(this.state.courseId !== '') {
       this.setCourseCode(this.state.courseId)
     }
+    Meteor.call("getSSOLogoutUrl", (err,result) => {
+      if(!err) this.setState({ssoLogoutUrl:result})
+    })
   }
   
   setCourseCode (courseId) {
@@ -66,7 +70,7 @@ class _PageContainer extends Component {
     const isAdmin = user.hasRole('admin')
 
     const logout = () => {
-      Meteor.logout(() => Router.go('login'))
+      Router.go('logout')
     }
 
     const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }
@@ -75,7 +79,7 @@ class _PageContainer extends Component {
     const coursesPage = user.hasGreaterRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
-
+    
     return (
       <div className='ql-page-container'>
         <nav className='navbar navbar-default navbar-fixed-top'>
@@ -155,7 +159,8 @@ class _PageContainer extends Component {
                     }
                     <li><a className='close-nav' href={userGuideUrl}>Visit user guide</a></li>
                     <li role='separator' className='divider' />
-                    <li><a className='close-nav' href='#' onClick={logout} >Logout</a></li>
+                    <li><a className='close-nav' href={Router.routes['logout'].path()} onClick={logout} >Logout</a></li>
+                    {this.state.ssoLogoutUrl ? <li><a className='close-nav' href={this.state.ssoLogoutUrl}> Logout from SSO</a></li> : ''} 
                   </ul>
                 </li>
               </ul>
@@ -175,8 +180,9 @@ class _PageContainer extends Component {
 
 export const PageContainer = createContainer(props => {
   const handle = Meteor.subscribe('courses')
-  const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
+  const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()   
 
+    
   return {
     courses: courses,
     courseId: props.courseId,
