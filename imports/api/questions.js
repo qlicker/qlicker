@@ -91,15 +91,7 @@ export const defaultQuestion = {
 }
 
 export const questionQueries = {
-  library: {
-    sessionId: {$exists: false},
-    sharedCopy: false
-  },
-  public: {
-    public: true, 
-    sharedCopy: false, 
-    '$or': [{private: false}, {private: {$exists: false}}] 
-  },
+  
   unapprovedFromStudents: {
     sessionId: {$exists: false},
     approved: false,
@@ -225,18 +217,27 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('questions.library', function (courseId = null) {
-
+    
     if (this.userId ) {
-      let query = _.extend({ courseId: courseId, owner: this.userId }, _.omit(questionQueries.library, 'owner'))
+      let query = {
+        sessionId: {$exists: false},
+        sharedCopy: false
+      }
+    
+      const course = courseId ? Courses.findOne() : null
+      if (course) query = _.extend({ courseId: courseId }, query)
       
       const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.isInstructor(courseId) && !user.isStudent(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
-      query = _.extend({ courseId: courseId }, query)
-      if (user.hasGreaterRole(ROLES.prof)) {
-        query = _.extend({ 
-          approved: true 
-        }, query)
-      }            
+      
+      if (user.hasRole(ROLES.admin) || user.isInstructor(courseId)) query = _.extend({ 
+        '$or': [{ private: false }, { private: { $exists: false }}, { private: true, owner: this.userId }], 
+        approved: true 
+      }, query)
+      else if (user.isStudent(courseId)) query = _.extend({
+        '$or': [{ creator: this.userId }, { owner: this.userId }]
+      })
+      else this.ready()
+      
       return Questions.find(query)
     } else this.ready()
   })
@@ -244,15 +245,21 @@ if (Meteor.isServer) {
   Meteor.publish('questions.public', function (courseId = null) {
    
     if (this.userId) {
-      const user = Meteor.users.findOne({_id: this.userId})
-      const course = Courses.findOne({ _id: courseId })
-      if (courseId && !user.isInstructor(courseId) && !user.isStudent(courseId)) return this.ready()
-      let query = _.extend({ courseId: courseId }, questionQueries.public)
-      if (course.requireApprovedPublicQuestions) query = _.extend({ approved: true }, query)
+      let query = {
+        public: true, 
+        sharedCopy: false, 
+        '$or': [{private: false}, {private: {$exists: false}}] 
+      }
+      
+      const course = courseId ? Courses.findOne({ _id: courseId }) : null
+      if (course) {
+        query = _.extend({ courseId: courseId }, query)
+        if (course.requireApprovedPublicQuestions) query = _.extend({ approved: true }, query)
+      }
+      
       return Questions.find(query)
-    } else {
-      return this.ready()
-    }
+    
+    } else return this.ready()
   })
 
   // questions submitted to specific course

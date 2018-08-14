@@ -12,7 +12,7 @@ import { QuestionEditItem } from '../QuestionEditItem'
 import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
 
-import { Questions, defaultQuestion, questionQueries } from '../../api/questions'
+import { Questions, defaultQuestion } from '../../api/questions'
 import { Courses } from '../../api/courses'
 
 class _QuestionsLibrary extends Component {
@@ -391,46 +391,21 @@ export const QuestionsLibrary = createContainer(props => {
   const handle =  Meteor.subscribe(subscription, props.courseId)
   const courseId = props.courseId
   
-  let params = {}
   let editable = true
   
-  if (props.library === 'library') {
-    params = {
-      query: _.extend({ courseId: courseId, owner: Meteor.userId() }, questionQueries.library),
-      options: questionQueries.options
-    }
-  }
-
-  if (props.library === 'public') {
-    params = {
-      query: _.extend({ courseId: courseId }, questionQueries.public),
-      options: questionQueries.options
-    }
-  }
-  
-  if (props.library === 'unapprovedFromStudents') {
-    params = {
-      query: _.extend({ courseId: courseId }, questionQueries.unapprovedFromStudents),
-      options: questionQueries.options
-    }
+  if (props.library === 'unapprovedFromStudents' || props.library === 'sharedWithUser') {
     editable = false
   }
  
-  if (props.library === 'sharedWithUser') {
-    params = {
-      query: _.extend({ owner: Meteor.userId() }, questionQueries.sharedWithUser),
-      options: questionQueries.options
-    }
-    editable = false
-  }
-
+  const query = {}
   const questions = Questions.find().fetch()
+  console.log(questions)
   const selected = questions[0] ? questions[0]._id : ''
   const course = Courses.findOne({ _id: props.courseId })
   const publicQuestionsRequireApproval = course.requireApprovedPublicQuestions
  
   return {
-    query: params,
+    query: query,
     questions: questions,
     courseId: courseId,
     publicQuestionsRequireApproval: publicQuestionsRequireApproval,
