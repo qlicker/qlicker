@@ -26,6 +26,22 @@ Meteor.startup(() => {
       Azure_containerName: '',
       storageType: 'None',
     })
+  } else {
+    const settings = Settings.findOne()
+    let directive = Slingshot.getDirective(settings.storageType)._directive
+    if (settings.storageType === 'AWS') {      
+      if (!directive) throw new Error('No Directive')
+      directive.bucket = settings.AWS_bucket
+      directive.region = settings.AWS_region
+      directive.AWSAccessKeyId = settings.AWS_accessKey
+      directive.AWSSecretAccessKey = settings.AWS_secret
+    }
+    if (settings.storageType === 'Azure') {
+      if (!directive) throw new Error('No Directive')
+      directive.accountName = settings.Azure_accountName
+      directive.accountKey = settings.Azure_accountKey
+      directive.containerName = settings.Azure_containerName
+    }
   }
 
   Questions._ensureIndex({ sessionId: 1 })
