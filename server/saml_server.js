@@ -9,7 +9,7 @@ import url from 'url'
 import xmldom from 'xmldom'
 import xpath from 'xpath'
 
-console.log(Meteor.absoluteUrl())
+//console.log(Meteor.absoluteUrl())
 
 settings = Settings.findOne({})
 
@@ -126,7 +126,11 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
       var getLogoutLinkSync =  Meteor.wrapAsync(getSSLogoutAsync);
       var result = getLogoutLinkSync(user);
       return result;
-   }
+    },
+    "isSSOSession": () =>{
+      user = Meteor.user()
+      return (user && user.services && user.services.sso && user.services.sso.session && user.services.sso.session.sessionIndex)
+    }
   })
 
   let getSSLogoutAsync = function(user, callback){
@@ -273,7 +277,7 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
                   res.writeHead(200, {'Content-Type': 'text/html'});
                   res.end("<html><head><script>window.close()</script></head></html>'", 'utf-8');  
                 } else {
-                  console.log(err)
+                    //console.log(err)
                   res.writeHead(500, {'Content-Type': 'text/html'});
                   res.end("An error occured in the SAML Middleware process.", 'utf-8');
                 }

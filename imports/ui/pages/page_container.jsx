@@ -163,7 +163,7 @@ class _PageContainer extends Component {
                     <img src={user.getThumbnailUrl()} className='nav-profile img-circle' /> {user.getName()} <span className='caret' />
                   </a>
                   <ul className='dropdown-menu'>
-                    <li><a className='close-nav' href={Router.routes['profile'].path()}>Edit user profile</a></li>
+                    <li><a className='close-nav' href={Router.routes['profile'].path()}>User profile</a></li>
                     {isProfessor
                       ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote an account to professor</a></li>
                       : ''

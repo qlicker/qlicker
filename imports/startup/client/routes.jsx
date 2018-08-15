@@ -93,7 +93,7 @@ Router.route('/profile', {
   action: function () {
     let user = Meteor.user()
     if (user) {
-      mount(AppLayout, { content: <PageContainer user={user}> <ProfilePage /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer > <ProfilePage /> </PageContainer> })
     } else Router.go('login')
   }
 })
