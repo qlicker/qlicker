@@ -284,8 +284,12 @@ class _QuestionsLibrary extends Component {
     // } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query }) 
   }
 
-  render () {
+  componentDidMount () {
+    this.forceUpdate
+  }
   
+  render () {
+    console.log(this.state.selected)
     let library = this.state.questions || []
 
     const isInstructor = Meteor.user().isInstructorAnyCourse()
@@ -310,7 +314,7 @@ class _QuestionsLibrary extends Component {
                 </div>
                 : ''}
             <QuestionSidebar
-              questions={library}
+              questionLibrary={this.props.questionLibrary}
               courseId={this.props.courseId}
               onSelect={this.editQuestion}
               updateQuery={this.updateQuery}
@@ -385,11 +389,7 @@ class _QuestionsLibrary extends Component {
 }
 
 export const QuestionsLibrary = createContainer(props => {
-
-  //This step is done since questions.library and questions.public are used in other components
   
-  const subscription = 'questions.' + props.library
-  const handle =  Meteor.subscribe(subscription, props.courseId)
   const courseId = props.courseId
   
   let editable = true
@@ -397,21 +397,15 @@ export const QuestionsLibrary = createContainer(props => {
   if (props.library === 'unapprovedFromStudents' || props.library === 'sharedWithUser') {
     editable = false
   }
- 
-  const query = {}
-  const questions = Questions.find().fetch()
-  console.log(questions)
-  const selected = questions[0] ? questions[0]._id : ''
+  
   const course = Courses.findOne({ _id: props.courseId })
   const publicQuestionsRequireApproval = course.requireApprovedPublicQuestions
  
   return {
-    query: query,
-    questions: questions,
     courseId: courseId,
     publicQuestionsRequireApproval: publicQuestionsRequireApproval,
-    selected: selected,
+    selected: null,
     editable: editable,
-    loading: !handle.ready()
+    questionLibrary: props.library
   }
 }, _QuestionsLibrary)

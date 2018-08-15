@@ -4,6 +4,7 @@
 // QuestionSidebar.jsx: vertical component to search for questions
 
 import React, { PropTypes } from 'react'
+import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
 import { ControlledForm } from './ControlledForm'
@@ -16,6 +17,9 @@ import { StudentQuestionListItem } from './StudentQuestionListItem'
 
 import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
+import { Questions, defaultQuestion } from '../api/questions'
+import { Courses } from '../api/courses'
+
 /**
  * React Component for displaying a list of Questions with text and tag based search and filtering.
  * Question click callback can be defined. Component often used to find and select a question
@@ -23,7 +27,7 @@ import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
  * @param {Func} [onSelect] - call back for when question list item is click
  * @param {String} [clickMessage] - info message on what happens when you click on a question
  */
-export class QuestionSidebar extends ControlledForm {
+export class _QuestionSidebar extends ControlledForm {
 
   constructor (props) {
     super(props)
@@ -266,10 +270,24 @@ export class QuestionSidebar extends ControlledForm {
 
 } // end QuestionSidebar
 
+export const QuestionSidebar = createContainer((props) => {
+  const subscription = 'questions.' + props.questionLibrary
+  const handle =  Meteor.subscribe(subscription, props.courseId)
+
+  const query = {}
+  const questions = Questions.find().fetch()
+  console.log(questions)
+
+  return {
+    loading: !handle.ready(),
+    questions: questions
+  }
+
+}, _QuestionSidebar)
+
 QuestionSidebar.propTypes = {
   session: PropTypes.object,
   courseId: PropTypes.string,
-  questions: PropTypes.array.isRequired,
   onSelect: PropTypes.func,
   clickMessage: PropTypes.string,
   updateQuery: PropTypes.func,
