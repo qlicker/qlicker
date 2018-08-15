@@ -63,7 +63,7 @@ _.extend(User.prototype, {
   },
 
   getThumbnailUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    return this.profile.profileImage ? this.profile.profileThumbnail : '/images/avatar.png'
   }
 })
 
@@ -196,6 +196,13 @@ Meteor.methods({
     check(profileImageUrl, String)
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileImage': profileImageUrl }
+    })
+  },
+
+  'users.updateProfileThumbnail' (profileImageUrl) {
+    check(profileImageUrl, String)
+    return Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'profile.profileThumbnail': profileImageUrl }
     })
   },
 
