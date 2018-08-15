@@ -63,7 +63,7 @@ _.extend(User.prototype, {
   },
 
   getThumbnailUrl: function () {
-    return this.profile.profileImage ? this.profile.profileThumbnail : '/images/avatar.png'
+    return this.profile.profileThumbnail ? this.profile.profileThumbnail : '/images/avatar.png'
   }
 })
 

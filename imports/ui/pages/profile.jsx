@@ -81,7 +81,7 @@ class _Profile extends Component {
   }
 
   saveProfileImage (profileImageUrl, type) {
-    if (!type && type === 'image') {
+    if (!type || type === 'image') {
       Meteor.call('users.updateProfileImage', profileImageUrl, (err) => {
         if (err) return alertify.error('Error: could not save image')
         setTimeout(() => {
