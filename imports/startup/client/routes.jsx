@@ -256,7 +256,7 @@ Router.route('/course/:courseId/groups', {
   action: function () {
     if (!Meteor.userId()) Router.go('login')
     if (Meteor.user().isInstructor(this.params.courseId) || Meteor.user().hasRole('admin')) {
-      mount(AppLayout, {content: <PageContainer> <ManageCourseGroups courseId={this.params.courseId} /> </PageContainer>})
+      mount(AppLayout, {content: <PageContainer courseId={this.params.courseId}> <ManageCourseGroups courseId={this.params.courseId} /> </PageContainer>})
     } else Router.go('login')
   }
 })
