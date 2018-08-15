@@ -6,12 +6,32 @@ import Fiber from 'fibers'
 import bodyParser from 'body-parser'
 import saml from 'passport-saml'
 import url from 'url' 
+import xmldom from 'xmldom'
+import xpath from 'xpath'
 
 console.log(Meteor.absoluteUrl())
 
 settings = Settings.findOne({})
 
+/* Testing */
+//console.log(settings)
+SAMLRequest = Assets.getText('SAMLRequest')
+var xml = new Buffer(SAMLRequest, 'base64').toString('utf8');
+var dom = new xmldom.DOMParser().parseFromString(xml); 
+var sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
+
+
+
+
+
+/* End testing */
+
+//Only if SSO is enabled, set things up:
 if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoint && settings.SSO_identifierFormat ){
+    
+//Create a passport-saml strategy using the given settings
+//User is responsible for creating a private key and corresponding certificate and storing them in /private
+//note that privateCert is actually a key, the same as decryptionPvk
     
   strategy = new saml.Strategy({
     callbackUrl: Meteor.absoluteUrl('SSO/SAML2'),
@@ -21,23 +41,25 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
     identifierFormat: settings.SSO_identifierFormat,
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : settings.SSO_entrypoint),
       
-    privateCert: Assets.getText('key.key'),
+    //privateCert: Assets.getText('key.key'),
     decryptionPvk: Assets.getText('key.key'),
-
     issuer: 'passport-saml' // call this Qlicker, not passport-saml!
     },
     function(profile, done) {
     return done(null, profile);
   })
-    
-
-
+  
+  //Create a saml object inside of Accounts 
   if (!Accounts.saml) {
     Accounts.saml = {};
   }
-    
+  //Store the strategy there (although it never gets called outside of this file)
   Accounts.samlStrategy = strategy
 
+  //LoginResultForCredentialToken stores {token: {profile, nameID, sessionIndex}}
+  //The token is created by the client, passed as RelayState to the IDP, and then 
+  //accessed again on the server; this is how the server know the request from the IDP
+  //goes with a particular client
   Accounts.saml._loginResultForCredentialToken = {};
 
   // Inserted during IdP -> SP Callback
@@ -52,6 +74,7 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
     return profile;
   };
 
+  //Register a login handler with Meteor (gets called by client, in loginWithSaml
   Accounts.registerLoginHandler(function (loginRequest) {
     if (loginRequest.credentialToken && loginRequest.saml) {
       const samlInfo = Accounts.saml.retrieveCredential(loginRequest.credentialToken);     
@@ -83,8 +106,7 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
                  })
           Meteor.users.update(userId, { $set: { 'emails.0.verified': true, services: services} })
         }
-      
-        
+        //By adding a stamped token, the user gets logged in        
         let stampedToken = Accounts._generateStampedLoginToken()
         let hashStampedToken = Accounts._hashStampedToken(stampedToken)
         Meteor.users.update(userId, { $push: { 'services.resume.loginTokens': hashStampedToken},
@@ -98,7 +120,7 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
           token: stampedToken.token
         }  
         } else {
-        throw new Error("Could not find a profile with the specified credentialToken.");
+          throw new Error("Could not find a profile with the specified credentialToken.");
       }
     }
   })
@@ -115,7 +137,7 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
   })
 
   let getSSLogoutAsync = function(user, callback){
-      let request  = { user : {nameID : user.services.sso.id , nameIDFormat: user.services.sso.nameIDFormat, sessionIndex: user.services.sso.session.sessionIndex}  };
+      let request  = {user : {nameID : user.services.sso.id , nameIDFormat: user.services.sso.nameIDFormat, sessionIndex: user.services.sso.session.sessionIndex}  };
       let getLogout = Accounts.samlStrategy._saml.getLogoutUrl(request, function(error,url){
          if(error) console.log(error);
          //console.log("url");
@@ -129,14 +151,23 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
 
   WebApp.connectHandlers
     .use(bodyParser.urlencoded({ extended: false }))
-    .use('/logout', function(req, res, next) {
-      //Try just returning a success???
+    .use('/logout', function(req, res, next) {     
       Fiber(function() {
         if (req.method === 'POST') {  
-
-          var xml = new Buffer(req.body.SAMLRequest, 'base64').toString('utf8');
-          console.log(xml)
-          
+          //A hack to bypass the SSO stuff and log the user out from the IDP POST request
+          //(needed because passport-saml cannot validate the encrypted response)
+          //WARNING: This does not do any safety checks on the request passed by the IDP!!!
+          let xml = new Buffer(req.body.SAMLRequest, 'base64').toString('utf8');
+          let dom = new xmldom.DOMParser().parseFromString(xml); 
+          let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
+          let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] })
+          if(user){ //remove the session ID and the login token
+            Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
+          }
+          res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});
+          res.end()
+          /* 
+          //The code below should run instead of the hack above!!!
           Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
             if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
               console.log("validating post request")
@@ -154,11 +185,10 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
              console.log(err)  
              console.log(result)
             }
-            
-          }) 
+          }) */ // end of validate post request
         } else {
-           res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});
-           res.end() 
+          res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});
+          res.end() 
         }
       }).run();
     })
@@ -200,6 +230,13 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
               })
                   
             } else { //logging in
+                
+              //var xml = new Buffer(req.body.SAMLResponse, 'base64').toString('utf8');
+              //console.log(xml)  
+              //var doc = new xmldom.DOMParser().parseFromString(xml); 
+              //console.log(doc)
+                
+              ///////////////
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
                   console.log(result) 
