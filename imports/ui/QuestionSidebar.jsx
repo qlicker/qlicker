@@ -65,21 +65,12 @@ export class _QuestionSidebar extends ControlledForm {
   }
 
   /**
-   * Overrided done handler
-   * @param {Event} e
-   */
-  done (e) {
-    this.refs.addQuestionForm.reset()
-    this.props.done()
-  }
-
-  /**
    * set selected question to add
-   * @param {MongoId} questionId
+   * @param {MongoId} question
    */
-  setQuestion (questionId) {
-    this.setState({ questionId: questionId }, () => {
-      this.props.onSelect(questionId)
+  setQuestion (question) {
+    this.setState({ question: question }, () => {
+      this.props.onSelect(question)
     })
   }
   /**
@@ -249,7 +240,7 @@ export class _QuestionSidebar extends ControlledForm {
                 if ((q.owner !== userId || q.creator !== userId) && !q.approved && isInstructor) {
                   controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
                 }
-                return (<div key={q._id} className={this.state.questionId === q._id ? 'list-item-selected' : ''}>
+                return (<div key={q._id} className={this.state.question._id === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
                     ? <QuestionListItem
                       question={q}
@@ -280,7 +271,8 @@ export const QuestionSidebar = createContainer((props) => {
 
   return {
     loading: !handle.ready(),
-    questions: questions
+    questions: questions,
+    done: ''
   }
 
 }, _QuestionSidebar)

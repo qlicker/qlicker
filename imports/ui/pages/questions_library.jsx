@@ -168,8 +168,8 @@ class _QuestionsLibrary extends Component {
     else alertify.error('Error: Incorrect file format')
   }
 
-  editQuestion (questionId) {
-    if (questionId === -1) {
+  editQuestion (question) {
+    if (question._id === -1) {
       // reset the query
       this.setState({query: this.props.query, resetSidebar: true})
       let tags = []
@@ -191,13 +191,12 @@ class _QuestionsLibrary extends Component {
       })
     } else {
       this.setState({ selected: null }, () => {
-        this.setState({ selected: questionId })
+        this.setState({ selected: question })
       })
     }
   }
 
-  approveQuestion (questionId) {
-    let question = this.state.questionMap[questionId]
+  approveQuestion (question) {
     let user = Meteor.user()
     if (user.hasRole('student')) {
       question.approved = false
@@ -216,8 +215,8 @@ class _QuestionsLibrary extends Component {
     this.selectQuestion(null)
   }
 
-  deleteQuestion (questionId) {
-    Meteor.call('questions.delete', questionId, (error) => {
+  deleteQuestion (question) {
+    Meteor.call('questions.delete', question._id, (error) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question Deleted')
       this.questionDeleted()
