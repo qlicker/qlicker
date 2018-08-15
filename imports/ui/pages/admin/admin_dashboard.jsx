@@ -50,7 +50,11 @@ class _AdminDashboard extends Component {
         
         <div className='ql-admin-settings'>
           { this.state.tab === 'users'
-            ? <ManageUsers settings={this.props.settings} allUsers={this.props.allUsers} courseNames={this.props.courseNames} />
+            ? <ManageUsers 
+                settings={this.props.settings} 
+                allUsers={this.props.allUsers} 
+                courseNames={this.props.courseNames}
+                toggleProfileViewModal={this.toggleProfileViewModal} />
             : ''
           }
           { this.state.tab === 'server'
