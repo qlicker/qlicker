@@ -55,7 +55,8 @@
     "streamsearch": "^0.1.2",
     "syntastic-react": "^1.0.3",
     "underscore": "^1.9.1",
-    "uuid-1345": "^0.99.7"
+    "uuid-1345": "^0.99.7",
+    "xmldom": "^0.1.27"
   },
   "devDependencies": {
     "codecov": "^1.0.1",
