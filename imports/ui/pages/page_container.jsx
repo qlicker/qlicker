@@ -22,7 +22,7 @@ class _PageContainer extends Component {
       courseCode: '',
       ssoLogoutUrl: null,
       ssoInstitution: null,
-      showCourse: this.props && this.props.courseId ? true : false
+      showCourse: (this.props && this.props.courseId)
     }
     alertify.logPosition('bottom right')
 
@@ -69,7 +69,7 @@ class _PageContainer extends Component {
 
   changeCourse (courseId) {
     const pageName = Router.current().route.getName()
-    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor')) Router.go(pageName, { courseId: courseId })
+    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor' || pageName === 'profile')) Router.go(pageName, { courseId: courseId })
     else Router.go('course', { courseId: courseId })
   }
 
