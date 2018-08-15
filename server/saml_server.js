@@ -160,10 +160,13 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
           let xml = new Buffer(req.body.SAMLRequest, 'base64').toString('utf8');
           let dom = new xmldom.DOMParser().parseFromString(xml); 
           let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
-          let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] })
+            console.log("log out hack")
+          let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':sessionIndex })
+            console.log(user)
           if(user){ //remove the session ID and the login token
             Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
           }
+          console.log(user)
           res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});
           res.end()
           /* 
