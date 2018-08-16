@@ -26,11 +26,10 @@ class _QuestionsLibrary extends Component {
       selected: null,
       questions: props.questions,
       query: props.query,
-      questionMap: _(props.questions).indexBy('_id'),
       resetSidebar: false // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
     }
     if (this.props.selected) {
-      if (this.props.selected in this.state.questionMap) this.state.selected = this.props.selected
+      if (this.props.selected) this.state.selected = this.props.selected
     }
   
     this.convertField = this.convertField.bind(this)
@@ -169,6 +168,7 @@ class _QuestionsLibrary extends Component {
   }
 
   editQuestion (question) {
+    console.log(question)
     if (question._id === -1) {
       // reset the query
       this.setState({query: this.props.query, resetSidebar: true})
@@ -186,7 +186,7 @@ class _QuestionsLibrary extends Component {
         if (e) return alertify.error('Error: couldn\'t add new question')
         alertify.success('New Blank Question Added')
         this.setState({ selected: null }, () => {
-          this.setState({ selected: newQuestion._id })
+          this.setState({ selected: newQuestion })
         })
       })
     } else {
@@ -317,7 +317,8 @@ class _QuestionsLibrary extends Component {
               courseId={this.props.courseId}
               onSelect={this.editQuestion}
               updateQuery={this.updateQuery}
-              resetFilter={this.state.resetSidebar} />
+              resetFilter={this.state.resetSidebar}
+              selected={this.state.selected} />
           </div>
           <div className='col-md-8'>
             { this.state.selected
@@ -326,10 +327,11 @@ class _QuestionsLibrary extends Component {
                   ? <div>
                       <div id='ckeditor-toolbar' />
                       <div className='ql-edit-item-container'>
+                    
                         <QuestionEditItem
                           courseId={this.props.courseId}
                           publicQuestionsRequireApproval={this.props.publicQuestionsRequireApproval}
-                          question={this.state.questionMap[this.state.selected]}
+                          question={this.state.selected}
                           deleted={this.questionDeleted}
                           metadata autoSave />
                       </div>
@@ -366,8 +368,8 @@ class _QuestionsLibrary extends Component {
                         : ''
                       }             
                       <div className='ql-preview-item-container'>
-                        {this.state.selected && this.state.questionMap[this.state.selected]
-                          ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
+                        {this.state.selected
+                          ? <QuestionDisplay question={this.state.selected} forReview readonly />
                           : ''
                         }
                       </div>
@@ -375,7 +377,7 @@ class _QuestionsLibrary extends Component {
                 }
                 <div className='ql-preview-item-container'>
                   {this.state.selected
-                    ? <QuestionDisplay question={this.state.questionMap[this.state.selected]} forReview readonly />
+                    ? <QuestionDisplay question={this.state.selected} forReview readonly />
                     : ''
                   }
                 </div>

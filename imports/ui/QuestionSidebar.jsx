@@ -31,7 +31,8 @@ export class _QuestionSidebar extends ControlledForm {
 
   constructor (props) {
     super(props)
-    this.state = { questionPool: this.props.questions.slice(),
+    this.state = { 
+      questionPool: this.props.questions.slice(),
       questionType: -1,
       showOnlyApprovedQuestions: false,
       tags: []
@@ -181,8 +182,7 @@ export class _QuestionSidebar extends ControlledForm {
     if(nextProps.courseId !== this.props.courseId) this.setTags([])
   }
 
-  render () {
-    
+  render () {    
     const isInstructor = Meteor.user().isInstructorAnyCourse()
     const userId = Meteor.userId()
     return (
@@ -240,17 +240,18 @@ export class _QuestionSidebar extends ControlledForm {
                 if ((q.owner !== userId || q.creator !== userId) && !q.approved && isInstructor) {
                   controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
                 }
-                return (<div key={q._id} className={this.state.question._id === q._id ? 'list-item-selected' : ''}>
+                
+                return (<div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
                     ? <QuestionListItem
                       question={q}
                       session={this.props.session}
                       controls={controls.length > 0 ? controls : ''}
-                      click={() => this.setQuestion(q._id)} />
+                      click={() => this.setQuestion(q)} />
                     : <StudentQuestionListItem
                       question={q}
                       controls={controls.length > 0 ? controls : ''}
-                      click={() => this.setQuestion(q._id)} /> }
+                      click={() => this.setQuestion(q)} /> }
                 </div>)
               })
             }
@@ -272,7 +273,8 @@ export const QuestionSidebar = createContainer((props) => {
   return {
     loading: !handle.ready(),
     questions: questions,
-    done: ''
+    selected: props.selected,
+    done: () => console.log('')
   }
 
 }, _QuestionSidebar)
