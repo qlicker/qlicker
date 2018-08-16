@@ -9,6 +9,8 @@ import { check } from 'meteor/check'
 import { ROLES } from '../configs'
 import Helpers from './helpers'
 
+import { Settings } from './settings'
+
 /*
  * profile: {
  *  firstname: '',
@@ -59,11 +61,24 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    if (this.profile.profileThumbnail) {
+      const settings = Settings.findOne()
+      if ( settings && settings.storageType === 'AWS' && !this.profile.profileImage.endsWith('/image')) {
+        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image', settings.storageType)
+      
+      }
+      return this.profile.profileImage
+    } else return '/images/avatar.png'
   },
 
   getThumbnailUrl: function () {
-    return this.profile.profileThumbnail ? this.profile.profileThumbnail : '/images/avatar.png'
+    if (this.profile.profileThumbnail) {
+      const settings = Settings.findOne()
+      if (settings && settings.storageType === 'AWS' && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)   
+      }
+      return this.profile.profileThumbnail
+    } else return '/images/avatar.png'
   }
 })
 
@@ -192,15 +207,22 @@ Meteor.methods({
    * update profile image with new image in S3 collection
    * @param {String} profileImageUrl
    */
-  'users.updateProfileImage' (profileImageUrl) {
+  'users.updateProfileImage' (profileImageUrl, storageType) {
     check(profileImageUrl, String)
+    if (storageType === 'AWS') {
+      if (profileImageUrl.endsWith('/thumbnail')) profileImageUrl = profileImageUrl.slice(0, -10) + '/image'
+      else if (!profileImageUrl.endsWith('/image')) profileImageUrl = profileImageUrl + '/image' 
+    } 
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileImage': profileImageUrl }
     })
   },
 
-  'users.updateProfileThumbnail' (profileImageUrl) {
+  'users.updateProfileThumbnail' (profileImageUrl, storageType) {
     check(profileImageUrl, String)
+    if (storageType === 'AWS' && profileImageUrl.endsWith('/image')) {
+      profileImageUrl = profileImageUrl.slice(0, -6) + '/thumbnail'
+    }
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileThumbnail': profileImageUrl }
     })
