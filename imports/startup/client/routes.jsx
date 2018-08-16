@@ -51,6 +51,23 @@ Router.route('/login', {
   }
 })
 
+Router.route('/login/email', {
+  name: 'login.email',
+  waitOn: function () {
+    return Meteor.subscribe('userData')
+  },
+  action: function () {
+    if (Meteor.userId()) {
+      // TODO: These should all go to the same page, for example, a user could be a professor
+      // for some courses and a student for others, as well as an admin...
+      let user = Meteor.user()
+      if (user.hasRole('admin')) Router.go('admin')
+      if (user.hasRole('professor')) Router.go('professor')
+      if (user.hasRole('student')) Router.go('student')
+    } else mount(AppLayout, { content: <Loginpage allowEmailLogin={true} /> })
+  }
+})
+
 Router.route('/logout', {
   name: 'logout',
   action: function () {
@@ -76,7 +93,7 @@ Router.route('/profile', {
   action: function () {
     let user = Meteor.user()
     if (user) {
-      mount(AppLayout, { content: <PageContainer user={user}> <ProfilePage /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer > <ProfilePage /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -239,7 +256,7 @@ Router.route('/course/:courseId/groups', {
   action: function () {
     if (!Meteor.userId()) Router.go('login')
     if (Meteor.user().isInstructor(this.params.courseId) || Meteor.user().hasRole('admin')) {
-      mount(AppLayout, {content: <PageContainer> <ManageCourseGroups courseId={this.params.courseId} /> </PageContainer>})
+      mount(AppLayout, {content: <PageContainer courseId={this.params.courseId}> <ManageCourseGroups courseId={this.params.courseId} /> </PageContainer>})
     } else Router.go('login')
   }
 })

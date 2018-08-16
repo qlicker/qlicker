@@ -34,6 +34,13 @@ class _Profile extends Component {
     this.resizeImage = this.resizeImage.bind(this)
     this.updateProfileImage = this.updateProfileImage.bind(this)
   }
+    
+  componentWillMount () {
+    //If the SSOlogout URL exists, user is logged in through SSO, don't let them change their password!
+    Meteor.call("isSSOSession", (err,result) => {
+      if(!err)this.setState({isSSOSession:result})
+    })   
+  }  
 
   updateProfileImage (file, done) {
     let reader = new window.FileReader()
@@ -180,7 +187,8 @@ class _Profile extends Component {
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
     const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
-
+    const noEdits = this.state.isSSOSession
+    
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
       : <span className='label label-warning'>Un-verified</span>
@@ -201,7 +209,7 @@ class _Profile extends Component {
 
             <div className='ql-profile-card ql-card'>
               <div className='profile-header ql-header-bar'>
-                <h4>Edit User Profile</h4>
+                <h4> User Profile</h4>
               </div>
 
               <div className='ql-card-content'>
@@ -227,10 +235,13 @@ class _Profile extends Component {
                     }
                 </div>
 
-                <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                  <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a>
-                  <a href='#' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</a>
-                </div>
+                
+                { noEdits ? '' :
+                  <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                    <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a>
+                    <a href='#' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</a>
+                  </div>
+                 }
                 <br />
                 <h2>{user.getName()}</h2>
                 <div className='ql-profile-container'>

@@ -55,7 +55,7 @@ if (Meteor.isServer) {
       if (user.hasGreaterRole(ROLES.admin)) {
         return Settings.find()
       }
-    } else return [] 
+    } else this.ready()
   })
 
   Accounts.validateLoginAttempt((options) => {
@@ -146,11 +146,16 @@ Meteor.methods({
     }
   },
 
-  'settings.getInstitution' () {
+  'settings.getSSOInstitution' () {
     const settings = Settings.findOne()
     if (settings) return settings.SSO_institutionName
   },
 
+   'settings.getSSOEnabled' () {
+    const settings = Settings.findOne()
+    if (settings) return settings.SSO_enabled
+  }, 
+   
   'confirmAccount' (email) {
     check(email, String)
     var domain = email.substring(email.lastIndexOf('@') + 1)

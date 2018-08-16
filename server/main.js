@@ -28,26 +28,22 @@ Meteor.startup(() => {
     })
   } else {
     const settings = Settings.findOne()
-    if (settings.storageType) { 
-      if (settings.storageType !== 'None' || settings.storageType !== 'Local') {
-        let directive = Slingshot.getDirective(settings.storageType)._directive
-        if (settings.storageType === 'AWS') {      
-          if (!directive) throw new Error('No Directive')
-          directive.bucket = settings.AWS_bucket
-          directive.region = settings.AWS_region
-          directive.AWSAccessKeyId = settings.AWS_accessKey
-          directive.AWSSecretAccessKey = settings.AWS_secret
-        }
-        if (settings.storageType === 'Azure') {
-          if (!directive) throw new Error('No Directive')
-          directive.accountName = settings.Azure_accountName
-          directive.accountKey = settings.Azure_accountKey
-          directive.containerName = settings.Azure_containerName
-        }
-      }
+    if (settings.storageType === 'AWS') {  
+      let directive = Slingshot.getDirective(settings.storageType)._directive  
+      if (!directive) throw new Error('No Directive')
+      directive.bucket = settings.AWS_bucket
+      directive.region = settings.AWS_region
+      directive.AWSAccessKeyId = settings.AWS_accessKey
+      directive.AWSSecretAccessKey = settings.AWS_secret
+    }
+    else if (settings.storageType === 'Azure') {
+      let directive = Slingshot.getDirective(settings.storageType)._directive
+      if (!directive) throw new Error('No Directive')
+      directive.accountName = settings.Azure_accountName
+      directive.accountKey = settings.Azure_accountKey
+      directive.containerName = settings.Azure_containerName
     } else {
-      settings.storageType = 'None'
-      Settings.update(settings._id, settings)
+      Settings.update(settings._id, {$set : {storageType:'None'} })
     }
   }
 

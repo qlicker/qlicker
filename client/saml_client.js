@@ -1,9 +1,13 @@
 import { Random } from 'meteor/random'
 
+//Create a saml object in acccounts if it does not exist
 if (!Accounts.saml) {
   Accounts.saml = {};
 }
 
+//Open a popup with the redirect request to the IDP for SSO login
+//Popup will be closed when the server receives a valid POST response
+//at the /SSO/SAML route (see server/saml_server.js)
 Accounts.saml.initiateLogin = function(options, callback, dimensions) {
   // default dimensions that worked well for facebook and google
   var popup = openCenteredPopup(
@@ -50,7 +54,11 @@ var openCenteredPopup = function(url, width, height) {
 };
 
 
-
+//Wrapper for callLoginMethod, which opens the popup and calls the login handler
+//with the generated credential token
+//The random token is passed as RelayState to the IDP (see initiateLogin above),
+//and then back to the server by the IDP. This allows the server to identify
+//this client as the one starting the login request
 Meteor.loginWithSaml = function(options, callback) {
   options = options || {};
   options.credentialToken = Random.secret(); 
