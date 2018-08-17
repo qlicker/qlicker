@@ -17,7 +17,9 @@ import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
 import { Grades } from '../../../api/grades'
 import { Questions } from '../../../api/questions'
+import { Responses, responseDistribution } from '../../../api/responses'
 
+import { WysiwygHelper } from '../../../wysiwyg-helpers'
 import {ResponseList } from '../../ResponseList'
 
 class _GradeSession extends Component {
@@ -166,6 +168,13 @@ class _GradeSession extends Component {
     const incrementQuestion = () => this.setQuestion(1)
     const decrementQuestion = () => this.setQuestion(-1)
     
+    let q = this.state.questionToView
+
+    const allResponses = Responses.find({questionId: { $in: this.props.session.questions }}).fetch()
+    const responsesByQuestion = _(allResponses).groupBy('questionId')
+
+    let responseDist = responseDistribution(responsesByQuestion[q._id], q)
+  
     return (
       <div className='container ql-grade-session'>
         <div className='row'>
@@ -232,26 +241,28 @@ class _GradeSession extends Component {
               </div>
             </div>
           </div>
-
           <div className='col-md-9'>
             <div className='ql-card'>
               <div className='response-header'>
-                <h2>
-                  <span className='response-header-btn left' onClick={decrementQuestion}>&lt;</span>
-                  <span className='respone-header-content'>Question {this.state.questionIndex}</span>
-                  <span className='response-header-btn right' onClick={incrementQuestion}>&gt;</span>
-                </h2>
-              </div>
-              <div className='ql-card-content'>
-                <div className='ql-grade-session-gradeview'>
-                  <ResponseList 
-                    session={this.props.session} 
-                    question={this.state.questionToView} 
-                    students={studentsToShow}
-                    studentToView={this.state.studentToView}
-                    grades={this.props.grades} />
+                <div className='bar'>
+                  <h2>
+                    <span className='btn' onClick={decrementQuestion}>&lt;</span>
+                    <span className='content'>Question {this.state.questionIndex}</span>
+                    <span className='btn' onClick={incrementQuestion}>&gt;</span>
+                  </h2>
+                </div>
+                <div className='preview'>
+                  <h1>{WysiwygHelper.htmlDiv(this.state.questionToView.content)}</h1>
                 </div>
               </div>
+              <div>
+                <ResponseList 
+                  session={this.props.session} 
+                  question={this.state.questionToView} 
+                  students={studentsToShow}
+                  studentToView={this.state.studentToView}
+                  grades={this.props.grades}/>
+              </div>             
             </div>
           </div>
 

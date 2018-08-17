@@ -291,8 +291,8 @@ Meteor.methods({
         else return Grades.update(grade._id, grade)
       })   
     }
-
-    throw Error('Unable to update mark')
+    
+    else throw Error('Unable to update mark')
   },
 
   /**

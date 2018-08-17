@@ -1,97 +1,79 @@
 @import '../variables.scss';
 @import '../common_components.scss';
 
-.response-header-btn {
-
-  @extend .btn;
-  color: white;
-  height: 100%;
-  width: 20%;
-  display: inline-block;
-}
-
 .response-header {
-  @extend .ql-header-bar;
-}
-
-.response-header-content {
-  display: inline-block;
-  width: 60%;
-  background-color: red;
-}
-
-.response-distribution {
-  padding-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.response-card-container {
-  padding-top: 50px;
-}
-
-.response-name {
-  background: $blue;
-  color: white;
-}
-
-.response-card-content {
-  display: flex;
-}
-
-.response-card-item {
-  width: 60%;
-}
-
-.response-short-answer {
   width: 100%;
   height: 100%;
-  max-width: 400px;
-  max-height: 100px;
-  font-size: 2em;
   background: white;
-  border: 2px solid $grey;
-  display: inline-block;
-  position: relative;
-  textarea {
-    text-align-last: center;
-    resize: vertical;
-  }
-  overflow-y: auto;
-}
+  position: sticky;
+  top: 85px;
 
-.response-mc-answer {
-  font-size: 2em;
-}
+  .bar {
+    @extend .ql-header-bar;
 
-.response-grade-container {
-  padding-left: 50px;
-}
+    .btn {
+      @extend .btn;
+      border: none;
+      color: white;
+      height: 100%;
+      width: 20%;
+    }
 
-.response-grade {
-
-  font-size: 2em;
-  display: flex;
-  margin-right: 0px;
- 
-  .box {
-    border: 2px solid $grey;
-    width: 10%;
-  }
-
-  .text {
-    padding: 10px;
-    font-size: 0.7em;
+    .content {
+      width: 20%;
+    }
   }
 }
 
-.response-feedback {
-  
-  font-size: 2em;
-  display: flex;
-  
-  .text-input {
-    border: 2px solid $grey;
+
+.response-card-container {
+  height: 100%;
+
+  .name {
+    background: $blue;
+    color: white;
+  }
+
+  .content {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    
+    .answer {
+      width: 40%;
+    }
+
+    .feedback {
+      display: flex;  
+      width: 60%;
+    }
+
+    .grade {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      background: $grey;
+    }
+
+    .textField {
+      width: 100%;
+      height: 100%;
+      max-height: 100px;
+      background: white;
+      border: 2px solid $grey;
+      textarea {
+        text-align: center;
+        resize: vertical;
+      }
+      overflow-y: auto;
+    }
+
+    input {
+      text-align: center;
+    }
   }
 }
+
+
 
