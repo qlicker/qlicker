@@ -32,6 +32,23 @@ export class LoginBox extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.changeForm = this.changeForm.bind(this)
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
+    this.loginSSO = this.loginSSO.bind(this)
+    //this.setState({ ssoInstitution: this.props.ssoInstitution })
+    //this.setState({ ssoEnabled: this.props.ssoEnabled})
+  }
+  /*  
+  componentWillMount () {
+    Meteor.call('settings.getSSOInstitution', (err, institution) => {
+      this.setState({ ssoInstitution: institution})
+    })
+    Meteor.call('settings.getSSOEnabled', (err, result) => {
+      this.setState({ ssoEnabled: result})
+    })  
+  }*/
+    
+  loginSSO(e){
+   e.preventDefault()
+   Meteor.loginWithSaml()
   }
 
   sendVerificationEmail () {
@@ -104,11 +121,16 @@ export class LoginBox extends Component {
     this.setState(stateEdits)
   }
 
+  //Only show create account link if SSO is disabled
+  //Only show login through SSO if SSO is enabled
+  //Only show login with email if requested by route when SSO is enabled
+
   render () {
     const switchFormString = this.state.login ? 'Create an Account' : 'Login'
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
     const topMessage = this.state.login ? 'Login to Qlicker' : 'Register for Qlicker'
-    const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'
+    const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'   
+    
     return (
       <form className='ql-login-box ql-card' onSubmit={this.handleSubmit}>
         <div className='header-container ql-header-bar'>
@@ -120,18 +142,31 @@ export class LoginBox extends Component {
               <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
               <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
             </div> : '' }
+          { this.props.allowEmailLogin ?
+          <div>
+            <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
 
-          <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' /><br />
+            <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
+            { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div> : ''}
 
-          <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-          { !this.state.login ? <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div> : ''}
-
-          { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
-          { this.state.submit_error ? <div className='ql-login-box-error-msg'>An error occurred</div> : ''}
-          <div className='spacer1'>&nbsp;</div>
-          <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
-          <div className='bottom-account-message'>{haveAccountMessage}</div>
-          <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
+            { this.state.form_error ? <div className='ql-login-box-error-msg'>Please enter a valid email and password</div> : ''}
+            { this.state.submit_error ? <div className='ql-login-box-error-msg'>An error occurred</div> : ''}
+            <div className='spacer1'>&nbsp;</div>
+            <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
+          </div> : '' }
+          
+          { this.props.ssoEnabled ? '' : 
+            <div>
+              <div className='bottom-account-message'>{haveAccountMessage}</div>
+              <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
+            </div>
+          }
+             
+          { this.props.ssoEnabled ?
+                <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.loginSSO}>
+                    Login through {this.props.ssoInstitution ? this.props.ssoInstitution : 'SSO'}
+                </button> : '' 
+           }
         </div>
       </form>
     )

@@ -24,8 +24,26 @@ Meteor.startup(() => {
       Azure_accountName: '',
       Azure_accountKey: '',
       Azure_containerName: '',
-      storageType: 'None'
+      storageType: 'None',
     })
+  } else {
+    const settings = Settings.findOne()
+    let directive = {}
+    if (settings.storageType === 'AWS') {  
+      directive = Slingshot.getDirective(settings.storageType)._directive  
+      if (!directive) throw new Error('No Directive')
+      directive.bucket = settings.AWS_bucket
+      directive.region = settings.AWS_region
+      directive.AWSAccessKeyId = settings.AWS_accessKey
+      directive.AWSSecretAccessKey = settings.AWS_secret
+    }
+    if (settings.storageType === 'Azure') {
+      directive = Slingshot.getDirective(settings.storageType)._directive
+      if (!directive) throw new Error('No Directive')
+      directive.accountName = settings.Azure_accountName
+      directive.accountKey = settings.Azure_accountKey
+      directive.containerName = settings.Azure_containerName
+    }
   }
 
   Questions._ensureIndex({ sessionId: 1 })
@@ -38,4 +56,5 @@ Meteor.startup(() => {
   Grades._ensureIndex({ userId: 1 })
   Grades._ensureIndex({ courseId: 1 })
   Grades._ensureIndex({ sessionId: 1 })
+
 })
