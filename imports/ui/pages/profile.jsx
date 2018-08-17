@@ -52,34 +52,10 @@ class _Profile extends Component {
         name: fileURL})
       let image = {UID: UID}
       const existing = Images.findOne(image)
-      const settings = Settings.findOne()
       
       if (existing) {
-        console.log(existing.url)
-        if (this.state.storageType === 'AWS' && existing.url.endsWith('/image')) {
-          this.saveProfileImage(existing.url, 'image')
-          this.saveProfileImage(existing.url.slice(0, -6), 'thumbnail')
-        }
-        else if (this.state.storageType === 'AWS' && existing.url.endsWith('/thumbnail')) {
-          this.saveProfileImage(existing.url.slice(0, -10), 'image')
-          this.saveProfileImage(existing.url, 'thumbnail')
-        }
-
-        else if (this.state.storageType === 'AWS') {
-          let updateImage = _.extend({ url: existing.url + '/image' }, existing)
-          let updateThumbnail = _.extend({ url: existing.url + '/thumbnail' }, existing)
-          Meteor.call('images.update', updateImage)
-          Meteor.call('images.update', updateThumbnail)
-          this.saveProfileImage(existing.url + '/image', 'image')
-          this.saveProfileImage(existing.url + '/thumbnail', 'thumbnail')
-        }
-        
-        else {
-          console.log(this.state.storageType)
-          this.saveProfileImage(existing.url, 'image')
-          this.saveProfileImage(existing.url, 'thumbnail')
-        }
-        
+        this.saveProfileImage(existing.url, 'image')
+        this.saveProfileImage(existing.url, 'thumbnail')      
         return
       }
 

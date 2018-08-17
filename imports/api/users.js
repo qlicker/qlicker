@@ -61,24 +61,49 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    if (this.profile.profileThumbnail) {
+    if (this.profile.profileImage) {
       const settings = Settings.findOne()
-      if ( settings && settings.storageType === 'AWS' && !this.profile.profileImage.endsWith('/image')) {
+      if ( settings && settings.storageType === 'AWS' && this.profile.profileImage.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileImage.endsWith('/image')) {
         Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image', settings.storageType)
-      
+      }
+      if ( settings && settings.storageType === 'AWS' && this.profile.profileThumbnail.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
       }
       return this.profile.profileImage
-    } else return '/images/avatar.png'
+    } 
+    
+    else if (this.profile.profileThumbnail) { // set profile image if a thumbnail exists
+      if ( settings && settings.storageType === 'AWS' && this.profile.profileThumbnail.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
+      }
+      Meteor.call('users.updateProfileImage', this.profile.profileThumbnail, settings.storageType)
+      return this.profile.profileImage
+    }
+    
+    else return '/images/avatar.png'
   },
 
   getThumbnailUrl: function () {
     if (this.profile.profileThumbnail) {
       const settings = Settings.findOne()
-      if (settings && settings.storageType === 'AWS' && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
-        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)   
+      if ( settings && settings.storageType === 'AWS' && this.profile.profileImage.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileImage.endsWith('/image')) {
+        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image', settings.storageType)
+      }
+      if ( settings && settings.storageType === 'AWS' && this.profile.profileThumbnail.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
       }
       return this.profile.profileThumbnail
-    } else return '/images/avatar.png'
+    } 
+    
+    else if (this.profile.profileImage) { // set profile thumbnail if an image exists
+      if ( settings && settings.storageType === 'AWS' && this.profile.profileImage.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileImage.endsWith('/image')) {
+        Meteor.call('users.updateProfileImage', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
+      }
+      Meteor.call('users.updateProfileThumbnail', this.profile.profileImage, settings.storageType)
+      return this.profile.profileImage
+    }
+
+    else return '/images/avatar.png'
   }
 })
 
@@ -207,22 +232,15 @@ Meteor.methods({
    * update profile image with new image in S3 collection
    * @param {String} profileImageUrl
    */
-  'users.updateProfileImage' (profileImageUrl, storageType) {
+  'users.updateProfileImage' (profileImageUrl) {
     check(profileImageUrl, String)
-    if (storageType === 'AWS') {
-      if (profileImageUrl.endsWith('/thumbnail')) profileImageUrl = profileImageUrl.slice(0, -10) + '/image'
-      else if (!profileImageUrl.endsWith('/image')) profileImageUrl = profileImageUrl + '/image' 
-    } 
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileImage': profileImageUrl }
     })
   },
 
-  'users.updateProfileThumbnail' (profileImageUrl, storageType) {
+  'users.updateProfileThumbnail' (profileImageUrl) {
     check(profileImageUrl, String)
-    if (storageType === 'AWS' && profileImageUrl.endsWith('/image')) {
-      profileImageUrl = profileImageUrl.slice(0, -6) + '/thumbnail'
-    }
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileThumbnail': profileImageUrl }
     })
