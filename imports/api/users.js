@@ -62,18 +62,18 @@ _.extend(User.prototype, {
   },
   getImageUrl: function () {
     if (this.profile.profileImage) {
-      const settings = Settings.findOne()
-      if ( settings && settings.storageType === 'AWS' && this.profile.profileImage.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileImage.endsWith('/image')) {
+  
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
         Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image', settings.storageType)
       }
-      if ( settings && settings.storageType === 'AWS' && this.profile.profileThumbnail.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
         Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
       }
       return this.profile.profileImage
     } 
     
     else if (this.profile.profileThumbnail) { // set profile image if a thumbnail exists
-      if ( settings && settings.storageType === 'AWS' && this.profile.profileThumbnail.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
         Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
       }
       Meteor.call('users.updateProfileImage', this.profile.profileThumbnail, settings.storageType)
@@ -85,18 +85,18 @@ _.extend(User.prototype, {
 
   getThumbnailUrl: function () {
     if (this.profile.profileThumbnail) {
-      const settings = Settings.findOne()
-      if ( settings && settings.storageType === 'AWS' && this.profile.profileImage.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileImage.endsWith('/image')) {
+      
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
         Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image', settings.storageType)
       }
-      if ( settings && settings.storageType === 'AWS' && this.profile.profileThumbnail.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
         Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
       }
       return this.profile.profileThumbnail
     } 
     
     else if (this.profile.profileImage) { // set profile thumbnail if an image exists
-      if ( settings && settings.storageType === 'AWS' && this.profile.profileImage.startsWith('https://' + settings.AWS_bucket + '.s3-' + settings.AWS_region + '.amazonaws.com') && !this.profile.profileImage.endsWith('/image')) {
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
         Meteor.call('users.updateProfileImage', this.profile.profileThumbnail + '/thumbnail', settings.storageType)
       }
       Meteor.call('users.updateProfileThumbnail', this.profile.profileImage, settings.storageType)
