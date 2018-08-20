@@ -63,29 +63,26 @@ _.extend(User.prototype, {
   getImageUrl: function () {
     if (this.profile.profileImage) {
   
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test(this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
         Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
-      }
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
-        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail')
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
       }
       return this.profile.profileImage
     } 
-    
     else return '/images/avatar.png'
   },
-
   getThumbnailUrl: function () {
     if (this.profile.profileThumbnail) return this.profile.profileThumbnail
-       
-    else if (this.profile.profileImage) { // set profile thumbnail if an image exists
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
-        Meteor.call('users.updateProfileImage', this.profile.profileThumbnail + '/thumbnail')
+
+    else if (this.profile.profileImage) { // set profile thumbnail if an image exists  
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test(this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
+        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
       }
-      Meteor.call('users.updateProfileThumbnail', this.profile.profileImage)
+      else Meteor.call('users.updateProfileThumbnail', this.profile.profileImage) // Update thumbnail to same link as profile image if valid url
       return this.profile.profileImage
     }
-    
+
     else return '/images/avatar.png'
   }
 })
