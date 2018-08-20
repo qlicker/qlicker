@@ -36,10 +36,10 @@ class _QuestionsLibrary extends Component {
     this.importQuestions = this.importQuestions.bind(this)
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
-    this.updateQuery = this.updateQuery.bind(this)
     this.approveQuestion = this.approveQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.makeQuestionPublic = this.makeQuestionPublic.bind(this)
+    this.setFilter = this.setFilter.bind(this)
 
     Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
@@ -167,7 +167,6 @@ class _QuestionsLibrary extends Component {
   }
 
   editQuestion (question) {
-    console.log(question)
     if (question._id === -1) {
       // reset the query
       this.setState({query: this.props.query, resetSidebar: true})
@@ -242,44 +241,8 @@ class _QuestionsLibrary extends Component {
     this.setState({ selected: null, resetSidebar: false })
   }
 
-  updateQuery (childState) {
-    
-    // this.setState({resetSidebar: false})
-    // let params = this.state.query
-    // if (childState.questionType > -1) params.query.type = childState.questionType
-    // else params.query = _.omit(params.query, 'type')
-    // if (childState.questionApproved) params.query.approved = childState.questionApproved
-    // else params.query = _.omit(params.query, 'approved')
-    // if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
-    // else params.query = _.omit(params.query, 'courseId')
-    // if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
-    // else params.query = _.omit(params.query, 'plainText')
-    // if (childState.userSearchString) {
-    //   const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
-    //                                            {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
-    //   const uids = _(users).pluck('_id')
-    //   params.query.creator = {$in: uids}
-    // } else params.query = _.omit(params.query, 'creator')
-    // if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
-    // else params.query = _.omit(params.query, 'tags.value')
-    // if(!params.query.courseId) delete params.query.courseId
-    
-    // if (this.props.library !== 'sharedWithUser') {
-    //   params.query.courseId = this.props.courseId
-    // }
-  
-    // const query = _.extend(params.query, this.state.query.query)
-    
-   
-    // const newQuestions = Questions.find(query, params.options).fetch()
-    // this.setState({ questions: newQuestions })  
-  }
-
-  componentWillReceiveProps (nextProps) {
-    // const newQuestions = Questions.find(nextProps.query.query, nextProps.query.options).fetch()
-    // if (!_.findWhere(newQuestions, {_id: this.state.selected})) {
-    //   this.setState({ questions: newQuestions, selected: null, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query })
-    // } else this.setState({ questions: newQuestions, questionMap: _(newQuestions).indexBy('_id'), query: nextProps.query }) 
+  setFilter (newState) {
+    this.setState({ resetSidebar: newState})
   }
 
   componentDidMount () {
@@ -311,8 +274,8 @@ class _QuestionsLibrary extends Component {
               questionLibrary={this.props.questionLibrary}
               courseId={this.props.courseId}
               onSelect={this.editQuestion}
-              updateQuery={this.updateQuery}
-              resetFilter={this.state.resetSidebar}
+              resetSidebar={this.state.resetSidebar}
+              setFilter={this.setFilter}
               selected={this.state.selected} />
           </div>
           <div className='col-md-8'>

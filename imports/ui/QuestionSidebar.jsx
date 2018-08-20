@@ -48,6 +48,8 @@ export class _QuestionSidebar extends ControlledForm {
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.approveQuestion = this.approveQuestion.bind(this)
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
+    this.updateQuery = this.updateQuery.bind(this)
+
     // populate tagging suggestions
     this.tagSuggestions = []
     
@@ -80,7 +82,7 @@ export class _QuestionSidebar extends ControlledForm {
    */
   setUserSearchString (e) {
     this.setState({ userSearchString: e.target.value }, () => {
-      this.props.updateQuery(this.state)
+      this.updateQuery()
     })
   }
 
@@ -90,7 +92,7 @@ export class _QuestionSidebar extends ControlledForm {
    */
   setSearchString (e) {
     this.setState({ searchString: e.target.value }, () => {
-      this.props.updateQuery(this.state)
+      this.updateQuery()
     })
   }
 
@@ -100,13 +102,13 @@ export class _QuestionSidebar extends ControlledForm {
    */
   setType (e) {
     this.setState({ questionType: parseInt(e.target.value), courseId: this.props.courseId }, () => {
-      this.props.updateQuery(this.state)
+      this.updateQuery()
     })
   }
 
   showApproved () {
     this.setState({ showOnlyApprovedQuestions: !this.state.showOnlyApprovedQuestions }, () => {
-      this.props.updateQuery(this.state)
+      this.updateQuery()
     })
   }
   
@@ -165,20 +167,46 @@ export class _QuestionSidebar extends ControlledForm {
    */
   setTags (tags) {
     this.setState({ tags: tags }, () => {
-      this.props.updateQuery(this.state)
+      this.updateQuery()
     })
   }
 
   resetFilter () {
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', userSearchString: '', questionType: -1, tags: [] }, () => {
-      this.props.updateQuery(this.state)
+    this.setState({ searchString: '', userSearchString: '', questionType: -1, tags: [], showOnlyApprovedQuestions: false }, () => {
+      this.updateQuery()
     })
+  }
+
+  updateQuery () {
+    
+    this.props.setFilter(false)
+
+    let query = {}
+
+    if (this.state.questionType > -1) query.type = this.state.questionType
+    if (this.state.questionApproved) query.approved = this.state.questionApproved
+    if (parseInt(this.state.courseId) !== -1) query.courseId = this.state.courseId
+    if (this.state.searchString) query.plainText = {$regex: '.*' + this.state.searchString + '.*', $options: 'i'}
+    if (this.state.userSearchString) {
+      const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + this.state.userSearchString + '.*', $options: 'i'}},
+                                               {'profile.firstname': {$regex: '.*' + this.state.userSearchString + '.*', $options: 'i'}}] }).fetch()
+      const uids = _(users).pluck('_id')
+      query.creator = {$in: uids}
+    } 
+    if (this.state.tags.length) query['tags.value'] = { $all: _.pluck(this.state.tags, 'value') }
+  
+    if (this.props.library !== 'sharedWithUser') {
+      query.courseId = this.props.courseId
+    }    
+   
+    const newQuestions = Questions.find(query).fetch()
+    this.setState({ questionPool: newQuestions })  
   }
 
   componentWillReceiveProps (nextProps) {
     this.setState({ questionPool: nextProps.questions.slice() })
-    if (nextProps.resetFilter) this.resetFilter()
+    if (nextProps.resetSideBar) this.resetFilter()
     if(nextProps.courseId !== this.props.courseId) this.setTags([])
   }
 
@@ -201,7 +229,7 @@ export class _QuestionSidebar extends ControlledForm {
 
           <div className='ql-header-button question-type form-control' style={{'display':'flex'}} onClick={this.showApproved}>
             <span><input className='checkbox' type='checkbox' checked={this.state.showOnlyApprovedQuestions}/></span>
-            <span>   Approved Only</span>
+            <span>Approved Only</span>
           </div>
 
           
@@ -266,9 +294,7 @@ export const QuestionSidebar = createContainer((props) => {
   const subscription = 'questions.' + props.questionLibrary
   const handle =  Meteor.subscribe(subscription, props.courseId)
 
-  const query = {}
   const questions = Questions.find().fetch()
-  console.log(questions)
 
   return {
     loading: !handle.ready(),
@@ -284,6 +310,6 @@ QuestionSidebar.propTypes = {
   courseId: PropTypes.string,
   onSelect: PropTypes.func,
   clickMessage: PropTypes.string,
-  updateQuery: PropTypes.func,
-  resetFilter: PropTypes.bool
+  resetFilter: PropTypes.bool,
+  setFilter: PropTypes.func
 }
