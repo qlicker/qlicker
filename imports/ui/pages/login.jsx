@@ -16,8 +16,23 @@ export class Loginpage extends Component {
 
     this.state = { resetPassword: false }
   }
-
+    
+  componentWillMount () {
+    Meteor.call('settings.getSSOInstitution', (err, institution) => {
+      this.setState({ ssoInstitution: institution})
+    })
+    Meteor.call('settings.getSSOEnabled', (err, result) => {
+      this.setState({ ssoEnabled: result})
+    })  
+  }
+    
   render () {
+    //Allow email login if it was passed as a prop, or if SSO is not enabled
+    //It is passed a prop in the login/email route
+    const allowEmailLogin = this.props.allowEmailLogin || !this.state.ssoEnabled ? true : false
+    const ssoInstitution = this.state.ssoInstitution
+    const ssoEnabled = this.state.ssoEnabled
+      
     const togglePasswordResetModal = () => { this.setState({ resetPassword: !this.state.resetPassword }) }
     return (
       <div className='ql-login-page'>
@@ -30,11 +45,16 @@ export class Loginpage extends Component {
             </div>
 
             <div className='col-md-4 login-container'>
-              <LoginBox />
+              <LoginBox ssoEnabled={ssoEnabled} ssoInstitution={ssoInstitution} allowEmailLogin={allowEmailLogin}/>
               <br />
-              <div className='center-text'>
-                <a href='#' onClick={togglePasswordResetModal} >Forgot your password?</a>
-              </div>
+              { allowEmailLogin ?
+                <div className='center-text'>
+                  <a href='#' onClick={togglePasswordResetModal} >Forgot your password?</a>
+                </div> : 
+                <div className='center-text'>
+                  <a href={Router.routes['login.email'].path()} >Have an email based account?</a>
+                </div>
+               }
             </div>
 
             <div className='col-md-4'>&nbsp;
