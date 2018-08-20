@@ -38,19 +38,28 @@ class _AdminDashboard extends Component {
     return (
       <div className='ql-admin-page'>
 
-        <span className='ql-admin-toolbar'>
-          <span className='title'>Dashboard</span>
-          <span className='divider'>&nbsp;</span>
-          <span className='button' onClick={() => setTab('users')}>Users</span>
-          <span className='divider'>&nbsp;</span>
-          <span className='button' onClick={() => setTab('server')}>Server</span>
-          <span className='divider'>&nbsp;</span>
-          <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
-        </span>
+        { this.state.profileViewModal
+          ? <ProfileViewModal
+            user={this.state.userToView}
+            done={this.toggleProfileViewModal} />
+          : <span className='ql-admin-toolbar'>
+              <span className='title'>Dashboard</span>
+              <span className='divider'>&nbsp;</span>
+              <span className='button' onClick={() => setTab('users')}>Users</span>
+              <span className='divider'>&nbsp;</span>
+              <span className='button' onClick={() => setTab('server')}>Server</span>
+              <span className='divider'>&nbsp;</span>
+              <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
+            </span> 
+        }
         
         <div className='ql-admin-settings'>
           { this.state.tab === 'users'
-            ? <ManageUsers settings={this.props.settings} allUsers={this.props.allUsers} courseNames={this.props.courseNames} />
+            ? <ManageUsers 
+                settings={this.props.settings} 
+                allUsers={this.props.allUsers} 
+                courseNames={this.props.courseNames}
+                toggleProfileViewModal={this.toggleProfileViewModal} />
             : ''
           }
           { this.state.tab === 'server'
@@ -62,11 +71,6 @@ class _AdminDashboard extends Component {
            : ''
           }
         </div>
-        { this.state.profileViewModal
-            ? <ProfileViewModal
-              user={this.state.userToView}
-              done={this.toggleProfileViewModal} />
-          : '' }
       </div>)
   }
 }

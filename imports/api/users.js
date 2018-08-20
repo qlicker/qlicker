@@ -9,6 +9,8 @@ import { check } from 'meteor/check'
 import { ROLES } from '../configs'
 import Helpers from './helpers'
 
+import { Settings } from './settings'
+
 /*
  * profile: {
  *  firstname: '',
@@ -59,11 +61,28 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    if (this.profile.profileImage) {
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test(this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
+        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
+      }
+      return this.profile.profileImage
+    } 
+    else return '/images/avatar.png'
   },
-
   getThumbnailUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    if (this.profile.profileThumbnail) return this.profile.profileThumbnail
+
+    else if (this.profile.profileImage) { // set profile thumbnail if an image exists  
+      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test(this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
+        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
+        Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
+      }
+      
+      return this.profile.profileThumbnail
+    }
+
+    else return '/images/avatar.png'
   }
 })
 
@@ -196,6 +215,13 @@ Meteor.methods({
     check(profileImageUrl, String)
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileImage': profileImageUrl }
+    })
+  },
+
+  'users.updateProfileThumbnail' (profileImageUrl) {
+    check(profileImageUrl, String)
+    return Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'profile.profileThumbnail': profileImageUrl }
     })
   },
 

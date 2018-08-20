@@ -11,6 +11,7 @@ import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 
 import { Images } from '../../api/images'
+import { Settings } from '../../api/settings'
 import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
 let UUID = require('uuid-1345')
@@ -51,9 +52,10 @@ class _Profile extends Component {
         name: fileURL})
       let image = {UID: UID}
       const existing = Images.findOne(image)
-
+      
       if (existing) {
-        this.saveProfileImage(existing.url)
+        this.saveProfileImage(existing.url, 'image')
+        this.saveProfileImage(existing.url, 'thumbnail')      
         return
       }
 
@@ -86,14 +88,24 @@ class _Profile extends Component {
     })
   }
 
-  saveProfileImage (profileImageUrl) {
-    Meteor.call('users.updateProfileImage', profileImageUrl, (err) => {
-      if (err) return alertify.error('Error: could not save image')
-      setTimeout(() => {
-        alertify.success('Profile image updated')
-        this.setState({ uploadActive: false })
-      }, 800)
-    })
+  saveProfileImage (profileImageUrl, type) {
+    if (!type || type === 'image') {
+      Meteor.call('users.updateProfileImage', profileImageUrl, (err) => {
+        if (err) return alertify.error('Error: could not save image')
+        setTimeout(() => {
+          alertify.success('Profile image updated')
+          this.setState({ uploadActive: false })
+        }, 800)
+      })
+    } else if (type === 'thumbnail') {
+      Meteor.call('users.updateProfileThumbnail', profileImageUrl, (err) => {
+        if (err) return alertify.error('Error: could not save image')
+        setTimeout(() => {
+          alertify.success('Profile image updated')
+          this.setState({ uploadActive: false })
+        }, 800)
+      })
+    }
   }
 
   sendVerificationEmail () {
@@ -132,12 +144,16 @@ class _Profile extends Component {
         if (e) alertify.error('Error uploading')
         else if (save) {
           img.url = downloadUrl
-          this.saveProfileImage(img.url)
+          this.saveProfileImage(img.url, meta.type)
           img.UID = meta.UID
           this.addImage(img)
         }
       })
     })
+  }
+
+  componentDidMount () {
+    this.setStorageType()
   }
 
   render () {
