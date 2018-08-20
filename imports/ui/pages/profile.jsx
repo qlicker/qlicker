@@ -141,13 +141,15 @@ class _Profile extends Component {
   }
 
   render () {
-    const user = this.props.user
+    const user = Meteor.user()//this.props.user
     const needsEmailVerification = !user.emails[0].verified
 
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
     const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
-    const noEdits = this.state.isSSOSession
+    
+    const noEdits = this.state.isSSOSession 
+    const noEmail = (user.services && user.services.sso)
     
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
@@ -198,7 +200,7 @@ class _Profile extends Component {
                 
                 { noEdits ? '' :
                   <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                    <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a>
+                     {noEmail ? '' : <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a> }
                     <a href='#' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</a>
                   </div>
                  }
@@ -231,10 +233,10 @@ class _Profile extends Component {
 
 // meteor reactive data container
 export const ProfilePage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData') && Meteor.subscribe('settings')
+  const handle = Meteor.subscribe('userData') && Meteor.subscribe('settings') // TODO <- really , settings??? check that we don't leak anything!
 
   return {
-    user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
+    //user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
     loading: !handle.ready()
   }
 }, _Profile)
