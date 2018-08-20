@@ -366,12 +366,10 @@ Meteor.methods({
 
     const copiedQuestion = _.extend({ sharedCopy: true }, _.omit(question, 'sharedCopy')) 
 
-    Meteor.call('users.getUserIdByEmail', email, (err, userId) => {
-      if (err) throw new Error('Could not retrieve user')
-      check(userId, Helpers.MongoID)
-      return Meteor.call('questions.duplicate', copiedQuestion, userId)
-    })  
+    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    if(!user) throw new Meteor.Error('User not found')
     
+    return Meteor.call('questions.duplicate', copiedQuestion, user._id)
   },
   /**
    * Deletes a question by id

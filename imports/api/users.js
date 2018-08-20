@@ -251,12 +251,6 @@ Meteor.methods({
       '$set': { 'profile.roles': [ newRole ] } // system only supports users having one role at a time
     })
   },
-  
-  'users.getUserIdByEmail' (email) {   
-    const user = Meteor.users.findOne({ 'emails.0.address': email })
-    if (user) return user._id
-    else throw new Meteor.Error('User not found')
-  },
 
   /**
    * find user by email and call user.changeRole
