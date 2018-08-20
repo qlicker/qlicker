@@ -316,8 +316,8 @@ Meteor.methods({
 
     // Question cannot be both public and private
     if (question.public && question.private) {
-      question.public = true
-      question.private = false
+      question.public = false
+      question.private = true
     }
     check(question, questionPattern)
     const id = Questions.insert(question)
