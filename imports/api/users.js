@@ -62,7 +62,6 @@ _.extend(User.prototype, {
   },
   getImageUrl: function () {
     if (this.profile.profileImage) {
-  
       if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test(this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
         Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
         Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
@@ -79,8 +78,8 @@ _.extend(User.prototype, {
         Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
         Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
       }
-      else Meteor.call('users.updateProfileThumbnail', this.profile.profileImage) // Update thumbnail to same link as profile image if valid url
-      return this.profile.profileImage
+      
+      return this.profile.profileThumbanail
     }
 
     else return '/images/avatar.png'
