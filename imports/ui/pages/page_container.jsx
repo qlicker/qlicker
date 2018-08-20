@@ -75,8 +75,10 @@ class _PageContainer extends Component {
 
   render () {
     const user = Meteor.user()
+
     if(!user)  Router.go('logout')
     const isInstructor = user.isInstructorAnyCourse() // to view student submissions
+
     const isProfessor = user.hasGreaterRole('professor') // to promote accounts
     const isAdmin = user.hasRole('admin')
 
