@@ -401,8 +401,8 @@ class _ManageSession extends Component {
     if (!atMax) library = library.slice(0, -1)
 
     const sidebar = <QuestionSidebar
+      questionLibrary='library'
       session={this.state.session}
-      questions={library}
       courseId={this.props.session.courseId}
       onSelect={this.addToSession}
       increase={increase}
@@ -540,10 +540,7 @@ class _ManageSession extends Component {
 export const ManageSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
-    Meteor.subscribe('questions.library') &&
-    Meteor.subscribe('questions.public') &&
-    Meteor.subscribe('questions.fromStudent') &&
-    Meteor.subscribe('courses')
+    Meteor.subscribe('questions.library') 
 
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]

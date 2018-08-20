@@ -12,10 +12,10 @@ import 'react-select/dist/react-select.css'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
-import {ShareModal } from './modals/ShareModal'
+import { ShareModal } from './modals/ShareModal'
 
 import { defaultSessionOptions, defaultQuestion } from '../api/questions'
-import { Courses } from '../api/courses'
+
 
 // constants
 import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable, ROLES } from '../configs'

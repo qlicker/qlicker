@@ -205,6 +205,7 @@ export class _QuestionSidebar extends ControlledForm {
   }
 
   componentWillReceiveProps (nextProps) {
+    console.log(nextProps)
     this.setState({ questionPool: nextProps.questions.slice() })
     if (nextProps.resetSideBar) this.resetFilter()
     if(nextProps.courseId !== this.props.courseId) this.setTags([])
@@ -310,6 +311,6 @@ QuestionSidebar.propTypes = {
   courseId: PropTypes.string,
   onSelect: PropTypes.func,
   clickMessage: PropTypes.string,
-  resetFilter: PropTypes.bool,
+  resetSideBar: PropTypes.bool,
   setFilter: PropTypes.func
 }

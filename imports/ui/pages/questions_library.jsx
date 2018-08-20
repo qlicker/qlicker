@@ -13,6 +13,7 @@ import { QuestionEditItem } from '../QuestionEditItem'
 import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
 
+import { defaultQuestion } from '../../api/questions'
 import { Courses } from '../../api/courses'
 
 class _QuestionsLibrary extends Component {
@@ -167,7 +168,7 @@ class _QuestionsLibrary extends Component {
   }
 
   editQuestion (question) {
-    if (question._id === -1) {
+    if (question === null) {
       // reset the query
       this.setState({query: this.props.query, resetSidebar: true})
       let tags = []
@@ -260,7 +261,7 @@ class _QuestionsLibrary extends Component {
             <br />
             {(isInstructor || this.state.allowedStudentQuestions) && this.props.questionLibrary === 'library'
               ? <div>
-                  <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(-1)}>New Question</button>
+                  <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(null)}>New Question</button>
                   <div className='ql-questions-library ql-sidebar-buttons'>                  
                     <button className='btn btn-primary' onClick={this.exportQuestions}>Export to File</button>
                     <label className='btn btn-primary'>
