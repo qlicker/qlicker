@@ -79,7 +79,7 @@ _.extend(User.prototype, {
         Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
       }
       
-      return this.profile.profileThumbanail
+      return this.profile.profileThumbnail
     }
 
     else return '/images/avatar.png'
