@@ -68,7 +68,7 @@ class _QuestionsNav extends Component {
 
         <QuestionsLibrary
           courseId={this.props.courseId}
-          library={this.state.selected}/>
+          questionLibrary={this.state.selected}/>
       </div>
     )
   }

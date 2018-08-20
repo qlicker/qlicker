@@ -13,7 +13,6 @@ import { QuestionEditItem } from '../QuestionEditItem'
 import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
 
-import { Questions, defaultQuestion } from '../../api/questions'
 import { Courses } from '../../api/courses'
 
 class _QuestionsLibrary extends Component {
@@ -288,19 +287,15 @@ class _QuestionsLibrary extends Component {
   }
   
   render () {
-    console.log(this.state.selected)
-    let library = this.state.questions || []
 
     const isInstructor = Meteor.user().isInstructorAnyCourse()
-
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
    
     return (
       <div>
         <div className='row'>
           <div className='col-md-4'>
             <br />
-            {(isInstructor || this.state.allowedStudentQuestions) && this.props.library === 'library'
+            {(isInstructor || this.state.allowedStudentQuestions) && this.props.questionLibrary === 'library'
               ? <div>
                   <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(-1)}>New Question</button>
                   <div className='ql-questions-library ql-sidebar-buttons'>                  
@@ -338,7 +333,7 @@ class _QuestionsLibrary extends Component {
                     </div>
                   : <div>
                       <h3>Preview Question</h3>
-                      { this.props.library !== 'library'
+                      { this.props.questionLibrary !== 'library'
                         ? <div>
                             <button className='btn btn-default'
                               onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
@@ -395,7 +390,7 @@ export const QuestionsLibrary = createContainer(props => {
   
   let editable = true
   
-  if (props.library === 'unapprovedFromStudents' || props.library === 'sharedWithUser') {
+  if (props.questionLibrary === 'unapprovedFromStudents' || props.questionLibrary === 'sharedWithUser') {
     editable = false
   }
   
@@ -407,6 +402,6 @@ export const QuestionsLibrary = createContainer(props => {
     publicQuestionsRequireApproval: publicQuestionsRequireApproval,
     selected: null,
     editable: editable,
-    questionLibrary: props.library
+    questionLibrary: props.questionLibrary
   }
 }, _QuestionsLibrary)

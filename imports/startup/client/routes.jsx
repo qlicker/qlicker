@@ -154,7 +154,7 @@ Router.route('/course/:courseId/questions', {
   name: 'questions',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('questions.library')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') 
   },
   action: function () {
     const cId = this.params.courseId

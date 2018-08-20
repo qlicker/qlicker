@@ -285,11 +285,7 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  Meteor.publish('questions.all', function (courseId) {
-    return Questions.find()
-  })
 }
-
 /**
  * Meteor methods for questions object
  * @module questions
