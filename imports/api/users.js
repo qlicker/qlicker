@@ -72,29 +72,12 @@ _.extend(User.prototype, {
       return this.profile.profileImage
     } 
     
-    else if (this.profile.profileThumbnail) { // set profile image if a thumbnail exists
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
-        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail')
-      }
-      Meteor.call('users.updateProfileImage', this.profile.profileThumbnail)
-      return this.profile.profileImage
-    }
-    
     else return '/images/avatar.png'
   },
 
   getThumbnailUrl: function () {
-    if (this.profile.profileThumbnail) {
-      
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
-        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
-      }
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileThumbnail.endsWith('/thumbnail')) {
-        Meteor.call('users.updateProfileThumbnail', this.profile.profileThumbnail + '/thumbnail')
-      }
-      return this.profile.profileThumbnail
-    } 
-    
+    if (this.profile.profileThumbnail) return this.profile.profileThumbnail
+       
     else if (this.profile.profileImage) { // set profile thumbnail if an image exists
       if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test( this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
         Meteor.call('users.updateProfileImage', this.profile.profileThumbnail + '/thumbnail')
@@ -102,7 +85,7 @@ _.extend(User.prototype, {
       Meteor.call('users.updateProfileThumbnail', this.profile.profileImage)
       return this.profile.profileImage
     }
-
+    
     else return '/images/avatar.png'
   }
 })
