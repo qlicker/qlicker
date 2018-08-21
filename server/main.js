@@ -58,7 +58,8 @@ Meteor.startup(() => {
   Grades._ensureIndex({ courseId: 1 })
   Grades._ensureIndex({ sessionId: 1 })
     
-    
+   
+  //console.log("URL: "+Meteor.absoluteUrl())   
   //********************************  
   //Hack to update database of profile pictures
   allUsers = Meteor.users.find().fetch()
