@@ -16,7 +16,6 @@ class _QuestionDragSortList extends Component {
 
     this.removeQuestion = this.removeQuestion.bind(this)
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
-    this.addToLibrary = this.addToLibrary.bind(this)
   }
 
   /**
@@ -43,21 +42,9 @@ class _QuestionDragSortList extends Component {
     this.props.cursorMoveWorkaround()
   }
 
-  /**
-   * addToLibrary(MongoId (string): questionId)
-   * adds the question to the library
-   */
-  addToLibrary (questionId) {
-    Meteor.call('questions.copyToLibrary', questionId, (error, newQuestionId) => {
-      if (error) return alertify.error('Error: ' + error.error)
-      alertify.success('Question Copied to Library')
-    })
-  }
-
   render () {
 
     let questionList = this.props.session.questions || []
-    console.log(this.props.courseId)
     const qlItems = []
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
@@ -71,7 +58,7 @@ class _QuestionDragSortList extends Component {
           controls={[
             { label: 'Remove', click: () => this.removeQuestion(questionId) },
             { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) },
-            { label: 'Add to library', click: () => this.addToLibrary(questionId) }
+            { label: 'Add to library', click: () => this.props.addToLibrary(questionId) }
           ]} />,
         id: questionId
       })
@@ -91,8 +78,7 @@ export const QuestionDragSortList = createContainer((props) => {
   const handle = Meteor.subscribe('questions.inSession', props.session._id)
   const questionsInSession = Questions.find().fetch()
   const courseId = props.session.courseId
-  console.log(courseId)
-  console.log(questionsInSession)
+ 
   return {
     loading: !handle.ready(),
     courseId: courseId,

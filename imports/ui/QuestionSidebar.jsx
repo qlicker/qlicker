@@ -296,7 +296,7 @@ export const QuestionSidebar = createContainer((props) => {
   const subscription = 'questions.' + props.questionLibrary
   const handle =  Meteor.subscribe(subscription, props.courseId)
 
-  const questions = Questions.find().fetch()
+  const questions = Questions.find({ sessionId: { $exists: false }}).fetch()
 
   return {
     loading: !handle.ready(),

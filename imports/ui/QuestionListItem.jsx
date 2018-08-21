@@ -31,6 +31,8 @@ export class QuestionListItem extends ListItem {
   }
 
   render () {
+    
+    if (!this.props.question) return null
     const s = this.props.session
     const c = Courses.findOne({ _id: this.props.question.courseId })
     const controls = this.makeControls()
