@@ -180,12 +180,12 @@ export class _QuestionSidebar extends ControlledForm {
 
   updateQuery () {
     
-    this.props.setFilter(false)
+    if (this.props.setFilter) this.props.setFilter(false)
 
     let query = {}
 
     if (this.state.questionType > -1) query.type = this.state.questionType
-    if (this.state.questionApproved) query.approved = this.state.questionApproved
+    if (this.state.showOnlyApprovedQuestions) query.approved = this.state.showOnlyApprovedQuestions
     if (parseInt(this.state.courseId) !== -1) query.courseId = this.state.courseId
     if (this.state.searchString) query.plainText = {$regex: '.*' + this.state.searchString + '.*', $options: 'i'}
     if (this.state.userSearchString) {
@@ -199,13 +199,12 @@ export class _QuestionSidebar extends ControlledForm {
     if (this.props.library !== 'sharedWithUser') {
       query.courseId = this.props.courseId
     }    
-   
+    console.log(query)
     const newQuestions = Questions.find(query).fetch()
     this.setState({ questionPool: newQuestions })  
   }
 
   componentWillReceiveProps (nextProps) {
-    console.log(nextProps)
     this.setState({ questionPool: nextProps.questions.slice() })
     if (nextProps.resetSideBar) this.resetFilter()
     if(nextProps.courseId !== this.props.courseId) this.setTags([])

@@ -539,8 +539,7 @@ class _ManageSession extends Component {
 
 export const ManageSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) &&
-    Meteor.subscribe('questions.inSession', props.sessionId) &&
-    Meteor.subscribe('questions.library') 
+    Meteor.subscribe('questions.inSession', props.sessionId)
 
   const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
