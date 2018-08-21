@@ -57,5 +57,27 @@ Meteor.startup(() => {
   Grades._ensureIndex({ userId: 1 })
   Grades._ensureIndex({ courseId: 1 })
   Grades._ensureIndex({ sessionId: 1 })
-
+    
+    
+  //********************************  
+  //Hack to update database of profile pictures
+  allUsers = Meteor.users.find().fetch()
+  nusers = allUsers.length
+  //console.log(nusers)
+  for (let  i=0; i<nusers; i++){
+    let user = allUsers[i]
+    //console.log(user.profile.lastname)
+    if(user.profile.profileImage && !user.profile.profileThumbnail){
+      //console.log('   '+user.profile.firstname)
+      if(user.profile.profileImage.startsWith('https://ql-images-1.s3-ca-central-1.amazonaws.com') && !user.profile.profileImage.endsWith('/image') ){
+          //console.log(" ... updating")
+          let url = user.profile.profileImage
+          Meteor.users.update( {_id:user._id}, {'$set' :{
+              'profile.profileImage': url+'/image',
+              'profile.profileThumbnail':url+'/thumbnail'} 
+              })  
+      }
+    }
+  }
+  //End of hack*******************************************************************
 })

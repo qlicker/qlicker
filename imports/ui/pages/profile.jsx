@@ -195,7 +195,7 @@ class _Profile extends Component {
                   { !this.state.uploadActive
                     ? (<div>
                       <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
-                      {!needsEmailVerification
+                      {needsEmailVerification
                         ? ''
                         : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>}
                     </div>
