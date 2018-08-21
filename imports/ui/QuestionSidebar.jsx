@@ -272,6 +272,7 @@ export class _QuestionSidebar extends ControlledForm {
                 return (<div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
                     ? <QuestionListItem
+                      courseId={q.courseId}
                       question={q}
                       session={this.props.session}
                       controls={controls.length > 0 ? controls : ''}
@@ -291,6 +292,7 @@ export class _QuestionSidebar extends ControlledForm {
 } // end QuestionSidebar
 
 export const QuestionSidebar = createContainer((props) => {
+  
   const subscription = 'questions.' + props.questionLibrary
   const handle =  Meteor.subscribe(subscription, props.courseId)
 

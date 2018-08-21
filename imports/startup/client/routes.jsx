@@ -310,8 +310,7 @@ Router.route('/course/:courseId/session/edit/:_id', {
     return Meteor.subscribe('userData') &&
       Meteor.subscribe('sessions.single', this.params._id) &&
       Meteor.subscribe('courses') &&
-      Meteor.subscribe('images') &&
-      Meteor.subscribe('questions.inSession', this.params._id)
+      Meteor.subscribe('images')
   },
   action: function () {
     const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
