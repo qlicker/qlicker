@@ -61,28 +61,10 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    if (this.profile.profileImage) {
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test(this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
-        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
-        Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
-      }
-      return this.profile.profileImage
-    } 
-    else return '/images/avatar.png'
+    return (this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png')
   },
   getThumbnailUrl: function () {
-    if (this.profile.profileThumbnail) return this.profile.profileThumbnail
-
-    else if (this.profile.profileImage) { // set profile thumbnail if an image exists  
-      if ( /https:\/\/.*\.s3-\..*\.amazonaws\.com.*/.test(this.profile.profileImage) && !this.profile.profileImage.endsWith('/image')) {
-        Meteor.call('users.updateProfileImage', this.profile.profileImage + '/image')
-        Meteor.call('users.updateProfileThumbnail', this.profile.profileImage + '/thumbnail')
-      }
-      
-      return this.profile.profileThumbnail
-    }
-
-    else return '/images/avatar.png'
+    return (this.profile.profileThumbnail ? this.profile.profileThumbnail : '/images/avatar.png')
   }
 })
 

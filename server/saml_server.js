@@ -23,15 +23,14 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
     
   strategy = new saml.Strategy({
     callbackUrl: Meteor.absoluteUrl('SSO/SAML2'),
-    logoutCallbackUrl: Meteor.absoluteUrl('logout'), //TODO: update this to SSO/SAML2/logout
+    logoutCallbackUrl: Meteor.absoluteUrl('SSO/SAML2/logout'), 
     entryPoint: settings.SSO_entrypoint,
     cert: settings.SSO_cert,
     identifierFormat: settings.SSO_identifierFormat,
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),
-      
-    //privateCert: Assets.getText('key.key'),
-    decryptionPvk: Assets.getText('key.key'),
-    issuer: 'passport-saml' // TODO: call this Qlicker, not passport-saml!
+    //privateCert: Assets.getText('key.key'),//not clearly needed
+    decryptionPvk: Assets.getText('key.key'),//probably needed
+    issuer: 'qlicker', 
     },
     function(profile, done) {
     return done(null, profile);
@@ -74,7 +73,10 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
         let userId = null
         let user = Accounts.findUserByEmail(samlProfile.email)
         let profile = (user && user.profile) ? user.profile : samlProfile
-        let services = { sso: {id: samlInfo.nameID, nameIDFormat: samlInfo.nameIDFormat } }
+        let services = { sso: {id: samlInfo.nameID,
+                               nameIDFormat: samlInfo.nameIDFormat,
+                               nameID:samlInfo.nameID,
+                               email: samlProfile.email } }
   
         if(user){//existing user, update their profile
           userId = user._id
@@ -83,7 +85,7 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
           }  
           //Note that it will not actually update the email address, since the user was found by email address  
           Meteor.users.update(userId, {$set: {email: profile.email,
-                                              'emails.0.verified': true,
+                                              emails: [ { address: profile.email, verified: true } ],
                                               profile: profile,
                                               services: services
                                               } 
@@ -95,7 +97,7 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
                    password: Random.secret(),//user will need to reset password to set it to something useful!
                    profile: profile
                  })
-          Meteor.users.update(userId, { $set: { 'emails.0.verified': true, services: services} })
+          Meteor.users.update(userId, {$set: { emails: [ { address: profile.email, verified: true } ], services: services} })
         }
         //By adding a stamped token, the user gets logged in        
         let stampedToken = Accounts._generateStampedLoginToken()
@@ -150,53 +152,6 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
   //Add server side routes to handle the SSO stuff
   WebApp.connectHandlers
     .use(bodyParser.urlencoded({ extended: false }))
-    .use('/logout', function(req, res, next) {
-      //TODO: Move this code to SSO/SAML2/logout route and update the corresponding logout URL in the settings!!!!
-      Fiber(function() {
-        if (req.method === 'POST') {  
-          //----------- Hack start
-          //A hack to bypass the SSO stuff and log the user out from the IDP POST request
-          //(needed because passport-saml cannot validate the encrypted response)
-          //WARNING: This does not do any safety checks on the request passed by the IDP!!!
-          let xml = new Buffer(req.body.SAMLRequest, 'base64').toString('utf8');
-          let dom = new xmldom.DOMParser().parseFromString(xml); 
-          let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
-            //console.log("log out hack")
-          let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':sessionIndex })
-            //console.log(user)
-          if(user){ //remove the session ID and the login token
-            Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
-          }
-            //console.log(user)
-          res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});
-          res.end()
-          //----------- Hack end
-          /* 
-          //The code below should run instead of the hack above!!!
-          Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
-            if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
-              console.log("validating post request")
-              console.log(result)
-              let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] }) 
-              if(user){ //remove the session ID and the login token
-                Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
-              }
-              Accounts.samlStrategy._saml.getLogoutResponseUrl(req, function(err, logout){
-                if(error) throw new Error("Unable to generate logout response url");
-                res.writeHead(302, {'Location': logout});
-                res.end()
-              })
-            } else {
-             console.log(err)  
-             console.log(result)
-            }
-          }) */ // end of validate post request
-        } else {
-          res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});
-          res.end() 
-        }
-      }).run();
-    })
     .use('/SSO/SAML2', function(req, res, next) {
       Fiber(function() {
         try {     
@@ -236,8 +191,8 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
               res.end()
               //----------- Hack end
               //The code below should be used instead of the hack above!!! It should work if we disable encryption
-              //by not setting decryptionPvk in the SAML strategy. However, decryptionPvk is required to generate the
-              //metadata, so we would have to manually edit the metadata  
+              //on nameID, but we can't figure out how to do this... Passport-saml doesn't know how to validate a POST
+              //request if it is encrypter (they have a PR to implement it the same way they validate POST response, as in login)
               /* 
               Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
                 if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
@@ -261,7 +216,6 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
-                  //console.log(result) 
                   email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
                   firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
                   lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice' 
@@ -278,8 +232,8 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
                   res.end("<html><head><script>window.close()</script></head></html>'", 'utf-8');  
                 } else {
                     //console.log(err)
-                  res.writeHead(500, {'Content-Type': 'text/html'});
-                  res.end("An error occured in the SAML Middleware process.", 'utf-8');
+                  //res.writeHead(500, {'Content-Type': 'text/html'});
+                  //res.end("An error occured in the SAML Middleware process.", 'utf-8');
                 }
               }) // end validatePostReponse
             }
@@ -290,9 +244,8 @@ if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoi
           return;
         }
       } catch (err) {
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            var content = err ?  "An error occured in the SAML Middleware process." : "<html>done</html>'";
-            res.end(content, 'utf-8');
+            res.writeHead(500, {'Content-Type': 'text/html'});
+            res.end("An error occured in the SAML Middleware process.", 'utf-8');
       }
     }).run();//end of the fibre
   })//end of use(/SSO/SAML2)
