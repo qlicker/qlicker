@@ -408,7 +408,10 @@ class _ManageSession extends Component {
             { this.state.questions 
             ? questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.state.questions[questionId]
-                if (!q) return
+                if (!q) {
+                  Meteor.call('sessions.removeQuestion', this.props.session._id, questionId)
+                  return
+                }
                 const questionNumber = this.props.session.questions.indexOf(questionId) + 1
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
