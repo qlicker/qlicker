@@ -47,6 +47,7 @@ class _ManageSession extends Component {
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
+    this.getQuestions = this.getQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
     this.addToLibrary = this.addToLibrary.bind(this)
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
@@ -188,6 +189,10 @@ class _ManageSession extends Component {
     })
   }
 
+  getQuestions (questions) {
+    this.setState({ questions: questions })
+  }
+
   /**
    * addNewQuestion()
    * add a blank question edit item to create a new question
@@ -296,7 +301,6 @@ class _ManageSession extends Component {
 
   render () {
     let questionList = this.state.session.questions || []
-   
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     return (
@@ -345,7 +349,9 @@ class _ManageSession extends Component {
                       session={this.state.session}
                       onSortQuestions={this.onSortQuestions}
                       cursorMoveWorkaround={this.cursorMoveWorkaround}
-                      addToLibrary={this.addToLibrary} />
+                      addToLibrary={this.addToLibrary}
+                      getQuestions={this.getQuestions}
+                       />
                     <div className='new-question-item' onClick={this.addNewQuestion}>
                       <span>New Question <span className='glyphicon glyphicon-plus' /></span>
                     </div>
@@ -364,7 +370,8 @@ class _ManageSession extends Component {
                     session={this.state.session}
                     courseId={this.props.session.courseId}
                     onSelect={this.addToSession}
-                    clickMessage='Click on question to add to session' />
+                    filter={{ sessionId: { $exists: false }}}
+                    clickMessage='Click on question to copy to session' />
                 </div>
               </div>
             </div>
@@ -398,9 +405,10 @@ class _ManageSession extends Component {
                 </div>
               </div>
             </div>
-            {/* {
-              questionList.map((questionId) => {
-                const q = questionId === -1 ? null : this.props.questions[questionId]
+            { this.state.questions 
+            ? questionList.map((questionId) => {
+                const q = questionId === -1 ? null : this.state.questions[questionId]
+                if (!q) return
                 const questionNumber = this.props.session.questions.indexOf(questionId) + 1
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
@@ -414,7 +422,8 @@ class _ManageSession extends Component {
                     autoSave />
                 </div>)
               })
-            } */}
+            : ''
+            }
             <div className='ql-session-child-container new-question-item' onClick={this.addNewQuestion}>
               <span>New Question <span className='glyphicon glyphicon-plus' /></span>
             </div>

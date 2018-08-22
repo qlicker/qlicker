@@ -23,7 +23,8 @@ class _QuestionDragSortList extends Component {
    * calls sessions.removeQuestion to remove from session
    */
   removeQuestion (questionId) {
-    Meteor.call('sessions.removeQuestion', this.sessionId, questionId, (error) => {
+    console.log(questionId)
+    Meteor.call('sessions.removeQuestion', this.props.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
     })
@@ -35,15 +36,18 @@ class _QuestionDragSortList extends Component {
    * creates a copy of the question and attached the new copy to the same session
    */
   duplicateQuestion (questionId) {
-    Meteor.call('questions.copyToSession', this.sessionId, questionId, (error) => {
+    Meteor.call('questions.copyToSession', this.props.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Duplicate Added')
     })
     this.props.cursorMoveWorkaround()
   }
 
-  render () {
+  componentWillReceiveProps(nextProps) {
+    nextProps.getQuestions(nextProps.questions)
+  }  
 
+  render () {
     let questionList = this.props.session.questions || []
     const qlItems = []
     questionList.forEach((questionId) => {
@@ -82,9 +86,11 @@ export const QuestionDragSortList = createContainer((props) => {
   return {
     loading: !handle.ready(),
     courseId: courseId,
+    session: props.session,
     questions: _.indexBy(questionsInSession, '_id'),
     onSortQuestions: props.onSortQuestions,
-    cursorMoveWorkaround: props.cursorMoveWorkaround
+    cursorMoveWorkaround: props.cursorMoveWorkaround,
+    getQuestions: props.getQuestions
   }
 
 }, _QuestionDragSortList)

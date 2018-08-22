@@ -296,7 +296,8 @@ export const QuestionSidebar = createContainer((props) => {
   const subscription = 'questions.' + props.questionLibrary
   const handle =  Meteor.subscribe(subscription, props.courseId)
 
-  const questions = Questions.find({ sessionId: { $exists: false }}).fetch()
+  const query = props.filter ? props.filter : {}
+  const questions = Questions.find(query).fetch()
 
   return {
     loading: !handle.ready(),
@@ -313,5 +314,6 @@ QuestionSidebar.propTypes = {
   onSelect: PropTypes.func,
   clickMessage: PropTypes.string,
   resetSideBar: PropTypes.bool,
-  setFilter: PropTypes.func
+  setFilter: PropTypes.func,
+  filter: PropTypes.object //Optional query 
 }
