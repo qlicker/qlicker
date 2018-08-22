@@ -11,7 +11,7 @@ import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 
 import { Images } from '../../api/images'
-import { Settings } from '../../api/settings'
+
 import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
 let UUID = require('uuid-1345')
@@ -75,7 +75,7 @@ class _Profile extends Component {
         const meta = {UID: UID, type: 'thumbnail', src: img.src}
         Meteor.call('settings.getImageSettings', (e, obj) => {
           if (e) alertify.error('Error while getting settings')
-          if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, thumb, meta, true)
+          if (obj) this.resizeImage(50, obj.storageType, thumb, meta, true)
         })
       }.bind(this)
       thumb.src = e.target.result
@@ -249,7 +249,7 @@ class _Profile extends Component {
 
 // meteor reactive data container
 export const ProfilePage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData') && Meteor.subscribe('settings') // TODO <- really , settings??? check that we don't leak anything!
+  const handle = Meteor.subscribe('userData') // TODO <- really , settings??? check that we don't leak anything!
 
   return {
     //user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
