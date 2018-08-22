@@ -249,7 +249,7 @@ class _Profile extends Component {
 
 // meteor reactive data container
 export const ProfilePage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData') && Meteor.subscribe('settings') // TODO <- really , settings??? check that we don't leak anything!
+  const handle = Meteor.subscribe('userData') // TODO <- really , settings??? check that we don't leak anything!
 
   return {
     //user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
