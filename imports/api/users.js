@@ -9,6 +9,8 @@ import { check } from 'meteor/check'
 import { ROLES } from '../configs'
 import Helpers from './helpers'
 
+import { Settings } from './settings'
+
 /*
  * profile: {
  *  firstname: '',
@@ -59,11 +61,10 @@ _.extend(User.prototype, {
     else return false
   },
   getImageUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    return (this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png')
   },
-
   getThumbnailUrl: function () {
-    return this.profile.profileImage ? this.profile.profileImage : '/images/avatar.png'
+    return (this.profile.profileThumbnail ? this.profile.profileThumbnail : '/images/avatar.png')
   }
 })
 
@@ -196,6 +197,13 @@ Meteor.methods({
     check(profileImageUrl, String)
     return Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.profileImage': profileImageUrl }
+    })
+  },
+
+  'users.updateProfileThumbnail' (profileImageUrl) {
+    check(profileImageUrl, String)
+    return Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'profile.profileThumbnail': profileImageUrl }
     })
   },
 
