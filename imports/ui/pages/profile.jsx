@@ -11,7 +11,7 @@ import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 
 import { Images } from '../../api/images'
-import { Settings } from '../../api/settings'
+
 import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
 let UUID = require('uuid-1345')

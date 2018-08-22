@@ -81,4 +81,38 @@ Meteor.startup(() => {
     }
   }
   //End of hack*******************************************************************
+
+  //Hack to update database of profile pictures
+  allUsers = Meteor.users.find().fetch()
+  nusers = allUsers.length
+  //console.log(nusers)
+  for (let  i=0; i<nusers; i++){
+    let user = allUsers[i]
+    //console.log(user.profile.lastname)
+    if(user.profile.profileImage && !user.profile.profileThumbnail){
+      //console.log('   '+user.profile.firstname)
+      if(user.profile.profileImage.startsWith('https://ql-images-1.s3-ca-central-1.amazonaws.com') && !user.profile.profileImage.endsWith('/image') ){
+          //console.log(" ... updating")
+          let url = user.profile.profileImage
+          Meteor.users.update( {_id:user._id}, {'$set' :{
+              'profile.profileImage': url+'/image',
+              'profile.profileThumbnail':url+'/thumbnail'} 
+              })  
+      }
+    }
+  }
+  //End of hack*******************************************************************
+  
+  //Hack to update database of images
+  allImages = Images.find().fetch()
+  nImages = allImages.length
+  
+  for (let  i=0; i<nImages; i++){
+    let image = allImages[i]
+    if(image.url.startsWith('https://ql-images-1.s3-ca-central-1.amazonaws.com') && !image.url.endsWith('/image') ){  
+      let url = image.url
+      Images.update( {UID:image.UID}, {'$set' :{'image.url': url+'/image'}})  
+    }
+  }
+  //End of hack*******************************************************************
 })
