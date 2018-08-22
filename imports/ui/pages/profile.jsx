@@ -75,7 +75,7 @@ class _Profile extends Component {
         const meta = {UID: UID, type: 'thumbnail', src: img.src}
         Meteor.call('settings.getImageSettings', (e, obj) => {
           if (e) alertify.error('Error while getting settings')
-          if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, thumb, meta, true)
+          if (obj) this.resizeImage(50, obj.storageType, thumb, meta, true)
         })
       }.bind(this)
       thumb.src = e.target.result
