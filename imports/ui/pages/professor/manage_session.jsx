@@ -35,7 +35,8 @@ class _ManageSession extends Component {
       session: _.extend({}, this.props.session),
       questionPool: Meteor.user().isInstructorAnyCourse() ? 'library' : 'public',
       limit: 11,
-      query: {query: {}, options: {}}
+      query: {query: {}, options: {}},
+      tab: 'questionOrder'
     }
 
     this.sessionId = this.props.sessionId
@@ -300,9 +301,11 @@ class _ManageSession extends Component {
   }
 
   render () {
+
+    const setTab = (e) => { this.setState({ tab: e })}
     let questionList = this.state.session.questions || []
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-
+ 
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
@@ -339,25 +342,28 @@ class _ManageSession extends Component {
           <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
               <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
-                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Question Order</a></li>
-                <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
+                <li role='presentation' className='active'><a href='#session' aria-controls='session' data-toggle='tab' onClick={() => setTab('questionOrder')}>Question Order</a></li>
+                <li role='presentation'><a href='#questions' aria-controls='questions' data-toggle='tab' onClick={() => setTab('questionLibrary')}>Question Library</a></li>
               </ul>
               <div className='tab-content'>
-                <div role='tabpanel' className='tab-pane active' id='session'>
+                <div className='tab-pane active' id='session'>
                   <div className='ql-session-question-list reorder'>
-                    <QuestionDragSortList 
-                      session={this.state.session}
-                      onSortQuestions={this.onSortQuestions}
-                      cursorMoveWorkaround={this.cursorMoveWorkaround}
-                      addToLibrary={this.addToLibrary}
-                      getQuestions={this.getQuestions}
-                       />
+                  { this.state.tab === 'questionOrder'
+                    ? <QuestionDragSortList 
+                        session={this.state.session}
+                        onSortQuestions={this.onSortQuestions}
+                        cursorMoveWorkaround={this.cursorMoveWorkaround}
+                        addToLibrary={this.addToLibrary}
+                        getQuestions={this.getQuestions}
+                        />
+                    : ''
+                  } 
                     <div className='new-question-item' onClick={this.addNewQuestion}>
                       <span>New Question <span className='glyphicon glyphicon-plus' /></span>
                     </div>
                   </div>
                 </div>
-                <div role='tabpanel' className='tab-pane' id='questions'>
+                <div className='tab-pane' id='questions'>
                   <select className='form-control' onChange={this.changeQuestionPool}>
                     { Meteor.user().isInstructor(this.props.session.courseId)
                       ? <option value='library'>My Question Library</option> : ''}
@@ -365,13 +371,16 @@ class _ManageSession extends Component {
                     { !this.props.course.requireApprovedPublicQuestions 
                       ? <option value='unapprovedFromStudents'>Submitted by Students</option> : '' }
                   </select>
-                  <QuestionSidebar
-                    questionLibrary={this.state.questionPool}
-                    session={this.state.session}
-                    courseId={this.props.session.courseId}
-                    onSelect={this.addToSession}
-                    filter={{ sessionId: { $exists: false }}}
-                    clickMessage='Click on question to copy to session' />
+                  { this.state.tab === 'questionLibrary'
+                    ? <QuestionSidebar
+                        questionLibrary={this.state.questionPool}
+                        session={this.state.session}
+                        courseId={this.props.session.courseId}
+                        onSelect={this.addToSession}
+                        clickMessage='Click on question to copy to session' 
+                        handle={this.props.handle} />
+                    : ''
+                  }
                 </div>
               </div>
             </div>
@@ -448,7 +457,7 @@ class _ManageSession extends Component {
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor})
+  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) 
 
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   const course = Courses.find({ _id: session.courseId})

@@ -23,7 +23,7 @@ class _QuestionDragSortList extends Component {
    * calls sessions.removeQuestion to remove from session
    */
   removeQuestion (questionId) {
-    console.log(questionId)
+   
     Meteor.call('sessions.removeQuestion', this.props.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
@@ -48,6 +48,7 @@ class _QuestionDragSortList extends Component {
   }  
 
   render () {
+   
     let questionList = this.props.session.questions || []
     const qlItems = []
     questionList.forEach((questionId) => {

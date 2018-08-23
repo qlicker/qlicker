@@ -199,7 +199,7 @@ export class _QuestionSidebar extends ControlledForm {
     if (this.props.library !== 'sharedWithUser') {
       query.courseId = this.props.courseId
     }    
-    console.log(query)
+  
     const newQuestions = Questions.find(query).fetch()
     this.setState({ questionPool: newQuestions })  
   }
@@ -211,6 +211,9 @@ export class _QuestionSidebar extends ControlledForm {
   }
 
   render () {    
+
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    
     const isInstructor = Meteor.user().isInstructorAnyCourse()
     const userId = Meteor.userId()
     return (
@@ -296,8 +299,8 @@ export const QuestionSidebar = createContainer((props) => {
   const subscription = 'questions.' + props.questionLibrary
   const handle =  Meteor.subscribe(subscription, props.courseId)
 
-  const query = props.filter ? props.filter : {}
-  const questions = Questions.find(query).fetch()
+  
+  const questions = Questions.find().fetch()
 
   return {
     loading: !handle.ready(),
