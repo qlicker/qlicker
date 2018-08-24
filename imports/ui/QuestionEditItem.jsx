@@ -12,10 +12,13 @@ import 'react-select/dist/react-select.css'
 import { Editor } from './Editor'
 import { RadioPrompt } from './RadioPrompt'
 
+import { ShareModal } from './modals/ShareModal'
+
 import { defaultSessionOptions, defaultQuestion } from '../api/questions'
 
+
 // constants
-import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable } from '../configs'
+import { MC_ORDER, TF_ORDER, SA_ORDER, QUESTION_TYPE, QUESTION_TYPE_STRINGS, isAutoGradeable, ROLES } from '../configs'
 
 /**
  * React Component for editing an individual question
@@ -42,22 +45,27 @@ export class QuestionEditItem extends Component {
     this.changeType = this.changeType.bind(this)
     this.saveQuestion = this.saveQuestion.bind(this)
     this.togglePublic = this.togglePublic.bind(this)
+    this.togglePrivate = this.togglePrivate.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.duplicateQuestion = this.duplicateQuestion.bind(this)
+    this.toggleShareModal = this.toggleShareModal.bind(this)
     this.setCourse = this.setCourse.bind(this)
     this.setPoints = this.setPoints.bind(this)
     this.setMaxAttempts = this.setMaxAttempts.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
+    this.shareQuestion = this.shareQuestion.bind(this)
 
+    //Set state
+    this.state = { }
     // if editing pre-exsiting question
-    if (this.props.question) {
-      this.state = _.extend({}, this.props.question)
-      this.state.owner = Meteor.userId()
+    if (this.props.question) {    
+      this.state.question = this.props.question
+      this.state.showShareModal = false
       if (this.props.sessionId && !this.props.question.sessionOptions) {
-        this.state.sessionOptions = defaultSessionOptions
+        this.state.question.sessionOptions = defaultSessionOptions
       }
-      this.currentAnswer = this.state.options ? this.state.options.length : 0
-      switch (this.state.type) {
+      this.currentAnswer = this.state.question.options ? this.state.question.options.length : 0
+      switch (this.state.question.type) {
         case QUESTION_TYPE.MC:
           this.answerOrder = MC_ORDER
           break
@@ -72,9 +80,9 @@ export class QuestionEditItem extends Component {
           break
       }
     } else { // if adding new question
-      this.state = _.extend({}, defaultQuestion)
-      this.state.creator = Meteor.userId()
-      this.state.owner = Meteor.userId()
+      this.state.question = defaultQuestion
+      this.state.question.creator = Meteor.userId()
+      this.state.question.owner = Meteor.userId()
       // tracking for adding new mulitple choice answers
       this.currentAnswer = 0
       this.answerOrder = MC_ORDER      
@@ -99,24 +107,25 @@ export class QuestionEditItem extends Component {
         })
         this.forceUpdate()
       })
+
     }
 
     // Default value of courseId depends on courseId of question and prop
     if (this.props.courseId || this.props.question.courseId) {
       if (this.props.courseId && this.props.question &&
          this.props.question.courseId && this.props.courseId === this.props.question.courseId) {
-        this.state.courseId = this.props.courseId
+        this.state.question.courseId = this.props.courseId
       } else if (this.props.question && this.props.question.courseId) {
-        this.state.courseId = this.props.question.courseId
+        this.state.question.courseId = this.props.question.courseId
       } else if (this.props.courseId) {
-        this.state.courseId = this.props.courseId
+        this.state.question.courseId = this.props.courseId
       } else {}
     }
 
-    // if (!this.props.courseId && !this.props.question.courseId) {
     if (user.isInstructorAnyCourse()) {
       Meteor.call('courses.getCourseTags', (e, d) => {
-        this.setState({courses: d})
+        if (e) alertify.error('Cannot get course tags')
+        this.state.courses = d
       })
     }
   } // end constructor
@@ -127,9 +136,9 @@ export class QuestionEditItem extends Component {
    */
   setPoints (e) {
     const points = parseFloat(e.target.value)
-    let sessionOptions = this.state.sessionOptions
-    sessionOptions.points = points
-    this.setState({sessionOptions: sessionOptions}, () => {
+    let question = this.state.question
+    question.sessionOptions.points = points
+    this.setState({question: question}, () => {
       this._DB_saveQuestion()
     })
   }
@@ -139,15 +148,15 @@ export class QuestionEditItem extends Component {
   */
   setMaxAttempts (e) {
     const maxAttempts = parseInt(e.target.value)
-    let sessionOptions = this.state.sessionOptions
-    sessionOptions.maxAttempts = maxAttempts
+    let question = this.state.question
+    question.sessionOptions.maxAttempts = maxAttempts
     let attemptWeights = [1.0]
    // Each attempt is worth half as much as the previous one
     for (let i = 1; i < maxAttempts; i++) {
       attemptWeights.push(attemptWeights[i - 1] / 2.0)
     }
-    sessionOptions.attemptWeights = attemptWeights
-    this.setState({sessionOptions: sessionOptions}, () => {
+    question.sessionOptions.attemptWeights = attemptWeights
+    this.setState({question: question}, () => {
       this._DB_saveQuestion()
     })
   }
@@ -157,26 +166,27 @@ export class QuestionEditItem extends Component {
    * @param {Number} newValue
    */
   changeType (newValue) {
-    let type = parseInt(newValue)
-    const oldType = this.state.type
-    const retainOptions = (oldType === QUESTION_TYPE.MC && type === QUESTION_TYPE.MS) ||
-      (type === QUESTION_TYPE.MC && oldType === QUESTION_TYPE.MS)
+    let question = this.state.question
+    question.type = parseInt(newValue)
+    const oldType = this.state.question.type
+    const retainOptions = (oldType === QUESTION_TYPE.MC && question.type === QUESTION_TYPE.MS) ||
+      (question.type === QUESTION_TYPE.MC && oldType === QUESTION_TYPE.MS)
 
-    const stateUpdater = { type: type }
+    const stateUpdater = { question: question }
     if (!retainOptions) {
       if (oldType === QUESTION_TYPE.SA || oldType === QUESTION_TYPE.TF) {
-        stateUpdater.options = []
-      } else if (this.state.options && this.state.options.length > 0) {
-        if (this.state.options.length === 1 && this.state.options[0].content === '') {
-          stateUpdater.options = []
+        stateUpdater.question.options = []
+      } else if (this.state.question.options && this.state.question.options.length > 0) {
+        if (this.state.question.options.length === 1 && this.state.question.options[0].content === '') {
+          stateUpdater.question.options = []
         } else {
           const c = confirm('You are about to clear your answer options for this question. Do you want to proceed?')
-          if (c) stateUpdater.options = []
+          if (c) stateUpdater.question.options = []
           else return
         }
       }
     } else {
-      const options = this.state.options
+      const options = this.state.question.options
       options.forEach((a, i) => {
         if (i === 0) options[i].correct = true
         else options[i].correct = false
@@ -184,13 +194,13 @@ export class QuestionEditItem extends Component {
     }
 
     this.setState(stateUpdater, () => {
-      if (type === QUESTION_TYPE.TF) {
+      if (question.type === QUESTION_TYPE.TF) {
         this.currentAnswer = 0
         this.answerOrder = _.extend({}, TF_ORDER)
         this.addAnswer(null, null, false, () => {
           this.addAnswer(null, null, false)
         })
-      } else if (type === QUESTION_TYPE.SA) {
+      } else if (question.type === QUESTION_TYPE.SA) {
         this.currentAnswer = 0
         this.answerOrder = SA_ORDER
         this.addAnswer(null, null, true)
@@ -213,9 +223,13 @@ export class QuestionEditItem extends Component {
       t.label = t.label.toUpperCase()
       t.value = t.value.toUpperCase()
     })
-    this.setState({ tags: _tags }, () => {
-      this._DB_saveQuestion()
-    })
+    let question = this.state.question
+    question.tags = _tags
+    if (this.state.question) {
+      this.setState({ question: question }, () => {
+        this._DB_saveQuestion()
+      })
+    }  
   }
 
   /**
@@ -225,7 +239,7 @@ export class QuestionEditItem extends Component {
   addTagString (tag) {
     const newTag = {label: tag,
       value: tag}
-    let tags = this.state.tags
+    let tags = this.state.question.tags
     tags.push(newTag)
     this.addTag(tags)
   }
@@ -234,8 +248,9 @@ export class QuestionEditItem extends Component {
    * @param {course} e
    */
   setCourse (cId) {
+    let question = this.state.question
     if (parseInt(cId) !== -1) {
-      let tags = this.state.tags
+      let tags = this.state.question.tags
       Meteor.call('courses.getCourseCodeTag', cId, (error, tag) => {
         if (error) return alertify.error('Error: ' + error.error)
         let tlabels = _(tags).pluck('label')
@@ -245,12 +260,13 @@ export class QuestionEditItem extends Component {
         }
         this.saveQuestion()
       })
-
-      this.setState({ courseId: cId }, () => {
+      question.courseId = cId
+      this.setState({ question: question }, () => {
         this.saveQuestion()
       })
     } else {
-      this.setState({courseId: null}, () => {
+      question.courseId = null
+      this.setState({question: question}, () => {
         this.saveQuestion()
       })
     }
@@ -261,14 +277,18 @@ export class QuestionEditItem extends Component {
    * @param {Object} content
    */
   onEditorStateChange (content, plainText) {
-    let stateEdits = { content: content, plainText: plainText }
-    this.setState(stateEdits, () => {
+    let question = this.state.question
+    question.content = content
+    question.plainText = plainText
+    this.setState({ question: question }, () => {
       this._DB_saveQuestion()
     })
   }
   onEditorSolutionChange (solution, solution_plainText) {
-    let stateEdits = { solution: solution, solution_plainText: solution_plainText }
-    this.setState(stateEdits, () => {
+    let question = this.state.question
+    question.solution = solution
+    question.solution_plainText = solution_plainText
+    this.setState({question: question}, () => {
       this._DB_saveQuestion()
     })
   }
@@ -278,12 +298,12 @@ export class QuestionEditItem extends Component {
    * @param {Object} content
    */
   setOptionState (answerKey, content, plainText) {
-    let options = this.state.options
-    const i = _(options).findIndex({ answer: answerKey })
+    let question = this.state.question
+    const i = _(question.options).findIndex({ answer: answerKey })
     if (i >= 0) {
-      options[i].content = content
-      options[i].plainText = plainText
-      this.setState({options: options}, () => {
+      question.options[i].content = content
+      question.options[i].plainText = plainText
+      this.setState({question: question}, () => {
         this._DB_saveQuestion()
       })
     }
@@ -299,18 +319,18 @@ export class QuestionEditItem extends Component {
   addAnswer (_, e, wysiwyg = true, done = null) {
     const answerKey = this.answerOrder[this.currentAnswer]
     if (this.currentAnswer >= this.answerOrder.length) return
-    this.setState({
-      options: this.state.options.concat([{
-        correct: this.currentAnswer === 0,
-        answer: answerKey,
-        wysiwyg: wysiwyg
-      }])
-    }, () => {
+    let question = this.state.question
+    question.options = this.state.question.options.concat([{
+      correct: this.currentAnswer === 0,
+      answer: answerKey,
+      wysiwyg: wysiwyg
+    }])
+    this.setState({ question: question }, () => {
       this.currentAnswer++
 
       if (wysiwyg) this.setOptionState(answerKey, '', '')
       else this.setOptionState(answerKey, answerKey, answerKey)
-
+      
       if (done) done()
     })
   } // end addAnswer
@@ -320,12 +340,12 @@ export class QuestionEditItem extends Component {
    * @param {String} answerKey
    */
   removeAnswer (answerKey) {
-    if (this.state.options.length === 1) return
+    if (this.state.question.options.length === 1) return
     const newOptions = []
     let resetCorrect = false
 
     this.currentAnswer--
-    this.state.options.forEach(o => {
+    this.state.question.options.forEach(o => {
       if (answerKey !== o.answer) {
         const option = _.extend({}, o)
         newOptions.push(option)
@@ -339,9 +359,11 @@ export class QuestionEditItem extends Component {
       if (i === 0 && resetCorrect) o.correct = true
       o.answer = this.answerOrder[i]
     })
-
-    this.setState({ options: [] }, () => {
-      this.setState({ options: newOptions }, this._DB_saveQuestion)
+    let question = this.state.question
+    question.options = []
+    this.setState({ question: question }, () => {
+      question.options = newOptions
+      this.setState({ question: question }, this._DB_saveQuestion)
     })
   } // end removeAnswer
 
@@ -350,80 +372,114 @@ export class QuestionEditItem extends Component {
    * @param {String} answerKey
    */
   markCorrect (answerKey) {
-    let options = this.state.options
+    let question = this.state.question
 
-    if (this.state.type === QUESTION_TYPE.MS) {
-      options.forEach((a, i) => {
-        if (a.answer === answerKey) options[i].correct = !options[i].correct
+    if (this.state.question.type === QUESTION_TYPE.MS) {
+      question.options.forEach((a, i) => {
+        if (a.answer === answerKey) question.options[i].correct = !question.options[i].correct
       })
     } else {
-      options.forEach((a, i) => {
-        if (a.answer === answerKey) options[i].correct = true
-        else options[i].correct = false
+      question.options.forEach((a, i) => {
+        if (a.answer === answerKey) question.options[i].correct = true
+        else question.options[i].correct = false
       })
     }
 
-    this.setState({ options: options }, () => {
+    this.setState({ question: question }, () => {
       this._DB_saveQuestion()
     })
   }
 
   togglePublic () {
-    this.setState({ public: !this.state.public }, () => {
-      this.saveQuestion()
-    })
+    let question = this.state.question
+    question.public = !this.state.question.public
+    if (question.public) question.private = false
+    if (this.state) {
+      this.setState({ question: question }, () => {
+        this.saveQuestion()
+      })
+    }
+  }
+
+  togglePrivate () {
+    let question = this.state.question
+    question.private = !this.state.question.private
+    if (question.private) question.public = false
+    if (this.state) {
+      this.setState({ question: question }, () => {
+        this.saveQuestion()
+      })
+    }
   }
 
   /**
    * Calls {@link module:questions~"questions.insert" questions.insert} to save question to db
    */
-  saveQuestion () {
-    const user = Meteor.user()
+  saveQuestion (user) {
+    let keysToOmit = []
+    //If not exporting question
+    if (!user) {
+      user = Meteor.user()
+    } else {
+      keysToOmit.push(['owner'])
+    }
+
     let question = _.extend({
       createdAt: new Date(),
-      approved: user.hasGreaterRole('professor') || user.isInstructor(this.props.courseId),
-    }, _.omit(this.state, 'courses'))
-
+      owner: user._id,
+    }, _.omit(this.state.question, keysToOmit))
     if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
-
     if (this.props.sessionId) question.sessionId = this.props.sessionId
     if (this.props.courseId) question.courseId = this.props.courseId
-
+    
     // insert (or edit)
     Meteor.call('questions.insert', question, (error, newQuestion) => {
       if (error) {
         alertify.error('Error: ' + error.error)
       } else {
-        if (!this.state._id) {
+        if (!this.state.question._id) {
           alertify.success('Question Saved')
           if (this.props.onNewQuestion) this.props.onNewQuestion(newQuestion._id)
         } else {
           alertify.success('Edits Saved')
         }
-        this.setState(newQuestion)
+        this.setState({ question: newQuestion })
+        return
       }
-    })
+    })  
   } // end saveQuestion
 
   deleteQuestion () {
-    Meteor.call('questions.delete', this.state._id, (error) => {
+    Meteor.call('questions.delete', this.state.question._id, (error) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question Deleted')
       if (this.props.deleted) this.props.deleted()
     })
   }
 
-  duplicateQuestion () {
-    if (this.state._id && (this.state.options.length !== 0 || this.state.type === QUESTION_TYPE.SA)) {
-      delete this.state._id
-      this.saveQuestion()
+  duplicateQuestion (user) { 
+    if ( this.state.question._id && (this.state.question.options.length !== 0 || this.state.question.type === QUESTION_TYPE.SA)) {
+      Meteor.call('questions.duplicate', this.state.question, user._id)
     } else {
       alertify.error('Error: question must be saved')
     }
   }
 
+  toggleShareModal () {
+    this.setState({ showShareModal: !this.state.showShareModal })
+  }
+
+  shareQuestion (email) {  
+    let question = _.extend({}, this.state.question)
+    Meteor.call('questions.share', question, email, (err) => {
+      if (err) alertify.error('Error sharing question')
+      else alertify.success('Question shared')
+    })
+  }
+
   componentWillReceiveProps (nextProps) {
-    this.setState(nextProps.question)
+
+    this.setState({ question: nextProps.question })
     this.setCourse(nextProps.question.courseId)
   }
 
@@ -450,7 +506,7 @@ export class QuestionEditItem extends Component {
               change={changeHandler}
               val={a.content}
               className='answer-editor'
-              question={this.state}
+              question={this.state.question}
               />
 
             <span
@@ -492,22 +548,24 @@ export class QuestionEditItem extends Component {
     </div>)
   } // end shortAnswerEditor
 
-  render () {
+  render () {   
+    
     let editorRows = []
-
-    if (this.state.type === QUESTION_TYPE.TF) {
+    if (this.state.question.type === QUESTION_TYPE.TF) {
       const row = <div key='row_0' className='row'>
-        {this.answerEditor(this.state.options[0])}
-        {this.answerEditor(this.state.options[1])}
+        {this.answerEditor(this.state.question.options[0])}
+        {this.answerEditor(this.state.question.options[1])}
       </div>
       editorRows.push(row)
-    } else if (this.state.type !== QUESTION_TYPE.SA) {
-      this.state.options.forEach((option, i) => {
+     
+    } else if (this.state.question.type !== QUESTION_TYPE.SA) {
+      this.state.question.options.forEach((option, i) => {
         editorRows.push(<div key={'row_' + i} className='row'>
           { this.answerEditor(option) }
         </div>)
       })
     }
+    
     let user = Meteor.user()
     const selectOnly = (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
@@ -517,42 +575,63 @@ export class QuestionEditItem extends Component {
       { value: QUESTION_TYPE.TF, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.TF] },
       { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
     ]
-
-    const strMakePublic = this.state.public ? 'Make Private' : 'Make Public'
-
+  
     return (
       <div className='ql-question-edit-item'>
+        {
+          this.state.showShareModal
+            ? <ShareModal questionId={this.state.question._id} done={this.toggleShareModal} submit={this.shareQuestion} />
+            : ''
+        }
         <div className='header'>
           { this.props.metadata
             ? <div className='row metadata-row'>
-              <div className='col-md-6'>
-                <div className='btn-group'>
-                  {this.state._id
-                    ? <button className='btn btn-default'
-                      onClick={this.duplicateQuestion}
+                <div className='col-md-10'>
+                  <div className='btn-group'>
+                    {this.state.question._id
+                      ? <button className='btn btn-default'
+                        onClick={() => this.duplicateQuestion(Meteor.user())}
+                        data-toggle='tooltip'
+                        data-placement='top'
+                        title='Create a copy of this question'>
+                        Duplicate
+                      </button> : ''
+                    }
+                    <button
+                      className='btn btn-default'
+                      onClick={this.deleteQuestion}>
+                      Delete
+                    </button>
+                    <button
+                      className='btn btn-default'
+                      onClick={this.toggleShareModal}>
+                      Share
+                    </button>  
+                    <button
+                      className='btn btn-default'
+                      onClick={this.togglePrivate}
                       data-toggle='tooltip'
                       data-placement='top'
-                      title='Create a copy of this question'>
-                      Duplicate
-                    </button> : ''
-                  }
-                  <button
-                    className='btn btn-default'
-                    onClick={this.deleteQuestion}>
-                    Delete
-                  </button>
-                  <button
-                    className='btn btn-default'
-                    onClick={this.togglePublic}
-                    data-toggle='tooltip'
-                    data-placement='top'
-                    title={!this.state.public ? 'Allow others to view and copy this question' : ''}>
-                    {strMakePublic}
-                  </button>
+                      title={this.state.question.private ? 'Hide question from submissions' : ''}>
+                      <input type='checkbox' checked={this.state.question.private} readOnly style={{'height':'1em'}} />
+                      Private
+                    </button>
+                    { !user.hasRole(ROLES.student) || !this.props.publicQuestionsRequireApproval
+                      ? <button
+                          className='btn btn-default'
+                          onClick={this.togglePublic}
+                          data-toggle='tooltip'
+                          data-placement='top'
+                          title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
+                          <input type='checkbox' checked={this.state.question.public} readOnly />
+                          Public
+                        </button>
+                      : ''
+                    }
+                    
+                  </div>
                 </div>
               </div>
-
-            </div>
             : '' }
           { this.props.sessionId
             ? <div className='row session-options'>
@@ -566,9 +645,9 @@ export class QuestionEditItem extends Component {
                 <input type='number'
                   min={0} step={0.5}
                   onChange={this.setPoints}
-                  value={this.state.sessionOptions.points} />
+                  value={this.state.question.sessionOptions.points} />
               </div>
-              { this.props.isQuiz && isAutoGradeable(this.state.type)
+              { this.props.isQuiz && isAutoGradeable(this.state.question.type)
                   ? <div>
                     <div className='qoption-label'>
                         Max attempts (1-5):
@@ -576,10 +655,10 @@ export class QuestionEditItem extends Component {
                     <input type='number'
                       min={1} max={5} step={1}
                       onChange={this.setMaxAttempts}
-                      value={this.state.sessionOptions.maxAttempts} />
-                    { this.state.sessionOptions.maxAttempts > 1
+                      value={this.state.question.sessionOptions.maxAttempts} />
+                    { this.state.question.sessionOptions.maxAttempts > 1
                         ? <div> &nbsp;weights:
-                            {this.state.sessionOptions.attemptWeights.map((w) => {
+                            {this.state.question.sessionOptions.attemptWeights.map((w) => {
                               return (<div key={this.props.questionNumer + '_' + w}>&nbsp; {w.toFixed(2)} </div>)
                             })}
                         </div>
@@ -597,14 +676,14 @@ export class QuestionEditItem extends Component {
                 name='tag-input'
                 placeholder='Tags'
                 multi
-                value={this.state.tags && this.state.tags.length ? this.state.tags : ['']}
+                value={this.state.question.tags && this.state.question.tags.length ? this.state.question.tags : ['']}
                 options={this.tagSuggestions ? this.tagSuggestions : [{value: '', label: ''}]}
                 onChange={this.addTag}
                 /> : <Creatable
                   name='tag-input'
                   placeholder='Tags'
                   multi
-                  value={this.state.tags}
+                  value={this.state.question.tags}
                   options={this.tagSuggestions}
                   onChange={this.addTag}
                 />
@@ -615,7 +694,7 @@ export class QuestionEditItem extends Component {
             <div className='col-md-12 question-row'>
               <Editor
                 change={this.onEditorStateChange}
-                val={this.state.content}
+                val={this.state.question.content}
                 className='question-editor'
                 placeholder='Question?'
               />
@@ -630,7 +709,7 @@ export class QuestionEditItem extends Component {
 
         <RadioPrompt
           options={radioOptions}
-          value={this.state.type}
+          value={this.state.question.type}
           onChange={this.changeType} />
       
         { this.state.type !== QUESTION_TYPE.SA 
@@ -638,7 +717,7 @@ export class QuestionEditItem extends Component {
           : ''
         }
 
-        { this.state.type === QUESTION_TYPE.MC || this.state.type === QUESTION_TYPE.MS
+        { this.state.question.type === QUESTION_TYPE.MC || this.state.question.type === QUESTION_TYPE.MS
           ? <div className='row' onClick={this.addAnswer}>
             <div className='col-md-12'>
               <div className='add-question-row-item'>
@@ -649,7 +728,7 @@ export class QuestionEditItem extends Component {
           : '' }
         <Editor
           change={this.onEditorSolutionChange}
-          val={this.state.solution}
+          val={this.state.question.solution}
           className='solution-editor'
           placeholder='Solution' />  
       </div>)
@@ -665,5 +744,7 @@ QuestionEditItem.propTypes = {
   metadata: PropTypes.bool,
   deleted: PropTypes.func,
   isQuiz: PropTypes.bool,
-  autoSave: PropTypes.bool
+  autoSave: PropTypes.bool,
+  courseId: PropTypes.string.isRequired,
+  publicQuestionsRequireApproval: PropTypes.bool
 }

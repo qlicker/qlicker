@@ -34,7 +34,10 @@ class _ManageCourse extends Component {
       addTAModal: false,
       addStudentModal: false,
       sessionToCopy: null,
-      expandedSessionlist: false
+      expandedSessionlist: false,
+      requireVerified: this.props.course.requireVerified,
+      allowStudentQuestions: this.props.course.allowStudentQuestions,
+      requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
@@ -47,6 +50,7 @@ class _ManageCourse extends Component {
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
+    this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -124,6 +128,7 @@ class _ManageCourse extends Component {
       if (error) return alertify.error('Error: could not set course property')
       alertify.success('Email verification' + (this.props.course.requireVerified ? '' : ' not') + ' required')
     })
+    this.setState({ requireVerified: !this.state.requireVerified })
   }
 
   generateNewCourseCode () {
@@ -137,9 +142,23 @@ class _ManageCourse extends Component {
 
   toggleAllowStudentQuestions () {
     Meteor.call('courses.toggleAllowStudentQuestions', this.props.course._id, (error) => {
-      if (error) return alertify.error('Error allowing/refusing student questions ' + error.error)
-      alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
+      if (error) alertify.error('Error allowing/refusing student questions ' + error.error)
+      else alertify.success('Students ' + (this.props.course.allowStudentQuestions ? 'can' : 'cannot') + ' submit questions')
     })
+    this.setState({ allowStudentQuestions: !this.state.allowStudentQuestions })
+  }
+
+  toggleRequireApprovedPublicQuestions () {
+    Meteor.call('courses.toggleRequireApprovedPublicQuestions', this.props.course._id, (error) => {
+      if (error) alertify.error('Error allowing/refusing question approval ' + error.error)
+      else alertify.success('Students ' + (this.props.course.requireApprovedPublicQuestions ? 'can' : 'cannot') + ' view unapproved questions')
+    })
+    this.setState({ requireApprovedPublicQuestions: !this.state.requireApprovedPublicQuestions })
+  }
+
+  componentWillReceiveProps (nextProps) {
+    const course = nextProps.course
+    this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions, requireApprovedPublicQuestions: course.requireApprovedPublicQuestions })
   }
 
   renderSessionList () {
@@ -290,14 +309,29 @@ class _ManageCourse extends Component {
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={this.toggleVerification}>
-                      {this.props.course.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
+                      {this.state.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
                     </div>
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
                     <div className='btn btn-default' onClick={this.toggleAllowStudentQuestions}>
-                      {this.props.course.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
+                      {this.state.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
                     </div>
                   </div>
+                  {
+                    this.props.course.allowStudentQuestions
+                    ? <div className='btn-group btn-group-justified details-button-group'>
+                        <div className='btn btn-default' 
+                          onClick={this.toggleRequireApprovedPublicQuestions}
+                          data-toggle='tooltip'
+                          data-placement='left'
+                          title='Change what questions are allowed to be public'>
+                          {
+                            this.state.requireApprovedPublicQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
+                          }
+                        </div>
+                      </div>
+                    : ''
+                  }
                 </div> : ''
                 }
                 <div className='ql-course-details'>

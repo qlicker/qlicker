@@ -361,7 +361,7 @@ export class QuestionDisplay extends Component {
   }
 
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.loading || !this.props.question) return <div className='ql-subs-loading'>Loading</div>
 
     if (!this.props.forReview && this.props.question.sessionOptions && this.props.question.sessionOptions.hidden) return <div className='ql-subs-loading'>Waiting for a Question...</div>
 
@@ -388,6 +388,7 @@ export class QuestionDisplay extends Component {
     }
 
     return (
+
       <div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
 
         <div className='ql-question-content'>
@@ -434,7 +435,7 @@ export class QuestionDisplay extends Component {
 }
 
 QuestionDisplay.propTypes = {
-  question: PropTypes.object.isRequired,
+  question: PropTypes.object,
   response: PropTypes.object, // response to display with the question
   attemptNumber: PropTypes.number,
   responseStats: PropTypes.array, // distribution of answers for displaying stats
