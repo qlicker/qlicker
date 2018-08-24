@@ -50,6 +50,7 @@ class _ManageSession extends Component {
     this.onSortQuestions = this.onSortQuestions.bind(this)
     this.getQuestions = this.getQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
+    this.removeQuestion = this.removeQuestion.bind(this)
     this.addToLibrary = this.addToLibrary.bind(this)
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
@@ -227,6 +228,19 @@ class _ManageSession extends Component {
   }
 
   /**
+   * removeQuestion(MongoId (string): questionId)
+   * calls sessions.removeQuestion to remove from session
+   */
+  removeQuestion (questionId) {
+   
+    Meteor.call('sessions.removeQuestion', this.props.session._id, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Removed')
+    })
+    this.props.cursorMoveWorkaround()
+  }
+
+  /**
    * newQuestionSaved(MongoId (string): questionId)
    * swap out temporary '-1' placeholder in question list with new questionId
    */
@@ -318,7 +332,7 @@ class _ManageSession extends Component {
           </span>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={() => this.addAllToLibrary(questionList)}>
-            Copy Questions to Library
+            Copy All Questions to Library
           </span>
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
