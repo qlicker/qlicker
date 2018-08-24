@@ -50,7 +50,7 @@ class _Profile extends Component {
       const UID = UUID.v5({
         namespace: '00000000-0000-0000-0000-000000000000',
         name: fileURL})
-      let image = {UID: UID}
+      let image = {UID: UID, url: fileURL}
       const existing = Images.findOne(image)
       
       if (existing) {
