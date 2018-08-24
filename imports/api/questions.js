@@ -335,13 +335,15 @@ Meteor.methods({
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (!user.isInstructor(question.courseId) && (question.owner !== user._id)) throw Error('Not authorized to update question')
-
-    const r = Questions.update({ _id: question._id }, {
-      $set: _.omit(question, '_id')
-    })
-
-    if (r) return question
-    else throw Error('Unable to update')
+   
+    if (Meteor.isServer) {
+      const r = Questions.update({ _id: question._id }, {
+        $set: _.omit(question, '_id')
+      })
+  
+      if (r) return question
+      else throw Error('Unable to update')
+    }
   },
 
   /**
@@ -418,7 +420,6 @@ Meteor.methods({
     question.owner = Meteor.userId()
     question.sessionOptions = defaultSessionOptions
 
-    // const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt', 'sessionOptions']))
     const copiedQuestion = Meteor.call('questions.insert', _(question).omit(['_id', 'createdAt']))
     Meteor.call('sessions.addQuestion', sessionId, copiedQuestion._id)
     return copiedQuestion._id

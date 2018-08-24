@@ -50,6 +50,7 @@ class _QuestionDragSortList extends Component {
   render () {
    
     let questionList = this.props.session.questions || []
+    
     const qlItems = []
     questionList.forEach((questionId) => {
       const q = this.props.questions[questionId]
@@ -81,14 +82,14 @@ class _QuestionDragSortList extends Component {
 export const QuestionDragSortList = createContainer((props) => {
 
   const handle = Meteor.subscribe('questions.inSession', props.session._id)
-  const questionsInSession = Questions.find().fetch()
+  const questions = Questions.find().fetch()
   const courseId = props.session.courseId
  
   return {
     loading: !handle.ready(),
     courseId: courseId,
     session: props.session,
-    questions: _.indexBy(questionsInSession, '_id'),
+    questions: _.indexBy(questions, '_id'),
     onSortQuestions: props.onSortQuestions,
     cursorMoveWorkaround: props.cursorMoveWorkaround,
     getQuestions: props.getQuestions
