@@ -107,6 +107,7 @@ export const Questions = new Mongo.Collection('questions',
 
 // data publishing
 if (Meteor.isServer) {
+   //questions that have been used in the course
   Meteor.publish('questions.inCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
@@ -148,6 +149,8 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       const session = Sessions.findOne({_id: sessionId})
+      if (!session) return this.ready()
+        
       if (user.isInstructor(session.courseId)) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole(ROLES.student)) {
@@ -206,48 +209,55 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  Meteor.publish('questions.library', function (courseId = null) {
+  Meteor.publish('questions.library', function (courseId) {
     
     if (this.userId ) {
+      const course = Courses.findOne({ courseId:courseId }) 
+      if (!course) return this.ready()
+        
       let query = {
         sessionId: {$exists: false},
-        sharedCopy: false
+        sharedCopy: false,
+        courseId: courseId
       }
-    
-      const course = courseId ? Courses.findOne() : null
-      if (course) query = _.extend({ courseId: courseId }, query)
-      
+         
       const user = Meteor.users.findOne({_id: this.userId})
       
-      if (user.hasRole(ROLES.admin) || user.isInstructor(courseId)) query = _.extend({ 
-        '$or': [{ private: false }, { private: { $exists: false }}, { private: true, owner: this.userId }], 
-        approved: true 
-      }, query)
-      else if (user.isStudent(courseId)) query = _.extend({
-        '$or': [{ creator: this.userId }, { owner: this.userId }]
-      })
-      else this.ready()
+      if (user.hasRole(ROLES.admin) || user.isInstructor(courseId)){      
+          query = _.extend(query, { 
+                  '$or': [{ private: false }, { private: { $exists: false }}, { private: true, owner: this.userId }], 
+                  studentCopyOfPublic: {$exists: false},
+                  approved: true 
+                })
+          return Questions.find(query)
+      }
+      else if (user.isStudent(courseId)){
+          query = _.extend(query, {
+                 '$or': [{ creator: this.userId }, { owner: this.userId }]
+                })
+          return Questions.find(query)
+      }
+      else return this.ready()
       
-      return Questions.find(query)
-    } else this.ready()
+    } else return this.ready()
   })
 
-  Meteor.publish('questions.public', function (courseId = null) {
+  Meteor.publish('questions.public', function (courseId) {
    
     if (this.userId) {
+      const course = Courses.findOne({ courseId:courseId }) 
+      if (!course) return this.ready()  
+        
       let query = {
+        sessionId: {$exists: false},
         public: true, 
-        sharedCopy: false, 
-        '$or': [{private: false}, {private: {$exists: false}}] 
+        courseId: courseId,
       }
-     
-      const course = courseId ? Courses.findOne({ _id: courseId }) : null
-      if (course) {
-        query = _.extend({ courseId: courseId }, query)
-        if (course.requireApprovedPublicQuestions) query = _.extend({ approved: true }, query)
-      }
-      
-      return Questions.find(query)
+      if (course.requireApprovedPublicQuestions) query = _.extend(query, { approved: true })
+
+      if(user.hasRole(ROLES.admin) || user.isInstructor(courseId) || user.isStudent(courseId) ){
+        return Questions.find(query)
+      } else return this.ready()
     
     } else return this.ready()
   })
@@ -255,21 +265,18 @@ if (Meteor.isServer) {
   // questions submitted to specific course
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
+      const course = Courses.findOne({ courseId:courseId }) 
+      if (!course) return this.ready() 
+      const user = Meteor.users.findOne({_id: this.userId})
+      if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
+        
       let query = {
         sessionId: {$exists: false},
         approved: false,
         sharedCopy: false,
-        '$or': [{private: false}, {private: {$exists: false}}]
+        '$or': [{private: false}, {private: {$exists: false}}],
+        courseId:courseId
       }
-
-      const course = courseId ? Courses.findOne({ _id: courseId }) : null
-      if (course) {
-        if (!course.requireApprovedPublicQuestions) return this.ready()
-        query = _.extend({ courseId: courseId }, query)
-      }
-
-      const user = Meteor.users.findOne({_id: this.userId})
-      if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
      
       return Questions.find(query)
     } else this.ready()
