@@ -15,7 +15,7 @@ settings = Settings.findOne({})
 
 //Only if SSO is enabled, set things up
 //These setting take effect only after restarting the app, if the SSO is enabled/disabled
-if(settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoint && settings.SSO_identifierFormat ){
+if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoint && settings.SSO_identifierFormat ){
     
 //Create a passport-saml strategy using the given settings
 //User is responsible for creating a private key and corresponding certificate and storing them in /private
