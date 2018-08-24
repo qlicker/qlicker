@@ -9,8 +9,6 @@ import React, { Component } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
-import { CreateQuestionModal } from '../../modals/CreateQuestionModal'
-
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
 import { SessionListItem } from '../../SessionListItem'
@@ -20,8 +18,10 @@ class _Course extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { submittingQuestion: false,
-      expandedSessionlist: false }
+    this.state = { 
+      expandedSessionlist: false 
+    }
+
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
   }
 
@@ -64,24 +64,15 @@ class _Course extends Component {
   }
 
   render () {
-    const toggleSubmittingQuestion = () => {
-      this.setState({ submittingQuestion: !this.state.submittingQuestion })
-    }
+
     return (
       <div className='container ql-manage-course'>
         <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
-        {this.props.course.allowStudentQuestions
-          ? <button className='submit-question-button btn btn-primary' onClick={toggleSubmittingQuestion}>Submit Question</button>
-          : ''
-        }
+        
 
         { this.renderSessionList() }
 
         <br />
-
-        { this.state.submittingQuestion
-          ? <CreateQuestionModal courseId={this.props.course._id} semester={this.props.course.semester} done={toggleSubmittingQuestion} />
-          : '' }
 
       </div>)
   }

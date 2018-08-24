@@ -170,7 +170,6 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
     const session = Sessions.findOne({ _id: sessionId })
     profHasCoursePermission(session.courseId)
-
     return Sessions.update({ _id: sessionId }, {
       $addToSet: { questions: questionId }
     })
@@ -194,7 +193,7 @@ Meteor.methods({
     // should deletion be flag based. Just keep everything incase we want to implement restore functionality
 
     if (session.currentQuestion === questionId) session.currentQuestion = null
-
+    Meteor.call('questions.delete', questionId)
     return Sessions.update({ _id: sessionId }, {
       $pull: { questions: questionId }
     })
