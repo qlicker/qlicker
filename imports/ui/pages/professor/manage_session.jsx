@@ -2,14 +2,13 @@
 // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
-// manage_course.jsx: page for managing a specific course
+// manage_session.jsx: page for managing a specific session
 
 import React, { Component } from 'react'
-// import ReactDOM from 'react-dom'
+
 import _ from 'underscore'
 
 import { createContainer } from 'meteor/react-meteor-data'
-import DragSortableList from 'react-drag-sortable'
 import { SingleDatePicker } from 'react-dates'
 import moment from 'moment'
 import { Creatable } from 'react-select'
@@ -19,12 +18,12 @@ import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
 
 import { QuestionSidebar } from '../../QuestionSidebar'
-import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
+import { QuestionDragSortList } from '../../QuestionDragSortList'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
-import { Questions, defaultQuestion } from '../../../api/questions'
+import { defaultQuestion } from '../../../api/questions'
 
 class _ManageSession extends Component {
 
@@ -33,10 +32,11 @@ class _ManageSession extends Component {
 
     this.state = {
       editing: false,
-      session: _.extend({}, this.props.session),
+      session: this.props.session,
       questionPool: Meteor.user().isInstructorAnyCourse() ? 'library' : 'public',
       limit: 11,
-      query: {query: {}, options: {}}
+      query: {query: {}, options: {}},
+      tab: 'questionOrder'
     }
 
     this.sessionId = this.props.sessionId
@@ -47,15 +47,15 @@ class _ManageSession extends Component {
     this.checkReview = this.checkReview.bind(this)
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
-    this.removeQuestion = this.removeQuestion.bind(this)
-    this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.onSortQuestions = this.onSortQuestions.bind(this)
+    this.getQuestions = this.getQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
+    this.removeQuestion = this.removeQuestion.bind(this)
+    this.addToLibrary = this.addToLibrary.bind(this)
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
     this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
-    this.updateQuery = this.updateQuery.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
 
     // populate tagging suggestions
@@ -104,30 +104,6 @@ class _ManageSession extends Component {
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
-  }
-
-  /**
-   * removeQuestion(MongoId (string): questionId)
-   * calls sessions.removeQuestion to remove from session
-   */
-  removeQuestion (questionId) {
-    Meteor.call('sessions.removeQuestion', this.sessionId, questionId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else alertify.success('Question Removed')
-    })
-    this.cursorMoveWorkaround()
-  }
-
-  /**
-   * duplicateQuestion(MongoId (string): questionId)
-   * creates a copy of the question and attached the new copy to the same session
-   */
-  duplicateQuestion (questionId) {
-    Meteor.call('questions.copyToSession', this.sessionId, questionId, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
-      else alertify.success('Question Duplicate Added')
-    })
-    this.cursorMoveWorkaround()
   }
 
   /**
@@ -215,6 +191,10 @@ class _ManageSession extends Component {
     })
   }
 
+  getQuestions (questions) {
+    this.setState({ questions: questions })
+  }
+
   /**
    * addNewQuestion()
    * add a blank question edit item to create a new question
@@ -248,6 +228,19 @@ class _ManageSession extends Component {
   }
 
   /**
+   * removeQuestion(MongoId (string): questionId)
+   * calls sessions.removeQuestion to remove from session
+   */
+  removeQuestion (questionId) {
+   
+    Meteor.call('sessions.removeQuestion', this.props.session._id, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Removed')
+    })
+    this.props.cursorMoveWorkaround()
+  }
+
+  /**
    * newQuestionSaved(MongoId (string): questionId)
    * swap out temporary '-1' placeholder in question list with new questionId
    */
@@ -263,13 +256,14 @@ class _ManageSession extends Component {
    * addToSession(MongoId (String) questionId)
    * handler for question sidebar. Calls questions.copyToSession
    */
-  addToSession (questionId) {
-    if (!questionId) {
+  addToSession (question) {
+    if (!question) {
       alertify.error('Please select a question to add')
       return
     }
+    
 
-    Meteor.call('questions.copyToSession', this.state.session._id, questionId, (error) => {
+    Meteor.call('questions.copyToSession', this.state.session._id, question._id, (error) => {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question Added')
 
@@ -321,96 +315,12 @@ class _ManageSession extends Component {
     })
   }
 
-  updateQuery (childState) {
-    let params = this.state.query
-    params.options.limit = this.state.limit
-/*
-    if (childState.questionType > -1) params.query.type = childState.questionType
-    else params.query = _.omit(params.query, 'type')
-    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
-    else params.query = _.omit(params.query, 'plainText')
-    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
-    else params.query = _.omit(params.query, 'tags.value')
-*/
-    if (childState.questionType > -1) params.query.type = childState.questionType
-    else params.query = _.omit(params.query, 'type')
-    if (parseInt(childState.courseId) !== -1) params.query.courseId = childState.courseId
-    else params.query = _.omit(params.query, 'courseId')
-    if (childState.searchString) params.query.plainText = {$regex: '.*' + childState.searchString + '.*', $options: 'i'}
-    else params.query = _.omit(params.query, 'plainText')
-    if (childState.userSearchString) {
-      const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}},
-                                               {'profile.firstname': {$regex: '.*' + childState.userSearchString + '.*', $options: 'i'}}] }).fetch()
-      const uids = _(users).pluck('_id')
-      params.query.creator = {$in: uids}
-    } else params.query = _.omit(params.query, 'creator')
-    if (childState.tags.length) params.query['tags.value'] = { $all: _.pluck(childState.tags, 'value') }
-    else params.query = _.omit(params.query, 'tags.value')
-
-    this.setState({query: params})
-  }
-
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-
-    const increase = (childState) => {
-      this.setState({limit: this.state.limit + 10}, () => this.updateQuery(childState))
-    }
-    const decrease = (childState) => {
-      this.setState({limit: this.state.limit - 10}, () => this.updateQuery(childState))
-    }
-
+    
+    const setTab = (e) => { this.setState({ tab: e })}
     let questionList = this.state.session.questions || []
-    const qlItems = []
-    questionList.forEach((questionId) => {
-      const q = this.props.questions[questionId]
-      qlItems.push({
-        content: <QuestionListItem
-          click={this.cursorMoveWorkaround}
-          question={q}
-          session={this.state.session}
-          controlsTriggered={this.cursorMoveWorkaround}
-          controls={[
-            { label: 'Remove', click: () => this.removeQuestion(questionId) },
-            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) },
-            { label: 'Add to library', click: () => this.addToLibrary(questionId) }
-          ]} />,
-        id: questionId
-      })
-    })
-
-    const getQuestionPool = () => {
-      let query = {}
-      let options = {}
-      if (this.state.questionPool === 'student') {
-        query = Object.assign({}, this.props.studentParams.query, this.state.query.query)
-        options = Object.assign({}, this.props.studentParams.options, this.state.query.options)
-      } else if (this.state.questionPool === 'public') {
-        query = Object.assign({}, this.props.publicParams.query, this.state.query.query)
-        options = Object.assign({}, this.props.publicParams.options, this.state.query.options)
-      } else {
-        query = Object.assign({}, this.props.libraryParams.query, this.state.query.query)
-        options = Object.assign({}, this.props.libraryParams.options, this.state.query.options)
-      }
-      return Questions.find(query, options).fetch()
-    }
-
-    let library = getQuestionPool()
-
-    const atMax = library.length !== this.state.limit
-    if (!atMax) library = library.slice(0, -1)
-
-    const sidebar = <QuestionSidebar
-      session={this.state.session}
-      questions={library}
-      courseId={this.props.session.courseId}
-      onSelect={this.addToSession}
-      increase={increase}
-      decrease={decrease}
-      atMax={atMax}
-      updateQuery={(data) => this.setState({limit: 11}, () => this.updateQuery(data))}
-      clickMessage='Click on question to add to session' />
-
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+ 
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
@@ -422,7 +332,7 @@ class _ManageSession extends Component {
           </span>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={() => this.addAllToLibrary(questionList)}>
-            Copy Questions to Library
+            Copy All Questions to Library
           </span>
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
@@ -447,26 +357,45 @@ class _ManageSession extends Component {
           <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
               <ul className='nav nav-tabs' id='sidebar-tabs' role='tablist'>
-                <li role='presentation' className='active'><a href='#session' aria-controls='session' role='tab' data-toggle='tab'>Question Order</a></li>
-                <li role='presentation'><a href='#questions' aria-controls='questions' role='tab' data-toggle='tab'>Question Library</a></li>
+                <li role='presentation' className='active'><a href='#session' aria-controls='session' data-toggle='tab' onClick={() => setTab('questionOrder')}>Question Order</a></li>
+                <li role='presentation'><a href='#questions' aria-controls='questions' data-toggle='tab' onClick={() => setTab('questionLibrary')}>Question Library</a></li>
               </ul>
               <div className='tab-content'>
-                <div role='tabpanel' className='tab-pane active' id='session'>
+                <div className='tab-pane active' id='session'>
                   <div className='ql-session-question-list reorder'>
-                    {<DragSortableList items={qlItems} onSort={this.onSortQuestions} />}
+                  { this.state.tab === 'questionOrder'
+                    ? <QuestionDragSortList 
+                        session={this.state.session}
+                        onSortQuestions={this.onSortQuestions}
+                        cursorMoveWorkaround={this.cursorMoveWorkaround}
+                        addToLibrary={this.addToLibrary}
+                        getQuestions={this.getQuestions}
+                        />
+                    : ''
+                  } 
                     <div className='new-question-item' onClick={this.addNewQuestion}>
                       <span>New Question <span className='glyphicon glyphicon-plus' /></span>
                     </div>
                   </div>
                 </div>
-                <div role='tabpanel' className='tab-pane' id='questions'>
+                <div className='tab-pane' id='questions'>
                   <select className='form-control' onChange={this.changeQuestionPool}>
                     { Meteor.user().isInstructor(this.props.session.courseId)
                       ? <option value='library'>My Question Library</option> : ''}
                     <option value='public'>Public Question Pool</option>
-                    <option value='student'>Submitted by Students</option>
+                    { !this.props.course.requireApprovedPublicQuestions 
+                      ? <option value='unapprovedFromStudents'>Submitted by Students</option> : '' }
                   </select>
-                  {sidebar}
+                  { this.state.tab === 'questionLibrary'
+                    ? <QuestionSidebar
+                        questionLibrary={this.state.questionPool}
+                        session={this.state.session}
+                        courseId={this.props.session.courseId}
+                        onSelect={this.addToSession}
+                        clickMessage='Click on question to copy to session' 
+                        handle={this.props.handle} />
+                    : ''
+                  }
                 </div>
               </div>
             </div>
@@ -500,9 +429,10 @@ class _ManageSession extends Component {
                 </div>
               </div>
             </div>
-            {
-              questionList.map((questionId) => {
-                const q = questionId === -1 ? null : this.props.questions[questionId]
+            { this.state.questions 
+            ? questionList.map((questionId) => {
+                const q = questionId === -1 ? null : this.state.questions[questionId]
+               
                 const questionNumber = this.props.session.questions.indexOf(questionId) + 1
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
@@ -516,6 +446,7 @@ class _ManageSession extends Component {
                     autoSave />
                 </div>)
               })
+            : ''
             }
             <div className='ql-session-child-container new-question-item' onClick={this.addNewQuestion}>
               <span>New Question <span className='glyphicon glyphicon-plus' /></span>
@@ -538,41 +469,14 @@ class _ManageSession extends Component {
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) &&
-    Meteor.subscribe('questions.inSession', props.sessionId) &&
-    Meteor.subscribe('questions.library') &&
-    Meteor.subscribe('questions.public') &&
-    Meteor.subscribe('questions.fromStudent') &&
-    Meteor.subscribe('courses')
+  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) 
 
-  const courses = _.pluck(Courses.find({instructors: Meteor.userId()}).fetch(), '_id')
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
-  const questionsInSession = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
-
-  let libraryParams = {
-    query: {'$or': [{owner: Meteor.userId()}, {courseId: { '$in': courses }, approved: true}], sessionId: {$exists: false}},
-    options: {sort: { createdAt: -1 }, limit: 11}
-  }
-
-  let studentParams = {
-    query: {courseId: {$exists: true}, sessionId: {$exists: false}, approved: false},
-    options: {sort: { createdAt: -1 }, limit: 11}
-  }
-
-  let publicParams = {
-    query: {public: true},
-    options: {sort: { createdAt: -1 }, limit: 11}
-  }
-
+  const course = Courses.find({ _id: session.courseId})
+  
   return {
-    questions: _.indexBy(questionsInSession, '_id'),
-    libraryParams: libraryParams,
-    studentParams: studentParams,
-    publicParams: publicParams,
-    questionLibrary: Questions.find(libraryParams.query, libraryParams.options).fetch(),
-    questionPublic: Questions.find(publicParams.query, publicParams.options).fetch(),
-    questionFromStudents: Questions.find(studentParams.query, studentParams.options).fetch(),
     session: session,
+    course: course,
     loading: !handle.ready()
   }
 }, _ManageSession)
