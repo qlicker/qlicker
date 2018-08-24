@@ -55,7 +55,12 @@ class _Profile extends Component {
       
       if (existing) {
         this.saveProfileImage(existing.url, 'image')
-        this.saveProfileImage(existing.url, 'thumbnail')      
+
+        if (existing.url.startsWith('https://s3.') && existing.url.endsWith('/image')) {
+          this.saveProfileImage(existing.url.slice(0, -5) + 'thumbnail', 'thumbnail')  
+
+        } else this.saveProfileImage(existing.url, 'thumbnail')      
+        
         return
       }
 
