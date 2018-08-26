@@ -588,7 +588,7 @@ export class QuestionEditItem extends Component {
                       Delete
                     </button>
 
-                    { !user.hasRole(ROLES.student)
+                    { user.isInstructor(this.props.courseId)
                       ? <button
                           className='btn btn-default'
                           onClick={this.togglePublic}

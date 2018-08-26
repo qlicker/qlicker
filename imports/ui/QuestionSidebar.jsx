@@ -66,8 +66,13 @@ export class _QuestionSidebar extends ControlledForm {
       if (e) alertify.error('Error updating sidebar')
       else this.state.allowApproved = approved
     })*/
-  }
+  } //end constructor
 
+  componentWillReceiveProps (nextProps) {
+    this.setState({ questionPool: nextProps.questions.slice() })
+    if (nextProps.resetSideBar) this.resetFilter()
+    if(nextProps.courseId !== this.props.courseId) this.setTags([])
+  }
   /**
    * set selected question to add
    * @param {MongoId} question
@@ -206,11 +211,7 @@ export class _QuestionSidebar extends ControlledForm {
     this.setState({ questionPool: newQuestions })
   }
 
-  componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice() })
-    if (nextProps.resetSideBar) this.resetFilter()
-    if(nextProps.courseId !== this.props.courseId) this.setTags([])
-  }
+
 
   render () {
 
@@ -296,7 +297,8 @@ export const QuestionSidebar = createContainer((props) => {
 
   const questions = Questions.find().fetch()
 
-  console.log(subscription)
+  //console.log(subscription)
+  console.log("Questions in sidebar from subscription")
   console.log(questions)
 
   return {
