@@ -16,58 +16,62 @@ import { QuestionSidebar } from '../QuestionSidebar'
 import { defaultQuestion } from '../../api/questions'
 import { Courses } from '../../api/courses'
 
-class _QuestionsLibrary extends Component {
+import { QUESTION_TYPE } from '../../configs'
+
+
+export class QuestionsLibrary extends Component {
 
   constructor (props) {
     super(props)
-   
+
     this.state = {
-      edits: {},
-      selected: null,
-      questions: props.questions,
-      query: props.query,
+      selectedQuestion: null,
       resetSidebar: false // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
     }
-    if (this.props.selected) {
-      if (this.props.selected) this.state.selected = this.props.selected
+    if (this.props.selectedQuestion) {
+      if (this.props.selectedQuestion) this.state.selectedQuestion = this.props.selectedQuestion
     }
-  
-    this.convertField = this.convertField.bind(this)
-    this.exportQuestions = this.exportQuestions.bind(this)
-    this.importQuestions = this.importQuestions.bind(this)
+
+    //this.convertField = this.convertField.bind(this)
+    //this.exportQuestions = this.exportQuestions.bind(this)
+    //this.importQuestions = this.importQuestions.bind(this)
     this.editQuestion = this.editQuestion.bind(this)
     this.questionDeleted = this.questionDeleted.bind(this)
     this.approveQuestion = this.approveQuestion.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.makeQuestionPublic = this.makeQuestionPublic.bind(this)
     this.setFilter = this.setFilter.bind(this)
+  }
 
-    Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
-      if (e) alertify.error('Cannot get course code')
-      else this.state.courseCode = c
-    })
-
+  componentDidMount () {
     Meteor.call('courses.hasAllowedStudentQuestions', this.props.courseId, (e, allowed) => {
       if (e) alertify.error('Cannot get course permissions')
       else this.state.allowedStudentQuestions = allowed
     })
   }
 
+  componentWillReceiveProps (props) {
+    Meteor.call('courses.hasAllowedStudentQuestions', this.props.courseId, (e, allowed) => {
+      if (e) alertify.error('Cannot get course permissions')
+      else this.state.allowedStudentQuestions = allowed
+    })
+  }
+/*
   convertImageToBase64 (url, count, callback) {
     let xhttp = new XMLHttpRequest()
     xhttp.responseType = 'blob'
     xhttp.open('GET', url, true)
     xhttp.send()
-    
+
     xhttp.onload = function() {
       let fileReader = new FileReader()
       fileReader.onloadend = function() {
           newItem = fileReader.result
           let done = false
           if (count === 0) done = true
-          callback(newItem, done)         
+          callback(newItem, done)
       }
-      fileReader.readAsDataURL(xhttp.response)     
+      fileReader.readAsDataURL(xhttp.response)
     }
   }
 
@@ -89,9 +93,9 @@ class _QuestionsLibrary extends Component {
               date: date,
               questions: questions
             }
-            
+
             const jsonData = JSON.stringify(data)
-            
+
             const a = document.createElement("a")
             const file = new Blob([jsonData], {type: 'text/plain'})
             a.href = URL.createObjectURL(file)
@@ -104,8 +108,8 @@ class _QuestionsLibrary extends Component {
           }
         })
         count += 1
-      }  
-      newContent = newContent + ' ' +  newItem      
+      }
+      newContent = newContent + ' ' +  newItem
     })
     if (count === 0) {
       let data = {
@@ -113,9 +117,9 @@ class _QuestionsLibrary extends Component {
         date: date,
         questions: questions
       }
-      
+
       const jsonData = JSON.stringify(data)
-      
+
       const a = document.createElement("a")
       const file = new Blob([jsonData], {type: 'text/plain'})
       a.href = URL.createObjectURL(file)
@@ -165,33 +169,27 @@ class _QuestionsLibrary extends Component {
       }
     }
     else alertify.error('Error: Incorrect file format')
-  }
+  }*/
 
   editQuestion (question) {
     if (question === null) {
       // reset the query
-      this.setState({query: this.props.query, resetSidebar: true})
-      let tags = []
-      Meteor.call('courses.getCourseCodeTag', this.props.courseId, (e, tag) => {
-        if (tag) tags = [tag]
-      })
-      const blankQuestion = _.extend({
+      this.setState({/*query: this.props.query,*/ resetSidebar: true})
+      const blankQuestion = _.extend(defaultQuestion, {
         owner: Meteor.userId(),
+        creator: Meteor.userId(),
         approved: Meteor.user().isInstructor(this.props.courseId),
-        courseId: this.props.courseId,
-        tags: tags
-      }, defaultQuestion)
+        courseId: this.props.courseId,    
+        type: QUESTION_TYPE.MC
+      })
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')
         alertify.success('New Blank Question Added')
-        this.setState({ selected: null }, () => {
-          this.setState({ selected: newQuestion })
-        })
+        this.setState({ selectedQuestion: newQuestion })
       })
-    } else {
-      this.setState({ selected: null }, () => {
-        this.setState({ selected: question })
-      })
+
+    } else { // TODO: why not just do it once???
+      this.setState({ selectedQuestion: question })
     }
   }
 
@@ -222,10 +220,10 @@ class _QuestionsLibrary extends Component {
     })
   }
 
-  makeQuestionPublic (questionId) {
+  makeQuestionPublic (question) {
    // by making it public, you take over ownership, so student cannot delete it anymore
    // it will also show in the library for any instructor of the course
-    let question = this.state.questionMap[questionId]
+
     question.approved = true // this makes it editable by any instructor of the course
 
     question.public = true
@@ -239,133 +237,113 @@ class _QuestionsLibrary extends Component {
   }
 
   questionDeleted () {
-    this.setState({ selected: null, resetSidebar: false })
+    this.setState({ selectedQuestion: null, resetSidebar: false })
   }
 
   setFilter (newState) {
     this.setState({ resetSidebar: newState})
   }
 
-  componentDidMount () {
-    this.forceUpdate
-  }
-  
+
+
   render () {
 
-    const isInstructor = Meteor.user().isInstructorAnyCourse()
-   
+    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+    let canEdit = true //whether the selected question can be edited
+    let canCreate = true //whether user can create a new question
+    let selectedQuestion = this.state.selectedQuestion
+    //only edit in course library
+    if (this.props.questionLibrary === 'unapprovedFromStudents' || this.props.questionLibrary === 'public'){
+      canEdit = false
+      canCreate = false
+    }
+    //only edit if question exists...
+    if (selectedQuestion) {
+      //student cannot edit if course does not allow
+      if( !isInstructor &&  (!this.state.allowedStudentQuestions || selectedQuestion.approved || !selectedQuestion.owner === Meteor.userId()) ){
+        canEdit = false
+      }
+    } else {
+      canEdit = false
+    }
+    if (!isInstructor && !this.state.allowedStudentQuestions) {
+      canCreate = false
+    }
+
     return (
       <div>
         <div className='row'>
           <div className='col-md-4'>
             <br />
-            {(isInstructor || this.state.allowedStudentQuestions) && this.props.questionLibrary === 'library'
+            { canCreate
               ? <div>
                   <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(null)}>New Question</button>
-                  <div className='ql-questions-library ql-sidebar-buttons'>                  
-                    <button className='btn btn-primary' onClick={this.exportQuestions}>Export to File</button>
-                    <label className='btn btn-primary'>
-                      <input style={{'display' : 'none'}} type='file' onChange={this.importQuestions} />
-                      Import from File
-                    </label>
-                  </div>
-                </div>
-                : ''}
+               </div>
+              : ''
+            }
             <QuestionSidebar
               questionLibrary={this.props.questionLibrary}
               courseId={this.props.courseId}
               onSelect={this.editQuestion}
               resetSidebar={this.state.resetSidebar}
               setFilter={this.setFilter}
-              selected={this.state.selected} />
+              selected={selectedQuestion} />
           </div>
           <div className='col-md-8'>
-            { this.state.selected
-            ? <div>
-                {(isInstructor || this.state.allowedStudentQuestions) && this.props.editable && (isInstructor || !this.state.questionMap[this.state.selected].approved)
+          { selectedQuestion
+              ? <div>
+                {canEdit
                   ? <div>
                       <div id='ckeditor-toolbar' />
                       <div className='ql-edit-item-container'>
-                    
                         <QuestionEditItem
                           courseId={this.props.courseId}
-                          publicQuestionsRequireApproval={this.props.publicQuestionsRequireApproval}
-                          question={this.state.selected}
+                          question={this.state.selectedQuestion}
                           deleted={this.questionDeleted}
                           metadata autoSave />
                       </div>
                     </div>
-                  : <div>
-                      <h3>Preview Question</h3>
-                      { this.props.questionLibrary !== 'library'
-                        ? <div>
-                            <button className='btn btn-default'
-                              onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
+                  : ''
+                }
+
+                  <h3>Preview Question</h3>
+                  { this.props.questionLibrary !== 'library'
+                    ? <div>
+                        <button className='btn btn-default'
+                          onClick={() => { this.approveQuestion(selectedQuestion) }}
+                          data-toggle='tooltip'
+                          data-placement='left'
+                          title='Create a copy to use in your own sessions'>
+                          {Meteor.user().hasGreaterRole('professor') ? 'Approve for course' : 'Copy to Library'}
+                        </button>
+                        { !Meteor.user().hasRole('student')
+                          ? <button className='btn btn-default'
+                              onClick={() => { this.makeQuestionPublic(selectedQuestion) }}
                               data-toggle='tooltip'
                               data-placement='left'
-                              title='Create a copy to use in your own sessions'>
-                              {Meteor.user().hasGreaterRole('professor') ? 'Approve for course' : 'Copy to Library'}
+                              title='Make the question public'>
+                              Make Public
                             </button>
-                            { !Meteor.user().hasRole('student') 
-                              ? <button className='btn btn-default'
-                                  onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
-                                  data-toggle='tooltip'
-                                  data-placement='left'
-                                  title='Make the question public'>
-                                  Make Public
-                                </button>
-                              : ''
-                            }
-                            
-                            <button className='btn btn-default'
-                              onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
-                              data-toggle='tooltip'
-                              data-placement='left'>
-                                Delete
-                            </button>
-                          </div>
-                        : ''
-                      }             
-                      <div className='ql-preview-item-container'>
-                        {this.state.selected
-                          ? <QuestionDisplay question={this.state.selected} forReview readonly />
                           : ''
                         }
+
+                        <button className='btn btn-default'
+                          onClick={() => { this.deleteQuestion(selectedQuestion) }}
+                          data-toggle='tooltip'
+                          data-placement='left'>
+                            Delete
+                        </button>
                       </div>
-                    </div>
-                }
-                <div className='ql-preview-item-container'>
-                  {this.state.selected
-                    ? <QuestionDisplay question={this.state.selected} forReview readonly />
                     : ''
                   }
+                  <div className='ql-preview-item-container'>
+                    <QuestionDisplay question={selectedQuestion} forReview readonly />
+                  </div>
                 </div>
-              </div>
-            : '' }
+                : ''
+              }
+            </div>
           </div>
-        </div>
-      </div>)
+        </div>)
   }
 }
-
-export const QuestionsLibrary = createContainer(props => {
-  
-  const courseId = props.courseId
-  
-  let editable = true
-  
-  if (props.questionLibrary === 'unapprovedFromStudents' || props.questionLibrary === 'sharedWithUser') {
-    editable = false
-  }
-  
-  const course = Courses.findOne({ _id: props.courseId })
-  const publicQuestionsRequireApproval = course.requireApprovedPublicQuestions
- 
-  return {
-    courseId: courseId,
-    publicQuestionsRequireApproval: publicQuestionsRequireApproval,
-    selected: null,
-    editable: editable,
-    questionLibrary: props.questionLibrary
-  }
-}, _QuestionsLibrary)

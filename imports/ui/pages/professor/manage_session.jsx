@@ -65,7 +65,27 @@ class _ManageSession extends Component {
       tags.forEach((t) => {
         this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
-      this.forceUpdate()
+      //this.forceUpdate()
+    })
+  }
+
+  /**
+   * componentWillReceiveProps(Props (Object) nP)
+   * update state from props
+   */
+  componentWillReceiveProps (nP) {
+    if (!nP) return
+    if (nP.session) this.setState({ session: nP.session })
+  }
+
+  /**
+   * componentDidMount(nextProps)
+   * enable bootstrap tabs
+   */
+  componentDidMount () {
+    $('#sidebar-tabs a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
     })
   }
 
@@ -208,13 +228,13 @@ class _ManageSession extends Component {
     tags.push({ value: code, label: code })
     tags.push({ value: semester, label: semester })
 
-    const blankQuestion = _.extend({   
+    const blankQuestion = _.extend( defaultQuestion, {
       sessionId: sessionId,
       courseId: this.state.session.courseId,
       owner: Meteor.userId(), // Owner is either TA or Professor since students cannot manage session
+      creator: Meteor.userId(),
       approved: true,
-      courseId: this.props.session.courseId
-    }, defaultQuestion)
+    })
 
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
       if (e) return alertify.error('Error: couldn\'t add new question')
@@ -232,7 +252,7 @@ class _ManageSession extends Component {
    * calls sessions.removeQuestion to remove from session
    */
   removeQuestion (questionId) {
-   
+
     Meteor.call('sessions.removeQuestion', this.props.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
@@ -261,7 +281,7 @@ class _ManageSession extends Component {
       alertify.error('Please select a question to add')
       return
     }
-    
+
 
     Meteor.call('questions.copyToSession', this.state.session._id, question._id, (error) => {
       if (error) return alertify.error('Error: ' + error.error)
@@ -295,32 +315,14 @@ class _ManageSession extends Component {
     }, 500)
   }
 
-  /**
-   * componentWillReceiveProps(Props (Object) nP)
-   * update state from props
-   */
-  componentWillReceiveProps (nP) {
-    if (!nP) return
-    if (nP.session) this.setState({ session: nP.session })
-  }
 
-  /**
-   * componentDidMount(nextProps)
-   * enable bootstrap tabs
-   */
-  componentDidMount () {
-    $('#sidebar-tabs a').click(function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    })
-  }
 
   render () {
-    
+
     const setTab = (e) => { this.setState({ tab: e })}
     let questionList = this.state.session.questions || []
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
- 
+
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
@@ -364,7 +366,7 @@ class _ManageSession extends Component {
                 <div className='tab-pane active' id='session'>
                   <div className='ql-session-question-list reorder'>
                   { this.state.tab === 'questionOrder'
-                    ? <QuestionDragSortList 
+                    ? <QuestionDragSortList
                         session={this.state.session}
                         onSortQuestions={this.onSortQuestions}
                         cursorMoveWorkaround={this.cursorMoveWorkaround}
@@ -372,7 +374,7 @@ class _ManageSession extends Component {
                         getQuestions={this.getQuestions}
                         />
                     : ''
-                  } 
+                  }
                     <div className='new-question-item' onClick={this.addNewQuestion}>
                       <span>New Question <span className='glyphicon glyphicon-plus' /></span>
                     </div>
@@ -383,7 +385,7 @@ class _ManageSession extends Component {
                     { Meteor.user().isInstructor(this.props.session.courseId)
                       ? <option value='library'>My Question Library</option> : ''}
                     <option value='public'>Public Question Pool</option>
-                    { !this.props.course.requireApprovedPublicQuestions 
+                    { !this.props.course.requireApprovedPublicQuestions
                       ? <option value='unapprovedFromStudents'>Submitted by Students</option> : '' }
                   </select>
                   { this.state.tab === 'questionLibrary'
@@ -392,7 +394,7 @@ class _ManageSession extends Component {
                         session={this.state.session}
                         courseId={this.props.session.courseId}
                         onSelect={this.addToSession}
-                        clickMessage='Click on question to copy to session' 
+                        clickMessage='Click on question to copy to session'
                         handle={this.props.handle} />
                     : ''
                   }
@@ -429,10 +431,10 @@ class _ManageSession extends Component {
                 </div>
               </div>
             </div>
-            { this.state.questions 
+            { this.state.questions
             ? questionList.map((questionId) => {
                 const q = questionId === -1 ? null : this.state.questions[questionId]
-               
+
                 const questionNumber = this.props.session.questions.indexOf(questionId) + 1
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
@@ -469,11 +471,11 @@ class _ManageSession extends Component {
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor}) 
+  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor})
 
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
-  const course = Courses.find({ _id: session.courseId})
-  
+  const course = Courses.findOne({ _id: session.courseId})
+
   return {
     session: session,
     course: course,

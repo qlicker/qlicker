@@ -38,8 +38,8 @@ const questionPattern = {
   courseId: Match.Maybe(Helpers.MongoID),
   // student submitted questions are always public, prof can mark question templates as public
   public: Boolean,
-  private: Match.Maybe(Boolean),
-  sharedCopy: Match.Maybe(Boolean), // Copy of question that has been shared with the user
+  //private: Match.Maybe(Boolean),
+  //sharedCopy: Match.Maybe(Boolean), // Copy of question that has been shared with the user
   solution: Match.Maybe(String), // solution is the full guide to answering the question
   solution_plainText: Match.Maybe(String), // plain text version of solution
   createdAt: Date,
@@ -77,16 +77,15 @@ export const defaultSessionOptions = {
 
 export const defaultQuestion = {
   plainText: '',
-  solution: '',  
+  solution: '',
   solution_plainText: '',
   type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
   content: '',
   options: [], // { correct: false, answer: 'A', content: editor content }
-  creator: '',
   tags: [],
-  sharedCopy: false,
+  //sharedCopy: false,
   public: false,
-  private: false,
+  //private: false,
   sessionOptions: defaultSessionOptions
 }
 
@@ -150,7 +149,7 @@ if (Meteor.isServer) {
       const user = Meteor.users.findOne({_id: this.userId})
       const session = Sessions.findOne({_id: sessionId})
       if (!session) return this.ready()
-        
+
       if (user.isInstructor(session.courseId)) return Questions.find({ sessionId: sessionId })
 
       if (user.hasRole(ROLES.student)) {
@@ -210,24 +209,24 @@ if (Meteor.isServer) {
   })
 
   Meteor.publish('questions.library', function (courseId) {
-    
+
     if (this.userId ) {
-      const course = Courses.findOne({ courseId:courseId }) 
+      const course = Courses.findOne({ courseId:courseId })
       if (!course) return this.ready()
-        
+
       let query = {
         sessionId: {$exists: false},
-        sharedCopy: false,
+        //sharedCopy: false,
         courseId: courseId
       }
-         
+
       const user = Meteor.users.findOne({_id: this.userId})
-      
-      if (user.hasRole(ROLES.admin) || user.isInstructor(courseId)){      
-          query = _.extend(query, { 
-                  '$or': [{ private: false }, { private: { $exists: false }}, { private: true, owner: this.userId }], 
+
+      if (user.hasRole(ROLES.admin) || user.isInstructor(courseId)){
+          query = _.extend(query, {
+                  //'$or': [{ private: false }, { private: { $exists: false }}, { private: true, owner: this.userId }],
                   studentCopyOfPublic: {$exists: false},
-                  approved: true 
+                  approved: true
                 })
           return Questions.find(query)
       }
@@ -238,19 +237,19 @@ if (Meteor.isServer) {
           return Questions.find(query)
       }
       else return this.ready()
-      
+
     } else return this.ready()
   })
 
   Meteor.publish('questions.public', function (courseId) {
-   
+
     if (this.userId) {
-      const course = Courses.findOne({ courseId:courseId }) 
-      if (!course) return this.ready()  
-        
+      const course = Courses.findOne({ courseId:courseId })
+      if (!course) return this.ready()
+
       let query = {
         sessionId: {$exists: false},
-        public: true, 
+        public: true,
         courseId: courseId,
       }
       if (course.requireApprovedPublicQuestions) query = _.extend(query, { approved: true })
@@ -258,18 +257,18 @@ if (Meteor.isServer) {
       if(user.hasRole(ROLES.admin) || user.isInstructor(courseId) || user.isStudent(courseId) ){
         return Questions.find(query)
       } else return this.ready()
-    
+
     } else return this.ready()
   })
 
   // questions submitted to specific course
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
-      const course = Courses.findOne({ courseId:courseId }) 
-      if (!course) return this.ready() 
+      const course = Courses.findOne({ courseId:courseId })
+      if (!course) return this.ready()
       const user = Meteor.users.findOne({_id: this.userId})
       if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
-        
+
       let query = {
         sessionId: {$exists: false},
         approved: false,
@@ -277,7 +276,7 @@ if (Meteor.isServer) {
         '$or': [{private: false}, {private: {$exists: false}}],
         courseId:courseId
       }
-     
+
       return Questions.find(query)
     } else this.ready()
   })
@@ -287,7 +286,7 @@ if (Meteor.isServer) {
       let query = {
         sharedCopy: true,
         owner: this.userId
-      }    
+      }
       return Questions.find(query)
     } else this.ready()
   })
@@ -305,26 +304,20 @@ Meteor.methods({
    * @returns {Question} new question
    */
   'questions.insert' (question) {
+
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    
+
     if (!user.isInstructor(question.courseId) && !user.isStudent(question.courseId)) throw new Error('Cannot insert question (user not in course)')
 
     if (question._id) { // if _id already exists, update the question
       return Meteor.call('questions.update', question)
     }
-    const course = Courses.findOne({_id: question.courseId })
 
     question.createdAt = new Date()
-    question.creator = Meteor.userId()
 
-    if (user.isStudent(question.courseId) && course.requireApprovedPublicQuestions && question.public) question.public = false
-
-    if (user.isStudent(question.courseId)) question.approved = false
-
-    // Question cannot be both public and private
-    if (question.public && question.private) {
+    if (user.isStudent(question.courseId)){
+      question.approved = false
       question.public = false
-      question.private = true
     }
     check(question, questionPattern)
     const id = Questions.insert(question)
@@ -342,15 +335,19 @@ Meteor.methods({
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (!user.isInstructor(question.courseId) && (question.owner !== user._id)) throw Error('Not authorized to update question')
-   
-    if (Meteor.isServer) {
-      const r = Questions.update({ _id: question._id }, {
-        $set: _.omit(question, '_id')
-      })
-  
-      if (r) return question
-      else throw Error('Unable to update')
+
+    if (user.isStudent(question.courseId)){
+      question.approved = false
+      question.public = false
     }
+    //TODO: This seems weird, why not just set the question, why omit the id?
+    const r = Questions.update({ _id: question._id }, {
+      $set: _.omit(question, '_id')
+    })
+
+    if (r) return question
+    else throw Error('Unable to update')
+
   },
 
   /**
@@ -358,28 +355,30 @@ Meteor.methods({
    * @param {Question} question
    * @returns {MongoID} id of updated question
    */
+  /*
   'questions.duplicate' (question, userId) {
     check(question, questionPattern)
     check(userId, Helpers.MongoID)
     delete question._id
     const copiedQuestion = _.extend({ owner: userId }, _.omit(question, 'owner'))
     return Meteor.call('questions.insert', copiedQuestion)
-  },
+  },*/
   /**
    * Shares a question via duplicating to a specified user's shared library
    * @param {Question} question
    * @returns {MongoID} id of updated question
    */
+   /*
   'questions.share' (question, email) {
     check(question, questionPattern)
 
-    const copiedQuestion = _.extend({ sharedCopy: true }, _.omit(question, 'sharedCopy')) 
+    const copiedQuestion = _.extend({ sharedCopy: true }, _.omit(question, 'sharedCopy'))
 
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if(!user) throw new Meteor.Error('User not found')
-    
+
     return Meteor.call('questions.duplicate', copiedQuestion, user._id)
-  },
+  },*/
   /**
    * Deletes a question by id
    * @param {MongoId} questionId
@@ -387,23 +386,28 @@ Meteor.methods({
   'questions.delete' (questionId) {
     check(questionId, Helpers.MongoID)
 
-    const question = Questions.findOne({ _id: questionId })
-    const userId = Meteor.userId()
+    let question = Questions.findOne({ _id: questionId })
+    if(!question) return
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
 
     // a student deleting a public question that they copied over:
-    if (question.owner === userId && question.studentCopyOfPublic) {
+    if (question.owner === user._id && question.studentCopyOfPublic) {
       return Questions.remove({ _id: questionId })
     }
 
-    const yourCourses = _(Courses.find({ instructors: userId }).fetch()).pluck('_id')
-    const ownQuestion = yourCourses.indexOf(question.courseId) > -1
+    const isInstructor = user.isInstructor(question.courseId)
 
-    if (!ownQuestion && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
+    //Can delete the question if you own it, or if you're instructor for course
+    if (!isInstructor && (question.owner !== Meteor.userId())) throw Error('Not authorized to delete question')
+    //Can't delete if you're not instuctor and it's approved
+    if (!isInstructor && question.approved) throw Error('Not authorized to delete question')
+    /*
     if (question.creator !== question.owner) {
       // this is to not delete a student question
       question.owner = question.creator
+      question.approved = false
       return Meteor.call('questions.update', question)
-    }
+    }*/
     return Questions.remove({ _id: questionId })
   },
 
@@ -417,7 +421,7 @@ Meteor.methods({
     check(questionId, Helpers.MongoID)
 
     const session = Sessions.findOne({ _id: sessionId })
-    const question = Questions.findOne({ _id: questionId })
+    let question = Questions.findOne({ _id: questionId })
 
     if (!question || !session) return
 
@@ -446,21 +450,19 @@ Meteor.methods({
     // TODO: should really check if the same question is already in the library
     // by hashing it or something similar
     //
-    // this wouldn't allow a question created in a session to be copied over
-    // if( (question.owner === userId || question.creator === userId) && !question.sessionId){
-    //   throw new Meteor.Error('Question already in library')
-    // }
+
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
 
-    // TODO: should check that the question is part of a course, and the user an instructor for that course:
-    if (Meteor.user().isInstructorAnyCourse()) question.approved = true
+    const user = Meteor.users.findOne({ _id: Meteor.userId() })
+    if (user.isInstructor(question.courseId)) question.approved = true
 
     // this is so that the (approved) questions that students copy to their own library
     // don't show up in the instructor's libraries.
-    if (!Meteor.user().isInstructorAnyCourse()) {
+    if (user.isStudent(question.courseId)) {
       question.studentCopyOfPublic = true
+      question.approved = false
     }
 
     const id = Questions.insert(question)

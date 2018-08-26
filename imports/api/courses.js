@@ -30,7 +30,7 @@ const coursePattern = {
   createdAt: Date,
   requireVerified: Match.Maybe(Boolean),
   allowStudentQuestions: Match.Maybe(Boolean),
-  requireApprovedPublicQuestions: Match.Maybe(Boolean),
+  //requireApprovedPublicQuestions: Match.Maybe(Boolean),
   groupCategories: Match.Maybe([{
     categoryNumber: Match.Maybe(Helpers.Number),
     categoryName: Match.Maybe(Helpers.NEString),
@@ -600,7 +600,7 @@ Meteor.methods({
     })
     return Meteor.call('sessions.delete', courseId, sessionId)
   },
-
+/*
   'courses.publicQuestionsRequireApproval' (courseId) {
     check(courseId, Helpers.MongoID)
     const course = Courses.findOne(courseId)
@@ -609,7 +609,7 @@ Meteor.methods({
       const approved = course.requireApprovedPublicQuestions ? course.requireApprovedPublicQuestions : false
       return approved
     } else return true
-  },
+  },*/
 
   /**
    * get tag object for a specific courseid for react multi select component
@@ -699,7 +699,7 @@ Meteor.methods({
     Courses.update({ _id: courseId }, {
       $set: {
         allowStudentQuestions: !previous,
-        requireApprovedPublicQuestions: true
+        //requireApprovedPublicQuestions: true
       }
     })
   },
@@ -717,6 +717,7 @@ Meteor.methods({
    * generates and sets a new enrollment code for the course
    * @param {MongoID} courseId
    */
+   /*
   'courses.toggleRequireApprovedPublicQuestions' (courseId) {
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
@@ -727,7 +728,7 @@ Meteor.methods({
         requireApprovedPublicQuestions: !previous
       }
     })
-  },
+  },*/
 
   /**
    * Creates a new category of groups
@@ -754,7 +755,7 @@ Meteor.methods({
       }
     })
   },
- 
+
   /**
    * Adds a given number of groups to a category (creates the category if it doesn't exist)
    * @param {MongoID} courseId
