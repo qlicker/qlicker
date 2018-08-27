@@ -50,12 +50,17 @@ class _Profile extends Component {
       const UID = UUID.v5({
         namespace: '00000000-0000-0000-0000-000000000000',
         name: fileURL})
-      let image = {UID: UID}
+      let image = {UID: UID, url: fileURL}
       const existing = Images.findOne(image)
       
       if (existing) {
         this.saveProfileImage(existing.url, 'image')
-        this.saveProfileImage(existing.url, 'thumbnail')      
+
+        if (existing.url.startsWith('https://s3.') && existing.url.endsWith('/image')) {
+          this.saveProfileImage(existing.url.slice(0, -5) + 'thumbnail', 'thumbnail')  
+
+        } else this.saveProfileImage(existing.url, 'thumbnail')      
+        
         return
       }
 
