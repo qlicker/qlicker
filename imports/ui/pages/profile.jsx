@@ -11,6 +11,7 @@ import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 
 import { Images } from '../../api/images'
+
 import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
 let UUID = require('uuid-1345')
@@ -33,6 +34,13 @@ class _Profile extends Component {
     this.resizeImage = this.resizeImage.bind(this)
     this.updateProfileImage = this.updateProfileImage.bind(this)
   }
+    
+  componentWillMount () {
+    //If the SSOlogout URL exists, user is logged in through SSO, don't let them change their password!
+    Meteor.call("isSSOSession", (err,result) => {
+      if(!err)this.setState({isSSOSession:result})
+    })   
+  }  
 
   updateProfileImage (file, done) {
     let reader = new window.FileReader()
@@ -44,9 +52,10 @@ class _Profile extends Component {
         name: fileURL})
       let image = {UID: UID}
       const existing = Images.findOne(image)
-
+      
       if (existing) {
-        this.saveProfileImage(existing.url)
+        this.saveProfileImage(existing.url, 'image')
+        this.saveProfileImage(existing.url, 'thumbnail')      
         return
       }
 
@@ -64,7 +73,10 @@ class _Profile extends Component {
       let thumb = new window.Image()
       thumb.onload = function () {
         const meta = {UID: UID, type: 'thumbnail', src: img.src}
-        this.resizeImage(50, this.state.storageType, thumb, meta, false)
+        Meteor.call('settings.getImageSettings', (e, obj) => {
+          if (e) alertify.error('Error while getting settings')
+          if (obj) this.resizeImage(50, obj.storageType, thumb, meta, true)
+        })
       }.bind(this)
       thumb.src = e.target.result
     }.bind(this))
@@ -76,14 +88,24 @@ class _Profile extends Component {
     })
   }
 
-  saveProfileImage (profileImageUrl) {
-    Meteor.call('users.updateProfileImage', profileImageUrl, (err) => {
-      if (err) return alertify.error('Error: could not save image')
-      setTimeout(() => {
-        alertify.success('Profile image updated')
-        this.setState({ uploadActive: false })
-      }, 800)
-    })
+  saveProfileImage (profileImageUrl, type) {
+    if (!type || type === 'image') {
+      Meteor.call('users.updateProfileImage', profileImageUrl, (err) => {
+        if (err) return alertify.error('Error: could not save image')
+        setTimeout(() => {
+          alertify.success('Profile image updated')
+          this.setState({ uploadActive: false })
+        }, 800)
+      })
+    } else if (type === 'thumbnail') {
+      Meteor.call('users.updateProfileThumbnail', profileImageUrl, (err) => {
+        if (err) return alertify.error('Error: could not save image')
+        setTimeout(() => {
+          alertify.success('Profile image updated')
+          this.setState({ uploadActive: false })
+        }, 800)
+      })
+    }
   }
 
   sendVerificationEmail () {
@@ -116,34 +138,35 @@ class _Profile extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    this.setStorageType()
-    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
+    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)  
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
-        if (e) alertify.error('Error uploading')        
+        if (e) alertify.error('Error uploading')
         else if (save) {
-          if (this.state.storageType === 'AWS') {
-            this.saveProfileImage(downloadUrl.slice(0, -(meta.type.length + 1)))
-            img.url = downloadUrl.slice(0, -(meta.type.length + 1))
-          } else {
-            this.saveProfileImage(downloadUrl)
-            img.url = downloadUrl
-            img.UID = meta.UID
-            this.addImage(img)
-          }
+          img.url = downloadUrl
+          this.saveProfileImage(img.url, meta.type)
+          img.UID = meta.UID
+          this.addImage(img)
         }
       })
     })
   }
 
+  componentDidMount () {
+    this.setStorageType()
+  }
+
   render () {
-    const user = this.props.user
+    const user = Meteor.user()//this.props.user
     const needsEmailVerification = !user.emails[0].verified
 
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
     const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
-
+    
+    const noEdits = this.state.isSSOSession 
+    const noEmail = (user.services && user.services.sso)
+    
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
       : <span className='label label-warning'>Un-verified</span>
@@ -164,7 +187,7 @@ class _Profile extends Component {
 
             <div className='ql-profile-card ql-card'>
               <div className='profile-header ql-header-bar'>
-                <h4>Edit User Profile</h4>
+                <h4> User Profile</h4>
               </div>
 
               <div className='ql-card-content'>
@@ -172,7 +195,7 @@ class _Profile extends Component {
                   { !this.state.uploadActive
                     ? (<div>
                       <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
-                      {!needsEmailVerification
+                      {needsEmailVerification
                         ? ''
                         : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>}
                     </div>
@@ -190,10 +213,13 @@ class _Profile extends Component {
                     }
                 </div>
 
-                <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                  <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a>
-                  <a href='#' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</a>
-                </div>
+                
+                { noEdits ? '' :
+                  <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                     {noEmail ? '' : <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a> }
+                    <a href='#' className='btn btn-default' onClick={toggleChangePasswordModal} >Change Password</a>
+                  </div>
+                 }
                 <br />
                 <h2>{user.getName()}</h2>
                 <div className='ql-profile-container'>
@@ -223,10 +249,10 @@ class _Profile extends Component {
 
 // meteor reactive data container
 export const ProfilePage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData') && Meteor.subscribe('settings')
+  const handle = Meteor.subscribe('userData') // TODO <- really , settings??? check that we don't leak anything!
 
   return {
-    user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
+    //user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
     loading: !handle.ready()
   }
 }, _Profile)

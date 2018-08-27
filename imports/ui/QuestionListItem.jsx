@@ -31,12 +31,14 @@ export class QuestionListItem extends ListItem {
   }
 
   render () {
+    
+    if (!this.props.question) return null
     const s = this.props.session
     const c = Courses.findOne({ _id: this.props.question.courseId })
     const controls = this.makeControls()
-    // const navigateToSession = () => { Router.go('session', { _id: this.props.session._id }) }
+  
     const q = this.props.question || { question: 'Question?', type: 0 }
-    // console.log(s.questions.indexOf(q._id) !== -1 ? q.content : '')
+    
     const isCurrent = s && s.status === 'running' && (s.currentQuestion === q._id)
     const truncated = q.plainText ? <HTMLEllipsis unsafeHTML={q.content} maxLine='3' basedOn='words' /> : ''
     const content = q.plainText ? <span className={isCurrent ? 'current-question-list-item' : ''}>
@@ -57,7 +59,9 @@ export class QuestionListItem extends ListItem {
         </div>
         <div>
           <span className='ql-question-details'>
+            {this.props.question.sharedCopy ? 'Shared' : ''}
             {this.props.question.public ? '(public) ' : ''}
+            {this.props.question.private ? '(private) ' : ''}
             {this.props.question.courseId && c !== undefined ? '('+ c.deptCode.toUpperCase() + ' ' + c.courseNumber + ') ' : ''}
             {this.props.question.approved ? '(approved) ' : '(un-approved) '}
           </span>
