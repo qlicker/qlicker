@@ -54,7 +54,7 @@ class _ResponseList extends Component {
     const responses = this.props.responses
     const students = this.props.students
     let index = 0
-    console.log(this.props.students)
+  
     return (
       <div className='response-list'>
       { 

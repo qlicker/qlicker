@@ -168,12 +168,6 @@ class _GradeSession extends Component {
     const incrementQuestion = () => this.setQuestion(1)
     const decrementQuestion = () => this.setQuestion(-1)
     
-    let q = this.state.questionToView
-
-    const allResponses = Responses.find({questionId: { $in: this.props.session.questions }}).fetch()
-    const responsesByQuestion = _(allResponses).groupBy('questionId')
-
-    let responseDist = responseDistribution(responsesByQuestion[q._id], q)
   
     return (
       <div className='container ql-grade-session'>
@@ -181,7 +175,12 @@ class _GradeSession extends Component {
           <div className='col-md-3'>
             <div className='ql-card-fixed'>
               <div className='ql-header-bar'>
-                <h4> Select student to grade </h4>
+                <h4>Select student to grade</h4>
+                <div className='response-sidebar-header'>
+                  <span className='btn' onClick={decrementQuestion}>&lt;</span>
+                  <span className='content'>Question {this.state.questionIndex}</span>
+                  <span className='btn' onClick={incrementQuestion}>&gt;</span>
+                </div>
               </div>
               <div className='ql-card-content'>
                 <div className='ql-grade-session-student-search'>

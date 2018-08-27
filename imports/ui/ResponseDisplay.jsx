@@ -18,12 +18,11 @@ export class ResponseDisplay extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    console.log('fired')
     this.setState({ points: nextProps.mark.points, outOf: nextProps.mark.outOf, feedback: nextProps.mark.feedback ? nextProps.mark.feedback : '' })
   }
 
   render() {
-    console.log(this.state)
+   
     const setPoints = (e) => this.setState({ points: e.target.value })
     const setOutOf = (e) => this.setState({ outOf: e.target.value})
     const setFeedback = (e) => this.setState({ feedback: e.target.value })
