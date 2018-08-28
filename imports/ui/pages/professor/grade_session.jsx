@@ -177,9 +177,9 @@ class _GradeSession extends Component {
               <div className='ql-header-bar'>
                 <h4>Select student to grade</h4>
                 <div className='response-sidebar-header'>
-                  <span className='btn' onClick={decrementQuestion}>&lt;</span>
+                  <span className='btn' onClick={decrementQuestion}>🡄</span>
                   <span className='content'>Question {this.state.questionIndex}</span>
-                  <span className='btn' onClick={incrementQuestion}>&gt;</span>
+                  <span className='btn' onClick={incrementQuestion}>🡆</span>
                 </div>
               </div>
               <div className='ql-card-content'>
@@ -245,9 +245,9 @@ class _GradeSession extends Component {
               <div className='response-header'>
                 <div className='bar'>
                   <h2>
-                    <span className='btn' onClick={decrementQuestion}>&lt;</span>
+                    <span className='btn' onClick={decrementQuestion}>🡄</span>
                     <span className='content'>Question {this.state.questionIndex}</span>
-                    <span className='btn' onClick={incrementQuestion}>&gt;</span>
+                    <span className='btn' onClick={incrementQuestion}>🡆</span>
                   </h2>
                 </div>
                 <div className='preview'>
