@@ -26,7 +26,7 @@ class _ResponseList extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.studentToView) {
       const node = ReactDOM.findDOMNode(this.refs[nextProps.studentToView._id])
-      window.scrollTo({ top: node.offsetTop, behaviour: 'smooth' })
+      window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
     }
   }
   
