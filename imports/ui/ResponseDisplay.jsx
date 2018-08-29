@@ -51,7 +51,6 @@ export class ResponseDisplay extends Component {
   }
   
   render() {
-    console.log(this.props.mark)
     const outOf = this.props.mark ? this.props.mark.outOf : 0
     const setFeedback = (e) => this.setState({ feedback: e.target.value })
     const setPoints = (e) => this.setState({ points: e.target.value })
