@@ -44,13 +44,14 @@ class _ResponseList extends Component {
         <h3 className='response-categories'>
           <span className='category' style={{'width':'20%'}}>Student Name</span>
           <span className='category' style={{'width':'20%'}}>Response</span>
-          <span className='category' style={{'width':'20%'}}>Grade</span>
+          <span className='category' style={{'width':'10%'}}>Grade</span>
           <span className='category' style={{'width':'30%'}}>Feedback</span>
+          <span className='category' style={{'width':'10%'}}></span>
         </h3>
         { 
           students.map((student) => {
-            const mark = this.props.marks[index]
-            const response = responses[index]
+            const mark = this.props.marks[index] || null
+            const response = responses[index] || null
             const studentName = student.profile.lastname + ', ' + student.profile.firstname
             index += 1
             return(
@@ -83,7 +84,7 @@ export const ResponseList = createContainer((props) => {
   props.grades.forEach(grade => {
     grade.marks.forEach(mark => {
       mark.gradeId = grade._id
-      if (mark.questionId === props.question._id) {
+      if (props.question && mark.questionId === props.question._id) {
         marks.push(mark)
       }
     })

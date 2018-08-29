@@ -6,31 +6,46 @@ import { WysiwygHelper } from '../wysiwyg-helpers'
 
 import { Grades } from '../api/grades'
 
-import { EditGradeModal } from './modals/EditGradeModal'
-import { EditFeedBackModal } from './modals/EditFeedBackModal'
-
 export class ResponseDisplay extends Component {
   
   constructor(props) {
     super(props)
 
     this.state = {
-      showGradeModal: false,
-      showFeedbackModal: false
+      points: props.mark.points,
+      feedback: props.mark.feedback || ''
     }
 
-    this.submitGrade = this.submitGrade.bind(this)
+    this.saveGrade = this.saveGrade.bind(this)
 
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ points: nextProps.mark.points, outOf: nextProps.mark.outOf, feedback: nextProps.mark.feedback ? nextProps.mark.feedback : '' })
+    this.setState({ points: nextProps.mark.points || 0, outOf: nextProps.mark.outOf || 0, feedback: nextProps.mark.feedback || '' })
   }
 
+  saveGrade () {
+    
+    const points = Number(this.state.points)
+    if (points > this.props.mark.outOf || points < 0) {
+      alertify.error('Error: Grade points out of range')
+      return
+    }
+
+    let mark = this.props.mark
+    mark = _.extend(mark, { feedback: this.state.feedback, points: points })
+
+    Meteor.call('grades.updateMark', mark, (err) => {
+      if (err) alertify.error(err)
+      else alertify.success('Updated Mark')
+    })
+  }
+  
   render() {
    
-    const toggleGradeModal = () => this.setState({ showGradeModal: !this.state.showGradeModal })
-    const toggleFeedbackModal = () => this.setState({ showFeedbackModal: !this.state.showFeedbackModal })
+    const setFeedback = (e) => this.setState({ feedback: e.target.value })
+    const setPoints = (e) => this.setState({ points: e.target.value })
+
     const response = this.props.response ? this.props.response : null
     
     if (this.state.showGradeModal) return <EditGradeModal mark={this.props.mark} submit={this.submitGrade} done={toggleGradeModal}/>
@@ -53,18 +68,15 @@ export class ResponseDisplay extends Component {
               : ''
             }
           </div>
+
           <div className='grade'>
-            <div>
-              {this.props.mark.points}/{this.props.mark.outOf}
-              <span>&nbsp;</span>
-              <span><a href="#" onClick={toggleGradeModal} style={{'fontSize':'0.5em'}}>Edit Grade</a></span>
-            </div>
+              <input type='number' min='0' max={this.props.mark.outOf} className='numberField' value={this.state.points} onChange={setPoints} />
+              <span>/{this.props.mark.outOf}</span>
           </div>
           <div className='feedback'>
-            <div className='textField'>{this.props.mark.feedback}</div>  
-            <span>&nbsp;</span>
-            <span><a href="#" onClick={toggleFeedbackModal}>Edit Feedback</a></span>                  
+            <input type='text' className='textField' value={this.state.feedback} onChange={setFeedback} />              
           </div>
+          <input className='btn' type='button' onClick={this.saveGrade} value='Save Mark' />
         </div>
       </div>
     )

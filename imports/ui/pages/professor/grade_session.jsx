@@ -17,7 +17,6 @@ import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
 import { Grades } from '../../../api/grades'
 import { Questions } from '../../../api/questions'
-import { Responses, responseDistribution } from '../../../api/responses'
 
 import { WysiwygHelper } from '../../../wysiwyg-helpers'
 import {ResponseList } from '../../ResponseList'
