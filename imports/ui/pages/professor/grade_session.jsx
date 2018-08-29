@@ -19,7 +19,9 @@ import { Grades } from '../../../api/grades'
 import { Questions } from '../../../api/questions'
 
 import { WysiwygHelper } from '../../../wysiwyg-helpers'
-import {ResponseList } from '../../ResponseList'
+
+import { ResponseList } from '../../ResponseList'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 class _GradeSession extends Component {
 
@@ -242,16 +244,9 @@ class _GradeSession extends Component {
           <div className='col-md-9'>
             <div className='ql-card'>
               <div className='response-header'>
-                <div className='bar'>
-                  <h2>
-                    <span className='btn' onClick={decrementQuestion}>🡄</span>
-                    <span className='content'>Question {this.state.questionIndex}</span>
-                    <span className='btn' onClick={incrementQuestion}>🡆</span>
-                  </h2>
-                </div>
                 { this.state.questionToView 
                   ? <div className='preview'>
-                      <h1>{WysiwygHelper.htmlDiv(this.state.questionToView.content)}</h1>
+                      <QuestionDisplay question={this.state.questionToView} readonly prof />
                     </div>
                   : ''
                 }

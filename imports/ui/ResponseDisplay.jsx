@@ -4,8 +4,6 @@ import _ from 'underscore'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
 
-import { Grades } from '../api/grades'
-
 export class ResponseDisplay extends Component {
   
   constructor(props) {
@@ -21,7 +19,7 @@ export class ResponseDisplay extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ points: nextProps.mark.points || 0, outOf: nextProps.mark.outOf || 0, feedback: nextProps.mark.feedback || '' })
+    this.setState({ points: nextProps.mark.points || 0, feedback: nextProps.mark.feedback || '' })
   }
 
   saveGrade () {
@@ -47,11 +45,6 @@ export class ResponseDisplay extends Component {
     const setPoints = (e) => this.setState({ points: e.target.value })
 
     const response = this.props.response ? this.props.response : null
-    
-    if (this.state.showGradeModal) return <EditGradeModal mark={this.props.mark} submit={this.submitGrade} done={toggleGradeModal}/>
-    
-    if (this.state.showFeedbackModal) return <EditFeedBackModal mark={this.props.mark} submit={this.submitGrade} done={toggleFeedbackModal}/>
-    
 
     return(      
       <div className='response-card-container'>
@@ -74,7 +67,7 @@ export class ResponseDisplay extends Component {
               <span>/{this.props.mark.outOf}</span>
           </div>
           <div className='feedback'>
-            <input type='text' className='textField' value={this.state.feedback} onChange={setFeedback} />              
+            <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />              
           </div>
           <input className='btn' type='button' onClick={this.saveGrade} value='Save Mark' />
         </div>
