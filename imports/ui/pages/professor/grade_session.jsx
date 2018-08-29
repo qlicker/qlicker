@@ -230,9 +230,9 @@ class _GradeSession extends Component {
                         const onClick = () => this.setStudentToView(student)
                         let className = 'ql-simple-studentlist-student'
                         const studentGrade = _(this.props.grades).findWhere({ userId: student._id })
-                        if (studentGrade && studentGrade.hasManualMarks()) className += ' green'
+                        if (studentGrade && (studentGrade.hasManualMarks() || !studentGrade.hasUngradedMarks())) className += ' green'
                         if (studentGrade && studentGrade.hasUngradedMarks()) className += ' red'
-
+                        console.log(className)
                         if (studentToView && student._id === studentToView._id) className += ' selected'
                         return (
                           <div key={'s2' + student._id} className={className} onClick={onClick}>

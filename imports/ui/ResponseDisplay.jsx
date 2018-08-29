@@ -11,18 +11,26 @@ export class ResponseDisplay extends Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      points: props.mark.points || 0,
-      feedback: props.mark.feedback || '',
+    if (props.mark) {
+      this.state = {
+        points: props.mark.points || 0,
+        feedback: props.mark.feedback || '',
+        showResponseView: false
+      }
+    } else this.state = {
+      points: 0,
+      feedback: '',
       showResponseView: false
-    }
+    } 
 
     this.saveGrade = this.saveGrade.bind(this)
 
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ points: nextProps.mark.points || 0, feedback: nextProps.mark.feedback || '' })
+    if (nextProps.mark) {
+      this.setState({ points: nextProps.mark.points || 0, feedback: nextProps.mark.feedback || '' })  
+    }
   }
 
   saveGrade () {
@@ -34,7 +42,7 @@ export class ResponseDisplay extends Component {
     }
 
     let mark = this.props.mark
-    mark = _.extend(mark, { feedback: this.state.feedback, points: points })
+    mark = _.extend(mark, { feedback: this.state.feedback, points: points, needsGrading: false })
 
     Meteor.call('grades.updateMark', mark, (err) => {
       if (err) alertify.error(err)
@@ -43,7 +51,8 @@ export class ResponseDisplay extends Component {
   }
   
   render() {
-   
+    console.log(this.props.mark)
+    const outOf = this.props.mark ? this.props.mark.outOf : 0
     const setFeedback = (e) => this.setState({ feedback: e.target.value })
     const setPoints = (e) => this.setState({ points: e.target.value })
     const toggleShowResponseView = () => this.setState({ showResponseView: !this.state.showResponseView })
@@ -69,8 +78,8 @@ export class ResponseDisplay extends Component {
           </div>
 
           <div className='grade'>
-              <input type='number' min='0' max={this.props.mark.outOf || 0} className='numberField' value={this.state.points} onChange={setPoints} />
-              <span>/{this.props.mark.outOf || 0}</span>
+              <input type='number' min='0' max={outOf} className='numberField' value={this.state.points} onChange={setPoints} />
+              <span>/{outOf}</span>
           </div>
           <div className='feedback'>
             <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />              

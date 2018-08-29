@@ -478,9 +478,10 @@ export class QuestionEditItem extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-
-    this.setState({ question: nextProps.question })
-    this.setCourse(nextProps.question.courseId)
+    if (nextProps) {
+      this.setState({ question: nextProps.question })
+      this.setCourse(nextProps.question.courseId)
+    }
   }
 
   /**
