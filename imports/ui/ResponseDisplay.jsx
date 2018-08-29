@@ -4,6 +4,8 @@ import _ from 'underscore'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
 
+import { ResponseViewModal } from './modals/ResponseViewModal'
+
 export class ResponseDisplay extends Component {
   
   constructor(props) {
@@ -11,7 +13,8 @@ export class ResponseDisplay extends Component {
 
     this.state = {
       points: props.mark.points,
-      feedback: props.mark.feedback || ''
+      feedback: props.mark.feedback || '',
+      showResponseView: false
     }
 
     this.saveGrade = this.saveGrade.bind(this)
@@ -43,8 +46,11 @@ export class ResponseDisplay extends Component {
    
     const setFeedback = (e) => this.setState({ feedback: e.target.value })
     const setPoints = (e) => this.setState({ points: e.target.value })
+    const toggleShowResponseView = () => this.setState({ showResponseView: !this.state.showResponseView })
 
     const response = this.props.response ? this.props.response : null
+
+    if (this.state.showResponseView) return <ResponseViewModal response={this.props.response} done={toggleShowResponseView} />
 
     return(      
       <div className='response-card-container'>
@@ -54,7 +60,7 @@ export class ResponseDisplay extends Component {
             {
               response
               ? this.props.questionType == 2
-                ? <div className='textField' style={{'fontSize':'0.5em'}}>
+                ? <div className='textField' style={{'fontSize':'0.5em'}} onClick={toggleShowResponseView}>
                     {WysiwygHelper.htmlDiv(response.answerWysiwyg)}
                   </div>  
                 : <div className='centered'><h4>{response.answer}</h4></div>
