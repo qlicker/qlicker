@@ -20,24 +20,8 @@ class _ResponseList extends Component {
 
   constructor(props) {
       super(props)
-
-      this.submitGrade = this.submitGrade.bind(this)
   }
 
-  submitGrade (points, outOf, feedback, gradeId) {
-    mark = {
-      points: Number(points),
-      outOf: Number(outOf),
-      feedback: feedback,
-      questionId: this.props.question._id,
-      gradeId: gradeId
-    }
-
-    Meteor.call('grades.updateMark', mark, (err) => {
-      if (err) alertify.error(err)
-      else alertify.success('Updated Mark')
-    })
-  }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.studentToView) {
@@ -56,25 +40,31 @@ class _ResponseList extends Component {
     let index = 0
   
     return (
-      <div className='response-list'>
-      { 
-        students.map((student) => {
-          const mark = this.props.marks[index]
-          const response = responses[index]
-          const studentName = student.profile.lastname + ', ' + student.profile.firstname
-          index += 1
-          return(
-            <div key={student._id} ref={student._id}>
-              <ResponseDisplay
-                studentName={studentName} 
-                response={response} 
-                mark={mark} 
-                questionType={q.type}
-                submitGrade={this.submitGrade}/>
-            </div>
-          )
-        })
-      }
+      <div>
+        <h3 className='response-categories'>
+          <span className='category' style={{'width':'20%'}}>Student Name</span>
+          <span className='category' style={{'width':'20%'}}>Response</span>
+          <span className='category' style={{'width':'20%'}}>Grade</span>
+          <span className='category' style={{'width':'30%'}}>Feedback</span>
+        </h3>
+        { 
+          students.map((student) => {
+            const mark = this.props.marks[index]
+            const response = responses[index]
+            const studentName = student.profile.lastname + ', ' + student.profile.firstname
+            index += 1
+            return(
+              <div key={student._id} ref={student._id}>
+                <ResponseDisplay
+                  studentName={studentName} 
+                  response={response} 
+                  mark={mark} 
+                  questionType={q.type}
+                  submitGrade={this.submitGrade}/>
+              </div>
+            )
+          })
+        }
       </div>
     )
   }

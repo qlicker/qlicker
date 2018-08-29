@@ -250,9 +250,12 @@ class _GradeSession extends Component {
                     <span className='btn' onClick={incrementQuestion}>🡆</span>
                   </h2>
                 </div>
-                <div className='preview'>
-                  <h1>{WysiwygHelper.htmlDiv(this.state.questionToView.content)}</h1>
-                </div>
+                { this.state.questionToView 
+                  ? <div className='preview'>
+                      <h1>{WysiwygHelper.htmlDiv(this.state.questionToView.content)}</h1>
+                    </div>
+                  : ''
+                }
               </div>
               <div>
                 <ResponseList 

@@ -4,16 +4,22 @@ import _ from 'underscore'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
 
+import { Grades } from '../api/grades'
+
+import { EditGradeModal } from './modals/EditGradeModal'
+import { EditFeedBackModal } from './modals/EditFeedBackModal'
+
 export class ResponseDisplay extends Component {
   
   constructor(props) {
     super(props)
 
     this.state = {
-      points: props.mark.points,
-      outOf: props.mark.outOf,
-      feedback: props.mark.feedback ? props.mark.feedback : ''
+      showGradeModal: false,
+      showFeedbackModal: false
     }
+
+    this.submitGrade = this.submitGrade.bind(this)
 
   }
 
@@ -23,20 +29,24 @@ export class ResponseDisplay extends Component {
 
   render() {
    
-    const setPoints = (e) => this.setState({ points: e.target.value })
-    const setOutOf = (e) => this.setState({ outOf: e.target.value})
-    const setFeedback = (e) => this.setState({ feedback: e.target.value })
+    const toggleGradeModal = () => this.setState({ showGradeModal: !this.state.showGradeModal })
+    const toggleFeedbackModal = () => this.setState({ showFeedbackModal: !this.state.showFeedbackModal })
     const response = this.props.response ? this.props.response : null
     
-    return(
+    if (this.state.showGradeModal) return <EditGradeModal mark={this.props.mark} submit={this.submitGrade} done={toggleGradeModal}/>
+    
+    if (this.state.showFeedbackModal) return <EditFeedBackModal mark={this.props.mark} submit={this.submitGrade} done={toggleFeedbackModal}/>
+    
+
+    return(      
       <div className='response-card-container'>
-        <h3 className='name'>{this.props.studentName}</h3>
         <div className='content'>
+          <div className='name'><div className='centered'>{this.props.studentName}</div></div>
           <div className='answer'>
             {
               response
               ? this.props.questionType == 2
-                ? <div className='textField'>
+                ? <div className='textField' style={{'fontSize':'0.5em'}}>
                     {WysiwygHelper.htmlDiv(response.answerWysiwyg)}
                   </div>  
                 : <div className='centered'><h4>{response.answer}</h4></div>
@@ -44,17 +54,16 @@ export class ResponseDisplay extends Component {
             }
           </div>
           <div className='grade'>
-            <input value={this.state.points} type='text' onChange={setPoints} placeholder='Mark' />
-            <div>Out Of</div>
-            <input value={this.state.outOf} type='text' onChange={setOutOf} placeholder='Max Mark'/>
+            <div>
+              {this.props.mark.points}/{this.props.mark.outOf}
+              <span>&nbsp;</span>
+              <span><a href="#" onClick={toggleGradeModal} style={{'fontSize':'0.5em'}}>Edit Grade</a></span>
+            </div>
           </div>
           <div className='feedback'>
-            <textarea className='textField' value={this.state.feedback} onChange={setFeedback} placeholder='Feedback:' />            
-            <input 
-              className='btn btn-primary' 
-              type='button' 
-              value='Submit Mark' 
-              onClick={() => this.props.submitGrade(this.state.points, this.state.outOf, this.state.feedback, this.props.mark.gradeId)} />        
+            <div className='textField'>{this.props.mark.feedback}</div>  
+            <span>&nbsp;</span>
+            <span><a href="#" onClick={toggleFeedbackModal}>Edit Feedback</a></span>                  
           </div>
         </div>
       </div>
