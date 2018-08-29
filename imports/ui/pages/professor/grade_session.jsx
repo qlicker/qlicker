@@ -177,10 +177,16 @@ class _GradeSession extends Component {
             <div className='ql-card-fixed'>
               <div className='ql-header-bar'>
                 <h4>Select student to grade</h4>
-                <div className='response-sidebar-header'>
-                  <span className='btn' onClick={decrementQuestion}>🡄</span>
+                <div className='response-sidebar-header'> 
+                  { this.state.questionIndex > 1
+                    ? <span className='btn' onClick={decrementQuestion}>🡄</span>
+                    : ''
+                  }  
                   <span className='content'>Question {this.state.questionIndex}</span>
-                  <span className='btn' onClick={incrementQuestion}>🡆</span>
+                  { this.state.questionIndex < this.props.questions.length
+                    ? <span className='btn' onClick={incrementQuestion}>🡆</span>
+                    : ''
+                  }       
                 </div>
               </div>
               <div className='ql-card-content'>

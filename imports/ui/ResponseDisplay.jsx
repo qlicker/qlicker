@@ -12,7 +12,7 @@ export class ResponseDisplay extends Component {
     super(props)
 
     this.state = {
-      points: props.mark.points,
+      points: props.mark.points || 0,
       feedback: props.mark.feedback || '',
       showResponseView: false
     }
@@ -69,8 +69,8 @@ export class ResponseDisplay extends Component {
           </div>
 
           <div className='grade'>
-              <input type='number' min='0' max={this.props.mark.outOf} className='numberField' value={this.state.points} onChange={setPoints} />
-              <span>/{this.props.mark.outOf}</span>
+              <input type='number' min='0' max={this.props.mark.outOf || 0} className='numberField' value={this.state.points} onChange={setPoints} />
+              <span>/{this.props.mark.outOf || 0}</span>
           </div>
           <div className='feedback'>
             <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />              
@@ -85,7 +85,7 @@ export class ResponseDisplay extends Component {
 ResponseDisplay.propTypes = {
   studentName: PropTypes.string.isRequired,
   response: PropTypes.object,
-  mark: PropTypes.object.isRequired,
+  mark: PropTypes.object,
   questionType: PropTypes.number.isRequired,
   submitGrade: PropTypes.func
 }
