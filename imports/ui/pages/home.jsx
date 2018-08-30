@@ -7,6 +7,7 @@ import React from 'react'
 
 export const Homepage = () => (
   <div className='container ql-home-page'>
+    <a className='btn btn-default pull-right' href='https://qlicker.github.io' target='_blank'>User Guide</a>
     <a className='btn btn-default pull-right' href='/login'>Login/Create Account</a>
     <br />
     <img className='home-page-poster' src='/images/poster.jpg' alt='poster' />

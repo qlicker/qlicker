@@ -15,6 +15,10 @@ Qlicker is an application that will make it easier for professors to integrate s
 
 ![overview](docs/images/overview.png)
 
+## Using Qlicker
+
+[Visit User Guide](https://qlicker.github.io)
+
 ## Running Qlicker
 
 1. Install meteor
@@ -22,28 +26,16 @@ Qlicker is an application that will make it easier for professors to integrate s
 curl https://install.meteor.com/ | sh 
 ```
 
-2. Clone the repo, and create a settings.json file with the proper s3 creditionals in the root directory of the cloned repo. This is an example:
-```
-{
-  "bucket":"bucketimage",
-  "AWSRegion":"region",
-  "AWSAccessKeyId":"SECRET",
-  "AWSSecretAccessKey":"SECRET"
-}
-```
-
-If you do not include the s3 credentials, the app will still run but image uploading will not work. If you do not have these credentials, you can use an [S3 Emulator](https://github.com/jubos/fake-s3).
-
-3. Install the node packages.
+2. Clone the repo, and install the node packages.
 ```
 meteor npm install
 ```
 
 Note, if you use `npm install` instead of `meteor npm install`, you will need to manually delete the `node_modules` directory, and then run `meteor npm install`.
 
-4. Run the program.
+3. Run the program.
 ```
-meteor --settings settings.json
+meteor
 ```
 
 To run tests locally
@@ -61,8 +53,43 @@ Changes will be merged into master after PR review.
 
 Build and bundle using `meteor build`. Deploy node app and configure mongodb accordingly.
 
+### Docker deployment
+A simple docker deployment can be done as follows:
 
+Clone the repository:
+```
+git clone https://github.com/qlicker/qlicker.git
+```
 
+Switch to a tagged version of the app
+```
+cd qlicker
+git checkout v1.1.3
+```
+
+Create a Dockerfile in the top level of the directory downloaded by git (called qlicker by default), with the single line:
+```
+FROM jshimko/meteor-launchpad:latest
+```
+
+Build the image (this will build it with a mongo database, not recommended for deployment):
+```
+docker build --build-arg TOOL_NODE_FLAGS="--max-old-space-size=2048" \
+--build-arg INSTALL_MONGO=true  -t yourname/qlicker:v1.1.3 .
+```
+
+Run it using the local version of mongo:
+```
+docker run -d \
+-e ROOT_URL=http://localhost:3000 \
+-p 3000:3000 yourname/qlicker:v1.1.3
+```
+
+Note that the versions of the app v1.1.3 or earlier require METEOR_SETTINGS to be specified.
+
+The details on building the image are documented in https://github.com/jshimko/meteor-launchpad.
+
+In production, you should specify the environments variable for a database (either separate containers, or from a service), and place a proxy in front of the app container so that SSL can be enforced. 
 
 
 
