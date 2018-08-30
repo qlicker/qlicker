@@ -18,7 +18,10 @@ import { Courses } from '../../../api/courses'
 import { Grades } from '../../../api/grades'
 import { Questions } from '../../../api/questions'
 
-import {ResponseList } from '../../ResponseList'
+import { WysiwygHelper } from '../../../wysiwyg-helpers'
+
+import { ResponseList } from '../../ResponseList'
+import { QuestionDisplay } from '../../QuestionDisplay'
 
 class _GradeSession extends Component {
 
@@ -166,13 +169,25 @@ class _GradeSession extends Component {
     const incrementQuestion = () => this.setQuestion(1)
     const decrementQuestion = () => this.setQuestion(-1)
     
+  
     return (
       <div className='container ql-grade-session'>
         <div className='row'>
           <div className='col-md-3'>
             <div className='ql-card-fixed'>
               <div className='ql-header-bar'>
-                <h4> Select student to grade </h4>
+                <h4>Select student to grade</h4>
+                <div className='response-sidebar-header'> 
+                  { this.state.questionIndex > 1
+                    ? <span className='btn' onClick={decrementQuestion}>🡄</span>
+                    : ''
+                  }  
+                  <span className='content'>Question {this.state.questionIndex}</span>
+                  { this.state.questionIndex < this.props.questions.length
+                    ? <span className='btn' onClick={incrementQuestion}>🡆</span>
+                    : ''
+                  }       
+                </div>
               </div>
               <div className='ql-card-content'>
                 <div className='ql-grade-session-student-search'>
@@ -215,9 +230,9 @@ class _GradeSession extends Component {
                         const onClick = () => this.setStudentToView(student)
                         let className = 'ql-simple-studentlist-student'
                         const studentGrade = _(this.props.grades).findWhere({ userId: student._id })
-                        if (studentGrade && studentGrade.hasManualMarks()) className += ' green'
-                        if (studentGrade && studentGrade.hasUngradedMarks()) className += ' red'
-
+                        const studentMark = _(studentGrade.marks).findWhere({ questionId: this.state.questionToView._id })
+                        if (studentGrade && (!studentMark || !studentMark.needsGrading)) className += ' green'
+                        if (studentGrade && studentMark.needsGrading) className += ' red'
                         if (studentToView && student._id === studentToView._id) className += ' selected'
                         return (
                           <div key={'s2' + student._id} className={className} onClick={onClick}>
@@ -232,26 +247,24 @@ class _GradeSession extends Component {
               </div>
             </div>
           </div>
-
           <div className='col-md-9'>
             <div className='ql-card'>
               <div className='response-header'>
-                <h2>
-                  <span className='response-header-btn left' onClick={decrementQuestion}>&lt;</span>
-                  <span className='respone-header-content'>Question {this.state.questionIndex}</span>
-                  <span className='response-header-btn right' onClick={incrementQuestion}>&gt;</span>
-                </h2>
+                { this.state.questionToView 
+                  ? <div className='preview'>
+                      <QuestionDisplay question={this.state.questionToView} readonly prof />
+                    </div>
+                  : ''
+                }
               </div>
-              <div className='ql-card-content'>
-                <div className='ql-grade-session-gradeview'>
-                  <ResponseList 
-                    session={this.props.session} 
-                    question={this.state.questionToView} 
-                    students={studentsToShow}
-                    studentToView={this.state.studentToView}
-                    grades={this.props.grades} />
-                </div>
-              </div>
+              <div>
+                <ResponseList 
+                  session={this.props.session} 
+                  question={this.state.questionToView} 
+                  students={studentsToShow}
+                  studentToView={this.state.studentToView}
+                  grades={this.props.grades}/>
+              </div>             
             </div>
           </div>
 

@@ -211,7 +211,7 @@ class _QuestionsLibrary extends Component {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question copied to library')
     })
-    this.selectQuestion(null)
+    
   }
 
   deleteQuestion (question) {
@@ -234,7 +234,7 @@ class _QuestionsLibrary extends Component {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question moved to public area')
     })
-    this.selectQuestion(null)
+    
   }
 
   questionDeleted () {
