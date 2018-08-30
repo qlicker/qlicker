@@ -149,7 +149,7 @@ Router.route('/manage', {
   }
 })
 
-import { QuestionsNav } from '../../ui/pages/questions_nav'
+import { QuestionsLibrary } from '../../ui/pages/questions_library'
 Router.route('/course/:courseId/questions', {
   name: 'questions',
   waitOn: function () {
@@ -159,7 +159,7 @@ Router.route('/course/:courseId/questions', {
   action: function () {
     const cId = this.params.courseId
     if (Meteor.userId() /* && isInstructor */) {
-      mount(AppLayout, { content: <PageContainer user={Meteor.user()} courseId={cId}> <QuestionsNav courseId={cId} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer user={Meteor.user()} courseId={cId}> <QuestionsLibrary courseId={cId} /> </PageContainer> })
     } else Router.go('login')
   }
 })

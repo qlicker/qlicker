@@ -79,7 +79,7 @@ Meteor.users.deny({
 })
 
 Accounts.config({
-  loginExpirationInDays: (1 / 24) * 2
+  loginExpirationInDays: (2 / 24) * 2
 })
 
 if (Meteor.isServer) {

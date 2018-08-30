@@ -69,7 +69,7 @@ export class _QuestionSidebar extends ControlledForm {
   } //end constructor
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice() })
+    this.setState({ questionPool: nextProps.questions})
     if (nextProps.resetSideBar) this.resetFilter()
     if(nextProps.courseId !== this.props.courseId) this.setTags([])
   }
@@ -218,6 +218,7 @@ export class _QuestionSidebar extends ControlledForm {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+    const isStudent = Meteor.user().isStudent(this.props.courseId)
     const userId = Meteor.userId()
     return (
       <div className='ql-question-sidebar' >
