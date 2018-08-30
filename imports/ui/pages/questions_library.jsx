@@ -211,7 +211,7 @@ class _QuestionsLibrary extends Component {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question copied to library')
     })
-    this.selectQuestion(null)
+    
   }
 
   deleteQuestion (question) {
@@ -222,10 +222,10 @@ class _QuestionsLibrary extends Component {
     })
   }
 
-  makeQuestionPublic (questionId) {
+  makeQuestionPublic (question) {
    // by making it public, you take over ownership, so student cannot delete it anymore
    // it will also show in the library for any instructor of the course
-    let question = this.state.questionMap[questionId]
+    
     question.approved = true // this makes it editable by any instructor of the course
 
     question.public = true
@@ -235,7 +235,7 @@ class _QuestionsLibrary extends Component {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question moved to public area')
     })
-    this.selectQuestion(null)
+    
   }
 
   questionDeleted () {
@@ -282,7 +282,7 @@ class _QuestionsLibrary extends Component {
           <div className='col-md-8'>
             { this.state.selected
             ? <div>
-                {(isInstructor || this.state.allowedStudentQuestions) && this.props.editable && (isInstructor || !this.state.questionMap[this.state.selected].approved)
+                {(isInstructor || this.state.allowedStudentQuestions) && this.props.editable && (isInstructor || !this.state.selected.approved)
                   ? <div>
                       <div id='ckeditor-toolbar' />
                       <div className='ql-edit-item-container'>
@@ -300,7 +300,7 @@ class _QuestionsLibrary extends Component {
                       { this.props.questionLibrary !== 'library'
                         ? <div>
                             <button className='btn btn-default'
-                              onClick={() => { this.approveQuestion(this.state.questionMap[this.state.selected]._id) }}
+                              onClick={() => { this.approveQuestion(this.state.selected) }}
                               data-toggle='tooltip'
                               data-placement='left'
                               title='Create a copy to use in your own sessions'>
@@ -308,7 +308,7 @@ class _QuestionsLibrary extends Component {
                             </button>
                             { !Meteor.user().hasRole('student') 
                               ? <button className='btn btn-default'
-                                  onClick={() => { this.makeQuestionPublic(this.state.questionMap[this.state.selected]._id) }}
+                                  onClick={() => { this.makeQuestionPublic(this.state.selected) }}
                                   data-toggle='tooltip'
                                   data-placement='left'
                                   title='Make the question public'>
@@ -318,7 +318,7 @@ class _QuestionsLibrary extends Component {
                             }
                             
                             <button className='btn btn-default'
-                              onClick={() => { this.deleteQuestion(this.state.questionMap[this.state.selected]._id) }}
+                              onClick={() => { this.deleteQuestion(this.state.selected) }}
                               data-toggle='tooltip'
                               data-placement='left'>
                                 Delete

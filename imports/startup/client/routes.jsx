@@ -313,11 +313,14 @@ Router.route('/course/:courseId/session/edit/:_id', {
       Meteor.subscribe('images')
   },
   action: function () {
-    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
-    const isInstructor = Meteor.user().isInstructor(cId)
-    if (Meteor.userId() && isInstructor) {
-      mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
-    } else Router.go('login')
+    const course = Courses.find({sessions: this.params._id}).fetch() 
+    if (course) {
+      const cId = course[0]._id
+      const isInstructor = Meteor.user().isInstructor(cId)
+      if (Meteor.userId() && isInstructor) {
+        mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
+      } else Router.go('login')
+    }
   }
 })
 
