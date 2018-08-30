@@ -54,18 +54,18 @@ To manage single sign on settings, select the "Single Sign On" tab. Qlicker uses
 
 ### SAML Attributes
 
-1. Entry Point: URL to redirect to when logging in.
++ **Entry Point:** URL to redirect to when logging in.
   
-2. Logout URL: URL to redirct to when logging out.
++ **Logout URL:** URL to redirct to when logging out.
 
-3. Certificate: Public certificate provided by metadata.
++ **Certificate:** Public certificate provided by metadata.
 
-4. Identifier Format: Name identifier format to request from identity provider.
++ **Identifier Format:** Name identifier format to request from identity provider.
 
-5. Institution Name: Name that shows on login page (not found in metadata). 
++ **Institution Name:** Name that shows on login page (not found in metadata). 
 
-6. Email Identifier: Format for identifying user emails.
++ **Email Identifier:** Format for identifying user emails.
 
-7. First Name Identifier: Format for identifying user first name.
++ **First Name Identifier:** Format for identifying user first name.
 
-8. Last Name Identifier: Format for identifying user last name.
++ **Last Name Identifier:** Format for identifying user last name.
