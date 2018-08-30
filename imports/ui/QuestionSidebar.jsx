@@ -79,7 +79,7 @@ export class _QuestionSidebar extends ControlledForm {
    */
   setQuestion (question) {
     this.setState({ question: question }, () => {
-      this.props.onSelect(question)
+      if(this.props.onSelect)this.props.onSelect(question._id)
     })
   }
   /**
@@ -297,9 +297,9 @@ export const QuestionSidebar = createContainer((props) => {
 
   const questions = Questions.find().fetch()
 
+  //console.log("Questions in sidebar from subscription")
   //console.log(subscription)
-  console.log("Questions in sidebar from subscription")
-  console.log(questions)
+  //console.log(questions)
 
   return {
     loading: !handle.ready(),

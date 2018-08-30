@@ -3,7 +3,8 @@
 //
 // questions_library.jsx: page for managing and editing your own questions
 
-import React, { Component } from 'react'
+//import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 // import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
@@ -13,24 +14,28 @@ import { QuestionEditItem } from '../QuestionEditItem'
 import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
 
-import { defaultQuestion } from '../../api/questions'
+import { Questions, defaultQuestion } from '../../api/questions'
+//import { defaultQuestion } from '../../api/questions'
 import { Courses } from '../../api/courses'
 
 import { QUESTION_TYPE } from '../../configs'
 
 
-export class QuestionsLibrary extends Component {
+export class _QuestionsLibrary extends Component {
 
   constructor (props) {
     super(props)
 
+
     this.state = {
-      selectedQuestion: null,
-      resetSidebar: false // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
+      selectedQuestionId: null,
+      resetSidebar: false, // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
+      questionMap: _(props.questions).indexBy('_id'),
     }
+    /*
     if (this.props.selectedQuestion) {
       if (this.props.selectedQuestion) this.state.selectedQuestion = this.props.selectedQuestion
-    }
+    }*/
 
     //this.convertField = this.convertField.bind(this)
     //this.exportQuestions = this.exportQuestions.bind(this)
@@ -50,11 +55,18 @@ export class QuestionsLibrary extends Component {
     })
   }
 
-  componentWillReceiveProps (props) {
-    Meteor.call('courses.hasAllowedStudentQuestions', this.props.courseId, (e, allowed) => {
+  componentWillReceiveProps (newProps) {
+    const newQuestions = newProps.questions
+    if (!_.findWhere(newQuestions, {_id: this.state.selectedQuestionId})) {
+      this.setState({ selectedQuestionId: null, questionMap: _(newQuestions).indexBy('_id') })
+    } else this.setState({ questionMap: _(newQuestions).indexBy('_id')})
+
+    //this.setState({questionMap: _(newProps.questions).indexBy('_id')})
+    Meteor.call('courses.hasAllowedStudentQuestions', newProps.courseId, (e, allowed) => {
       if (e) alertify.error('Cannot get course permissions')
       else this.state.allowedStudentQuestions = allowed
     })
+
   }
 /*
   convertImageToBase64 (url, count, callback) {
@@ -171,25 +183,26 @@ export class QuestionsLibrary extends Component {
     else alertify.error('Error: Incorrect file format')
   }*/
 
-  editQuestion (question) {
-    if (question === null) {
+  editQuestion (questionId) {
+    if (questionId === -1) {
       // reset the query
       this.setState({/*query: this.props.query,*/ resetSidebar: true})
       const blankQuestion = _.extend(defaultQuestion, {
         owner: Meteor.userId(),
         creator: Meteor.userId(),
         approved: Meteor.user().isInstructor(this.props.courseId),
-        courseId: this.props.courseId,    
-        type: QUESTION_TYPE.MC
+        courseId: this.props.courseId
       })
       Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
         if (e) return alertify.error('Error: couldn\'t add new question')
         alertify.success('New Blank Question Added')
-        this.setState({ selectedQuestion: newQuestion })
+        this.setState({ selectedQuestionId: newQuestion._id })
       })
 
     } else { // TODO: why not just do it once???
-      this.setState({ selectedQuestion: question })
+      this.setState({ selectedQuestionId: null }, () =>{
+        this.setState({ selectedQuestionId: questionId })
+      })
     }
   }
 
@@ -209,7 +222,7 @@ export class QuestionsLibrary extends Component {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question copied to library')
     })
-    this.selectQuestion(null)
+    //this.selectQuestion(null)
   }
 
   deleteQuestion (question) {
@@ -233,11 +246,11 @@ export class QuestionsLibrary extends Component {
       if (error) return alertify.error('Error: ' + error.error)
       alertify.success('Question moved to public area')
     })
-    this.selectQuestion(null)
+    //this.selectQuestion(null)
   }
 
   questionDeleted () {
-    this.setState({ selectedQuestion: null, resetSidebar: false })
+    this.setState({ selectedQuestionId: null, resetSidebar: false })
   }
 
   setFilter (newState) {
@@ -247,11 +260,16 @@ export class QuestionsLibrary extends Component {
 
 
   render () {
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+    const user =  Meteor.user()
+    const isInstructor = user.isInstructor(this.props.courseId)
+    const isStudent = user.isStudent(this.props.courseId)
     let canEdit = true //whether the selected question can be edited
     let canCreate = true //whether user can create a new question
-    let selectedQuestion = this.state.selectedQuestion
+    let selectedQuestion = this.state.questionMap[this.state.selectedQuestionId]
+    console.log(this.state.selectedQuestionId)
+    console.log(this.state.questionMap)
     //only edit in course library
     if (this.props.questionLibrary === 'unapprovedFromStudents' || this.props.questionLibrary === 'public'){
       canEdit = false
@@ -259,13 +277,14 @@ export class QuestionsLibrary extends Component {
     }
     //only edit if question exists...
     if (selectedQuestion) {
-      //student cannot edit if course does not allow
+      //student cannot edit if course does not allow, or if it's approved, or if they are not the owner
       if( !isInstructor &&  (!this.state.allowedStudentQuestions || selectedQuestion.approved || !selectedQuestion.owner === Meteor.userId()) ){
         canEdit = false
       }
-    } else {
+    } else { // can't edit if there is no questions
       canEdit = false
     }
+    //can't create if not instructor or course does not allow student questions
     if (!isInstructor && !this.state.allowedStudentQuestions) {
       canCreate = false
     }
@@ -277,7 +296,7 @@ export class QuestionsLibrary extends Component {
             <br />
             { canCreate
               ? <div>
-                  <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(null)}>New Question</button>
+                  <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(-1)}>New Question</button>
                </div>
               : ''
             }
@@ -298,7 +317,7 @@ export class QuestionsLibrary extends Component {
                       <div className='ql-edit-item-container'>
                         <QuestionEditItem
                           courseId={this.props.courseId}
-                          question={this.state.selectedQuestion}
+                          question={selectedQuestion}
                           deleted={this.questionDeleted}
                           metadata autoSave />
                       </div>
@@ -314,10 +333,10 @@ export class QuestionsLibrary extends Component {
                           data-toggle='tooltip'
                           data-placement='left'
                           title='Create a copy to use in your own sessions'>
-                          {Meteor.user().hasGreaterRole('professor') ? 'Approve for course' : 'Copy to Library'}
+                          {isInstructor ? 'Approve for course' : 'Copy to Library'}
                         </button>
-                        { !Meteor.user().hasRole('student')
-                          ? <button className='btn btn-default'
+                        { isInstructor ?
+                           <button className='btn btn-default'
                               onClick={() => { this.makeQuestionPublic(selectedQuestion) }}
                               data-toggle='tooltip'
                               data-placement='left'
@@ -347,3 +366,17 @@ export class QuestionsLibrary extends Component {
         </div>)
   }
 }
+
+export const QuestionsLibrary = createContainer((props) => {
+
+  const subscription = 'questions.' + props.questionLibrary
+  const handle =  Meteor.subscribe(subscription, props.courseId)
+  const questions = Questions.find().fetch()
+  return {
+    loading: !handle.ready(),
+    courseId: props.courseId,
+    questionLibrary: props.questionLibrary,
+    questions: questions
+  }
+
+}, _QuestionsLibrary)

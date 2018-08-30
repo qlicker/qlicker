@@ -24,7 +24,6 @@ export class QuestionsNav extends Component {
   }
 
   componentWillReceiveProps (props) {
-    console.log("here2")
     Meteor.call('courses.getCourseCode', props.courseId, (e, c) => {
       if (e) alertify.error('Cannot get course code')
       else this.setState({ courseCode: c })

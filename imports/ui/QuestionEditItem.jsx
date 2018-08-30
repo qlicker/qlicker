@@ -186,8 +186,9 @@ export class QuestionEditItem extends Component {
    */
   changeType (newValue) {
     let question = this.state.question
-    question.type = parseInt(newValue)
     const oldType = this.state.question.type
+    question.type = parseInt(newValue)
+
     const retainOptions = (oldType === QUESTION_TYPE.MC && question.type === QUESTION_TYPE.MS) ||
       (question.type === QUESTION_TYPE.MC && oldType === QUESTION_TYPE.MS)
 
@@ -393,7 +394,7 @@ export class QuestionEditItem extends Component {
   togglePublic () {
     let question = this.state.question
     question.public = !this.state.question.public
-    if (question.public) question.private = false
+    //if (question.public) question.private = false
     if (this.state) {
       this.setState({ question: question }, () => {
         this.saveQuestion()

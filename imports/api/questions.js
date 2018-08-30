@@ -89,9 +89,33 @@ export const defaultQuestion = {
   sessionOptions: defaultSessionOptions
 }
 
+//queries that correspond to different "libraries"
 export const questionQueries = {
-  options: {sort:
-    { createdAt: -1 },
+  queries:{
+    library:{
+      instructor: {
+        sessionId: {$exists: false},
+        studentCopyOfPublic: {$exists: false},
+        approved: true
+      },
+      student: {
+         '$or': [{ creator: this.userId }, { owner: this.userId }]
+      }
+    },
+    public: {
+      sessionId: {$exists: false},
+      public: true,
+      approved: true
+    },
+    unapprovedFromStudents : {
+      sessionId: {$exists: false},
+      approved: false,
+      sharedCopy: false,
+      '$or': [{private: false}, {private: {$exists: false}}],
+    }
+  },
+  options: {
+    sortMostRecent: {sort:{ createdAt: -1 }},
   }
 }
 
@@ -211,30 +235,17 @@ if (Meteor.isServer) {
   Meteor.publish('questions.library', function (courseId) {
 
     if (this.userId ) {
-      const course = Courses.findOne({ courseId:courseId })
+      const course = Courses.findOne({ _id:courseId })
       if (!course) return this.ready()
-
-      let query = {
-        sessionId: {$exists: false},
-        //sharedCopy: false,
-        courseId: courseId
-      }
-
       const user = Meteor.users.findOne({_id: this.userId})
 
       if (user.hasRole(ROLES.admin) || user.isInstructor(courseId)){
-          query = _.extend(query, {
-                  //'$or': [{ private: false }, { private: { $exists: false }}, { private: true, owner: this.userId }],
-                  studentCopyOfPublic: {$exists: false},
-                  approved: true
-                })
-          return Questions.find(query)
+          query = _.extend(questionQueries.queries.library.instructor, {courseId: courseId})
+          return Questions.find(query,questionQueries.options.sortMostRecent)
       }
       else if (user.isStudent(courseId)){
-          query = _.extend(query, {
-                 '$or': [{ creator: this.userId }, { owner: this.userId }]
-                })
-          return Questions.find(query)
+        query = _.extend(questionQueries.queries.library.student, {courseId: courseId})
+        return Questions.find(query,questionQueries.options.sortMostRecent)
       }
       else return this.ready()
 
@@ -244,18 +255,13 @@ if (Meteor.isServer) {
   Meteor.publish('questions.public', function (courseId) {
 
     if (this.userId) {
-      const course = Courses.findOne({ courseId:courseId })
+      const course = Courses.findOne({ _id:courseId })
       if (!course) return this.ready()
-
-      let query = {
-        sessionId: {$exists: false},
-        public: true,
-        courseId: courseId,
-      }
-      if (course.requireApprovedPublicQuestions) query = _.extend(query, { approved: true })
+      const user = Meteor.users.findOne({_id: this.userId})
 
       if(user.hasRole(ROLES.admin) || user.isInstructor(courseId) || user.isStudent(courseId) ){
-        return Questions.find(query)
+        query = _.extend(questionQueries.queries.public, {courseId: courseId})
+        return Questions.find(query,questionQueries.options.sortMostRecent)
       } else return this.ready()
 
     } else return this.ready()
@@ -264,20 +270,13 @@ if (Meteor.isServer) {
   // questions submitted to specific course
   Meteor.publish('questions.unapprovedFromStudents', function (courseId) {
     if (this.userId) {
-      const course = Courses.findOne({ courseId:courseId })
+      const course = Courses.findOne({ _id:courseId })
       if (!course) return this.ready()
       const user = Meteor.users.findOne({_id: this.userId})
       if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
 
-      let query = {
-        sessionId: {$exists: false},
-        approved: false,
-        sharedCopy: false,
-        '$or': [{private: false}, {private: {$exists: false}}],
-        courseId:courseId
-      }
-
-      return Questions.find(query)
+      query = _.extend(questionQueries.queries.unapprovedFromStudents, {courseId: courseId})
+      return Questions.find(query,questionQueries.options.sortMostRecent)
     } else this.ready()
   })
 
@@ -345,7 +344,7 @@ Meteor.methods({
       $set: _.omit(question, '_id')
     })
 
-    if (r) return question
+    if (r > 0) return question
     else throw Error('Unable to update')
 
   },
