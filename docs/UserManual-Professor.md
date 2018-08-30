@@ -36,14 +36,25 @@ The course should show up on both the Qlicker Home page, the Courses page, and t
 
 ![View Page Container Buttons](images/prof/page_container_buttons.png)
 
+## Managing Course Details 
 
 ### Enrolling Students in Your Courses
 To allow students to enrol in one of your courses, you need to provide a 6-digit enrolment code. This can be found under "Course Details" on the course's main page. To get to the course main page, select the desired course in either the Qlicker Home page, the Courses page, or the 'Courses' dropdown menu.
 
 ![Course Details](images/prof/course_details.png)
 
+Additionally, you can directly add a student to your course by selecting 'Add Student', and entering their Qlicker email.
+
 Once there are students enrolled, the "Classlist" section will populate, where you can remove students from the classlist. 
 
+### Adding Teaching Assistants To Your Courses
+To add a TA to your course, select 'Add Instructor/TA' and enter their Qlicker email. TAs will have access to the full suite of professor capabilites aside from adding additional TAs.
+
+### Requiring Verified Emails in Your Courses
+Selecting 'Require Verified Email' in a course will enforce students to first verify their email before having access to the course. This is not recommded if Qlicker is using single sign on. 
+
+### Allowing Unapproved Questions
+Selecting 'Allow Unapproved Questions' lets all questions created by students have the 'public' property. More information about public questions below.
 
 ## Creating Questions
 Questions can either be created within a [session](#creating-sessions) or by going to the Questions Library via 'My Question Library' in the 'Questions' dropdown menu. Click 'New Question' to create a question.
@@ -79,7 +90,7 @@ Public questions can be accessed by clicking 'Public Questions' at the top of th
 To copy a public question to your library, select the desired question from the list and click 'Copy to Library' above the question preview. The copied question can now be modified, and used in your sessions.
 
 ### Student Submissions
-Student-submitted questions can be accessed by clicking 'Student Submissions' at the top of the Question Library page. Student-submitted questions are automatically tagged with the department code and course number of the course they submitted the question to. These questions can be searched using keywords, question type, and tags. By default, if an instructor has not approved or made the student question public, the student retains ownership of the question, allowing them to delete it.
+Student-submitted questions can be accessed by clicking 'Student Submissions' at the top of the Question Library page. Student-submitted questions are automatically tagged with the department code and course number of the course they submitted the question to. These questions can be searched using keywords, question type, and tags. By default, if an instructor has not approved or made the student question public, the student retains ownership of the question, allowing them to delete it. If you have unapproved questions, the student submissions category will not exist, since student questions will automatically be in the public category.
 
 To copy a student-submitted question to your library, select the desired question from the list and click 'Approve for course' above the question preview. The copied question can now be modified, and used in your sessions. The question submitted by the student will be associated with a course (not just because of the tag). By copying it to your library, you are "approving it" for the course, so it will also show up in the library of all instructors for the course, who will be allowed to modify it.
 
@@ -88,6 +99,13 @@ By copying the question, you preserve the information about who created the ques
 You can also make a student submission public. This will also transfer the ownership to you, preventing the student from deleting the question, and will "approve the question". If you copy it to your library, a copy is made, and since it is approved for the course, all instructors of the course will be able to see it and edit it.
 
 lastly, you can choose to delete a submission. This will remove the question from the database.
+
+## Managing Groups 
+Course groups are a efficient way of organizing students in your course. To create/edit groups, click 'Manage Groups' on the course home page. 
+
+![course groups](images/prof/course_groups.png)
+
+On the manage groups page, create a new category with a name and a number of groups. To select a group to edit, toggle through the 'Group Membership' bar. Add a student to the selected group by clicking on a student in the 'Students' sidebar, and remove a student by clicking on a student in the 'Group Membership' bar. You can also add additional groups to the category by selecting 'Add a group to category'.
 
 ## Creating Sessions
 Course sessions are the means of getting the questions out to your students. To create a session, go to the course's main page and click 'Create Session'. To get to the course main page, select the desired course in either the Qlicker Home page, the Courses page, or the 'Courses' dropdown menu.
@@ -160,4 +178,10 @@ The current view showcases the percentage of questions answered by each student 
 ## Grading Responses
 To grade responses to a session, go to the course home page and select 'Grade Session' from the session options. 
 
-On this page you can
+
+On this page you can view student responses and edit response grades. To view a student's response, scroll down until you find the student, or click on the student's name on the sidebar. You can also filter students via groups, their name, or email on the sidebar. To grade a response, change the given grade, enter feedback, and click 'Save Mark'.
+
+![grade session sidebar](images/prof/grade_session_sidebar.png)
+
+On the sidebar, students which have been graded are coloured green, while students which have not been graded are coloured red. By default, all questions are marked automatically aside from short answer questions.
+
