@@ -62,9 +62,11 @@ Professors have the ability to hide questions or disallow responses, so please l
 When a question is active, you can answer it by selecting a multiple choice or true/false option, selecting multiple options if the question is multi-select, or entering text in a field if the question is short answer. Once an option is selected, the 'Submit' button will be enabled. To submit your selection, click on the 'Submit' button. You cannot change an answer after submitting it. After clicking 'Submit', a success message will show up, and the button will say 'Submitted'. 
 
 ## Checking Participation
-After finishing a session, the session will show up under the course's page as Finished. Sessions which are marked as reviewable will be coloured white, while unreviewable sessions are marked in red.Select a Finished session to view participation grades.
+After finishing a session, the session will show up under the course's page as Finished. Sessions which are marked as reviewable will be coloured white, while unreviewable sessions are marked in red. Select a Finished session to view participation grades.
 
 ![Finished Session](images/student/finished_session.png)
 
 The statistics are number of answers submitted based on the questions asked in the session. 
+
+You can also view participation accross all sessions by selecting 'Grades' from the navigation bar.
 
