@@ -68,5 +68,5 @@ After finishing a session, the session will show up under the course's page as F
 
 The statistics are number of answers submitted based on the questions asked in the session. 
 
-You can also view participation accross all sessions by selecting 'Grades' from the navigation bar.
+You can also view participation across all sessions by selecting 'Grades' from the navigation bar.
 

@@ -2,11 +2,13 @@
 
 1. [Starting Up](#starting-up)
 2. [Creating Courses](#creating-courses)
-3. [Creating Courses](#creating-courses)
+3. [Managing Course Details](#managing-course-details)
 4. [Creating Questions](#creating-questions)
-5. [Creating Sessions](#creating-sessions)
-6. [Running Sessions](#running-sessions)
-7. [Viewing Responses](#viewing-responses)
+5. [Managing Groups](#managing-groups)
+6. [Creating Sessions](#creating-sessions)
+7. [Running Sessions](#running-sessions)
+8. [Viewing Responses](#viewing-responses)
+9. [Grading Responses](#grading-responses)
 
 ## Starting Up
 To obtain an account with professor privileges, another professor or administrator must created your account. Contact a fellow professor or your system administrator.
@@ -171,19 +173,30 @@ Dual Display Mode is to be used when there is a second screen used to display in
 ## Viewing Responses
 There are two ways to review session results; one is to select 'Grades' from the navigation bar. The second way is to go to the course home page and select 'Review Session Results'. 
 
-
 ![finished session options](images/prof/finished_session_options.png)
-
 
 The current view showcases the percentage of questions answered by each student per session. To see the results per session, click 'Participation by Session'. This view displays each session that has results with the number of students that were active in the session, and a list of questions and the number of responses each question received. Clicking on each individual question shows a table with all students that answered the question and a graph showing the distribution of the answers received. 
 
+### Viewing the Full Course Grades
+
+From the 'Grades' page, you can view the full table of student grades. From here you can view each student's full participation grade and their participation/grade for each session.
+
+![student grades](images/prof/student_grades.png)
+
+Selecting a grade from a session will show the grade details, including the grade for each question, controls to edit the grade, and the attempts for each question.
+
+![grade details](images/prof/grade_details.png)
+
+From this page you can also export the Course grades to a csv file by selecting 'Export as .csv'.
+
 ## Grading Responses
 To grade responses to a session, go to the course home page and select 'Grade Session' from the session options. 
-
 
 On this page you can view student responses and edit response grades. To view a student's response, scroll down until you find the student, or click on the student's name on the sidebar. You can also filter students via groups, their name, or email on the sidebar. To grade a response, change the given grade, enter feedback, and click 'Save Mark'.
 
 ![grade session sidebar](images/prof/grade_session_sidebar.png)
 
 On the sidebar, students which have been graded are coloured green, while students which have not been graded are coloured red. By default, all questions are marked automatically aside from short answer questions.
+
+
 
