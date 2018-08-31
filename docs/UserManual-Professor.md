@@ -84,6 +84,8 @@ There are four question types to choose from; multiple choice, multi-select, tru
 ### Using the Question Library
 The Question Library can be found via the 'Question Library' button at the top of the page. This page contains all questions saved to the library, for all courses you own. On this page, you can create new questions, search for questions using keywords, type, or tags, and access Public questions, Student-submitted questions, and question shared with you.
 
+You can also import and export questions in your library to save locally. To export questions, click 'Export'. This will download a json file containing the data of all of the questions in your library. To import questions, click 'Import'. This will ask for a file of the same format, and populate your library with questions from the file. 
+
 ### Public Questions
 Public questions can be accessed by clicking 'Public Questions' at the top of the Question Library page. Public questions are all questions submitted by other users that were marked as public. These questions can be searched using keywords, question type, and tags.
 
