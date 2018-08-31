@@ -146,7 +146,9 @@ export class QuestionEditItem extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ question: nextProps.question })
+    if( nextProps.question && nextProps.question._id !== this.state.question._id){
+      this.setState({ question: nextProps.question })
+    }
     //this.setCourse(nextProps.question.courseId)
   }
    /**
@@ -425,12 +427,18 @@ export class QuestionEditItem extends Component {
       keysToOmit.push(['owner'])
     }
 
+
+    //Not sure when we need to extend the question to have an owner.
+    /*
     let question = _.extend( {
       createdAt: new Date(),
       owner: user._id,
     }, _.omit(this.state.question, keysToOmit))
+    */
 
-    if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
+    // Don't save until the type is saved:
+    //if (question.options.length === 0 && question.type !== QUESTION_TYPE.SA) return
+    let question = this.state.question
     if (this.props.sessionId) question.sessionId = this.props.sessionId
     if (this.props.courseId) question.courseId = this.props.courseId
 
@@ -446,6 +454,7 @@ export class QuestionEditItem extends Component {
           alertify.success('Edits Saved')
         }
         this.setState({ question: newQuestion })
+        if(this.props.onSave) this.props.onSave(newQuestion)
         return
       }
     })
@@ -504,7 +513,6 @@ export class QuestionEditItem extends Component {
               change={changeHandler}
               val={a.content}
               className='answer-editor'
-              question={this.state.question}
               />
 
             <span
@@ -540,7 +548,6 @@ export class QuestionEditItem extends Component {
           change={changeHandler}
           val={a.content}
           className='answer-editor'
-          question={this.state}
         />
       </div>
     </div>)
@@ -575,6 +582,7 @@ export class QuestionEditItem extends Component {
       { value: QUESTION_TYPE.TF, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.TF] },
       { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
     ]
+
 
     return (
       <div className='ql-question-edit-item'>

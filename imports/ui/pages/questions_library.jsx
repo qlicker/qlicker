@@ -14,19 +14,19 @@ import { QuestionEditItem } from '../QuestionEditItem'
 import { QuestionDisplay } from '../QuestionDisplay'
 import { QuestionSidebar } from '../QuestionSidebar'
 
-import { Questions, defaultQuestion, questionQueries } from '../../api/questions'
+import { defaultQuestion } from '../../api/questions'
 //import { defaultQuestion } from '../../api/questions'
 import { Courses } from '../../api/courses'
 
 import { QUESTION_TYPE } from '../../configs'
 
 
-export class _QuestionsLibrary extends Component {
+export class QuestionsLibrary extends Component {
 
   constructor (props) {
     super(props)
     this.state = {
-      selectedQuestionId: null,
+      selectedQuestion: null,
       resetSidebar: false, // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
       questionMap: _(props.questions).indexBy('_id'),
       selectedLibrary: 'library',
@@ -61,17 +61,17 @@ export class _QuestionsLibrary extends Component {
   }
 
   componentWillReceiveProps (newProps) {
-
+    /*
     const newQuestions = newProps.questions
     if (!_.findWhere(newQuestions, {_id: this.state.selectedQuestionId})) {
       this.setState({ selectedQuestionId: null, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({ questionMap: _(newQuestions).indexBy('_id')})
+    } else this.setState({ questionMap: _(newQuestions).indexBy('_id')})*/
 
     //this.setState({questionMap: _(newProps.questions).indexBy('_id')})
     if (newProps.courseId !== this.props.courseId){
       Meteor.call('courses.hasAllowedStudentQuestions', newProps.courseId, (e, allowed) => {
         if (e) alertify.error('Cannot get course permissions')
-        else this.setState({allowedStudentQuestions :allowed})
+        else this.setState({resetSidebar: true, allowedStudentQuestions :allowed, selectedQuestion: null/*, questionMap: _(newQuestions).indexBy('_id')*/})
       })
       Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
         if (e) alertify.error('Cannot get course code')
@@ -194,29 +194,37 @@ export class _QuestionsLibrary extends Component {
     else alertify.error('Error: Incorrect file format')
   }*/
 
-  editQuestion (questionId) {
-    if (questionId === -1) {
+  editQuestion (question) {
+    if (question === null) {
       // reset the query
-      this.setState({/*query: this.props.query,*/ resetSidebar: true})
+
+      //this.setState({/*query: this.props.query,*/ resetSidebar: true})
       const blankQuestion = _.extend(defaultQuestion, {
         owner: Meteor.userId(),
         creator: Meteor.userId(),
         approved: Meteor.user().isInstructor(this.props.courseId),
         courseId: this.props.courseId
       })
-      Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
-        if (e) return alertify.error('Error: couldn\'t add new question')
-        alertify.success('New Blank Question Added')
-        this.setState({ selectedQuestionId: newQuestion._id})
+      //For some reason, if you don't first set the selected question to null, the CK Editor
+      //diplays the text from the previous selected question.
+      this.setState({selectedQuestion: null}, () => {
+        Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
+          if (e) return alertify.error('Error: couldn\'t add new question')
+          alertify.success('New Blank Question Added')
+
+          this.setState({ resetSidebar: true, selectedQuestion: newQuestion})
+        })
       })
 
     } else { // TODO: why not just do it once???
-      this.setState({ selectedQuestionId: null }, () =>{
-        this.setState({ selectedQuestionId: questionId })
-      })
+      this.setState({ selectedQuestion: question })
+      /*
+      this.setState({ selectedQuestion: null }, () =>{
+        this.setState({ selectedQuestion: question })
+      })*/
     }
   }
-
+ // Either copy to course library (prof) or to personal library (student)
   approveQuestion (question) {
     let user = Meteor.user()
     if (user.hasRole('student')) {
@@ -261,7 +269,7 @@ export class _QuestionsLibrary extends Component {
   }
 
   questionDeleted () {
-    this.setState({ selectedQuestionId: null, resetSidebar: false })
+    this.setState({ selectedQuestion: null, resetSidebar: false })
   }
 
   setFilter (newState) {
@@ -269,18 +277,18 @@ export class _QuestionsLibrary extends Component {
   }
 
   setLib (library) {
-    this.setState({selectedLibrary: library, selectedQuestionId: null})
+    this.setState({selectedLibrary: library, selectedQuestion: null})
   }
 
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    //if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     const user =  Meteor.user()
     const isInstructor = user.isInstructor(this.props.courseId)
     const isStudent = user.isStudent(this.props.courseId)
     let canEdit = true //whether the selected question can be edited
     let canCreate = true //whether user can create a new question
-    let selectedQuestion = this.state.questionMap[this.state.selectedQuestionId]
+    let selectedQuestion = this.state.selectedQuestion //this.state.questionMap[this.state.selectedQuestionId]
 
     //only edit in course library
     if (this.state.selectedLibrary === 'unapprovedFromStudents' || this.state.selectedLibrary === 'public'){
@@ -325,7 +333,7 @@ export class _QuestionsLibrary extends Component {
               <br />
               { canCreate
                 ? <div>
-                    <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(-1)}>New Question</button>
+                    <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(null)}>New Question</button>
                   </div>
                 : ''
               }
@@ -348,6 +356,7 @@ export class _QuestionsLibrary extends Component {
                             courseId={this.props.courseId}
                             question={selectedQuestion}
                             deleted={this.questionDeleted}
+                            onSave={this.editQuestion}
                             metadata autoSave />
                           </div>
                       </div>
@@ -398,7 +407,7 @@ export class _QuestionsLibrary extends Component {
 }
 
 
-
+/*
 export const QuestionsLibrary = createContainer((props) => {
 
   const handle =  Meteor.subscribe('questions.library', props.courseId)
@@ -412,4 +421,4 @@ export const QuestionsLibrary = createContainer((props) => {
     questions: questions
   }
 
-}, _QuestionsLibrary)
+}, _QuestionsLibrary)*/

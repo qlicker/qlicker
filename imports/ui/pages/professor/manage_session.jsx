@@ -23,7 +23,7 @@ import { QuestionDragSortList } from '../../QuestionDragSortList'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
-import { defaultQuestion } from '../../../api/questions'
+import { defaultQuestion, Questions } from '../../../api/questions'
 
 class _ManageSession extends Component {
 
@@ -33,9 +33,9 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: this.props.session,
-      questionPool: Meteor.user().isInstructorAnyCourse() ? 'library' : 'public',
-      limit: 11,
-      query: {query: {}, options: {}},
+      questionPool: 'library',
+      //limit: 11,
+      //query: {query: {}, options: {}},
       tab: 'questionOrder'
     }
 
@@ -234,6 +234,7 @@ class _ManageSession extends Component {
       owner: Meteor.userId(), // Owner is either TA or Professor since students cannot manage session
       creator: Meteor.userId(),
       approved: true,
+      tags: tags,
     })
 
     Meteor.call('questions.insert', blankQuestion, (e, newQuestion) => {
@@ -257,7 +258,7 @@ class _ManageSession extends Component {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
     })
-    this.props.cursorMoveWorkaround()
+    this.cursorMoveWorkaround()
   }
 
   /**
@@ -281,7 +282,6 @@ class _ManageSession extends Component {
       alertify.error('Please select a question to add')
       return
     }
-
 
     Meteor.call('questions.copyToSession', this.state.session._id, question._id, (error) => {
       if (error) return alertify.error('Error: ' + error.error)
@@ -471,14 +471,19 @@ class _ManageSession extends Component {
 }
 
 export const ManageSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor})
+  //const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor})
 
+  const handle =  Meteor.subscribe('sessions.single', props.sessionID) &&
+       Meteor.subscribe('questions.inSession', props.sessionId)
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   const course = Courses.findOne({ _id: session.courseId})
+
+  const questions = Questions.find({sessionId:props.sessionId}).fetch()
 
   return {
     session: session,
     course: course,
+    questions: questions,// TODO this is just to make it reactive, should actually use it!
     loading: !handle.ready()
   }
 }, _ManageSession)

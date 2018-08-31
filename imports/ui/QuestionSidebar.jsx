@@ -17,7 +17,7 @@ import { StudentQuestionListItem } from './StudentQuestionListItem'
 
 import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
-import { Questions, defaultQuestion } from '../api/questions'
+import { Questions, defaultQuestion, questionQueries } from '../api/questions'
 import { Courses } from '../api/courses'
 
 /**
@@ -36,7 +36,8 @@ export class _QuestionSidebar extends ControlledForm {
       questionPool: this.props.questions.slice(),
       questionType: -1,
       //showOnlyApprovedQuestions: false,
-      tags: []
+      tags: [],
+      tagSuggestions : []
     }
 
     this.setQuestion = this.setQuestion.bind(this)
@@ -51,35 +52,45 @@ export class _QuestionSidebar extends ControlledForm {
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
 
-    // populate tagging suggestions
-    this.tagSuggestions = []
-
-    Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
-      // non-critical, if e: silently fail
-      tags.forEach((t) => {
-        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
-      })
-      //this.forceUpdate()
-    })
-/*
-    Meteor.call('courses.publicQuestionsRequireApproval',this.props.courseId, (e, approved) => {
-      if (e) alertify.error('Error updating sidebar')
-      else this.state.allowApproved = approved
-    })*/
   } //end constructor
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions})
+    //this.setState({ questionPool: nextProps.questions })
+    // Need to update possible tags, since question sidebar is showing when questions
+    // are being edited and tags created...
+    Meteor.call('questions.possibleTags',  nextProps.courseId, (e, tags) => {
+      // non-critical, if e: silently fail
+      tagSuggestions = []
+      tags.forEach((t) => {
+        tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.setState({tagSuggestions: tagSuggestions, questionPool: nextProps.questions })
+    })
+
     if (nextProps.resetSideBar) this.resetFilter()
     if(nextProps.courseId !== this.props.courseId) this.setTags([])
   }
+
+  componentDidMount() {
+    Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
+      // non-critical, if e: silently fail
+      tagSuggestions = []
+      tags.forEach((t) => {
+        tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.setState({tagSuggestions: tagSuggestions})
+      //this.forceUpdate()
+    })
+  }
+
+
   /**
    * set selected question to add
    * @param {MongoId} question
    */
   setQuestion (question) {
     this.setState({ question: question }, () => {
-      if(this.props.onSelect)this.props.onSelect(question._id)
+      if(this.props.onSelect)this.props.onSelect(question)
     })
   }
   /**
@@ -206,6 +217,7 @@ export class _QuestionSidebar extends ControlledForm {
     if (this.props.library !== 'sharedWithUser') {
       query.courseId = this.props.courseId
     }*/
+    query = _.extend(query, this.props.libQuery)
 
     const newQuestions = Questions.find(query, {sort:{createdAt: -1 }} ).fetch()
     this.setState({ questionPool: newQuestions })
@@ -239,7 +251,7 @@ export class _QuestionSidebar extends ControlledForm {
             placeholder='Type to search by tag'
             multi
             value={this.state.tags}
-            options={this.tagSuggestions}
+            options={this.state.tagSuggestions}
             onChange={this.setTags}
             />
           <input type='text' className='form-control search-field' placeholder='Search by question content' onChange={_.throttle(this.setSearchString, 500)} />
@@ -293,10 +305,35 @@ export class _QuestionSidebar extends ControlledForm {
 
 export const QuestionSidebar = createContainer((props) => {
 
-  const subscription = 'questions.' + props.questionLibrary
-  const handle =  Meteor.subscribe(subscription, props.courseId)
+  //const subscription = 'questions.' + props.questionLibrary
+  //const handle =  Meteor.subscribe(subscription, props.courseId)
+  const handle = Meteor.subscribe('questions.library', props.courseId) &&
+                 Meteor.subscribe('questions.public', props.courseId)
+                 Meteor.subscribe('questions.unapprovedFromStudents', props.courseId)
 
-  const questions = Questions.find().fetch()
+  const isInstructor = Meteor.user().isInstructor(props.courseId)
+
+  let libQuery = {} //need to enforce the query for the library that is passed, as this would otherwise show all questions loaded in components above it
+  switch (props.questionLibrary) {
+    case 'library':
+      libQuery = isInstructor ? questionQueries.queries.library.instructor
+                              : questionQueries.queries.library.student
+      break;
+    case 'public':
+      libQuery =  questionQueries.queries.public
+      break;
+    case 'unapprovedFromStudents':
+      libQuery = questionQueries.queries.unapprovedFromStudents
+      break;
+
+    default:
+    libQuery = isInstructor ? questionQueries.queries.library.instructor
+                            : questionQueries.queries.library.student
+    break;
+  }
+
+
+  const questions = Questions.find(libQuery, questionQueries.options.sortMostRecent).fetch()
 
   //console.log("Questions in sidebar from subscription")
   //console.log(subscription)
@@ -305,6 +342,7 @@ export const QuestionSidebar = createContainer((props) => {
   return {
     loading: !handle.ready(),
     questions: questions,
+    libQuery: libQuery,
     selected: props.selected,
     done: () => console.log('')
   }

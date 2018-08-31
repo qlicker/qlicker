@@ -32,7 +32,7 @@
     "fixed-data-table-2": "^0.8.13",
     "immutable": "^3.8.1",
     "jquery": "^3.3.1",
-    "jshint": "^2.9.4",
+    "jshint": "^2.9.6",
     "meteor-node-stubs": "~0.2.0",
     "moment": "^2.22.2",
     "passport-saml": "^0.33.0",

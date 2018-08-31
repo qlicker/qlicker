@@ -93,7 +93,7 @@ export class Editor extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)  
+    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
         if (e) alertify.error('Error uploading')
@@ -161,10 +161,12 @@ export class Editor extends Component {
 
   render () {
     const plchldr = this.props.placeholder || ''
+    //let defaultValue = this.state.val || ''
+    let defaultValue = this.state.val ? this.state.val : ''
 
     return (<div className={'editor-wrapper ' + this.props.className}>
       <div className='ckeditor-wrapper'>
-        <textarea ref='theEditor' className='wysiwyg-editor' defaultValue={this.state.val || ''} placeholder={plchldr} />
+        <textarea ref='theEditor' className='wysiwyg-editor' defaultValue={defaultValue} placeholder={plchldr} />
       </div>
     </div>)
   } //  end render
