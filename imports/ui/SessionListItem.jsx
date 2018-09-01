@@ -66,7 +66,7 @@ export class SessionListItem extends ListItem {
     if (!session.reviewable && session.status === 'done') statusClassName += ' not-reviewable'
 
     return (
-      <div className='ql-session-list-item ql-list-item' onClick={this.click}>
+      <div className='ql-session-list-item ql-list-item' onClick={this.props.click}>
         <div className='row'>
           <div className='col-md-2 col-xs-4 col-sm-3 status-col'>
             <span className={statusClassName}>{strStatus} </span>
@@ -104,5 +104,6 @@ export class SessionListItem extends ListItem {
 
 SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
-  details: PropTypes.bool
+  details: PropTypes.bool,
+  click: PropTypes.func
 }

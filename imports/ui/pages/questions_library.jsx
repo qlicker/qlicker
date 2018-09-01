@@ -225,7 +225,6 @@ class _QuestionsLibrary extends Component {
   makeQuestionPublic (question) {
    // by making it public, you take over ownership, so student cannot delete it anymore
    // it will also show in the library for any instructor of the course
-    
     question.approved = true // this makes it editable by any instructor of the course
 
     question.public = true
