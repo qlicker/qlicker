@@ -28,7 +28,6 @@ export class QuestionsLibrary extends Component {
     this.state = {
       selectedQuestion: null,
       resetSidebar: false, // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
-      questionMap: _(props.questions).indexBy('_id'),
       selectedLibrary: 'library',
       courseCode:''
     }
