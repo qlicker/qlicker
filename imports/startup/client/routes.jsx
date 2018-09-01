@@ -313,7 +313,7 @@ Router.route('/course/:courseId/session/edit/:_id', {
       Meteor.subscribe('images')
   },
   action: function () {
-    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    const cId = this.params.courseId
     const isInstructor = Meteor.user().isInstructor(cId)
     if (Meteor.userId() && isInstructor) {
       mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
@@ -328,7 +328,7 @@ Router.route('/course/:courseId/session/run/:sessionId', {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') &&
            Meteor.subscribe('sessions.single', this.params.sessionId) &&
-           Meteor.subscribe('courses.single',this.params.courseId) &&
+           Meteor.subscribe('courses') &&
            Meteor.subscribe('questions.inSession', this.params.sessionId)
   },
   action: function () {
@@ -344,7 +344,7 @@ Router.route('/course/:courseId/session/run/:sessionId/mobile', {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') &&
            Meteor.subscribe('sessions.single', this.params.sessionId) &&
-           Meteor.subscribe('courses.single',this.params.courseId) &&
+           Meteor.subscribe('courses') &&
            Meteor.subscribe('questions.inSession', this.params.sessionId)
   },
   action: function () {
@@ -363,7 +363,7 @@ Router.route('/course/:courseId/session/present/:_id', {
   },
   action: function () {
     const user = Meteor.user()
-    const cId = Courses.find({sessions: this.params._id}).fetch()[0]._id
+    const cId = this.params.courseId
     if (user && user.isInstructor(cId)) { // If it's an instructor, then this is called when using "2nd display" while running session
       mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
     } else if (user) {

@@ -182,7 +182,7 @@ class _ManageCourse extends Component {
           if (!ses) return
           const sId = ses._id
           const nav = () => {
-            if (ses.status === 'running') Router.go('session.run', { _id: sId, courseId: this.props.course._id })
+            if (ses.status === 'running') Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
             else Router.go('session.edit', { _id: sId, courseId: this.props.course._id })
           }
           const controls = []

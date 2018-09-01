@@ -3,6 +3,15 @@
 
 .ql-student-course-component {
   margin-bottom: 20px;
+  .ql-course-list-item-inactive {
+    background: $slightly-darker-grey;
+    border: none;
+    padding-left: 20px;
+    padding-right: 20px;
+    &:hover {
+      background: darken($slightly-darker-grey, 1%);
+    }
+  }
 
   .ql-course-list-item {
     background: $blue;
@@ -18,7 +27,7 @@
 
   .ql-session-list-item {
     border: none;
-    
+
     .status-col {
       // align-items: left!important;
     }

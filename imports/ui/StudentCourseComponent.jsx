@@ -26,22 +26,25 @@ export class _StudentCourseComponent extends Component {
   render () {
     const course = this.props.course
     return (<div className='ql-student-course-component'>
-      <CourseListItem course={course} click={() => Router.go('course', { courseId: course._id })} />
-      <div>
-        {
-          this.props.sessions.map((s) => {
-            if (!s) return
-            const sId = s._id
-            const nav = () => {
-              if (!Meteor.user().isInstructor(this.props.course._id)) Router.go(this.props.sessionRoute, { _id: s._id, courseId: course._id })
-              else if (s.status === 'running') Router.go('session.run', { _id: sId, courseId: course._id })
-              else Router.go('session.edit', { _id: sId, courseId: course._id })
-            }
+      { this.props.inactive ?
+          <CourseListItem course={course} inactive />
+        : <div>
+          <CourseListItem course={course} click={() => Router.go('course', { courseId: course._id })} />
+            {
+              this.props.sessions.map((s) => {
+                if (!s) return
+                const sId = s._id
+                const nav = () => {
+                  if (!Meteor.user().isInstructor(this.props.course._id)) Router.go(this.props.sessionRoute, { _id: s._id, courseId: course._id })
+                  else if (s.status === 'running') Router.go('session.run', { _id: sId, courseId: course._id })
+                  else Router.go('session.edit', { _id: sId, courseId: course._id })
+                }
             return <SessionListItem key={s._id} session={s} click={nav} />
-          })
-        }
-      </div>
-    </div>)
+            })
+          }
+        </div>
+       }
+      </div>)
   } //  end render
 }
 
@@ -51,7 +54,7 @@ export const StudentCourseComponent = createContainer((props) => {
 
   return {
     sessions: sessions,
-    loading: !handle.ready()
+    loading: !handle.ready(),
   }
 }, _StudentCourseComponent)
 
@@ -59,4 +62,3 @@ StudentCourseComponent.propTypes = {
   course: PropTypes.object.isRequired,
   sessionRoute: PropTypes.string
 }
-

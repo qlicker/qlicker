@@ -47,14 +47,16 @@ class _ResponseList extends Component {
       window.scrollTo(0, node.offsetTop)
     }
   }
-  
+
   render () {
-    
+
+    if(this.props.loading || !this.props.question)  return <div className='ql-subs-loading'>Loading</div>
     const q = this.props.question
     const responses = this.props.responses
     const students = this.props.students
     let index = 0
 
+    if(!q) return (null)
     return (
       <div>
         <QuestionDisplay question={q} prof readonly forReview />
@@ -65,18 +67,18 @@ class _ResponseList extends Component {
             </div>
           : ''
         }
-        { 
+        {
           responses.map((response) => {
             const mark = this.props.marks[index]
             const student = students[index]
-            const studentName = student.profile.lastname + ', ' + student.profile.firstname
+            const studentName = student ? student.profile.lastname + ', ' + student.profile.firstname : 'student undefined'
             index += 1
             return(
               <div key={response._id} ref={student._id}>
                 <ResponseDisplay
-                  studentName={studentName} 
-                  response={response} 
-                  mark={mark} 
+                  studentName={studentName}
+                  response={response}
+                  mark={mark}
                   questionType={q.type}
                   submitGrade={this.submitGrade}/>
               </div>
@@ -91,25 +93,26 @@ class _ResponseList extends Component {
 export const ResponseList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forSession', props.session._id) &&
                  Meteor.subscribe('grades.forSession', props.session._id)
-  
-  const responses = Responses.find({ questionId: props.question._id }).fetch()
-  
+
+  const responses = props.question ? Responses.find({ questionId: props.question._id }).fetch() : []
+
   const allResponses = Responses.find({questionId: { $in: props.session.questions }}).fetch()
+
   const responsesByQuestion = _(allResponses).groupBy('questionId')
 
-  let responseDist = responseDistribution(responsesByQuestion[props.question._id], props.question)
-  
+  let responseDist = props.question ? responseDistribution(responsesByQuestion[props.question._id], props.question) : null
+
   let marks = []
- 
+
   props.grades.forEach(grade => {
     grade.marks.forEach(mark => {
       mark.gradeId = grade._id
-      if (mark.questionId === props.question._id) {
+      if (mark && props.question && mark.questionId === props.question._id) {
         marks.push(mark)
       }
     })
   })
-  
+
 
   return {
     students: props.students,
@@ -117,8 +120,9 @@ export const ResponseList = createContainer((props) => {
     question: props.question,
     responses: responses,
     responseDist: responseDist,
-    marks: marks
-  }               
+    marks: marks,
+    loading: !handle,
+  }
 }, _ResponseList)
 
 ResponseList.propTypes = {

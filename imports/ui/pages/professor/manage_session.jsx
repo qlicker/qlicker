@@ -22,7 +22,6 @@ import DragSortableList from 'react-drag-sortable'
 import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
-//import { QuestionDragSortList } from '../../QuestionDragSortList'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
@@ -103,7 +102,7 @@ class _ManageSession extends Component {
       this.setDate(moment())
       this.setState({ session: sessionEdits }, () => {
         this.saveSessionEdits(() => {
-          Router.go('session.run', { _id: this.state.session._id, courseId: this.state.session.courseId })
+          Router.go('session.run', { sessionId: this.state.session._id, courseId: this.state.session.courseId })
           if (prevStatus !== 'running') {
             Meteor.call('questions.startAttempt', this.state.session.currentQuestion)
             if (!this.state.session.quiz) {
