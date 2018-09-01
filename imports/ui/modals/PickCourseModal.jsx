@@ -33,7 +33,7 @@ export class _PickCourseModal extends ControlledForm {
         <div className='ql-card-content'>
           {
             this.props.courses.map((c) => {
-              return <CourseListItem course={c} click={() => this.props.selected(c._id)} />
+              return <CourseListItem key={c._id} course={c} click={() => this.props.selected(c._id)} />
             })
           }
         </div>
@@ -53,4 +53,3 @@ export const PickCourseModal = createContainer((props) => {
     loading: !handle.ready()
   }
 }, _PickCourseModal)
-

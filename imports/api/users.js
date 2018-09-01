@@ -79,7 +79,7 @@ Meteor.users.deny({
 })
 
 Accounts.config({
-  loginExpirationInDays: (1 / 24) * 2
+  loginExpirationInDays: (2 / 24) * 2
 })
 
 if (Meteor.isServer) {
@@ -156,7 +156,7 @@ if (Meteor.isServer) {
   Meteor.publish('users.all', function () {
     if (!this.userId) return this.ready()
     const user = Meteor.users.findOne({ _id: this.userId })
-
+    // TODO evaluate if a prof should be allowed to subscribe to all users with role student.
     if (user && user.hasGreaterRole(ROLES.admin)) {
       return Meteor.users.find()
     } else return this.ready()

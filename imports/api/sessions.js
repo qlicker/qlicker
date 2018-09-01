@@ -247,9 +247,12 @@ Meteor.methods({
     })
 
     // create a copy of each question to new session
-    questions.forEach((qId) => {
-      Meteor.call('questions.copyToSession', newSessionId, qId)
+    Meteor.call('questions.hideQuestion',questions[0],()=>{
+      questions.forEach((qId) => {
+        Meteor.call('questions.copyToSession', newSessionId, qId)
+      })
     })
+
 
     return newSessionId
   },

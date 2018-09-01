@@ -37,7 +37,7 @@ class _ManageCourse extends Component {
       expandedSessionlist: false,
       requireVerified: this.props.course.requireVerified,
       allowStudentQuestions: this.props.course.allowStudentQuestions,
-      requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
+      //requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
@@ -50,7 +50,7 @@ class _ManageCourse extends Component {
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
-    this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
+  //  this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -147,14 +147,14 @@ class _ManageCourse extends Component {
     })
     this.setState({ allowStudentQuestions: !this.state.allowStudentQuestions })
   }
-
+/*
   toggleRequireApprovedPublicQuestions () {
     Meteor.call('courses.toggleRequireApprovedPublicQuestions', this.props.course._id, (error) => {
       if (error) alertify.error('Error allowing/refusing question approval ' + error.error)
       else alertify.success('Students ' + (this.props.course.requireApprovedPublicQuestions ? 'can' : 'cannot') + ' view unapproved questions')
     })
     this.setState({ requireApprovedPublicQuestions: !this.state.requireApprovedPublicQuestions })
-  }
+  }*/
 
   componentWillReceiveProps (nextProps) {
     const course = nextProps.course
@@ -182,7 +182,7 @@ class _ManageCourse extends Component {
           if (!ses) return
           const sId = ses._id
           const nav = () => {
-            if (ses.status === 'running') Router.go('session.run', { _id: sId, courseId: this.props.course._id })
+            if (ses.status === 'running') Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
             else Router.go('session.edit', { _id: sId, courseId: this.props.course._id })
           }
           const controls = []
@@ -317,21 +317,6 @@ class _ManageCourse extends Component {
                       {this.state.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
                     </div>
                   </div>
-                  {
-                    this.props.course.allowStudentQuestions
-                    ? <div className='btn-group btn-group-justified details-button-group'>
-                        <div className='btn btn-default' 
-                          onClick={this.toggleRequireApprovedPublicQuestions}
-                          data-toggle='tooltip'
-                          data-placement='left'
-                          title='Change what questions are allowed to be public'>
-                          {
-                            this.state.requireApprovedPublicQuestions ? 'Allow Unapproved Questions' : 'Require Questions to be Approved'
-                          }
-                        </div>
-                      </div>
-                    : ''
-                  }
                 </div> : ''
                 }
                 <div className='ql-course-details'>

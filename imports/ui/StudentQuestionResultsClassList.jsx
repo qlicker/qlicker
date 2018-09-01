@@ -18,50 +18,8 @@ import { Responses } from '../api/responses'
 
 export class _StudentQuestionResultsClassList extends Component {
   render () {
-    const q = this.props.question
-    const correct = _.pluck(_.where(q.options, {correct: true}), 'answer')
-    const attemptRow = q.studentResponses.map((row) => {
-      let inner
-
-      switch (q.type) {
-        case QUESTION_TYPE.MC:
-          inner = row.answer + (correct[0] === row.answer ? ' ✓' : ' ✗')
-          break
-        case QUESTION_TYPE.TF:
-          inner = row.answer + (correct[0] === row.answer ? ' ✓' : ' ✗')
-          break
-        case QUESTION_TYPE.SA:
-          inner = row.answerWysiwyg ? WysiwygHelper.htmlDiv(row.answerWysiwyg) : row.answer
-          break
-        case QUESTION_TYPE.MS:
-          const intersection = _.intersection(correct, row.answer)
-          const isSame = (intersection.length === correct.length) && (correct.length === row.answer.length)
-          inner = row.answer.sort().join(', ') + (isSame ? ' ✓' : ' ✗')
-          break
-      }
-      return (<tr key={row.attempt}>
-        <td>{row.attempt}</td>
-        <td>{inner}</td>
-      </tr>)
-    })
-
     return (<div className='ql-student-results-list'>
-      <div className='col-sm-8'>
-        <QuestionWithResponseArray style={{float: 'right'}} question={q} responses={this.props.responses} />
-      </div>
-      <div className='col-sm-4'>
-        <table style={{float: 'right', margin: '15px'}} className='ql-student-results-table'>
-          <thead>
-            <tr>
-              <th>Attempt #</th>
-              <th>Response</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attemptRow}
-          </tbody>
-        </table>
-      </div>
+        <QuestionWithResponseArray style={{float: 'right'}} question={this.props.question} responses={this.props.responses} />
     </div>)
   } //  end render
 

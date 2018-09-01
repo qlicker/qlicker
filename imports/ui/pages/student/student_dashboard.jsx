@@ -47,13 +47,20 @@ class _StudentDashboard extends Component {
     })
   }
 
-  renderCourseList () {
-    return this.props.courses.map((c) => (<StudentCourseComponent key={c._id} course={c} sessionRoute='session' />))
+  renderCourseList ( clist ) {
+    return clist.map((c) =>{
+      return c.inactive ?
+         (<StudentCourseComponent key={c._id} course={c} inactive />)
+       : (<StudentCourseComponent key={c._id} course={c} sessionRoute='session' />)
+     })
   }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const needsEmailVerification = !Meteor.user().emails[0].verified
+    const activeCourses = this.props.courses.filter((c) => !c.inactive)
+    const inactiveCourses = this.props.courses.filter((c) => c.inactive)
+
 
     const setEnrollmentCode = (e) => { this.setState({ enrollmentCode: e.target.value }) }
     return (
@@ -73,8 +80,19 @@ class _StudentDashboard extends Component {
           </div>
         </form>
         <div className='ql-courselist'>
-          { this.renderCourseList() }
+          { this.renderCourseList(activeCourses) }
         </div>
+        { inactiveCourses.length > 0 ?
+          <div>
+            <br /><br /><br /><br />
+            <h2>Inactive courses</h2>
+            <div className='ql-courselist'>
+              { this.renderCourseList(inactiveCourses) }
+            </div>
+          </div>
+          : ''
+        }
+
       </div>)
   }
 }

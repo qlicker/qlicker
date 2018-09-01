@@ -29,16 +29,16 @@ class _ResponseList extends Component {
       window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
     }
   }
-  
+
   render () {
-    
+
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    
+
     const q = this.props.question
     const responses = this.props.responses
     const students = this.props.students
     let index = 0
-  
+
     return (
       <div>
         <h3 className='response-categories'>
@@ -48,7 +48,7 @@ class _ResponseList extends Component {
           <span className='category' style={{'width':'30%'}}>Feedback</span>
           <span className='category' style={{'width':'10%'}}></span>
         </h3>
-        { 
+        {
           students.map((student) => {
             const mark = this.props.marks[index] || null
             const response = responses[index] || null
@@ -57,9 +57,9 @@ class _ResponseList extends Component {
             return(
               <div key={student._id} ref={student._id}>
                 <ResponseDisplay
-                  studentName={studentName} 
-                  response={response} 
-                  mark={mark} 
+                  studentName={studentName}
+                  response={response}
+                  mark={mark}
                   questionType={q.type}
                   submitGrade={this.submitGrade}/>
               </div>
@@ -74,13 +74,13 @@ class _ResponseList extends Component {
 export const ResponseList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forSession', props.session._id) &&
                  Meteor.subscribe('grades.forSession', props.session._id)
-  
+
   const questionId = props.question ? props.question._id : ''
 
   const responses = Responses.find({ questionId: questionId }).fetch()
 
   let marks = []
- 
+
   props.grades.forEach(grade => {
     grade.marks.forEach(mark => {
       mark.gradeId = grade._id
@@ -89,7 +89,7 @@ export const ResponseList = createContainer((props) => {
       }
     })
   })
-  
+
 
   return {
     loading: !handle.ready(),
@@ -98,7 +98,7 @@ export const ResponseList = createContainer((props) => {
     question: props.question,
     responses: responses,
     marks: marks
-  }               
+  }
 }, _ResponseList)
 
 ResponseList.propTypes = {

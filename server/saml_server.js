@@ -5,7 +5,7 @@ import { Settings } from '../imports/api/settings.js'
 import Fiber from 'fibers'
 import bodyParser from 'body-parser'
 import saml from 'passport-saml'
-import url from 'url' 
+import url from 'url'
 import xmldom from 'xmldom'
 import xpath from 'xpath'
 
@@ -16,27 +16,27 @@ settings = Settings.findOne({})
 //Only if SSO is enabled, set things up
 //These setting take effect only after restarting the app, if the SSO is enabled/disabled
 if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoint && settings.SSO_identifierFormat ){
-    
+
 //Create a passport-saml strategy using the given settings
 //User is responsible for creating a private key and corresponding certificate and storing them in /private
 //note that privateCert is actually a key, the same as decryptionPvk
-    
+
   strategy = new saml.Strategy({
     callbackUrl: Meteor.absoluteUrl('SSO/SAML2'),
-    logoutCallbackUrl: Meteor.absoluteUrl('SSO/SAML2/logout'), 
+    logoutCallbackUrl: Meteor.absoluteUrl('SSO/SAML2/logout'),
     entryPoint: settings.SSO_entrypoint,
     cert: settings.SSO_cert,
     identifierFormat: settings.SSO_identifierFormat,
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),
     //privateCert: Assets.getText('key.key'),//not clearly needed
     decryptionPvk: Assets.getText('key.key'),//probably needed
-    issuer: 'qlicker', 
+    issuer: 'qlicker',
     },
     function(profile, done) {
     return done(null, profile);
   })
-  
-  //Create a saml object inside of Accounts 
+
+  //Create a saml object inside of Accounts
   if (!Accounts.saml) {
     Accounts.saml = {};
   }
@@ -44,7 +44,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
   Accounts.samlStrategy = strategy
 
   //LoginResultForCredentialToken stores {token: {profile, nameID, sessionIndex}}
-  //The token is created by the client, passed as RelayState to the IDP, and then 
+  //The token is created by the client, passed as RelayState to the IDP, and then
   //accessed again on the server; this is how the server know the request from the IDP
   //goes with a particular client login attempt
   Accounts.saml._loginResultForCredentialToken = {};
@@ -66,9 +66,9 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
   Accounts.registerLoginHandler(function (loginRequest) {
     //Check if the login request is consistent with an SSO request
     if (loginRequest.credentialToken && loginRequest.saml) {
-      const samlInfo = Accounts.saml.retrieveCredential(loginRequest.credentialToken);     
+      const samlInfo = Accounts.saml.retrieveCredential(loginRequest.credentialToken);
       if (samlInfo) {
-        //Try to find a user based on the SAML email addresss, otherwise, create a new user  
+        //Try to find a user based on the SAML email addresss, otherwise, create a new user
         const samlProfile = samlInfo.profile
         let userId = null
         let user = Accounts.findUserByEmail(samlProfile.email)
@@ -77,40 +77,40 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                                nameIDFormat: samlInfo.nameIDFormat,
                                nameID:samlInfo.nameID,
                                email: samlProfile.email } }
-  
+
         if(user){//existing user, update their profile
           userId = user._id
           for (key in samlProfile){
-            profile[key] = samlProfile[key]   
-          }  
-          //Note that it will not actually update the email address, since the user was found by email address  
+            profile[key] = samlProfile[key]
+          }
+          //Note that it will not actually update the email address, since the user was found by email address
           Meteor.users.update(userId, {$set: {email: profile.email,
                                               emails: [ { address: profile.email, verified: true } ],
                                               profile: profile,
                                               services: services
-                                              } 
-                                      }); 
+                                              }
+                                      });
         } else {//new user
           profile.roles = ['student']
           userId = Accounts.createUser({
-                   email: profile.email, 
+                   email: profile.email,
                    password: Random.secret(),//user will need to reset password to set it to something useful!
                    profile: profile
                  })
           Meteor.users.update(userId, {$set: { emails: [ { address: profile.email, verified: true } ], services: services} })
         }
-        //By adding a stamped token, the user gets logged in        
+        //By adding a stamped token, the user gets logged in
         let stampedToken = Accounts._generateStampedLoginToken()
         let hashStampedToken = Accounts._hashStampedToken(stampedToken)
         Meteor.users.update(userId, { $push: { 'services.resume.loginTokens': hashStampedToken},
                                       $set: { 'services.sso.session': {sessionIndex: samlInfo.sessionIndex,
-                                                                       loginToken: hashStampedToken.hashedToken }}})   
+                                                                       loginToken: hashStampedToken.hashedToken }}})
         //user = Meteor.users.findOne(userId)
         //console.log(user)
         return {
           userId: userId,
           token: stampedToken.token
-        }  
+        }
         } else {
           throw new Error("Could not find a profile with the specified credentialToken.");
       }
@@ -154,7 +154,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
     .use(bodyParser.urlencoded({ extended: false }))
     .use('/SSO/SAML2', function(req, res, next) {
       Fiber(function() {
-        try {     
+        try {
           if (req.method === 'GET') {
             // send the metadata if metadata is in the path
             if (url.parse(req.url).pathname === '/metadata' || url.parse(req.url).pathname === '/metadata.xml') {
@@ -171,14 +171,14 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             }
           }
           // POST callback from IdP (IdP -> SP) to either logout or login
-          else if (req.method === 'POST') { 
+          else if (req.method === 'POST') {
             if (url.parse(req.url).pathname === '/logout') {
               //----------- Hack start
               //A hack to bypass the SSO stuff and log the user out using the SessionIndex in the IDP POST request
               //(needed because passport-saml cannot validate the encrypted response)
               //WARNING: This does not check that the POST came from the IDP
               let xml = new Buffer(req.body.SAMLRequest, 'base64').toString('utf8');
-              let dom = new xmldom.DOMParser().parseFromString(xml); 
+              let dom = new xmldom.DOMParser().parseFromString(xml);
               let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
                 //console.log("log out hack")
               let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':sessionIndex })
@@ -193,12 +193,12 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //The code below should be used instead of the hack above!!! It should work if we disable encryption
               //on nameID, but we can't figure out how to do this... Passport-saml doesn't know how to validate a POST
               //request if it is encrypter (they have a PR to implement it the same way they validate POST response, as in login)
-              /* 
+              /*
               Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
                 if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
                   console.log("validating post request")
                   console.log(result)
-                  let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] }) 
+                  let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] })
                   if(user){ //remove the session ID and the login token
                     Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
                   }
@@ -208,28 +208,28 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                     res.end()
                   })
                 } else {
-                 console.log(err)  
+                 console.log(err)
                  console.log(result)
                 }
               }) */ // end of validate post request
-                  
+
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
                   email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
                   firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
-                  lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice' 
-                    
-                  profile = {email:email, firstname:firstname, lastname:lastname}  
+                  lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
+
+                  profile = {email:email, firstname:firstname, lastname:lastname}
 
                   Accounts.saml.insertCredential(req.body.RelayState, {profile:profile,
                                                                        sessionIndex:result['sessionIndex'],
                                                                        nameID: result.nameID,
                                                                        nameIDFormat: result.nameIDFormat,
                                                                       } );
-                
+
                   res.writeHead(200, {'Content-Type': 'text/html'});
-                  res.end("<html><head><script>window.close()</script></head></html>'", 'utf-8');  
+                  res.end("<html><head><script>window.close()</script></head></html>'", 'utf-8');
                 } else {
                     //console.log(err)
                   //res.writeHead(500, {'Content-Type': 'text/html'});

@@ -265,7 +265,7 @@ export class _SessionResultsTable extends Component {
     })
     const cvsFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
     const handleSubmit = (e) => { e.preventDefault() }
-    const goToGrade = () => Router.go('session.grade', {sessionId: this.props.session._id})
+    const goToGrade = () => Router.go('session.grade', {sessionId: this.props.session._id, courseId: this.props.session.courseId})
     const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
     const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
     return (
