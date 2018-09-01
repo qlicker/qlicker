@@ -18,8 +18,8 @@ class _Course extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { 
-      expandedSessionlist: false 
+    this.state = {
+      expandedSessionlist: false
     }
 
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
@@ -68,7 +68,7 @@ class _Course extends Component {
     return (
       <div className='container ql-manage-course'>
         <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
-        
+
 
         { this.renderSessionList() }
 
