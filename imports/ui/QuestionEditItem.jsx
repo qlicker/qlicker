@@ -490,6 +490,14 @@ export class QuestionEditItem extends Component {
 */
 
 
+  componentWillReceiveProps (nextProps) {
+    if (nextProps) {
+      this.setState({ question: nextProps.question })
+      this.setCourse(nextProps.question.courseId)
+    }
+  }
+
+
   /**
    * generate a answer option element row
    * @param {Answer} a
