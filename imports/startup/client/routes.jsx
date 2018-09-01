@@ -322,32 +322,34 @@ Router.route('/course/:courseId/session/edit/:_id', {
 })
 
 import { RunSession } from '../../ui/pages/professor/run_session'
-Router.route('/course/:courseId/session/run/:_id', {
+Router.route('/course/:courseId/session/run/:sessionId', {
   name: 'session.run',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
+    return Meteor.subscribe('userData') &&
+           Meteor.subscribe('sessions.single', this.params.sessionId) &&
+           Meteor.subscribe('courses.single',this.params.courseId) &&
+           Meteor.subscribe('questions.inSession', this.params.sessionId)
   },
   action: function () {
-    const sess = Sessions.findOne(this.params._id)
-    const cId = sess ? sess.courseId : ''
-    if (Meteor.userId() && Meteor.user().isInstructor(cId)) {
-      mount(AppLayout, { content: <PageContainer courseId={cId}> <RunSession sessionId={this.params._id} courseId={cId} /> </PageContainer> })
+    if (Meteor.userId() && Meteor.user().isInstructor(this.params.courseId)) {
+      mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <RunSession sessionId={this.params.sessionId} courseId={this.params.courseId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
 
-Router.route('/course/:courseId/session/run/:_id/mobile', {
+Router.route('/course/:courseId/session/run/:sessionId/mobile', {
   name: 'session.run.mobile',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params._id) && Meteor.subscribe('courses') && Meteor.subscribe('questions.inSession', this.params._id)
+    return Meteor.subscribe('userData') &&
+           Meteor.subscribe('sessions.single', this.params.sessionId) &&
+           Meteor.subscribe('courses.single',this.params.courseId) &&
+           Meteor.subscribe('questions.inSession', this.params.sessionId)
   },
   action: function () {
-    const sess = Sessions.findOne(this.params._id)
-    const cId = sess ? sess.courseId : ''
-    if (Meteor.userId() && Meteor.user().isInstructor(cId)) {
-      mount(AppLayout, { content: <RunSession mobile sessionId={this.params._id} courseId={cId} /> })
+    if (Meteor.userId() && Meteor.user().isInstructor(this.params.courseId)) {
+      mount(AppLayout, { content: <RunSession mobile sessionId={this.params.sessionId} courseId={this.params.courseId} /> })
     } else Router.go('login')
   }
 })

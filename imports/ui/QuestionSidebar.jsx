@@ -50,6 +50,7 @@ export class _QuestionSidebar extends ControlledForm {
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.approveQuestion = this.approveQuestion.bind(this)
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
+    this.copyQuestion = this.copyQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
 
   } //end constructor
@@ -146,37 +147,45 @@ export class _QuestionSidebar extends ControlledForm {
    * @param {MongoId} questionId
    */
   unApproveQuestion (questionId) {
-    if (confirm('Are you sure?')) {
-      let question = this.state.questionPool.find((q) => { return q._id === questionId })
-      if (question) {
-        question.approved = false
-        question.public = false // public questions should be approved
-        Meteor.call('questions.update', question, (error, newQuestionId) => {
-          if (error) return alertify.error('Error: ' + error.error)
-          alertify.success('Question un-approved')
-        })
-      }
+    let question = this.state.questionPool.find((q) => { return q._id === questionId })
+    if (question) {
+      question.approved = false
+      question.public = false // public questions should be approved
+      question.owner = question.creator
+      Meteor.call('questions.update', question, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question un-approved')
+      })
     }
   }
   /**
    * Set approved status to true and take ownership
    * @param {MongoId} questionId
    */
-   // TODO: by unapproving and then approving a question, you can thus steal the ownership
-   // not clear how to make this better.
   approveQuestion (questionId) {
-    if (confirm('Are you sure?')) {
-      let question = this.state.questionPool.find((q) => { return q._id === questionId })
-      let userId = Meteor.userId()
-      if (question && userId) {
-        question.approved = true
-        question.owner = userId
-        Meteor.call('questions.update', question, (error, newQuestionId) => {
-          if (error) return alertify.error('Error: ' + error.error)
-          alertify.success('Question approved')
-        })
-      }
+    let question = this.state.questionPool.find((q) => { return q._id === questionId })
+    let userId = Meteor.userId()
+    if (question && userId) {
+      question.approved = true
+      question.owner = userId
+      Meteor.call('questions.update', question, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question approved')
+      })
     }
+  }
+  copyQuestion (questionId) {
+    user = Meteor.user()
+    if(!user.isInstructor(this.props.courseId)) {
+      alertify.error('Only instructor can copy')
+      return
+    }
+
+    Meteor.call('questions.copy', questionId, (error, newQuestion) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question copied')
+    })
+
   }
   /**
    * udpate state tags array
@@ -280,6 +289,9 @@ export class _QuestionSidebar extends ControlledForm {
                 if ((q.owner !== userId || q.creator !== userId) && !q.approved && isInstructor) {
                   controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
                 }
+                if (isInstructor){
+                  controls.push({label: 'dupplicate', click: () => this.copyQuestion(q._id)})
+                }
 
                 return (<div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
@@ -311,13 +323,14 @@ export const QuestionSidebar = createContainer((props) => {
                  Meteor.subscribe('questions.public', props.courseId)
                  Meteor.subscribe('questions.unapprovedFromStudents', props.courseId)
 
-  const isInstructor = Meteor.user().isInstructor(props.courseId)
+  const user = Meteor.user()
+  const isInstructor = user.isInstructor(props.courseId)
 
   let libQuery = {} //need to enforce the query for the library that is passed, as this would otherwise show all questions loaded in components above it
   switch (props.questionLibrary) {
     case 'library':
       libQuery = isInstructor ? questionQueries.queries.library.instructor
-                              : questionQueries.queries.library.student
+                              : _.extend(questionQueries.queries.library.student, '$or': [{ creator: user._id }, { owner: user._id }])
       break;
     case 'public':
       libQuery =  questionQueries.queries.public
@@ -336,7 +349,6 @@ export const QuestionSidebar = createContainer((props) => {
   const questions = Questions.find(libQuery, questionQueries.options.sortMostRecent).fetch()
 
   //console.log("Questions in sidebar from subscription")
-  //console.log(subscription)
   //console.log(questions)
 
   return {

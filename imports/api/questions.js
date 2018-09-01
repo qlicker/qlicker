@@ -98,8 +98,8 @@ export const questionQueries = {
         studentCopyOfPublic: {$exists: false},
         approved: true
       },
-      student: {
-         '$or': [{ creator: this.userId }, { owner: this.userId }]
+      student: { // For student, need an additional check on the user ID of owner and creator!!!!
+        sessionId: {$exists: false}
       }
     },
     public: {
@@ -110,7 +110,6 @@ export const questionQueries = {
     unapprovedFromStudents : {
       sessionId: {$exists: false},
       approved: false,
-      sharedCopy: false,
       '$or': [{private: false}, {private: {$exists: false}}],
     }
   },
@@ -232,6 +231,8 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
+  //For an instructor, the library is all approved questions for the course
+  //For a student, the library is all questions in the course that they own or created
   Meteor.publish('questions.library', function (courseId) {
 
     if (this.userId ) {
@@ -244,7 +245,7 @@ if (Meteor.isServer) {
           return Questions.find(query,questionQueries.options.sortMostRecent)
       }
       else if (user.isStudent(courseId)){
-        query = _.extend(questionQueries.queries.library.student, {courseId: courseId})
+        query = _.extend(questionQueries.queries.library.student, {courseId: courseId, '$or': [{ creator: this.userId }, { owner: this.userId }] })
         return Questions.find(query,questionQueries.options.sortMostRecent)
       }
       else return this.ready()
@@ -313,10 +314,16 @@ Meteor.methods({
     }
 
     question.createdAt = new Date()
+    question.owner = user._id
+    question.creator = user._id
 
     if (user.isStudent(question.courseId)){
       question.approved = false
       question.public = false
+    }
+
+    if(user.isInstructor(question.courseId)){
+      question.approved = true
     }
     check(question, questionPattern)
     const id = Questions.insert(question)
@@ -333,22 +340,37 @@ Meteor.methods({
     check(question, questionPattern)
 
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (!user.isInstructor(question.courseId) && (question.owner !== user._id)) throw Error('Not authorized to update question')
+    if (!user.isInstructor(question.courseId) && (question.owner !== user._id)) throw Error('Not authorized to update question (not in course)')
 
-    if (user.isStudent(question.courseId)){
-      question.approved = false
-      question.public = false
-    }
+    if (question.approved && user.isStudent(question.courseId)) throw Error('Not authorized to update question (student/approved)')
+
     //TODO: This seems weird, why not just set the question, why omit the id?
     const r = Questions.update({ _id: question._id }, {
       $set: _.omit(question, '_id')
     })
 
-    if (r > 0) return question
+    if (r) return question
     else throw Error('Unable to update')
 
   },
 
+  'questions.copy' (questionId) {
+    check(questionId, Helpers.MongoID)
+    let question = Questions.findOne({ _id: questionId })
+    if(!question) return
+    const user = Meteor.user()
+    if (!user.isInstructor(question.courseId) && !user.isStudent(question.courseId)) throw new Error('Cannot copy question (user not in course)')
+
+    question.owner = Meteor.userId()
+    question.public = false
+    if(user.isInstructor()){
+      question.approved = true
+    } else {
+      question.approved = false
+      question.public = false
+    }
+    return Meteor.call('questions.insert', _.omit(question, ['_id','sessionId']))
+  },
   /**
    * Copies an existing question to a user's library
    * @param {Question} question
@@ -449,7 +471,6 @@ Meteor.methods({
     // TODO: should really check if the same question is already in the library
     // by hashing it or something similar
     //
-
     question.public = false
     question.owner = Meteor.userId()
     question.createdAt = new Date()
@@ -460,7 +481,7 @@ Meteor.methods({
     // this is so that the (approved) questions that students copy to their own library
     // don't show up in the instructor's libraries.
     if (user.isStudent(question.courseId)) {
-      question.studentCopyOfPublic = true
+      question.studentCopyOfPublic = true //TODO: probably do not need this property anymore, if we set approved to false
       question.approved = false
     }
 

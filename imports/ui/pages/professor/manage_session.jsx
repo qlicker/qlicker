@@ -17,9 +17,12 @@ import 'react-select/dist/react-select.css'
 import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
 
+import DragSortableList from 'react-drag-sortable'
+
 import { QuestionSidebar } from '../../QuestionSidebar'
+import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
-import { QuestionDragSortList } from '../../QuestionDragSortList'
+//import { QuestionDragSortList } from '../../QuestionDragSortList'
 
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
@@ -33,10 +36,11 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: this.props.session,
-      questionPool: 'library',
+      //questionPool: 'library',
       //limit: 11,
       //query: {query: {}, options: {}},
-      tab: 'questionOrder'
+      tab: 'questionOrder',
+      tagSuggestions: []
     }
 
     this.sessionId = this.props.sessionId
@@ -54,19 +58,10 @@ class _ManageSession extends Component {
     this.addToLibrary = this.addToLibrary.bind(this)
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
-    this.changeQuestionPool = this.changeQuestionPool.bind(this)
+    //this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
 
-    // populate tagging suggestions
-    this.tagSuggestions = []
-    Meteor.call('sessions.possibleTags', (e, tags) => {
-      // non-critical, if e: silently fail
-      tags.forEach((t) => {
-        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
-      })
-      //this.forceUpdate()
-    })
   }
 
   /**
@@ -83,6 +78,16 @@ class _ManageSession extends Component {
    * enable bootstrap tabs
    */
   componentDidMount () {
+    // populate tagging suggestions
+    tagSuggestions = []
+    Meteor.call('sessions.possibleTags', (e, tags) => {
+      // non-critical, if e: silently fail
+      tags.forEach((t) => {
+        tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.setState({ tagSuggestions:tagSuggestions })
+    })
+
     $('#sidebar-tabs a').click(function (e) {
       e.preventDefault()
       $(this).tab('show')
@@ -147,9 +152,10 @@ class _ManageSession extends Component {
    * changeQuestionPool(Event: e)
    * select onchange handler for changing question list
    */
+   /*
   changeQuestionPool (e) {
     this.setState({ questionPool: e.target.value, limit: 11 })
-  }
+  }*/
 
   /**
    * onSortQuestions([Sort Object (ref <DragSortableList/>)]: sorted)
@@ -223,17 +229,17 @@ class _ManageSession extends Component {
     const sessionId = this.state.session._id
     let tags = []
     const course = Courses.findOne(this.state.session.courseId)
-    const code = course.courseCode().toUpperCase()
+    //const code = course.courseCode().toUpperCase()
     const semester = course.semester.toUpperCase()
-    tags.push({ value: code, label: code })
+    //tags.push({ value: code, label: code })
     tags.push({ value: semester, label: semester })
 
     const blankQuestion = _.extend( defaultQuestion, {
       sessionId: sessionId,
       courseId: this.state.session.courseId,
-      owner: Meteor.userId(), // Owner is either TA or Professor since students cannot manage session
-      creator: Meteor.userId(),
-      approved: true,
+      //owner: Meteor.userId(), // Owner is either TA or Professor since students cannot manage session
+      //creator: Meteor.userId(),
+      //approved: true,
       tags: tags,
     })
 
@@ -320,8 +326,27 @@ class _ManageSession extends Component {
   render () {
 
     const setTab = (e) => { this.setState({ tab: e })}
-    let questionList = this.state.session.questions || []
+  //  let questionList = this.state.session.questions || []
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+
+    let questionList = this.state.session.questions || []
+    const qlItems = []
+    questionList.forEach((questionId) => {
+      const q = this.props.questions[questionId]
+      qlItems.push({
+        content: <QuestionListItem
+          click={this.cursorMoveWorkaround}
+          question={q}
+          session={this.state.session}
+          controlsTriggered={this.cursorMoveWorkaround}
+          controls={[
+            { label: 'Remove', click: () => this.removeQuestion(questionId) },
+            { label: 'Duplicate', click: () => this.duplicateQuestion(questionId) },
+            { label: 'Add to library', click: () => this.addToLibrary(questionId) }
+          ]} />,
+          id: questionId
+        })
+      })
 
     return (
       <div className='ql-manage-session'>
@@ -365,32 +390,17 @@ class _ManageSession extends Component {
               <div className='tab-content'>
                 <div className='tab-pane active' id='session'>
                   <div className='ql-session-question-list reorder'>
-                  { this.state.tab === 'questionOrder'
-                    ? <QuestionDragSortList
-                        session={this.state.session}
-                        onSortQuestions={this.onSortQuestions}
-                        cursorMoveWorkaround={this.cursorMoveWorkaround}
-                        addToLibrary={this.addToLibrary}
-                        getQuestions={this.getQuestions}
-                        />
-                    : ''
-                  }
-                    <div className='new-question-item' onClick={this.addNewQuestion}>
-                      <span>New Question <span className='glyphicon glyphicon-plus' /></span>
-                    </div>
+                     <DragSortableList items={qlItems} onSort={this.onSortQuestions} />
+                     <div className='new-question-item' onClick={this.addNewQuestion}>
+                        <span>New Question <span className='glyphicon glyphicon-plus' /></span>
+                     </div>
                   </div>
                 </div>
                 <div className='tab-pane' id='questions'>
-                  <select className='form-control' onChange={this.changeQuestionPool}>
-                    { Meteor.user().isInstructor(this.props.session.courseId)
-                      ? <option value='library'>My Question Library</option> : ''}
-                    <option value='public'>Public Question Pool</option>
-                    { !this.props.course.requireApprovedPublicQuestions
-                      ? <option value='unapprovedFromStudents'>Submitted by Students</option> : '' }
-                  </select>
+
                   { this.state.tab === 'questionLibrary'
                     ? <QuestionSidebar
-                        questionLibrary={this.state.questionPool}
+                        questionLibrary='library'
                         session={this.state.session}
                         courseId={this.props.session.courseId}
                         onSelect={this.addToSession}
@@ -423,7 +433,7 @@ class _ManageSession extends Component {
                       name='tag-input'
                       placeholder='Session Tags'
                       multi
-                      options={this.tagSuggestions}
+                      options={this.state.tagSuggestions}
                       value={this.state.session.tags}
                       onChange={this.addTag}
                   />
@@ -431,10 +441,9 @@ class _ManageSession extends Component {
                 </div>
               </div>
             </div>
-            { this.state.questions
-            ? questionList.map((questionId) => {
-                const q = questionId === -1 ? null : this.state.questions[questionId]
-
+            {
+             questionList.map((questionId) => {
+                const q = questionId === -1 ? null : this.props.questions[questionId]
                 const questionNumber = this.props.session.questions.indexOf(questionId) + 1
                 return (<div key={'question-' + questionId} className='ql-session-child-container'>
                   <QuestionEditItem
@@ -448,7 +457,6 @@ class _ManageSession extends Component {
                     autoSave />
                 </div>)
               })
-            : ''
             }
             <div className='ql-session-child-container new-question-item' onClick={this.addNewQuestion}>
               <span>New Question <span className='glyphicon glyphicon-plus' /></span>
@@ -475,15 +483,16 @@ export const ManageSession = createContainer((props) => {
 
   const handle =  Meteor.subscribe('sessions.single', props.sessionID) &&
        Meteor.subscribe('questions.inSession', props.sessionId)
+
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
   const course = Courses.findOne({ _id: session.courseId})
 
-  const questions = Questions.find({sessionId:props.sessionId}).fetch()
+  const questionsInSession = Questions.find({ sessionId:props.sessionId} ).fetch()
 
   return {
     session: session,
     course: course,
-    questions: questions,// TODO this is just to make it reactive, should actually use it!
+    questions: _.indexBy(questionsInSession, '_id'),
     loading: !handle.ready()
   }
 }, _ManageSession)

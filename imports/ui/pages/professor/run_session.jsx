@@ -62,7 +62,7 @@ class _RunSession extends Component {
    * Routes to the mobile version
    */
   routeMobile () {
-    Router.go('session.run.mobile', {_id: this.props.session._id})
+    Router.go('session.run.mobile', {sessionId: this.props.session._id, courseId: this.props.session.courseId})
   }
 
   /**
@@ -70,7 +70,7 @@ class _RunSession extends Component {
    * Routes to the desktop version
    */
   routeDesktop () {
-    Router.go('session.run', {_id: this.props.session._id})
+    Router.go('session.run', {sessionId: this.props.session._id, courseId: this.props.session.courseId})
   }
   /**
    * toggleStats(MongoId (string): questionId)

@@ -602,10 +602,8 @@ export class QuestionEditItem extends Component {
                           className='btn btn-default'
                           onClick={this.togglePublic}
                           data-toggle='tooltip'
-                          data-placement='top'
-                          title={!this.state.question.public ? 'Allow users in this course to view and copy this question' : ''}>
-                          <input type='checkbox' checked={this.state.question.public} readOnly />
-                          Public
+                          data-placement='top'>
+                          {this.state.question.public ? 'Hide from public' :  'Make public'}
                         </button>
                       : ''
                     }
