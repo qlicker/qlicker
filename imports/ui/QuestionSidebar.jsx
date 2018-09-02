@@ -77,7 +77,7 @@ export class _QuestionSidebar extends ControlledForm {
                      nQuery:nQuery, atMaxLimit: atMaxLimit, limit:10 })
     })
 
-    if (nextProps.resetSideBar) this.resetFilter()
+    if (nextProps.resetSideBar || nextProps.questionLibrary !== this.props.questionLibrary) this.resetFilter()
     if(nextProps.courseId !== this.props.courseId){
       this.setTags([])
     }

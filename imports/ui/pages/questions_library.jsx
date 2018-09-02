@@ -310,7 +310,7 @@ export class QuestionsLibrary extends Component {
   }
 
   setLib (library) {
-    this.setState({selectedLibrary: library, selectedQuestion: null})
+    this.setState({ selectedLibrary: library, selectedQuestion: null })
   }
 
   render () {

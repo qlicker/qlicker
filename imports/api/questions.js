@@ -509,9 +509,24 @@ Meteor.methods({
    * if courseIdForStudent is passed, it limits tags to those from questions in that course
     * @returns {String[]} array of string tags
    */
-  'questions.possibleTags' (courseIdForStudent) {
-    let tags = new Set()
+  'questions.possibleTags' (courseId) {
+    let tags = new Set
+    const questions = Questions.find({
+      courseId: courseId,
+      //sessionId: {$exists: false},
+      approved: true // false would find the tags that students created (if they were allowed)
+    })
+    questions.forEach((q) => {
+      q.tags.forEach((t) => {
+        tags.add(t.label.toUpperCase())
+      })
+    })
+    return [...tags]
+    /*
+    /// OLD
+
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
+
     if (user.hasGreaterRole('professor') || Courses.findOne({ instructors: this.userId })) {
       const courses = Courses.find({ instructors: Meteor.userId() }).fetch()
       courses.forEach(c => {
@@ -564,7 +579,7 @@ Meteor.methods({
       })
     }
 
-    return [...tags]
+    return [...tags]*/
   },
 
   /**

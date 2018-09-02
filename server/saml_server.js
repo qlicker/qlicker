@@ -13,10 +13,9 @@ import xpath from 'xpath'
 
 settings = Settings.findOne({})
 
-
 //Only if SSO is enabled, set things up
 //These setting take effect only after restarting the app, if the SSO is enabled/disabled
-if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoint && settings.SSO_identifierFormat ){
+if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoint && settings.SSO_identifierFormat && settings.SSO_EntityId ){
 
 //Create a passport-saml strategy using the given settings
 //User is responsible for creating a private key and corresponding certificate and storing them in /private
@@ -30,8 +29,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
     identifierFormat: settings.SSO_identifierFormat,
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),
     //privateCert: Assets.getText('key.key'),//not needed
-    decryptionPvk: settings.SSO_privKey,//Assets.getText('key.key'),//probably needed
-    issuer: 'qlicker',
+    decryptionPvk: (settings.SSO_privKey ? settings.SSO_privKey :''),//Assets.getText('key.key'),//probably needed
+    issuer: settings.SSO_EntityId,
     },
     function(profile, done) {
     return done(null, profile);
@@ -160,7 +159,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             // send the metadata if metadata is in the path
             if (url.parse(req.url).pathname === '/metadata' || url.parse(req.url).pathname === '/metadata.xml') {
               res.writeHead(200, {'Content-Type': 'application/xml'});
-              const decryptionCert = settings.SSO_privCert//Assets.getText('cert.cert');
+              const decryptionCert = settings.SSO_privCert ? settings.SSO_privCert : ''//Assets.getText('cert.cert');
               res.end(Accounts.samlStrategy._saml.generateServiceProviderMetadata(decryptionCert), 'utf-8');
             } else {
               // Otherwise redirect to IdP for login (SP -> IdP) (IDP responds with a POST handled below)
