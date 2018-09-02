@@ -32,6 +32,7 @@ const pattern = {
   SSO_enabled: Match.Maybe(Boolean),
   SSO_entrypoint: Match.Maybe(String),
   SSO_logoutUrl: Match.Maybe(String),
+  SSO_EntityId: Match.Maybe(String),
   SSO_cert: Match.Maybe(String),
   SSO_privCert: Match.Maybe(String),
   SSO_privKey: Match.Maybe(String),

@@ -89,47 +89,9 @@ export class QuestionEditItem extends Component {
       this.state.currentAnswer = 0
       this.answerOrder = MC_ORDER
     }
-
-    // populate tagging suggestions
-    /*
-    this.tagSuggestions = []
-    let user = Meteor.user()
-    if (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse()) {
-      Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
-        // non-critical, if e: silently fail
-        tags.forEach((t) => {
-          this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
-        })
-        this.forceUpdate()
-      })
-    } else {
-      Meteor.call('questions.possibleTags', (e, tags) => {
-        // non-critical, if e: silently fail
-        tags.forEach((t) => {
-          this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
-        })
-        this.forceUpdate()
-      })
-
-    }*/
-
-
     if (this.props.courseId && this.state.question.courseId !== this.props.courseId){
       this.state.question.courseId = this.props.courseId
     }
-    /*
-    // Default value of courseId depends on courseId of question and prop
-    if (this.props.courseId || this.props.question.courseId) {
-      if (this.props.courseId && this.props.question &&
-         this.props.question.courseId && this.props.courseId === this.props.question.courseId) {
-        this.state.question.courseId = this.props.courseId
-      } else if (this.props.question && this.props.question.courseId) {
-        this.state.question.courseId = this.props.question.courseId
-      } else if (this.props.courseId) {
-        this.state.question.courseId = this.props.courseId
-      } else {}
-    }*/
-
 
   } // end constructor
 

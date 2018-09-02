@@ -47,7 +47,7 @@ class _AdminDashboard extends Component {
               <span className='divider'>&nbsp;</span>
               <span className='button' onClick={() => setTab('users')}>Users</span>
               <span className='divider'>&nbsp;</span>
-              <span className='button' onClick={() => setTab('server')}>Server</span>
+              <span className='button' onClick={() => setTab('server')}>Images</span>
               <span className='divider'>&nbsp;</span>
               <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
             </span>
