@@ -13,6 +13,7 @@ import xpath from 'xpath'
 
 settings = Settings.findOne({})
 
+
 //Only if SSO is enabled, set things up
 //These setting take effect only after restarting the app, if the SSO is enabled/disabled
 if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.SSO_entrypoint && settings.SSO_identifierFormat ){
@@ -28,8 +29,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
     cert: settings.SSO_cert,
     identifierFormat: settings.SSO_identifierFormat,
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),
-    //privateCert: Assets.getText('key.key'),//not clearly needed
-    decryptionPvk: Assets.getText('key.key'),//probably needed
+    //privateCert: Assets.getText('key.key'),//not needed
+    decryptionPvk: settings.SSO_privKey,//Assets.getText('key.key'),//probably needed
     issuer: 'qlicker',
     },
     function(profile, done) {
@@ -159,7 +160,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             // send the metadata if metadata is in the path
             if (url.parse(req.url).pathname === '/metadata' || url.parse(req.url).pathname === '/metadata.xml') {
               res.writeHead(200, {'Content-Type': 'application/xml'});
-              const decryptionCert = Assets.getText('cert.cert');
+              const decryptionCert = settings.SSO_privCert//Assets.getText('cert.cert');
               res.end(Accounts.samlStrategy._saml.generateServiceProviderMetadata(decryptionCert), 'utf-8');
             } else {
               // Otherwise redirect to IdP for login (SP -> IdP) (IDP responds with a POST handled below)
