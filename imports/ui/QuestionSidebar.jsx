@@ -70,7 +70,11 @@ export class _QuestionSidebar extends ControlledForm {
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
-      this.setState({tagSuggestions: tagSuggestions, questionPool: nextProps.questions })
+      let atMaxLimit = false
+      let nQuery =  Questions.find(nextProps.libQuery).count()
+      if( nextProps.questions && nextProps.questions.length >= nQuery) atMaxLimit = true
+      this.setState({tagSuggestions: tagSuggestions, questionPool: nextProps.questions,
+                     nQuery:nQuery, atMaxLimit: atMaxLimit, limit:10 })
     })
 
     if (nextProps.resetSideBar) this.resetFilter()
@@ -86,19 +90,22 @@ export class _QuestionSidebar extends ControlledForm {
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
-      this.setState({tagSuggestions: tagSuggestions, nQuery: Questions.find(this.state.libQuery).count()})
+      let atMaxLimit = false
+      let nQuery =  Questions.find(this.props.libQuery).count()
+      if( this.props.questions && this.props.questions.length >= nQuery) atMaxLimit = true
+      this.setState({tagSuggestions: tagSuggestions, nQuery: nQuery, atMaxLimit:atMaxLimit})
       //this.forceUpdate()
     })
   }
 
   increaseLimit(){
-    this.setState({ limit:this.state.limit += 10 }, () => {
+    this.setState({ limit:this.state.limit + 10 }, () => {
       this.updateQuery()
     })
   }
 
   decreaseLimit(){
-    if (this.state.limit >11) this.setState({ limit:this.state.limit -= 10 }, () => {
+    if (this.state.limit >11) this.setState({ limit:this.state.limit - 10 }, () => {
       this.updateQuery()
     })
   }
@@ -216,7 +223,8 @@ export class _QuestionSidebar extends ControlledForm {
 
   resetFilter () {
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', userSearchString: '', questionType: -1, tags: []/*, showOnlyApprovedQuestions: false*/ }, () => {
+    this.setState({ searchString: '', userSearchString: '',
+                    questionType: -1, tags: [], atMaxLimit:false, limit:10 }, () => {
       this.updateQuery()
     })
   }
@@ -248,8 +256,8 @@ export class _QuestionSidebar extends ControlledForm {
     const nQuery = Questions.find(query).count()
 
     const newQuestions = Questions.find(query, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
-    let atMaxLimit = this.state.atMaxLimit
-    if (newQuestions.length < this.state.limit ) atMaxLimit = true
+    let atMaxLimit = false
+    if (newQuestions.length >= nQuery ) atMaxLimit = true
 
     this.setState({ questionPool: newQuestions, atMaxLimit:atMaxLimit, nQuery:nQuery })
   }
@@ -263,8 +271,8 @@ export class _QuestionSidebar extends ControlledForm {
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
     const isStudent = Meteor.user().isStudent(this.props.courseId)
     const userId = Meteor.userId()
-    const showIncrease = !this.state.atMaxLimit
-    const showDecrease = this.state.questionPool.length > 20
+    const showIncrease = !this.state.atMaxLimit && this.state.questionPool.length > 0
+    const showDecrease = this.state.questionPool.length > 10
 
     const showMore = <div className={'cursor-pointer ql-list-item col-md-' + (showIncrease ? '12' : '6')} onClick={() => this.increaseLimit()}>
      <span className='ql-question-name'> <span className='glyphicon glyphicon-plus' /> Show more</span>
@@ -317,34 +325,41 @@ export class _QuestionSidebar extends ControlledForm {
           }
           <div className='ql-question-list'>
             { /* list questions */
-              this.state.questionPool.map(q => {
-                let controls = []
-                if (q.owner === userId) controls.push({label: 'delete', click: () => this.deleteQuestion(q._id)})
-                if ((q.owner !== userId || q.creator !== userId) && q.approved && isInstructor) {
-                  controls.push({label: 'un-approve', click: () => this.unApproveQuestion(q._id)})
-                }
-                if ((q.owner !== userId || q.creator !== userId) && !q.approved && isInstructor) {
-                  controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
-                }
-                if (isInstructor){
-                  controls.push({label: 'dupplicate', click: () => this.copyQuestion(q._id)})
-                }
+              this.state.questionPool.length > 0  ?
+                this.state.questionPool.map(q => {
+                  let controls = []
+                  if (q.owner === userId) controls.push({label: 'delete', click: () => this.deleteQuestion(q._id)})
+                  if ((q.owner !== userId || q.creator !== userId) && q.approved && isInstructor) {
+                    controls.push({label: 'un-approve', click: () => this.unApproveQuestion(q._id)})
+                  }
+                  if ((q.owner !== userId || q.creator !== userId) && !q.approved && isInstructor) {
+                    controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
+                  }
+                  if (isInstructor){
+                    controls.push({label: 'dupplicate', click: () => this.copyQuestion(q._id)})
+                  }
 
-                return (<div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
-                  { !q.courseId
-                    ? <QuestionListItem
-                      courseId={q.courseId}
-                      question={q}
-                      session={this.props.session}
-                      controls={controls.length > 0 ? controls : ''}
-                      click={() => this.setQuestion(q)} />
-                    : <StudentQuestionListItem
-                      question={q}
-                      controls={controls.length > 0 ? controls : ''}
-                      click={() => this.setQuestion(q)} /> }
-                </div>)
-              })
-
+                  return (
+                  <div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
+                    { !q.courseId
+                      ? <QuestionListItem
+                        courseId={q.courseId}
+                        question={q}
+                        session={this.props.session}
+                        controls={controls.length > 0 ? controls : ''}
+                        click={() => this.setQuestion(q)} />
+                     : <StudentQuestionListItem
+                          question={q}
+                          controls={controls.length > 0 ? controls : ''}
+                          click={() => this.setQuestion(q)} /> }
+                    </div>)
+                  })
+                : <div>
+                    { this.state.nQuery > 0 ?
+                       <div className='ql-subs-loading'>Loading</div>
+                      : <div>No questions</div>
+                    }
+                  </div>
             }
             {showIncrease ?
               showMore : ''}

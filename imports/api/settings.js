@@ -33,6 +33,8 @@ const pattern = {
   SSO_entrypoint: Match.Maybe(String),
   SSO_logoutUrl: Match.Maybe(String),
   SSO_cert: Match.Maybe(String),
+  SSO_privCert: Match.Maybe(String),
+  SSO_privKey: Match.Maybe(String),
   SSO_identifierFormat: Match.Maybe(String),
   SSO_emailIdentifier: Match.Maybe(String),
   SSO_firstNameIdentifier: Match.Maybe(String),
@@ -119,7 +121,7 @@ Meteor.methods({
       if (user.hasRole(ROLES.admin)) {
         if (Meteor.isServer) {
           directive = Slingshot.getDirective(settings.storageType)._directive
-          if (settings.storageType === 'AWS') {      
+          if (settings.storageType === 'AWS') {
             if (!directive) throw new Error('No Directive')
             directive.bucket = settings.AWS_bucket
             directive.region = settings.AWS_region
@@ -154,8 +156,8 @@ Meteor.methods({
    'settings.getSSOEnabled' () {
     const settings = Settings.findOne()
     if (settings) return settings.SSO_enabled
-  }, 
-   
+  },
+
   'confirmAccount' (email) {
     check(email, String)
     var domain = email.substring(email.lastIndexOf('@') + 1)
