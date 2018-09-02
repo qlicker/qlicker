@@ -28,6 +28,7 @@ Meteor.startup(() => {
       SSO_enabled: false,
       SSO_entrypoint: '',
       SSO_logoutUrl: '',
+      SSO_EntityId: '',
       SSO_cert: '',
       SSO_privCert: '',
       SSO_privKey: '',

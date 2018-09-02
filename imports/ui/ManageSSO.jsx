@@ -17,6 +17,7 @@ export class ManageSSO extends Component {
       SSO_enabled: props.settings.SSO_enabled,
       SSO_entrypoint: props.settings.SSO_entrypoint,
       SSO_logoutUrl: props.settings.SSO_logoutUrl,
+      SSO_EntityId: props.settings.SSO_EntityId,
       SSO_cert: props.settings.SSO_cert,
       SSO_privCert: props.settings.SSO_privCert,
       SSO_privKey: props.settings.SSO_privKey,
@@ -46,6 +47,7 @@ export class ManageSSO extends Component {
       SSO_enabled: this.state.SSO_enabled || false,
       SSO_entrypoint: this.state.SSO_entrypoint || '',
       SSO_logoutUrl: this.state.SSO_logoutUrl || '',
+      SSO_EntityId: this.state.SSO_EntityId || '',
       SSO_cert: this.state.SSO_cert || '',
       SSO_privCert: this.state.SSO_privCert || '',
       SSO_privKey: this.state.SSO_privKey || '',
@@ -81,9 +83,10 @@ export class ManageSSO extends Component {
             <div>
               <input className='form-control' type='text' data-name='SSO_entrypoint' onChange={this.setValue} placeholder='IDP Entry Point' value={this.state.SSO_entrypoint}/><br />
               <input className='form-control' type='text' data-name='SSO_logoutUrl' onChange={this.setValue} placeholder='IDP Logout URL' value={this.state.SSO_logoutUrl} /><br />
-              <input className='form-control' type='text' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string, no BEGIN-END)' value={this.state.SSO_cert} /><br />
-              <input className='form-control' type='text' data-name='SSO_privCert' onChange={this.setValue} placeholder='SP Certificate (with BEGIN - END)' value={this.state.SSO_privCert} /><br />
-              <input className='form-control' type='text' data-name='SSO_privKey' onChange={this.setValue} placeholder='SP Key (with BEGIN - END)' value={this.state.SSO_privKey} /><br />
+              <input className='form-control' type='text' data-name='SSO_EntityId' onChange={this.setValue} placeholder='Entity ID (e.g. qlicker)' value={this.state.SSO_EntityId} /><br />
+              <input className='form-control' type='text' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string in one line)' value={this.state.SSO_cert} /><br />
+              <input className='form-control' type='text' data-name='SSO_privCert' onChange={this.setValue} placeholder='SP Certificate (no BEGIN - END)' value={this.state.SSO_privCert} /><br />
+              <input className='form-control' type='text' data-name='SSO_privKey' onChange={this.setValue} placeholder='SP Key (no BEGIN - END)' value={this.state.SSO_privKey} /><br />
               <input className='form-control' type='text' data-name='SSO_identifierFormat' onChange={this.setValue} placeholder='Identifier Format' value={this.state.SSO_identifierFormat} /><br />
               <input className='form-control' type='text' data-name='SSO_institutionName' onChange={this.setValue} placeholder='Institution Name' value={this.state.SSO_institutionName} /><br />
               <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' value={this.state.SSO_emailIdentifier} /><br />
