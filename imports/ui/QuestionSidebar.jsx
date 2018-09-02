@@ -37,7 +37,8 @@ export class _QuestionSidebar extends ControlledForm {
       questionType: -1,
       //showOnlyApprovedQuestions: false,
       tags: [],
-      tagSuggestions : []
+      tagSuggestions : [],
+      limit : 11
     }
 
     this.setQuestion = this.setQuestion.bind(this)
@@ -52,6 +53,8 @@ export class _QuestionSidebar extends ControlledForm {
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
     this.copyQuestion = this.copyQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
+    this.increaseLimit = this.increaseLimit.bind(this)
+    this.decreaseLimit = this.decreaseLimit.bind(this)
 
   } //end constructor
 
@@ -84,7 +87,17 @@ export class _QuestionSidebar extends ControlledForm {
     })
   }
 
+  increaseLimit(){
+    this.setState({ limit:this.state.limit += 10 }, () => {
+      this.updateQuery()
+    })
+  }
 
+  decreaseLimit(){
+    if (this.state.limit >11) this.setState({ limit:this.state.limit -= 10 }, () => {
+      this.updateQuery()
+    })
+  }
   /**
    * set selected question to add
    * @param {MongoId} question
@@ -228,7 +241,7 @@ export class _QuestionSidebar extends ControlledForm {
     }*/
     query = _.extend(query, this.props.libQuery)
 
-    const newQuestions = Questions.find(query, {sort:{createdAt: -1 }} ).fetch()
+    const newQuestions = Questions.find(query, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
     this.setState({ questionPool: newQuestions })
   }
 
@@ -241,6 +254,17 @@ export class _QuestionSidebar extends ControlledForm {
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
     const isStudent = Meteor.user().isStudent(this.props.courseId)
     const userId = Meteor.userId()
+    const showIncrease = this.state.questionPool.length % 10 > 0
+    const showDecrease = this.state.questionPool.length > 20
+
+    const showMore = <div className={'cursor-pointer ql-list-item col-md-' + (showIncrease ? '12' : '6')} onClick={() => this.increaseLimit()}>
+     <span className='ql-question-name'> <span className='glyphicon glyphicon-plus' /> Show more</span>
+     </div>
+
+    const showLess =  <div className={'cursor-pointer ql-list-item col-md-' + (showDecrease ? '12' : '6')} onClick={() => this.decreaseLimit()}>
+     <span className='ql-question-name'> <span className='glyphicon glyphicon-minus' /> Show less</span>
+     </div>
+
     return (
       <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
@@ -307,7 +331,12 @@ export class _QuestionSidebar extends ControlledForm {
                       click={() => this.setQuestion(q)} /> }
                 </div>)
               })
+
             }
+            {showIncrease ?
+              showMore : ''}
+            {showDecrease ?
+              showLess : ''}
           </div>
         </form>
       </div>)
@@ -344,7 +373,7 @@ export const QuestionSidebar = createContainer((props) => {
                             : questionQueries.queries.library.student
     break;
   }
-
+  const options = _.extend(questionQueries.options.sortMostRecent, {limit:11} )
 
   const questions = Questions.find(libQuery, questionQueries.options.sortMostRecent).fetch()
 
