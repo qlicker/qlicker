@@ -257,28 +257,28 @@ Meteor.methods({
     if (r) return grade
     else throw Error('Unable to update')
   },
-  
+
   /**
    * Updates a mark in a grade item
    * @param {MongoID} mark - mark object with points, outOf, studentId, questionId
    */
   'grades.updateMark' (mark) {
-    
+
     if (!mark) throw Error('No mark inputted')
-    
+
     // points must be positive
     if (mark.points < 0 || mark.outOf < mark.points) throw Error('Invalid mark')
 
     const grade = Grades.findOne({ _id: mark.gradeId })
     if (!grade) throw Error('Undefined grade in update!')
-    
+
     const user = Meteor.user()
 
     if (!user.hasRole(ROLES.admin) &&
           !user.isInstructor(grade.courseId)) {
       throw new Meteor.Error('not-authorized')
     }
- 
+
     let gradeMarks = grade.marks
     let gradeMark = _(gradeMarks).findWhere({ questionId: mark.questionId })
 
@@ -290,9 +290,9 @@ Meteor.methods({
       Meteor.call('grades.updatePoints', grade, (err) => {
         if (err) throw Error(err)
         else return Grades.update(grade._id, grade)
-      })   
+      })
     }
-    
+
     else throw Error('Unable to update mark')
   },
 
@@ -424,6 +424,30 @@ Meteor.methods({
       grade.automatic = false
       Meteor.call('grades.updatePoints', grade)
     }
+  },
+  /**
+   * Get a participation grade for the session (average if prof, single if student)
+   * @param {MongoId} sessionId - ID of session
+   */
+  'grades.getParticipationForSession' (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('no such user')
+    const session = Sessions.findOne({ _id: sessionId })
+    if (!session) throw new Meteor.Error('no such session')
+    const courseId = session.courseId
+    if(user.isStudent(courseId)){
+      const grade = Grades.findOne({ userId:user._id, sessionId:sessionId })
+      if(!grade || !grade.joined) return 0
+      else return grade.participation
+    } else if (user.isInstructor(courseId)){
+      const grades = Grades.find({ sessionId:sessionId }).fetch()
+      let participation = 0
+      for (let i=0; i<grades.length ;i ++){
+        participation += grades[i].participation
+      }
+      return grades.length >0 ? participation/grades.length : 0
+    } else return 0
   },
 
   /**

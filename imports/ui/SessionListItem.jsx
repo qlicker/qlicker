@@ -89,13 +89,15 @@ export class SessionListItem extends ListItem {
           <div className='col-md-2 col-xs-4 col-sm-3'>
             {link}
           </div>
-          {/* //This used to show what the current question is, better to show the grade...
+          { this.props.participation ?
+            //This used to show what the current question is, better to show the grade...
             <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
-            <span className='completion'>Question: {index + 1}/{length}</span>
+            <span className='completion'>Participation: {this.props.participation} </span>
             <div className='ql-progress'>
-              <div className='ql-progress-bar' style={{ width: completion + '%' }}>&nbsp;</div>
+              <div className='ql-progress-bar' style={{ width: this.props.participation + '%' }}>&nbsp;</div>
             </div>
-          </div> */
+          </div>
+          : ''
          }
         </div>
         { this.props.controls ? <div className='controls'>{controls}</div> : '' }
@@ -107,5 +109,6 @@ export class SessionListItem extends ListItem {
 SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
   details: PropTypes.bool,
+  participation: PropTypes.number,
   click: PropTypes.func
 }
