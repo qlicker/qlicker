@@ -17,7 +17,7 @@ import { StudentQuestionListItem } from './StudentQuestionListItem'
 
 import { QUESTION_TYPE, QUESTION_TYPE_STRINGS } from '../configs'
 
-import { Questions, defaultQuestion } from '../api/questions'
+import { Questions, defaultQuestion, questionQueries } from '../api/questions'
 import { Courses } from '../api/courses'
 
 /**
@@ -29,51 +29,82 @@ import { Courses } from '../api/courses'
  */
 export class _QuestionSidebar extends ControlledForm {
 
+//TODO: probably needs to subscribe to users for the search bar...
   constructor (props) {
     super(props)
-    this.state = { 
+    this.state = {
       questionPool: this.props.questions.slice(),
       questionType: -1,
-      showOnlyApprovedQuestions: false,
-      tags: []
+      //showOnlyApprovedQuestions: false,
+      tags: [],
+      tagSuggestions : [],
+      limit : 11
     }
 
     this.setQuestion = this.setQuestion.bind(this)
     this.setSearchString = this.setSearchString.bind(this)
     this.setUserSearchString = this.setUserSearchString.bind(this)
     this.setType = this.setType.bind(this)
-    this.showApproved = this.showApproved.bind(this)
+    //this.showApproved = this.showApproved.bind(this)
     this.setTags = this.setTags.bind(this)
     this.resetFilter = this.resetFilter.bind(this)
     this.deleteQuestion = this.deleteQuestion.bind(this)
     this.approveQuestion = this.approveQuestion.bind(this)
     this.unApproveQuestion = this.unApproveQuestion.bind(this)
+    this.copyQuestion = this.copyQuestion.bind(this)
     this.updateQuery = this.updateQuery.bind(this)
+    this.increaseLimit = this.increaseLimit.bind(this)
+    this.decreaseLimit = this.decreaseLimit.bind(this)
 
-    // populate tagging suggestions
-    this.tagSuggestions = []
-    
-    Meteor.call('questions.possibleTags', (e, tags) => {
+  } //end constructor
+
+  componentWillReceiveProps (nextProps) {
+    //this.setState({ questionPool: nextProps.questions })
+    // Need to update possible tags, since question sidebar is showing when questions
+    // are being edited and tags created...
+    Meteor.call('questions.possibleTags',  nextProps.courseId, (e, tags) => {
       // non-critical, if e: silently fail
+      tagSuggestions = []
       tags.forEach((t) => {
-        this.tagSuggestions.push({ value: t, label: t.toUpperCase() })
+        tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
-      this.forceUpdate()
+      this.setState({tagSuggestions: tagSuggestions, questionPool: nextProps.questions })
     })
 
-    Meteor.call('courses.publicQuestionsRequireApproval',this.props.courseId, (e, approved) => {
-      if (e) alertify.error('Error updating sidebar')
-      else this.state.allowApproved = approved
+    if (nextProps.resetSideBar) this.resetFilter()
+    if(nextProps.courseId !== this.props.courseId) this.setTags([])
+  }
+
+  componentDidMount() {
+    Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
+      // non-critical, if e: silently fail
+      tagSuggestions = []
+      tags.forEach((t) => {
+        tagSuggestions.push({ value: t, label: t.toUpperCase() })
+      })
+      this.setState({tagSuggestions: tagSuggestions})
+      //this.forceUpdate()
     })
   }
 
+  increaseLimit(){
+    this.setState({ limit:this.state.limit += 10 }, () => {
+      this.updateQuery()
+    })
+  }
+
+  decreaseLimit(){
+    if (this.state.limit >11) this.setState({ limit:this.state.limit -= 10 }, () => {
+      this.updateQuery()
+    })
+  }
   /**
    * set selected question to add
    * @param {MongoId} question
    */
   setQuestion (question) {
     this.setState({ question: question }, () => {
-      this.props.onSelect(question)
+      if(this.props.onSelect)this.props.onSelect(question)
     })
   }
   /**
@@ -105,13 +136,13 @@ export class _QuestionSidebar extends ControlledForm {
       this.updateQuery()
     })
   }
-
+/*
   showApproved () {
     this.setState({ showOnlyApprovedQuestions: !this.state.showOnlyApprovedQuestions }, () => {
       this.updateQuery()
     })
-  }
-  
+  }*/
+
   /**
    * delete the question
    * @param {MongoId} questionId
@@ -129,37 +160,45 @@ export class _QuestionSidebar extends ControlledForm {
    * @param {MongoId} questionId
    */
   unApproveQuestion (questionId) {
-    if (confirm('Are you sure?')) {
-      let question = this.state.questionPool.find((q) => { return q._id === questionId })
-      if (question) {
-        question.approved = false
-        question.public = false // public questions should be approved
-        Meteor.call('questions.update', question, (error, newQuestionId) => {
-          if (error) return alertify.error('Error: ' + error.error)
-          alertify.success('Question un-approved')
-        })
-      }
+    let question = this.state.questionPool.find((q) => { return q._id === questionId })
+    if (question) {
+      question.approved = false
+      question.public = false // public questions should be approved
+      question.owner = question.creator
+      Meteor.call('questions.update', question, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question un-approved')
+      })
     }
   }
   /**
    * Set approved status to true and take ownership
    * @param {MongoId} questionId
    */
-   // TODO: by unapproving and then approving a question, you can thus steal the ownership
-   // not clear how to make this better.
   approveQuestion (questionId) {
-    if (confirm('Are you sure?')) {
-      let question = this.state.questionPool.find((q) => { return q._id === questionId })
-      let userId = Meteor.userId()
-      if (question && userId) {
-        question.approved = true
-        question.owner = userId
-        Meteor.call('questions.update', question, (error, newQuestionId) => {
-          if (error) return alertify.error('Error: ' + error.error)
-          alertify.success('Question approved')
-        })
-      }
+    let question = this.state.questionPool.find((q) => { return q._id === questionId })
+    let userId = Meteor.userId()
+    if (question && userId) {
+      question.approved = true
+      question.owner = userId
+      Meteor.call('questions.update', question, (error, newQuestionId) => {
+        if (error) return alertify.error('Error: ' + error.error)
+        alertify.success('Question approved')
+      })
     }
+  }
+  copyQuestion (questionId) {
+    user = Meteor.user()
+    if(!user.isInstructor(this.props.courseId)) {
+      alertify.error('Only instructor can copy')
+      return
+    }
+
+    Meteor.call('questions.copy', questionId, (error, newQuestion) => {
+      if (error) return alertify.error('Error: ' + error.error)
+      alertify.success('Question copied')
+    })
+
   }
   /**
    * udpate state tags array
@@ -173,49 +212,59 @@ export class _QuestionSidebar extends ControlledForm {
 
   resetFilter () {
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', userSearchString: '', questionType: -1, tags: [], showOnlyApprovedQuestions: false }, () => {
+    this.setState({ searchString: '', userSearchString: '', questionType: -1, tags: []/*, showOnlyApprovedQuestions: false*/ }, () => {
       this.updateQuery()
     })
   }
 
   updateQuery () {
-    
+
     if (this.props.setFilter) this.props.setFilter(false)
 
     let query = {}
 
     if (this.state.questionType > -1) query.type = this.state.questionType
-    if (this.state.showOnlyApprovedQuestions) query.approved = this.state.showOnlyApprovedQuestions
-    if (parseInt(this.state.courseId) !== -1) query.courseId = this.state.courseId
+    //if (this.state.showOnlyApprovedQuestions) query.approved = this.state.showOnlyApprovedQuestions
+    //if (parseInt(this.state.courseId) !== -1) query.courseId = this.state.courseId
     if (this.state.searchString) query.plainText = {$regex: '.*' + this.state.searchString + '.*', $options: 'i'}
     if (this.state.userSearchString) {
       const users = Meteor.users.find({ $or: [{'profile.lastname': {$regex: '.*' + this.state.userSearchString + '.*', $options: 'i'}},
                                                {'profile.firstname': {$regex: '.*' + this.state.userSearchString + '.*', $options: 'i'}}] }).fetch()
       const uids = _(users).pluck('_id')
       query.creator = {$in: uids}
-    } 
+    }
     if (this.state.tags.length) query['tags.value'] = { $all: _.pluck(this.state.tags, 'value') }
-  
+
+/*
     if (this.props.library !== 'sharedWithUser') {
       query.courseId = this.props.courseId
-    }    
-  
-    const newQuestions = Questions.find(query).fetch()
-    this.setState({ questionPool: newQuestions })  
+    }*/
+    query = _.extend(query, this.props.libQuery)
+
+    const newQuestions = Questions.find(query, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
+    this.setState({ questionPool: newQuestions })
   }
 
-  componentWillReceiveProps (nextProps) {
-    this.setState({ questionPool: nextProps.questions.slice() })
-    if (nextProps.resetSideBar) this.resetFilter()
-    if(nextProps.courseId !== this.props.courseId) this.setTags([])
-  }
 
-  render () {    
+
+  render () {
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    
-    const isInstructor = Meteor.user().isInstructorAnyCourse()
+
+    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+    const isStudent = Meteor.user().isStudent(this.props.courseId)
     const userId = Meteor.userId()
+    const showIncrease = this.state.questionPool.length % 10 > 0
+    const showDecrease = this.state.questionPool.length > 20
+
+    const showMore = <div className={'cursor-pointer ql-list-item col-md-' + (showIncrease ? '12' : '6')} onClick={() => this.increaseLimit()}>
+     <span className='ql-question-name'> <span className='glyphicon glyphicon-plus' /> Show more</span>
+     </div>
+
+    const showLess =  <div className={'cursor-pointer ql-list-item col-md-' + (showDecrease ? '12' : '6')} onClick={() => this.decreaseLimit()}>
+     <span className='ql-question-name'> <span className='glyphicon glyphicon-minus' /> Show less</span>
+     </div>
+
     return (
       <div className='ql-question-sidebar' >
         <form ref='addQuestionForm' className='ql-form-addquestion' onSubmit={this.handleSubmit}>
@@ -228,21 +277,14 @@ export class _QuestionSidebar extends ControlledForm {
                 return <option key={k} value={val}>{ QUESTION_TYPE_STRINGS[val] }</option>
               })
             }
-          </select>       
-
-          <div className='ql-header-button question-type form-control' style={{'display':'flex'}} onClick={this.showApproved}>
-            <span><input className='checkbox' type='checkbox' checked={this.state.showOnlyApprovedQuestions}/></span>
-            <span>Approved Only</span>
-          </div>
-
-          
+          </select>
 
           <Select
             name='tag-input'
             placeholder='Type to search by tag'
             multi
             value={this.state.tags}
-            options={this.tagSuggestions}
+            options={this.state.tagSuggestions}
             onChange={this.setTags}
             />
           <input type='text' className='form-control search-field' placeholder='Search by question content' onChange={_.throttle(this.setSearchString, 500)} />
@@ -271,7 +313,10 @@ export class _QuestionSidebar extends ControlledForm {
                 if ((q.owner !== userId || q.creator !== userId) && !q.approved && isInstructor) {
                   controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
                 }
-                
+                if (isInstructor){
+                  controls.push({label: 'dupplicate', click: () => this.copyQuestion(q._id)})
+                }
+
                 return (<div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
                   { !q.courseId
                     ? <QuestionListItem
@@ -286,7 +331,12 @@ export class _QuestionSidebar extends ControlledForm {
                       click={() => this.setQuestion(q)} /> }
                 </div>)
               })
+
             }
+            {showIncrease ?
+              showMore : ''}
+            {showDecrease ?
+              showLess : ''}
           </div>
         </form>
       </div>)
@@ -295,16 +345,45 @@ export class _QuestionSidebar extends ControlledForm {
 } // end QuestionSidebar
 
 export const QuestionSidebar = createContainer((props) => {
-  
-  const subscription = 'questions.' + props.questionLibrary
-  const handle =  Meteor.subscribe(subscription, props.courseId)
 
-  
-  const questions = Questions.find().fetch()
+  //const subscription = 'questions.' + props.questionLibrary
+  //const handle =  Meteor.subscribe(subscription, props.courseId)
+  const handle = Meteor.subscribe('questions.library', props.courseId) &&
+                 Meteor.subscribe('questions.public', props.courseId)
+                 Meteor.subscribe('questions.unapprovedFromStudents', props.courseId)
+
+  const user = Meteor.user()
+  const isInstructor = user.isInstructor(props.courseId)
+
+  let libQuery = {} //need to enforce the query for the library that is passed, as this would otherwise show all questions loaded in components above it
+  switch (props.questionLibrary) {
+    case 'library':
+      libQuery = isInstructor ? questionQueries.queries.library.instructor
+                              : _.extend(questionQueries.queries.library.student, '$or': [{ creator: user._id }, { owner: user._id }])
+      break;
+    case 'public':
+      libQuery =  questionQueries.queries.public
+      break;
+    case 'unapprovedFromStudents':
+      libQuery = questionQueries.queries.unapprovedFromStudents
+      break;
+
+    default:
+    libQuery = isInstructor ? questionQueries.queries.library.instructor
+                            : questionQueries.queries.library.student
+    break;
+  }
+  const options = _.extend(questionQueries.options.sortMostRecent, {limit:11} )
+
+  const questions = Questions.find(libQuery, questionQueries.options.sortMostRecent).fetch()
+
+  //console.log("Questions in sidebar from subscription")
+  //console.log(questions)
 
   return {
     loading: !handle.ready(),
     questions: questions,
+    libQuery: libQuery,
     selected: props.selected,
     done: () => console.log('')
   }
@@ -318,5 +397,5 @@ QuestionSidebar.propTypes = {
   clickMessage: PropTypes.string,
   resetSideBar: PropTypes.bool,
   setFilter: PropTypes.func,
-  filter: PropTypes.object //Optional query 
+  filter: PropTypes.object //Optional query
 }

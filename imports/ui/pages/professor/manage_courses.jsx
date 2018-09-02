@@ -22,6 +22,7 @@ class _ManageCourses extends Component {
     this.doneCreatingCourse = this.doneCreatingCourse.bind(this)
     this.promptCreateCourse = this.promptCreateCourse.bind(this)
     this.deleteCourse = this.deleteCourse.bind(this)
+    this.setCourseActive = this.setCourseActive.bind(this)
   }
 
   deleteCourse (courseId) {
@@ -31,6 +32,15 @@ class _ManageCourses extends Component {
       })
     }
   }
+
+  setCourseActive (courseId, active) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('courses.setActive', courseId, active, (error) => {
+        if (error) return alertify.error('Error archiving course')
+      })
+    }
+  }
+
 
   promptCreateCourse (e) {
     this.setState({ creatingCourse: true })
@@ -42,13 +52,22 @@ class _ManageCourses extends Component {
   }
 
   renderCourseList (cList) {
-    return cList.map((course) => (
-      <CourseListItem
-        key={course._id}
-        course={course}
-        click={() => { Router.go('course', { courseId: course._id }) }}
-        controls={[{ label: 'Delete', click: () => this.deleteCourse(course._id) }]} />
-    ))
+    return cList.map( (course) => {
+      controls = []
+      if (course.inactive) {
+        controls.push( { label: 'Make active', click: () => this.setCourseActive(course._id, true) } )
+        controls.push( { label: 'Delete', click: () => this.deleteCourse(course._id) } )
+      } else {
+        controls.push( { label: 'Make inactive', click: () => this.setCourseActive(course._id, false) } )
+      }
+      return(
+        <CourseListItem
+          key={course._id}
+          course={course}
+          click={() => { Router.go('course', { courseId: course._id }) }}
+          controls={controls} />
+      )
+    })
   }
 
   render () {

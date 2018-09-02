@@ -87,7 +87,8 @@ export const SessionResults = createContainer((props) => {
   return {
     questions: questions,
     responseStatsByQuestion: responseStatsByQuestion,
-    loading: !handle.ready()
+    loading: !handle.ready(), 
+    //session: props.session
   }
 }, _SessionResults)
 

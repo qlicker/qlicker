@@ -193,7 +193,7 @@ export class _GradeTable extends Component {
       sortButtonClass += ' ql-grade-table-sort-button'
       const onClickSort = () => this.setSortByColumn(sessionId)
       const calcSessionGrades = () => this.calculateSessionGrades(sessionId)
-      const viewSession = () => Router.go('session.results', { sessionId: sessionId })
+      const viewSession = () => Router.go('session.results', { sessionId: sessionId , courseId:this.props.courseId})
       const headerClass = session.gradesViewable()
                             ? 'ql-grade-table-session-header'
                             : 'ql-grade-table-session-header hidden-from-students'

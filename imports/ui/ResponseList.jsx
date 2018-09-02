@@ -13,43 +13,27 @@ import _ from 'underscore'
 import { Responses, responseDistribution } from '../api/responses'
 import { Grades } from '../api/grades'
 
-import { QuestionDisplay } from './QuestionDisplay'
 import { ResponseDisplay } from './ResponseDisplay'
 
-import { AnswerDistribution } from './AnswerDistribution'
 
 class _ResponseList extends Component {
 
   constructor(props) {
       super(props)
-
-      this.submitGrade = this.submitGrade.bind(this)
   }
 
-  submitGrade (points, outOf, feedback, gradeId) {
-    mark = {
-      points: Number(points),
-      outOf: Number(outOf),
-      feedback: feedback,
-      questionId: this.props.question._id,
-      gradeId: gradeId
-    }
-
-    Meteor.call('grades.updateMark', mark, (err) => {
-      if (err) alertify.error(err)
-      else alertify.success('Updated Mark')
-    })
-  }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.studentToView) {
       const node = ReactDOM.findDOMNode(this.refs[nextProps.studentToView._id])
-      window.scrollTo(0, node.offsetTop)
+      window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
     }
   }
-  
+
   render () {
-    
+
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+
     const q = this.props.question
     const responses = this.props.responses
     const students = this.props.students
@@ -57,26 +41,25 @@ class _ResponseList extends Component {
 
     return (
       <div>
-        <QuestionDisplay question={q} prof readonly forReview />
+        <h3 className='response-categories'>
+          <span className='category' style={{'width':'20%'}}>Student Name</span>
+          <span className='category' style={{'width':'20%'}}>Response</span>
+          <span className='category' style={{'width':'10%'}}>Grade</span>
+          <span className='category' style={{'width':'30%'}}>Feedback</span>
+          <span className='category' style={{'width':'10%'}}></span>
+        </h3>
         {
-          q && q.type !== 2 // option based questions
-          ? <div className='response-distribution'>
-              <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseDist} />
-            </div>
-          : ''
-        }
-        { 
-          responses.map((response) => {
-            const mark = this.props.marks[index]
-            const student = students[index]
+          students.map((student) => {
+            const mark = this.props.marks[index] || null
+            const response = responses[index] || null
             const studentName = student.profile.lastname + ', ' + student.profile.firstname
             index += 1
             return(
-              <div key={response._id} ref={student._id}>
+              <div key={student._id} ref={student._id}>
                 <ResponseDisplay
-                  studentName={studentName} 
-                  response={response} 
-                  mark={mark} 
+                  studentName={studentName}
+                  response={response}
+                  mark={mark}
                   questionType={q.type}
                   submitGrade={this.submitGrade}/>
               </div>
@@ -91,34 +74,31 @@ class _ResponseList extends Component {
 export const ResponseList = createContainer((props) => {
   const handle = Meteor.subscribe('responses.forSession', props.session._id) &&
                  Meteor.subscribe('grades.forSession', props.session._id)
-  
-  const responses = Responses.find({ questionId: props.question._id }).fetch()
-  
-  const allResponses = Responses.find({questionId: { $in: props.session.questions }}).fetch()
-  const responsesByQuestion = _(allResponses).groupBy('questionId')
 
-  let responseDist = responseDistribution(responsesByQuestion[props.question._id], props.question)
-  
+  const questionId = props.question ? props.question._id : ''
+
+  const responses = Responses.find({ questionId: questionId }).fetch()
+
   let marks = []
- 
+
   props.grades.forEach(grade => {
     grade.marks.forEach(mark => {
       mark.gradeId = grade._id
-      if (mark.questionId === props.question._id) {
+      if (props.question && mark.questionId === props.question._id) {
         marks.push(mark)
       }
     })
   })
-  
+
 
   return {
+    loading: !handle.ready(),
     students: props.students,
     studentToView: props.studentToView,
     question: props.question,
     responses: responses,
-    responseDist: responseDist,
     marks: marks
-  }               
+  }
 }, _ResponseList)
 
 ResponseList.propTypes = {
