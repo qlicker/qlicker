@@ -38,7 +38,7 @@ export class _QuestionSidebar extends ControlledForm {
       //showOnlyApprovedQuestions: false,
       tags: [],
       tagSuggestions : [],
-      limit : 11,
+      limit : 10,
       atMaxLimit: false,
       nQuery: 0
     }
@@ -312,8 +312,8 @@ export class _QuestionSidebar extends ControlledForm {
             ? <div className='center-text'>{this.props.clickMessage}<br /></div> : ''
           }
           { this.state.nQuery > 0 ?
-            <div> Showing {this.state.questionPool.length} of {this.state.nQuery} questions </div>
-            : ''
+              <div> Showing {this.state.questionPool.length} of {this.state.nQuery} questions </div>
+            : <div> Showing {this.state.questionPool.length} questions </div>
           }
           <div className='ql-question-list'>
             { /* list questions */
@@ -386,7 +386,7 @@ export const QuestionSidebar = createContainer((props) => {
                             : questionQueries.queries.library.student
     break;
   }
-  const options = _.extend(questionQueries.options.sortMostRecent, {limit:11} )
+  const options = _.extend(questionQueries.options.sortMostRecent, {limit:10} )
 
   const questions = Questions.find(libQuery, options).fetch()
 
