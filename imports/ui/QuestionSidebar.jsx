@@ -375,7 +375,7 @@ export const QuestionSidebar = createContainer((props) => {
   }
   const options = _.extend(questionQueries.options.sortMostRecent, {limit:11} )
 
-  const questions = Questions.find(libQuery, questionQueries.options.sortMostRecent).fetch()
+  const questions = Questions.find(libQuery, options).fetch()
 
   //console.log("Questions in sidebar from subscription")
   //console.log(questions)
