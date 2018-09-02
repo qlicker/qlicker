@@ -311,7 +311,7 @@ export class QuestionDisplay extends Component {
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
                 ? <span className='ql-mc'>{a.answer}.</span>
                  : '' }
-              {content} {(shouldShowCorrect && a.correct) ? '✓' : ''} {showStats ? statsStr : ''} 
+              {content} {(shouldShowCorrect && a.correct) ? '✓' : ''} {showStats ? statsStr : ''}
             </div>
           </div>)
       })
@@ -368,7 +368,7 @@ export class QuestionDisplay extends Component {
     const q = this.props.question
     const type = q.type
     let content
-   
+
     const showToolbar = (type === QUESTION_TYPE.SA) && (!this.state.isSubmitted) && (!this.props.prof) && (!this.props.readonly)
     let msInfo = ''
     switch (type) {
@@ -426,9 +426,9 @@ export class QuestionDisplay extends Component {
           </div>
           : ''
         }
-        
-        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct)) && q.solution.length > 0 ? <div className='ql-question-solution'>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
-      
+
+        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct)) && q.solution  ? <div className='ql-question-solution'>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
+
       </div>
     )
   } // end render

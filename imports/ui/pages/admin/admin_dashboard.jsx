@@ -33,7 +33,7 @@ class _AdminDashboard extends Component {
 
   render () {
 
-    const setTab = (tab) => { this.setState({ tab: tab })} 
+    const setTab = (tab) => { this.setState({ tab: tab })}
 
     return (
       <div className='ql-admin-page'>
@@ -50,23 +50,23 @@ class _AdminDashboard extends Component {
               <span className='button' onClick={() => setTab('server')}>Server</span>
               <span className='divider'>&nbsp;</span>
               <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
-            </span> 
+            </span>
         }
-        
+
         <div className='ql-admin-settings'>
           { this.state.tab === 'users'
-            ? <ManageUsers 
-                settings={this.props.settings} 
-                allUsers={this.props.allUsers} 
+            ? <ManageUsers
+                settings={this.props.settings}
+                allUsers={this.props.allUsers}
                 courseNames={this.props.courseNames}
                 toggleProfileViewModal={this.toggleProfileViewModal} />
             : ''
           }
           { this.state.tab === 'server'
-            ? <ManageServer settings={this.props.settings} />  
-            : ''  
-          } 
-          { this.state.tab === 'sso' 
+            ? <ManageServer settings={this.props.settings} />
+            : ''
+          }
+          { this.state.tab === 'sso'
            ? <ManageSSO settings={this.props.settings}/>
            : ''
           }
@@ -83,7 +83,7 @@ export const AdminDashboard = createContainer(() => {
   courses.map((c) => {
     courseNames[c._id] = c.courseCode().toUpperCase()
   })
-  const settings = Settings.find().fetch()[0]
+  const settings = Settings.findOne()
   const allUsers = Meteor.users.find({ }, { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 } }).fetch()
   return {
     settings: settings,
