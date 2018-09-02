@@ -29,7 +29,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
     identifierFormat: settings.SSO_identifierFormat,
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),
     //privateCert: Assets.getText('key.key'),//not needed
-    decryptionPvk: (settings.SSO_privKey ? settings.SSO_privKey :''),//Assets.getText('key.key'),//probably needed
+    decryptionPvk: (settings.SSO_privKey ? settings.SSO_privKey : ''),//Assets.getText('key.key'),//probably needed
     issuer: settings.SSO_EntityId,
     },
     function(profile, done) {

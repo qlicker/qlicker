@@ -80,13 +80,13 @@ export class ManageSSO extends Component {
         <h4>SSO Settings</h4>
           <h3><input type='checkbox' data-name='SSO_enabled' checked={this.state.SSO_enabled} onChange={this.toggleSSO} />  Enable SSO</h3> <br />
           { this.state.SSO_enabled ?
-            <div>
+            <div> 
               <input className='form-control' type='text' data-name='SSO_entrypoint' onChange={this.setValue} placeholder='IDP Entry Point' value={this.state.SSO_entrypoint}/><br />
               <input className='form-control' type='text' data-name='SSO_logoutUrl' onChange={this.setValue} placeholder='IDP Logout URL' value={this.state.SSO_logoutUrl} /><br />
               <input className='form-control' type='text' data-name='SSO_EntityId' onChange={this.setValue} placeholder='Entity ID (e.g. qlicker)' value={this.state.SSO_EntityId} /><br />
-              <input className='form-control' type='text' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string in one line)' value={this.state.SSO_cert} /><br />
+              <input className='form-control' type='text' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string, no BEGIN-END)' value={this.state.SSO_cert} /><br />
               <input className='form-control' type='text' data-name='SSO_privCert' onChange={this.setValue} placeholder='SP Certificate (no BEGIN - END)' value={this.state.SSO_privCert} /><br />
-              <input className='form-control' type='text' data-name='SSO_privKey' onChange={this.setValue} placeholder='SP Key (no BEGIN - END)' value={this.state.SSO_privKey} /><br />
+              <input className='form-control' type='text' data-name='SSO_privKey' onChange={this.setValue} placeholder='SP Key (WITH BEGIN - END)' value={this.state.SSO_privKey} /><br />
               <input className='form-control' type='text' data-name='SSO_identifierFormat' onChange={this.setValue} placeholder='Identifier Format' value={this.state.SSO_identifierFormat} /><br />
               <input className='form-control' type='text' data-name='SSO_institutionName' onChange={this.setValue} placeholder='Institution Name' value={this.state.SSO_institutionName} /><br />
               <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' value={this.state.SSO_emailIdentifier} /><br />
