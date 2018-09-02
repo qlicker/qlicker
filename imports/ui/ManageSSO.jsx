@@ -80,7 +80,7 @@ export class ManageSSO extends Component {
         <h4>SSO Settings</h4>
           <h3><input type='checkbox' data-name='SSO_enabled' checked={this.state.SSO_enabled} onChange={this.toggleSSO} />  Enable SSO</h3> <br />
           { this.state.SSO_enabled ?
-            <div>
+            <div> 
               <input className='form-control' type='text' data-name='SSO_entrypoint' onChange={this.setValue} placeholder='IDP Entry Point' value={this.state.SSO_entrypoint}/><br />
               <input className='form-control' type='text' data-name='SSO_logoutUrl' onChange={this.setValue} placeholder='IDP Logout URL' value={this.state.SSO_logoutUrl} /><br />
               <input className='form-control' type='text' data-name='SSO_EntityId' onChange={this.setValue} placeholder='Entity ID (e.g. qlicker)' value={this.state.SSO_EntityId} /><br />
