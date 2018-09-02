@@ -38,7 +38,9 @@ export class _QuestionSidebar extends ControlledForm {
       //showOnlyApprovedQuestions: false,
       tags: [],
       tagSuggestions : [],
-      limit : 11
+      limit : 10,
+      atMaxLimit: false,
+      nQuery: 0
     }
 
     this.setQuestion = this.setQuestion.bind(this)
@@ -72,7 +74,9 @@ export class _QuestionSidebar extends ControlledForm {
     })
 
     if (nextProps.resetSideBar) this.resetFilter()
-    if(nextProps.courseId !== this.props.courseId) this.setTags([])
+    if(nextProps.courseId !== this.props.courseId){
+      this.setTags([])
+    }
   }
 
   componentDidMount() {
@@ -82,7 +86,7 @@ export class _QuestionSidebar extends ControlledForm {
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
-      this.setState({tagSuggestions: tagSuggestions})
+      this.setState({tagSuggestions: tagSuggestions, nQuery: Questions.find(this.state.libQuery).count()})
       //this.forceUpdate()
     })
   }
@@ -241,8 +245,13 @@ export class _QuestionSidebar extends ControlledForm {
     }*/
     query = _.extend(query, this.props.libQuery)
 
+    const nQuery = Questions.find(query).count()
+
     const newQuestions = Questions.find(query, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
-    this.setState({ questionPool: newQuestions })
+    let atMaxLimit = this.state.atMaxLimit
+    if (newQuestions.length < this.state.limit ) atMaxLimit = true
+
+    this.setState({ questionPool: newQuestions, atMaxLimit:atMaxLimit, nQuery:nQuery })
   }
 
 
@@ -254,7 +263,7 @@ export class _QuestionSidebar extends ControlledForm {
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
     const isStudent = Meteor.user().isStudent(this.props.courseId)
     const userId = Meteor.userId()
-    const showIncrease = this.state.questionPool.length % 10 > 0
+    const showIncrease = !this.state.atMaxLimit
     const showDecrease = this.state.questionPool.length > 20
 
     const showMore = <div className={'cursor-pointer ql-list-item col-md-' + (showIncrease ? '12' : '6')} onClick={() => this.increaseLimit()}>
@@ -301,6 +310,10 @@ export class _QuestionSidebar extends ControlledForm {
           {
             this.props.clickMessage
             ? <div className='center-text'>{this.props.clickMessage}<br /></div> : ''
+          }
+          { this.state.nQuery > 0 ?
+              <div> Showing {this.state.questionPool.length} of {this.state.nQuery} questions </div>
+            : <div> Showing {this.state.questionPool.length} questions </div>
           }
           <div className='ql-question-list'>
             { /* list questions */
@@ -373,7 +386,7 @@ export const QuestionSidebar = createContainer((props) => {
                             : questionQueries.queries.library.student
     break;
   }
-  const options = _.extend(questionQueries.options.sortMostRecent, {limit:11} )
+  const options = _.extend(questionQueries.options.sortMostRecent, {limit:10} )
 
   const questions = Questions.find(libQuery, options).fetch()
 
