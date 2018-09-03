@@ -7,7 +7,7 @@ import { WysiwygHelper } from '../wysiwyg-helpers'
 import { ResponseViewModal } from './modals/ResponseViewModal'
 
 export class ResponseDisplay extends Component {
-  
+
   constructor(props) {
     super(props)
 
@@ -21,7 +21,7 @@ export class ResponseDisplay extends Component {
       points: 0,
       feedback: '',
       showResponseView: false
-    } 
+    }
 
     this.saveGrade = this.saveGrade.bind(this)
 
@@ -29,12 +29,12 @@ export class ResponseDisplay extends Component {
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.mark) {
-      this.setState({ points: nextProps.mark.points || 0, feedback: nextProps.mark.feedback || '' })  
+      this.setState({ points: nextProps.mark.points || 0, feedback: nextProps.mark.feedback || '' })
     }
   }
 
   saveGrade () {
-    
+
     const points = Number(this.state.points)
     if (points > this.props.mark.outOf || points < 0) {
       alertify.error('Error: Grade points out of range')
@@ -49,7 +49,7 @@ export class ResponseDisplay extends Component {
       else alertify.success('Updated Mark')
     })
   }
-  
+
   render() {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
     const setFeedback = (e) => this.setState({ feedback: e.target.value })
@@ -60,18 +60,26 @@ export class ResponseDisplay extends Component {
 
     if (this.state.showResponseView) return <ResponseViewModal response={this.props.response} done={toggleShowResponseView} />
 
-    return(      
-      <div className='response-card-container'>
-        <div className='content'>
-          <div className='name'><div className='centered'>{this.props.studentName}</div></div>
-          <div className='answer'>
-            {
-              response
-              ? this.props.questionType == 2
-                ? <div className='textField' style={{'fontSize':'0.5em'}} onClick={toggleShowResponseView}>
-                    {WysiwygHelper.htmlDiv(response.answerWysiwyg)}
-                  </div>  
-                : <div className='centered'><h4>{response.answer}</h4></div>
+    return(
+      <div className='ql-response-display'>
+        <div className='ql-response-display-flex'>
+          <div className='name'>{this.props.studentName}</div>
+          <div className='answer-attempts'>
+            { response ?
+                <div className='answer'>
+                  <div className='button'>
+                    <span className='glyphicon glyphicon-chevron-left'></span>
+                  </div>
+                  {this.props.questionType == 2 ?
+                      <div className='satype' onClick={toggleShowResponseView}>
+                        {WysiwygHelper.htmlDiv(response.answerWysiwyg)}
+                      </div>
+                    : <div className='mctype'>{response.answer}</div>
+                  }
+                  <div className='button'>
+                    <span className='glyphicon glyphicon-chevron-right'></span>
+                  </div>
+                </div>
               : ''
             }
           </div>
@@ -81,9 +89,9 @@ export class ResponseDisplay extends Component {
               <span>/{outOf}</span>
           </div>
           <div className='feedback'>
-            <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />              
+            <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />
           </div>
-          <input className='btn' type='button' onClick={this.saveGrade} value='Save Mark' />
+          <input className='btn' type='button' onClick={this.saveGrade} value='Save' />
         </div>
       </div>
     )
@@ -95,5 +103,5 @@ ResponseDisplay.propTypes = {
   response: PropTypes.object,
   mark: PropTypes.object,
   questionType: PropTypes.number.isRequired,
-  submitGrade: PropTypes.func
+  //submitGrade: PropTypes.func
 }

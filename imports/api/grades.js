@@ -429,6 +429,7 @@ Meteor.methods({
    * Get a participation grade for the session (average if prof, single if student)
    * @param {MongoId} sessionId - ID of session
    */
+   /*TODO: Not complete! For prof, should count students that joined?
   'grades.getParticipationForSession' (sessionId) {
     check(sessionId, Helpers.MongoID)
     const user = Meteor.user()
@@ -448,7 +449,7 @@ Meteor.methods({
       }
       return grades.length >0 ? participation/grades.length : 0
     } else return 0
-  },
+  },*/
 
   /**
    * Set points for a mark in a grade item and recalulate grade point sum

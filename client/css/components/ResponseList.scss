@@ -1,28 +1,150 @@
 @import '../variables.scss';
 @import '../common_components.scss';
 
-.response-header {
-  width: 100%;
-  height: 100%;
+.ql-grading-container {
   background: white;
 
-  .bar {
-    @extend .ql-header-bar;
+  .ql-grading-header {
+    width: 100%;
+    height: 100%;
 
-    .btn {
-      @extend .btn;
-      border: none;
-      color: white;
-      height: 100%;
-      width: 20%;
-      font-size: 1em;
+    .ql-grading-question-preview {
+        font-size: 50%;
+        padding-bottom: 25px;
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
     }
 
-    .content {
-      width: 20%;
+  }
+  .ql-response-list-container {
+    .ql-response-list {
+      .ql-response-table-headers {
+        margin: 5px;
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 10px;
+        font-size: 2em;
+
+        .header-name {
+          text-align: center;
+          width: 20%;
+        }
+        .header-response {
+          text-align: center;
+          width: 30%;
+        }
+        .header-mark {
+          text-align: center;
+          width: 10%;
+        }
+        .header-feedback {
+          text-align: center;
+          width: 30%;
+        }
+        .header-button {
+          text-align: center;
+          width: 10%;
+        }
+      }
+
+      .ql-response-display-list {
+        .ql-response-display-container{
+          .ql-response-display {
+            height: 100%;
+            margin: 15px 5px;
+            border-radius: 7px;
+            font-size: 1.5em;
+            &:hover {
+              background: $grey;
+            }
+
+            .ql-response-display-flex{
+              display: flex;
+              justify-content: space-between;
+              align-items: stretch;
+
+              .name {
+                width: 20%;
+                font-size: 1em;
+                margin: auto;
+              }
+
+              .answer-attempts {
+                width: 30%;
+                margin: auto;
+                .answer {
+                  display: flex;
+                  justify-content: space-between;
+                  margin: auto;
+                  .button {
+                    min-height: 70px;
+                    max-height: 120px;
+                    width:20%;
+                    margin:auto;
+                    &:hover {
+                      background: $darker-grey;
+                    }
+                  }
+                  .mctype{
+                    margin: auto;
+                    text-align: center;
+                  }
+                  .satype {
+                    font-size:0.8em;
+                    width: 100%;
+                    min-height: 70px;
+                    max-height: 120px;
+                    background: white;
+                    border: 2px solid $grey;
+                    overflow-y: auto;
+                  }
+                }
+
+              }
+
+              .feedback {
+                width: 30%;
+                font-size: 0.8em;
+
+                .textField {
+                  width: 100%;
+                  min-height: 70px;
+                  max-height: 120px;
+                  background: white;
+                  border: 2px solid $grey;
+                  overflow-y: auto;
+                }
+              }
+
+              .grade {
+                width: 10%;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                font-size: 0.8em;
+
+                .numberField {
+                  text-align: left;
+                  width: 70%;
+                }
+              }
+
+              .btn {
+                @extend .btn-primary;
+                width: 10%;
+              }
+            }
+
+
+          }
+        }
+      }
     }
   }
 }
+
+
 
 .response-sidebar-header {
 
@@ -32,99 +154,10 @@
       color: white;
       height: 100%;
       width: 20%;
-      font-size: 1.5em;
+      font-size: 2em;
   }
 
   .content {
-    width: 20%;
+    width: 80%;
   }
 }
-
-.response-categories {
-  margin: 5px;
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 10px;
-
-  .category {
-    text-align: center;
-  }
-}
-
-.response-card-container {
-  height: 100%;
-  margin: 15px 5px;
-  border-radius: 7px;
-  font-size: 2em;
-  
-  &:hover {
-    background: $grey;
-  }
- 
-  .name {
-    width: 20%;
-    font-size: 0.7em;
-
-   .centered {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-   
-  }
-
-  .content {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-
-    .answer {
-      width: 20%;
-
-      .centered {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    }
-
-    .feedback { 
-      width: 30%;
-      font-size: 0.5em;
-    }
-
-    .grade {
-      width: 10%;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .textField {
-      width: 100%;
-      min-height: 70px;
-      max-height: 120px;
-      background: white;
-      border: 2px solid $grey;
-      overflow-y: auto;
-    }
-
-    .numberField {
-      text-align: right;
-      width: 70%;
-    }
-
-    .btn {
-      @extend .btn-primary;
-      width: 10%;
-    }
-
-  }
-}
-
-

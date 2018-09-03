@@ -40,32 +40,35 @@ class _ResponseList extends Component {
     let index = 0
 
     return (
-      <div>
-        <h3 className='response-categories'>
-          <span className='category' style={{'width':'20%'}}>Student Name</span>
-          <span className='category' style={{'width':'20%'}}>Response</span>
-          <span className='category' style={{'width':'10%'}}>Grade</span>
-          <span className='category' style={{'width':'30%'}}>Feedback</span>
-          <span className='category' style={{'width':'10%'}}></span>
-        </h3>
-        {
-          students.map((student) => {
-            const mark = this.props.marks[index] || null
-            const response = responses[index] || null
-            const studentName = student.profile.lastname + ', ' + student.profile.firstname
-            index += 1
-            return(
-              <div key={student._id} ref={student._id}>
-                <ResponseDisplay
-                  studentName={studentName}
-                  response={response}
-                  mark={mark}
-                  questionType={q.type}
-                  submitGrade={this.submitGrade}/>
-              </div>
-            )
-          })
-        }
+      <div className='ql-response-list'>
+        <div className='ql-response-table-headers'>
+          <div className='header-name'>Student Name</div>
+          <div className='header-response'>Response</div>
+          <div className='header-mark'>Grade</div>
+          <div className='header-feedback'>Feedback</div>
+          <div className='header-button'></div>
+        </div>
+        <div className='ql-response-display-list'>
+          {
+            students.map((student) => {
+              const mark = this.props.marks[index] || null
+              const response = responses[index] || null
+              const studentName = student.profile.lastname + ', ' + student.profile.firstname
+              index += 1
+              return(
+                <div className='ql-response-display-container' key={student._id} ref={student._id}>
+                  <ResponseDisplay
+                    studentName={studentName}
+                    response={response}
+                    mark={mark}
+                    questionType={q.type}
+                    //submitGrade={this.submitGrade}
+                  />
+                </div>
+              )
+            })
+          }
+        </div>
       </div>
     )
   }
@@ -79,6 +82,22 @@ export const ResponseList = createContainer((props) => {
 
   const responses = Responses.find({ questionId: questionId }).fetch()
 
+  //New
+  const studentIds = _(props.students).pluck('_id')
+  const grades = Grades.find({ userId:{$in:studentIds},
+                               questionId: props.questionId,
+                               sessionId: props.sessionId}).fetch()
+
+  let responsesByStudent = {}
+  for (let i=0; i < props.students.length ; i++){
+    let stu = props.students[i]
+    responsesByStudent[stu._id]=_(responses).where({studentUserId:stu._id})
+  }
+  console.log(responsesByStudent)
+
+ //end new
+
+ 
   let marks = []
 
   props.grades.forEach(grade => {

@@ -89,7 +89,7 @@ export class SessionListItem extends ListItem {
           <div className='col-md-2 col-xs-4 col-sm-3'>
             {link}
           </div>
-          { this.props.participation ?
+          { /*this.props.participation ?
             //This used to show what the current question is, better to show the grade...
             <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
             <span className='completion'>Participation: {this.props.participation} </span>
@@ -97,7 +97,7 @@ export class SessionListItem extends ListItem {
               <div className='ql-progress-bar' style={{ width: this.props.participation + '%' }}>&nbsp;</div>
             </div>
           </div>
-          : ''
+          : ''*/
          }
         </div>
         { this.props.controls ? <div className='controls'>{controls}</div> : '' }
