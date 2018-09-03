@@ -103,5 +103,6 @@ ResponseDisplay.propTypes = {
   response: PropTypes.object,
   mark: PropTypes.object,
   questionType: PropTypes.number.isRequired,
+  gradeId:PropTypes.string.isRequired,
   //submitGrade: PropTypes.func
 }

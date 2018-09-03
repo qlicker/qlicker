@@ -271,11 +271,13 @@ class _GradeSession extends Component {
                 <ResponseList
                   sessionId={this.props.session.sessionId}
                   questionId={this.state.questionToView._id}
+                  qtype={this.state.questionToView.type}
                   session={this.props.session} //get rid of
                   question={this.state.questionToView}//get rid of
                   students={studentsToShow}
                   studentToView={this.state.studentToView}
-                  grades={this.props.grades}/>
+                  grades={this.props.grades}// get rid of
+                />
               </div>
             </div>
           </div>
