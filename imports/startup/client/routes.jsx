@@ -271,9 +271,9 @@ Router.route('/course/:courseId/session/:sessionId/grade', {
   action: function () {
     if (!Meteor.userId()) Router.go('login')
     const sess = Sessions.findOne({_id: this.params.sessionId})
-    const cId = sess ? sess.courseId : 0
+    const cId = this.params.courseId
     if (Meteor.user().isInstructor(cId) || Meteor.user().hasRole('admin')) {
-      mount(AppLayout, {content: <PageContainer courseId={this.params.courseId}> <GradeSession sessionId={this.params.sessionId} courseId={cId} /> </PageContainer>})
+      mount(AppLayout, {content: <PageContainer courseId={this.params.courseId}> <GradeSession sessionId={this.params.sessionId} courseId={this.params.courseId} /> </PageContainer>})
     } else Router.go('login')
   }
 })

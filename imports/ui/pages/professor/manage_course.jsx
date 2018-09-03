@@ -10,6 +10,7 @@ import _ from 'underscore'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../../api/courses'
+import { Grades } from '../../../api/grades'
 import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
 import { PickCourseModal } from '../../modals/PickCourseModal'
@@ -51,6 +52,11 @@ class _ManageCourse extends Component {
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
   //  this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
+  }
+  
+  componentWillReceiveProps (nextProps) {
+    const course = nextProps.course
+    this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions })
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -156,10 +162,7 @@ class _ManageCourse extends Component {
     this.setState({ requireApprovedPublicQuestions: !this.state.requireApprovedPublicQuestions })
   }*/
 
-  componentWillReceiveProps (nextProps) {
-    const course = nextProps.course
-    this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions, requireApprovedPublicQuestions: course.requireApprovedPublicQuestions })
-  }
+
 
   renderSessionList () {
     let sessions = this.props.sessions
@@ -376,7 +379,8 @@ export const ManageCourse = createContainer((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
     Meteor.subscribe('users.studentsInCourse', props.courseId) &&
-    Meteor.subscribe('users.instructorsInCourse', props.courseId)
+    Meteor.subscribe('users.instructorsInCourse', props.courseId) &&
+    Meteor.subscribe('grades.forCourse', props.courseId)
 
   const course = Courses.findOne({ _id: props.courseId })
 
