@@ -23,14 +23,13 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
 
   strategy = new saml.Strategy({
     callbackUrl: Meteor.absoluteUrl('SSO/SAML2'),
-    logoutCallbackUrl: Meteor.absoluteUrl('SSO/SAML2/logout'),
-    entryPoint: settings.SSO_entrypoint,
-    cert: settings.SSO_cert,
-    identifierFormat: settings.SSO_identifierFormat,
-    logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),
-    //privateCert: Assets.getText('key.key'),//not needed
-    decryptionPvk: (settings.SSO_privKey ? settings.SSO_privKey : ''),//Assets.getText('key.key'),//probably needed
-    issuer: settings.SSO_EntityId,
+    logoutCallbackUrl: Meteor.absoluteUrl('SSO/SAML2/logout'),// qlicker's logout (for IDP initiated logout)
+    entryPoint: settings.SSO_entrypoint, //entry point of IDP
+    cert: settings.SSO_cert,// cert of IDP
+    identifierFormat: settings.SSO_identifierFormat,//nameID format
+    logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),// IDP logout url (to initiate IDP logout)
+    decryptionPvk: (settings.SSO_privKey ? settings.SSO_privKey : ''),//Assets.getText('key.key'),//local private key for decryption
+    issuer: settings.SSO_EntityId,//same of the entity id (Qlicker)
     },
     function(profile, done) {
     return done(null, profile);

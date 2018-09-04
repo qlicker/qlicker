@@ -71,11 +71,10 @@ export class Editor extends Component {
   addImage (image) {
     var element = this.editor.document.createElement('img')
     this.editor.insertElement(element)
-    let src
-    if(this.state.storageType === 'AWS') {
-      src = image.url + '/image'
-    } else if (this.state.storageType === 'Azure' || this.state.storageType === 'Local') src = image.url
-    else src = ''
+    let src = ''
+    if(this.state.storageType === 'AWS' || this.state.storageType === 'Azure' || this.state.storageType === 'Local') {
+      src = image.url
+    }
     this.editor.widgets.initOn(element, 'image', {src: src})
     Meteor.call('images.insert', image, (e) => {
       if (e) return alertify.error('Error updating image')
@@ -98,8 +97,7 @@ export class Editor extends Component {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
         if (e) alertify.error('Error uploading')
         else if (save) {
-          if (this.state.storageType === 'AWS') img.url = downloadUrl.slice(0, -(meta.type.length + 1))
-          else img.url = downloadUrl
+          img.url = downloadUrl
           img.UID = meta.UID
           this.addImage(img)
         }
@@ -124,8 +122,12 @@ export class Editor extends Component {
           namespace: '00000000-0000-0000-0000-000000000000',
           name: fileURL})
         let image = {UID: UID}
-        const existing = Images.find(image).fetch()[0]
-        if (existing) this.addImage(existing)
+
+        //Don't use an existing, if the link is from a thumbnail
+        const existing = false //Images.findOne(image)
+        if (existing && !existing.url.endsWith('/thumbnail') ) {
+          this.addImage(existing)
+        }
         else {
           let img = new window.Image()
           img.onload = function () {
@@ -139,12 +141,13 @@ export class Editor extends Component {
           img.src = fileURL
 
           // Makes a thumbnail
+          /*
           let thumb = new window.Image()
           thumb.onload = function () {
             const meta = {UID: UID, type: 'thumbnail', src: img.src}
             this.resizeImage(50, this.state.storageType, thumb, meta, false)
           }.bind(this)
-          thumb.src = e.target.result
+          thumb.src = e.target.result*/
         }
       }.bind(this))
     }.bind(this))

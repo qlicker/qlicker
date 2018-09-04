@@ -7,7 +7,7 @@ $green-bar: rgba(42,167,134, 0.3);
 $red-bar: rgba(167,37,38, 0.3);
 
 .ql-question-display {
-
+  
   &.interactive {
     .ql-short-answer {
       color: black;
@@ -40,7 +40,7 @@ $red-bar: rgba(167,37,38, 0.3);
     font-size: 3em;
     background: white;
     padding: 16px;
-    text-align:center;
+    //text-align:center;
   }
 
   .ql-question-solution {

@@ -98,9 +98,13 @@ Meteor.startup(() => {
 
   for (let  i=0; i<nImages; i++){
     let image = allImages[i]
-    if(image.url.startsWith('https://ql-images-1.s3-ca-central-1.amazonaws.com') && !image.url.endsWith('/image') ){
+    if(image.url.startsWith('https://ql-images-1.s3-ca-central-1.amazonaws.com') && !image.url.endsWith('/image') && !image.url.endsWith('/thumbnail')){
       let url = image.url
       Images.update( {UID:image.UID}, {'$set' :{'image.url': url+'/image'}})
+    }
+    if(image.url.startsWith('https://ql-images-1.s3-ca-central-1.amazonaws.com') && image.url.endsWith('/thumbnail/image') ) {
+      let url = image.url.replace('/thumbnail/image','/image')
+      Images.update( {UID:image.UID}, {'$set' :{'image.url': url}})
     }
   }
   //End of hack*******************************************************************

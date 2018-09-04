@@ -302,12 +302,12 @@ Router.route('/course/:courseId/session/:sessionId/results', {
 })
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
-Router.route('/course/:courseId/session/edit/:sessionID', {
+Router.route('/course/:courseId/session/edit/:sessionId', {
   name: 'session.edit',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') &&
-      Meteor.subscribe('sessions.single', this.params.sessionID) &&
+      Meteor.subscribe('sessions.single', this.params.sessionId) &&
       Meteor.subscribe('courses') &&
       Meteor.subscribe('images')
   },
@@ -315,7 +315,7 @@ Router.route('/course/:courseId/session/edit/:sessionID', {
     const cId = this.params.courseId
     const isInstructor = Meteor.user().isInstructor(cId)
     if (Meteor.userId() && isInstructor) {
-      mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params.sessionID} courseId={this.params.courseId} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params.sessionId} /> </PageContainer> })
     } else Router.go('login')
   }
 })

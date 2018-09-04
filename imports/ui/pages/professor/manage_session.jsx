@@ -326,7 +326,7 @@ class _ManageSession extends Component {
 
     const setTab = (e) => { this.setState({ tab: e })}
   //  let questionList = this.state.session.questions || []
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
     let questionList = this.state.session.questions || []
     const qlItems = []
@@ -480,17 +480,18 @@ class _ManageSession extends Component {
 export const ManageSession = createContainer((props) => {
   //const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor})
 
-  const handle =  Meteor.subscribe('sessions.single', props.sessionID) &&
-       Meteor.subscribe('questions.inSession', props.sessionId)
+  const handle =  Meteor.subscribe('sessions.single', props.sessionId) &&
+       Meteor.subscribe('questions.inSession', props.sessionId)// &&
+      // Meteor.subscribe('courses.single', props.courseId)
 
-  const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
-  const course = Courses.findOne({ _id: props.courseId})
+  const session = Sessions.findOne({ _id: props.sessionId })
+  //const course = Courses.findOne({ _id: props.courseId})
 
   const questionsInSession = Questions.find({ sessionId:props.sessionId} ).fetch()
 
   return {
     session: session,
-    course: course,
+    //course: course,
     questions: _.indexBy(questionsInSession, '_id'),
     loading: !handle.ready()
   }

@@ -51,7 +51,7 @@ export class SessionDetails extends Component {
 
   render () {
     const r = (<div>
-      <button className='btn btn-default' ref='runButton' onClick={() => { Router.go('session.run', { _id: this.state.session._id }) }}>Run Session</button>
+      <button className='btn btn-default' ref='runButton' onClick={() => { Router.go('session.run', { sessionId: this.state.session._id }) }}>Run Session</button>
 
       <textarea className='form-control' data-name='description'
         onChange={this.setValue}
@@ -74,4 +74,3 @@ export class SessionDetails extends Component {
   } //  end render
 
 }
-
