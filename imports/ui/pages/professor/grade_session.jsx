@@ -272,11 +272,11 @@ class _GradeSession extends Component {
                   sessionId={this.props.session.sessionId}
                   questionId={this.state.questionToView._id}
                   qtype={this.state.questionToView.type}
-                  session={this.props.session} //get rid of
-                  question={this.state.questionToView}//get rid of
+                  //session={this.props.session} //get rid of
+                  //question={this.state.questionToView}//get rid of
                   students={studentsToShow}
                   studentToView={this.state.studentToView}
-                  grades={this.props.grades}// get rid of
+                  //grades={this.props.grades}// get rid of
                 />
               </div>
             </div>
@@ -301,7 +301,7 @@ export const GradeSession = createContainer((props) => {
   const session = Sessions.findOne({ _id: props.sessionId })
   const grades = Grades.find({ sessionId: props.sessionId }).fetch()
 
-  const studentIds = course.students || []
+  const studentIds = session.joined || [] //course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
   let questions = Questions.find({_id: { $in: session.questions }}).fetch()

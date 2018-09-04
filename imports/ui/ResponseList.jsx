@@ -57,7 +57,7 @@ class _ResponseList extends Component {
               const mark = this.props.markByStudentId[stuId]
               const gradeId = this.props.gradeByStudenId[stuId]
               const responses = this.props.responsesByStudentId[stuId]
-              let response = responses ? responses[responses.length-1] : null
+              //let response = responses ? responses[responses.length-1] : null
 
               const studentName = student.profile.lastname + ', ' + student.profile.firstname
               //index += 1
@@ -65,7 +65,7 @@ class _ResponseList extends Component {
                 <div className='ql-response-display-container' key={student._id} ref={student._id}>
                   <ResponseDisplay
                     studentName={studentName}
-                    response={response}
+                    responses={responses}
                     mark={mark}
                     gradeId={gradeId}
                     questionType={this.props.qtype}
@@ -82,15 +82,14 @@ class _ResponseList extends Component {
 }
 
 export const ResponseList = createContainer((props) => {
-  const handle = Meteor.subscribe('responses.forSession', props.session._id) &&
-                 Meteor.subscribe('grades.forSession', props.session._id)
+  const handle = props.sessionId && Meteor.subscribe('responses.forSession', props.sessionId) &&
+                 Meteor.subscribe('grades.forSession', props.sessionId)
 
-  const questionId = props.question ? props.question._id : ''
-
+  const questionId = props.questionId ? props.questionIdd : ''
   const responses = Responses.find({ questionId: questionId }).fetch()
 
-  //New
   const studentIds = _(props.students).pluck('_id')
+  //TODO: Add sessionId to subscription (and check that it works!)
   const grades = Grades.find({userId:{$in:studentIds}}).fetch()
 
   let responsesByStudentId = {}
@@ -129,7 +128,7 @@ export const ResponseList = createContainer((props) => {
     loading: !handle.ready(),
     students: props.students,
     studentToView: props.studentToView,
-    questionId: props.questionId,
+    //questionId: props.questionId,
     responsesByStudentId: responsesByStudentId,
     markByStudentId: markByStudentId,
     gradeByStudenId: gradeByStudenId,

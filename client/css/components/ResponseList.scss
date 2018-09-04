@@ -72,6 +72,11 @@
               .answer-attempts {
                 width: 30%;
                 margin: auto;
+                display: flex;
+                align-items: center;
+                .attempt-header {
+                  font-size: 0.5em
+                }
                 .answer {
                   display: flex;
                   justify-content: space-between;
@@ -81,9 +86,13 @@
                     max-height: 120px;
                     width:20%;
                     margin:auto;
+                    span {
+                      margin-top: auto;
+                    }
                     &:hover {
                       background: $darker-grey;
                     }
+
                   }
                   .mctype{
                     margin: auto;

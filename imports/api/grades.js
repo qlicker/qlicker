@@ -258,10 +258,12 @@ Meteor.methods({
     else throw Error('Unable to update')
   },
 
+
   /**
    * Updates a mark in a grade item
    * @param {MongoID} mark - mark object with points, outOf, studentId, questionId
    */
+   /* TODO: think the below is redundant with grades.setMarkPoints
   'grades.updateMark' (mark) {
 
     if (!mark) throw Error('No mark inputted')
@@ -294,7 +296,7 @@ Meteor.methods({
     }
 
     else throw Error('Unable to update mark')
-  },
+  },*/
 
   /**
    * Hide the grades from the students
