@@ -17,6 +17,17 @@ import { Responses } from './responses.js'
 
 import { ROLES, QUESTION_TYPE, isAutoGradeable } from '../configs'
 
+const markPattern = {
+  questionId: Match.Maybe(Helpers.NEString), // Id of question
+  responseId: Match.Maybe(Helpers.NEString), // Id of response used to calculate points
+  attempt: Match.Maybe(Number), // attempt for that question
+  points: Match.Maybe(Number), // value of the mark for that question
+  outOf: Match.Maybe(Number), // value of the mark for that question
+  automatic: Match.Maybe(Boolean), // whehter the value was automatically calculated (and should be automatically updated)
+  needsGrading: Match.Maybe(Boolean), // whether the points need to be set manually (for a non-autogradeable question)
+  feedback: Match.Maybe(String) //feedback provided to student for that mark
+}
+
 // expected collection pattern
 const gradePattern = {
   _id: Match.Maybe(Helpers.NEString), // mongo db id
@@ -24,16 +35,7 @@ const gradePattern = {
   courseId: Match.Maybe(Helpers.NEString), // course Id of the grade
   sessionId: Match.Maybe(Helpers.NEString), // session Id of the grade
   name: Match.Maybe(String), // name of grade (defaults to session name)
-  marks: Match.Maybe([ { // a set of marks that result in the grade
-    questionId: Match.Maybe(Helpers.NEString), // Id of question
-    responseId: Match.Maybe(Helpers.NEString), // Id of response used to calculate points
-    attempt: Match.Maybe(Number), // attempt for that question
-    points: Match.Maybe(Number), // value of the mark for that question
-    outOf: Match.Maybe(Number), // value of the mark for that question
-    automatic: Match.Maybe(Boolean), // whehter the value was automatically calculated (and should be automatically updated)
-    needsGrading: Match.Maybe(Boolean), // whether the points need to be set manually (for a non-autogradeable question)
-    feedback: Match.Maybe(String)
-  } ]),
+  marks: Match.Maybe([ markPattern ]),// a set of marks that result in the grade
   joined: Match.Maybe(Boolean), // whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
   value: Match.Maybe(Number), // calculated value of grade, can be manually overridden
@@ -258,18 +260,22 @@ Meteor.methods({
     else throw Error('Unable to update')
   },
 
+
   /**
    * Updates a mark in a grade item
    * @param {MongoID} mark - mark object with points, outOf, studentId, questionId
    */
-  'grades.updateMark' (mark) {
+
+  'grades.updateMark' (gradeId, mark) {
+    check(mark, markPattern)
+    check(gradeId, Helpers.MongoID)
 
     if (!mark) throw Error('No mark inputted')
 
     // points must be positive
-    if (mark.points < 0 || mark.outOf < mark.points) throw Error('Invalid mark')
+    if (mark.points < 0 ) throw Error('No negativ points for a mark')
 
-    const grade = Grades.findOne({ _id: mark.gradeId })
+    const grade = Grades.findOne({ _id: gradeId })
     if (!grade) throw Error('Undefined grade in update!')
 
     const user = Meteor.user()
@@ -280,9 +286,15 @@ Meteor.methods({
     }
 
     let gradeMarks = grade.marks
-    let gradeMark = _(gradeMarks).findWhere({ questionId: mark.questionId })
+    let index = _(gradeMarks).findIndex({ questionId: mark.questionId })
 
-    if (gradeMark) {
+    if (index>=0) {
+      grade.marks[index]=mark
+      Meteor.call('grades.updatePoints', grade, (err, updatedGrade) => {
+        if (err) throw Error(err)
+        else return updatedGrade
+      })
+      /*
       gradeMark.points = mark.points
       gradeMark.outOf = mark.outOf
       gradeMark.feedback = mark.feedback
@@ -290,7 +302,7 @@ Meteor.methods({
       Meteor.call('grades.updatePoints', grade, (err) => {
         if (err) throw Error(err)
         else return Grades.update(grade._id, grade)
-      })
+      })*/
     }
 
     else throw Error('Unable to update mark')
@@ -301,6 +313,7 @@ Meteor.methods({
    * @param {MongoID} sessionId - session ID
    */
   'grades.hideFromStudents' (sessionId) {
+    check(sessionId, Helpers.MongoID)
     Grades.update({sessionId: sessionId}, {
       $set: { visibleToStudents: false }
     })
@@ -310,6 +323,7 @@ Meteor.methods({
    * @param {MongoID} sessionId - session ID
    */
   'grades.showToStudents' (sessionId) {
+    check(sessionId, Helpers.MongoID)
     Grades.update({sessionId: sessionId}, {
       $set: { visibleToStudents: true }
     })
@@ -340,7 +354,7 @@ Meteor.methods({
       if (grade.automatic) {
         grade.value = gradeValue
       }
-      Meteor.call('grades.update', grade)
+      return Meteor.call('grades.update', grade)
     }
   },
 

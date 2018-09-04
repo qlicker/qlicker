@@ -304,6 +304,7 @@ Meteor.methods({
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
     }).count()
+    if (c>0) console.log("updating a response")
     if (c > 0) return Meteor.call('responses.update', responseObject)
 
     return Responses.insert(responseObject)

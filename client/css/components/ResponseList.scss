@@ -8,18 +8,65 @@
     width: 100%;
     height: 100%;
 
-    .ql-grading-question-preview {
-        font-size: 50%;
-        padding-bottom: 25px;
-        border-bottom-style: solid;
-        border-bottom-width: 1px;
+    .ql-grading-header-student-title {
+      width: 100%;
+      height: 45px;
+      text-align: center;
+      color: white;
+      font-size: 1.5em;
+      background: $blue;
+      margin: auto;
     }
 
+    .ql-grading-header-title {
+      width: 100%;
+      height: 45px;
+      text-align: center;
+      color: white;
+      font-size: 2.5em;
+      background: $blue;
+      display: flex;
+      justify-content: space-between;
+      .ql-grading-header-qControl {
+        width: 250px;
+        //font-size:0.5em;
+        .button {
+          &:hover {
+            margin: auto;
+            background: darken($blue,10%);
+            cursor: pointer;
+          }
+        }
+
+      }
+    }
+    .ql-grading-header-question-preview {
+        font-size: 50%;
+        padding-bottom: 20px;
+      //border-bottom-style: solid;
+      //border-bottom-width: 1px;
+    }
   }
+
+  .ql-grade-session-student-search {
+    padding-top: 5px;
+    .ql-grade-session-student-search-controls {
+      padding-bottom: 5px;
+      input {
+        width: 100%;
+      }
+      .ql-grade-session-select {
+        padding-bottom: 5px;
+      }
+    }
+  }
+
+
   .ql-response-list-container {
     .ql-response-list {
       .ql-response-table-headers {
-        margin: 5px;
+        background: $slightly-darker-grey;
+        margin: auto;
         display: flex;
         justify-content: space-between;
         padding-bottom: 10px;
@@ -48,11 +95,18 @@
       }
 
       .ql-response-display-list {
+
+        max-height: 800px;
+        overflow-y: auto;
+
         .ql-response-display-container{
+          background: white;
+          &.highlight {
+            background: $slightly-darker-grey
+          }
+
           .ql-response-display {
             height: 100%;
-            margin: 15px 5px;
-            border-radius: 7px;
             font-size: 1.5em;
             &:hover {
               background: $grey;
@@ -70,21 +124,43 @@
               }
 
               .answer-attempts {
-                width: 30%;
+                min-width: 30%;
                 margin: auto;
+                //display: flex;
+                //align-items: center;
+                .attempt-header {
+                  font-size: 0.5em
+                }
+
                 .answer {
                   display: flex;
                   justify-content: space-between;
-                  margin: auto;
-                  .button {
+                  //margin: auto;
+                  .attempt-control {
                     min-height: 70px;
                     max-height: 120px;
-                    width:20%;
-                    margin:auto;
-                    &:hover {
-                      background: $darker-grey;
+                    width:10%;
+
+                    .button {
+                      min-height: 70px;
+                      max-height: 120px;
+
+                      display: flex;
+                      flex-direction: column;
+                      justify-content: space-between;
+                      //margin:auto;
+                      span {
+                        margin: auto;
+                      }
+                      &:hover {
+                        background: $darker-grey;
+                        cursor: pointer;
+                      }
+
+
                     }
                   }
+
                   .mctype{
                     margin: auto;
                     text-align: center;
@@ -97,13 +173,17 @@
                     background: white;
                     border: 2px solid $grey;
                     overflow-y: auto;
+                    &:hover {
+                      cursor: pointer;
+                    }
                   }
                 }
 
               }
 
               .feedback {
-                width: 30%;
+                padding-top: 5px;
+                min-width: 30%;
                 font-size: 0.8em;
 
                 .textField {
@@ -117,7 +197,7 @@
               }
 
               .grade {
-                width: 10%;
+                width: 80px;
                 display: flex;
                 flex-direction: row;
                 justify-content: center;
@@ -129,11 +209,15 @@
                   width: 70%;
                 }
               }
-
-              .btn {
-                @extend .btn-primary;
-                width: 10%;
+              .save-button {
+                min-width: 60px;
+                //padding: 5px;
+                margin: auto;
+                .button {
+                    @extend .btn-primary;
+                }
               }
+
             }
 
 
@@ -143,7 +227,6 @@
     }
   }
 }
-
 
 
 .response-sidebar-header {
