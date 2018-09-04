@@ -484,7 +484,7 @@ export const ManageSession = createContainer((props) => {
        Meteor.subscribe('questions.inSession', props.sessionId)
 
   const session = Sessions.find({ _id: props.sessionId }).fetch()[0]
-  const course = Courses.findOne({ _id: session.courseId})
+  const course = Courses.findOne({ _id: props.courseId})
 
   const questionsInSession = Questions.find({ sessionId:props.sessionId} ).fetch()
 

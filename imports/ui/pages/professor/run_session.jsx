@@ -365,7 +365,7 @@ class _RunSession extends Component {
         <div className='ql-session-toolbar'>
           <h3 className='session-title'>{ this.state.session.name }</h3>
           <span className='divider'>&nbsp;</span>
-          <span className='toolbar-button' onClick={() => Router.go('session.edit', { _id: this.state.session._id, courseId: this.state.session.courseId })}>
+          <span className='toolbar-button' onClick={() => Router.go('session.edit', {sessionId: this.state.session._id, courseId: this.state.session.courseId })}>
             <span className='glyphicon glyphicon-edit' />&nbsp;
             Edit Session
           </span>
