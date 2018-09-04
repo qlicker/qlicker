@@ -34,13 +34,13 @@ class _Profile extends Component {
     this.resizeImage = this.resizeImage.bind(this)
     this.updateProfileImage = this.updateProfileImage.bind(this)
   }
-    
+
   componentWillMount () {
     //If the SSOlogout URL exists, user is logged in through SSO, don't let them change their password!
     Meteor.call("isSSOSession", (err,result) => {
       if(!err)this.setState({isSSOSession:result})
-    })   
-  }  
+    })
+  }
 
   updateProfileImage (file, done) {
     let reader = new window.FileReader()
@@ -52,15 +52,15 @@ class _Profile extends Component {
         name: fileURL})
       let image = {UID: UID, url: fileURL}
       const existing = Images.findOne(image)
-      
-      if (existing) {
+
+      if (existing && !existing.url.endsWith('/thumbnail')) {
         this.saveProfileImage(existing.url, 'image')
 
         if (existing.url.startsWith('https://s3.') && existing.url.endsWith('/image')) {
-          this.saveProfileImage(existing.url.slice(0, -5) + 'thumbnail', 'thumbnail')  
+          this.saveProfileImage(existing.url.slice(0, -5) + 'thumbnail', 'thumbnail')
 
-        } else this.saveProfileImage(existing.url, 'thumbnail')      
-        
+        } else this.saveProfileImage(existing.url, 'thumbnail')
+
         return
       }
 
@@ -143,7 +143,7 @@ class _Profile extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)  
+    let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
         if (e) alertify.error('Error uploading')
@@ -168,10 +168,10 @@ class _Profile extends Component {
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
     const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
-    
-    const noEdits = this.state.isSSOSession 
+
+    const noEdits = this.state.isSSOSession
     const noEmail = (user.services && user.services.sso)
-    
+
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
       : <span className='label label-warning'>Un-verified</span>
@@ -218,7 +218,7 @@ class _Profile extends Component {
                     }
                 </div>
 
-                
+
                 { noEdits ? '' :
                   <div className='btn-group btn-group-justified' role='group' aria-label='...'>
                      {noEmail ? '' : <a href='#' className='btn btn-default' onClick={toggleChangeEmailModal} >Change Email</a> }

@@ -31,7 +31,7 @@ class _StudentSessionResultsPage extends Component {
             <h4>
               {this.props.session.name} (<span className='uppercase'>{this.props.course.fullCourseCode()}</span>)
               { this.props.grade ?
-                <div> Grade: {this.props.grade.value} Participation: {this.props.grade.participation} </div>
+                <div> Grade: {this.props.grade.value.toFixed(0)} Participation: {this.props.grade.participation.toFixed(0)} </div>
                   : ''
               }
             </h4>

@@ -379,8 +379,8 @@ export const ManageCourse = createContainer((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
     Meteor.subscribe('users.studentsInCourse', props.courseId) &&
-    Meteor.subscribe('users.instructorsInCourse', props.courseId) &&
-    Meteor.subscribe('grades.forCourse', props.courseId)
+    Meteor.subscribe('users.instructorsInCourse', props.courseId)// &&
+  //  Meteor.subscribe('grades.forCourse', props.courseId)
 
   const course = Courses.findOne({ _id: props.courseId })
 

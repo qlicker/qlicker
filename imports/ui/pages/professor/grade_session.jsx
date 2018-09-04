@@ -258,7 +258,7 @@ class _GradeSession extends Component {
                       : ''
                     }
                   </div>
-                  Question {this.state.questionIndex + 1} of {this.props.session.name}
+                 {this.props.session.name}: Q{this.state.questionIndex + 1} 
                   <div className='ql-grading-header-qControl'>
                     { this.state.questionIndex < this.props.questions.length - 1
                       ? <div className='button' onClick={incrementQuestion} > Next Question <span className='glyphicon glyphicon-chevron-right' /></div>
