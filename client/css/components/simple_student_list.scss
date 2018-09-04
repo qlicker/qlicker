@@ -14,10 +14,13 @@
   .ql-simple-studentlist-student-container {
     max-height: 400px;
     overflow-y: auto;
+
     .ql-simple-studentlist-student {
-      vertical-align: middle;
+      //vertical-align: middle;
+      margin:auto;
       border:2px solid $grey;
       height: 30px;
+      padding-top:5px;
       &:hover {
         cursor: pointer;
         background-color: $grey;

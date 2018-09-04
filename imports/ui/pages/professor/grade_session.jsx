@@ -17,6 +17,7 @@ import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
 import { Grades } from '../../../api/grades'
 import { Questions } from '../../../api/questions'
+import { Responses, responseDistribution } from '../../../api/responses'
 
 import { WysiwygHelper } from '../../../wysiwyg-helpers'
 
@@ -27,10 +28,6 @@ class _GradeSession extends Component {
 
   constructor (props) {
     super(props)
-
-    const firstQ = this.props.questions && this.props.questions.length > 0
-    ? this.props.questions[0]
-    : null
 
     this.state = {
       studentToView: null,
@@ -51,16 +48,18 @@ class _GradeSession extends Component {
   }
   componentDidMount() {
     const firstQ = this.props.questions && this.props.questions.length > 0
-    ? this.props.questions[0]
-    : null
+      ? this.props.questions[0]
+      : null
     this.setState({questionToView: firstQ})
   }
 
   componentWillReceiveProps(nextProps) {
-    const firstQ = nextProps.questions && nextProps.questions.length > 0
-    ? nextProps.questions[0]
-    : null
-    this.setState({ questionToView: firstQ })
+    if(!this.state.questionToView || nextProps.session._id != this.props.session._id){
+      const firstQ = nextProps.questions && nextProps.questions.length > 0
+      ? nextProps.questions[0]
+      : null
+      this.setState({ questionToView: firstQ })
+    }
   }
 
   setStudentSearchString (e) {
@@ -179,104 +178,108 @@ class _GradeSession extends Component {
     const incrementQuestion = () => this.incrementQuestion(1)
     const decrementQuestion = () => this.incrementQuestion(-1)
 
+    const responseStats = this.props.responseStatsByQuestion[this.state.questionToView._id]
 
     return (
-      <div className='container ql-grade-session'>
+      <div className='container'>
         <div className='row'>
           <div className='col-md-3'>
-            <div className='ql-card-fixed'>
-              <div className='ql-header-bar'>
-                <h4>Select student to grade</h4>
-                <div className='response-sidebar-header'>
-                  { this.state.questionIndex > 0
-                    ? <span className='btn' onClick={decrementQuestion}>🡄</span>
-                    : ''
-                  }
-                  <span className='content'>Question {this.state.questionIndex + 1}</span>
-                  { this.state.questionIndex < this.props.questions.length - 1
-                    ? <span className='btn' onClick={incrementQuestion}>🡆</span>
-                    : ''
-                  }
+            <div className='ql-grading-container'>
+              <div className='ql-grading-header'>
+                <div className='ql-grading-header-student-title'>
+                Select student(s) to grade
                 </div>
               </div>
-              <div className='ql-card-content'>
-                <div className='ql-grade-session-student-search'>
-                  <div className='ql-grade-session-student-search-controls'>
-                    { categoryOptions.length
-                      ? <div className='ql-grade-session-select'>
-                        <Select
-                          name='category-input'
-                          placeholder='Search by group - type to choose category'
-                          value={this.state.groupCategory ? this.state.groupCategory.categoryNumber : null}
-                          options={categoryOptions}
-                          onChange={this.setCategory}
-                          />
-                      </div>
-                      : ''
-                    }
-                    { groupOptions.length
-                      ? <div className='ql-grade-session-select'>
-                        <Select
-                          name='category-input'
-                          placeholder={'Type to choose group in ' + this.state.groupCategory.categoryName}
-                          value={this.state.group ? this.state.group.groupNumber : null}
-                          options={groupOptions}
-                          onChange={this.setGroup}
-                          />
-                      </div>
-                      : ''
-                    }
-                    <input type='text' onChange={_.throttle(this.setStudentSearchString, 200)} placeholder='Search by student name or email' />
-                  </div>
-                  <div className='ql-simple-studentlist'>
-                    { studentToView
-                      ? <div className='ql-simple-studentlist-info'>
-                          Current student: {studentToView.profile.lastname}, {studentToView.profile.firstname}
-                      </div>
-                      : 'Select a student'
-                    }
-                    <div className='ql-simple-studentlist-student-container'>
-                      { studentsToShow.map((student) => {
-                        const onClick = () => this.setStudentToView(student)
-                        let className = 'ql-simple-studentlist-student'
-                        const studentGrade = _(this.props.grades).findWhere({ userId: student._id })
-                        const studentMark = _(studentGrade.marks).findWhere({ questionId: this.state.questionToView._id })
-                        if (studentGrade && (!studentMark || !studentMark.needsGrading)) className += ' green'
-                        if (studentGrade && studentMark.needsGrading) className += ' red'
-                        if (studentToView && student._id === studentToView._id) className += ' selected'
-                        return (
-                          <div key={'s2' + student._id} className={className} onClick={onClick}>
-                            {student.profile.lastname}, {student.profile.firstname}
-                          </div>
-                        )
-                      })
-                      }
+              <div className='ql-grade-session-student-search'>
+                <div className='ql-grade-session-student-search-controls'>
+                  { categoryOptions.length
+                    ? <div className='ql-grade-session-select'>
+                      <Select
+                        name='category-input'
+                        placeholder='Search by group - type to choose category'
+                        value={this.state.groupCategory ? this.state.groupCategory.categoryNumber : null}
+                        options={categoryOptions}
+                        onChange={this.setCategory}
+                        />
                     </div>
+                    : ''
+                  }
+                  { groupOptions.length
+                    ? <div className='ql-grade-session-select'>
+                      <Select
+                        name='category-input'
+                        placeholder={'Type to choose group in ' + this.state.groupCategory.categoryName}
+                        value={this.state.group ? this.state.group.groupNumber : null}
+                        options={groupOptions}
+                        onChange={this.setGroup}
+                        />
+                    </div>
+                    : ''
+                  }
+                  <input type='text' onChange={_.throttle(this.setStudentSearchString, 200)} placeholder='Search by student name or email' />
+                </div>
+                <div className='ql-simple-studentlist'>
+                  { studentToView
+                    ? <div className='ql-simple-studentlist-info'>
+                        {studentToView.profile.lastname}, {studentToView.profile.firstname}
+                    </div>
+                    : 'Select a student'
+                  }
+                  <div className='ql-simple-studentlist-student-container'>
+                    { studentsToShow.map((student) => {
+                      const onClick = () => this.setStudentToView(student)
+                      let className = 'ql-simple-studentlist-student'
+                      const studentGrade = _(this.props.grades).findWhere({ userId: student._id })
+                      const studentMark = _(studentGrade.marks).findWhere({ questionId: this.state.questionToView._id })
+                      if (studentGrade && (!studentMark || !studentMark.needsGrading)) className += ' green'
+                      if (studentGrade && studentMark.needsGrading) className += ' red'
+                      if (studentToView && student._id === studentToView._id) className += ' selected'
+                      return (
+                        <div key={'s2' + student._id} className={className} onClick={onClick}>
+                          {student.profile.lastname}, {student.profile.firstname}
+                        </div>
+                      )
+                    })
+                    }
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
           <div className='col-md-9'>
             <div className='ql-grading-container'>
               <div className='ql-grading-header'>
+                <div className='ql-grading-header-title'>
+
+                  <div className='ql-grading-header-qControl'>
+                    { this.state.questionIndex > 0
+                      ? <div className='button' onClick={decrementQuestion} ><span className='glyphicon glyphicon-chevron-left' /> Prev. Question </div>
+                      : ''
+                    }
+                  </div>
+                  Question {this.state.questionIndex + 1} of {this.props.session.name}
+                  <div className='ql-grading-header-qControl'>
+                    { this.state.questionIndex < this.props.questions.length - 1
+                      ? <div className='button' onClick={incrementQuestion} > Next Question <span className='glyphicon glyphicon-chevron-right' /></div>
+                      : ''
+                    }
+                  </div>
+                </div>
                 { this.state.questionToView
-                  ? <div className='ql-grading-question-preview'>
-                      <QuestionDisplay question={this.state.questionToView} readonly prof />
+                  ? <div className='ql-grading-header-question-preview'>
+                      <QuestionDisplay question={this.state.questionToView} responseStats={responseStats} forReview showStatsOverride readonly prof />
                     </div>
                   : ''
                 }
               </div>
               <div className='ql-response-list-container'>
                 <ResponseList
-                  sessionId={this.props.session.sessionId}
+                  sessionId={this.props.session._id}
                   questionId={this.state.questionToView._id}
                   qtype={this.state.questionToView.type}
-                  //session={this.props.session} //get rid of
-                  //question={this.state.questionToView}//get rid of
                   students={studentsToShow}
                   studentToView={this.state.studentToView}
-                  //grades={this.props.grades}// get rid of
                 />
               </div>
             </div>
@@ -294,12 +297,13 @@ export const GradeSession = createContainer((props) => {
                  Meteor.subscribe('grades.forSession', props.sessionId) &&
                  Meteor.subscribe('courses.single', props.courseId) &&
                  Meteor.subscribe('users.studentsInCourse', props.courseId)
-                 Meteor.subscribe('questions.forReview', props.sessionId)// &&
-                // Meteor.subscribe('responses.forSession', props.sessionId)
+                 Meteor.subscribe('questions.forReview', props.sessionId),
+                 Meteor.subscribe('responses.forSession', props.sessionId)
 
   const course = Courses.findOne({ _id: props.courseId })
   const session = Sessions.findOne({ _id: props.sessionId })
   const grades = Grades.find({ sessionId: props.sessionId }).fetch()
+  const allResponses = Responses.find({questionId: { $in: session.questions }}).fetch()
 
   const studentIds = session.joined || [] //course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
@@ -310,13 +314,24 @@ export const GradeSession = createContainer((props) => {
     sortedQuestions.push( _(questions).findWhere({_id:session.questions[i]}) )
   }
 
+
+  const responsesByQuestion = _(allResponses).groupBy('questionId')
+  let responseStatsByQuestion = {}
+
+  questions.forEach((question) => {
+    const maxAttempt = _(_(allResponses).where({ questionId: question._id })).max((r) => {return r.attempt})['attempt']
+    responseStatsByQuestion[question._id] = _(responseDistribution(responsesByQuestion[question._id], question)).where({ attempt:maxAttempt })
+  })
+
+
   return {
     loading: !handle.ready(),
     grades: grades,
     students: students,
     course: course,
     session: session,
-    questions: sortedQuestions
+    questions: sortedQuestions,
+    responseStatsByQuestion: responseStatsByQuestion
   }
 }, _GradeSession)
 
