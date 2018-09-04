@@ -53,7 +53,7 @@ class _ManageCourse extends Component {
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
   //  this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
   }
-  
+
   componentWillReceiveProps (nextProps) {
     const course = nextProps.course
     this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions })
@@ -186,7 +186,7 @@ class _ManageCourse extends Component {
           const sId = ses._id
           const nav = () => {
             if (ses.status === 'running') Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
-            else Router.go('session.edit', { _id: sId, courseId: this.props.course._id })
+            else Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
           const controls = []
           if (ses.status === 'running') {

@@ -40,6 +40,7 @@ $red-bar: rgba(167,37,38, 0.3);
     font-size: 3em;
     background: white;
     padding: 16px;
+    text-align:center;
   }
 
   .ql-question-solution {
@@ -49,11 +50,11 @@ $red-bar: rgba(167,37,38, 0.3);
     margin-top: 20px;
 
     .ql-question-solution-content {
-      font-size: 0.5em; 
+      font-size: 0.5em;
     }
   }
 
-  
+
   .ql-subs-loading {
     padding: 10px;
   }

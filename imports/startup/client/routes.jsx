@@ -288,8 +288,7 @@ Router.route('/course/:courseId/session/:sessionId/results', {
     return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params.sessionId) && Meteor.subscribe('courses')
   },
   action: function () {
-    const sess = Sessions.findOne({_id: this.params.sessionId})
-    const cId = sess ? sess.courseId : 0
+    const cId = this.params.courseId
     let user = Meteor.user()
     if (user) {
       if (user.hasRole('admin') || user.isInstructor(cId)) {
@@ -303,12 +302,12 @@ Router.route('/course/:courseId/session/:sessionId/results', {
 })
 
 import { ManageSession } from '../../ui/pages/professor/manage_session'
-Router.route('/course/:courseId/session/edit/:_id', {
+Router.route('/course/:courseId/session/edit/:sessionID', {
   name: 'session.edit',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') &&
-      Meteor.subscribe('sessions.single', this.params._id) &&
+      Meteor.subscribe('sessions.single', this.params.sessionID) &&
       Meteor.subscribe('courses') &&
       Meteor.subscribe('images')
   },
@@ -316,7 +315,7 @@ Router.route('/course/:courseId/session/edit/:_id', {
     const cId = this.params.courseId
     const isInstructor = Meteor.user().isInstructor(cId)
     if (Meteor.userId() && isInstructor) {
-      mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params._id} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={cId}> <ManageSession isInstructor={isInstructor} sessionId={this.params.sessionID} courseId={this.params.courseId} /> </PageContainer> })
     } else Router.go('login')
   }
 })

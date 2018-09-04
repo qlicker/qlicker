@@ -1,6 +1,22 @@
 
 .ql-student-results-list {
   display: block;
+  .ql-result-question-container {
+
+  }
+
+  .ql-result-mark-container {
+    border: 1px solid;
+    font-size: 1.5em;
+    margin-right: 20px;
+    margin-top:20px;
+    .ql-result-mark {
+
+    }
+    .ql-result-feedback {
+
+    }
+  }
 
   table {
     thead {
