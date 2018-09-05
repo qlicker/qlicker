@@ -107,12 +107,12 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
-  Meteor.publish('grades.forCourse', function (courseId) {
+  Meteor.publish('grades.forCourse', function (courseId, fields) {
     check(courseId, Helpers.MongoID)
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin) || user.isInstructor(courseId)) {
-        return Grades.find({courseId: courseId}) // finds all the course owned
+        return Grades.find({courseId: courseId}, {fields: fields}) // finds all the course owned
       } else {
         return Grades.find({ userId: this.userId, courseId: courseId, visibleToStudents: true })
       }

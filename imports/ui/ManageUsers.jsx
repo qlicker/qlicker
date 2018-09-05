@@ -16,6 +16,11 @@ export class ManageUsers extends Component {
     this.state = {
       supportEmail: p.settings.email,
       requireVerified: p.settings.requireVerified,
+      email: '',
+      password: '',
+      password_verify: '',
+      firstname: '',
+      lastname: ''
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -38,7 +43,7 @@ export class ManageUsers extends Component {
     stateEdits[e.target.dataset.name] = e.target.value
     this.setState(stateEdits)
   }
-  
+
   handleSubmit (e) {
     e.preventDefault()
       // signup
@@ -59,6 +64,7 @@ export class ManageUsers extends Component {
       Meteor.call('users.createFromAdmin', user, (e, data) => {
         if (e) alertify.error(e.reason)
         else alertify.success('User created')
+        this.setState({ email:'', password:'', password_verify:'', firstname:'', lastname:''})
       })
     }
   } // end handleSubmit
@@ -74,7 +80,7 @@ export class ManageUsers extends Component {
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
 
     return(
-      <div>        
+      <div>
         <div>
           <h4>Support email</h4>
           <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
@@ -92,18 +98,18 @@ export class ManageUsers extends Component {
           settings={this.props.settings}
         />
         <br />
-        
+
         <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
-          <h4>Add user manually</h4>  
+          <h4>Add user manually</h4>
           <div className='ql-card-content inputs-container'>
             <div className='input-group'>
-              <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' />
-              <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' />
+              <input className='form-control' type='text' data-name='firstname' onChange={this.setValue} placeholder='First Name' value={this.state.firstname} />
+              <input className='form-control' type='text' data-name='lastname' onChange={this.setValue} placeholder='Last Name' value={this.state.lastname} />
             </div>
-            <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' />
+            <input className='form-control' id='emailField' type='email' data-name='email' onChange={this.setValue} placeholder='Email' value={this.state.email} />
             <br />
-            <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' /><br />
-            <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' /><br /></div>
+            <input className='form-control' id='passwordField' type='password' data-name='password' onChange={this.setValue} placeholder='Password' value={this.state.password} /><br />
+            <div><input className='form-control' type='password' data-name='password_verify' onChange={this.setValue} placeholder='Retype Password' value={this.state.password_verify} /><br /></div>
             <div className='spacer1'>&nbsp;</div>
             <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
           </div>
@@ -151,4 +157,3 @@ export class ManageUsers extends Component {
     )
   }
 }
-

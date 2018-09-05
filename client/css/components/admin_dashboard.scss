@@ -57,5 +57,57 @@
   }
 }
 
+// Components
+.ql-admin-form-box {
+  text-align: center;
+  color: #888;
+  -webkit-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.1);
+  -moz-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.1);
+  box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.1);
+  width: 100%;
+
+  .header-container {
+
+    .header {
+
+    }
+  }
+
+  .certificate {
+    padding: 10px;
+    margin-bottom: 20px;
+    min-height: 300px;
+  }
+
+  .inputs-container {
+    padding: 10px;
+    padding-bottom: 20px;
+
+    .input-group {
+      margin-top: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+
+      .form-control {
+        display: inline-block;
+        width: 48%;
+
+        &:last-child {
+          float: right;
+        }
+      }
+    }
+  }
+
+  .bottom-account-message, .top-account-message {
+    font-size: 90%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
 
 
+  .top-account-message {
+    margin-bottom: 10px;
+  }
+
+}

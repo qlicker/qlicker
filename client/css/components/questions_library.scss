@@ -7,33 +7,52 @@
     display: flex;
     align-content: stretch;
   }
-  
+
   .ql-sidebar-buttons > * {
     flex: 1;
   }
-  .ql-edit-item-container {
-    background: white;
-    border: 1px solid #ddd;
-    padding: 18px;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
-
-    &.ql-add-question-prompt {
-      text-align: center;
+  //If the width exceeds this, fix the following:
+  @media (max-width: 991px) {
+    .affix {
+      position: static;
+      width: auto;
+      top: 0;
     }
+    .ql-question-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+  }
+  .ql-edit-preview-container {
+    max-height: 800px;
+    overflow-y: auto;
+    //width:auto;
+    min-width: 680px;
+    .ql-edit-item-container {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 18px;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 10px;
+
+      &.ql-add-question-prompt {
+        text-align: center;
+      }
+    }
+
+    .ql-preview-item-container {
+      border: 1px solid #ccc;
+      padding: 10px 0px;
+    }
+
   }
 
-  .ql-preview-item-container {
-    border: 1px solid #ccc;
-    padding: 10px 0px;
-  }
 
   .ql-question-list {
     margin-top: 10px;
     margin-bottom: 15px;
-    max-height: 400px;
-    overflow-y: auto;
     .selected {
       .ql-question-list-item {
         font-weight: bold;
@@ -42,5 +61,3 @@
   }
 
 }
-
-
