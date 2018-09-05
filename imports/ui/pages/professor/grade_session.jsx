@@ -184,6 +184,7 @@ class _GradeSession extends Component {
       <div className='container'>
         <div className='row'>
           <div className='col-md-3'>
+            <div className="affix">
             <div className='ql-grading-container'>
               <div className='ql-grading-header'>
                 <div className='ql-grading-header-student-title'>
@@ -247,6 +248,7 @@ class _GradeSession extends Component {
 
             </div>
           </div>
+          </div>
           <div className='col-md-9'>
             <div className='ql-grading-container'>
               <div className='ql-grading-header'>
@@ -258,7 +260,7 @@ class _GradeSession extends Component {
                       : ''
                     }
                   </div>
-                 {this.props.session.name}: Q{this.state.questionIndex + 1} 
+                 {this.props.session.name}: Q{this.state.questionIndex + 1}/{this.props.questions.length}
                   <div className='ql-grading-header-qControl'>
                     { this.state.questionIndex < this.props.questions.length - 1
                       ? <div className='button' onClick={incrementQuestion} > Next Question <span className='glyphicon glyphicon-chevron-right' /></div>
