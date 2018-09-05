@@ -54,7 +54,25 @@ Changes will be merged into master after PR review.
 Build and bundle using `meteor build`. Deploy node app and configure mongodb accordingly.
 
 ### Docker deployment
-A simple docker deployment can be done as follows:
+We provide a docker image of qlicker that is built using jshimko/meteor-launchpad:latest. This docker image does not have mongo built in it. Access it at:
+```
+docker pull qlicker/qlicker:v1.2.0
+```
+To run the image, you must specify at least ROOT_URL and MONGO_URL environment variables (credentials here are presented using host environment variables):
+```
+docker run -d \
+-e ROOT_URL=http://localhost:3000 \
+-e MONGO_URL=mongodb://${DBADMINUSER}:${DBADMINPWD}@db:27017/${DBNAME}?replicaSet=${REPLICASETNAME} \
+-e MONGO_OPLOG_URL=mongodb://${DBOLUSER}:${DBOLPWD}@db:27017/local?authSource=admin \
+-e MAIL_URL=${MAIL_URL}\
+-e STARTUP_DELAY=10\
+-p 3000:3000 qlicker/qlicker:v1.2.0
+```
+You do not need to use a replicaset, or specifiy an oplog. The MAIL_URL is required if you want the app to be able to send emails (verify accounts in non-SSO setting, forgot password, etc.). The STARTUP_DELAY will delay the start of the app twice by the specified amount in seconds (20 seconds in above), in case you need proxy and mongo containers to start first.
+
+In production, you should of course place a proxy in front of the app container to enforce SSL. 
+
+You can build your own docker image as follows:
 
 Clone the repository:
 ```
@@ -82,10 +100,11 @@ Run it using the local version of mongo:
 ```
 docker run -d \
 -e ROOT_URL=http://localhost:3000 \
+-e METEOR_SETTINGS={"bucket":"a","AWSRegion":"somehwere","AWSAccessKeyId":"yourkey","AWSSecretAccessKey":"yoursecretkey"}
 -p 3000:3000 yourname/qlicker:v1.1.3
 ```
 
-Note that the versions of the app v1.1.3 or earlier require METEOR_SETTINGS to be specified.
+Note that the versions of the app v1.1.3 or earlier require METEOR_SETTINGS to be specified for Amazon S3 storage (new versions allow this to be set in the admin interface). 
 
 The details on building the image are documented in https://github.com/jshimko/meteor-launchpad.
 
