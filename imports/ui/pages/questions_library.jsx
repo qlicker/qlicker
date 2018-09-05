@@ -366,23 +366,23 @@ export class QuestionsLibrary extends Component {
 
     return (
       <div className='container ql-questions-library'>
-        <h1>Questions for {this.state.courseCode || 'Course'}</h1>
-        <ul className='nav nav-pills'>
-          <li role='presentation' className={active === 'library' ? 'active' : ''}>
-            <a role='button' onClick={() => this.setLib('library')}>{isInstructor ? 'Course Library' : 'My Library'}</a>
-          </li>
-          <li role='presentation' className={active === 'public' ? 'active' : ''}>
-            <a role='button' onClick={() => this.setLib('public')}>Public Questions</a>
-          </li>
-          { isInstructor
-            ? <li role='presentation' className={active === 'unapprovedFromStudents' ? 'active' : ''}>
-                <a role='button' onClick={() => this.setLib('unapprovedFromStudents')}>Student Submissions</a>
-              </li>
-            : '' }
-        </ul>
         <div>
           <div className='row'>
             <div className='col-md-4'>
+              <h1> {this.state.courseCode || 'Course'}</h1>
+              <ul className='nav nav-tabs'>
+                <li role='presentation' className={active === 'library' ? 'active' : ''}>
+                  <a role='button' onClick={() => this.setLib('library')}>{isInstructor ? 'Course' : 'My Questions'}</a>
+                </li>
+                <li role='presentation' className={active === 'public' ? 'active' : ''}>
+                  <a role='button' onClick={() => this.setLib('public')}>Public</a>
+                </li>
+                { isInstructor
+                  ? <li role='presentation' className={active === 'unapprovedFromStudents' ? 'active' : ''}>
+                      <a role='button' onClick={() => this.setLib('unapprovedFromStudents')}>Student</a>
+                    </li>
+                  : '' }
+              </ul>
               <br />
               { canCreate
                 ? <div>
@@ -399,6 +399,7 @@ export class QuestionsLibrary extends Component {
                 selected={selectedQuestion} />
             </div>
             <div className='col-md-8'>
+              <div className='ql-edit-preview-container affix'>
               { selectedQuestion
                 ? <div>
                   {canEdit
@@ -461,6 +462,7 @@ export class QuestionsLibrary extends Component {
                 </div>
                 : ''
               }
+            </div>
             </div>
           </div>
         </div>

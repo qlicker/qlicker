@@ -4,14 +4,22 @@
 .ql-grading-container {
   background: white;
 
-  &.sticky {
-    position: -webkit-sticky;
-    position: sticky;
-  }
 
-  .ql-grading-header {
-    width: 100%;
-    height: 100%;
+  @media (max-width: 991px) {
+    .affix {
+      position: static;
+      width: auto;
+      top: 0;
+    }
+  }
+  .ql-student-selector {
+    min-width: 240px;
+
+    padding-right: 10px;
+    .ql-student-header {
+      width: 100%;
+      height: 100%;
+    }
 
     .ql-grading-header-student-title {
       width: 100%;
@@ -23,209 +31,209 @@
       margin: auto;
     }
 
-    .ql-grading-header-title {
-      width: 100%;
-      height: 45px;
-      text-align: center;
-      color: white;
-      font-size: 2.5em;
-      background: $blue;
-      display: flex;
-      justify-content: space-between;
-      .ql-grading-header-qControl {
-        width: 250px;
-        //font-size:0.5em;
-        .button {
-          &:hover {
-            margin: auto;
-            background: darken($blue,10%);
-            cursor: pointer;
-          }
-        }
-
-      }
-    }
-    .ql-grading-header-question-preview {
-        font-size: 50%;
-        padding-bottom: 20px;
-      //border-bottom-style: solid;
-      //border-bottom-width: 1px;
-    }
-  }
-
-  .ql-grade-session-student-search {
-    padding-top: 5px;
-    .ql-grade-session-student-search-controls {
-      padding-bottom: 5px;
-      input {
-        width: 100%;
-      }
-      .ql-grade-session-select {
+    .ql-grade-session-student-search {
+      padding-top: 5px;
+      .ql-grade-session-student-search-controls {
         padding-bottom: 5px;
+        input {
+          width: 100%;
+        }
+        .ql-grade-session-select {
+          padding-bottom: 5px;
+        }
       }
     }
   }
 
+  .ql-grading-question-responses {
+    // min-width: 400px;
+    .ql-grading-header {
+      width: 100%;
+      height: 100%;
 
-  .ql-response-list-container {
-    .ql-response-list {
-      .ql-response-table-headers {
-        background: $slightly-darker-grey;
-        margin: auto;
+      .ql-grading-header-title {
+        width: 100%;
+        height: 45px;
+        text-align: center;
+        color: white;
+        font-size: 2.5em;
+        background: $blue;
         display: flex;
         justify-content: space-between;
-        padding-bottom: 10px;
-        font-size: 2em;
-
-        .header-name {
-          text-align: center;
-          width: 20%;
-        }
-        .header-response {
-          text-align: center;
-          width: 30%;
-        }
-        .header-mark {
-          text-align: center;
-          width: 10%;
-        }
-        .header-feedback {
-          text-align: center;
-          width: 30%;
-        }
-        .header-button {
-          text-align: center;
-          width: 10%;
-        }
-      }
-
-      .ql-response-display-list {
-
-        //max-height: 800px;
-        //overflow-y: auto;
-
-        .ql-response-display-container{
-          background: white;
-          &.highlight {
-            background: $slightly-darker-grey
+        .ql-grading-header-qControl {
+          width: 250px;
+          //font-size:0.5em;
+          .button {
+            &:hover {
+              margin: auto;
+              background: darken($blue,10%);
+              cursor: pointer;
+            }
           }
 
-          .ql-response-display {
-            height: 100%;
-            font-size: 1.5em;
-            &:hover {
-              background: $grey;
+        }
+      }
+      .ql-grading-header-question-preview {
+          font-size: 50%;
+          padding-bottom: 20px;
+        //border-bottom-style: solid;
+        //border-bottom-width: 1px;
+      }
+    }
+    .ql-response-list-container {
+      .ql-response-list {
+        .ql-response-table-headers {
+          background: $slightly-darker-grey;
+          margin: auto;
+          display: flex;
+          justify-content: space-between;
+          padding-bottom: 10px;
+          font-size: 2em;
+
+          .header-name {
+            text-align: center;
+            width: 20%;
+          }
+          .header-response {
+            text-align: center;
+            width: 30%;
+          }
+          .header-mark {
+            text-align: center;
+            width: 10%;
+          }
+          .header-feedback {
+            text-align: center;
+            width: 30%;
+          }
+          .header-button {
+            text-align: center;
+            width: 10%;
+          }
+        }
+
+        .ql-response-display-list {
+
+          .ql-response-display-container{
+            background: white;
+            &.highlight {
+              background: $slightly-darker-grey
             }
 
-            .ql-response-display-flex{
-              display: flex;
-              justify-content: space-between;
-              align-items: stretch;
-
-              .name {
-                width: 20%;
-                font-size: 1em;
-                margin: auto;
+            .ql-response-display {
+              height: 100%;
+              font-size: 1.5em;
+              &:hover {
+                background: $grey;
               }
 
-              .answer-attempts {
-                min-width: 30%;
-                margin: auto;
-                //display: flex;
-                //align-items: center;
-                .attempt-header {
-                  font-size: 0.5em
+              .ql-response-display-flex{
+                display: flex;
+                justify-content: space-between;
+                align-items: stretch;
+
+                .name {
+                  width: 20%;
+                  font-size: 1em;
+                  margin: auto;
                 }
 
-                .answer {
-                  display: flex;
-                  justify-content: space-between;
-                  //margin: auto;
-                  .attempt-control {
-                    min-height: 70px;
-                    max-height: 120px;
-                    width:10%;
+                .answer-attempts {
+                  min-width: 30%;
+                  margin: auto;
+                  //display: flex;
+                  //align-items: center;
+                  .attempt-header {
+                    font-size: 0.5em
+                  }
 
-                    .button {
+                  .answer {
+                    display: flex;
+                    justify-content: space-between;
+                    //margin: auto;
+                    .attempt-control {
                       min-height: 70px;
                       max-height: 120px;
+                      width:10%;
 
-                      display: flex;
-                      flex-direction: column;
-                      justify-content: space-between;
-                      //margin:auto;
-                      span {
-                        margin: auto;
+                      .button {
+                        min-height: 70px;
+                        max-height: 120px;
+
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        //margin:auto;
+                        span {
+                          margin: auto;
+                        }
+                        &:hover {
+                          background: $darker-grey;
+                          cursor: pointer;
+                        }
+
+
                       }
+                    }
+
+                    .mctype{
+                      margin: auto;
+                      text-align: center;
+                    }
+                    .satype {
+                      font-size:0.8em;
+                      width: 100%;
+                      min-height: 70px;
+                      max-height: 120px;
+                      background: white;
+                      border: 2px solid $grey;
+                      overflow-y: auto;
                       &:hover {
-                        background: $darker-grey;
                         cursor: pointer;
                       }
-
-
                     }
                   }
 
-                  .mctype{
-                    margin: auto;
-                    text-align: center;
-                  }
-                  .satype {
-                    font-size:0.8em;
+                }
+
+                .feedback {
+                  padding-top: 5px;
+                  min-width: 30%;
+                  font-size: 0.8em;
+
+                  .textField {
                     width: 100%;
                     min-height: 70px;
                     max-height: 120px;
                     background: white;
                     border: 2px solid $grey;
                     overflow-y: auto;
-                    &:hover {
-                      cursor: pointer;
-                    }
                   }
                 }
 
-              }
+                .grade {
+                  width: 80px;
+                  display: flex;
+                  flex-direction: row;
+                  justify-content: center;
+                  align-items: center;
+                  font-size: 0.8em;
 
-              .feedback {
-                padding-top: 5px;
-                min-width: 30%;
-                font-size: 0.8em;
-
-                .textField {
-                  width: 100%;
-                  min-height: 70px;
-                  max-height: 120px;
-                  background: white;
-                  border: 2px solid $grey;
-                  overflow-y: auto;
+                  .numberField {
+                    text-align: left;
+                    width: 70%;
+                  }
+                }
+                .save-button {
+                  min-width: 60px;
+                  //padding: 5px;
+                  margin: auto;
+                  .button {
+                      @extend .btn-primary;
+                  }
                 }
               }
-
-              .grade {
-                width: 80px;
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                font-size: 0.8em;
-
-                .numberField {
-                  text-align: left;
-                  width: 70%;
-                }
-              }
-              .save-button {
-                min-width: 60px;
-                //padding: 5px;
-                margin: auto;
-                .button {
-                    @extend .btn-primary;
-                }
-              }
-
             }
-
-
           }
         }
       }

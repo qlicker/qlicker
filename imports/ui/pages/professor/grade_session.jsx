@@ -181,12 +181,12 @@ class _GradeSession extends Component {
     const responseStats = this.props.responseStatsByQuestion[this.state.questionToView._id]
 
     return (
-      <div className='container'>
+      <div className='ql-grading-container container'>
         <div className='row'>
           <div className='col-md-3'>
             <div className="affix">
-            <div className='ql-grading-container'>
-              <div className='ql-grading-header'>
+            <div className='ql-student-selector'>
+              <div className='ql-student-header'>
                 <div className='ql-grading-header-student-title'>
                 Select student(s) to grade
                 </div>
@@ -250,7 +250,7 @@ class _GradeSession extends Component {
           </div>
           </div>
           <div className='col-md-9'>
-            <div className='ql-grading-container'>
+            <div className='ql-grading-question-responses'>
               <div className='ql-grading-header'>
                 <div className='ql-grading-header-title'>
 
