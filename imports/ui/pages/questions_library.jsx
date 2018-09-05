@@ -206,6 +206,10 @@ export class QuestionsLibrary extends Component {
         //approved: Meteor.user().isInstructor(this.props.courseId),
         courseId: this.props.courseId
       })
+
+      if(!Meteor.user().isInstructor(this.props.courseId)){
+        blankQuestion.tags.push({label:'STUDENT', value:'STUDENT'})
+      }
       //For some reason, if you don't first set the selected question to null, the CK Editor
       //diplays the text from the previous selected question.
       this.setState({selectedQuestion: null}, () => {
@@ -240,6 +244,8 @@ export class QuestionsLibrary extends Component {
       question.owner = question.creator
     } else {
       question.owner = user._id
+      //Change the date so that it sorts to the top of the course library
+      question.createdAt = new Date()
     }
     question.public = false
     question.approved = !question.approved
@@ -260,6 +266,8 @@ export class QuestionsLibrary extends Component {
    if (!user.isInstructor(this.props.courseId)) return
    if (!question.public){
      question.approved = true //public questions must be approved
+     //Change the date so that it sorts to the top of the course library
+     question.createdAt = new Date()
    }
    question.owner = Meteor.userId()
    question.public = !question.public
