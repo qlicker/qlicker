@@ -358,7 +358,7 @@ class _RunSession extends Component {
     const students = Meteor.users.find({ _id: { $in: this.state.session.joined || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
 
     // small methods
-    const secondDisplay = () => { window.open('/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
+    const secondDisplay = () => { window.open('/course/'+this.state.session.courseId+'/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
     return (
       <div className='ql-manage-session'>
