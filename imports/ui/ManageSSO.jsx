@@ -75,32 +75,38 @@ export class ManageSSO extends Component {
   render() {
 
     return(
-      <div className='col-md-6'>
-        <form className='ql-admin-form-box  col-md-12' onSubmit={this.setSSO}>
-        <h4>SSO Settings</h4>
-          <h3><input type='checkbox' data-name='SSO_enabled' checked={this.state.SSO_enabled} onChange={this.toggleSSO} />  Enable SSO</h3> <br />
-          { this.state.SSO_enabled ?
-            <div>
-              <input className='form-control' type='text' data-name='SSO_entrypoint' onChange={this.setValue} placeholder='IDP Entry Point' value={this.state.SSO_entrypoint}/><br />
-              <input className='form-control' type='text' data-name='SSO_logoutUrl' onChange={this.setValue} placeholder='IDP Logout URL' value={this.state.SSO_logoutUrl} /><br />
-              <input className='form-control' type='text' data-name='SSO_EntityId' onChange={this.setValue} placeholder='Entity ID (e.g. qlicker)' value={this.state.SSO_EntityId} /><br />
-              <input className='form-control' type='text' data-name='SSO_identifierFormat' onChange={this.setValue} placeholder='Identifier Format' value={this.state.SSO_identifierFormat} /><br />
-              <input className='form-control' type='text' data-name='SSO_institutionName' onChange={this.setValue} placeholder='Institution Name' value={this.state.SSO_institutionName} /><br />
-              <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' value={this.state.SSO_emailIdentifier} /><br />
-              <input className='form-control' type='text' data-name='SSO_firstNameIdentifier' onChange={this.setValue} placeholder='First Name Identifier' value={this.state.SSO_firstNameIdentifier} /><br />
-              <input className='form-control' type='text' data-name='SSO_lastNameIdentifier' onChange={this.setValue} placeholder='Last Name Identifier' value={this.state.SSO_lastNameIdentifier} /><br />
-              IDP certificate (single string, no BEGIN-END)
-              <textarea className='form-control certificate' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string, no BEGIN-END)' value={this.state.SSO_cert} />
-              SP public certificate (can contain BEGIN-END)
-              <textarea className='form-control certificate'  data-name='SSO_privCert' onChange={this.setValue} placeholder='SP Certificate (no BEGIN - END)' value={this.state.SSO_privCert} /><br />
-              SP private key (can contain BEGIN-END)
-              <textarea className='form-control certificate'  data-name='SSO_privKey' onChange={this.setValue} placeholder='SP Key (WITH BEGIN - END)' value={this.state.SSO_privKey} /><br />
-              <div className='spacer1'>&nbsp;</div>
-              <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
+      <div className='container'>
+        <div className ='row' >
+          <div className='col-md-3'/>
+            <div className='col-md-6'>
+              <form className='ql-admin-form-box' onSubmit={this.setSSO}>
+              <h4>SSO Settings</h4>
+                <h3><input type='checkbox' data-name='SSO_enabled' checked={this.state.SSO_enabled} onChange={this.toggleSSO} />  Enable SSO</h3> <br />
+                { this.state.SSO_enabled ?
+                  <div>
+                    <input className='form-control' type='text' data-name='SSO_entrypoint' onChange={this.setValue} placeholder='IDP Entry Point' value={this.state.SSO_entrypoint}/><br />
+                    <input className='form-control' type='text' data-name='SSO_logoutUrl' onChange={this.setValue} placeholder='IDP Logout URL' value={this.state.SSO_logoutUrl} /><br />
+                    <input className='form-control' type='text' data-name='SSO_EntityId' onChange={this.setValue} placeholder='Entity ID (e.g. qlicker)' value={this.state.SSO_EntityId} /><br />
+                    <input className='form-control' type='text' data-name='SSO_identifierFormat' onChange={this.setValue} placeholder='Identifier Format' value={this.state.SSO_identifierFormat} /><br />
+                    <input className='form-control' type='text' data-name='SSO_institutionName' onChange={this.setValue} placeholder='Institution Name' value={this.state.SSO_institutionName} /><br />
+                    <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' value={this.state.SSO_emailIdentifier} /><br />
+                    <input className='form-control' type='text' data-name='SSO_firstNameIdentifier' onChange={this.setValue} placeholder='First Name Identifier' value={this.state.SSO_firstNameIdentifier} /><br />
+                    <input className='form-control' type='text' data-name='SSO_lastNameIdentifier' onChange={this.setValue} placeholder='Last Name Identifier' value={this.state.SSO_lastNameIdentifier} /><br />
+                    IDP certificate (single string, no BEGIN-END)
+                    <textarea className='form-control certificate' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string, no BEGIN-END)' value={this.state.SSO_cert} />
+                    SP public certificate (can contain BEGIN-END)
+                    <textarea className='form-control certificate'  data-name='SSO_privCert' onChange={this.setValue} placeholder='SP Certificate (no BEGIN - END)' value={this.state.SSO_privCert} /><br />
+                    SP private key (can contain BEGIN-END)
+                    <textarea className='form-control certificate'  data-name='SSO_privKey' onChange={this.setValue} placeholder='SP Key (WITH BEGIN - END)' value={this.state.SSO_privKey} /><br />
+                    <div className='spacer1'>&nbsp;</div>
+                    <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
+                  </div>
+                : ''
+               }
+               </form>
             </div>
-          : ''
-         }
-         </form>
+          <div className='col-md-3'/>
+        </div>
       </div>
     )
   }

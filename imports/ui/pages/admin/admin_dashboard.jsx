@@ -13,7 +13,7 @@ import { Courses } from '../../../api/courses'
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
 import { ManageUsers } from '../../ManageUsers'
-import { ManageServer } from '../../ManageServer'
+import { ManageImages } from '../../ManageImages'
 import { ManageSSO } from '../../ManageSSO'
 
 class _AdminDashboard extends Component {
@@ -22,7 +22,7 @@ class _AdminDashboard extends Component {
     super(p)
 
     this.state = {
-      tab: 'users',
+      tab: 'users', 
     }
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
@@ -64,7 +64,7 @@ class _AdminDashboard extends Component {
             : ''
           }
           { this.state.tab === 'server'
-            ? <ManageServer settings={this.props.settings} />
+            ? <ManageImages settings={this.props.settings} />
             : ''
           }
           { this.state.tab === 'sso'
