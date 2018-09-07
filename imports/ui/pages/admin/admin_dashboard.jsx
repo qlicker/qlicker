@@ -36,6 +36,7 @@ class _AdminDashboard extends Component {
     const setTab = (tab) => { this.setState({ tab: tab })}
 
     return (
+
       <div className='ql-admin-page'>
 
         { this.state.profileViewModal
@@ -43,14 +44,14 @@ class _AdminDashboard extends Component {
             user={this.state.userToView}
             done={this.toggleProfileViewModal} />
           : <span className='ql-admin-toolbar'>
-              <span className='title'>Dashboard</span>
-              <span className='divider'>&nbsp;</span>
-              <span className='button' onClick={() => setTab('users')}>Users</span>
-              <span className='divider'>&nbsp;</span>
-              <span className='button' onClick={() => setTab('server')}>Images</span>
-              <span className='divider'>&nbsp;</span>
-              <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
-            </span>
+                <span className='title'>Dashboard</span>
+                <span className='divider'>&nbsp;</span>
+                <span className='button' onClick={() => setTab('users')}>Users</span>
+                <span className='divider'>&nbsp;</span>
+                <span className='button' onClick={() => setTab('server')}>Images</span>
+                <span className='divider'>&nbsp;</span>
+                <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
+              </span>
         }
 
         <div className='ql-admin-settings'>
@@ -67,7 +68,7 @@ class _AdminDashboard extends Component {
             : ''
           }
           { this.state.tab === 'sso'
-           ? <ManageSSO settings={this.props.settings}/>
+           ?  <ManageSSO settings={this.props.settings}/>
            : ''
           }
         </div>
