@@ -26,13 +26,19 @@ class _Profile extends Component {
       uploadActive: false,
       changingEmail: false,
       changingPassword: false,
-      storageType: ''
+      changingName: false,
+      storageType: '',
+      lastName: '',
+      firstName: '',
     }
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.addImage = this.addImage.bind(this)
     this.saveProfileImage = this.saveProfileImage.bind(this)
     this.resizeImage = this.resizeImage.bind(this)
     this.updateProfileImage = this.updateProfileImage.bind(this)
+    //this.updateFirstName = this.updateFirstName.bind(this)
+    //this.updateLastName = this.updateFirstName.bind(this)
+    this.saveName = this.saveName.bind(this)
   }
 
   componentWillMount () {
@@ -41,6 +47,15 @@ class _Profile extends Component {
       if(!err)this.setState({isSSOSession:result})
     })
   }
+  componentDidMount () {
+    this.setStorageType()
+    user = Meteor.user()
+    if(user){
+      this.setState({firstName: user.profile.firstname, lastName: user.profile.lastname})
+    }
+
+  }
+
 
   updateProfileImage (file, done) {
     let reader = new window.FileReader()
@@ -157,8 +172,13 @@ class _Profile extends Component {
     })
   }
 
-  componentDidMount () {
-    this.setStorageType()
+
+  saveName() {
+    Meteor.call('users.updateName', this.state.lastName,this.state.firstName, (err) => {
+      if (err) alertify.error("Error: "+ err.error)
+      else alertify.success("Name updated")
+      this.setState({ changingName:false })
+    })
   }
 
   render () {
@@ -168,6 +188,10 @@ class _Profile extends Component {
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
     const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
+    const toggleChangingName = () => { this.setState({ changingName: !this.state.changingName }) }
+    const updateFirstName = (e) => {this.setState({ firstName:e.target.value }) }
+    const updateLastName = (e) => {this.setState({ lastName:e.target.value }) }
+    const saveName = () => {this.saveName()}
 
     const noEdits = this.state.isSSOSession
     const noEmail = (user.services && user.services.sso)
@@ -226,7 +250,26 @@ class _Profile extends Component {
                   </div>
                  }
                 <br />
-                <h2>{user.getName()}</h2>
+                <div>
+                  { this.state.changingName ?
+                      <div className='ql-profile-name-container'>
+                        <input type='text' placeholder='Last' value={this.state.lastName} onChange={updateLastName}/>
+                        <input type='text' placeholder='First' value={this.state.firstName} onChange={updateFirstName}/>
+                        <div className='ql-profile-name-little-button' onClick={toggleChangingName}> cancel </div>
+                        <div className='ql-profile-name-little-button' onClick={saveName}> save </div>
+                      </div>
+                    : <div className='ql-profile-name-container'>
+                        <div className='ql-profile-name'>{user.getName()}</div>
+                        { noEdits ?
+                          ''
+                          : <div className='ql-profile-name-little-button' onClick={toggleChangingName}> change name</div>
+                        }
+                      </div>
+                  }
+
+
+
+                </div>
                 <div className='ql-profile-container'>
                   Email: {user.getEmail()} - {spanVerified}<br />
                   Role: {user.profile.roles[0]}
@@ -254,7 +297,7 @@ class _Profile extends Component {
 
 // meteor reactive data container
 export const ProfilePage = createContainer((props) => {
-  const handle = Meteor.subscribe('userData') // TODO <- really , settings??? check that we don't leak anything!
+  const handle = Meteor.subscribe('userData')
 
   return {
     //user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object

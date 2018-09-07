@@ -219,6 +219,14 @@ Meteor.methods({
     return Meteor.call('users.sendVerificationEmail')
   },
 
+  'users.updateName' (newLast, newFirst) {
+    check(newLast, String)
+    check(newFirst, String)
+    Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'profile.firstname':newFirst, 'profile.lastname':newLast}
+    })
+  },
+
   'users.verifyEmail' (email) {
     check(email, Helpers.Email)
     const user = Meteor.users.findOne({ _id: Meteor.userId() })

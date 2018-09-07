@@ -7,7 +7,7 @@ import React, { Component } from 'react'
 
 import { Settings } from '../api/settings'
 
-export class ManageServer extends Component {
+export class ManageImages extends Component {
 
   constructor(p) {
     super(p)
@@ -81,12 +81,12 @@ export class ManageServer extends Component {
       settings.Azure_accountKey = ''
       settings.Azure_containerName = ''
     }
-    
+
     Meteor.call('settings.updateImageSettings', settings, (e, d) => {
       if (e) alertify.error('Error updating settings')
       else alertify.success('Settings updated')
     })
-    
+
   } // end setStorage
   render() {
     const setImageSize = (e) => { this.setState({ size: e.target.value }) }
@@ -101,52 +101,60 @@ export class ManageServer extends Component {
     const setAzureContainer = (e) => { this.setState({ Azure_containerName: e.target.value })}
 
     return(
-      <div>   
-        <h4>Maximum image size (in MB, after rescaling to max width)</h4>
-        <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
-          <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
-          <input type='submit' className='btn btn-primary' value='Set' />
-        </form>
+      <div className='container'>
+        <div className ='row' >
+          <div className='col-md-3'/>
+            <div className='col-md-6'>
 
-        <h4>Maximum image width (px)</h4>
-        <form ref='imageWidthForm' onSubmit={this.saveImageWidth} className='form-inline'>
-          <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
-          <input type='submit' className='btn btn-primary' value='Set' />
-        </form>
-          
-        <form className='ql-admin-login-box col-md-4' onSubmit={this.setStorage}>
-          <h4>Image Storage Settings</h4> 
-          <div className='ql-card-content inputs-container'>
-            <select className='form-control' onChange={setStorageType} value={this.state.storageType}>
-              <option value='None'>None</option>
-              <option value='AWS'>Amazon S3</option>
-              <option value='Azure'>Microsoft Azure Blob</option>
-              <option value='Local'>Local Storage (Not Recommended)</option>
-            </select>
-            <br />
-            { this.state.storageType === 'AWS' 
-              ? <div>
-                  <input className='form-control' type='text' value={this.state.AWS_bucket} onChange={setAWSBucket} placeholder='Bucket Name' /><br />
-                  <input className='form-control' type='text' value={this.state.AWS_region} onChange={setAWSRegion} placeholder='Region' /><br />
-                  <input className='form-control' type='text' value={this.state.AWS_accessKey} onChange={setAWSAccessKey} placeholder='AWS Access Key Id' /><br />
-                  <input className='form-control' type='text' value={this.state.AWS_secret} onChange={setAWSSecret} placeholder='AWS Secret' /><br />
+              <h4>Maximum image size (in MB, after rescaling to max width)</h4>
+              <form ref='imageSizeForm' onSubmit={this.saveImageSize} className='form-inline'>
+                <input className='form-control' value={this.state.size} type='text' onChange={setImageSize} placeholder='Image size' />
+                <input type='submit' className='btn btn-primary' value='Set' />
+              </form>
+
+              <h4>Maximum image width (px)</h4>
+              <form ref='imageWidthForm' onSubmit={this.saveImageWidth} className='form-inline'>
+                <input className='form-control' value={this.state.width} type='text' onChange={setImageWidth} placeholder='Image width' />
+                <input type='submit' className='btn btn-primary' value='Set' />
+              </form>
+
+              <form className='ql-admin-login-box' onSubmit={this.setStorage}>
+                <h4>Image Storage Settings</h4>
+                <div className='ql-card-content inputs-container'>
+                  <select className='form-control' onChange={setStorageType} value={this.state.storageType}>
+                    <option value='None'>None</option>
+                    <option value='AWS'>Amazon S3</option>
+                    <option value='Azure'>Microsoft Azure Blob</option>
+                    <option value='Local'>Local Storage (Not Recommended)</option>
+                  </select>
+                  <br />
+                  { this.state.storageType === 'AWS'
+                    ? <div>
+                        <input className='form-control' type='text' value={this.state.AWS_bucket} onChange={setAWSBucket} placeholder='Bucket Name' /><br />
+                        <input className='form-control' type='text' value={this.state.AWS_region} onChange={setAWSRegion} placeholder='Region' /><br />
+                        <input className='form-control' type='text' value={this.state.AWS_accessKey} onChange={setAWSAccessKey} placeholder='AWS Access Key Id' /><br />
+                        <input className='form-control' type='text' value={this.state.AWS_secret} onChange={setAWSSecret} placeholder='AWS Secret' /><br />
+                      </div>
+                    : ''
+                  }
+                  { this.state.storageType === 'Azure'
+                    ? <div>
+                        <input className='form-control' type='text' value={this.state.Azure_accountName} onChange={setAzureAccount} placeholder='Azure Account Name' /><br />
+                        <input className='form-control' type='text' value={this.state.Azure_accountKey} onChange={setAzureKey} placeholder='Azure Account Key' /><br />
+                        <input className='form-control' type='text' value={this.state.Azure_containerName} onChange={setAzureContainer} placeholder='Azure Container' /><br />
+                      </div>
+                    : ''
+                  }
+
+                  <div className='spacer1'>&nbsp;</div>
+                  <input type='submit' id='submitStorage' className='btn btn-primary btn-block' value='Submit' />
                 </div>
-              : ''
-            }
-            { this.state.storageType === 'Azure' 
-              ? <div>
-                  <input className='form-control' type='text' value={this.state.Azure_accountName} onChange={setAzureAccount} placeholder='Azure Account Name' /><br />
-                  <input className='form-control' type='text' value={this.state.Azure_accountKey} onChange={setAzureKey} placeholder='Azure Account Key' /><br />
-                  <input className='form-control' type='text' value={this.state.Azure_containerName} onChange={setAzureContainer} placeholder='Azure Container' /><br />
-                </div>
-              : ''
-            }
-                  
-            <div className='spacer1'>&nbsp;</div>
-            <input type='submit' id='submitStorage' className='btn btn-primary btn-block' value='Submit' />
+              </form>
           </div>
-        </form>        
+          <div className='col-md-3'/>
+        </div>
       </div>
+
     )
   }
 }

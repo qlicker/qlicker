@@ -1,5 +1,6 @@
 
 
+@import '../variables.scss';
 // Component
 .ql-profile-card {
 
@@ -9,6 +10,32 @@
   h3 {
     margin-bottom: 0px;
   }
+
+ .ql-profile-name-container {
+   display: flex;
+   justify-content: space-between;
+
+   .ql-profile-name-little-button {
+      margin:auto;
+      padding:5px;
+      color: $blue;
+      &:hover {
+        cursor: pointer;
+        color: darken($blue,20%);
+      }
+   }
+   .input {
+     margin: 5px;
+   }
+    .ql-profile-name {
+      font-size: 2em;
+    }
+    .ql-profile-name-input {
+
+    }
+
+  }
+
 
   .ql-profile-card-expanded {
     display: none;
