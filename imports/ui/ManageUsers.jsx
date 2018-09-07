@@ -80,15 +80,14 @@ export class ManageUsers extends Component {
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
 
     return(
-      <div>
-        <div>
-          <h4>Support email</h4>
-          <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
-            <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
-            <input type='submit' className='btn btn-primary' value='Set' />
-          </form>
-        </div>
-
+      <div className='container'>
+        <div className='row'>
+          <div className='col-md-4'>
+            <h4>Support email</h4>
+            <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
+              <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
+              <input type='submit' className='btn btn-primary' value='Set' />
+            </form>
         <h4>Require verified email to login</h4>
         <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
         <br />
@@ -98,8 +97,9 @@ export class ManageUsers extends Component {
           settings={this.props.settings}
         />
         <br />
-
-        <form className='ql-admin-login-box col-md-4' onSubmit={this.handleSubmit}>
+      </div>
+      <div className='col-md-6'>
+        <form className='ql-admin-login-box' onSubmit={this.handleSubmit}>
           <h4>Add user manually</h4>
           <div className='ql-card-content inputs-container'>
             <div className='input-group'>
@@ -114,8 +114,11 @@ export class ManageUsers extends Component {
             <input type='submit' id='submitButton' className='btn btn-primary btn-block' value='Submit' />
           </div>
         </form>
-        <div>
-          <h1>Users (with elevated permissions first)</h1>
+      </div>
+    </div>
+      <div className='row'>
+        <h1>Users (with elevated permissions first)</h1>
+        <div className = 'ql-admin-user-table'>
           <table className='table table-bordered'>
             <tbody>
               <tr>
@@ -124,7 +127,6 @@ export class ManageUsers extends Component {
                 <th>Courses</th>
                 <th>Change Role</th>
               </tr>
-
               {
                 this.props.allUsers.map((u) => {
                   let courseList = ''
@@ -153,6 +155,7 @@ export class ManageUsers extends Component {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     )
   }

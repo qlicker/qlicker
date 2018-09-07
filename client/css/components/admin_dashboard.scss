@@ -58,6 +58,12 @@
 }
 
 // Components
+
+.ql-admin-user-table {
+  max-height: 800px;
+  overflow-y: auto;
+ }
+
 .ql-admin-form-box {
   text-align: center;
   color: #888;
