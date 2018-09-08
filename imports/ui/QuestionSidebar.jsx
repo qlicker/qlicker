@@ -33,7 +33,7 @@ export class _QuestionSidebar extends ControlledForm {
   constructor (props) {
     super(props)
     this.state = {
-      questionPool: this.props.questions.slice(),
+      questionPool: this.props.questions.slice(10),
       questionType: -1,
       //showOnlyApprovedQuestions: false,
       tags: [],
@@ -61,23 +61,35 @@ export class _QuestionSidebar extends ControlledForm {
   } //end constructor
 
   componentWillReceiveProps (nextProps) {
-    //this.setState({ questionPool: nextProps.questions })
+
     // Need to update possible tags, since question sidebar is showing when questions
     // are being edited and tags created...
+    //console.log("received new props")
+    //console.log(nextProps)
+
+//    if(nextProps.selected.tags !== this.props.selected.tags)
     Meteor.call('questions.possibleTags',  nextProps.courseId, (e, tags) => {
       // non-critical, if e: silently fail
       tagSuggestions = []
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
-      let atMaxLimit = false
-      let nQuery =  Questions.find(nextProps.libQuery).count()
-      if( nextProps.questions && nextProps.questions.length >= nQuery) atMaxLimit = true
-      this.setState({tagSuggestions: tagSuggestions, questionPool: nextProps.questions,
-                     nQuery:nQuery, atMaxLimit: atMaxLimit, limit:10 })
+      this.setState({ tagSuggestions:tagSuggestions })
     })
 
-    if (nextProps.resetSideBar || nextProps.questionLibrary !== this.props.questionLibrary) this.resetFilter()
+    //Decide whether or not to update the question pool
+    if (nextProps.resetSidebar || nextProps.questionLibrary !== this.props.questionLibrary) this.resetFilter()
+    // questions length could change if a question was deleted
+    else if (nextProps.questions.length !== this.props.questions.length || this.state.questionPool.length < 1 ) {
+      const nQuery = Questions.find(nextProps.libQuery).count()
+      const newQuestions = Questions.find(nextProps.libQuery, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
+      let atMaxLimit = false
+      if (newQuestions.length >= nQuery ) atMaxLimit = true
+
+      this.setState({ questionPool: newQuestions, atMaxLimit:atMaxLimit, nQuery:nQuery })
+    }
+    else {}
+
     if(nextProps.courseId !== this.props.courseId){
       this.setTags([])
     }
@@ -92,8 +104,9 @@ export class _QuestionSidebar extends ControlledForm {
       })
       let atMaxLimit = false
       let nQuery =  Questions.find(this.props.libQuery).count()
+      const newQuestions = Questions.find(this.props.libQuery, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
       if( this.props.questions && this.props.questions.length >= nQuery) atMaxLimit = true
-      this.setState({tagSuggestions: tagSuggestions, nQuery: nQuery, atMaxLimit:atMaxLimit})
+      this.setState({tagSuggestions: tagSuggestions, nQuery: nQuery, atMaxLimit:atMaxLimit, questionPool: newQuestions})
       //this.forceUpdate()
     })
   }
@@ -114,8 +127,9 @@ export class _QuestionSidebar extends ControlledForm {
    * @param {MongoId} question
    */
   setQuestion (question) {
+    //console.log('setting question')
     this.setState({ question: question }, () => {
-      if(this.props.onSelect)this.props.onSelect(question)
+      if(this.props.onSelect) this.props.onSelect(question)
     })
   }
   /**
@@ -223,8 +237,16 @@ export class _QuestionSidebar extends ControlledForm {
 
   resetFilter () {
     this.refs.addQuestionForm.reset()
-    this.setState({ searchString: '', userSearchString: '',
-                    questionType: -1, tags: [], atMaxLimit:false, limit:10 }, () => {
+
+    const nQuery = Questions.find(this.props.libQuery).count()
+    const newQuestions = Questions.find(this.props.libQuery, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
+    let atMaxLimit = false
+    if (newQuestions.length >= nQuery ) atMaxLimit = true
+
+   //this calls update query, so the above is useselles! start from scratch!
+    this.setState({ searchString: '', userSearchString: '', questionPool: newQuestions,
+                    atMaxLimit:atMaxLimit, nQuery:nQuery,
+                    questionType: -1, tags: [], limit:10 }, () => {
       this.updateQuery()
     })
   }
@@ -401,7 +423,7 @@ export const QuestionSidebar = createContainer((props) => {
                             : questionQueries.queries.library.student
     break;
   }
-  const options = _.extend(questionQueries.options.sortMostRecent, {limit:10} )
+  const options = _.extend(questionQueries.options.sortMostRecent)
 
   const questions = Questions.find(libQuery, options).fetch()
 

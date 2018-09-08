@@ -314,6 +314,8 @@ export class QuestionsLibrary extends Component {
   }
 
   setFilter (newState) {
+    //console.log('setFilter in questionLibrary')
+    //console.log(newState)
     this.setState({ resetSidebar: newState})
   }
 
@@ -377,7 +379,6 @@ export class QuestionsLibrary extends Component {
         <div>
           <div className='row'>
             <div className='col-md-4'>
-              <h1> {this.state.courseCode || 'Course'}</h1>
               <ul className='nav nav-tabs'>
                 <li role='presentation' className={active === 'library' ? 'active' : ''}>
                   <a role='button' onClick={() => this.setLib('library')}>{isInstructor ? 'Course' : 'My Questions'}</a>
