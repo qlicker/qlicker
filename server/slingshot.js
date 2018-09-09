@@ -12,7 +12,7 @@ import { Settings } from '../imports/api/settings.js'
 // Credentials can be changed in admin_dashboard
 
 Slingshot.createDirective('AWS', Slingshot.S3Storage, {
-  
+
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
   maxSize: null, // Unlimited, handled in authorized() instead
   bucket: '',
@@ -74,12 +74,12 @@ let azureBlobStorageService = {
     var rawdata = meta.src
     var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
     var type = matches[1];
-    var buffer = new Buffer(matches[2], 'base64')
-  
+    var buffer = new Buffer(matches[2], 'base64')//Buffer.from(matches[2], 'base64')
+
     blobService.createBlockBlobFromText(containerName, meta.UID, buffer, {contentType:type}, function (error) {
       if(error) console.log(error)
     })
-    
+
     return {
       // Endpoint where the file is to be uploaded:
       upload: "",
@@ -112,13 +112,13 @@ let azureBlobStorageService = {
 }
 
 Slingshot.createDirective('Azure', azureBlobStorageService, {
-  
+
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
   maxSize: 1024 * 1024,
   accountName: '',
   accountKey: '',
   containerName: '',
-  
+
   authorize: function (file, metaContext) {
     if (file.size > (Settings.findOne().maxImageSize * 1024 * 1024)) {
       alertify.error('Image too large')
@@ -129,11 +129,11 @@ Slingshot.createDirective('Azure', azureBlobStorageService, {
 })
 
 let localStorageService = {
-  
+
   directiveMatch: {},
 
   upload: function (method, directive, file, meta) {
-    
+
     return {
       upload: "",
       download: meta.src,
@@ -145,7 +145,7 @@ let localStorageService = {
 }
 
 Slingshot.createDirective('Local', localStorageService, {
-  
+
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'],
   maxSize: 1024 * 1024,
 
