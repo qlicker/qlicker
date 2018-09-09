@@ -435,6 +435,12 @@ export class QuestionsLibrary extends Component {
                   <h3>Preview Question</h3>
                   { this.state.selectedLibrary !== 'library'
                     ? <div>
+                        <button className='btn btn-default'
+                           onClick={() => { this.doneEditing() }}
+                           data-toggle='tooltip'
+                           data-placement='left'>
+                           Close Preview
+                        </button>
                        { canToggleApprove ?
                            <button className='btn btn-default'
                              onClick={() => { this.toggleApproveQuestion(selectedQuestion) }}
