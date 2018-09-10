@@ -74,7 +74,7 @@ let azureBlobStorageService = {
     var rawdata = meta.src
     var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
     var type = matches[1];
-    var buffer = new Buffer(matches[2], 'base64')//Buffer.from(matches[2], 'base64')
+    var buffer = Buffer.from(matches[2], 'base64') //new Buffer(matches[2], 'base64')//Buffer.from(matches[2], 'base64')
 
     blobService.createBlockBlobFromText(containerName, meta.UID, buffer, {contentType:type}, function (error) {
       if(error) console.log(error)

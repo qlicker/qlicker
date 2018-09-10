@@ -176,7 +176,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //A hack to bypass the SSO stuff and log the user out using the SessionIndex in the IDP POST request
               //(needed because passport-saml cannot validate the encrypted response)
               //WARNING: This does not check that the POST came from the IDP
-              let xml = new Buffer(req.body.SAMLRequest, 'base64').toString('utf8'); // Buffer.from(req.body.SAMLRequest, 'base64').toString('utf8')
+              let xml = Buffer.from(req.body.SAMLRequest, 'base64').toString('utf8') //new Buffer(req.body.SAMLRequest, 'base64').toString('utf8'); // Buffer.from(req.body.SAMLRequest, 'base64').toString('utf8')
               let dom = new xmldom.DOMParser().parseFromString(xml);
               let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
                 //console.log("log out hack")
