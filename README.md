@@ -54,9 +54,9 @@ Changes will be merged into master after PR review.
 Build and bundle using `meteor build`. Deploy node app and configure mongodb accordingly.
 
 ### Docker deployment
-We provide a docker image of qlicker that is built using jshimko/meteor-launchpad:latest. This docker image does not have mongo built in it. Access it at:
+We provide a docker image of qlicker that is built using node:alpine as a base image. This docker image does not have mongo built in it. Access it at:
 ```
-docker pull qlicker/qlicker:v1.2.0
+docker pull qlicker/qlicker:v1.2.2
 ```
 To run the image, you must specify at least ROOT_URL and MONGO_URL environment variables (credentials here are presented using host environment variables):
 ```
@@ -65,10 +65,9 @@ docker run -d \
 -e MONGO_URL=mongodb://${DBADMINUSER}:${DBADMINPWD}@db:27017/${DBNAME}?replicaSet=${REPLICASETNAME} \
 -e MONGO_OPLOG_URL=mongodb://${DBOLUSER}:${DBOLPWD}@db:27017/local?authSource=admin \
 -e MAIL_URL=${MAIL_URL}\
--e STARTUP_DELAY=10\
--p 3000:3000 qlicker/qlicker:v1.2.0
+-p 3000:3000 qlicker/qlicker:v1.2.2
 ```
-You do not need to use a replicaset, or specifiy an oplog. The MAIL_URL is required if you want the app to be able to send emails (verify accounts in non-SSO setting, forgot password, etc.). The STARTUP_DELAY will delay the start of the app twice by the specified amount in seconds (20 seconds in above), in case you need proxy and mongo containers to start first.
+You do not need to use a replicaset, or specifiy an oplog. The MAIL_URL is required if you want the app to be able to send emails (verify accounts in non-SSO setting, forgot password, etc.). 
 
 In production, you should of course place a proxy in front of the app container to enforce SSL. 
 
@@ -82,33 +81,53 @@ git clone https://github.com/qlicker/qlicker.git
 Switch to a tagged version of the app
 ```
 cd qlicker
-git checkout v1.1.3
+git checkout v1.2.2
 ```
 
-Create a Dockerfile in the top level of the directory downloaded by git (called qlicker by default), with the single line:
+Build a bundle (in this case, it gets placed up a directory into the images/build directory):
+
 ```
-FROM jshimko/meteor-launchpad:latest
+meteor build ../image/build --server-only --architecture os.linux.x86_64
 ```
 
-Build the image (this will build it with a mongo database, not recommended for deployment):
+Create a Dockerfile in the directory ../images (if following above build command), so that the application tar file is located in build/
 ```
-docker build --build-arg TOOL_NODE_FLAGS="--max-old-space-size=2048" \
---build-arg INSTALL_MONGO=true  -t yourname/qlicker:v1.1.3 .
+FROM node:8.11.4-alpine
+#Based on
+#https://medium.com/@gary.ascuy/dockerize-deploy-meteor-app-using-docker-with-5-mo-the-force-awakens-d9c72d111198
+
+ENV BUILD_PACKAGES="python make gcc g++ git libuv bash curl tar bzip2" \
+    NODE_ENV=production \
+    ROOT_URL=http://localhost:3000 \
+    PORT=3000
+
+WORKDIR /root/app/bundle
+
+ADD ./build/app.tar.gz /root/app
+RUN apk --update add ${BUILD_PACKAGES} \
+    && (cd programs/server/ && npm install --unsafe-perm) \
+    && apk --update del ${BUILD_PACKAGES}
+    
+RUN apk update && apk upgrade
+EXPOSE 3000
+CMD node main.js
 ```
 
-Run it using the local version of mongo:
+Build the image:
+```
+docker build -t yourname/qlicker:v1.2.3 .
+```
+
+Run it as above
 ```
 docker run -d \
 -e ROOT_URL=http://localhost:3000 \
--e METEOR_SETTINGS={"bucket":"a","AWSRegion":"somehwere","AWSAccessKeyId":"yourkey","AWSSecretAccessKey":"yoursecretkey"}
--p 3000:3000 yourname/qlicker:v1.1.3
+-e MONGO_URL=mongodb://${DBADMINUSER}:${DBADMINPWD}@db:27017/${DBNAME}?replicaSet=${REPLICASETNAME} \
+-e MONGO_OPLOG_URL=mongodb://${DBOLUSER}:${DBOLPWD}@db:27017/local?authSource=admin \
+-e MAIL_URL=${MAIL_URL}\
+-p 3000:3000 yourname/qlicker:v1.2.3
 ```
 
-Note that the versions of the app v1.1.3 or earlier require METEOR_SETTINGS to be specified for Amazon S3 storage (new versions allow this to be set in the admin interface). 
-
-The details on building the image are documented in https://github.com/jshimko/meteor-launchpad.
-
-In production, you should specify the environments variable for a database (either separate containers, or from a service), and place a proxy in front of the app container so that SSL can be enforced. 
 
 
 
