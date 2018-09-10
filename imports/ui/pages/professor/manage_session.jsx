@@ -54,6 +54,7 @@ class _ManageSession extends Component {
     this.getQuestions = this.getQuestions.bind(this)
     this.addNewQuestion = this.addNewQuestion.bind(this)
     this.removeQuestion = this.removeQuestion.bind(this)
+    this.duplicateQuestion = this.duplicateQuestion.bind(this)
     this.addToLibrary = this.addToLibrary.bind(this)
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
@@ -262,6 +263,14 @@ class _ManageSession extends Component {
     Meteor.call('sessions.removeQuestion', this.props.session._id, questionId, (error) => {
       if (error) alertify.error('Error: ' + error.error)
       else alertify.success('Question Removed')
+    })
+    this.cursorMoveWorkaround()
+  }
+
+  duplicateQuestion (questionId) {
+    Meteor.call('questions.copyToSession', this.sessionId, questionId, (error) => {
+      if (error) alertify.error('Error: ' + error.error)
+      else alertify.success('Question Duplicate Added')
     })
     this.cursorMoveWorkaround()
   }
