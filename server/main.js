@@ -74,6 +74,7 @@ Meteor.startup(() => {
   //console.log("URL: "+Meteor.absoluteUrl())
   //********************************
   //Hack to update database of profile pictures
+  /*
   allUsers = Meteor.users.find().fetch()
   nusers = allUsers.length
   //console.log(nusers)
@@ -107,5 +108,6 @@ Meteor.startup(() => {
       Images.update( {UID:image.UID}, {'$set' :{'image.url': url}})
     }
   }
+  */
   //End of hack*******************************************************************
 })
