@@ -46,7 +46,7 @@ class _StudentDashboard extends Component {
       }
     })
   }
-
+ // TODO: Add a property to list course as being TA-ed
   renderCourseList ( clist ) {
     return clist.map((c) =>{
       return c.inactive ?
@@ -99,7 +99,8 @@ class _StudentDashboard extends Component {
 
 export const StudentDashboard = createContainer(() => {
   const handle = Meteor.subscribe('courses')
-  const courses = Courses.find({ students: Meteor.userId() }).fetch()
+  const myId = Meteor.userId()
+  const courses = Courses.find({ '$or' :[{ students:myId }, { instructors:myId }] }).fetch()
 
   return {
     courses: courses,

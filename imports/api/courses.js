@@ -399,6 +399,7 @@ Meteor.methods({
         if (c.requireVerified && !hasVerified) {
           throw new Meteor.Error('could-not-enroll', 'Verified email required')
         }
+        if(Meteor.user().isInstructor(c._id)) throw new Meteor.Error('could-not-enroll', 'Already an instructor')
         Meteor.users.update({ _id: Meteor.userId() }, { // TODO check status before returning
           $addToSet: { 'profile.courses': c._id }
         })

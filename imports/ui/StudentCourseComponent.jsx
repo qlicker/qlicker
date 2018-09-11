@@ -27,9 +27,9 @@ export class _StudentCourseComponent extends Component {
     const course = this.props.course
     return (<div className='ql-student-course-component'>
       { this.props.inactive ?
-          <CourseListItem course={course} inactive />
+          <CourseListItem isTA={this.props.isTA} course={course} inactive />
         : <div>
-          <CourseListItem course={course} click={() => Router.go('course', { courseId: course._id })} />
+          <CourseListItem isTA={this.props.isTA} course={course} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
                 if (!s) return
@@ -51,10 +51,13 @@ export class _StudentCourseComponent extends Component {
 export const StudentCourseComponent = createContainer((props) => {
   const handle = Meteor.subscribe('sessions')
   const sessions = Sessions.find({ courseId: props.course._id, $or: [{ status: 'visible' }, { status: 'running' }] }).fetch()
+  const user = Meteor.user()
+  const isTA = user.isInstructor(props.course._id) && !user.hasGreaterRole('professor')
 
   return {
     sessions: sessions,
     loading: !handle.ready(),
+    isTA: isTA,
   }
 }, _StudentCourseComponent)
 
