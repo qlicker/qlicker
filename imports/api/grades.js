@@ -46,7 +46,8 @@ const gradePattern = {
   numQuestions: Match.Maybe(Number), // number of questions worth points
   numAnsweredTotal: Match.Maybe(Number), // total number of questions answered
   numQuestionsTotal: Match.Maybe(Number), // total number of questions \
-  visibleToStudents: Match.Maybe(Boolean)// whether grade is visible to students (non-instructors)
+  visibleToStudents: Match.Maybe(Boolean),// whether grade is visible to students (non-instructors),
+  needsGrading: Match.Maybe(Boolean) //whether any of the marks needs grading
 }
 
 // Create grade class
@@ -55,12 +56,14 @@ _.extend(Grade.prototype, {
   // Determine if a grade has questions that need to be graded manually that haven't been graded
   // (mark is set to automatic and of a type that is not autogradeable, and person responded)
   hasUngradedMarks: function () {
+    return this.needsGrading
+    /*
     let needsGrading = false
     if (!this.joined || this.numAnswered === 0) return false
     this.marks.forEach((m) => {
       if (m.needsGrading) needsGrading = true
     })
-    return needsGrading
+    return needsGrading*/
   },
   hasManualMarks: function () {
     let manual = false
@@ -86,7 +89,7 @@ if (Meteor.isServer) {
         return Grades.find()
       } else if (user.isInstructorAnyCourse()) {
         const courses = user.coursesInstructed()
-        return Grades.find({ courseId: { $in: courses || [] } }) // finds all the course owned
+        return Grades.find({ courseId: { $in: courses || [] } })
       } else {
         return Grades.find({ userId: this.userId, visibleToStudents: true })
       }
@@ -100,7 +103,7 @@ if (Meteor.isServer) {
         return Grades.find({ _id: gradeId })
       } else if (user.isInstructorAnyCourse()) {
         const courses = user.coursesInstructed()
-        return Grades.find({ _id: gradeId, courseId: { $in: courses || [] } }) // finds all the course owned
+        return Grades.find({ _id: gradeId, courseId: { $in: courses || [] } })
       } else {
         return Grades.find({ _id: gradeId, userId: this.userId, visibleToStudents: true })
       }
@@ -112,7 +115,7 @@ if (Meteor.isServer) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       if (user.hasGreaterRole(ROLES.admin) || user.isInstructor(courseId)) {
-        return Grades.find({courseId: courseId}, {fields: fields}) // finds all the course owned
+        return Grades.find({courseId: courseId}, {fields: fields})
       } else {
         return Grades.find({ userId: this.userId, courseId: courseId, visibleToStudents: true })
       }
@@ -337,9 +340,11 @@ Meteor.methods({
       check(grade, gradePattern)
 
       const marks = grade.marks
+      let needsGrading = false
       let gradePoints = 0
       for (let i = 0; i < marks.length; i++) {
         gradePoints += marks[i].points
+        if (marks[i].needsGrading) needsGrading = true
       }
 
       let gradeValue = 0
@@ -354,6 +359,7 @@ Meteor.methods({
       if (grade.automatic) {
         grade.value = gradeValue
       }
+      grade.needsGrading = needsGrading
       return Meteor.call('grades.update', grade)
     }
   },
@@ -584,7 +590,6 @@ Meteor.methods({
         let existingGrade = Grades.findOne({userId: studentId, courseId: courseId, sessionId: sessionId})
 
         let grade = existingGrade || defaultGrade
-
         let marks = []
         let gradePoints = 0
         let numAnswered = 0
@@ -627,6 +632,7 @@ Meteor.methods({
              question.sessionOptions && ('points' in question.sessionOptions) &&
              question.sessionOptions.points > 0 && responseId !== '0') {
             needsGrading = true
+            grade.needsGrading = true
           }
 
           let mark = {
