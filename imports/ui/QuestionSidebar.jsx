@@ -236,7 +236,7 @@ export class _QuestionSidebar extends ControlledForm {
   }
 
   resetFilter () {
-    this.refs.addQuestionForm.reset()
+    if(this.refs && this.refs.addQuestionForm) this.refs.addQuestionForm.reset()
 
     const nQuery = Questions.find(this.props.libQuery).count()
     const newQuestions = Questions.find(this.props.libQuery, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()

@@ -16,7 +16,7 @@ class _PageContainer extends Component {
 
   constructor (props) {
     super(props)
-    this.state = { 
+    this.state = {
       promotingAccount: false,
       courseId: this.props && this.props.courseId ? this.props.courseId : '',
       courseCode: '',
@@ -32,9 +32,9 @@ class _PageContainer extends Component {
     if(this.state.courseId !== '') {
       this.setCourseCode(this.state.courseId)
     }
-    
+
   }
-  
+
   setCourseCode (courseId) {
     Meteor.call('courses.getCourseCode', courseId, (e, c) => {
       if(c) {
@@ -51,9 +51,9 @@ class _PageContainer extends Component {
           if(!err2)this.setState({ssoInstitution:name})
         })
       }
-    })   
+    })
   }
-    
+
   componentDidMount () {
     // Close the dropdown when selecting a link during mobile
     // view.
@@ -69,8 +69,12 @@ class _PageContainer extends Component {
 
   changeCourse (courseId) {
     const pageName = Router.current().route.getName()
-    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor' || pageName === 'profile')) Router.go(pageName, { courseId: courseId })
-    else Router.go('course', { courseId: courseId })
+    //TODO: double check this, that all cases are caught!
+    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor'  || pageName === 'admin' || pageName === 'student'  || pageName === 'profile' )) Router.go(pageName, { courseId: courseId })
+    else{
+      console.log("here")
+      Router.go('course', { courseId: courseId })
+    }
   }
 
   render () {
@@ -91,7 +95,7 @@ class _PageContainer extends Component {
     const coursesPage = user.hasGreaterRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
-    
+
     return (
       <div className='ql-page-container'>
         <nav className='navbar navbar-default navbar-fixed-top'>
@@ -122,7 +126,7 @@ class _PageContainer extends Component {
                         <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
                       </ul>
                     </li>
-                  : this.state.showCourse 
+                  : this.state.showCourse
                     ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
                     : ''
                 }
@@ -133,8 +137,8 @@ class _PageContainer extends Component {
                     </li>
                   : ''
 
-                }      
-                { isAdmin 
+                }
+                { isAdmin
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
                    : <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
@@ -171,11 +175,11 @@ class _PageContainer extends Component {
                     }
                     <li><a className='close-nav' href={userGuideUrl}>Visit user guide</a></li>
                     <li role='separator' className='divider' />
-                    
+
                     {this.state.ssoLogoutUrl ?
-                          <li><a className='close-nav' href={this.state.ssoLogoutUrl}> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li> 
+                          <li><a className='close-nav' href={this.state.ssoLogoutUrl}> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
                           : <li><a className='close-nav' href={Router.routes['logout'].path()} onClick={logout} >Logout from Qlicker</a></li>
-                    } 
+                    }
                   </ul>
                 </li>
               </ul>
@@ -195,13 +199,11 @@ class _PageContainer extends Component {
 
 export const PageContainer = createContainer(props => {
   const handle = Meteor.subscribe('courses')
-  const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()   
+  const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
 
   return {
     courses: courses,
-    courseId: props.courseId,
+    //courseId: props.courseId,
     loading: !handle.ready()
   }
 }, _PageContainer)
-
-

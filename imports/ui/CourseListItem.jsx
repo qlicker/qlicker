@@ -21,9 +21,13 @@ export class CourseListItem extends ListItem {
 
   render () {
     const controls = this.makeControls()
-    const className = this.props.inactive ? 'ql-course-list-item-inactive ql-list-item  ' : 'ql-course-list-item ql-list-item ' 
+    const className = this.props.inactive ? 'ql-course-list-item-inactive ql-list-item  ' : 'ql-course-list-item ql-list-item '
     return (
       <div className={className + (this.props.click ? 'click' : '')} onClick={this.click}>
+        { this.props.isTA ?
+          <div>(TA)</div>
+          :''
+        }
         <span className='ql-course-code'>{ this.props.course.fullCourseCode() } </span>
 
         <span className='ql-course-name'>{ this.props.course.name }</span>
@@ -38,5 +42,6 @@ export class CourseListItem extends ListItem {
 
 CourseListItem.propTypes = {
   course: PropTypes.object.isRequired,
+  isTA: PropTypes.bool,
   click: PropTypes.func
 }
