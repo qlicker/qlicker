@@ -72,7 +72,6 @@ class _PageContainer extends Component {
     //TODO: double check this, that all cases are caught!
     if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor'  || pageName === 'admin' || pageName === 'student'  || pageName === 'profile' )) Router.go(pageName, { courseId: courseId })
     else{
-      console.log("here")
       Router.go('course', { courseId: courseId })
     }
   }
