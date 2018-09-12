@@ -77,8 +77,11 @@ export class _QuestionSidebar extends ControlledForm {
       this.setState({ tagSuggestions:tagSuggestions })
     })
 
+    // Decide wether to reset the sidebar form
+    if (nextProps.resetSidebar || nextProps.questionLibrary !== this.props.questionLibrary){
+      this.resetFilter()
+    }
     //Decide whether or not to update the question pool
-    if (nextProps.resetSidebar || nextProps.questionLibrary !== this.props.questionLibrary) this.resetFilter()
     // questions length could change if a question was deleted
     else if (nextProps.questions.length !== this.props.questions.length || this.state.questionPool.length < 1 ) {
       const nQuery = Questions.find(nextProps.libQuery).count()
@@ -87,6 +90,9 @@ export class _QuestionSidebar extends ControlledForm {
       if (newQuestions.length >= nQuery ) atMaxLimit = true
 
       this.setState({ questionPool: newQuestions, atMaxLimit:atMaxLimit, nQuery:nQuery })
+    }
+    else if (nextProps.questions !== this.props.questions) {
+      this.updateQuery()
     }
     else {}
 
@@ -363,17 +369,12 @@ export class _QuestionSidebar extends ControlledForm {
 
                   return (
                   <div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
-                    { !q.courseId
-                      ? <QuestionListItem
+                    <QuestionListItem
                         courseId={q.courseId}
                         question={q}
                         session={this.props.session}
                         controls={controls.length > 0 ? controls : ''}
                         click={() => this.setQuestion(q)} />
-                     : <StudentQuestionListItem
-                          question={q}
-                          controls={controls.length > 0 ? controls : ''}
-                          click={() => this.setQuestion(q)} /> }
                     </div>)
                   })
                 : <div>

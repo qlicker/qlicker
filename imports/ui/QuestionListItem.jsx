@@ -31,14 +31,14 @@ export class QuestionListItem extends ListItem {
   }
 
   render () {
-    
+
     if (!this.props.question) return null
     const s = this.props.session
     const c = Courses.findOne({ _id: this.props.question.courseId })
     const controls = this.makeControls()
-  
+
     const q = this.props.question || { question: 'Question?', type: 0 }
-    
+
     const isCurrent = s && s.status === 'running' && (s.currentQuestion === q._id)
     const truncated = q.plainText ? <HTMLEllipsis unsafeHTML={q.content} maxLine='3' basedOn='words' /> : ''
     const content = q.plainText ? <span className={isCurrent ? 'current-question-list-item' : ''}>
@@ -53,7 +53,7 @@ export class QuestionListItem extends ListItem {
         <div className='ql-label-list'>
           {
             tags.map((t) => {
-              return <span key={t.value} className='ql-label ql-label-info'>{t.label}</span>
+              return <span key={t.value+q._id} className='ql-label ql-label-info'>{t.label}</span>
             })
           }
         </div>

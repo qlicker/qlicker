@@ -232,7 +232,7 @@ export class _GradeTable extends Component {
       const grade = _(grades).findWhere({sessionId: sessionId})
       let cellClass = 'ql-grade-cell'
       if (grade) {
-        if (grade.hasManualMarks()) cellClass = 'ql-grade-cell-manual'
+        //if (grade.hasManualMarks()) cellClass = 'ql-grade-cell-manual'
         if (grade.hasUngradedMarks()) cellClass = 'ql-grade-cell-needs-grading'
       }
 
@@ -346,8 +346,8 @@ export const GradeTable = createContainer((props) => {
   const handle = Meteor.subscribe('users.studentsInCourse', props.courseId) &&
     Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
-    Meteor.subscribe('grades.forCourse', props.courseId)
-
+    Meteor.subscribe('grades.forCourse', props.courseId, {'marks':0} )
+  //{value: 1, participation: 1, userId: 1, sessionId:1, joined:1, needsGrading:1}
   const user = Meteor.user()
   const course = Courses.findOne(props.courseId)
   const grades = Grades.find({ courseId: props.courseId }).fetch()
