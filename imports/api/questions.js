@@ -129,6 +129,21 @@ export const Questions = new Mongo.Collection('questions',
 
 // data publishing
 if (Meteor.isServer) {
+
+  /*
+  Meteor.publish('questions.single', function (qId) {
+    if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      const question =  Questions.findOne({_id:qId})
+      //const course = Courses.findOne({_id: question.courseId})
+      if (user.isInstructor(question.courseId) || user.hasRole(ROLES.admin)) return Questions.find({ _id: qId})
+      else if (user.isStudent(question.courseId) && (question.public || question.owner === user._id || question.creator === user._id) ) {
+        return Questions.find({ _id: qId})
+      }
+      else return this.ready()
+    } else this.ready()
+  })*/
+
    //questions that have been used in the course
   Meteor.publish('questions.inCourse', function (courseId) {
     if (this.userId) {
@@ -242,11 +257,11 @@ if (Meteor.isServer) {
 
       if (user.hasRole(ROLES.admin) || user.isInstructor(courseId)){
           query = _.extend(questionQueries.queries.library.instructor, {courseId: courseId})
-          return Questions.find(query,questionQueries.options.sortMostRecent)
+          return Questions.find(query)
       }
       else if (user.isStudent(courseId)){
         query = _.extend(questionQueries.queries.library.student, {courseId: courseId, '$or': [{ creator: this.userId }, { owner: this.userId }] })
-        return Questions.find(query,questionQueries.options.sortMostRecent)
+        return Questions.find(query)
       }
       else return this.ready()
 
@@ -262,7 +277,7 @@ if (Meteor.isServer) {
 
       if(user.hasRole(ROLES.admin) || user.isInstructor(courseId) || user.isStudent(courseId) ){
         query = _.extend(questionQueries.queries.public, {courseId: courseId})
-        return Questions.find(query,questionQueries.options.sortMostRecent)
+        return Questions.find(query)
       } else return this.ready()
 
     } else return this.ready()
@@ -277,7 +292,7 @@ if (Meteor.isServer) {
       if (!user.isInstructor(courseId) && !user.hasRole(ROLES.admin)) return this.ready()
 
       query = _.extend(questionQueries.queries.unapprovedFromStudents, {courseId: courseId})
-      return Questions.find(query,questionQueries.options.sortMostRecent)
+      return Questions.find(query)
     } else this.ready()
   })
 

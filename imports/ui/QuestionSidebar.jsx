@@ -363,17 +363,12 @@ export class _QuestionSidebar extends ControlledForm {
 
                   return (
                   <div key={q._id} className={this.props.selected && this.props.selected._id === q._id ? 'list-item-selected' : ''}>
-                    { !q.courseId
-                      ? <QuestionListItem
+                    <QuestionListItem
                         courseId={q.courseId}
                         question={q}
                         session={this.props.session}
                         controls={controls.length > 0 ? controls : ''}
                         click={() => this.setQuestion(q)} />
-                     : <StudentQuestionListItem
-                          question={q}
-                          controls={controls.length > 0 ? controls : ''}
-                          click={() => this.setQuestion(q)} /> }
                     </div>)
                   })
                 : <div>
