@@ -77,8 +77,11 @@ export class _QuestionSidebar extends ControlledForm {
       this.setState({ tagSuggestions:tagSuggestions })
     })
 
+    // Decide wether to reset the sidebar form
+    if (nextProps.resetSidebar || nextProps.questionLibrary !== this.props.questionLibrary){
+      this.resetFilter()
+    }
     //Decide whether or not to update the question pool
-    if (nextProps.resetSidebar || nextProps.questionLibrary !== this.props.questionLibrary) this.resetFilter()
     // questions length could change if a question was deleted
     else if (nextProps.questions.length !== this.props.questions.length || this.state.questionPool.length < 1 ) {
       const nQuery = Questions.find(nextProps.libQuery).count()
@@ -87,6 +90,9 @@ export class _QuestionSidebar extends ControlledForm {
       if (newQuestions.length >= nQuery ) atMaxLimit = true
 
       this.setState({ questionPool: newQuestions, atMaxLimit:atMaxLimit, nQuery:nQuery })
+    }
+    else if (nextProps.questions !== this.props.questions) {
+      this.updateQuery()
     }
     else {}
 

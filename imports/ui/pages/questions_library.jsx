@@ -208,7 +208,8 @@ export class QuestionsLibrary extends Component {
       })
 
       if(!Meteor.user().isInstructor(this.props.courseId)){
-        blankQuestion.tags.push({label:'STUDENT', value:'STUDENT'})
+        const studentTag = {label:'STUDENT', value:'STUDENT'}
+        if(blankQuestion.tags.indexOf(blankQuestion.tags) === -1) blankQuestion.tags.push(studentTag)
       }
       //For some reason, if you don't first set the selected question to null, the CK Editor
       //diplays the text from the previous selected question.
@@ -220,12 +221,24 @@ export class QuestionsLibrary extends Component {
         })
       })
 
-    } else { // TODO: why not just do it once???
-      this.setState({ selectedQuestion: question })
+    } else { //When we change the question passed to the editor, we first need to pass it a 
+      // null question, and then the actual question, otherwise, it shows the text of the previous
+      //selected question (that's why the nested setStats in else below)
+        if(!this.state.selectedQuestion || this.state.selectedQuestion._id === question._id){
+          this.setState({ selectedQuestion: question })
+        } else {
+          this.setState({ selectedQuestion: null }, () =>{
+            this.setState({ selectedQuestion: question })
+          })
+        }
+
+
       /*
-      this.setState({ selectedQuestion: null }, () =>{
-        this.setState({ selectedQuestion: question })
-      })*/
+      if(!this.state.selectedQuestion || question._id !== this.state.selectedQuestion._id) {
+        this.setState({ selectedQuestion: null }, () =>{
+          this.setState({ selectedQuestion: question })
+        })
+      }*/
     }
   }
 
@@ -413,12 +426,12 @@ export class QuestionsLibrary extends Component {
                 ? <div>
                   {canEdit
                     ? <div>
-                      <button className='btn btn-default'
-                         onClick={() => { this.doneEditing() }}
-                         data-toggle='tooltip'
-                         data-placement='left'>
-                         Done editing
-                      </button>
+                        <button className='btn btn-default'
+                           onClick={() => { this.doneEditing() }}
+                           data-toggle='tooltip'
+                           data-placement='left'>
+                           Done editing
+                        </button>
                         <div id='ckeditor-toolbar' />
                         <div className='ql-edit-item-container'>
                           <QuestionEditItem
