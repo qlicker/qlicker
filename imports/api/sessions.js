@@ -49,12 +49,19 @@ export const Sessions = new Mongo.Collection('sessions',
 // data publishing
 if (Meteor.isServer) {
 // TODO : Should make more robust, check if students, etc, like the other publications
+  // This publication is used on the landing page, to show active session in the student/prof dashboard
   Meteor.publish('sessions', function () {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
-      if (user.isInstructorAnyCourse()) {
-        const courseIdArray = user.profile.courses || []
-        return Sessions.find({ courseId: { $in: courseIdArray } })
+      if (user.isInstructorAnyCourse() && user.hasRole(ROLES.student) ) {// A TA
+        //const courseIdArray = user.profile.courses || []
+        //return Sessions.find({ courseId: { $in: courseIdArray } })
+
+        const instructedCourseIdArray = _(Courses.find({ instructors: user._id }).fetch()).pluck('_id') || []
+        const studentCourseIdArray = _(Courses.find({ students: user._id }).fetch()).pluck('_id') || []
+        return Sessions.find({'$or':[ { courseId: { $in: instructedCourseIdArray } },
+                                      { courseId: { $in: studentCourseIdArray }, status: { $ne: 'hidden' } }]})
+
       } else if (user.hasGreaterRole(ROLES.prof)) {
         const courseIdArray = _(Courses.find({ instructors: user._id }).fetch()).pluck('_id') || []
         return Sessions.find({ courseId: { $in: courseIdArray } })
