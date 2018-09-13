@@ -80,8 +80,8 @@ class _PageContainer extends Component {
     const user = Meteor.user()
 
     if(!user)  Router.go('logout')
-    const isInstructor = user.isInstructorAnyCourse() // to view student submissions
-    const isProfessor = user.hasGreaterRole('professor') // to promote accounts
+    //const isInstructor = user.isInstructorAnyCourse() // to view student submissions
+    const canPromote = user.canPromote() //user.hasGreaterRole('professor') // to promote accounts
     const isAdmin = user.hasRole('admin')
 
     const logout = () => {
@@ -168,7 +168,7 @@ class _PageContainer extends Component {
                   </a>
                   <ul className='dropdown-menu'>
                     <li><a className='close-nav' href={Router.routes['profile'].path()}>User profile</a></li>
-                    {isProfessor
+                    {canPromote
                       ? <li><a className='close-nav' href='#' onClick={togglePromotingAccount}>Promote an account to professor</a></li>
                       : ''
                     }
@@ -188,7 +188,7 @@ class _PageContainer extends Component {
 
         <div className='ql-child-container'>
           { this.props.children }
-          { isProfessor && this.state.promotingAccount
+          { canPromote && this.state.promotingAccount
             ? <PromoteAccountModal done={togglePromotingAccount} />
             : '' }
         </div>

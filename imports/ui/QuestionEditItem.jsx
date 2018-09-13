@@ -543,7 +543,6 @@ componentWillReceiveProps (nextProps) {
     let user = Meteor.user()
     // cannot create tags for the course if it's a student
     const selectOnly = user.isStudent(this.props.courseId) || !user.isInstructor(this.props.courseId)
-    //const selectOnly = (user.hasRole('student') && this.props.courseId && !user.isInstructorAnyCourse())
 
     const radioOptions = [
       { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },

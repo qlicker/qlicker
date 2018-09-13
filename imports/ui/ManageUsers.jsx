@@ -27,6 +27,7 @@ export class ManageUsers extends Component {
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
+    this.toggleCanPromote = this.toggleCanPromote.bind(this)
   }
 
   saveRoleChange (uId, newRole) {
@@ -73,6 +74,13 @@ export class ManageUsers extends Component {
     Meteor.call('users.verifyEmail', email, (e, d) => {
       if (e) alertify.error(e)
       if (d) alertify.success('Email verified')
+    })
+  }
+
+  toggleCanPromote (id) {
+    Meteor.call('users.toggleCanPromote', id, (e, d) => {
+      if (e) alertify.error(e)
+      if (d) alertify.success('Changed!')
     })
   }
 
@@ -130,6 +138,8 @@ export class ManageUsers extends Component {
               {
                 this.props.allUsers.map((u) => {
                   let courseList = ''
+                  const couldPromote = u.hasRole(ROLES.prof)
+                  const toggleCanPromote = () => {this.toggleCanPromote(u._id)}
                   if (u.profile.courses && this.props) {
                     u.profile.courses.forEach(function (cId) {
                       courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] + ' ' : ''
@@ -148,6 +158,10 @@ export class ManageUsers extends Component {
                         { Object.keys(ROLES).map((r) => <option key={'role_' + ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
                       </select>
                       &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
+                      {couldPromote ?
+                        <div> &nbsp;&nbsp;<input type='checkbox' checked={u.canPromote()} onClick={toggleCanPromote} /> &nbsp; can promote</div>
+                        : ''
+                      }
                     </td>
                   </tr>)
                 })

@@ -17,6 +17,7 @@ import { Settings } from './settings'
  *  lastname: '',
  *  profileImage: '',
  *  roles: ['student', 'professor', 'admin'],
+ *  canPromote,
  *  courses: []
  * }
  */
@@ -39,6 +40,9 @@ _.extend(User.prototype, {
   },
   isInstructorAnyCourse: function () {
     return !!Courses.findOne({ instructors: this._id })
+  },
+  canPromote: function (){
+    return this.hasGreaterRole(ROLES.admin) || !!this.profile.canPromote
   },
   coursesInstructed: function () {
     return _(Courses.find({ instructors: this._id }).fetch()).pluck('_id') || []
@@ -288,7 +292,7 @@ Meteor.methods({
    */
   'users.promote' (email) {
     check(email, Helpers.Email)
-    if (!Meteor.user().hasGreaterRole(ROLES.prof)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    if (!Meteor.user().canPromote()) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
     const user = Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
@@ -297,6 +301,16 @@ Meteor.methods({
 
     return Meteor.users.update({ _id: user._id }, {
       '$set': { 'profile.roles': [ ROLES.prof ] }
+    })
+  },
+
+  'users.toggleCanPromote' (id) {
+    if (!Meteor.user().hasGreaterRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    check(id, Helpers.MongoID)
+    let user = Meteor.users.findOne({ _id:id })
+    if( !user ) throw new Meteor.Error('no such user', 'no such user')
+    return Meteor.users.update({ _id: user._id }, {
+      '$set': { 'profile.canPromote': !(!!user.profile.canPromote) }
     })
   },
 
