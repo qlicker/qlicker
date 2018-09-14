@@ -21,15 +21,26 @@ export class _StudentCourseComponent extends Component {
   constructor (p) {
     super(p)
     this.state = { }
+    this.unEnroll = this.unEnroll.bind(this)
+  }
+
+  unEnroll (courseId, userId) {
+    if (confirm('Are you sure you want to un-enroll from the course?')){
+      Meteor.call('courses.removeStudent', courseId, userId, (error) => {
+        if (error) return alertify.error(error.message)
+        else return alertify.success('Un-enrolled from course')
+      })
+    }
   }
 
   render () {
     const course = this.props.course
+    const controls = [{ label: 'Un-enroll', click: () => this.unEnroll(course._id, Meteor.userId()) }]
     return (<div className='ql-student-course-component'>
       { this.props.inactive ?
           <CourseListItem isTA={this.props.isTA} course={course} inactive />
         : <div>
-          <CourseListItem isTA={this.props.isTA} course={course} click={() => Router.go('course', { courseId: course._id })} />
+          <CourseListItem isTA={this.props.isTA} course={course} controls={controls} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
                 if (!s) return
@@ -63,5 +74,6 @@ export const StudentCourseComponent = createContainer((props) => {
 
 StudentCourseComponent.propTypes = {
   course: PropTypes.object.isRequired,
-  sessionRoute: PropTypes.string
+  sessionRoute: PropTypes.string,
+  controls:  PropTypes.array
 }

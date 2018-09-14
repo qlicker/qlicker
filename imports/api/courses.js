@@ -541,7 +541,13 @@ Meteor.methods({
     check(courseId, Helpers.MongoID)
     check(studentUserId, Helpers.MongoID)
 
-    profHasCoursePermission(courseId)
+    //Allow students to remove themselves, and instructors to remove students.
+    const user = Meteor.user()
+    if ( !(user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin) || user.isStudent(courseId)) ) throw new Meteor.Error('Not authorized', 'Must be in course')
+    if (user.isStudent(courseId) && studentUserId !== user._id) throw new Meteor.Error('Not authorized', 'cannot delete other student')
+
+
+    //profHasCoursePermission(courseId)
 
     Meteor.users.update({ _id: studentUserId }, {
       $pull: { 'profile.courses': courseId }
