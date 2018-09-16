@@ -21,7 +21,7 @@ import { Courses } from '../../api/courses'
 import { QUESTION_TYPE } from '../../configs'
 
 
-export class QuestionsLibrary extends Component {
+export class _QuestionsLibrary extends Component {
 
   constructor (props) {
     super(props)
@@ -29,7 +29,7 @@ export class QuestionsLibrary extends Component {
       selectedQuestion: null,
       resetSidebar: false, // only to trigger prop update of side bar when creating new question and thus clear the filter (used as toggle)
       selectedLibrary: 'library',
-      courseCode:''
+      courseCode:'',
     }
     /*
     if (this.props.selectedQuestion) {
@@ -50,34 +50,11 @@ export class QuestionsLibrary extends Component {
     this.doneEditing = this.doneEditing.bind(this)
   }
 
-  componentDidMount () {
-    Meteor.call('courses.hasAllowedStudentQuestions', this.props.courseId, (e, allowed) => {
-      if (e) alertify.error('Cannot get course permissions')
-      else this.setState({allowedStudentQuestions :allowed})
-    })
-    Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
-      if (e) alertify.error('Cannot get course code')
-      else this.setState({ courseCode: c })
-    })
-  }
-
   componentWillReceiveProps (newProps) {
-    /*
-    const newQuestions = newProps.questions
-    if (!_.findWhere(newQuestions, {_id: this.state.selectedQuestionId})) {
-      this.setState({ selectedQuestionId: null, questionMap: _(newQuestions).indexBy('_id') })
-    } else this.setState({ questionMap: _(newQuestions).indexBy('_id')})*/
 
-    //this.setState({questionMap: _(newProps.questions).indexBy('_id')})
     if (newProps.courseId !== this.props.courseId){
-      Meteor.call('courses.hasAllowedStudentQuestions', newProps.courseId, (e, allowed) => {
-        if (e) alertify.error('Cannot get course permissions')
-        else this.setState({resetSidebar: true, allowedStudentQuestions :allowed, selectedQuestion: null/*, questionMap: _(newQuestions).indexBy('_id')*/})
-      })
-      Meteor.call('courses.getCourseCode', this.props.courseId, (e, c) => {
-        if (e) alertify.error('Cannot get course code')
-        else this.setState({ courseCode: c })
-      })
+      const code = newProps.course ? newProps.course.courseCode().toUpperCase()  : ''
+      this.setState({resetSidebar: true, selectedQuestion: null, courseCode:code})
     }
   }
 /*
@@ -221,7 +198,7 @@ export class QuestionsLibrary extends Component {
         })
       })
 
-    } else { //When we change the question passed to the editor, we first need to pass it a 
+    } else { //When we change the question passed to the editor, we first need to pass it a
       // null question, and then the actual question, otherwise, it shows the text of the previous
       //selected question (that's why the nested setStats in else below)
         if(!this.state.selectedQuestion || this.state.selectedQuestion._id === question._id){
@@ -338,6 +315,7 @@ export class QuestionsLibrary extends Component {
 
   render () {
     //if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
     const user =  Meteor.user()
     const isInstructor = user.isInstructor(this.props.courseId)
@@ -363,7 +341,7 @@ export class QuestionsLibrary extends Component {
     //only edit if question exists...
     if (selectedQuestion) {
       //student cannot edit if course does not allow, or if it's approved, or if they are not the owner
-      if ( !isInstructor &&  (!this.state.allowedStudentQuestions || selectedQuestion.approved || !selectedQuestion.owner === user._id) ){
+      if ( !isInstructor &&  (!this.props.course.allowStudentQuestions || selectedQuestion.approved || !selectedQuestion.owner === user._id) ){
         canEdit = false
       }
       // can't approve if creator. This avoids an instructor unapproving a question they created, which would orphan it
@@ -381,7 +359,7 @@ export class QuestionsLibrary extends Component {
       canCopy = false
     }
     //can't create if not instructor or course does not allow student questions
-    if (!isInstructor && !this.state.allowedStudentQuestions) {
+    if (isStudent && !this.props.course.allowStudentQuestions) {
       canCreate = false
     }
 
@@ -499,18 +477,15 @@ export class QuestionsLibrary extends Component {
 }
 
 
-/*
+
 export const QuestionsLibrary = createContainer((props) => {
 
-  const handle =  Meteor.subscribe('questions.library', props.courseId)
-              &&  Meteor.subscribe('questions.public', props.courseId)
-              &&  Meteor.subscribe('questions.unapprovedFromStudents', props.courseId)
+  const handle =  Meteor.subscribe('courses.single', props.courseId)
+  const course = Courses.findOne({_id: props.courseId})
 
-  const questions = Questions.find().fetch()
   return {
     loading: !handle.ready(),
-    courseId: props.courseId,
-    questions: questions
+    course: course
   }
 
-}, _QuestionsLibrary)*/
+}, _QuestionsLibrary)

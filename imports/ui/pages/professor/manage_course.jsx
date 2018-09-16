@@ -13,6 +13,7 @@ import { Courses } from '../../../api/courses'
 import { Grades } from '../../../api/grades'
 import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
+import { CourseOptionsModal } from '../../modals/CourseOptionsModal'
 import { PickCourseModal } from '../../modals/PickCourseModal'
 import { AddTAModal } from '../../modals/AddTAModal'
 import { AddStudentModal } from '../../modals/AddStudentModal'
@@ -34,10 +35,12 @@ class _ManageCourse extends Component {
       profileViewModal: false,
       addTAModal: false,
       addStudentModal: false,
+      courseOptionsModal:false,
       sessionToCopy: null,
       expandedSessionlist: false,
       requireVerified: this.props.course.requireVerified,
       allowStudentQuestions: this.props.course.allowStudentQuestions,
+      searchString:'',
       //requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
@@ -51,6 +54,7 @@ class _ManageCourse extends Component {
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
+
   //  this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
   }
 
@@ -66,7 +70,6 @@ class _ManageCourse extends Component {
   toggleProfileViewModal (userToView = null) {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
-
   startSession (sessionId) {
     if (confirm('Are you sure?')) {
       Meteor.call('sessions.startSession', sessionId, (error) => {
@@ -231,6 +234,26 @@ class _ManageCourse extends Component {
     let uid = Meteor.userId()
     let isProfOrAdmin = Meteor.user().hasGreaterRole('professor')
     let students = this.props.course.students || []
+    let TAs = this.props.course.instructors || []
+
+    // Filter using the search string, if appropriate
+    if (this.state.searchString){
+      students = _(students).filter( function (id) {
+        if (!this.props.students[id]) return false
+        return this.props.students[id].profile.lastname.toLowerCase().includes(this.state.searchString.toLowerCase())
+         || this.props.students[id].profile.firstname.toLowerCase().includes(this.state.searchString.toLowerCase())
+         || this.props.students[id].emails[0].address.toLowerCase().includes(this.state.searchString.toLowerCase())
+      }.bind(this))
+
+      TAs = _(TAs).filter( function (id) {
+        if (!this.props.TAs[id]) return false
+        return this.props.TAs[id].profile.lastname.toLowerCase().includes(this.state.searchString.toLowerCase())
+         || this.props.TAs[id].profile.firstname.toLowerCase().includes(this.state.searchString.toLowerCase())
+         || this.props.TAs[id].emails[0].address.toLowerCase().includes(this.state.searchString.toLowerCase())
+      }.bind(this))
+    }
+
+
     // then sort alphabetically
     students = _(students).sortBy(function (id) {
       return (this.props.students[id]
@@ -238,7 +261,7 @@ class _ManageCourse extends Component {
                    : '0')
     }.bind(this))
 
-    let TAs = this.props.course.instructors || []
+
     TAs = _(TAs).sortBy(function (id) {
       return (this.props.TAs[id]
         ? this.props.TAs[id].profile.lastname.toLowerCase()
@@ -282,7 +305,10 @@ class _ManageCourse extends Component {
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
+    const toggleCourseOptions = () => { this.setState({ courseOptionsModal: !this.state.courseOptionsModal }) }
     const manageGroups = () => Router.go('course.groups', { courseId: this.props.course._id })
+    const updateSearchString = (e) => {this.setState({ searchString: e.target.value })}
+    //console.log(this.state)
 
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ? this.props.sessions.length : 0
@@ -311,13 +337,8 @@ class _ManageCourse extends Component {
                     </div>
                   </div>
                   <div className='btn-group btn-group-justified details-button-group'>
-                    <div className='btn btn-default' onClick={this.toggleVerification}>
-                      {this.state.requireVerified ? 'Allow Unverified Email' : 'Require Verified Email'}
-                    </div>
-                  </div>
-                  <div className='btn-group btn-group-justified details-button-group'>
-                    <div className='btn btn-default' onClick={this.toggleAllowStudentQuestions}>
-                      {this.state.allowStudentQuestions ? 'Disallow student questions' : 'Allow student questions'}
+                    <div className='btn btn-default' onClick={toggleCourseOptions}>
+                      Course options
                     </div>
                   </div>
                 </div> : ''
@@ -337,8 +358,13 @@ class _ManageCourse extends Component {
                 <h4>{nStudents} student{nStudents > 1 ? 's' : ''}</h4>
               </div>
               <div>
-                <div className='ql-course-classlist'>
-                  { this.renderClassList() }
+                <div className='ql-course-classlist-container'>
+                  <div className='ql-course-classlist-search'>
+                    <input type='text' placeholder='Search by name or email' onChange={updateSearchString} value={this.state.searchString}/>
+                  </div>
+                  <div className='ql-course-classlist'>
+                    { this.renderClassList() }
+                  </div>
                 </div>
               </div>
             </div>
@@ -370,6 +396,12 @@ class _ManageCourse extends Component {
             user={this.state.userToView}
             done={this.toggleProfileViewModal} />
         : '' }
+        { this.state.courseOptionsModal
+          ? <CourseOptionsModal
+              course={this.props.course}
+              done={toggleCourseOptions} />
+          : ''
+        }
       </div>)
   }
 
