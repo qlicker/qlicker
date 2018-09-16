@@ -51,10 +51,8 @@ export class _QuestionsLibrary extends Component {
   }
 
   componentWillReceiveProps (newProps) {
-
     if (newProps.courseId !== this.props.courseId){
-      const code = newProps.course ? newProps.course.courseCode().toUpperCase()  : ''
-      this.setState({resetSidebar: true, selectedQuestion: null, courseCode:code})
+      this.setState({ resetSidebar: true, selectedQuestion: null })
     }
   }
 /*
