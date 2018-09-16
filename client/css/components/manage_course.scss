@@ -22,13 +22,22 @@
     margin-bottom: 10px;
   }
 
-  .ql-course-classlist {
-    max-height: 400px;
-    overflow-y: auto;
-    .ql-student-list-item {
-      border: 0;
-      border-top: 1px solid #ddd;
+
+  .ql-course-classlist-container {
+    .ql-course-classlist-search {
+      input {
+        width:100%;
+      }
     }
+    .ql-course-classlist{
+      max-height: 400px;
+      overflow-y: auto;
+      .ql-student-list-item {
+        border: 0;
+        border-top: 1px solid #ddd;
+      }
+    }
+
   }
 
   .ql-session-list {

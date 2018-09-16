@@ -430,7 +430,9 @@ Meteor.methods({
         courseNumber: course.courseNumber.toLowerCase(),
         section: course.section,
         semester: course.semester.toLowerCase(),
-        owner: course.owner // this method used to change course owner
+        requireVerified: course.requireVerified ,
+        allowStudentQuestions: course.allowStudentQuestions,
+        //owner: course.owner // this method used to change course owner
       }
     })
   },
