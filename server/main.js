@@ -74,7 +74,7 @@ Meteor.startup(() => {
   //console.log("URL: "+Meteor.absoluteUrl())
   //********************************
   //Hack to update database of profile pictures
-  //*
+  /*
   allUsers = Meteor.users.find().fetch()
   nusers = allUsers.length
   //console.log(nusers)
@@ -97,7 +97,7 @@ Meteor.startup(() => {
           'profile.profileThumbnail':thumb}
           })
     }
-    /*
+    
     //console.log(user.profile.lastname)
     if(user.profile.profileImage && !user.profile.profileThumbnail){
       //console.log('   '+user.profile.firstname)
@@ -109,7 +109,7 @@ Meteor.startup(() => {
               'profile.profileThumbnail':url+'/thumbnail'}
               })
       }
-    }*/
+    }
 
   }
   /*
