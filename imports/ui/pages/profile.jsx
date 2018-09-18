@@ -65,19 +65,20 @@ class _Profile extends Component {
       const UID = UUID.v5({
         namespace: '00000000-0000-0000-0000-000000000000',
         name: fileURL})
-      let image = {UID: UID, url: fileURL}
-      const existing = Images.findOne(image)
 
+      /*
+      let image = {UID: UID}
+      const existing = Images.findOne(image)
       if (existing && !existing.url.endsWith('/thumbnail')) {
         this.saveProfileImage(existing.url, 'image')
-
+        //console.log(existing.url)
         if (existing.url.startsWith('https://s3.') && existing.url.endsWith('/image')) {
           this.saveProfileImage(existing.url.slice(0, -5) + 'thumbnail', 'thumbnail')
 
         } else this.saveProfileImage(existing.url, 'thumbnail')
 
         return
-      }
+      }*/
 
       let img = new window.Image()
       img.onload = function () {
@@ -87,8 +88,8 @@ class _Profile extends Component {
           if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
         })
       }.bind(this)
-
       img.src = fileURL
+
       // Makes a thumbnail
       let thumb = new window.Image()
       thumb.onload = function () {
@@ -158,6 +159,7 @@ class _Profile extends Component {
     canvas.width = width
     canvas.height = height
     canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+
     let slingshotThumbnail = new Slingshot.Upload(storageType, meta)
     canvas.toBlob((blob) => {
       slingshotThumbnail.send(blob, (e, downloadUrl) => {
