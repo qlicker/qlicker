@@ -415,7 +415,7 @@ export const QuestionSidebar = createContainer((props) => {
   switch (props.questionLibrary) {
     case 'library':
       libQuery = isInstructor ? questionQueries.queries.library.instructor
-                              : _.extend(questionQueries.queries.library.student, '$or': [{ creator: user._id }, { owner: user._id }])
+                              : _.extend(questionQueries.queries.library.student, {'$or': [{ creator: user._id }, { owner: user._id }]})
       break;
     case 'public':
       libQuery =  questionQueries.queries.public

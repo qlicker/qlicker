@@ -99,8 +99,7 @@ export const questionQueries = {
         approved: true
       },
       student: { // For student, need an additional check on the user ID of owner and creator!!!!
-        sessionId: {$exists: false},
-        public: false
+        sessionId: {$exists: false}
       }
     },
     public: {
