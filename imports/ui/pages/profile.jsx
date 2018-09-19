@@ -184,7 +184,7 @@ class _Profile extends Component {
   }
 
   render () {
-    const user = Meteor.user()//this.props.user
+    const user = this.props.user
     const needsEmailVerification = !user.emails[0].verified
 
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
@@ -302,7 +302,7 @@ export const ProfilePage = createContainer((props) => {
   const handle = Meteor.subscribe('userData')
 
   return {
-    //user: Meteor.users.find({ _id: Meteor.userId() }).fetch()[0], // user object
+    user: Meteor.users.findOne({ _id: Meteor.userId() }), // user object needs to be reactive
     loading: !handle.ready()
   }
 }, _Profile)

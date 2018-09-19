@@ -73,7 +73,7 @@ if (Meteor.isServer) {
 }
 
 Accounts.config({ restrictCreationByEmailDomain: (email) => {
-  const allowed = Meteor.call('confirmAccount', (email))
+  const allowed = Meteor.call('settings.allowedEmailDomain', (email))
   if (!allowed) throw new Meteor.Error(403, 'Invalid email domain')
   else return true
 }})
@@ -159,8 +159,8 @@ Meteor.methods({
     if (settings) return settings.SSO_enabled
   },
 
-  'confirmAccount' (email) {
-    check(email, String)
+  'settings.allowedEmailDomain' (email) {
+    check(email, Helpers.Email)
     var domain = email.substring(email.lastIndexOf('@') + 1)
     const settings = Settings.findOne()
     if (settings) { // (restrict) implies (domain in list) === not (restrict) || (domain in list)
