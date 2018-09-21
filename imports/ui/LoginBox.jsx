@@ -36,16 +36,16 @@ export class LoginBox extends Component {
     //this.setState({ ssoInstitution: this.props.ssoInstitution })
     //this.setState({ ssoEnabled: this.props.ssoEnabled})
   }
-  /*  
+  /*
   componentWillMount () {
     Meteor.call('settings.getSSOInstitution', (err, institution) => {
       this.setState({ ssoInstitution: institution})
     })
     Meteor.call('settings.getSSOEnabled', (err, result) => {
       this.setState({ ssoEnabled: result})
-    })  
+    })
   }*/
-    
+
   loginSSO(e){
    e.preventDefault()
    Meteor.loginWithSaml()
@@ -72,7 +72,7 @@ export class LoginBox extends Component {
       if (this.state.password !== this.state.password_verify) {
         this.setState({ form_error: true })
       } else {
-        Meteor.call('confirmAccount', (this.state.email), (e) => {
+        Meteor.call('settings.allowedEmailDomain', (this.state.email), (e) => {
           if (e) return alertify.error(e.reason)
           let role = 'student'
           Meteor.call('users.count', (e, res) => {
@@ -89,7 +89,7 @@ export class LoginBox extends Component {
               }
             }, function (error) {
               if (error) {
-                console.log(error)
+                //console.log(error)
                 alertify.error(error.reason)
                 this.setState({ submit_error: true })
               } else {
@@ -129,8 +129,8 @@ export class LoginBox extends Component {
     const switchFormString = this.state.login ? 'Create an Account' : 'Login'
     const submitButtonString = this.state.login ? 'Login' : 'Sign Up'
     const topMessage = this.state.login ? 'Login to Qlicker' : 'Register for Qlicker'
-    const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'   
-    
+    const haveAccountMessage = this.state.login ? 'Don\'t have an account?' : 'Already have an account?'
+
     return (
       <form className='ql-login-box ql-card' onSubmit={this.handleSubmit}>
         <div className='header-container ql-header-bar'>
@@ -154,18 +154,18 @@ export class LoginBox extends Component {
             <div className='spacer1'>&nbsp;</div>
             <input type='submit' id='submitButton' className='btn btn-primary btn-block' value={submitButtonString} />
           </div> : '' }
-          
-          { this.props.ssoEnabled ? '' : 
+
+          { this.props.ssoEnabled ? '' :
             <div>
               <div className='bottom-account-message'>{haveAccountMessage}</div>
               <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.changeForm}>{switchFormString}</button>
             </div>
           }
-             
+
           { this.props.ssoEnabled ?
                 <button className='ql-switch-form-button btn btn-default btn-block' onClick={this.loginSSO}>
                     Login through {this.props.ssoInstitution ? this.props.ssoInstitution : 'SSO'}
-                </button> : '' 
+                </button> : ''
            }
         </div>
       </form>

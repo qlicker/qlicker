@@ -210,17 +210,30 @@ Meteor.methods({
       '$set': { 'profile.profileThumbnail': profileImageUrl }
     })
   },
-
   /**
    * change to new email
    * @param {String} newEmail
    */
   'users.changeEmail' (newEmail) {
     check(newEmail, Helpers.Email)
-    Meteor.users.update({ _id: Meteor.userId() }, {
-      '$set': { 'emails': [ { address: newEmail, verified: false } ] }
-    })
-    return Meteor.call('users.sendVerificationEmail')
+
+    if(Meteor.isServer){
+      //Check if email exists
+      if (Accounts.findUserByEmail(newEmail)) throw new Meteor.Error('Email already in use', 'Email already in use')
+      let user = Meteor.user() //Meteor.users.findOne({_id: Meteor.userId()})
+      //Check if email matches domain restrictions
+      const settings = Settings.findOne()
+      if (settings) { // (restrict) implies (domain in list) === not (restrict) || (domain in list)
+        var domain = newEmail.substring(newEmail.lastIndexOf('@') + 1)
+        const contains = _.find(settings.allowedDomains, function (dom) { return domain === dom })
+
+        const approved = (user && user.hasRole(ROLES.admin)) || !settings.restrictDomain || (contains !== undefined)
+        if (!approved) throw new Meteor.Error('Invalid email domain', 'Invalid email domain')
+      }
+      const oldEmail = user.emails[0].address
+      Accounts.addEmail(user._id, newEmail)
+      Accounts.removeEmail(user._id, oldEmail)
+    }
   },
 
   'users.updateName' (newLast, newFirst) {

@@ -46,12 +46,15 @@ export class ChangeEmailModal extends ControlledForm {
     }
 
     Meteor.call('users.changeEmail', this.state.newEmail, (error) => {
-      if (error) alertify.error('Error: ' + error.error)
+      if (error) alertify.error('Error: ' + error.reason)
       else {
-        alertify.success('Verification Email Sent')
-        this.done()
+        Meteor.call('users.sendVerificationEmail', (err) => {
+          if (err)alertify.error('Error: ' + err.reason)
+          else alertify.success('Verification Email Sent')
+        })
       }
     })
+    this.done()
   }
 
   render () {
@@ -74,4 +77,3 @@ export class ChangeEmailModal extends ControlledForm {
   } //  end render
 
 } // end ChangeEmailModal
-
