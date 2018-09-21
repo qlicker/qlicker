@@ -33,18 +33,7 @@ export class LoginBox extends Component {
     this.changeForm = this.changeForm.bind(this)
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.loginSSO = this.loginSSO.bind(this)
-    //this.setState({ ssoInstitution: this.props.ssoInstitution })
-    //this.setState({ ssoEnabled: this.props.ssoEnabled})
   }
-  /*
-  componentWillMount () {
-    Meteor.call('settings.getSSOInstitution', (err, institution) => {
-      this.setState({ ssoInstitution: institution})
-    })
-    Meteor.call('settings.getSSOEnabled', (err, result) => {
-      this.setState({ ssoEnabled: result})
-    })
-  }*/
 
   loginSSO(e){
    e.preventDefault()
@@ -54,7 +43,7 @@ export class LoginBox extends Component {
   sendVerificationEmail () {
     Meteor.call('users.sendVerificationEmail', (e) => {
       if (e) alertify.error('Error sending email')
-      else this.setState({ showResendLink: false })
+      else alertify.success('Verification email sent!')
     })
   }
 
