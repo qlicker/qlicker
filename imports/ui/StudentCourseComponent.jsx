@@ -35,7 +35,10 @@ export class _StudentCourseComponent extends Component {
 
   render () {
     const course = this.props.course
-    const controls = [{ label: 'Un-enroll', click: () => this.unEnroll(course._id, Meteor.userId()) }]
+    const user = Meteor.user()
+    const isStudent = user.isStudent(course._id)
+    const controls = isStudent ? [{ label: 'Un-enroll', click: () => this.unEnroll(course._id, user._id) }] : null
+    
     return (<div className='ql-student-course-component'>
       { this.props.inactive ?
           <CourseListItem isTA={this.props.isTA} course={course} inactive />
