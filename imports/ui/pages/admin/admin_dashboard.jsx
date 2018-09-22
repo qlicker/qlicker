@@ -22,7 +22,7 @@ class _AdminDashboard extends Component {
     super(p)
 
     this.state = {
-      tab: 'users', 
+      tab: 'users',
     }
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
@@ -78,7 +78,7 @@ class _AdminDashboard extends Component {
 
 export const AdminDashboard = createContainer(() => {
   const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings') &&
-    Meteor.subscribe('courses')
+                 Meteor.subscribe('courses')
   const courses = Courses.find().fetch()
   let courseNames = {}
   courses.map((c) => {
@@ -86,6 +86,7 @@ export const AdminDashboard = createContainer(() => {
   })
   const settings = Settings.findOne()
   const allUsers = Meteor.users.find({ }, { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 } }).fetch()
+
   return {
     settings: settings,
     allUsers: allUsers,
