@@ -79,10 +79,10 @@ class _AdminDashboard extends Component {
 export const AdminDashboard = createContainer(() => {
   const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings') &&
                  Meteor.subscribe('courses')
-  const courses = Courses.find().fetch()
+  const courses = Courses.find({}, {sort: {date_created: -1, name : 1 }}).fetch()
   let courseNames = {}
   courses.map((c) => {
-    courseNames[c._id] = c.courseCode().toUpperCase()
+    courseNames[c._id] = c.courseCode().toUpperCase()+'-'+c.semester.toUpperCase()
   })
   const settings = Settings.findOne()
   const allUsers = Meteor.users.find({ }, { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 } }).fetch()
