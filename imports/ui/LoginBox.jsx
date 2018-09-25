@@ -61,7 +61,7 @@ export class LoginBox extends Component {
   handleSubmit (e) {
     e.preventDefault()
     if (this.state.login) {
-      Meteor.loginWithPassword(this.state.email, this.state.password, function (error) {
+      Meteor.loginWithPassword({email:this.state.email}, this.state.password, function (error) {
         if (error) {
           alertify.error(error.reason)
           this.setState({ submit_error: true })
