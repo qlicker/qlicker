@@ -330,6 +330,7 @@ Meteor.methods({
     course.courseNumber = course.courseNumber.toLowerCase()
     course.semester = course.semester.toLowerCase()
     course.instructors = [Meteor.userId()].concat(admins)
+    course.createdAt = new Date()
 
     const c = Courses.insert(course, (e, id) => {
       if (e) alertify.error('Error creating course')

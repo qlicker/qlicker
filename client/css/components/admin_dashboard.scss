@@ -58,11 +58,20 @@
 }
 
 // Components
+.ql-admin-user-table-container {
+  .ql-admin-user-search {
+    display: flex;
+    .select-container {
+      min-width: 200px;
+    }
 
-.ql-admin-user-table {
-  max-height: 800px;
-  overflow-y: auto;
- }
+  }
+  .ql-admin-user-table {
+    max-height: 800px;
+    overflow-y: auto;
+   }
+}
+
 
 .ql-admin-form-box {
   text-align: center;

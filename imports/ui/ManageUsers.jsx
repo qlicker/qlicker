@@ -6,6 +6,8 @@
 import React, { Component } from 'react'
 
 import { RestrictDomainForm } from './RestrictDomainForm'
+import Select from 'react-select'
+import 'react-select/dist/react-select.css'
 
 import { ROLES } from '../configs'
 
@@ -20,7 +22,10 @@ export class ManageUsers extends Component {
       password: '',
       password_verify: '',
       firstname: '',
-      lastname: ''
+      lastname: '',
+      roleNames: [{value:ROLES.admin, label:'admin'},
+                  {value:ROLES.prof, label:'professor'},
+                  {value:ROLES.student, label:'student'}]
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -28,6 +33,15 @@ export class ManageUsers extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleCanPromote = this.toggleCanPromote.bind(this)
+  }
+
+  componentDidMount () {
+    let courseNames = []
+    for (let cid in this.props.courseNames ){
+      if( this.props.courseNames.hasOwnProperty(cid) )
+      courseNames.push({ value: cid, label: this.props.courseNames[cid] })
+    }
+    this.setState({ courseNames: courseNames })
   }
 
   saveRoleChange (uId, newRole) {
@@ -86,6 +100,29 @@ export class ManageUsers extends Component {
 
   render() {
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
+    const setSearchCourses = (val) => { this.setState({ searchCourses: val }) }
+    const setSearchUser = (e) => { this.setState({ searchUser: e.target.value }) }
+    const setSearchRoles = (val) => { this.setState({ searchRoles: val }) }
+
+    // Apply search criteria, if present
+    let users = this.props.allUsers
+    if( this.state.searchUser ){
+      users = _(users).filter( function (user) {
+        return user.profile.lastname.toLowerCase().includes(this.state.searchUser.toLowerCase())
+         || user.profile.firstname.toLowerCase().includes(this.state.searchUser.toLowerCase())
+         || user.emails[0].address.toLowerCase().includes(this.state.searchUser.toLowerCase())
+      }.bind(this))
+    }
+    if( this.state.searchCourses  && this.state.searchCourses.length > 0 ){
+      users = _(users).filter( function (user) {
+        return (_.intersection( _(this.state.searchCourses).pluck('value'), user.profile.courses)).length > 0
+      }.bind(this))
+    }
+    if( this.state.searchRoles  && this.state.searchRoles.length > 0 ){
+      users = _(users).filter( function (user) {
+        return (_.intersection( _(this.state.searchRoles).pluck('value'), user.profile.roles)).length > 0
+      }.bind(this))
+    }
 
     return(
       <div className='container'>
@@ -126,49 +163,75 @@ export class ManageUsers extends Component {
     </div>
       <div className='row'>
         <h1>Users (with elevated permissions first)</h1>
-        <div className = 'ql-admin-user-table'>
-          <table className='table table-bordered'>
-            <tbody>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Courses</th>
-                <th>Change Role</th>
-              </tr>
-              {
-                this.props.allUsers.map((u) => {
-                  let courseList = ''
-                  const couldPromote = u.hasRole(ROLES.prof)
-                  const toggleCanPromote = () => {this.toggleCanPromote(u._id)}
-                  if (u.profile.courses && this.props) {
-                    u.profile.courses.forEach(function (cId) {
-                      courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] + ' ' : ''
-                    }.bind(this))
-                  }
-                  return (<tr key={u._id}>
-                    <td>
-                      <a href='#' onClick={(e) => this.props.toggleProfileViewModal(u)}>{u.getName()}</a>
-                    </td>
-                    <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)'
-                        : <a href='#' onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
-                    </td>
-                    <td>{courseList}</td>
-                    <td>
-                      <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
-                        { Object.keys(ROLES).map((r) => <option key={'role_' + ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
-                      </select>
-                      &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
-                      {couldPromote ?
-                        <div> &nbsp;&nbsp;<input type='checkbox' checked={u.canPromote()} onClick={toggleCanPromote} /> &nbsp; can promote</div>
-                        : ''
-                      }
-                    </td>
-                  </tr>)
-                })
-              }
-            </tbody>
-          </table>
+        <div className = 'ql-admin-user-table-container'>
+          <div className = 'ql-admin-user-search'>
+            <input type='text' placeholder='search by name or email' onChange = {setSearchUser} value={this.stateSearchUser} />
+            <div className='select-container'>
+              <Select
+                name='search-course'
+                placeholder='Course'
+                multi
+                value={this.state.searchCourses}
+                options={this.state.courseNames}
+                onChange={setSearchCourses}
+                />
+            </div>
+            <div className='select-container'>
+              <Select
+                name='search-role'
+                placeholder='Role'
+                multi
+                value={this.state.searchRoles}
+                options={this.state.roleNames}
+                onChange={setSearchRoles}
+                />
+            </div>
+          </div>
+          <div className = 'ql-admin-user-table'>
+            <table className='table table-bordered'>
+              <tbody>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Courses</th>
+                  <th>Change Role</th>
+                </tr>
+                {
+                  users.map((u) => {
+                    let courseList = ''
+                    const couldPromote = u.hasRole(ROLES.prof)
+                    const toggleCanPromote = () => {this.toggleCanPromote(u._id)}
+                    if (u.profile.courses && this.props) {
+                      u.profile.courses.forEach(function (cId) {
+                        courseList += this.props.courseNames[cId] ? this.props.courseNames[cId] + ' ' : ''
+                      }.bind(this))
+                    }
+                    return (<tr key={u._id}>
+                      <td>
+                        <a href='#' onClick={(e) => this.props.toggleProfileViewModal(u)}>{u.getName()}</a>
+                      </td>
+                      <td>{u.getEmail()} &nbsp;&nbsp; {u.emails[0].verified ? '(verified)'
+                          : <a href='#' onClick={(e) => this.verifyUserEmail(u.getEmail())}>Verify</a>}
+                      </td>
+                      <td>{courseList}</td>
+                      <td>
+                        <select onChange={(e) => this.saveRoleChange(u._id, e.target.value)} value={u.getRole()}>
+                          { Object.keys(ROLES).map((r) => <option key={'role_' + ROLES[r]} value={ROLES[r]}>{ROLES[r]}</option>)}
+                        </select>
+                        &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
+                        {couldPromote ?
+                          <div> &nbsp;&nbsp;<input type='checkbox' checked={u.canPromote()} onClick={toggleCanPromote} /> &nbsp; can promote</div>
+                          : ''
+                        }
+                      </td>
+                    </tr>)
+                  })
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
       </div>
     )
