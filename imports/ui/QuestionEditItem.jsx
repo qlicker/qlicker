@@ -183,18 +183,15 @@ export class QuestionEditItem extends Component {
 
     this.setState(stateUpdater, () => {
       if (question.type === QUESTION_TYPE.TF) {
-        //this.currentAnswer = 0
-        this.answerOrder = _.extend({}, TF_ORDER)
+        this.answerOrder = TF_ORDER
         this.addAnswer(null, null, false, () => {
           this.addAnswer(null, null, false)
         })
       } else if (question.type === QUESTION_TYPE.SA) {
-        //this.currentAnswer = 0
         this.answerOrder = SA_ORDER
         this.addAnswer(null, null, true)
       } else if (!retainOptions) {
-        //this.currentAnswer = 0
-        this.answerOrder = _.extend({}, MC_ORDER)
+        this.answerOrder = MC_ORDER
         this.addAnswer(null, null, true)
       }
       this._DB_saveQuestion()
@@ -286,7 +283,7 @@ export class QuestionEditItem extends Component {
       answer: answerKey,
       wysiwyg: wysiwyg
     }])
-    const plusOne = this.state.currentAnswer+1
+    const plusOne = this.state.currentAnswer + 1
     this.setState({ question: question, currentAnswer:plusOne }, () => {
       //this.currentAnswer++
 
@@ -664,7 +661,7 @@ componentWillReceiveProps (nextProps) {
           : ''
         }
 
-        { this.state.question.type === QUESTION_TYPE.MC || this.state.question.type === QUESTION_TYPE.MS
+        { (this.state.question.type === QUESTION_TYPE.MC || this.state.question.type === QUESTION_TYPE.MS) && this.answerOrder && this.state.currentAnswer < this.answerOrder.length
           ? <div className='row' onClick={this.addAnswer}>
             <div className='col-md-12'>
               <div className='add-question-row-item'>
