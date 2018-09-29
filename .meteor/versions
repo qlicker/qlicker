@@ -4,7 +4,7 @@ accounts-password@1.5.1
 allow-deny@1.1.0
 autoupdate@1.4.0
 babel-compiler@7.0.9
-babel-runtime@1.2.0
+babel-runtime@1.2.4_1
 base64@1.0.10
 binary-heap@1.0.10
 blaze@2.3.2
@@ -24,7 +24,7 @@ ddp-rate-limiter@1.0.7
 ddp-server@2.1.2
 deps@1.0.12
 diff-sequence@1.1.0
-dynamic-import@0.3.0
+dynamic-import@0.3.1
 ecmascript@0.10.6
 ecmascript-runtime@0.5.0
 ecmascript-runtime-client@0.6.0
