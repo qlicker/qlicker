@@ -21,12 +21,12 @@ const questionPattern = {
   plainText: String, // plain text version of question
   type: Helpers.QuestionType,
   content: String, // wysiwyg display content
-  options: [ {
-    wysiwyg: Boolean,
-    correct: Boolean,
-    answer: Helpers.NEString,
-    content: String,
-    plainText: String
+  options:  [ {
+    wysiwyg:  Match.Maybe(Boolean),
+    correct:  Match.Maybe(Boolean),
+    answer:  Match.Maybe(Helpers.NEString),
+    content:  Match.Maybe(String),
+    plainText:  Match.Maybe(String)
   } ],
   creator: Helpers.MongoID,
   owner: Match.Maybe(Helpers.MongoID),
