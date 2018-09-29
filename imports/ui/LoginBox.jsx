@@ -50,7 +50,11 @@ export class LoginBox extends Component {
   handleSubmit (e) {
     e.preventDefault()
     if (this.state.login) {
-      Meteor.loginWithPassword({email:this.state.email}, this.state.password, function (error) {
+      if (!this.state.email || !this.state.password){
+        alertify.error("Email and password cannot be empty")
+        return
+      }
+      Meteor.loginWithPassword({email:this.state.email.trim()}, this.state.password, function (error) {
         if (error) {
           alertify.error(error.reason)
           this.setState({ submit_error: true })
