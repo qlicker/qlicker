@@ -58,7 +58,10 @@ export class QuestionWithResponseArray extends Component {
         { response
           ? <div className='ql-question-with-response-array-response-control'>
             <div className='ql-question-with-response-array-response-control-attempts'>
-                Attempt: {response.attempt}
+                {this.props.responses.length > 1 ?
+                   <div> Attempt: {response.attempt} of {this.props.responses.length} </div>
+                   :''
+                 }
             </div>
             {this.props.responses.length > 1
                  ? <div className='btn-group btn-group-justified'>

@@ -1,5 +1,5 @@
 @import '../variables.scss';
-@import '../common_components.scss';
+//@import '../common_components.scss';
 
 .ql-grading-container {
   background: white;
@@ -228,9 +228,7 @@
                   min-width: 60px;
                   //padding: 5px;
                   margin: auto;
-                  .button {
-                      @extend .btn-primary;
-                  }
+
                 }
               }
             }
@@ -244,14 +242,7 @@
 
 .response-sidebar-header {
 
-  .btn {
-    @extend .btn;
-      border: none;
-      color: white;
-      height: 100%;
-      width: 20%;
-      font-size: 2em;
-  }
+
 
   .content {
     width: 80%;

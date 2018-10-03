@@ -9,7 +9,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { Courses } from '../../api/courses'
 import { Grades } from '../../api/grades'
 import { Sessions } from '../../api/sessions'
+import { Questions } from '../../api/questions'
+import { Responses } from '../../api/responses'
 
+import { QuestionWithResponseArray } from '../QuestionWithResponseArray'
 import { StudentSessionResults } from '../StudentSessionResults'
 
 class _StudentSessionResultsPage extends Component {
@@ -17,11 +20,32 @@ class _StudentSessionResultsPage extends Component {
   constructor (props) {
     super(props)
 
-    this.state = {}
+    this.state = { questionIndex: 0,
+                   showAllAtOnce: false
+                  }
+
+    this.incrementQuestion = this.incrementQuestion.bind(this)
+  }
+
+  incrementQuestion (increment) {
+    const newIndex = this.state.questionIndex + increment
+    if (newIndex < this.props.questions.length && newIndex >= 0) {
+      this.setState({ questionIndex: newIndex })
+    }
   }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.questions.length < 1) return <div> No questions in session </div>
+
+    const questionToView = this.props.questions[this.state.questionIndex]
+    const incrementQuestion = () => this.incrementQuestion(1)
+    const decrementQuestion = () => this.incrementQuestion(-1)
+    const mark = _(this.props.grade.marks).findWhere({ questionId:questionToView._id })
+    const feedback = mark.feedback
+    const points = mark.points+" out of "+mark.outOf+" points"
+
+    const toggleShowAll = () => this.setState({ showAllAtOnce:!this.state.showAllAtOnce })
 
     return (
       <div className='container ql-results-page'>
@@ -31,13 +55,45 @@ class _StudentSessionResultsPage extends Component {
             <h4>
               {this.props.session.name} (<span className='uppercase'>{this.props.course.fullCourseCode()}</span>)
               { this.props.grade ?
-                <div> Grade: {this.props.grade.value.toFixed(0)} Participation: {this.props.grade.participation.toFixed(0)} </div>
+                <div> Grade: {this.props.grade.value.toFixed(0)} Participation: {this.props.grade.participation.toFixed(0)} on {this.props.questions.length} questions</div>
                   : ''
               }
             </h4>
           </div>
           <div className='ql-card-content'>
-            <StudentSessionResults session={this.props.session} studentId={this.props.studentId} />
+            <div className='ql-review-button-choice'>
+               <button className='btn btn-secondary' onClick={toggleShowAll} >
+                  {this.state.showAllAtOnce ? 'Show one question at a time' : 'Show all questions at once'}
+                 </button>
+            </div>
+            {this.state.showAllAtOnce ?
+                <StudentSessionResults session={this.props.session} studentId={this.props.userId} />
+              : <div>
+                <div className='ql-qControl-container'>
+                  <div className='ql-qControl'>
+                    { this.state.questionIndex > 0
+                      ? <div className='button' onClick={decrementQuestion} ><span className='glyphicon glyphicon-chevron-left' /> Prev. Question </div>
+                      : ''
+                    }
+                  </div>
+                  Q{this.state.questionIndex + 1} ({points})
+                  <div className='ql-qControl'>
+                    { this.state.questionIndex < this.props.questions.length - 1
+                      ? <div className='button' onClick={incrementQuestion} > Next Question <span className='glyphicon glyphicon-chevron-right' /></div>
+                      : ''
+                    }
+                  </div>
+                </div>
+
+                <QuestionWithResponseArray question={questionToView} responses={questionToView.studentResponses} />
+                {feedback ?
+                  <div className='ql-feedback'> Feedback: {feedback} </div>
+                  : ''
+                }
+                </div>
+            }
+
+
           </div>
         </div>
       </div>
@@ -51,16 +107,27 @@ export const StudentSessionResultsPage = createContainer((props) => {
   const handle = Meteor.subscribe('userData') &&
     Meteor.subscribe('courses') &&
     Meteor.subscribe('sessions.single', props.sessionId) &&
-    Meteor.subscribe('grades.forSession', props.sessionId)
+    Meteor.subscribe('grades.forSession', props.sessionId) &&
+    Meteor.subscribe('questions.forReview', props.sessionId) &&
+    Meteor.subscribe('responses.forSession', props.sessionId)
 
+  const userId = Meteor.userId()
   const session = Sessions.findOne(props.sessionId)
   const course = Courses.findOne(session.courseId)
-  const grade = Grades.findOne({sessionId:props.sessionId,  userId:Meteor.userId(), visibleToStudents: true })
+  const grade = Grades.findOne({sessionId:props.sessionId,  userId: userId, visibleToStudents: true })
+  const questions = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
+
+  questions.map((question) => {
+    question.studentResponses = Responses.find({ studentUserId:userId , questionId: question._id }).fetch()
+  })
+
 
   return {
     course: course,
     session: session,
     loading: !handle.ready(),
-    grade: grade
+    grade: grade,
+    userId: userId,
+    questions: questions
   }
 }, _StudentSessionResultsPage)
