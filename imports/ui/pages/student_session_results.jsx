@@ -55,39 +55,41 @@ class _StudentSessionResultsPage extends Component {
             <h4>
               {this.props.session.name} (<span className='uppercase'>{this.props.course.fullCourseCode()}</span>)
               { this.props.grade ?
-                <div> Grade: {this.props.grade.value.toFixed(0)} Participation: {this.props.grade.participation.toFixed(0)} on {this.props.questions.length} questions</div>
+                <div> Grade: {this.props.grade.value.toFixed(0)}% Participation: {this.props.grade.participation.toFixed(0)}% on {this.props.questions.length} questions</div>
                   : ''
               }
             </h4>
           </div>
           <div className='ql-card-content'>
-            <div className='ql-review-button-choice'>
-               <button className='btn btn-secondary' onClick={toggleShowAll} >
-                  {this.state.showAllAtOnce ? 'Show one question at a time' : 'Show all questions at once'}
-                 </button>
-            </div>
+            <ul className='nav nav-tabs'>
+              <li role='presentation' className={ !this.state.showAllAtOnce ? 'active' : ''}>
+                <a role='button' onClick={() => this.setState({ showAllAtOnce:false}) }>One question</a>
+              </li>
+              <li role='presentation' className={ this.state.showAllAtOnce ? 'active' : ''}>
+                <a role='button' onClick={() => this.setState({ showAllAtOnce:true }) }>All questions</a>
+              </li>
+            </ul>
             {this.state.showAllAtOnce ?
                 <StudentSessionResults session={this.props.session} studentId={this.props.userId} />
               : <div>
-                <div className='ql-qControl-container'>
-                  <div className='ql-qControl'>
+                <div className='ql-review-qControl-container'>
+                  <div className='ql-review-qControl'>
                     { this.state.questionIndex > 0
                       ? <div className='button' onClick={decrementQuestion} ><span className='glyphicon glyphicon-chevron-left' /> Prev. Question </div>
                       : ''
                     }
                   </div>
-                  Q{this.state.questionIndex + 1} ({points})
-                  <div className='ql-qControl'>
+                  <div className='ql-review-qControl'>
                     { this.state.questionIndex < this.props.questions.length - 1
                       ? <div className='button' onClick={incrementQuestion} > Next Question <span className='glyphicon glyphicon-chevron-right' /></div>
                       : ''
                     }
                   </div>
                 </div>
-
+                Q{this.state.questionIndex + 1} ({points})
                 <QuestionWithResponseArray question={questionToView} responses={questionToView.studentResponses} />
                 {feedback ?
-                  <div className='ql-feedback'> Feedback: {feedback} </div>
+                  <div className='ql-review-feedback'> Feedback: {feedback} </div>
                   : ''
                 }
                 </div>
