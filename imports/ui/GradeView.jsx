@@ -290,7 +290,7 @@ export class _GradeView extends Component {
                 }
               </div>
               <a onClick={this.togglePreviewQuestion}>
-                { this.state.previewQuestion ? 'Hide attempts' : 'Show attempts' }
+                { this.state.previewQuestion ? 'Hide question' : 'Show question' }
               </a>
 
               { this.state.previewQuestion
@@ -317,7 +317,7 @@ export class _GradeView extends Component {
                     }
                   </div>
                   <div className='ql-gradeview-preview-question-container-info'>
-                    <a onClick={this.togglePreviewQuestion}>Hide attempts</a>
+                    <a onClick={this.togglePreviewQuestion}>Hide question</a>
                   </div>
                 </div>
                 : ''

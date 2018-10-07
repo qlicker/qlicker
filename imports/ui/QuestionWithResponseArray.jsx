@@ -58,30 +58,24 @@ export class QuestionWithResponseArray extends Component {
         { response
           ? <div className='ql-question-with-response-array-response-control'>
             <div className='ql-question-with-response-array-response-control-attempts'>
-                Attempt: {response.attempt}
+                {this.props.responses.length > 1 ?
+                   <div> Attempt: {response.attempt} of {this.props.responses.length} </div>
+                   :''
+                 }
             </div>
-            {this.props.responses.length > 1
-                 ? <div className='btn-group btn-group-justified'>
-                   <div className='btn-group'>
-                     <button className='btn btn-default' onClick={decrement} disabled={prev < 0}>
-                       <span className='glyphicon glyphicon-chevron-left' /> Previous attempt
-                      </button>
-                   </div>
-                   <div className='btn-group'>
-                     <button className='btn btn-default' onClick={increment} disabled={next >= this.props.responses.length}>
-                        Next attempt <span className='glyphicon glyphicon-chevron-right' />
-                     </button>
-                   </div>
-                 </div>
-                 : ''
-              }
           </div>
           : ''
         }
         <div className='ql-question-with-response-array-question'>
           { this.props.prof
-            ? <QuestionDisplay question={this.props.question} prof readonly forReview response={response} />
-            : <QuestionDisplay question={this.props.question} readonly forReview response={response} />
+            ? <QuestionDisplay question={this.props.question}  prof readonly forReview
+                               incrementResponse= {next >= this.props.responses.length? null : increment}
+                               decrementResponse= {prev < 0 ? null : decrement}
+                               response={response} />
+            : <QuestionDisplay question={this.props.question} readonly forReview
+                               incrementResponse= {next >= this.props.responses.length? null : increment}
+                               decrementResponse= {prev < 0 ? null : decrement}
+                               response={response} />
           }
         </div>
       </div>

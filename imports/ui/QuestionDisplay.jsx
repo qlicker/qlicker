@@ -83,8 +83,8 @@ export class QuestionDisplay extends Component {
 
     const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
 
-    const showCorrect = false
-    const showResponse = false
+    const showCorrect = (isNewQuestion || isNewAttempt ) ? false : this.state.showCorrect
+    const showResponse = (isNewQuestion || isNewAttempt ) ? false : this.state.showResponse
 
     if (isNewQuestion || isNewResponse || isNewAttempt) {
       if (nextProps.response) {
@@ -413,16 +413,30 @@ export class QuestionDisplay extends Component {
           : ''
         }
         { this.props.forReview && this.props.readonly && !this.props.prof
-          ? <div className='btn-group btn-group-justified'>
-            <div className='btn btn-primary' onClick={this.toggleShowCorrect}>
-              {this.state.showCorrect ? 'Hide correct' : 'Show correct'}
-            </div>
-            { this.props.response
-                  ? <div className='btn btn-primary' onClick={this.toggleShowResponse} >
-                    {this.state.showResponse ? 'Hide response' : 'Show response'}
+          ? <div>
+              <div className='btn-group btn-group-justified'>
+                  <div className='btn btn-primary' onClick={this.toggleShowCorrect}>
+                    {this.state.showCorrect ? 'Hide correct' : 'Show correct'}
                   </div>
-                  : ''
-                }
+                { this.props.response
+                      ? <div className='btn btn-primary' onClick={this.toggleShowResponse} >
+                          {this.state.showResponse ? 'Hide response' : 'Show response'}
+                        </div>
+                      : ''
+                    }
+              </div>
+            { this.state.showResponse && (this.props.incrementResponse || this.props.decrementResponse) ?
+                <div className='btn-group btn-group-justified'>
+                     <button className='btn btn-default' onClick={ this.props.decrementResponse } disabled={!this.props.decrementResponse}>
+                       <span className='glyphicon glyphicon-chevron-left' /> Previous attempt
+                      </button>
+                     <button className='btn btn-default' onClick={ this.props.incrementResponse } disabled={!this.props.incrementResponse}>
+                        Next attempt <span className='glyphicon glyphicon-chevron-right' />
+                     </button>
+
+                 </div>
+              : ''
+            }
           </div>
           : ''
         }

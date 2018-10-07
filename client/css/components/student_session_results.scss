@@ -1,0 +1,29 @@
+
+@import '../variables.scss';
+.ql-review-header-bar {
+  font-size: 2em; 
+}
+
+.ql-review-qControl-container {
+  width: 100%;
+  .ql-review-qControl-title {
+    text-align: center;
+    color: white;
+    font-size: 2em;
+    background: $blue;
+    margin:auto;
+
+  }
+  .ql-review-qControl-controls {
+    max-width:400px;
+    margin: auto;
+    padding-top: 5px;
+
+  }
+
+}
+
+.ql-review-feedback {
+  padding: 20px;
+  font-size: 2.0em;
+}
