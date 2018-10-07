@@ -43,7 +43,7 @@ class _StudentSessionResultsPage extends Component {
     const decrementQuestion = () => this.incrementQuestion(-1)
     const mark = _(this.props.grade.marks).findWhere({ questionId:questionToView._id })
     const feedback = mark.feedback
-    const points = mark.points+" out of "+mark.outOf+" points"
+    const points = mark.points+"/"+mark.outOf+" points"
 
     const toggleShowAll = () => this.setState({ showAllAtOnce:!this.state.showAllAtOnce })
 
@@ -52,13 +52,15 @@ class _StudentSessionResultsPage extends Component {
 
         <div className='ql-card'>
           <div className='ql-header-bar'>
-            <h4>
+            <div className='ql-review-header-bar'>
               {this.props.session.name} (<span className='uppercase'>{this.props.course.fullCourseCode()}</span>)
               { this.props.grade ?
-                <div> Grade: {this.props.grade.value.toFixed(0)}% Participation: {this.props.grade.participation.toFixed(0)}% on {this.props.questions.length} questions</div>
-                  : ''
+                  <div>
+                    Grade: {this.props.grade.value.toFixed(0)}% Participation: {this.props.grade.participation.toFixed(0)}%
+                  </div>
+                : ''
               }
-            </h4>
+            </div>
           </div>
           <div className='ql-card-content'>
             <ul className='nav nav-tabs'>
@@ -74,7 +76,7 @@ class _StudentSessionResultsPage extends Component {
               : <div>
                   <div className='ql-review-qControl-container'>
                     <div className='ql-review-qControl-title'>
-                      Q{this.state.questionIndex + 1} ({points})
+                      Q{this.state.questionIndex + 1}/{this.props.questions.length} ({points})
                     </div>
                     <div className='ql-review-qControl-controls'>
                       <div className='btn-group btn-group-justified'>
