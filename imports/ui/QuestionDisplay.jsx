@@ -83,8 +83,8 @@ export class QuestionDisplay extends Component {
 
     const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
 
-    const showCorrect = false
-    const showResponse = false
+    const showCorrect = (isNewQuestion || isNewAttempt ) ? false : this.state.showCorrect
+    const showResponse = (isNewQuestion || isNewAttempt ) ? false : this.state.showResponse
 
     if (isNewQuestion || isNewResponse || isNewAttempt) {
       if (nextProps.response) {
