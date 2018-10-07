@@ -97,7 +97,10 @@ class _StudentSessionResultsPage extends Component {
                     }
 
                   </div>
-                  <QuestionWithResponseArray question={questionToView} responses={questionToView.studentResponses} />
+                  <div className='ql-review-question'>
+                    <QuestionWithResponseArray question={questionToView} responses={questionToView.studentResponses} />
+                  </div>
+
                   {feedback ?
                     <div className='ql-review-feedback'> Feedback: {feedback} </div>
                     : ''
