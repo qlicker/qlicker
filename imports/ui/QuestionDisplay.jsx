@@ -441,7 +441,7 @@ export class QuestionDisplay extends Component {
           : ''
         }
 
-        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct)) && q.solution  ? <div className='ql-question-solution'>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
+        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution  ? <div className='ql-question-solution'>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
 
       </div>
     )

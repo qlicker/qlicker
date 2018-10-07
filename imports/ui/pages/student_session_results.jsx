@@ -78,20 +78,24 @@ class _StudentSessionResultsPage extends Component {
                     <div className='ql-review-qControl-title'>
                       Q{this.state.questionIndex + 1}/{this.props.questions.length} ({points})
                     </div>
-                    <div className='ql-review-qControl-controls'>
-                      <div className='btn-group btn-group-justified'>
-                        <div className='btn-group'>
-                          <button className='btn btn-primary' onClick={decrementQuestion} disabled={this.state.questionIndex <= 0}>
-                              <span className='glyphicon glyphicon-chevron-left' /> Previous question
-                          </button>
-                        </div>
-                        <div className='btn-group'>
-                          <button className='btn btn-primary' onClick={incrementQuestion} disabled={this.state.questionIndex >= this.props.questions.length - 1}>
-                              Next question <span className='glyphicon glyphicon-chevron-right' />
-                          </button>
+                    { this.props.questions.length > 1 ?
+                      <div className='ql-review-qControl-controls'>
+                        <div className='btn-group btn-group-justified'>
+                          <div className='btn-group'>
+                            <button className='btn btn-primary' onClick={decrementQuestion} disabled={this.state.questionIndex <= 0}>
+                                <span className='glyphicon glyphicon-chevron-left' /> Previous question
+                            </button>
+                          </div>
+                          <div className='btn-group'>
+                            <button className='btn btn-primary' onClick={incrementQuestion} disabled={this.state.questionIndex >= this.props.questions.length - 1}>
+                                Next question <span className='glyphicon glyphicon-chevron-right' />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                      : ''
+                    }
+
                   </div>
                   <QuestionWithResponseArray question={questionToView} responses={questionToView.studentResponses} />
                   {feedback ?
