@@ -1,7 +1,7 @@
 
 @import '../variables.scss';
 .ql-review-header-bar {
-  font-size: 2em; 
+  font-size: 2em;
 }
 
 .ql-review-qControl-container {
@@ -21,6 +21,14 @@
 
   }
 
+}
+.ql-review-question {
+  
+}
+@media (max-width: 991px) {
+  .ql-review-question {
+    font-size: 0.5em;
+  }
 }
 
 .ql-review-feedback {
