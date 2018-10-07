@@ -3,28 +3,21 @@
 
 .ql-review-qControl-container {
   width: 100%;
-  max-height: 45px;
-  text-align: center;
-  color: white;
-  font-size: 1.5em;
-  background: $blue;
-  display: flex;
-  justify-content: space-between;
-
-  .ql-review-qControl {
-    width: 250px;
-    //font-size:0.5em;
-    .button {
-      height: 100%;
-      background: darken($blue,10%);
-      &:hover {
-        margin: auto;
-        background: darken($blue,20%);
-        cursor: pointer;
-      }
-    }
+  .ql-review-qControl-title {
+    text-align: center;
+    color: white;
+    font-size: 2em;
+    background: $blue;
+    margin:auto;
 
   }
+  .ql-review-qControl-controls {
+    max-width:400px;
+    margin: auto;
+    padding-top: 5px;
+
+  }
+
 }
 
 .ql-review-feedback {

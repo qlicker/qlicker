@@ -38,7 +38,7 @@ class _StudentSessionResultsPage extends Component {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     if (this.props.questions.length < 1) return <div> No questions in session </div>
 
-    const questionToView = this.props.questions[this.state.questionIndex]
+    const questionToView = _(this.props.questions).findWhere( {_id:this.props.session.questions[this.state.questionIndex]} )
     const incrementQuestion = () => this.incrementQuestion(1)
     const decrementQuestion = () => this.incrementQuestion(-1)
     const mark = _(this.props.grade.marks).findWhere({ questionId:questionToView._id })
@@ -72,26 +72,30 @@ class _StudentSessionResultsPage extends Component {
             {this.state.showAllAtOnce ?
                 <StudentSessionResults session={this.props.session} studentId={this.props.userId} />
               : <div>
-                <div className='ql-review-qControl-container'>
-                  <div className='ql-review-qControl'>
-                    { this.state.questionIndex > 0
-                      ? <div className='button' onClick={decrementQuestion} ><span className='glyphicon glyphicon-chevron-left' /> Prev. Question </div>
-                      : ''
-                    }
+                  <div className='ql-review-qControl-container'>
+                    <div className='ql-review-qControl-title'>
+                      Q{this.state.questionIndex + 1} ({points})
+                    </div>
+                    <div className='ql-review-qControl-controls'>
+                      <div className='btn-group btn-group-justified'>
+                        <div className='btn-group'>
+                          <button className='btn btn-primary' onClick={decrementQuestion} disabled={this.state.questionIndex <= 0}>
+                              <span className='glyphicon glyphicon-chevron-left' /> Previous question
+                          </button>
+                        </div>
+                        <div className='btn-group'>
+                          <button className='btn btn-primary' onClick={incrementQuestion} disabled={this.state.questionIndex >= this.props.questions.length - 1}>
+                              Next question <span className='glyphicon glyphicon-chevron-right' />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className='ql-review-qControl'>
-                    { this.state.questionIndex < this.props.questions.length - 1
-                      ? <div className='button' onClick={incrementQuestion} > Next Question <span className='glyphicon glyphicon-chevron-right' /></div>
-                      : ''
-                    }
-                  </div>
-                </div>
-                Q{this.state.questionIndex + 1} ({points})
-                <QuestionWithResponseArray question={questionToView} responses={questionToView.studentResponses} />
-                {feedback ?
-                  <div className='ql-review-feedback'> Feedback: {feedback} </div>
-                  : ''
-                }
+                  <QuestionWithResponseArray question={questionToView} responses={questionToView.studentResponses} />
+                  {feedback ?
+                    <div className='ql-review-feedback'> Feedback: {feedback} </div>
+                    : ''
+                  }
                 </div>
             }
 
@@ -117,7 +121,7 @@ export const StudentSessionResultsPage = createContainer((props) => {
   const session = Sessions.findOne(props.sessionId)
   const course = Courses.findOne(session.courseId)
   const grade = Grades.findOne({sessionId:props.sessionId,  userId: userId, visibleToStudents: true })
-  const questions = Questions.find({ _id: { $in: session.questions || [] } }).fetch()
+  const questions= Questions.find({ _id: { $in: session.questions || [] } }).fetch()
 
   questions.map((question) => {
     question.studentResponses = Responses.find({ studentUserId:userId , questionId: question._id }).fetch()
