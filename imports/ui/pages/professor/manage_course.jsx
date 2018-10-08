@@ -360,7 +360,7 @@ class _ManageCourse extends Component {
               <div>
                 <div className='ql-course-classlist-container'>
                   <div className='ql-course-classlist-search'>
-                    <input type='text' placeholder='Search by name or email' onChange={updateSearchString} value={this.state.searchString}/>
+                    <input type='text' placeholder='Search by name or email' onChange={_.throttle(updateSearchString, 200)} value={this.state.searchString}/>
                   </div>
                   <div className='ql-course-classlist'>
                     { this.renderClassList() }

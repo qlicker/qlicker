@@ -165,7 +165,7 @@ export class ManageUsers extends Component {
         <h1>Users (with elevated permissions first)</h1>
         <div className = 'ql-admin-user-table-container'>
           <div className = 'ql-admin-user-search'>
-            <input type='text' placeholder='search by name or email' onChange = {setSearchUser} value={this.stateSearchUser} />
+            <input type='text' placeholder='search by name or email' onChange = {_.throttle(setSearchUser, 200)} value={this.stateSearchUser} />
             <div className='select-container'>
               <Select
                 name='search-course'

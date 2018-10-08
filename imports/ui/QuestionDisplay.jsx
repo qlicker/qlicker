@@ -9,6 +9,7 @@ import React, { Component, PropTypes } from 'react'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
 import { Editor } from './Editor'
+import ReactDOM from 'react-dom'
 
 /**
  * React Component (meteor reactive) to display Question object and send question reponses.
@@ -129,7 +130,12 @@ export class QuestionDisplay extends Component {
   }
 
   toggleShowCorrect () {
-    this.setState({showCorrect: !this.state.showCorrect})
+    this.setState({showCorrect: !this.state.showCorrect}, () => {
+      if(this.state.showCorrect && this.props.question && this.props.question.solution){
+        const node = ReactDOM.findDOMNode(this.refs[this.props.question._id+"solution"])
+        window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
+      }
+    })
   }
 
   toggleShowResponse () {
@@ -441,7 +447,7 @@ export class QuestionDisplay extends Component {
           : ''
         }
 
-        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution  ? <div className='ql-question-solution'>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
+        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution  ? <div className='ql-question-solution' ref={this.props.question._id+"solution"}>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
 
       </div>
     )
