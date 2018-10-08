@@ -227,3 +227,9 @@ $red-bar: rgba(167,37,38, 0.3);
   }
 
 } // end .ql-question-display
+
+@media (max-width: 991px) {
+  .ql-question-display {
+    font-size: 0.75em;
+  }
+}
