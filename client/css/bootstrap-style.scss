@@ -34,7 +34,7 @@ html {
 }
 
 body.bootstrap-overrides {
-  padding-top: 50px; 
+  padding-top: 75px;
   /* Margin bottom by footer height */
   font-family: $font-stack;
   font-weight: 200;
@@ -103,7 +103,7 @@ body > .container {
   &:hover, &:active, &:focus {
     background-color: $blue;
     color: #fff;
-  } 
+  }
 }
 
 .nav > li:hover {
@@ -258,4 +258,3 @@ code {
     margin-right: 0;
   }
 }
-
