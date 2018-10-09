@@ -132,8 +132,9 @@ export class QuestionDisplay extends Component {
   toggleShowCorrect () {
     this.setState({showCorrect: !this.state.showCorrect}, () => {
       if(this.state.showCorrect && this.props.question && this.props.question.solution){
-        const node = ReactDOM.findDOMNode(this.refs[this.props.question._id+"solution"])
-        window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
+        //scroll to the solution has a weird behaviour in the question library
+        //const node = ReactDOM.findDOMNode(this.refs[this.props.question._id+"solution"])
+        //window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
       }
     })
   }
