@@ -131,10 +131,10 @@ export class QuestionDisplay extends Component {
 
   toggleShowCorrect () {
     this.setState({showCorrect: !this.state.showCorrect}, () => {
-      if(this.state.showCorrect && this.props.question && this.props.question.solution){
-        //scroll to the solution has a weird behaviour in the question library
-        //const node = ReactDOM.findDOMNode(this.refs[this.props.question._id+"solution"])
-        //window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
+      if(this.state.showCorrect && this.props.solutionScroll && this.props.question && this.props.question.solution){
+        //scroll to the solution has a weird behaviour in the question library, hence the addition of the noSolutionScroll prop
+        const node = ReactDOM.findDOMNode(this.refs[this.props.question._id+"solution"])
+        window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
       }
     })
   }
@@ -432,19 +432,19 @@ export class QuestionDisplay extends Component {
                       : ''
                     }
               </div>
-            { this.state.showResponse && (this.props.incrementResponse || this.props.decrementResponse) ?
-                <div className='btn-group btn-group-justified'>
-                     <button className='btn btn-default' onClick={ this.props.decrementResponse } disabled={!this.props.decrementResponse}>
-                       <span className='glyphicon glyphicon-chevron-left' /> Previous attempt
-                      </button>
-                     <button className='btn btn-default' onClick={ this.props.incrementResponse } disabled={!this.props.incrementResponse}>
-                        Next attempt <span className='glyphicon glyphicon-chevron-right' />
-                     </button>
-
-                 </div>
-              : ''
-            }
           </div>
+          : ''
+        }
+        {  this.props.forReview && this.props.readonly && (this.state.showResponse || this.props.prof) && (this.props.incrementResponse || this.props.decrementResponse) ?
+            <div className='btn-group btn-group-justified'>
+                 <button className='btn btn-default' onClick={ this.props.decrementResponse } disabled={!this.props.decrementResponse}>
+                   <span className='glyphicon glyphicon-chevron-left' /> Previous attempt
+                  </button>
+                 <button className='btn btn-default' onClick={ this.props.incrementResponse } disabled={!this.props.incrementResponse}>
+                    Next attempt <span className='glyphicon glyphicon-chevron-right' />
+                 </button>
+
+             </div>
           : ''
         }
 
@@ -464,5 +464,6 @@ QuestionDisplay.propTypes = {
   showStatsOverride: PropTypes.bool, // used for mobile session running
   prof: PropTypes.bool, // if viewed by an instructor, overrides showing correct answer
   forReview: PropTypes.bool,
-  onSubmit: PropTypes.func // function to run when clicking submit
+  onSubmit: PropTypes.func, // function to run when clicking submit
+  solutionScroll: PropTypes.bool //scoll to solution when show correct is clicked (use in student session review)
 }

@@ -73,6 +73,7 @@ export class QuestionWithResponseArray extends Component {
                                decrementResponse= {prev < 0 ? null : decrement}
                                response={response} />
             : <QuestionDisplay question={this.props.question} readonly forReview
+                               solutionScroll={!!this.props.solutionScroll}
                                incrementResponse= {next >= this.props.responses.length? null : increment}
                                decrementResponse= {prev < 0 ? null : decrement}
                                response={response} />
@@ -87,5 +88,6 @@ export class QuestionWithResponseArray extends Component {
 QuestionWithResponseArray.propTypes = {
   question: PropTypes.object,
   responses: PropTypes.array, // responses sorted by attempt number
-  prof: PropTypes.bool // passed to QuestionDisplay, to override showing correct
+  prof: PropTypes.bool, // passed to QuestionDisplay, to override showing correct
+  solutionScroll: PropTypes.bool // passed to QuestionDisplay
 }
