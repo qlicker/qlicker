@@ -26,7 +26,9 @@
 // @mixin change-background($color) {
 //   background-color: $color
 // }
-
+.dropdown-backdrop{
+    position: static;
+}
 // SCSS code
 html {
   position: relative;
