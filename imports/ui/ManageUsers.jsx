@@ -106,7 +106,7 @@ export class ManageUsers extends Component {
          this.setState({ supportEmail: this.props.settings.email })
        }
        else{
-         alertify.success('Support email updated')
+         alertify.error('Server restart required!')
        }
      })
    }
@@ -123,7 +123,6 @@ export class ManageUsers extends Component {
     })
 
   }
-
 
   render() {
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
