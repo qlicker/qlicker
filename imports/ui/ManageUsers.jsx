@@ -17,7 +17,6 @@ export class ManageUsers extends Component {
     super(props)
     this.state = {
       supportEmail: props.settings.email,
-      requireVerified: props.settings.requireVerified,
       email: '',
       password: '',
       password_verify: '',
