@@ -19,7 +19,7 @@ const pattern = {
   allowedDomains: [Helpers.NEString],
   maxImageSize: Number,
   maxImageWidth: Number,
-  email: String,
+  email: Helpers.Email,
   requireVerified: Boolean,
   storageType: Match.Maybe(String),
   AWS_bucket: Match.Maybe(String),
@@ -112,6 +112,22 @@ Meteor.methods({
         return Settings.update(settings._id, settings)
       }
     } else throw new Error('Error updating settings')
+  },
+
+  'settings.setAdminEmail' (id, email) {
+    check(email,Helpers.Email)
+    check(id,Helpers.NEString)
+    let user = Meteor.users.findOne({_id: this.userId})
+    if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
+    return Settings.update(id, {'$set':{email:email}} )
+  },
+
+  'settings.toggleRequireVerified' (id, email) {
+    check(id,Helpers.NEString)
+    let user = Meteor.users.findOne({_id: this.userId})
+    if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
+    const settings = Settings.findOne({ _id:id })
+    return Settings.update(id, {'$set':{requireVerified:!settings.requireVerified}} )
   },
 
   'settings.updateImageSettings' (settings) {
