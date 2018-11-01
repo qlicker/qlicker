@@ -13,11 +13,10 @@ import { ROLES } from '../configs'
 
 export class ManageUsers extends Component {
 
-  constructor(p) {
-    super(p)
+  constructor(props) {
+    super(props)
     this.state = {
-      supportEmail: p.settings.email,
-      requireVerified: p.settings.requireVerified,
+      supportEmail: props.settings.email,
       email: '',
       password: '',
       password_verify: '',
@@ -33,6 +32,8 @@ export class ManageUsers extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleCanPromote = this.toggleCanPromote.bind(this)
+    this.saveEmail = this.saveEmail.bind(this)
+    this.toggleRequireVerified = this.toggleRequireVerified.bind(this)
   }
 
   componentDidMount () {
@@ -98,6 +99,32 @@ export class ManageUsers extends Component {
     })
   }
 
+   saveEmail () {
+     Meteor.call('settings.setAdminEmail',this.props.settings._id, this.state.supportEmail, (e, d) => {
+       if (e){
+         alertify.error(e)
+         this.setState({ supportEmail: this.props.settings.email })
+       }
+       else{
+         alertify.success('Support email updated')
+       }
+     })
+   }
+
+  toggleRequireVerified () {
+    Meteor.call('settings.toggleRequireVerified',this.props.settings._id, (e, d) => {
+      if (e){
+        alertify.error(e)
+      }
+      else{
+        alertify.success('updated!')
+      }
+      this.setState({ requireVerified: this.props.settings.requireVerified })
+    })
+
+  }
+
+
   render() {
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
     const setSearchCourses = (val) => { this.setState({ searchCourses: val }) }
@@ -129,12 +156,12 @@ export class ManageUsers extends Component {
         <div className='row'>
           <div className='col-md-4'>
             <h4>Support email</h4>
-            <form ref='supportForm' onSubmit={this.saveEmail} className='form-inline'>
+            <div>
               <input className='form-control' value={this.state.supportEmail} type='text' onChange={setSupportEmail} placeholder='Support email' />
-              <input type='submit' className='btn btn-primary' value='Set' />
-            </form>
+              <button className='btn btn-primary' onClick={() => {this.saveEmail()}} >Set email </button>
+            </div>
         <h4>Require verified email to login</h4>
-        <input type='checkbox' checked={this.state.requireVerified} onChange={this.setVerified} />
+        <input type='checkbox' checked={this.props.settings.requireVerifie} onChange={this.toggleRequireVerified} />
         <br />
 
         <RestrictDomainForm
