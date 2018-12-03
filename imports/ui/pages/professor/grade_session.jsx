@@ -213,85 +213,91 @@ class _GradeSession extends Component {
     const decrementQuestion = () => this.incrementQuestion(-1)
     const assignMark = () => this.assignMark(studentsToShow)
 
-    const setQuestionPoints = (e) => {this.setState({ questionPoints:e.target.value })}
+    const setQuestionPoints = (e) => {this.setState({ questionPoints: parseFloat(e.target.value) })}
 
     const responseStats = this.props.responseStatsByQuestion[this.state.questionToView._id]
     const clearSearch = () => { this.setState({ studentSearchString:'', answerSearchString:'' })}
 
+    // TODO: Should have className affix just under the col-md-3
     return (
       <div className='ql-grading-container container'>
         <div className='row'>
           <div className='col-md-3'>
-            <div className="affix">
-            <div className='ql-student-selector'>
-              <div className='ql-student-header'>
-                <div className='ql-grading-header-student-title'>
-                Select student(s) to grade
-                </div>
-              </div>
-              <div className='ql-grade-session-student-search'>
-                <div className='ql-grade-session-student-search-controls'>
-                  { categoryOptions.length
-                    ? <div className='ql-grade-session-select'>
-                      <Select
-                        name='category-input'
-                        placeholder='Search by group - type to choose category'
-                        value={this.state.groupCategory ? this.state.groupCategory.categoryNumber : null}
-                        options={categoryOptions}
-                        onChange={this.setCategory}
-                        />
-                    </div>
-                    : ''
-                  }
-                  { groupOptions.length
-                    ? <div className='ql-grade-session-select'>
-                      <Select
-                        name='category-input'
-                        placeholder={'Type to choose group in ' + this.state.groupCategory.categoryName}
-                        value={this.state.group ? this.state.group.groupNumber : null}
-                        options={groupOptions}
-                        onChange={this.setGroup}
-                        />
-                    </div>
-                    : ''
-                  }
-                  <input type='text' value = {this.state.studentSearchString} onChange={_.throttle(this.setStudentSearchString, 200)} placeholder='Search by student name or email' />
-                  <input type='text' value = {this.state.answerSearchString} onChange={_.throttle(this.setAnswerSearchString, 200)} placeholder='Search by response content' />
-                  <div className='btn-group btn-group-justified'>
-                    <div className='btn-group'>
-                      <button className='btn btn-secondary' onClick={clearSearch}> Clear filters </button>
-                    </div>
+            <div >
+              <div className='ql-student-selector'>
+                <div className='ql-student-header'>
+                  <div className='ql-grading-header-student-title'>
+                  Select student(s) to grade
                   </div>
                 </div>
-                <div className='ql-simple-studentlist'>
-                  { studentToView
-                    ? <div className='ql-simple-studentlist-info'>
-                        {studentToView.profile.lastname}, {studentToView.profile.firstname}
-                    </div>
-                    : 'Select a student'
-                  }
-                  <div className='ql-simple-studentlist-student-container'>
-                    { studentsToShow.map((student) => {
-                      const onClick = () => this.setStudentToView(student)
-                      let className = 'ql-simple-studentlist-student'
-                      const studentGrade = _(this.props.grades).findWhere({ userId: student._id })
-                      const studentMark = _(studentGrade.marks).findWhere({ questionId: this.state.questionToView._id })
-                      if (studentGrade && (!studentMark || !studentMark.needsGrading)) className += ' green'
-                      if (studentGrade && studentMark.needsGrading) className += ' red'
-                      if (studentToView && student._id === studentToView._id) className += ' selected'
-                      return (
-                        <div key={'s2' + student._id} className={className} onClick={onClick}>
-                          {student.profile.lastname}, {student.profile.firstname}
-                        </div>
-                      )
-                    })
+                <div className='ql-grade-session-student-search'>
+                  <div className='ql-grade-session-student-search-controls'>
+                    { categoryOptions.length
+                      ? <div className='ql-grade-session-select'>
+                        <Select
+                          name='category-input'
+                          placeholder='Search by group - type to choose category'
+                          value={this.state.groupCategory ? this.state.groupCategory.categoryNumber : null}
+                          options={categoryOptions}
+                          onChange={this.setCategory}
+                          />
+                      </div>
+                      : ''
                     }
+                    { groupOptions.length
+                      ? <div className='ql-grade-session-select'>
+                        <Select
+                          name='category-input'
+                          placeholder={'Type to choose group in ' + this.state.groupCategory.categoryName}
+                          value={this.state.group ? this.state.group.groupNumber : null}
+                          options={groupOptions}
+                          onChange={this.setGroup}
+                          />
+                      </div>
+                      : ''
+                    }
+                    <div>
+                      <input type='text' value = {this.state.studentSearchString} onChange={_.throttle(this.setStudentSearchString, 200)} placeholder='Search by student name or email' />
+                      <input type='text' value = {this.state.answerSearchString} onChange={_.throttle(this.setAnswerSearchString, 200)} placeholder='Search by response content' />
+                      { this.state.studentSearchString || this.state.answerSearchString ?
+                        <div className='btn-group btn-group-justified'>
+                          <div className='btn-group'>
+                            <button className='btn btn-secondary' onClick={clearSearch}> Clear filters </button>
+                          </div>
+                        </div>
+                        : ''
+                      }
+
+                    </div>
+                  </div>
+                  <div className='ql-simple-studentlist'>
+                    { studentToView
+                      ? <div className='ql-simple-studentlist-info'>
+                          {studentToView.profile.lastname}, {studentToView.profile.firstname}
+                      </div>
+                      : 'Select a student'
+                    }
+                    <div className='ql-simple-studentlist-student-container'>
+                      { studentsToShow.map((student) => {
+                        const onClick = () => this.setStudentToView(student)
+                        let className = 'ql-simple-studentlist-student'
+                        const studentGrade = _(this.props.grades).findWhere({ userId: student._id })
+                        const studentMark = _(studentGrade.marks).findWhere({ questionId: this.state.questionToView._id })
+                        if (studentGrade && (!studentMark || !studentMark.needsGrading)) className += ' green'
+                        if (studentGrade && studentMark.needsGrading) className += ' red'
+                        if (studentToView && student._id === studentToView._id) className += ' selected'
+                        return (
+                          <div key={'s2' + student._id} className={className} onClick={onClick}>
+                            {student.profile.lastname}, {student.profile.firstname}
+                          </div>
+                        )
+                      })
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
-
             </div>
-          </div>
           </div>
           <div className='col-md-9'>
             <div className='ql-grading-question-responses'>
@@ -326,9 +332,9 @@ class _GradeSession extends Component {
                 </div>
 
                 <div className='ql-grading-header-qInfo'>
-                Assign same grade to all students &nbsp;
-                <input type='number' className='numberField' min='0' max={100} step={0.5} value={this.state.questionPoints} onChange={setQuestionPoints} maxLength='4' size='3' />
-                &nbsp;<button className='btn btn-secondary' onClick={assignMark}> Assign to all selected students </button>
+                  Assign same grade to all students &nbsp;
+                  <input type='number' className='numberField' min='0' max={100} step={0.5} value={this.state.questionPoints} onChange={setQuestionPoints} maxLength='4' size='3' />
+                  &nbsp;<button className='btn btn-secondary' onClick={assignMark}> Assign to all selected students </button>
                 </div>
 
               </div>

@@ -12,8 +12,11 @@
       top: 0;
     }
   }
+
   .ql-student-selector {
     min-width: 240px;
+    display: flex;
+    flex-direction: column;
 
     padding-right: 10px;
     .ql-student-header {
