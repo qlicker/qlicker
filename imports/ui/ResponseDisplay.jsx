@@ -141,7 +141,7 @@ export class ResponseDisplay extends Component {
           </div>
 
           <div className='grade'>
-              <input type='number' className='numberField' min='0' max={100} step={0.01} value={this.state.points} onChange={setPoints} maxLength='4' size='4' />
+              <input type='number' className='numberField' min='0' max={100} step={0.5} value={this.state.points} onChange={setPoints} maxLength='4' size='4' />
               <span>/{outOf}</span>
           </div>
           <div className='feedback'>

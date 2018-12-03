@@ -50,7 +50,6 @@
     .ql-grading-header {
       width: 100%;
       height: 100%;
-
       .ql-grading-header-title {
         width: 100%;
         height: 45px;
@@ -58,26 +57,22 @@
         color: white;
         font-size: 2.5em;
         background: $blue;
-        display: flex;
-        justify-content: space-between;
-        .ql-grading-header-qControl {
-          width: 250px;
-          //font-size:0.5em;
-          .button {
-            &:hover {
-              margin: auto;
-              background: darken($blue,10%);
-              cursor: pointer;
-            }
-          }
-
-        }
       }
       .ql-grading-header-question-preview {
           font-size: 50%;
           padding-bottom: 20px;
         //border-bottom-style: solid;
         //border-bottom-width: 1px;
+      }
+      .ql-grading-header-qControls {
+          //padding-bottom: 10px;
+      }
+      .ql-grading-header-qInfo {
+        //color: white;
+        //ackground: $blue;
+        font-size: 1.5em;
+        padding-top:7px;
+        padding-bottom:7px;
       }
     }
     .ql-response-list-container {
