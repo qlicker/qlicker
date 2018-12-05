@@ -16,15 +16,18 @@ export class ResponseDisplay extends Component {
         points: props.mark.points || 0,
         feedback: props.mark.feedback || '',
         showResponseView: false,
+        unsavedChanges: false
       }
     } else this.state = {
       points: 0,
       feedback: '',
       showResponseView: false,
+      unsavedChanges: false
     }
 
     this.saveGrade = this.saveGrade.bind(this)
     this.incrementResponse = this.incrementResponse.bind(this)
+    this.updateFeedback = this.updateFeedback.bind(this)
 
   }
 
@@ -54,7 +57,7 @@ export class ResponseDisplay extends Component {
   }
 
   saveGrade () {
-    if(!this.props.mark || !this.props.gradeId) return
+    if(!this.props.mark || !this.props.gradeId || !this.state.unsavedChanges) return
 
     const points = Number(this.state.points)
     if (points > this.props.mark.outOf ) {
@@ -83,10 +86,51 @@ export class ResponseDisplay extends Component {
 
   }
 
+  updateFeedback (feedback) {
+    const points = this.state.points
+    const studentId = this.props.studentId
+    const gradeId = this.props.gradeId
+    const unsavedChanges = !(points === this.props.mark.points && feedback === this.props.mark.feedback)
+    //TODO: Here and below, call the props to tell ResponseList that there are un-saved changes.
+    
+    //if(this.props.unsavedChanges) this.props.unsavedChanges()
+    //console.log(feedback)
+    this.setState({ feedback: feedback, unsavedChanges: unsavedChanges }, () => {
+    //  console.log("setting")
+      //console.log(this.state.feedback)
+      //this.props.unsavedChanges()
+    })
+
+  }
+
+  updatePoints (points) {
+    const feedback = this.state.feedback
+    const studentId = this.props.studentId
+    const gradeId = this.props.gradeId
+    const unsavedChanges = !(points === this.props.mark.points && feedback === this.props.mark.feedback)
+
+    this.setState({ points: points, unsavedChanges: unsavedChanges }, ()=>{
+      //this.props.unsavedChanges(unsavedChanges)
+    })
+  }
+
   render() {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
-    const setFeedback = (e) => this.setState({ feedback: e.target.value, unsavedChanges: true })
-    const setPoints = (e) => this.setState({ points: e.target.value, unsavedChanges: true })
+    const setFeedback = (e) => this.updateFeedback(e.target.value)
+    const setPoints = (e) => this.updatePoints(parseFloat(e.target.value))
+
+    /*
+    const setPoints = (e) => {
+      const points = parseFloat(e.target.value)
+      const feedback = this.state.feedback
+      const unsavedChanges = !(points === this.props.mark.points && feedback === this.props.mark.feedback)
+
+      this.setState({ points:points , unsavedChanges: unsavedChanges }, () =>{
+        if(this.props.unsavedChanges){
+          this.props.unsavedChanges(this.props.studentId, this.props.gradeId, points, this.state.feedback)
+        }})
+    }*/
+
     const toggleShowResponseView = () => this.setState({ showResponseView: !this.state.showResponseView })
     const nextResponse = () => this.incrementResponse(1)
     const prevResponse = () => this.incrementResponse(-1)

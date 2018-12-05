@@ -6,8 +6,8 @@
 
 
   @media (max-width: 991px) {
-    .affix {
-      position: static;
+    .ql-student-selector {
+      position: static !important;
       width: auto;
       top: 0;
     }
@@ -15,8 +15,8 @@
 
   .ql-student-selector {
     min-width: 240px;
-    display: flex;
-    flex-direction: column;
+    max-width: 75px;
+    position:  fixed;
 
     padding-right: 10px;
     .ql-student-header {

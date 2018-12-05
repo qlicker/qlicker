@@ -20,14 +20,34 @@ class _ResponseList extends Component {
 
   constructor(props) {
       super(props)
-  }
+      this.state = { unsavedChanges:false }
 
+      this.updateUnsavedChanges = this.updateUnsavedChanges.bind(this)
+      this.saveAll = this.saveAll.bind(this)
+  }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.studentToView) {
       const node = ReactDOM.findDOMNode(this.refs[nextProps.studentToView._id])
-      window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
+      if (node) window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
     }
+
+  }
+
+  saveAll() {
+    this.setState({ unsavedChanges: false })
+  }
+
+  // TODO: This does not work, when setState is called here, the one in ResponseDisplay does not take effect!
+  updateUnsavedChanges (studentId) {
+    //let unsavedChanges = this.state.unsavedChanges
+    //console.log("here")
+    //console.log(studentId)
+    //console.log(this.state)
+    //console.log(unsavedChanges)
+
+    //unSavedChanges[studentId]={ gradeId:gradeId, points:points, feedback:feedback}
+    this.setState({ unsavedChanges:true })
 
   }
 
@@ -44,26 +64,38 @@ class _ResponseList extends Component {
           <div className='header-response'>Response</div>
           <div className='header-mark'>Grade</div>
           <div className='header-feedback'>Feedback</div>
-          <div className='header-button'></div>
+          <div className='header-button'>
+            {this.state.unsavedChanges ?
+                <button className='btn btn-secondary' onClick={this.saveAll}> Save all </button>
+              : ''
+            }
+          </div>
         </div>
         <div className='ql-response-display-list'>
-          {    
+          {
             students.map((student) => {
               const stuId = student._id
               const mark = this.props.markByStudentId[stuId]
               const gradeId = this.props.gradeByStudenId[stuId]
               const responses = this.props.responsesByStudentId[stuId]
               const studentName = student.profile.lastname + ', ' + student.profile.firstname
-              const className = 'ql-response-display-container'+ ( (index %2 === 0) ? '':' highlight')
+              let className = 'ql-response-display-container'
+              if (index %2 !== 0) className += ' highlight'
+
+              const updateUnsavedChanges = () => this.updateUnsavedChanges(student._id)
+
               index += 1
               return(
                 <div className={className} key={student._id} ref={student._id}>
                   <ResponseDisplay
+                    ref={'ResponseDisplay'+student._id}
                     studentName={studentName}
+                    studentId={student._id}
                     responses={responses}
                     mark={mark}
                     gradeId={gradeId}
                     questionType={this.props.qtype}
+                    unsavedChanges = {updateUnsavedChanges}
                   />
                 </div>
               )

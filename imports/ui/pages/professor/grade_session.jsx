@@ -223,7 +223,7 @@ class _GradeSession extends Component {
       <div className='ql-grading-container container'>
         <div className='row'>
           <div className='col-md-3'>
-            <div >
+
               <div className='ql-student-selector'>
                 <div className='ql-student-header'>
                   <div className='ql-grading-header-student-title'>
@@ -234,26 +234,26 @@ class _GradeSession extends Component {
                   <div className='ql-grade-session-student-search-controls'>
                     { categoryOptions.length
                       ? <div className='ql-grade-session-select'>
-                        <Select
-                          name='category-input'
-                          placeholder='Search by group - type to choose category'
-                          value={this.state.groupCategory ? this.state.groupCategory.categoryNumber : null}
-                          options={categoryOptions}
-                          onChange={this.setCategory}
-                          />
-                      </div>
+                          <Select
+                            name='category-input'
+                            placeholder='Search by group - type to choose category'
+                            value={this.state.groupCategory ? this.state.groupCategory.categoryNumber : null}
+                            options={categoryOptions}
+                            onChange={this.setCategory}
+                            />
+                        </div>
                       : ''
                     }
                     { groupOptions.length
                       ? <div className='ql-grade-session-select'>
-                        <Select
-                          name='category-input'
-                          placeholder={'Type to choose group in ' + this.state.groupCategory.categoryName}
-                          value={this.state.group ? this.state.group.groupNumber : null}
-                          options={groupOptions}
-                          onChange={this.setGroup}
-                          />
-                      </div>
+                          <Select
+                            name='category-input'
+                            placeholder={'Type to choose group in ' + this.state.groupCategory.categoryName}
+                            value={this.state.group ? this.state.group.groupNumber : null}
+                            options={groupOptions}
+                            onChange={this.setGroup}
+                            />
+                        </div>
                       : ''
                     }
                     <div>
@@ -271,12 +271,6 @@ class _GradeSession extends Component {
                     </div>
                   </div>
                   <div className='ql-simple-studentlist'>
-                    { studentToView
-                      ? <div className='ql-simple-studentlist-info'>
-                          {studentToView.profile.lastname}, {studentToView.profile.firstname}
-                      </div>
-                      : 'Select a student'
-                    }
                     <div className='ql-simple-studentlist-student-container'>
                       { studentsToShow.map((student) => {
                         const onClick = () => this.setStudentToView(student)
@@ -297,7 +291,7 @@ class _GradeSession extends Component {
                   </div>
                 </div>
               </div>
-            </div>
+
           </div>
           <div className='col-md-9'>
             <div className='ql-grading-question-responses'>
