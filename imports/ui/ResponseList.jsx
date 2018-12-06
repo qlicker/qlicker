@@ -22,7 +22,7 @@ class _ResponseList extends Component {
       super(props)
       this.state = { unsavedChanges:false }
 
-      this.updateUnsavedChanges = this.updateUnsavedChanges.bind(this)
+      this.updateUnsavedChanges = this.updateUnsavedChanges//.bind(this)
       this.saveAll = this.saveAll.bind(this)
   }
 
@@ -39,15 +39,15 @@ class _ResponseList extends Component {
   }
 
   // TODO: This does not work, when setState is called here, the one in ResponseDisplay does not take effect!
-  updateUnsavedChanges (studentId) {
+  updateUnsavedChanges(studentId)  {
     //let unsavedChanges = this.state.unsavedChanges
-    //console.log("here")
-    //console.log(studentId)
+    console.log("here")
+    console.log(studentId)
     //console.log(this.state)
     //console.log(unsavedChanges)
 
     //unSavedChanges[studentId]={ gradeId:gradeId, points:points, feedback:feedback}
-    this.setState({ unsavedChanges:true })
+    //this.setState({ unsavedChanges:true })
 
   }
 
@@ -82,8 +82,6 @@ class _ResponseList extends Component {
               let className = 'ql-response-display-container'
               if (index %2 !== 0) className += ' highlight'
 
-              const updateUnsavedChanges = () => this.updateUnsavedChanges(student._id)
-
               index += 1
               return(
                 <div className={className} key={student._id} ref={student._id}>
@@ -95,7 +93,7 @@ class _ResponseList extends Component {
                     mark={mark}
                     gradeId={gradeId}
                     questionType={this.props.qtype}
-                    unsavedChanges = {updateUnsavedChanges}
+                    unsavedChanges = {this.updateUnsavedChanges}
                   />
                 </div>
               )

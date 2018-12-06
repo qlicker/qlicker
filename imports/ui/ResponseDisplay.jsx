@@ -92,8 +92,8 @@ export class ResponseDisplay extends Component {
     const gradeId = this.props.gradeId
     const unsavedChanges = !(points === this.props.mark.points && feedback === this.props.mark.feedback)
     //TODO: Here and below, call the props to tell ResponseList that there are un-saved changes.
-    
-    //if(this.props.unsavedChanges) this.props.unsavedChanges()
+
+    if(this.props.unsavedChanges) this.props.unsavedChanges(studentId)
     //console.log(feedback)
     this.setState({ feedback: feedback, unsavedChanges: unsavedChanges }, () => {
     //  console.log("setting")
