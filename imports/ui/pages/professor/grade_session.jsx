@@ -79,7 +79,6 @@ class _GradeSession extends Component {
   }
 
   setUnsavedChanges (val) {
-    console.log("here")
     this.setState({ unsavedChanges:val })
   }
   // Assign the same grade to all selected students
