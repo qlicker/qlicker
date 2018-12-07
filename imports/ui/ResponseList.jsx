@@ -26,6 +26,8 @@ class _ResponseList extends Component {
       this.updateFeedback = this.updateFeedback.bind(this)
       this.updatePoints = this.updatePoints.bind(this)
       this.saveGrade = this.saveGrade.bind(this)
+      this.cancelChange = this.cancelChange.bind(this)
+      this.cancelAll = this.cancelAll.bind(this)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -33,14 +35,24 @@ class _ResponseList extends Component {
       const node = ReactDOM.findDOMNode(this.refs[nextProps.studentToView._id])
       if (node) window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
     }
+    if (nextProps.questionId !== this.props.questionId){
+      this.setState( {unsavedChanges: {}}, () => {
+        if(this.props.setUnsavedChanges) this.props.setUnsavedChanges(Object.keys(this.state.unsavedChanges).length > 0)
+      })
+    }
 
+  }
+
+  cancelAll () {
+    this.setState( {unsavedChanges: {}}, () => {
+      if(this.props.setUnsavedChanges) this.props.setUnsavedChanges(false)
+    })
   }
 
   saveAll() {
     Object.keys(this.state.unsavedChanges).forEach( (studentId) => {
       this.saveGrade(studentId)
     })
-    //this.setState({ unsavedChanges: {} })
   }
 
   updateFeedback (studentId, feedback) {
@@ -53,7 +65,9 @@ class _ResponseList extends Component {
       delete unsavedChanges[studentId]
     } else unsavedChanges[studentId]['feedback']=feedback
 
-    this.setState( {unsavedChanges: unsavedChanges} )
+    this.setState( {unsavedChanges: unsavedChanges}, () => {
+      if(this.props.setUnsavedChanges) this.props.setUnsavedChanges(Object.keys(this.state.unsavedChanges).length > 0)
+    })
   }
 
   updatePoints (studentId, points) {
@@ -66,7 +80,10 @@ class _ResponseList extends Component {
       delete unsavedChanges[studentId]
     } else  unsavedChanges[studentId]['points']=points
 
-    this.setState( {unsavedChanges: unsavedChanges} )
+    this.setState( {unsavedChanges: unsavedChanges}, () => {
+      if(this.props.setUnsavedChanges) this.props.setUnsavedChanges(Object.keys(this.state.unsavedChanges).length > 0)
+    })
+
   }
 
   saveGrade (studentId) {
@@ -87,7 +104,7 @@ class _ResponseList extends Component {
       return
     }
 
-    mark.feedback = studentChanges['feedback'] ? studentChanges['feedback'] : mark.feedback
+    mark.feedback = studentChanges['feedback'] ? studentChanges['feedback'] : (mark.feedback ? mark.feedback : '')
     mark.points = points
     mark.needsGrading = false
     Meteor.call('grades.updateMark', gradeId, mark, (err) => {
@@ -95,14 +112,23 @@ class _ResponseList extends Component {
       const student = _(this.props.students).findWhere({ _id:studentId })
       alertify.success('Mark updated for '+student.profile.firstname+" "+student.profile.lastname)
       delete unsavedChanges[studentId]
-      this.setState({ unsavedChanges:unsavedChanges })
+      this.setState( {unsavedChanges: unsavedChanges}, () => {
+        if(this.props.setUnsavedChanges) this.props.setUnsavedChanges(Object.keys(this.state.unsavedChanges).length > 0)
+      })
+    })
+  }
+
+  cancelChange(studentId) {
+    let unsavedChanges = this.state.unsavedChanges
+    delete unsavedChanges[studentId]
+    this.setState( {unsavedChanges: unsavedChanges}, () => {
+      if(this.props.setUnsavedChanges) this.props.setUnsavedChanges(Object.keys(this.state.unsavedChanges).length > 0)
     })
   }
 
   render () {
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    console.log(this.state.unsavedChanges)
     const students = this.props.students
     let index = 0
     const hasUnsaved = Object.keys(this.state.unsavedChanges).length > 0
@@ -115,7 +141,10 @@ class _ResponseList extends Component {
           <div className='header-feedback'>Feedback</div>
           <div className='header-button'>
             {hasUnsaved ?
+              <div className='btn-group-vertical'>
                 <button className='btn btn-secondary' onClick={this.saveAll}> Save all </button>
+                <button className='btn btn-secondary' onClick={this.cancelAll}> Cancel all </button>
+              </div>
               : ''
             }
           </div>
@@ -133,7 +162,9 @@ class _ResponseList extends Component {
               const points = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['points'] ?
                              this.state.unsavedChanges[stuId]['points'] : mark.points
               const feedback = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['feedback'] ?
-                            this.state.unsavedChanges[stuId]['feedback'] : mark.feedback
+                            this.state.unsavedChanges[stuId]['feedback'] : (mark.feedback ? mark.feedback : '')
+
+              const studentHasChanges = hasUnsaved && this.state.unsavedChanges[stuId]
 
               index += 1
               return(
@@ -146,7 +177,8 @@ class _ResponseList extends Component {
                     questionType={this.props.qtype}
                     points = {points}
                     feedback = {feedback}
-                    saveGrade = {hasUnsaved ? this.saveGrade : undefined }
+                    saveGrade = {studentHasChanges ? this.saveGrade : undefined }
+                    cancelChange =  {studentHasChanges ? this.cancelChange : undefined }
                     updateFeedback = {this.updateFeedback}
                     updatePoints = {this.updatePoints}
                   />
@@ -191,16 +223,9 @@ export const ResponseList = createContainer((props) => {
 
   return {
     loading: !handle.ready(),
-    students: props.students,
-    studentToView: props.studentToView,
-    //questionId: props.questionId,
     responsesByStudentId: responsesByStudentId,
     markByStudentId: markByStudentId,
     gradeByStudenId: gradeByStudenId,
-    qtype: props.qtype
-    //question: props.question,
-    //responses: responses,
-    //marks: marks
   }
 }, _ResponseList)
 
@@ -209,5 +234,6 @@ ResponseList.propTypes = {
   question: PropTypes.object,
   students: PropTypes.array,
   studentToView: PropTypes.object,
-  grades: PropTypes.array
+  grades: PropTypes.array,
+  setUnsavedChanges: PropTypes.func
 }

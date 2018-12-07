@@ -48,6 +48,7 @@ export class ResponseDisplay extends Component {
     const setFeedback = (e) => this.props.updateFeedback(this.props.studentId, e.target.value)
     const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
     const saveGrade = this.props.saveGrade ? () => this.props.saveGrade(this.props.studentId) : null
+    const cancelChange = this.props.cancelChange ? () => this.props.cancelChange(this.props.studentId) : null
 
     const toggleShowResponseView = () => this.setState({ showResponseView: !this.state.showResponseView })
     const nextResponse = () => this.incrementResponse(1)
@@ -104,14 +105,17 @@ export class ResponseDisplay extends Component {
 
           <div className='grade'>
               <input type='number' className='numberField' min='0' max={100} step={0.5} value={this.props.points} onChange={setPoints} maxLength='4' size='4' />
-              <span>/{outOf}</span>
+              <span>&nbsp;/{outOf}</span>
           </div>
           <div className='feedback'>
             <textarea className='textField' value={this.props.feedback} onChange={setFeedback} />
           </div>
           <div className='save-button'>
             { saveGrade ?
-              <button className='btn' type='button' onClick={saveGrade} > Save </button>
+              <div className='btn-group-vertical'>
+                <button className='btn' type='button' onClick={saveGrade} > Save </button>
+                <button className='btn' type='button' onClick={cancelChange} > Cancel </button>
+              </div>
               : ''
             }
           </div>
@@ -123,9 +127,14 @@ export class ResponseDisplay extends Component {
 
 ResponseDisplay.propTypes = {
   studentName: PropTypes.string.isRequired,
+  studentId: PropTypes.string.isRequired,
   responses: PropTypes.arrayOf(PropTypes.object),
   mark: PropTypes.object,
   questionType: PropTypes.number.isRequired,
-  //gradeId:PropTypes.string.isRequired,
-  //submitGrade: PropTypes.func
+  points : PropTypes.number.isRequired,
+  feedback : PropTypes.string,
+  saveGrade : PropTypes.func,
+  cancelChange : PropTypes.func,
+  updateFeedback : PropTypes.func.isRequired,
+  updatePoints : PropTypes.func.isRequired,
 }

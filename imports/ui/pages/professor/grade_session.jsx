@@ -37,7 +37,8 @@ class _GradeSession extends Component {
       group: null, // if searching by students
       questionToView: null,
       questionIndex: 0,
-      questionPoints: 0
+      questionPoints: 0,
+      unsavedChanges: false
     }
 
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
@@ -48,6 +49,7 @@ class _GradeSession extends Component {
     this.incrementQuestion = this.incrementQuestion.bind(this)
     this.calculateGrades = this.calculateGrades.bind(this)
     this.assignMark = this.assignMark.bind(this)
+    this.setUnsavedChanges = this.setUnsavedChanges.bind(this)
 
   }
   componentDidMount() {
@@ -76,9 +78,13 @@ class _GradeSession extends Component {
     this.setState({ answerSearchString: e.target.value })
   }
 
+  setUnsavedChanges (val) {
+    console.log("here")
+    this.setState({ unsavedChanges:val })
+  }
   // Assign the same grade to all selected students
   assignMark (selectedStudents) {
-    if (confirm('Are you sure you want to update all grades?')) {
+    if (confirm('Are you sure you want to assign this grade to all students selected below?')) {
       selectedStudents.forEach( (student) => {
         const grade = _(this.props.grades).findWhere({ userId:student._id })
         if (grade){
@@ -218,7 +224,7 @@ class _GradeSession extends Component {
     const responseStats = this.props.responseStatsByQuestion[this.state.questionToView._id]
     const clearSearch = () => { this.setState({ studentSearchString:'', answerSearchString:'' })}
 
-    // TODO: Should have className affix just under the col-md-3
+
     return (
       <div className='ql-grading-container container'>
         <div className='row'>
@@ -280,9 +286,11 @@ class _GradeSession extends Component {
                         if (studentGrade && (!studentMark || !studentMark.needsGrading)) className += ' green'
                         if (studentGrade && studentMark.needsGrading) className += ' red'
                         if (studentToView && student._id === studentToView._id) className += ' selected'
+
+                        const gradeString = studentGrade ? "  (Total: "+studentGrade.points+"/"+studentGrade.outOf+")" : ""
                         return (
                           <div key={'s2' + student._id} className={className} onClick={onClick}>
-                            {student.profile.lastname}, {student.profile.firstname}
+                            {student.profile.lastname}, {student.profile.firstname} {gradeString}
                           </div>
                         )
                       })
@@ -308,27 +316,31 @@ class _GradeSession extends Component {
                   : ''
                 }
                 <div className='ql-grading-header-qControls'>
+                  { this.state.unsavedChanges ?
+                      <div className='ql-grading-header-warning'> Save or discard changes before changing question </div>
+                    : <div className='ql-review-qControl-controls'>
+                        <div className='btn-group btn-group-justified'>
+                          <div className='btn-group'>
+                            <button className='btn btn-primary' onClick={decrementQuestion} disabled={ this.state.questionIndex <= 0}>
+                              <span className='glyphicon glyphicon-chevron-left' /> Previous question
+                            </button>
+                         </div>
+                         <div className='btn-group'>
+                            <button className='btn btn-primary' onClick={incrementQuestion} disabled={ this.state.questionIndex >= this.props.questions.length - 1}>
+                              Next question <span className='glyphicon glyphicon-chevron-right' />
+                            </button>
+                         </div>
+                        </div>
+                      </div>
+                  }
 
-                  <div className='ql-review-qControl-controls'>
-                    <div className='btn-group btn-group-justified'>
-                      <div className='btn-group'>
-                        <button className='btn btn-primary' onClick={decrementQuestion} disabled={this.state.questionIndex <= 0}>
-                            <span className='glyphicon glyphicon-chevron-left' /> Previous question
-                        </button>
-                      </div>
-                      <div className='btn-group'>
-                        <button className='btn btn-primary' onClick={incrementQuestion} disabled={this.state.questionIndex >= this.props.questions.length - 1}>
-                            Next question <span className='glyphicon glyphicon-chevron-right' />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
 
                 <div className='ql-grading-header-qInfo'>
-                  Assign same grade to all students &nbsp;
+                  Grade: &nbsp;
                   <input type='number' className='numberField' min='0' max={100} step={0.5} value={this.state.questionPoints} onChange={setQuestionPoints} maxLength='4' size='3' />
-                  &nbsp;<button className='btn btn-secondary' onClick={assignMark}> Assign to all selected students </button>
+                  &nbsp;<button className='btn btn-secondary' onClick={assignMark}> Assign to all students selected below </button>
                 </div>
 
               </div>
@@ -340,6 +352,7 @@ class _GradeSession extends Component {
                   qtype={this.state.questionToView.type}
                   students={studentsToShow}
                   studentToView={this.state.studentToView}
+                  setUnsavedChanges={this.setUnsavedChanges}
                 />
               </div>
             </div>

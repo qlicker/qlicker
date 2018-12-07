@@ -69,6 +69,11 @@
       }
       .ql-grading-header-qControls {
           //padding-bottom: 10px;
+          .ql-grading-header-warning {
+            font-size:1.5em;
+            text-align:center;
+            color: $red;
+          }
       }
       .ql-grading-header-qInfo {
         //color: white;
@@ -76,6 +81,10 @@
         font-size: 1.5em;
         padding-top:7px;
         padding-bottom:7px;
+        .numberField {
+          text-align: left;
+          width: 60px;
+        }
       }
     }
     .ql-response-list-container {
@@ -106,7 +115,7 @@
           }
           .header-button {
             text-align: center;
-            width: 10%;
+            width: 90px;
           }
         }
 
@@ -137,7 +146,7 @@
                 }
 
                 .answer-attempts {
-                  min-width: 30%;
+                  width: 30%;
                   margin: auto;
                   //display: flex;
                   //align-items: center;
@@ -196,7 +205,7 @@
 
                 .feedback {
                   padding-top: 5px;
-                  min-width: 30%;
+                  width: 30%;
                   font-size: 0.8em;
 
                   .textField {
@@ -219,12 +228,12 @@
 
                   .numberField {
                     text-align: left;
-                    width: 70%;
+                    width: 50px;
                   }
                 }
                 .save-button {
-                  min-width: 60px;
-                  //padding: 5px;
+                  width: 90px;
+                  padding: 5px;
                   margin: auto;
 
                 }
