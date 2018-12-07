@@ -11,19 +11,10 @@ export class ResponseDisplay extends Component {
   constructor(props) {
     super(props)
 
-    if (props.mark) {
-      this.state = {
-        points: props.mark.points || 0,
-        feedback: props.mark.feedback || '',
-        showResponseView: false,
-      }
-    } else this.state = {
-      points: 0,
-      feedback: '',
+    this.state = {
       showResponseView: false,
     }
 
-    this.saveGrade = this.saveGrade.bind(this)
     this.incrementResponse = this.incrementResponse.bind(this)
 
   }
@@ -37,12 +28,10 @@ export class ResponseDisplay extends Component {
 
 
   componentWillReceiveProps (nextProps) {
-    const points = nextProps.mark ? nextProps.mark.points : 0
-    const feedback = nextProps.mark && nextProps.mark.feedback ? nextProps.mark.feedback : ''
     const index =(nextProps.mark && nextProps.responses && nextProps.responses.length > 0) ?
                   _(nextProps.responses).findIndex((r) => {return r._id === nextProps.mark.responseId})
                   : -1
-    this.setState({ points:points, feedback:feedback, responseIndex:index, unsavedChanges:false })
+    this.setState({ responseIndex:index})
 
   }
 
@@ -53,40 +42,14 @@ export class ResponseDisplay extends Component {
     }
   }
 
-  saveGrade () {
-    if(!this.props.mark || !this.props.gradeId) return
-
-    const points = Number(this.state.points)
-    if (points > this.props.mark.outOf ) {
-      alertify.error('Warning: assigning bonus points')
-    }
-    if (points < 0) {
-      alertify.error('Error: negative points')
-      return
-    }
-
-    let mark = this.props.mark
-    mark.feedback = this.state.feedback
-    mark.points = points
-    mark.needsGrading = false
-    Meteor.call('grades.updateMark', this.props.gradeId, mark, (err) => {
-      if (err) return alertify.error('Error: ' + err.error)
-      alertify.success('Mark updated')
-      this.setState({ unsavedChanges:false })
-    })
-
-    /*
-    Meteor.call('grades.setMarkPoints', this.props.gradeId, this.props.mark.questionId, points, (err) => {
-      if (err) return alertify.error('Error: ' + err.error)
-      alertify.success('Mark updated')
-    })*/
-
-  }
 
   render() {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
-    const setFeedback = (e) => this.setState({ feedback: e.target.value, unsavedChanges: true })
-    const setPoints = (e) => this.setState({ points: e.target.value, unsavedChanges: true })
+    const setFeedback = (e) => this.props.updateFeedback(this.props.studentId, e.target.value)
+    const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
+    const saveGrade = this.props.saveGrade ? () => this.props.saveGrade(this.props.studentId) : null
+    const cancelChange = this.props.cancelChange ? () => this.props.cancelChange(this.props.studentId) : null
+
     const toggleShowResponseView = () => this.setState({ showResponseView: !this.state.showResponseView })
     const nextResponse = () => this.incrementResponse(1)
     const prevResponse = () => this.incrementResponse(-1)
@@ -141,15 +104,18 @@ export class ResponseDisplay extends Component {
           </div>
 
           <div className='grade'>
-              <input type='number' className='numberField' min='0' max={100} step={0.01} value={this.state.points} onChange={setPoints} maxLength='4' size='4' />
-              <span>/{outOf}</span>
+              <input type='number' className='numberField' min='0' max={100} step={0.5} value={this.props.points} onChange={setPoints} maxLength='4' size='4' />
+              <span>&nbsp;/{outOf}</span>
           </div>
           <div className='feedback'>
-            <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />
+            <textarea className='textField' value={this.props.feedback} onChange={setFeedback} />
           </div>
           <div className='save-button'>
-            { this.state.unsavedChanges ?
-              <button className='btn' type='button' onClick={this.saveGrade} > Save </button>
+            { saveGrade ?
+              <div className='btn-group-vertical'>
+                <button className='btn' type='button' onClick={saveGrade} > Save </button>
+                <button className='btn' type='button' onClick={cancelChange} > Cancel </button>
+              </div>
               : ''
             }
           </div>
@@ -161,9 +127,14 @@ export class ResponseDisplay extends Component {
 
 ResponseDisplay.propTypes = {
   studentName: PropTypes.string.isRequired,
+  studentId: PropTypes.string.isRequired,
   responses: PropTypes.arrayOf(PropTypes.object),
   mark: PropTypes.object,
   questionType: PropTypes.number.isRequired,
-  gradeId:PropTypes.string.isRequired,
-  //submitGrade: PropTypes.func
+  points : PropTypes.number.isRequired,
+  feedback : PropTypes.string,
+  saveGrade : PropTypes.func,
+  cancelChange : PropTypes.func,
+  updateFeedback : PropTypes.func.isRequired,
+  updatePoints : PropTypes.func.isRequired,
 }

@@ -60,7 +60,7 @@ class _Profile extends Component {
   updateProfileImage (file, done) {
     let reader = new window.FileReader()
     reader.readAsDataURL(file)
-    reader.addEventListener('loadend', function (e) {
+    reader.addEventListener('loadend', function (event) {
       const fileURL = reader.result
       const UID = UUID.v5({
         namespace: '00000000-0000-0000-0000-000000000000',
@@ -88,18 +88,20 @@ class _Profile extends Component {
           if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
         })
       }.bind(this)
+      //this is needed or the function never returns?
       img.src = fileURL
 
       // Makes a thumbnail
       let thumb = new window.Image()
       thumb.onload = function () {
-        const meta = {UID: UID, type: 'thumbnail', src: img.src}
+        const meta = {UID: UID, type: 'thumbnail', src: thumb.src}
         Meteor.call('settings.getImageSettings', (e, obj) => {
           if (e) alertify.error('Error while getting settings')
           if (obj) this.resizeImage(50, obj.storageType, thumb, meta, true)
         })
       }.bind(this)
-      thumb.src = e.target.result
+      //this is needed or the function never returns?
+      thumb.src = event.target.result
     }.bind(this))
   }
 
@@ -122,7 +124,7 @@ class _Profile extends Component {
       Meteor.call('users.updateProfileThumbnail', profileImageUrl, (err) => {
         if (err) return alertify.error('Error: could not save image')
         setTimeout(() => {
-          alertify.success('Profile image updated')
+          alertify.success('Profile thumbnail image updated')
           this.setState({ uploadActive: false })
         }, 800)
       })
