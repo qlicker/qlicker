@@ -20,10 +20,12 @@ class _ResponseList extends Component {
 
   constructor(props) {
       super(props)
-      this.state = { unsavedChanges:false }
+      this.state = { unsavedChanges: {} }
 
-      this.updateUnsavedChanges = this.updateUnsavedChanges//.bind(this)
       this.saveAll = this.saveAll.bind(this)
+      this.updateFeedback = this.updateFeedback.bind(this)
+      this.updatePoints = this.updatePoints.bind(this)
+      this.saveGrade = this.saveGrade.bind(this)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -35,28 +37,75 @@ class _ResponseList extends Component {
   }
 
   saveAll() {
-    this.setState({ unsavedChanges: false })
+    Object.keys(this.state.unsavedChanges).forEach( (studentId) => {
+      this.saveGrade(studentId)
+    })
+    //this.setState({ unsavedChanges: {} })
   }
 
-  // TODO: This does not work, when setState is called here, the one in ResponseDisplay does not take effect!
-  updateUnsavedChanges(studentId)  {
-    //let unsavedChanges = this.state.unsavedChanges
-    console.log("here")
-    console.log(studentId)
-    //console.log(this.state)
-    //console.log(unsavedChanges)
+  updateFeedback (studentId, feedback) {
+    let unsavedChanges = this.state.unsavedChanges
+    const mark = this.props.markByStudentId[studentId]
 
-    //unSavedChanges[studentId]={ gradeId:gradeId, points:points, feedback:feedback}
-    //this.setState({ unsavedChanges:true })
+    if (!unsavedChanges[studentId]) unsavedChanges[studentId] = {}
 
+    if (feedback === mark.feedback && (!unsavedChanges[studentId]['points'] || unsavedChanges[studentId]['points'] === mark.points)){
+      delete unsavedChanges[studentId]
+    } else unsavedChanges[studentId]['feedback']=feedback
+
+    this.setState( {unsavedChanges: unsavedChanges} )
+  }
+
+  updatePoints (studentId, points) {
+    let unsavedChanges = this.state.unsavedChanges
+    const mark = this.props.markByStudentId[studentId]
+
+    if (!unsavedChanges[studentId]) unsavedChanges[studentId] = {}
+
+    if (points === mark.points && (!unsavedChanges[studentId]['feedback'] || unsavedChanges[studentId]['feedback'] === mark.feedback)){
+      delete unsavedChanges[studentId]
+    } else  unsavedChanges[studentId]['points']=points
+
+    this.setState( {unsavedChanges: unsavedChanges} )
+  }
+
+  saveGrade (studentId) {
+    let mark = this.props.markByStudentId[studentId]
+    const gradeId = this.props.gradeByStudenId[studentId]
+    let unsavedChanges = this.state.unsavedChanges
+    let studentChanges = unsavedChanges[studentId]
+
+    if(!mark || !gradeId || !studentChanges) return
+
+    const points = studentChanges['points'] ? studentChanges['points']  : mark.points
+
+    if (points > mark.outOf ) {
+      alertify.error('Warning: assigning bonus points')
+    }
+    if (points < 0) {
+      alertify.error('Error: negative points')
+      return
+    }
+
+    mark.feedback = studentChanges['feedback'] ? studentChanges['feedback'] : mark.feedback
+    mark.points = points
+    mark.needsGrading = false
+    Meteor.call('grades.updateMark', gradeId, mark, (err) => {
+      if (err) return alertify.error('Error: ' + err.error)
+      const student = _(this.props.students).findWhere({ _id:studentId })
+      alertify.success('Mark updated for '+student.profile.firstname+" "+student.profile.lastname)
+      delete unsavedChanges[studentId]
+      this.setState({ unsavedChanges:unsavedChanges })
+    })
   }
 
   render () {
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-
+    console.log(this.state.unsavedChanges)
     const students = this.props.students
     let index = 0
+    const hasUnsaved = Object.keys(this.state.unsavedChanges).length > 0
     return (
       <div className='ql-response-list'>
         <div className='ql-response-table-headers'>
@@ -65,7 +114,7 @@ class _ResponseList extends Component {
           <div className='header-mark'>Grade</div>
           <div className='header-feedback'>Feedback</div>
           <div className='header-button'>
-            {this.state.unsavedChanges ?
+            {hasUnsaved ?
                 <button className='btn btn-secondary' onClick={this.saveAll}> Save all </button>
               : ''
             }
@@ -81,19 +130,25 @@ class _ResponseList extends Component {
               const studentName = student.profile.lastname + ', ' + student.profile.firstname
               let className = 'ql-response-display-container'
               if (index %2 !== 0) className += ' highlight'
+              const points = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['points'] ?
+                             this.state.unsavedChanges[stuId]['points'] : mark.points
+              const feedback = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['feedback'] ?
+                            this.state.unsavedChanges[stuId]['feedback'] : mark.feedback
 
               index += 1
               return(
                 <div className={className} key={student._id} ref={student._id}>
                   <ResponseDisplay
-                    ref={'ResponseDisplay'+student._id}
                     studentName={studentName}
                     studentId={student._id}
                     responses={responses}
                     mark={mark}
-                    gradeId={gradeId}
                     questionType={this.props.qtype}
-                    unsavedChanges = {this.updateUnsavedChanges}
+                    points = {points}
+                    feedback = {feedback}
+                    saveGrade = {hasUnsaved ? this.saveGrade : undefined }
+                    updateFeedback = {this.updateFeedback}
+                    updatePoints = {this.updatePoints}
                   />
                 </div>
               )
