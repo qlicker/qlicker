@@ -199,7 +199,7 @@ class _GradeSession extends Component {
     let studentsToShow = studentSearchString || answerSearchString
       ? _(studentPool).filter((entry) => {
 
-        const hasResponse = answerSearchString ? entry.responses[questionToViewId].toLowerCase().includes(answerSearchString.toLowerCase()) : true
+        const hasResponse = answerSearchString ? entry.responses[questionToViewId] && entry.responses[questionToViewId].toLowerCase().includes(answerSearchString.toLowerCase()) : true
 
         const hasName = studentSearchString ? (entry.profile.lastname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
                                                entry.profile.firstname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
