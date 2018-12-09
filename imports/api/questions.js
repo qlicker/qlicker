@@ -13,7 +13,7 @@ import { Sessions } from './sessions'
 import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
-import { ROLES } from '../configs'
+import { ROLES, QUESTION_TYPE } from '../configs'
 
 // expected collection pattern
 const questionPattern = {
@@ -79,7 +79,7 @@ export const defaultQuestion = {
   plainText: '',
   solution: '',
   solution_plainText: '',
-  type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
+  type: QUESTION_TYPE.SA,
   content: '',
   options: [], // { correct: false, answer: 'A', content: editor content }
   tags: [],

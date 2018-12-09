@@ -13,6 +13,7 @@ import { SingleDatePicker } from 'react-dates'
 import moment from 'moment'
 import { Creatable } from 'react-select'
 import 'react-select/dist/react-select.css'
+import Datetime from 'react-datetime'
 
 import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
@@ -26,6 +27,7 @@ import { QuestionEditItem } from '../../QuestionEditItem'
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
 import { defaultQuestion, Questions } from '../../../api/questions'
+
 
 class _ManageSession extends Component {
 
@@ -58,6 +60,7 @@ class _ManageSession extends Component {
     this.addToLibrary = this.addToLibrary.bind(this)
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
+    this.setQuizStartTime= this.setQuizStartTime.bind(this)
     //this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
@@ -72,6 +75,7 @@ class _ManageSession extends Component {
     if (!nP) return
     if (nP.session) this.setState({ session: nP.session })
   }
+
 
   /**
    * componentDidMount(nextProps)
@@ -92,6 +96,24 @@ class _ManageSession extends Component {
       e.preventDefault()
       $(this).tab('show')
     })
+  }
+
+  setQuizStartTime(moment) {
+    let sessionEdits = this.state.session
+    console.log(moment.format('MMMM Do YYYY, h:mm:ss a'))
+    sessionEdits.quizStart = moment
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+  }
+
+  toggleQuizMode () {
+    let sessionEdits = this.state.session
+    sessionEdits.quiz = !sessionEdits.quiz
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+
   }
 
   // starts the session if there are questions
@@ -182,12 +204,7 @@ class _ManageSession extends Component {
     })
   }
 
-  toggleQuizMode () {
-    Meteor.call('sessions.toggleQuizMode', this.sessionId, (e) => {
-      if (e) alertify.error('Could not toggle quiz mode')
-      else alertify.success('Quiz mode changed')
-    })
-  }
+
 
   /**
    * checkReview(Input Event: e)
@@ -332,7 +349,7 @@ class _ManageSession extends Component {
 
 
   render () {
-
+    console.log(this.state)
     const setTab = (e) => { this.setState({ tab: e })}
   //  let questionList = this.state.session.questions || []
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
@@ -425,8 +442,19 @@ class _ManageSession extends Component {
             <div className='ql-session-child-container session-details-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
               <div className='ql-session-details-checkbox'>
-                <input type='checkbox' checked={this.props.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
+                <input type='checkbox' checked={this.state.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
               </div>
+              { this.state.session.quiz ?
+                 <div>
+                   Start: <Datetime
+                            onChange={this.setQuizStartTime}
+                            value={this.state.session.quiz_start ? this.state.session.quiz_start : undefined}
+                           />
+                   End: <Datetime />
+                 </div>
+
+                 : ''
+              }
               <div className='row'>
                 <div className='col-md-6 left-column'>
                   <textarea className='form-control session-description' data-name='description'
