@@ -47,8 +47,8 @@ export class ResponseDisplay extends Component {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
     const setFeedback = (e) => this.props.updateFeedback(this.props.studentId, e.target.value)
     const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
-    const saveGrade = this.props.saveGrade ? () => this.props.saveGrade(this.props.studentId) : null
-    const cancelChange = this.props.cancelChange ? () => this.props.cancelChange(this.props.studentId) : null
+    const saveGrade = this.props.saveGrade ? () => this.props.saveGrade(this.props.studentId) : undefined
+    const cancelChange = this.props.cancelChange ? () => this.props.cancelChange(this.props.studentId) : undefined
 
     const toggleShowResponseView = () => this.setState({ showResponseView: !this.state.showResponseView })
     const nextResponse = () => this.incrementResponse(1)
@@ -60,7 +60,19 @@ export class ResponseDisplay extends Component {
     const showPrev = response && this.state.responseIndex > 0
     const showNext =  response && this.state.responseIndex < nResponses - 1
 
-    if (this.state.showResponseView && response) return <ResponseViewModal response={response} done={toggleShowResponseView} />
+    if (this.state.showResponseView && response) return(
+       <ResponseViewModal
+          studentName={this.props.studentName}
+          studentId={this.props.studentId}
+          points={this.props.points}
+          feedback={this.props.feedback}
+          updateFeedback={this.props.updateFeedback}
+          updatePoints={this.props.updatePoints}
+          saveGrade={this.props.saveGrade}
+          cancelChange={this.props.cancelChange}
+          mark={this.props.mark}
+          response={response}
+          done={toggleShowResponseView} />)
 
     return(
       <div className='ql-response-display'>

@@ -248,10 +248,63 @@
 
 
 .response-sidebar-header {
-
-
-
   .content {
     width: 80%;
   }
+}
+
+.ql-responseViewModal {
+  font-size:1.5em;
+
+  .ql-responseViewModal-text{
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  .ql-responseViewModal-controls {
+    border: 2px solid $grey;
+    //height: 50px;
+    display: flex;
+    //flex-direction: row;
+    //justify-content: space-between;
+    //align-items: stretch;
+
+    .ql-responseViewModal-controls-grade {
+      width: 120px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.8em;
+      .numberField {
+        text-align: left;
+        width: 50px;
+      }
+
+    }
+    .ql-responseViewModal-controls-feedback {
+      padding-top: 5px;
+      width: 100%;
+      font-size: 0.8em;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      padding-left: 5px;
+
+      .textField {
+        width: 100%;
+        min-height: 70px;
+        max-height: 120px;
+        background: white;
+        border: 2px solid $grey;
+        overflow-y: auto;
+      }
+    }
+  }
+
+  .ql-responseViewModal-buttons {
+    margin: auto;
+    //width:90px;
+  }
+
 }
