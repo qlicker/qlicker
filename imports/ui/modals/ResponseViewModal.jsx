@@ -23,28 +23,69 @@ export class ResponseViewModal extends ControlledForm {
     this.setState({})
     this.props.done()
   }
-  
+
+  componentDidMount () {
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+  }
+
   render () {
-    
+    const outOf = this.props.mark ? this.props.mark.outOf : 0
+    const setFeedback = (e) => this.props.updateFeedback(this.props.studentId, e.target.value)
+    const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
+    let saveGrade = undefined
+    let cancelChange = undefined
+    if(this.props.saveGrade){
+      saveGrade = () => {
+        this.props.saveGrade(this.props.studentId)
+        this.done()
+      }
+      cancelChange = () => {
+        this.props.cancelChange(this.props.studentId)
+        this.done()
+      }
+    }
+    //const saveGrade = this.props.saveGrade ? () => this.props.saveGrade(this.props.studentId) : undefined
+    //const cancelChange = this.props.cancelChange ? () => this.props.cancelChange(this.props.studentId) : undefined
+
     return (
       <div className='ql-modal-container' >
         <div className='row'>
-          <div className='col-md-3' />
-          <div className='col-md-6'>
+          <div className='col-md-2' />
+          <div className='col-md-8'>
             <div className='ql-profile-card  ql-card'>
               <div className='profile-header ql-header-bar'>
-                <h1>View Response</h1>
+                <h1>{this.props.studentName}</h1>
               </div>
               <div className='ql-card-content'>
-                {WysiwygHelper.htmlDiv(this.props.response.answerWysiwyg)}
-                <br />
-                <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                  <a className='btn btn-default' onClick={this.done}>Close</a>
+                <div className='ql-responseViewModal'>
+                  <div className='ql-responseViewModal-text'>
+                    {WysiwygHelper.htmlDiv(this.props.response.answerWysiwyg)}
+                  </div>
+                  <div className='ql-responseViewModal-controls'>
+                    <div className='ql-responseViewModal-controls-grade'>
+                      Grade: <input type='number' className='numberField' min='0' max={100} step={0.5} value={this.props.points} onChange={setPoints} maxLength='4' size='4' />
+                      <span>&nbsp;/{outOf}</span>
+                    </div>
+                    <div className='ql-responseViewModal-controls-feedback'>
+                      Feedback: <textarea className='textField' value={this.props.feedback} onChange={setFeedback} />
+                    </div>
+                  </div>
+                  <div className='ql-responseViewModal-buttons'>
+                    { saveGrade ?
+                      <div className='btn-group btn-group-justified'>
+                        <a className='btn btn-default' onClick={saveGrade} > Save </a>
+                        <a className='btn btn-default' onClick={cancelChange} > Cancel </a>
+                      </div>
+                      : <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                          <a className='btn btn-default' onClick={this.done}>Close</a>
+                        </div>
+                    }
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className='col-md-3' />
+          <div className='col-md-2' />
         </div>
       </div>
     )
