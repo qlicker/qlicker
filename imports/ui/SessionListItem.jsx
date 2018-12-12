@@ -8,7 +8,9 @@ import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 
-import { SESSION_STATUS_STRINGS, formatDate } from '../configs'
+import moment from 'moment-timezone'
+
+import { SESSION_STATUS_STRINGS } from '../configs'
 
 /**
  * React component list item for each session.
@@ -64,6 +66,23 @@ export class SessionListItem extends ListItem {
     let statusClassName = 'ql-session-status ' + ('ql-' + status)
     //if (session.reviewable && session.status === 'done') statusClassName += ' reviewable'
     //if (!session.reviewable && session.status === 'done') statusClassName += ' not-reviewable'
+    let currentTime = Date.now()
+    let timeString = moment(session.date).format('MMMM DD, YYYY')
+    if (session.quiz){
+      if (session.quizStart && currentTime < session.quizStart){
+        timeString = 'Opens at '+moment(session.quizStart).format('hh:mm') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
+      }
+      else if  (session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd){
+        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+      }
+      else if (session.quizEnd && currentTime < session.quizEnd){
+        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+      }
+      else if (session.quizEnd){
+        timeString = 'Closed at '+moment(session.quizEnd).format('hh:mm') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+      }
+      else{}
+    }
 
     return (
       <div className='ql-session-list-item ql-list-item' onClick={this.props.click}>
@@ -76,9 +95,9 @@ export class SessionListItem extends ListItem {
             <span>
               {session.date
                 ? <span className='active-time'>
-                  { formatDate(session.date) }
+                  {timeString}
                 </span>
-               : ''}
+               : '' }
               <span className='tags'>
                 {session.tags && Meteor.user().hasRole('professor')
                   ? session.tags.map(t => <span key={t.value} className='ql-label ql-label-info'>{t.label}</span>)

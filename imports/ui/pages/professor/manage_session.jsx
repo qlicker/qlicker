@@ -10,7 +10,7 @@ import _ from 'underscore'
 
 import { createContainer } from 'meteor/react-meteor-data'
 import { SingleDatePicker } from 'react-dates'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Creatable } from 'react-select'
 import 'react-select/dist/react-select.css'
 import Datetime from 'react-datetime'
@@ -61,6 +61,9 @@ class _ManageSession extends Component {
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
     this.setQuizStartTime= this.setQuizStartTime.bind(this)
+    this.setQuizEndTime= this.setQuizEndTime.bind(this)
+    this.validQuizStart = this.validQuizStart.bind(this)
+    this.validQuizEnd = this.validQuizEnd.bind(this)
     //this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
@@ -98,14 +101,33 @@ class _ManageSession extends Component {
     })
   }
 
+  validQuizStart (current) {
+    if (this.state.session.quizEnd) return current.isBefore(this.state.session.quizEnd)
+    else return true
+  }
+
+  validQuizEnd (current) {
+    if (this.state.session.quizStart) return current.isAfter(this.state.session.quizStart)
+    else return true
+  }
+
   setQuizStartTime(moment) {
     let sessionEdits = this.state.session
-    console.log(moment.format('MMMM Do YYYY, h:mm:ss a'))
-    sessionEdits.quizStart = moment
+    sessionEdits.quizStart = moment ? moment.toDate() : null
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
   }
+
+  setQuizEndTime(moment) {
+    let sessionEdits = this.state.session
+    sessionEdits.quizEnd =  moment ? moment.toDate() : null
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+
+  }
+
 
   toggleQuizMode () {
     let sessionEdits = this.state.session
@@ -349,8 +371,8 @@ class _ManageSession extends Component {
 
 
   render () {
-    console.log(this.state)
     const setTab = (e) => { this.setState({ tab: e })}
+    console.log(this.state)
   //  let questionList = this.state.session.questions || []
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
@@ -373,16 +395,22 @@ class _ManageSession extends Component {
         })
       })
 
+    let DTPShortcuts = {
+      'Clear': ''
+    };
+
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
           <h3 className='session-title'>Session Editor</h3>
           <span className='divider'>&nbsp;</span>
+
           <span className='toolbar-button' onClick={this.runSession}>
-            <span className='glyphicon glyphicon-play' />&nbsp;
-            {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
-          </span>
-          <span className='divider'>&nbsp;</span>
+              <span className='glyphicon glyphicon-play' />&nbsp;
+                  {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
+         </span>
+         <span className='divider'>&nbsp;</span>
+
           <span className='toolbar-button' onClick={() => this.addAllToLibrary(questionList)}>
             Copy All Questions to Library
           </span>
@@ -445,12 +473,22 @@ class _ManageSession extends Component {
                 <input type='checkbox' checked={this.state.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
               </div>
               { this.state.session.quiz ?
-                 <div>
-                   Start: <Datetime
-                            onChange={this.setQuizStartTime}
-                            value={this.state.session.quiz_start ? this.state.session.quiz_start : undefined}
-                           />
-                   End: <Datetime />
+                 <div className='row'>
+                   <div className='col-md-3 left-column'>
+                     Start: <Datetime
+                              onChange={this.setQuizStartTime}
+                              defaultValue={this.state.session.quizStart ? this.state.session.quizStart : undefined}
+                              isValidDate = {this.validQuizStart}
+                             />
+                    </div>
+                  <div className='col-md-3 left-column'>
+                     End: <Datetime
+                              onChange={this.setQuizEndTime}
+                              defaultValue={this.state.session.quizEnd ? this.state.session.quizEnd : undefined}
+                              isValidDate = {this.validQuizEnd}
+                            />
+                  </div>
+
                  </div>
 
                  : ''

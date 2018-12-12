@@ -11,7 +11,7 @@ import { _ } from 'underscore'
 
 import { Courses, profHasCoursePermission } from './courses.js'
 import { Grades } from './grades.js'
-import { moment } from 'moment'
+import { moment } from 'moment-timezone'
 
 import Helpers from './helpers.js'
 
@@ -26,8 +26,8 @@ const sessionPattern = {
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
-  quizStart: Match.Any, // quiz start time TODO: This is not safe!
-  quizEnd:  Match.Any,  // quiz end time
+  quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time 
+  quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),

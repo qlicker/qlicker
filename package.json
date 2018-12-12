@@ -38,6 +38,7 @@
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.23",
     "passport-saml": "^0.33.0",
+    "rc-datetime-picker": "^1.6.1",
     "react": "^15.6.2",
     "react-addons-pure-render-mixin": "^15.4.1",
     "react-addons-shallow-compare": "^15.4.2",
