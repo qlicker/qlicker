@@ -114,6 +114,11 @@ class _ManageSession extends Component {
   setQuizStartTime(moment) {
     let sessionEdits = this.state.session
     sessionEdits.quizStart = moment ? moment.toDate() : null
+    if (this.state.session.quizEnd && sessionEdits.quizStart && moment(sessionEdits.quizStart).isAfter(moment(this.state.session.quizEnd))){
+      alertif.error("Cannot set start time after end time!")
+      return
+    }
+    if(!sessionEdits.quizStart ) console.log("Just set star time to null" )
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
@@ -372,7 +377,9 @@ class _ManageSession extends Component {
 
   render () {
     const setTab = (e) => { this.setState({ tab: e })}
-    console.log(this.state)
+
+    console.log('props: '+this.props.session.quizStart)
+    console.log('state: '+this.state.session.quizStart)
   //  let questionList = this.state.session.questions || []
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
@@ -394,10 +401,6 @@ class _ManageSession extends Component {
           id: questionId
         })
       })
-
-    let DTPShortcuts = {
-      'Clear': ''
-    };
 
     return (
       <div className='ql-manage-session'>
@@ -477,7 +480,7 @@ class _ManageSession extends Component {
                    <div className='col-md-3 left-column'>
                      Start: <Datetime
                               onChange={this.setQuizStartTime}
-                              defaultValue={this.state.session.quizStart ? this.state.session.quizStart : undefined}
+                              value={this.state.session.quizStart ? this.state.session.quizStart : undefined}
                               isValidDate = {this.validQuizStart}
                              />
                     </div>
