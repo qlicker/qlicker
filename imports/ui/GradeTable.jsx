@@ -255,6 +255,7 @@ export class _GradeTable extends Component {
       cvsHeaders.push(s.name + ' Mark')
     })
 
+    /*
     let csvData = this.props.tableData.map((tableRow) => {
       let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.participation]
       tableRow.grades.forEach((g) => {
@@ -263,6 +264,25 @@ export class _GradeTable extends Component {
       })
       return row
     })
+    */
+    let csvData = []
+    for(let istu=0; istu<this.props.tableData.length ;istu++){
+      const tableRow = this.props.tableData[istu]
+      let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.participation]
+      for (let isess=0; isess<this.props.sessions.length ; isess++){
+        const sessionId = this.props.sessions[isess]._id
+        const grade = _(tableRow.grades).findWhere({sessionId: sessionId})
+        if (grade){
+          row.push(grade.participation)
+          row.push(grade.value)
+        } else {
+          row.push(0)
+          row.push(0)
+        }
+      }
+      csvData.push(row)
+    }
+    
     const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
     const handleSubmit = (e) => { e.preventDefault() }
 
