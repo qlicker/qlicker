@@ -201,6 +201,12 @@
         max-width: 500px;
         margin-bottom: 10px;
       }
+      .ql-quizTimeInfo {
+        font-size:1.5em;
+        &.warning {
+          color:$red;
+        }
+      }
 
       &.presenting {
         margin: 0;

@@ -37,6 +37,8 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: this.props.session,
+      quizStart: this.props.session ? this.props.session.quizStart :null,//needed for displaying in the form
+      quizEnd: this.props.session ? this.props.session.quizEnd : null,
       //questionPool: 'library',
       //limit: 11,
       //query: {query: {}, options: {}},
@@ -62,8 +64,6 @@ class _ManageSession extends Component {
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
     this.setQuizStartTime= this.setQuizStartTime.bind(this)
     this.setQuizEndTime= this.setQuizEndTime.bind(this)
-    this.validQuizStart = this.validQuizStart.bind(this)
-    this.validQuizEnd = this.validQuizEnd.bind(this)
     //this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
     this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
@@ -76,7 +76,11 @@ class _ManageSession extends Component {
    */
   componentWillReceiveProps (nP) {
     if (!nP) return
-    if (nP.session) this.setState({ session: nP.session })
+    if (nP.session){
+      const quizStart = nP.session.quizStart
+      const quizEnd = nP.session.quizEnd
+      this.setState({ session: nP.session, quizStart:quizStart, quizEnd:quizEnd })
+    }
   }
 
 
@@ -101,38 +105,50 @@ class _ManageSession extends Component {
     })
   }
 
-  validQuizStart (current) {
-    if (this.state.session.quizEnd) return current.isBefore(this.state.session.quizEnd)
-    else return true
-  }
+  setQuizStartTime(amoment) {
+    //If a user is typing in the form, the form passes back a string instead of a moment
+    //object, so we don't want to save that to the database.
+    const isMoment = amoment instanceof moment
+    let quizStart = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
 
-  validQuizEnd (current) {
-    if (this.state.session.quizStart) return current.isAfter(this.state.session.quizStart)
-    else return true
-  }
-
-  setQuizStartTime(moment) {
-    let sessionEdits = this.state.session
-    sessionEdits.quizStart = moment ? moment.toDate() : null
-    if (this.state.session.quizEnd && sessionEdits.quizStart && moment(sessionEdits.quizStart).isAfter(moment(this.state.session.quizEnd))){
-      alertif.error("Cannot set start time after end time!")
+    if(!isMoment){ // likely editing, don't save
+      this.setState({ quizStart: (amoment ? amoment  : null)})
       return
     }
-    if(!sessionEdits.quizStart ) console.log("Just set star time to null" )
-    this.setState({ session: sessionEdits }, () => {
-      this._DB_saveSessionEdits()
-    })
-  }
 
-  setQuizEndTime(moment) {
     let sessionEdits = this.state.session
-    sessionEdits.quizEnd =  moment ? moment.toDate() : null
+    sessionEdits.quizStart = quizStart
+    if (this.state.session.quizEnd && amoment.isAfter(this.state.session.quizEnd)){
+      alertify.error("Cannot set start time after end time!")
+      sessionEdits.quizStart = this.state.session.quizEnd
+    }
+
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
-
   }
 
+  setQuizEndTime(amoment) {
+    const isMoment = amoment instanceof moment
+    let quizEnd = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
+
+    if(!isMoment){
+      this.setState({ quizEnd: (amoment ? amoment  : null)})
+      return
+    }
+
+    let sessionEdits = this.state.session
+    sessionEdits.quizEnd = quizEnd
+
+    if (this.state.session.quizStart && amoment.isBefore(this.state.session.quizStart)){
+      alertify.error("Cannot set end time before start time!")
+      sessionEdits.quizEnd = this.state.session.quizEnd
+    }
+
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+  }
 
   toggleQuizMode () {
     let sessionEdits = this.state.session
@@ -276,7 +292,7 @@ class _ManageSession extends Component {
     //const code = course.courseCode().toUpperCase()
     const semester = course.semester.toUpperCase()
     //tags.push({ value: code, label: code })
-    tags.push({ value: semester, label: semester })
+    tags.push({ value: semester, label: semester }, {value:this.props.session.name,label:this.props.session.name})
 
     const blankQuestion = _.extend( defaultQuestion, {
       sessionId: sessionId,
@@ -402,6 +418,20 @@ class _ManageSession extends Component {
         })
       })
 
+    let quizTimeInfo = ''
+    let quizTimeClassName = 'ql-quizTimeInfo'
+    if (this.state.quizStart && !(this.state.quizStart instanceof Date) ){
+      quizTimeInfo='Start time not in correct format!'
+      quizTimeClassName +=' warning'
+    }
+    if (this.state.quizEnd && !(this.state.quizEnd instanceof Date) ){
+      quizTimeInfo+=' End time not in correct format!'
+      quizTimeClassName +=' warning'
+    }
+    if ((this.state.quizStart instanceof Date) && (this.state.quizEnd instanceof Date)){
+      quizTimeInfo ='Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart),true)
+    }
+
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
@@ -480,16 +510,19 @@ class _ManageSession extends Component {
                    <div className='col-md-3 left-column'>
                      Start: <Datetime
                               onChange={this.setQuizStartTime}
-                              value={this.state.session.quizStart ? this.state.session.quizStart : undefined}
-                              isValidDate = {this.validQuizStart}
+                              value={this.state.quizStart ? this.state.quizStart: null}
                              />
                     </div>
                   <div className='col-md-3 left-column'>
                      End: <Datetime
                               onChange={this.setQuizEndTime}
-                              defaultValue={this.state.session.quizEnd ? this.state.session.quizEnd : undefined}
-                              isValidDate = {this.validQuizEnd}
+                              value={this.state.quizEnd ? this.state.quizEnd : null}
                             />
+                  </div>
+                  <div className='col-md-5'>
+                    <div className={quizTimeClassName}>
+                      {quizTimeInfo}
+                    </div>
                   </div>
 
                  </div>

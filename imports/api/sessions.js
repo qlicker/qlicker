@@ -26,7 +26,7 @@ const sessionPattern = {
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
-  quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time 
+  quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
   quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
@@ -157,7 +157,9 @@ Meteor.methods({
     if (session.status === 'running') Meteor.call('sessions.startSession', session._id)
     else Meteor.call('sessions.endSession', session._id)
 
-    return Sessions.update({ _id: session._id }, {
+    return Sessions.update({ _id: session._id }, { $set: _.omit(session, '_id') })
+
+    /*return Sessions.update({ _id: session._id }, {
       $set: {
         name: session.name,
         description: session.description,
@@ -169,7 +171,7 @@ Meteor.methods({
         date: session.date || undefined,
         tags: session.tags || undefined
       }
-    })
+    })*/
   },
 
   /**

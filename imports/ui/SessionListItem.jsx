@@ -42,8 +42,15 @@ export class SessionListItem extends ListItem {
   render () {
     const session = this.props.session
     const controls = this.makeControls()
+    const currentTime = Date.now()
+    let status = session.status
+    if(status === 'visible' && session.quiz && session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd){
+      status = 'running'
+    }
+    else if(status === 'visible' && session.quiz && session.quizEnd && currentTime < session.quizEnd){
+      status = 'running'
+    }
 
-    const status = session.status
     const strStatus = SESSION_STATUS_STRINGS[status]
 
     const strAllowReview = this.props.session.reviewable ? 'Disable Review' : 'Allow Review'
@@ -66,20 +73,21 @@ export class SessionListItem extends ListItem {
     let statusClassName = 'ql-session-status ' + ('ql-' + status)
     //if (session.reviewable && session.status === 'done') statusClassName += ' reviewable'
     //if (!session.reviewable && session.status === 'done') statusClassName += ' not-reviewable'
-    let currentTime = Date.now()
+
+    let showTime = session.date || session.quizStart || session.quizEnd
     let timeString = moment(session.date).format('MMMM DD, YYYY')
     if (session.quiz){
       if (session.quizStart && currentTime < session.quizStart){
-        timeString = 'Opens at '+moment(session.quizStart).format('hh:mm') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
+        timeString = 'Opens at '+moment(session.quizStart).format('hh:mm A') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
       }
       else if  (session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd){
-        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
       }
       else if (session.quizEnd && currentTime < session.quizEnd){
-        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
       }
       else if (session.quizEnd){
-        timeString = 'Closed at '+moment(session.quizEnd).format('hh:mm') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+        timeString = 'Closed at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
       }
       else{}
     }
@@ -93,7 +101,7 @@ export class SessionListItem extends ListItem {
           <div className={this.props.controls ? 'col-md-6 col-sm-5 col-xs-8' : 'col-md-7 col-sm-6 col-xs-8'}>
             <span className='ql-session-name'>{ session.name }</span>
             <span>
-              {session.date
+              {showTime
                 ? <span className='active-time'>
                   {timeString}
                 </span>
