@@ -12,6 +12,7 @@ import { _ } from 'underscore'
 import { Questions } from '../../../api/questions'
 import { Sessions } from '../../../api/sessions'
 import { Responses, responseDistribution } from '../../../api/responses'
+import { QuizSession } from '../../QuizSession'
 
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { ShortAnswerList } from '../../ShortAnswerList'
@@ -43,7 +44,7 @@ class _Session extends Component {
       Router.go('login')
     }
     const status = this.props.session.status
-    if (status !== 'running') {
+    if (status !== 'running' && !this.props.session.quizIsActive()) {
       let statusMessage
 
       if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
@@ -93,6 +94,9 @@ class _Session extends Component {
 
         </div>)
     } else {
+
+      return (<QuizSession sessionId={this.props.sessionId} /> )
+
       // for questions in a quiz (all questions at once, possible multiple attempts allowed)
       const qlist = session.questions
       let qCount = 0

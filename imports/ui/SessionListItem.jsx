@@ -44,11 +44,11 @@ export class SessionListItem extends ListItem {
     const controls = this.makeControls()
     const currentTime = Date.now()
     let status = session.status
-    if(status === 'visible' && session.quiz && session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd){
+    if(session.quizIsActive() ){
       status = 'running'
     }
-    else if(status === 'visible' && session.quiz && session.quizEnd && currentTime < session.quizEnd){
-      status = 'running'
+    if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd ) {
+      status = 'done'
     }
 
     const strStatus = SESSION_STATUS_STRINGS[status]

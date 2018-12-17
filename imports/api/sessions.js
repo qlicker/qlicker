@@ -43,6 +43,18 @@ _.extend(Session.prototype, {
   gradesViewable: function () {
     let grades = Grades.find({ sessionId: this._id, visibleToStudents: true }).fetch()
     return grades.length > 0
+  },
+  // check if quiz is currently active (iether 'running' or visible and it's the correct time)
+  quizIsActive: function () {
+    if (!this.quiz) return false;
+    if (!this.quizStart || !this.quizEnd) return false;
+    if (this.status === 'running') return true;
+    if (this.status === 'hidden' || this.status === 'done') return false
+
+    const currentTime = Date.now()
+    const isPastStart = currentTime > this.quizStart
+    const isBeforeEnd = currentTime < this.quizEnd
+    return isPastStart && isBeforeEnd
   }
 })
 

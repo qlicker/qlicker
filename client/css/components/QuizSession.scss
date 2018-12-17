@@ -1,0 +1,74 @@
+@import '../variables.scss';
+
+
+.ql-quiz-session{
+
+  @media (max-width: 991px) {
+    .ql-quiz-session-overview {
+      position: static !important;
+      width: auto;
+      top: 0;
+      flex-direction: row;
+      flex-wrap:wrap;
+    }
+  }
+
+  .ql-quiz-session-qnav {
+    position:  fixed;
+    width: 140px;
+    display: flex;
+    flex-direction: column;
+    max-height: 800px;
+    overflow-y: auto;
+
+    .ql-quiz-session-qnav-title {
+      //width: 100px;
+      width: 120px;
+      text-align: center;
+      font-size: 2em;
+      //background: white;
+    }
+
+    .ql-quiz-session-questionPad {
+      width: 100px;
+      text-align: center;
+      font-size: 2em;
+      border: 1px solid $grey;
+
+      background: white;
+      padding: 2px;
+      &:hover {
+        //background: $grey;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      &.red {
+        background: $light-red;
+      }
+      &.green {
+        background: $light-green;
+      }
+    }
+  }
+
+  .ql-quiz-session-questions {
+
+    .ql-quiz-session-question {
+
+      border: 1px solid $slightly-darker-grey;
+      padding: 5px;
+      padding-bottom: 15px;
+      margin-bottom:20px;
+
+      .ql-quiz-session-question-title {
+        background: $blue;
+        color: white;
+        font-size: 2em;
+
+      }
+    }
+
+
+  }
+
+}

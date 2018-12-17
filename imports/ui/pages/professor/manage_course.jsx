@@ -204,12 +204,12 @@ class _ManageCourse extends Component {
             controls.push({ divider: true })
           }
           if (ses.status === 'done') {
-            controls.push({ label: 'Restart session', click: () => this.startSession(sId) })
+            controls.push({ label: 'Make live again', click: () => this.startSession(sId) })
             controls.push({ label: 'Grade session', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
           }
-          if (ses.status !== 'done' && ses.status !== 'running') {
-            controls.push({ label: 'Start session', click: () => this.startSession(sId) })
+          if (ses.status !== 'done' && ses.status !== 'running' && !ses.quizIsActive()) {
+            controls.push({ label: 'Make live', click: () => this.startSession(sId) })
           }
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })

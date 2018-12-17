@@ -394,8 +394,6 @@ class _ManageSession extends Component {
   render () {
     const setTab = (e) => { this.setState({ tab: e })}
 
-    console.log('props: '+this.props.session.quizStart)
-    console.log('state: '+this.state.session.quizStart)
   //  let questionList = this.state.session.questions || []
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
@@ -431,7 +429,10 @@ class _ManageSession extends Component {
     if ((this.state.quizStart instanceof Date) && (this.state.quizEnd instanceof Date)){
       quizTimeInfo ='Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart),true)
     }
-
+    if (this.props.session.quizIsActive()){
+      quizTimeInfo='Warning: quiz is active!'
+      quizTimeClassName +=' warning'
+    }
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
@@ -440,7 +441,7 @@ class _ManageSession extends Component {
 
           <span className='toolbar-button' onClick={this.runSession}>
               <span className='glyphicon glyphicon-play' />&nbsp;
-                  {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
+                  {this.state.session.status === 'running' || this.state.session.quizIsActive() ? 'Continue Session' : 'Run Session'}
          </span>
          <span className='divider'>&nbsp;</span>
 
@@ -450,7 +451,7 @@ class _ManageSession extends Component {
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
             <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
-            <option value='visible'>{SESSION_STATUS_STRINGS['visible']}</option>
+            <option value='visible'>{this.state.session.quiz ? 'Visible' : SESSION_STATUS_STRINGS['visible']}</option>
             <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
             <option value='done'>{SESSION_STATUS_STRINGS['done']}</option>
           </select>
