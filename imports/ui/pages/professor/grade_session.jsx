@@ -50,6 +50,7 @@ class _GradeSession extends Component {
     this.calculateGrades = this.calculateGrades.bind(this)
     this.assignMark = this.assignMark.bind(this)
     this.setUnsavedChanges = this.setUnsavedChanges.bind(this)
+    this.calculateGrades = this.calculateGrades.bind(this)
 
   }
   componentDidMount() {
@@ -67,6 +68,18 @@ class _GradeSession extends Component {
       : null
       const qpoints = firstQ ? firstQ.sessionOptions.points : 0
       this.setState({ questionToView: firstQ , questionPoints: qpoints})
+    }
+  }
+
+  calculateGrades () {
+    if (confirm('Are you sure?')) {
+      Meteor.call('grades.calcSessionGrades', this.props.session._id, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Grades calculated')
+        }
+      })
     }
   }
 
@@ -122,7 +135,7 @@ class _GradeSession extends Component {
   incrementQuestion (increment) {
     const newIndex = this.state.questionIndex + increment
     if (newIndex < this.props.questions.length && newIndex >= 0) {
-      const nextQuestion = this.props.questions[newIndex ]
+      const nextQuestion = this.props.questions[newIndex]
       this.setState({ questionToView: nextQuestion, questionIndex: newIndex, studentToView: null , questionPoints: nextQuestion.sessionOptions.points})
     }
   }
@@ -196,18 +209,20 @@ class _GradeSession extends Component {
     const studentPool = (this.state.group) ? studentsInGroup : allStudents
 
     // Easier not to use this in the filter function (or have to bind this)
-    let studentsToShow = studentSearchString || answerSearchString
-      ? _(studentPool).filter((entry) => {
+    let studentsToShow = _(studentPool).filter((entry) => {
+        //only show students with a response:
+        const hasResponse = !!entry.responses[questionToViewId]
 
-        const hasResponse = answerSearchString ? entry.responses[questionToViewId] && entry.responses[questionToViewId].toLowerCase().includes(answerSearchString.toLowerCase()) : true
+        const hasResponseString = answerSearchString ? hasResponse && entry.responses[questionToViewId].toLowerCase().includes(answerSearchString.toLowerCase()) : true
 
         const hasName = studentSearchString ? (entry.profile.lastname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
                                                entry.profile.firstname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
                                                entry.emails[0].address.toLowerCase().includes(studentSearchString.toLowerCase())) : true
 
-        return hasName && hasResponse
+        return hasName && hasResponse && hasResponseString
       })
-      : studentPool
+
+    //console.log(studentsToShow)
 
     studentsToShow = _(studentsToShow).sortBy((entry) => { return entry.profile.lastname.toLowerCase() })
 
@@ -281,7 +296,9 @@ class _GradeSession extends Component {
                         const onClick = () => this.setStudentToView(student)
                         let className = 'ql-simple-studentlist-student'
                         const studentGrade = _(this.props.grades).findWhere({ userId: student._id })
+                        if (!studentGrade) return
                         const studentMark = _(studentGrade.marks).findWhere({ questionId: this.state.questionToView._id })
+                        if (!studentMark) return
                         if (studentGrade && (!studentMark || !studentMark.needsGrading)) className += ' green'
                         if (studentGrade && studentMark.needsGrading) className += ' red'
                         if (studentToView && student._id === studentToView._id) className += ' selected'
@@ -304,16 +321,14 @@ class _GradeSession extends Component {
             <div className='ql-grading-question-responses'>
               <div className='ql-grading-header'>
                 <div className='ql-grading-header-title'>
-
-                   {this.props.session.name}: Question {this.state.questionIndex + 1} of {this.props.questions.length}
-
+                  <div className='tite'>
+                    {this.props.session.name}: Question {this.state.questionIndex + 1} of {this.props.questions.length}
+                  </div>
+                   <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
+                     Re-calculate all grades
+                   </div>
                 </div>
-                { this.state.questionToView
-                  ? <div className='ql-grading-header-question-preview'>
-                      <QuestionDisplay question={this.state.questionToView} responseStats={responseStats} forReview showStatsOverride readonly prof />
-                    </div>
-                  : ''
-                }
+
                 <div className='ql-grading-header-qControls'>
                   { this.state.unsavedChanges ?
                       <div className='ql-grading-header-warning'> Save or discard changes before changing question </div>
@@ -332,9 +347,16 @@ class _GradeSession extends Component {
                         </div>
                       </div>
                   }
-
-
                 </div>
+
+                { this.state.questionToView
+                  ? <div className='ql-grading-header-question-preview'>
+                      <QuestionDisplay question={this.state.questionToView} responseStats={responseStats} forReview showStatsOverride readonly prof />
+                    </div>
+                  : ''
+                }
+
+
 
                 <div className='ql-grading-header-qInfo'>
                   Grade: &nbsp;

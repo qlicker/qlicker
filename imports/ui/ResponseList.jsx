@@ -157,6 +157,14 @@ class _ResponseList extends Component {
               const gradeId = this.props.gradeByStudenId[stuId]
               const responses = this.props.responsesByStudentId[stuId]
               const studentName = student.profile.lastname + ', ' + student.profile.firstname
+
+              if( !mark || !gradeId || !responses){
+                return (
+                  <div key={student._id}>
+                     No grade information for {studentName} - recalculate grades?
+                  </div>)
+              }
+
               let className = 'ql-response-display-container'
               if (index %2 !== 0) className += ' highlight'
               const points = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['points'] ?

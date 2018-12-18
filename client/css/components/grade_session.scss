@@ -54,12 +54,23 @@
       width: 100%;
       height: 100%;
       .ql-grading-header-title {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+
+        .title {
+
+        }
         width: 100%;
         height: 45px;
         text-align: center;
         color: white;
         font-size: 2.5em;
         background: $blue;
+        .btn {
+          height: 35px;
+        }
+
       }
       .ql-grading-header-question-preview {
           font-size: 50%;
