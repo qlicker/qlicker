@@ -70,9 +70,9 @@ class _GradeSession extends Component {
       this.setState({ questionToView: firstQ , questionPoints: qpoints})
     }
   }
-
+ 
   calculateGrades () {
-    if (confirm('Are you sure?')) {
+    if (confirm('Are you sure? This will assign grades to anything that can be graded automatically, and will not overwrite any manual grades')) {
       Meteor.call('grades.calcSessionGrades', this.props.session._id, (err) => {
         if (err) {
           alertify.error('Error: ' + err.error)

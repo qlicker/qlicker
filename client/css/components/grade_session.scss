@@ -2,7 +2,7 @@
 //@import '../common_components.scss';
 
 .ql-grading-container {
-  background: white;
+  //background: white;
 
 
   @media (max-width: 991px) {
@@ -99,9 +99,12 @@
       }
     }
     .ql-response-list-container {
+      //border: 1px solid $grey;
       .ql-response-list {
+        padding-bottom: 20px;
         .ql-response-table-headers {
-          background: $slightly-darker-grey;
+          background: $blue;//$slightly-darker-grey;
+          color: white;
           margin: auto;
           display: flex;
           justify-content: space-between;
