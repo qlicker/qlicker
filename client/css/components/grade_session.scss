@@ -79,6 +79,8 @@
         //border-bottom-width: 1px;
       }
       .ql-grading-header-qControls {
+        margin-bottom: 5px;
+        margin-top: 5px;
           //padding-bottom: 10px;
           .ql-grading-header-warning {
             font-size:1.5em;
@@ -109,7 +111,7 @@
           display: flex;
           justify-content: space-between;
           padding-bottom: 10px;
-          font-size: 2em;
+          font-size: 1.75em;
 
           .header-name {
             text-align: center;

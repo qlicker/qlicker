@@ -429,10 +429,17 @@ class _ManageSession extends Component {
     if ((this.state.quizStart instanceof Date) && (this.state.quizEnd instanceof Date)){
       quizTimeInfo ='Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart),true)
     }
+
     if (this.props.session.quizIsActive()){
-      quizTimeInfo='Warning: quiz is active!'
+      quizTimeInfo='Warning: quiz is active! Change the dates!'
       quizTimeClassName +=' warning'
     }
+
+    if (this.props.session.status === 'running'){
+      quizTimeInfo='Warning: quiz is live! Change the status!'
+      quizTimeClassName +=' warning'
+    }
+
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>

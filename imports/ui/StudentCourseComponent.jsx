@@ -38,7 +38,7 @@ export class _StudentCourseComponent extends Component {
     const user = Meteor.user()
     const isStudent = user.isStudent(course._id)
     const controls = isStudent ? [{ label: 'Un-enroll', click: () => this.unEnroll(course._id, user._id) }] : null
-    
+
     return (<div className='ql-student-course-component'>
       { this.props.inactive ?
           <CourseListItem isTA={this.props.isTA} course={course} inactive />
@@ -46,14 +46,14 @@ export class _StudentCourseComponent extends Component {
           <CourseListItem isTA={this.props.isTA} course={course} controls={controls} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
-                if (!s) return
+                if (!s || s.quizIsClosed()) return
                 const sId = s._id
                 const nav = () => {
                   if (!Meteor.user().isInstructor(this.props.course._id)) Router.go(this.props.sessionRoute, { _id: s._id, courseId: course._id })
                   else if (s.status === 'running') Router.go('session.run', { sessionId: sId, courseId: course._id })
                   else Router.go('session.edit', { sessionId: sId, courseId: course._id })
                 }
-            return <SessionListItem key={s._id} session={s} click={nav} />
+                return <SessionListItem key={s._id} session={s} click={nav} />
             })
           }
         </div>

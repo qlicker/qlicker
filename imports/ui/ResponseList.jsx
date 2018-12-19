@@ -61,7 +61,7 @@ class _ResponseList extends Component {
 
     if (!unsavedChanges[studentId]) unsavedChanges[studentId] = {}
 
-    if (feedback === mark.feedback && (!unsavedChanges[studentId]['points'] || unsavedChanges[studentId]['points'] === mark.points)){
+    if (feedback === mark.feedback && (!('points' in unsavedChanges[studentId]) || unsavedChanges[studentId]['points'] === mark.points)){
       delete unsavedChanges[studentId]
     } else unsavedChanges[studentId]['feedback']=feedback
 
@@ -94,7 +94,7 @@ class _ResponseList extends Component {
 
     if(!mark || !gradeId || !studentChanges) return
 
-    const points = studentChanges['points'] ? studentChanges['points']  : mark.points
+    const points = 'points' in studentChanges ? studentChanges['points']  : mark.points
 
     if (points > mark.outOf ) {
       alertify.error('Warning: assigning bonus points')
@@ -167,7 +167,7 @@ class _ResponseList extends Component {
 
               let className = 'ql-response-display-container'
               if (index %2 !== 0) className += ' highlight'
-              const points = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['points'] ?
+              const points = this.state.unsavedChanges[stuId] && 'points' in this.state.unsavedChanges[stuId] ?
                              this.state.unsavedChanges[stuId]['points'] : mark.points
               const feedback = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['feedback'] ?
                             this.state.unsavedChanges[stuId]['feedback'] : (mark.feedback ? mark.feedback : '')

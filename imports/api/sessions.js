@@ -55,7 +55,17 @@ _.extend(Session.prototype, {
     const isPastStart = currentTime > this.quizStart
     const isBeforeEnd = currentTime < this.quizEnd
     return isPastStart && isBeforeEnd
-  }
+  },
+
+  quizIsClosed: function () {
+    if (!this.quiz) return false;
+    if (this.status === 'running') return false;
+    if (this.status === 'hidden' || this.status === 'done') return true
+    if (!this.quizEnd) return false;
+    const currentTime = Date.now()
+    const isBeforeEnd = currentTime < this.quizEnd
+    return !isBeforeEnd
+  },
 })
 
 // Create course collection

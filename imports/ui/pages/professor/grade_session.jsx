@@ -70,7 +70,7 @@ class _GradeSession extends Component {
       this.setState({ questionToView: firstQ , questionPoints: qpoints})
     }
   }
- 
+
   calculateGrades () {
     if (confirm('Are you sure? This will assign grades to anything that can be graded automatically, and will not overwrite any manual grades')) {
       Meteor.call('grades.calcSessionGrades', this.props.session._id, (err) => {
@@ -335,12 +335,12 @@ class _GradeSession extends Component {
                     : <div className='ql-review-qControl-controls'>
                         <div className='btn-group btn-group-justified'>
                           <div className='btn-group'>
-                            <button className='btn btn-primary' onClick={decrementQuestion} disabled={ this.state.questionIndex <= 0}>
+                            <button className='btn btn-secondary' onClick={decrementQuestion} disabled={ this.state.questionIndex <= 0}>
                               <span className='glyphicon glyphicon-chevron-left' /> Previous question
                             </button>
                          </div>
                          <div className='btn-group'>
-                            <button className='btn btn-primary' onClick={incrementQuestion} disabled={ this.state.questionIndex >= this.props.questions.length - 1}>
+                            <button className='btn btn-secondary' onClick={incrementQuestion} disabled={ this.state.questionIndex >= this.props.questions.length - 1}>
                               Next question <span className='glyphicon glyphicon-chevron-right' />
                             </button>
                          </div>
