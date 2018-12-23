@@ -40,13 +40,16 @@ export class QuestionDisplay extends Component {
 
     this.readonly = !!r
     if (this.props.readonly) this.readonly = this.props.readonly
+    if (this.props.isQuiz && r) this.readonly = false
 
     this.submitResponse = this.submitResponse.bind(this)
+    this.submitResponseQuiz = this.submitResponseQuiz.bind(this)
     this.disallowResponses = this.disallowResponses.bind(this)
     this.toggleShowCorrect = this.toggleShowCorrect.bind(this)
     this.toggleShowResponse = this.toggleShowResponse.bind(this)
 
     this.setAnswer = this.setAnswer.bind(this)
+    this.setAnswerQuiz= this.setAnswerQuiz.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
   }
 
@@ -100,7 +103,7 @@ export class QuestionDisplay extends Component {
           showCorrect: showCorrect,
           showResponse: showResponse
         })
-        this.readonly = true
+        this.readonly = true && !nextProps.isQuiz
       } else {
         this.setState({
           btnDisabled: true,
@@ -160,6 +163,7 @@ export class QuestionDisplay extends Component {
    * @param {String} answer - the answer key
    */
   setAnswer (answer) {
+
     if (this.disallowResponses() || this.readonly) return
 
     let answerToSubmit = answer
@@ -173,12 +177,39 @@ export class QuestionDisplay extends Component {
           arrayWithoutAnswer.splice(i, 1)
           answerToSubmit = arrayWithoutAnswer
         } else answerToSubmit = this.state.submittedAnswer.concat([answer])
+        //TODO: sort the array alphabetically
       }
     }
 
     this.setState({
       btnDisabled: false,
       submittedAnswer: answerToSubmit
+    })
+  }
+
+  setAnswerQuiz (answer) {
+    if (this.disallowResponses() || this.readonly) return
+
+    let answerToSubmit = answer
+
+    if (this.props.question.type === QUESTION_TYPE.MS) {
+      if (!this.state.submittedAnswer) answerToSubmit = [answer]
+      else {
+        const i = this.state.submittedAnswer.indexOf(answer)
+        if (i > -1) {
+          const arrayWithoutAnswer = this.state.submittedAnswer
+          arrayWithoutAnswer.splice(i, 1)
+          answerToSubmit = arrayWithoutAnswer
+        } else answerToSubmit = this.state.submittedAnswer.concat([answer])
+        //TODO: sort the array alphabetically
+      }
+    }
+
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: answerToSubmit
+    }, () => {
+      this.submitResponseQuiz()
     })
   }
 
@@ -205,6 +236,7 @@ export class QuestionDisplay extends Component {
       attempt: this.props.attemptNumber,
       questionId: this.props.question._id
     }
+
     if (this.props.onSubmit) {
       this.props.onSubmit()
     }
@@ -215,6 +247,36 @@ export class QuestionDisplay extends Component {
     })
   }
 
+  submitResponseQuiz() {
+
+    if (this.disallowResponses() || this.readonly || !this.props.isQuiz) return
+
+    // TODO: Check if attempt number is higher than allowed (needs an additional prop to know if it's in a quiz)
+    // Can't choose responses after submission
+    const answer = this.state.submittedAnswer
+    const answerWysiwyg = this.state.submittedAnswerWysiwyg
+
+    const responseObject = {
+      studentUserId: Meteor.userId(),
+      answer: answer,
+      answerWysiwyg: answerWysiwyg,
+      attempt: this.props.attemptNumber,
+      questionId: this.props.question._id,
+      editable: true
+    }
+
+    if (this.props.onSubmit) {
+      this.props.onSubmit()
+    }
+
+    Meteor.call('responses.add', responseObject, (err, answerId) => {
+      if (err) return alertify.error('Error: ' + err.error)
+      this.state.isSubmitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
+      this.setState({
+        isSubmitted: true
+      })
+    })
+  }
   /**
    * calculate percentages for specific answer key
    * @param {String} answer
@@ -272,12 +334,15 @@ export class QuestionDisplay extends Component {
   }
 
   renderOptionQuestion (classSuffixStr, q) {
+
     return (
       q.options.map((a) => {
         let content
         let stats = 0
         let statClass = 'stat-bar'
         let widthStyle = { width: '0%' }
+
+        const onClick = this.props.isQuiz ? () => this.setAnswerQuiz(a.answer) : () => this.setAnswer(a.answer)
 
         if (a.wysiwyg) content = this.wysiwygContent(a.answer, a.content, a.correct)
         else content = this.commonContent(classSuffixStr, a.answer, a.content, a.correct)
@@ -309,10 +374,11 @@ export class QuestionDisplay extends Component {
         if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
           shouldShowResponse = false
         }
+
         return (
           <div key={'question_' + a.answer}
-            onClick={() => this.setAnswer(a.answer)}
-            className={'ql-answer-content-container ' + (shouldShowResponse ? 'q-submitted' : '')} >
+            onClick={onClick}
+            className={'ql-answer-content-container ' + (shouldShowResponse  ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
@@ -411,7 +477,7 @@ export class QuestionDisplay extends Component {
           {content}
         </div>
 
-        { !this.props.readonly
+        { !this.props.readonly && !this.props.isQuiz
           ? <div className='bottom-buttons'>
             <button className='btn btn-primary submit-button' onClick={() => this.submitResponse()} disabled={this.state.btnDisabled}>
               {this.state.isSubmitted ? 'Submitted' : 'Submit'}
@@ -465,5 +531,6 @@ QuestionDisplay.propTypes = {
   prof: PropTypes.bool, // if viewed by an instructor, overrides showing correct answer
   forReview: PropTypes.bool,
   onSubmit: PropTypes.func, // function to run when clicking submit
-  solutionScroll: PropTypes.bool //scoll to solution when show correct is clicked (use in student session review)
+  solutionScroll: PropTypes.bool, //scoll to solution when show correct is clicked (use in student session review)
+  isQuiz: PropTypes.bool, //whether the question is within a quiz (responses are submitted right away)
 }

@@ -1,4 +1,4 @@
-// QLICKER
+  // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
 // responses.js: JS related to question responses
@@ -27,7 +27,8 @@ const responsePattern = {
   answer: Helpers.AnswerItem,
   answerWysiwyg: Match.Maybe(String),
   correct: Match.Maybe(Boolean), // whether or not this response was correct (used in a quiz with multiple attempts)
-  createdAt: Date
+  createdAt: Date,
+  editable: Match.Maybe(Boolean)// whether the response can be updated (e.g. in a quiz setting)
 }
 
 // Create Response class
@@ -304,7 +305,7 @@ Meteor.methods({
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
     }).count()
-    if (c>0) console.log("updating a response")
+    //if (c>0) console.log("updating a response")
     if (c > 0) return Meteor.call('responses.update', responseObject)
 
     return Responses.insert(responseObject)
@@ -316,6 +317,8 @@ Meteor.methods({
    */
   'responses.update' (responseObject) {
     check(responseObject, responsePattern)
+
+    if (!('editable' in responseObject) || !responseObject.editable) throw Error('Cannot update this response')
 
     return Responses.update({
       attempt: responseObject.attempt,
