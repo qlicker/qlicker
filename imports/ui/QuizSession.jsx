@@ -17,12 +17,20 @@ class _QuizSession extends Component {
   constructor (props) {
     super(props)
 
+
     this.state = {questionsToTryAgain: []}
+
+    if(this.props.myResponses && this.props.myResponses.length === this.props.session.questions.length) this.state.canSubmit = true
 
     this.scrollTo = this.scrollTo.bind(this)
     this.submitQuiz = this.submitQuiz.bind(this)
 
   }
+
+  componentWillReceiveProps (nextProps) {
+    if(nextProps.myResponses && nextProps.myResponses.length === nextProps.session.questions.length) this.setState({canSubmit:true})
+  }
+
 
   scrollTo (qId) {
     const node = ReactDOM.findDOMNode(this.refs["qdisp"+qId])
@@ -33,6 +41,7 @@ class _QuizSession extends Component {
     //Calll a method to unset the editable part of the responses.
   }
 
+
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const session = this.props.session
@@ -41,8 +50,6 @@ class _QuizSession extends Component {
     let qCount = 0
     let qCount2 = 0
 
-    let responseCount = 0
-    let responseCount2 = 0
     const user = Meteor.user()
     const scrollToFirst = () => this.scrollTo(qlist[0])
     return (
@@ -58,7 +65,7 @@ class _QuizSession extends Component {
                   const responses = _.where(this.props.myResponses, { questionId: qid })
 
                   let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
-                  if (response) responseCount += 1
+
                   if (response) className += ' green'
                   else className +=' red'
 
@@ -67,7 +74,7 @@ class _QuizSession extends Component {
                   )
                 })
               }
-              {responseCount === qlist.length ?
+              {this.state.canSubmit ?
                 <div className='btn btn-primary' onClick={this.submitQuiz}>
                   Submit!
                 </div>
@@ -86,7 +93,6 @@ class _QuizSession extends Component {
                   const responses = _.where(this.props.myResponses, { questionId: qid })
                   let response =  responses.length >0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
                   //response = responses.length >0 && response ? response : undefined
-                  if (response) responseCount2 += 1
 
                   const questionDisplay = user.isInstructor(session.courseId)
                     ? <QuestionDisplay question={q} readOnly />
@@ -106,7 +112,7 @@ class _QuizSession extends Component {
                   )
                 })
               }
-              {responseCount2 === qlist.length ?
+              {this.state.canSubmit ?
                 <div className='btn btn-primary' onClick={this.submitQuiz}>
                   Submit all answers (can no longer edit)
                 </div>

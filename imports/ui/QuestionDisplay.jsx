@@ -256,7 +256,7 @@ export class QuestionDisplay extends Component {
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
 
-    const responseObject = {
+    let responseObject = this.props.response ? this.props.response : {
       studentUserId: Meteor.userId(),
       answer: answer,
       answerWysiwyg: answerWysiwyg,
@@ -264,6 +264,8 @@ export class QuestionDisplay extends Component {
       questionId: this.props.question._id,
       editable: true
     }
+    responseObject.answer = answer
+    responseObject.answerWysiwyg = answerWysiwyg
 
     if (this.props.onSubmit) {
       this.props.onSubmit()
