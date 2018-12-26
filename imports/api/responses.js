@@ -119,6 +119,22 @@ if (Meteor.isServer) {
     } else this.ready()
   })
 
+  Meteor.publish('responses.forQuiz', function (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const session = Sessions.findOne({ _id: sessionId })
+      const course = Courses.findOne({ _id: session.courseId })
+      if (!user || !session || !course || !session.quiz) return this.ready()
+
+      if (user.isInstructor(course._id)) {
+        return Responses.find({ questionId: { $in: session.questions } })
+      } else if (user.isStudent(course._id)) {
+        return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
+      } else this.ready()
+    } else this.ready()
+  })
+
   Meteor.publish('responses.forSession', function (sessionId) {
     check(sessionId, Helpers.MongoID)
     if (this.userId) {
@@ -296,7 +312,7 @@ Meteor.methods({
       responseObject.correct = (points === q.sessionOptions.points * weight)
     }
 
-    if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit answer')
+    if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit this response')
 
     // TODO check if attempt number is current in question
 
@@ -317,13 +333,25 @@ Meteor.methods({
    */
   'responses.update' (responseObject) {
     check(responseObject, responsePattern)
+    if (Meteor.userId() !== responseObject.studentUserId) throw new Meteor.Error('Not authorized to update this response')
 
-    if (!('editable' in responseObject) || !responseObject.editable) throw Error('Cannot update this response')
+    if (!('editable' in responseObject) || !responseObject.editable)throw new Meteor.Error('Cannot edit this response')
 
     return Responses.update({
       attempt: responseObject.attempt,
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
     }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg } })
+  },
+
+  'responses.makeUneditable' (responseId) {
+    check(responseId, Helpers.MongoID)
+    const response = Responses.findOne({ _id: responseId })
+    if (Meteor.userId() !== response.studentUserId) throw new Meteor.Error('Not authorized to update this response')
+    if (!response.editable) throw new Meteor.Error('Response is not editable')
+
+    return Responses.update({ _id: responseId }, { $set: { editable: false } })
   }
+
+
 }) // end Meteor.methods

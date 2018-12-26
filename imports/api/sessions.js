@@ -11,6 +11,7 @@ import { _ } from 'underscore'
 
 import { Courses, profHasCoursePermission } from './courses.js'
 import { Grades } from './grades.js'
+import { Responses } from './responses.js'
 import { moment } from 'moment-timezone'
 
 import Helpers from './helpers.js'
@@ -32,6 +33,7 @@ const sessionPattern = {
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
   joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
+  submittedQuiz: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]), //true if student has submitted quiz (used to block)
   tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ]),
   reviewable: Match.Maybe(Boolean)
 }
@@ -44,11 +46,16 @@ _.extend(Session.prototype, {
     let grades = Grades.find({ sessionId: this._id, visibleToStudents: true }).fetch()
     return grades.length > 0
   },
+
+  quizCompleted: function (userId) {
+    return this.quiz && this.submittedQuiz && _(this.submittedQuiz).indexOf(userId) !== -1
+  },
+
   // check if quiz is currently active (iether 'running' or visible and it's the correct time)
   quizIsActive: function () {
     if (!this.quiz) return false;
-    if (!this.quizStart || !this.quizEnd) return false;
     if (this.status === 'running') return true;
+    if (!this.quizStart || !this.quizEnd) return false;
     if (this.status === 'hidden' || this.status === 'done') return false
 
     const currentTime = Date.now()
@@ -94,7 +101,7 @@ if (Meteor.isServer) {
         const courseIdArray = user.profile.courses || []
         // TODO should check, but for a student, should not need to know who joined, right?
         // return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } }, {fields: {joined: false}})
-        return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } })
+        return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       }
     } else this.ready()
   })
@@ -411,6 +418,32 @@ Meteor.methods({
     })
 
     return [...tags]
+  },
+
+  'sessions.submitQuiz' (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    const user = Meteor.user()
+    if(!user) throw new Meteor.Error('No such user')
+    let session = Sessions.findOne({ _id: sessionId })
+
+    if (!session)  throw new Meteor.Error('No session with this id')
+    if (!session.quiz) throw new Meteor.Error('Not a quiz')
+    if (!user.isStudent(session.courseId)) throw new Meteor.Errorr('User is not a student in course')
+    if (Meteor.isServer && _(session.joined).indexOf(user._id) === -1 ) throw new Meteor.Error('User did not start quiz')
+    if ( 'submittedQuiz' in session && _(session.submittedQuiz).indexOf(user._id) !== -1 ) throw new Meteor.Error('User already submitte quiz')
+
+    const responseIds = _(Responses.find({ questionId: { $in: session.questions }, studentUserId: Meteor.userId(), attempt: 1 }).fetch()).pluck('_id')
+
+    if (responseIds.length !== session.questions.length) throw new Meteor.Error('Must answer all questions to submit quiz')
+
+    const nQ = session.questions.length
+    for (let i = 0; i<nQ ; i++){
+      Meteor.call('responses.makeUneditable', responseIds[i])
+    }
+    if (session.submittedQuiz) session.submittedQuiz.push(user._id)
+    else session.submittedQuiz = [user._id]
+
+    return Sessions.update({ _id: sessionId }, {$set: { submittedQuiz: session.submittedQuiz }})
   }
 
 }) // end Meteor.methods

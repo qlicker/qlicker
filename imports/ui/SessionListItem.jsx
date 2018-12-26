@@ -51,7 +51,11 @@ export class SessionListItem extends ListItem {
       status = 'done'
     }
 
-    const strStatus = SESSION_STATUS_STRINGS[status]
+    if (session.quizCompleted(Meteor.userId()) ){
+      status = 'done'
+    }
+
+    const strStatus = SESSION_STATUS_STRINGS[status] + (session.quiz ? ' (Quiz)' : '')
 
     const strAllowReview = this.props.session.reviewable ? 'Disable Review' : 'Allow Review'
 

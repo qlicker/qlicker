@@ -16,8 +16,8 @@
   .ql-quiz-session-qnav {
     position:  fixed;
     width: 140px;
-    display: flex;
-    flex-direction: column;
+    //display: flex;
+    //flex-direction: column;
     max-height: 800px;
     overflow-y: auto;
 
@@ -26,11 +26,13 @@
       width: 120px;
       text-align: center;
       font-size: 2em;
+      margin: auto;
       //background: white;
     }
 
     .ql-quiz-session-questionPad {
       width: 100px;
+      margin: auto;
       text-align: center;
       font-size: 2em;
       border: 1px solid $grey;

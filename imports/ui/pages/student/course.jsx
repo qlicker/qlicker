@@ -33,8 +33,11 @@ class _Course extends Component {
     else if (session.status === 'done') {
       alertify.error('Session not reviewable')
     }
-    else if (session.quiz &&  !session.quizIsActive()){
+    else if (session.quiz &&  !session.quizIsActive() ){
       alertify.error('Quiz not open yet')
+    }
+    else if (session.quiz && session.quizCompleted(Meteor.userId()) ){
+      alertify.error('Quiz completed, but still running')
     }
     else {
       Router.go('session', { _id: session._id, courseId: this.props.course._id })

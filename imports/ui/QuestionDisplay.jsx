@@ -41,6 +41,7 @@ export class QuestionDisplay extends Component {
     this.readonly = !!r
     if (this.props.readonly) this.readonly = this.props.readonly
     if (this.props.isQuiz && r) this.readonly = false
+    if (this.props.isQuiz && r && !r.editable) this.readonly = true
 
     this.submitResponse = this.submitResponse.bind(this)
     this.submitResponseQuiz = this.submitResponseQuiz.bind(this)
@@ -51,6 +52,8 @@ export class QuestionDisplay extends Component {
     this.setAnswer = this.setAnswer.bind(this)
     this.setAnswerQuiz= this.setAnswerQuiz.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
+    this.setShortAnswerWysiwygQuiz = this.setShortAnswerWysiwygQuiz.bind(this)
+    this._DB_SetShortAnswerWysiwygQuiz = _.debounce((content, plainText) => { this.setShortAnswerWysiwygQuiz(content, plainText) }, 800)
   }
 
   componentWillMount () {
@@ -104,6 +107,7 @@ export class QuestionDisplay extends Component {
           showResponse: showResponse
         })
         this.readonly = true && !nextProps.isQuiz
+        if (nextProps.isQuiz && response && !response.editable) this.readonly = true
       } else {
         this.setState({
           btnDisabled: true,
@@ -158,6 +162,22 @@ export class QuestionDisplay extends Component {
       submittedAnswerWysiwyg: content
     })
   }
+
+  setShortAnswerWysiwygQuiz (content, plainText) {
+    if (this.disallowResponses() || this.readonly) return
+    if (this.props.response && !this.props.response.editable){
+      alertify.error("Cannot edit this question anymore")
+      return
+    }
+
+    this.setState({
+      submittedAnswer: plainText,
+      submittedAnswerWysiwyg: content
+    }, () => {
+      this.submitResponseQuiz()
+    })
+
+  }
   /**
    * set answer in state for option based questions
    * @param {String} answer - the answer key
@@ -189,6 +209,10 @@ export class QuestionDisplay extends Component {
 
   setAnswerQuiz (answer) {
     if (this.disallowResponses() || this.readonly) return
+    if (this.props.response && !this.props.response.editable){
+      alertify.error("Cannot edit this question anymore")
+      return
+    }
 
     let answerToSubmit = answer
 
@@ -206,7 +230,6 @@ export class QuestionDisplay extends Component {
     }
 
     this.setState({
-      btnDisabled: false,
       submittedAnswer: answerToSubmit
     }, () => {
       this.submitResponseQuiz()
@@ -262,18 +285,20 @@ export class QuestionDisplay extends Component {
       answerWysiwyg: answerWysiwyg,
       attempt: this.props.attemptNumber,
       questionId: this.props.question._id,
-      editable: true
     }
+    if (this.props.isQuiz && !this.props.response) responseObject.editable = true
+
     responseObject.answer = answer
     responseObject.answerWysiwyg = answerWysiwyg
 
     if (this.props.onSubmit) {
       this.props.onSubmit()
     }
+    const submitted = !!(this.state.isSubmitted)
 
     Meteor.call('responses.add', responseObject, (err, answerId) => {
       if (err) return alertify.error('Error: ' + err.error)
-      this.state.isSubmitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
+      submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
       this.setState({
         isSubmitted: true
       })
@@ -336,7 +361,6 @@ export class QuestionDisplay extends Component {
   }
 
   renderOptionQuestion (classSuffixStr, q) {
-
     return (
       q.options.map((a) => {
         let content
@@ -378,7 +402,7 @@ export class QuestionDisplay extends Component {
         }
 
         return (
-          <div key={'question_' + a.answer}
+          <div key={'question_'+q._id + a.answer}
             onClick={onClick}
             className={'ql-answer-content-container ' + (shouldShowResponse  ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
@@ -394,11 +418,12 @@ export class QuestionDisplay extends Component {
   }
 
   renderShortAnswer (q) {
-    if ((this.props.forReview || this.props.prof)) {
-      let shouldShowCorrect = !!q.options[0].content
+    if ((this.props.forReview || this.props.prof || (this.props.response && !this.props.response.editable))) {
+      /*
+      let shouldShowCorrect = !! q.options[0].content
       if (this.props.forReview && !this.props.prof && !this.state.showCorrect) {
         shouldShowCorrect = false
-      }
+      }*/
       let shouldShowResponse = !!this.props.response
       if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
         shouldShowResponse = false
@@ -409,28 +434,26 @@ export class QuestionDisplay extends Component {
             ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
             : ''
           }
-          {shouldShowCorrect
+          {/*shouldShowCorrect
             ? <h4 style={{'alignSelf': 'left'}}> Correct Answer: <br />{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
           : ''
-          }
+          */}
         </div>
       )
     }
-
-    let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].content
-
+    //let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].content
     return (
       <div className='ql-short-answer' >
         { this.readonly
           ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
           : <Editor
-            change={this.setShortAnswerWysiwyg}
+            change={this.props.isQuiz ? this._DB_SetShortAnswerWysiwygQuiz : this.setShortAnswerWysiwyg}
             placeholder='Type your answer here'
             val={this.state.submittedAnswerWysiwyg}
             toolbarDivId={this.props.question ? this.props.question._id + '_ckToolbar' : 'ckeditor-toolbar'}
             />
         }
-        { showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''}
+        { /*showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''*/}
       </div>
     )
   }

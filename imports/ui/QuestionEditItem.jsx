@@ -591,7 +591,7 @@ componentWillReceiveProps (nextProps) {
                   onChange={this.setPoints}
                   value={this.state.question.sessionOptions.points} />
               </div>
-              { this.props.isQuiz && isAutoGradeable(this.state.question.type)
+              {/* this.props.isQuiz && isAutoGradeable(this.state.question.type)
                   ? <div>
                     <div className='qoption-label'>
                         Max attempts (1-5):
@@ -610,7 +610,7 @@ componentWillReceiveProps (nextProps) {
                       }
                   </div>
                   : ''
-                }
+                */}
             </div>
             : ''
           }

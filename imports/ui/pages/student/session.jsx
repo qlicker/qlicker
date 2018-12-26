@@ -43,6 +43,9 @@ class _Session extends Component {
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
+    if (this.props.session.quizCompleted(user._id)){
+      Router.go('login')
+    }
     const status = this.props.session.status
     if (status !== 'running' && !this.props.session.quizIsActive()) {
       let statusMessage
@@ -96,7 +99,7 @@ class _Session extends Component {
     } else {
 
       return (<QuizSession sessionId={this.props.sessionId} /> )
-
+      /*
       // for questions in a quiz (all questions at once, possible multiple attempts allowed)
       const qlist = session.questions
       let qCount = 0
@@ -184,6 +187,7 @@ class _Session extends Component {
             }
           </div>
         </div>)
+        */
     }
   }
 }

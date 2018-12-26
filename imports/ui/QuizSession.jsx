@@ -17,18 +17,11 @@ class _QuizSession extends Component {
   constructor (props) {
     super(props)
 
-
     this.state = {questionsToTryAgain: []}
-
-    if(this.props.myResponses && this.props.myResponses.length === this.props.session.questions.length) this.state.canSubmit = true
 
     this.scrollTo = this.scrollTo.bind(this)
     this.submitQuiz = this.submitQuiz.bind(this)
 
-  }
-
-  componentWillReceiveProps (nextProps) {
-    if(nextProps.myResponses && nextProps.myResponses.length === nextProps.session.questions.length) this.setState({canSubmit:true})
   }
 
 
@@ -39,6 +32,13 @@ class _QuizSession extends Component {
 
   submitQuiz () {
     //Calll a method to unset the editable part of the responses.
+    if (confirm('Are you sure? You can no longer update answers after submitting.')) {
+      Meteor.call('sessions.submitQuiz', this.props.session._id, (err) => {
+        if (err) return alertify.error('Error: ' + err.message)
+       alertify.success('Quiz submitted')
+       Router.go('course', { courseId: this.props.session.courseId })
+      })
+    }
   }
 
 
@@ -49,34 +49,39 @@ class _QuizSession extends Component {
     if (qlist.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
     let qCount = 0
     let qCount2 = 0
+    const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length
 
     const user = Meteor.user()
     const scrollToFirst = () => this.scrollTo(qlist[0])
     return (
       <div className='container ql-quiz-session'>
         <div className='row'>
-          <div className='col-md-2'>
+          <div className='col-md-2 hidden-sm hidden-xs'>
             <div className='ql-quiz-session-qnav'>
               <div className='ql-quiz-session-qnav-title'> Questions </div>
               { qlist.map( (qid) => {
                   qCount +=1
                   let className='ql-quiz-session-questionPad'
                   const click = () => this.scrollTo(qid)
-                  const responses = _.where(this.props.myResponses, { questionId: qid })
+                  //const responses = _.where(this.props.myResponses, { questionId: qid })
+                  //let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
 
-                  let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
+                  let response = _(this.props.myResponses).findWhere({ questionId:qid })
+                  if (!response) response = undefined
 
                   if (response) className += ' green'
-                  else className +=' red'
+                  else className += ' red'
 
                   return (
                     <div className={className} key={"qnav"+qid} onClick={click}> {qCount}</div>
                   )
                 })
               }
-              {this.state.canSubmit ?
-                <div className='btn btn-primary' onClick={this.submitQuiz}>
-                  Submit!
+              {canSubmit ?
+                <div className='btn-group btn-group-justified'>
+                  <div className='btn btn-primary' onClick={this.submitQuiz}>
+                    Submit!
+                  </div>
                 </div>
                 :''
               }
@@ -90,16 +95,17 @@ class _QuizSession extends Component {
                   const q = this.props.questions[qid]
                   if (!q || !q.sessionOptions) return <div className='ql-subs-loading'>Loading</div>
 
-                  const responses = _.where(this.props.myResponses, { questionId: qid })
-                  let response =  responses.length >0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
-                  //response = responses.length >0 && response ? response : undefined
-
+                  //const responses = _.where(this.props.myResponses, { questionId: qid })
+                  //let response =  responses.length >0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
+                  let response = _(this.props.myResponses).findWhere({ questionId:qid })
+                  if (!response) response = undefined
                   const questionDisplay = user.isInstructor(session.courseId)
                     ? <QuestionDisplay question={q} readOnly />
                     : <QuestionDisplay
                         question={q}
                         isQuiz={true}
                         response={response}
+
                         attemptNumber={1} />
 
                   return (
@@ -112,9 +118,11 @@ class _QuizSession extends Component {
                   )
                 })
               }
-              {this.state.canSubmit ?
-                <div className='btn btn-primary' onClick={this.submitQuiz}>
-                  Submit all answers (can no longer edit)
+              {canSubmit ?
+                <div className='btn-group btn-group-justified'>
+                  <div className='btn btn-primary' onClick={this.submitQuiz}>
+                    Submit!
+                  </div>
                 </div>
                 :''
               }
@@ -131,14 +139,15 @@ class _QuizSession extends Component {
 export const QuizSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
     Meteor.subscribe('questions.inSession', props.sessionId)
-    Meteor.subscribe('responses.forSession', props.sessionId)
+    Meteor.subscribe('responses.forQuiz', props.sessionId)
 
   const session = Sessions.findOne({ _id: props.sessionId })
   const questionsInSession = session ? Questions.find({_id: { $in: session.questions }}).fetch() : []
   // The user's responses
-  const allMyResponses = session ? Responses.find({ questionId: { $in: session.questions }, studentUserId: Meteor.userId() }).fetch() : []
-  // calculate the statistics for each question (only if not in a quiz):
-
+  const allMyResponses = session ? Responses.find({ questionId: { $in: session.questions },
+                                                    studentUserId: Meteor.userId(),
+                                                    attempt: 1 }).fetch() : []
+ 
   return {
     questions: _.indexBy(questionsInSession, '_id'), // question map
     session: session, // session object
