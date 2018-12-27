@@ -13,6 +13,11 @@
     }
   }
 
+  .ql-quiz-submit-button {
+    padding-top: 10px;
+    padding-bottom: 20px;
+  }
+
   .ql-quiz-session-qnav {
     position:  fixed;
     width: 140px;
@@ -54,6 +59,14 @@
   }
 
   .ql-quiz-session-questions {
+
+    .ql-quiz-session-questions-title {
+      text-align: center;
+      font-size: 2.5em;
+      padding: 20px;
+      margin: auto;
+      //background: white;
+    }
 
     .ql-quiz-session-question {
 

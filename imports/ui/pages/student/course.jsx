@@ -34,10 +34,10 @@ class _Course extends Component {
       alertify.error('Session not reviewable')
     }
     else if (session.quiz &&  !session.quizIsActive() ){
-      alertify.error('Quiz not open yet')
+      alertify.error('Quiz not open')
     }
     else if (session.quiz && session.quizCompleted(Meteor.userId()) ){
-      alertify.error('Quiz completed, but still running')
+      alertify.error('Quiz already submitted')
     }
     else {
       Router.go('session', { _id: session._id, courseId: this.props.course._id })
@@ -94,9 +94,10 @@ export const Course = createContainer((props) => {
     Meteor.subscribe('userData') &&
     Meteor.subscribe('sessions.forCourse', props.courseId)
 
-  let student = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
-  let course = Courses.find({ _id: props.courseId }).fetch()[0]
+  let student = Meteor.users.findOne({ _id: Meteor.userId() })
+  let course = Courses.findOne({ _id: props.courseId })
   let sessions = Sessions.find({ courseId: props.courseId }).fetch()
+  //console.log(sessions)
   return {
     course: course,
     student: student,

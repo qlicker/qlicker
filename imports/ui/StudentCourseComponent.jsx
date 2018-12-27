@@ -46,10 +46,12 @@ export class _StudentCourseComponent extends Component {
           <CourseListItem isTA={this.props.isTA} course={course} controls={controls} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
-                if (!s || s.quizIsClosed()) return
+                if (!s || s.quizIsClosed() || s.quizCompleted(Meteor.userId())) return
                 const sId = s._id
                 const nav = () => {
-                  if (!Meteor.user().isInstructor(this.props.course._id)) Router.go(this.props.sessionRoute, { _id: s._id, courseId: course._id })
+                  if (!Meteor.user().isInstructor(this.props.course._id)){
+                    Router.go(this.props.sessionRoute, { _id: s._id, courseId: course._id })
+                  }
                   else if (s.status === 'running') Router.go('session.run', { sessionId: sId, courseId: course._id })
                   else Router.go('session.edit', { sessionId: sId, courseId: course._id })
                 }
@@ -63,7 +65,7 @@ export class _StudentCourseComponent extends Component {
 }
 
 export const StudentCourseComponent = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions')
+  const handle = Meteor.subscribe('sessions.forCourse', props.course._id)
   const sessions = Sessions.find({ courseId: props.course._id, $or: [{ status: 'visible' }, { status: 'running' }] }).fetch()
   const user = Meteor.user()
   const isTA = user.isInstructor(props.course._id) && !user.hasGreaterRole('professor')

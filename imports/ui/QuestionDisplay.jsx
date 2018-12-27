@@ -481,7 +481,7 @@ export class QuestionDisplay extends Component {
         break
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)
-        if (!this.props.readonly && !this.state.isSubmitted && !this.props.prof) msInfo = <div className='msInfo'>Select all that apply</div>
+        msInfo = <div className='msInfo'>Select all that apply</div>
         break
     }
 

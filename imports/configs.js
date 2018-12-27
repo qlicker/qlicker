@@ -47,7 +47,7 @@ export const SESSION_STATUS_STRINGS = {
   hidden: 'Draft',
   visible: 'Upcoming',
   running: '• Live',
-  done: 'Finished'
+  done: 'Ended'
 }
 
 export const formatDate = (date) => {

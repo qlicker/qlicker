@@ -44,7 +44,8 @@ class _Session extends Component {
       Router.go('login')
     }
     if (this.props.session.quizCompleted(user._id)){
-      Router.go('login')
+      //alertify.error('Quiz already completed')
+      Router.go('/course/' + this.props.session.courseId)
     }
     const status = this.props.session.status
     if (status !== 'running' && !this.props.session.quizIsActive()) {
@@ -195,8 +196,8 @@ class _Session extends Component {
 // meteor reactive data container
 export const Session = createContainer((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
-    Meteor.subscribe('questions.inSession', props.sessionId)
-  Meteor.subscribe('responses.forSession', props.sessionId)
+                 Meteor.subscribe('questions.inSession', props.sessionId) &&
+                 Meteor.subscribe('responses.forSession', props.sessionId)
 
   const session = Sessions.findOne({ _id: props.sessionId })
   const questionsInSession = Questions.find({_id: { $in: session.questions }}).fetch()

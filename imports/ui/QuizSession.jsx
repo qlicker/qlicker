@@ -21,6 +21,7 @@ class _QuizSession extends Component {
 
     this.scrollTo = this.scrollTo.bind(this)
     this.submitQuiz = this.submitQuiz.bind(this)
+    if (Meteor.user().isStudent(this.props.session.courseId)) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
 
   }
 
@@ -44,6 +45,31 @@ class _QuizSession extends Component {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+
+    const cId = this.props.session.courseId
+    const user = Meteor.user()
+    if (!user.isStudent(cId) && !user.isInstructor(cId)) {
+      Router.go('login')
+    }
+    if (this.props.session.quizCompleted(user._id)){
+      Router.go('/course/' + this.props.session.courseId)
+    }
+    const status = this.props.session.status
+    if (status !== 'running' && !this.props.session.quizIsActive()) {
+      let statusMessage
+      if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
+      if (status === 'done') {
+        statusMessage = 'This session has finished'
+        if (user && !user.isInstructor(cId)) {
+          // if it's an instructor, this is being shown as a second display, so dont't
+          // go to the course page and show everyone the class list
+          Router.go('/course/' + this.props.session.courseId)
+        }
+      }
+      return <div className='ql-subs-loading'>{statusMessage}</div>
+    }
+
+
     const session = this.props.session
     const qlist = session.questions
     if (qlist.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
@@ -51,14 +77,14 @@ class _QuizSession extends Component {
     let qCount2 = 0
     const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length
 
-    const user = Meteor.user()
+
     const scrollToFirst = () => this.scrollTo(qlist[0])
     return (
       <div className='container ql-quiz-session'>
         <div className='row'>
           <div className='col-md-2 hidden-sm hidden-xs'>
             <div className='ql-quiz-session-qnav'>
-              <div className='ql-quiz-session-qnav-title'> Questions </div>
+              <div className='ql-quiz-session-qnav-title'>Questions</div>
               { qlist.map( (qid) => {
                   qCount +=1
                   let className='ql-quiz-session-questionPad'
@@ -78,17 +104,21 @@ class _QuizSession extends Component {
                 })
               }
               {canSubmit ?
-                <div className='btn-group btn-group-justified'>
-                  <div className='btn btn-primary' onClick={this.submitQuiz}>
-                    Submit!
+                <div className='ql-quiz-submit-button'>
+                  <div className='btn-group btn-group-justified'>
+                    <div className='btn btn-primary' onClick={this.submitQuiz}>
+                      Submit!
+                    </div>
                   </div>
                 </div>
+
                 :''
               }
             </div>
           </div>
           <div className='col-md-10'>
             <div className='ql-quiz-session-questions'>
+              <div className='ql-quiz-session-questions-title'> {session.name ? session.name : ''} </div>
               { qlist.map( (qid) => {
 
                   qCount2 += 1
@@ -119,9 +149,11 @@ class _QuizSession extends Component {
                 })
               }
               {canSubmit ?
-                <div className='btn-group btn-group-justified'>
-                  <div className='btn btn-primary' onClick={this.submitQuiz}>
-                    Submit!
+                <div className='ql-quiz-submit-button'>
+                  <div className='btn-group btn-group-justified'>
+                    <div className='btn btn-primary' onClick={this.submitQuiz}>
+                      Submit!
+                    </div>
                   </div>
                 </div>
                 :''
@@ -138,7 +170,7 @@ class _QuizSession extends Component {
 
 export const QuizSession = createContainer((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
-    Meteor.subscribe('questions.inSession', props.sessionId)
+    Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('responses.forQuiz', props.sessionId)
 
   const session = Sessions.findOne({ _id: props.sessionId })
@@ -147,7 +179,6 @@ export const QuizSession = createContainer((props) => {
   const allMyResponses = session ? Responses.find({ questionId: { $in: session.questions },
                                                     studentUserId: Meteor.userId(),
                                                     attempt: 1 }).fetch() : []
- 
   return {
     questions: _.indexBy(questionsInSession, '_id'), // question map
     session: session, // session object

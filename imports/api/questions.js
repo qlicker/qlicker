@@ -208,7 +208,7 @@ if (Meteor.isServer) {
         const questionsCursor = Questions.find({ sessionId: sessionId })
         const handle = questionsCursor.observeChanges({
           added: (id, fields) => {
-            const newFields = fields
+            let newFields = fields
             const so = newFields.sessionOptions
             if (so && so.correct) { // correct should be visible
               const q = Questions.findOne({_id: id})
@@ -221,7 +221,7 @@ if (Meteor.isServer) {
             this.added('questions', id, newFields)
           },
           changed: (id, fields) => {
-            const newFields = fields
+            let newFields = fields
 
             const so = newFields.sessionOptions
             if (so && so.correct) { // correct should be visible

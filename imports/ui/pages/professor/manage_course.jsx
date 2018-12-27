@@ -375,7 +375,7 @@ class _ManageCourse extends Component {
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>View course grades</button>
+                {/*<button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>View course grades</button>*/}
               </div>
               { this.renderSessionList() }
             </div>
