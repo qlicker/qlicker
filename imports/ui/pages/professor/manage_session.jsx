@@ -66,7 +66,8 @@ class _ManageSession extends Component {
     this.setQuizEndTime= this.setQuizEndTime.bind(this)
     //this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
-    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
+    this.saveSessionEdits = this.saveSessionEdits.bind(this)
+    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 600)
 
   }
 
@@ -122,7 +123,7 @@ class _ManageSession extends Component {
       alertify.error("Cannot set start time after end time!")
       sessionEdits.quizStart = this.state.session.quizEnd
     }
-
+    this.setState({ quizStart: quizStart})
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
@@ -144,7 +145,7 @@ class _ManageSession extends Component {
       alertify.error("Cannot set end time before start time!")
       sessionEdits.quizEnd = this.state.session.quizEnd
     }
-
+    this.setState({ quizEnd: quizEnd})
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
