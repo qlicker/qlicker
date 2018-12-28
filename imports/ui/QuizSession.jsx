@@ -107,24 +107,26 @@ class _QuizSession extends Component {
           <div className='col-md-2 hidden-sm hidden-xs'>
             <div className='ql-quiz-session-qnav'>
               <div className='ql-quiz-session-qnav-title'>Questions</div>
-              { qlist.map( (qid) => {
-                  qCount +=1
-                  let className='ql-quiz-session-questionPad'
-                  const click = () => this.scrollTo(qid)
-                  //const responses = _.where(this.props.myResponses, { questionId: qid })
-                  //let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
+              <div  className='ql-quiz-session-qnav-qlist'>
+                { qlist.map( (qid) => {
+                    qCount +=1
+                    let className='ql-quiz-session-questionPad'
+                    const click = () => this.scrollTo(qid)
+                    //const responses = _.where(this.props.myResponses, { questionId: qid })
+                    //let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
 
-                  let response = _(this.props.myResponses).findWhere({ questionId:qid })
-                  if (!response) response = undefined
+                    let response = _(this.props.myResponses).findWhere({ questionId:qid })
+                    if (!response) response = undefined
 
-                  if (response) className += ' green'
-                  else className += ' red'
+                    if (response) className += ' green'
+                    else className += ' red'
 
-                  return (
-                    <div className={className} key={"qnav"+qid} onClick={click}> {qCount}</div>
-                  )
-                })
-              }
+                    return (
+                      <div className={className} key={"qnav"+qid} onClick={click}> {qCount}</div>
+                    )
+                  })
+                }
+              </div>
               {canSubmit ?
                 <div className='ql-quiz-submit-button'>
                   <div className='btn-group btn-group-justified'>
