@@ -165,6 +165,8 @@ export class QuestionDisplay extends Component {
 
   setShortAnswerWysiwygQuiz (content, plainText) {
     if (this.disallowResponses() || this.readonly) return
+    //Prevent question from being considered as submitted if one just clicked in the textbox
+    if (plainText == false && content == false) return //Double equal matters...
     if (this.props.response && !this.props.response.editable){
       alertify.error("Cannot edit this question anymore")
       return
@@ -271,7 +273,7 @@ export class QuestionDisplay extends Component {
   }
 
   submitResponseQuiz() {
-
+    //TODO if SA, should delete existing response if the user changed the text input to be empty during an update
     if (this.disallowResponses() || this.readonly || !this.props.isQuiz) return
 
     // TODO: Check if attempt number is higher than allowed (needs an additional prop to know if it's in a quiz)
