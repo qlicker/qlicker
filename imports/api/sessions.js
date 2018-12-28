@@ -11,7 +11,9 @@ import { _ } from 'underscore'
 
 import { Courses, profHasCoursePermission } from './courses.js'
 import { Grades } from './grades.js'
+import { Responses } from './responses.js'
 
+import moment from 'moment-timezone'
 import Helpers from './helpers.js'
 
 import { ROLES } from '../configs'
@@ -25,10 +27,13 @@ const sessionPattern = {
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
+  quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
+  quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
   joined: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
+  submittedQuiz: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]), //true if student has submitted quiz (used to block)
   tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ]),
   reviewable: Match.Maybe(Boolean)
 }
@@ -40,7 +45,35 @@ _.extend(Session.prototype, {
   gradesViewable: function () {
     let grades = Grades.find({ sessionId: this._id, visibleToStudents: true }).fetch()
     return grades.length > 0
-  }
+  },
+
+  /*
+  quizCompleted: function (userId) {
+    return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
+  },*/
+
+  // check if quiz is currently active (iether 'running' or visible and it's the correct time)
+  quizIsActive: function () {
+    if (!this.quiz) return false;
+    if (this.status === 'running') return true;
+    if (!this.quizStart || !this.quizEnd) return false;
+    if (this.status === 'hidden' || this.status === 'done') return false
+
+    const currentTime = Date.now()
+    const isPastStart = currentTime > this.quizStart
+    const isBeforeEnd = currentTime < this.quizEnd
+    return isPastStart && isBeforeEnd
+  },
+
+  quizIsClosed: function () {
+    if (!this.quiz) return false;
+    if (this.status === 'running') return false;
+    if (this.status === 'hidden' || this.status === 'done') return true
+    if (!this.quizEnd) return false;
+    const currentTime = Date.now()
+    const isBeforeEnd = currentTime < this.quizEnd
+    return !isBeforeEnd
+  },
 })
 
 // Create course collection
@@ -48,33 +81,7 @@ export const Sessions = new Mongo.Collection('sessions',
   { transform: (doc) => { return new Session(doc) } })
 // data publishing
 if (Meteor.isServer) {
-// TODO : Should make more robust, check if students, etc, like the other publications
-  // This publication is used on the landing page, to show active session in the student/prof dashboard
-  Meteor.publish('sessions', function () {
-    if (this.userId) {
-      const user = Meteor.users.findOne({ _id: this.userId })
-      if (user.isInstructorAnyCourse() && user.hasRole(ROLES.student) ) {// A TA
-        //const courseIdArray = user.profile.courses || []
-        //return Sessions.find({ courseId: { $in: courseIdArray } })
 
-        const instructedCourseIdArray = _(Courses.find({ instructors: user._id }).fetch()).pluck('_id') || []
-        const studentCourseIdArray = _(Courses.find({ students: user._id }).fetch()).pluck('_id') || []
-        return Sessions.find({'$or':[ { courseId: { $in: instructedCourseIdArray } },
-                                      { courseId: { $in: studentCourseIdArray }, status: { $ne: 'hidden' } }]})
-
-      } else if (user.hasGreaterRole(ROLES.prof)) {
-        const courseIdArray = _(Courses.find({ instructors: user._id }).fetch()).pluck('_id') || []
-        return Sessions.find({ courseId: { $in: courseIdArray } })
-      } else if (user.hasRole(ROLES.student)) {
-        const courseIdArray = user.profile.courses || []
-        // TODO should check, but for a student, should not need to know who joined, right?
-        // return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } }, {fields: {joined: false}})
-        return Sessions.find({ courseId: { $in: courseIdArray }, status: { $ne: 'hidden' } })
-      }
-    } else this.ready()
-  })
-
-  // TODO: where appropriate, switch to this publication!
   Meteor.publish('sessions.forCourse', function (courseId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
@@ -84,26 +91,97 @@ if (Meteor.isServer) {
       if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
         return Sessions.find({ courseId: courseId })
       } else if (user.isStudent(courseId)) {
-        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
+        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false, submittedQuiz:false}})
+        /*
+        //Initial publications:
+        console.log("initial forCourse publication for "+this.userId)
+
+        let sessions = Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}).fetch()
+        sessions.forEach( sess => {
+          sess.joined = sess.joined && _(sess.joined).contains(this.userId) ? [this.userId] : []
+          sess.submittedQuiz = sess.quiz && sess.submittedQuiz && _(sess.submittedQuiz).contains(this.userId) ? [this.userId] : []
+          this.added('sessions', sess._id, sess)
+        })
+        this.ready()
+        //Watch for changes
+        const sCursor = Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } })
+        const sHandle = sCursor.observeChanges({
+          added: (id, fields) => {
+            let newfields = fields
+            newfields.joined = fields.joined && _(fields.joined).contains(this.userId) ? [this.userId] : []
+            newfields.submittedQuiz = fields.quiz && fields.submittedQuiz && _(fields.submittedQuiz).contains(this.userId) ? [this.userId] : []
+            this.added('sessions', id, newfields)
+          },
+          changed: (id, fields) => {
+            console.log("changed forCourse doc for "+this.userId)
+            console.log(fields)
+            let newfields = fields
+            if ('joined' in fields) newfields.joined = _(fields.joined).contains(this.userId) ? [this.userId] : []
+            if ('submittedQuiz' in fields) newfields.submittedQuiz =  _(fields.submittedQuiz).contains(this.userId) ? [this.userId] : []
+            this.changed('sessions', id, newfields)
+          },
+          removed: (id) => {
+            this.removed('sessions', id)
+          }
+        })
+
+        this.onStop(function () {
+          sHandle.stop()
+        })*/
+        //////////////////////////////////////////////////////////////
+        //return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
         return this.ready()
       }
     } else this.ready()
   })
-// TODO: where appropriate, switch to this publication!
+
   Meteor.publish('sessions.single', function (sessionId) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const session = Sessions.findOne({_id: sessionId})
       if (!session || !user) return this.ready()
       const courseId = session.courseId
-      const course = Courses.findOne({ _id: courseId })
-      if (!course) return this.ready()
 
       if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
-        return Sessions.find({ courseId: courseId })
+        return Sessions.find({_id: sessionId})
       } else if (user.isStudent(courseId)) {
-        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
+        //Initial publication of the session
+        return Sessions.find({ _id: sessionId, status: { $ne: 'hidden' } }, {fields: {joined: false, submittedQuiz:false}} )
+        /*
+        let sess = Sessions.findOne({ _id: sessionId, status: { $ne: 'hidden' } })
+        if (!sess) this.ready()
+        else {
+          sess.joined = sess.joined && _(sess.joined).contains(this.userId) ? [this.userId] : []
+          sess.submittedQuiz = sess.quiz && sess.submittedQuiz && _(sess.submittedQuiz).contains(this.userId) ? [this.userId] : []
+          if (sess.status !== 'hidden') this.added('sessions', sess._id, sess)
+          this.ready()
+        }
+        //Watch for changes
+        const sCursor = Sessions.find({ _id: sessionId, status: { $ne: 'hidden' } })
+        const sHandle = sCursor.observeChanges({
+          added: (id, fields) => {
+            let newfields = fields
+            newfields.joined = fields.joined && _(fields.joined).contains(this.userId) ? [this.userId] : []
+            newfields.submittedQuiz = fields.quiz && fields.submittedQuiz && _(fields.submittedQuiz).contains(this.userId) ? [this.userId] : []
+            this.added('sessions', id, newfields)
+          },
+          changed: (id, fields) => {
+            let newfields = fields
+            if ('joined' in fields) newfields.joined =  _(fields.joined).contains(this.userId) ? [this.userId] : []
+            if ('submittedQuiz' in fields) newfields.submittedQuiz =  _(fields.submittedQuiz).contains(this.userId) ? [this.userId] : []
+            this.changed('sessions', id, newfields)
+          },
+          removed: (id) => {
+            this.removed('sessions', id)
+          }
+        })
+
+        this.onStop(function () {
+          sHandle.stop()
+        })*/
+        //////////////////////////////////////////////////////////////
+        //return Sessions.find({ _id: sessionId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
         return this.ready()
       }
@@ -154,17 +232,21 @@ Meteor.methods({
     if (session.status === 'running') Meteor.call('sessions.startSession', session._id)
     else Meteor.call('sessions.endSession', session._id)
 
-    return Sessions.update({ _id: session._id }, {
+    return Sessions.update({ _id: session._id }, { $set: _.omit(session, '_id') })
+
+    /*return Sessions.update({ _id: session._id }, {
       $set: {
         name: session.name,
         description: session.description,
         status: session.status,
         quiz: session.quiz,
+        quizStart: session.quizStart || undefined,
+        quizEnd: session.quizEnd || undefined,
         reviewable: session.reviewable,
         date: session.date || undefined,
         tags: session.tags || undefined
       }
-    })
+    })*/
   },
 
   /**
@@ -248,7 +330,7 @@ Meteor.methods({
     session.questions = []
 
     // insert new session and update course object
-    const newSessionId = Sessions.insert(_(session).omit(['_id', 'currentQuestion', 'joined']))
+    const newSessionId = Sessions.insert(_(session).omit(['_id', 'currentQuestion', 'joined', 'submittedQuiz']))
     Courses.update({ _id: session.courseId }, {
       $addToSet: { sessions: newSessionId }
     })
@@ -280,9 +362,12 @@ Meteor.methods({
    * @param {MongoId} sessionId
    */
   'sessions.endSession' (sessionId) {
-    const s = Sessions.findOne({ _id: sessionId })
-    profHasCoursePermission(s.courseId)
-    return Sessions.update({ _id: sessionId }, { $set: { status: 'done' } })
+    let session = Sessions.findOne({ _id: sessionId })
+    profHasCoursePermission(session.courseId)
+    if (!session.date)  session.date = moment().toDate()
+    session.status = 'done'
+
+    return Sessions.update({ _id: sessionId }, { $set: session })
   },
 
   /**
@@ -360,6 +445,7 @@ Meteor.methods({
 
     return Sessions.update({ _id: sessionId }, {$set: { quiz: !session.quiz }})
   },
+
   /**
    * returns a list of autocomplete tag sugguestions specific for session (different than questions)
    * @returns {String[]} array of string tags
@@ -381,6 +467,40 @@ Meteor.methods({
     })
 
     return [...tags]
+  },
+
+  'sessions.quizSubmitted' (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    if(Meteor.isServer){
+      const session = Sessions.findOne({ _id: sessionId })
+      return session && session.quiz && session.submittedQuiz && _(session.submittedQuiz).contains(Meteor.userId())
+    }
+  },
+
+  'sessions.submitQuiz' (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    const user = Meteor.user()
+    if(!user) throw new Meteor.Error('No such user')
+    let session = Sessions.findOne({ _id: sessionId })
+
+    if (!session)  throw new Meteor.Error('No session with this id')
+    if (!session.quiz) throw new Meteor.Error('Not a quiz')
+    if (!user.isStudent(session.courseId)) throw new Meteor.Errorr('User is not a student in course')
+    if (Meteor.isServer && ! _(session.joined).contains(user._id) ) throw new Meteor.Error('User did not start quiz')
+    if ( 'submittedQuiz' in session && _(session.submittedQuiz).contains(user._id)) throw new Meteor.Error('User already submitte quiz')
+
+    const responseIds = _(Responses.find({ questionId: { $in: session.questions }, studentUserId: Meteor.userId(), attempt: 1 }).fetch()).pluck('_id')
+
+    if (responseIds.length !== session.questions.length) throw new Meteor.Error('Must answer all questions to submit quiz')
+
+    const nQ = session.questions.length
+    for (let i = 0; i<nQ ; i++){
+      Meteor.call('responses.makeUneditable', responseIds[i])
+    }
+    if (session.submittedQuiz) session.submittedQuiz.push(user._id)
+    else session.submittedQuiz = [user._id]
+
+    return Sessions.update({ _id: sessionId }, {$set: { submittedQuiz: session.submittedQuiz }})
   }
 
 }) // end Meteor.methods

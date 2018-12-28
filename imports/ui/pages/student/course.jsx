@@ -21,17 +21,55 @@ class _Course extends Component {
     this.state = {
       expandedSessionlist: false
     }
-
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
+    this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)
+  }
+
+  componentDidMount () {
+    if (this.props.sessions){
+      this.props.sessions.forEach(s => {
+        Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            this.addSubmittedQuiz(s._id)
+          }
+        })
+      })
+    }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.sessions){
+      nextProps.sessions.forEach(s => {
+        Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            this.addSubmittedQuiz(s._id)
+          }
+        })
+      })
+    }
+  }
+
+  addSubmittedQuiz (id) {
+    let submitted = this.state.submitted ? this.state.submitted : []
+    if (!_(submitted).contains(id) )submitted.push(id)
+    this.setState({submitted:submitted})
   }
 
   sessionClickHandler (session) {
     // Disabled the student.results route for now:
-    if (session.status === 'done' && session.reviewable) {
+    if (session.status === 'done' && session.reviewable  ) {
       Router.go('session.results', { sessionId: session._id, courseId: this.props.course._id })
     }
     else if (session.status === 'done') {
       alertify.error('Session not reviewable')
+    }
+    else if (session.quiz && !session.quizIsActive() ){
+      alertify.error('Quiz not open')
+    }
+    else if (session.quiz && this.state.submitted && _(this.state.submitted).contains(session._id)/*session.quizCompleted(Meteor.userId())*/ ){
+      alertify.error('Quiz already submitted')
     }
     else {
       Router.go('session', { _id: session._id, courseId: this.props.course._id })
@@ -58,6 +96,7 @@ class _Course extends Component {
         sessions.map((s) => (<SessionListItem
           key={s._id}
           session={s}
+          submittedQuiz={s.quiz && this.state.submitted && _(this.state.submitted).contains(s._id) ? true: undefined}
           click={() => this.sessionClickHandler(s)} />))
       }
       { totalSessions > maxNum
@@ -68,6 +107,7 @@ class _Course extends Component {
   }
 
   render () {
+    //console.log(this.state)
 
     return (
       <div className='container ql-manage-course'>
@@ -84,13 +124,16 @@ class _Course extends Component {
 }
 
 export const Course = createContainer((props) => {
+  //console.log("subscribing")
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('userData') &&
     Meteor.subscribe('sessions.forCourse', props.courseId)
 
-  let student = Meteor.users.find({ _id: Meteor.userId() }).fetch()[0]
-  let course = Courses.find({ _id: props.courseId }).fetch()[0]
+  let student = Meteor.users.findOne({ _id: Meteor.userId() })
+  let course = Courses.findOne({ _id: props.courseId })
   let sessions = Sessions.find({ courseId: props.courseId }).fetch()
+  //console.log(sessions)
+
   return {
     course: course,
     student: student,

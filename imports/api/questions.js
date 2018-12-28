@@ -13,7 +13,7 @@ import { Sessions } from './sessions'
 import { _ } from 'underscore'
 
 import Helpers from './helpers.js'
-import { ROLES } from '../configs'
+import { ROLES, QUESTION_TYPE } from '../configs'
 
 // expected collection pattern
 const questionPattern = {
@@ -79,7 +79,7 @@ export const defaultQuestion = {
   plainText: '',
   solution: '',
   solution_plainText: '',
-  type: -1, // QUESTION_TYPE.MC, QUESTION_TYPE.TF, QUESTION_TYPE.SA
+  type: QUESTION_TYPE.SA,
   content: '',
   options: [], // { correct: false, answer: 'A', content: editor content }
   tags: [],
@@ -195,7 +195,7 @@ if (Meteor.isServer) {
         const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } }).fetch()
 
         initialQs.forEach(q => {
-          const qToAdd = q
+          let qToAdd = q
           // if prof has marked Q with correct visible, refetch answer options
           if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne({_id: q._id}).options
           this.added('questions', qToAdd._id, qToAdd)
@@ -208,7 +208,7 @@ if (Meteor.isServer) {
         const questionsCursor = Questions.find({ sessionId: sessionId })
         const handle = questionsCursor.observeChanges({
           added: (id, fields) => {
-            const newFields = fields
+            let newFields = fields
             const so = newFields.sessionOptions
             if (so && so.correct) { // correct should be visible
               const q = Questions.findOne({_id: id})
@@ -221,7 +221,7 @@ if (Meteor.isServer) {
             this.added('questions', id, newFields)
           },
           changed: (id, fields) => {
-            const newFields = fields
+            let newFields = fields
 
             const so = newFields.sessionOptions
             if (so && so.correct) { // correct should be visible

@@ -12,6 +12,7 @@ import { _ } from 'underscore'
 import { Questions } from '../../../api/questions'
 import { Sessions } from '../../../api/sessions'
 import { Responses, responseDistribution } from '../../../api/responses'
+import { QuizSession } from '../../QuizSession'
 
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { ShortAnswerList } from '../../ShortAnswerList'
@@ -27,6 +28,27 @@ class _Session extends Component {
     // TODO: not sure this is the right point to join...
     if (Meteor.user().isStudent(this.props.session.courseId)) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
   }
+  componentDidMount () {
+    if (this.props.session){
+      Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
+        if(err) alertify.error(err.error)
+        if(!err && submitted) {
+          this.setState({submitted:true})
+        }
+      })
+    }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.session){
+      Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
+        if(err) alertify.error(err.error)
+        if(!err && submitted) {
+          this.setState({submitted:true})
+        }
+      })
+    }
+  }
 
   toggleTryAgain (qId) {
     let questionsToTryAgain = this.state.questionsToTryAgain
@@ -35,15 +57,20 @@ class _Session extends Component {
   }
 
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.loading || !this.props.session) return <div className='ql-subs-loading'>Loading</div>
 
     const cId = this.props.session.courseId
     const user = Meteor.user()
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
+    if (this.state.submitted){
+      //alertify.error('Quiz already completed')
+      Router.go('/course/' + this.props.session.courseId)
+    }
+
     const status = this.props.session.status
-    if (status !== 'running') {
+    if (status !== 'running' && !this.props.session.quizIsActive()) {
       let statusMessage
 
       if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
@@ -93,6 +120,9 @@ class _Session extends Component {
 
         </div>)
     } else {
+
+      return (<QuizSession sessionId={this.props.sessionId} /> )
+      /*
       // for questions in a quiz (all questions at once, possible multiple attempts allowed)
       const qlist = session.questions
       let qCount = 0
@@ -180,6 +210,7 @@ class _Session extends Component {
             }
           </div>
         </div>)
+        */
     }
   }
 }
@@ -187,8 +218,8 @@ class _Session extends Component {
 // meteor reactive data container
 export const Session = createContainer((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
-    Meteor.subscribe('questions.inSession', props.sessionId)
-  Meteor.subscribe('responses.forSession', props.sessionId)
+                 Meteor.subscribe('questions.inSession', props.sessionId) &&
+                 Meteor.subscribe('responses.forSession', props.sessionId)
 
   const session = Sessions.findOne({ _id: props.sessionId })
   const questionsInSession = Questions.find({_id: { $in: session.questions }}).fetch()

@@ -1,4 +1,4 @@
-// QLICKER
+  // QLICKER
 // Author: Enoch T <me@enocht.am>
 //
 // responses.js: JS related to question responses
@@ -27,7 +27,8 @@ const responsePattern = {
   answer: Helpers.AnswerItem,
   answerWysiwyg: Match.Maybe(String),
   correct: Match.Maybe(Boolean), // whether or not this response was correct (used in a quiz with multiple attempts)
-  createdAt: Date
+  createdAt: Date,
+  editable: Match.Maybe(Boolean)// whether the response can be updated (e.g. in a quiz setting)
 }
 
 // Create Response class
@@ -115,6 +116,22 @@ if (Meteor.isServer) {
           rHandle.stop()
         })
       }
+    } else this.ready()
+  })
+
+  Meteor.publish('responses.forQuiz', function (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      const session = Sessions.findOne({ _id: sessionId })
+      const course = Courses.findOne({ _id: session.courseId })
+      if (!user || !session || !course || !session.quiz) return this.ready()
+
+      if (user.isInstructor(course._id)) {
+        return Responses.find({ questionId: { $in: session.questions } })
+      } else if (user.isStudent(course._id)) {
+        return Responses.find({ questionId: { $in: session.questions }, studentUserId: this.userId })
+      } else this.ready()
     } else this.ready()
   })
 
@@ -295,7 +312,7 @@ Meteor.methods({
       responseObject.correct = (points === q.sessionOptions.points * weight)
     }
 
-    if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit answer')
+    if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit this response')
 
     // TODO check if attempt number is current in question
 
@@ -304,7 +321,7 @@ Meteor.methods({
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
     }).count()
-    if (c>0) console.log("updating a response")
+    //if (c>0) console.log("updating a response")
     if (c > 0) return Meteor.call('responses.update', responseObject)
 
     return Responses.insert(responseObject)
@@ -316,11 +333,39 @@ Meteor.methods({
    */
   'responses.update' (responseObject) {
     check(responseObject, responsePattern)
+    if (Meteor.userId() !== responseObject.studentUserId) throw new Meteor.Error('Not authorized to update this response')
+
+
+    const q = Questions.findOne({ _id: responseObject.questionId })
+    if (!q.sessionId) throw new Meteor.Error('Question not attached to session')
+    const session = Sessions.findOne({ _id: q.sessionId})
+    if (!session.quiz) throw new Meteor.Error('Can only update quiz responses')
+    if (!session.quizIsActive()) throw new Meteor.Error('Quiz is closed')
+    const response = Responses.findOne({
+      attempt: responseObject.attempt,
+      questionId: responseObject.questionId,
+      studentUserId: responseObject.studentUserId
+    })
+    if (!response) throw new Meteor.Error('No response to update')
+    if (!('editable' in response) || !response.editable) throw new Meteor.Error('Cannot edit this response')
+    if (responseObject.attempt !== 1) throw new Meteor.Error('Only 1 attempt allowed')
+
 
     return Responses.update({
       attempt: responseObject.attempt,
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
     }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg } })
+  },
+
+  'responses.makeUneditable' (responseId) {
+    check(responseId, Helpers.MongoID)
+    const response = Responses.findOne({ _id: responseId })
+    if (Meteor.userId() !== response.studentUserId) throw new Meteor.Error('Not authorized to update this response')
+    if (!response.editable) throw new Meteor.Error('Response is not editable')
+
+    return Responses.update({ _id: responseId }, { $set: { editable: false } })
   }
+
+
 }) // end Meteor.methods

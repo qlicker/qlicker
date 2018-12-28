@@ -10,9 +10,10 @@ import _ from 'underscore'
 
 import { createContainer } from 'meteor/react-meteor-data'
 import { SingleDatePicker } from 'react-dates'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Creatable } from 'react-select'
 import 'react-select/dist/react-select.css'
+import Datetime from 'react-datetime'
 
 import { Sessions } from '../../../api/sessions'
 import { Courses } from '../../../api/courses'
@@ -27,6 +28,7 @@ import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
 import { defaultQuestion, Questions } from '../../../api/questions'
 
+
 class _ManageSession extends Component {
 
   constructor (props) {
@@ -35,6 +37,8 @@ class _ManageSession extends Component {
     this.state = {
       editing: false,
       session: this.props.session,
+      quizStart: this.props.session ? this.props.session.quizStart :null,//needed for displaying in the form
+      quizEnd: this.props.session ? this.props.session.quizEnd : null,
       //questionPool: 'library',
       //limit: 11,
       //query: {query: {}, options: {}},
@@ -58,9 +62,12 @@ class _ManageSession extends Component {
     this.addToLibrary = this.addToLibrary.bind(this)
     this.addAllToLibrary = this.addAllToLibrary.bind(this)
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
+    this.setQuizStartTime= this.setQuizStartTime.bind(this)
+    this.setQuizEndTime= this.setQuizEndTime.bind(this)
     //this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
-    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 800)
+    this.saveSessionEdits = this.saveSessionEdits.bind(this)
+    this._DB_saveSessionEdits = _.debounce(this.saveSessionEdits, 600)
 
   }
 
@@ -70,8 +77,13 @@ class _ManageSession extends Component {
    */
   componentWillReceiveProps (nP) {
     if (!nP) return
-    if (nP.session) this.setState({ session: nP.session })
+    if (nP.session){
+      const quizStart = nP.session.quizStart
+      const quizEnd = nP.session.quizEnd
+      this.setState({ session: nP.session, quizStart:quizStart, quizEnd:quizEnd })
+    }
   }
+
 
   /**
    * componentDidMount(nextProps)
@@ -92,6 +104,60 @@ class _ManageSession extends Component {
       e.preventDefault()
       $(this).tab('show')
     })
+  }
+
+  setQuizStartTime(amoment) {
+    //If a user is typing in the form, the form passes back a string instead of a moment
+    //object, so we don't want to save that to the database.
+    const isMoment = amoment instanceof moment
+    let quizStart = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
+
+    if(!isMoment){ // likely editing, don't save
+      this.setState({ quizStart: (amoment ? amoment  : null)})
+      return
+    }
+
+    let sessionEdits = this.state.session
+    sessionEdits.quizStart = quizStart
+    if (this.state.session.quizEnd && amoment.isAfter(this.state.session.quizEnd)){
+      alertify.error("Cannot set start time after end time!")
+      sessionEdits.quizStart = this.state.session.quizEnd
+    }
+    this.setState({ quizStart: quizStart})
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+  }
+
+  setQuizEndTime(amoment) {
+    const isMoment = amoment instanceof moment
+    let quizEnd = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
+
+    if(!isMoment){
+      this.setState({ quizEnd: (amoment ? amoment  : null)})
+      return
+    }
+
+    let sessionEdits = this.state.session
+    sessionEdits.quizEnd = quizEnd
+
+    if (this.state.session.quizStart && amoment.isBefore(this.state.session.quizStart)){
+      alertify.error("Cannot set end time before start time!")
+      sessionEdits.quizEnd = this.state.session.quizEnd
+    }
+    this.setState({ quizEnd: quizEnd})
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+  }
+
+  toggleQuizMode () {
+    let sessionEdits = this.state.session
+    sessionEdits.quiz = !sessionEdits.quiz
+    this.setState({ session: sessionEdits }, () => {
+      this._DB_saveSessionEdits()
+    })
+
   }
 
   // starts the session if there are questions
@@ -182,12 +248,7 @@ class _ManageSession extends Component {
     })
   }
 
-  toggleQuizMode () {
-    Meteor.call('sessions.toggleQuizMode', this.sessionId, (e) => {
-      if (e) alertify.error('Could not toggle quiz mode')
-      else alertify.success('Quiz mode changed')
-    })
-  }
+
 
   /**
    * checkReview(Input Event: e)
@@ -232,7 +293,7 @@ class _ManageSession extends Component {
     //const code = course.courseCode().toUpperCase()
     const semester = course.semester.toUpperCase()
     //tags.push({ value: code, label: code })
-    tags.push({ value: semester, label: semester })
+    tags.push({ value: semester, label: semester }, {value:this.props.session.name,label:this.props.session.name})
 
     const blankQuestion = _.extend( defaultQuestion, {
       sessionId: sessionId,
@@ -332,8 +393,8 @@ class _ManageSession extends Component {
 
 
   render () {
-
     const setTab = (e) => { this.setState({ tab: e })}
+
   //  let questionList = this.state.session.questions || []
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
@@ -356,23 +417,49 @@ class _ManageSession extends Component {
         })
       })
 
+    let quizTimeInfo = ''
+    let quizTimeClassName = 'ql-quizTimeInfo'
+    if (this.state.quizStart && !(this.state.quizStart instanceof Date) ){
+      quizTimeInfo='Start time not in correct format!'
+      quizTimeClassName +=' warning'
+    }
+    if (this.state.quizEnd && !(this.state.quizEnd instanceof Date) ){
+      quizTimeInfo+=' End time not in correct format!'
+      quizTimeClassName +=' warning'
+    }
+    if ((this.state.quizStart instanceof Date) && (this.state.quizEnd instanceof Date)){
+      quizTimeInfo ='Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart),true)
+    }
+
+    if (this.props.session.quizIsActive()){
+      quizTimeInfo='Warning: quiz is active! Change the dates!'
+      quizTimeClassName +=' warning'
+    }
+
+    if (this.props.session.status === 'running'){
+      quizTimeInfo='Warning: quiz is live! Change the status!'
+      quizTimeClassName +=' warning'
+    }
+
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
           <h3 className='session-title'>Session Editor</h3>
           <span className='divider'>&nbsp;</span>
+
           <span className='toolbar-button' onClick={this.runSession}>
-            <span className='glyphicon glyphicon-play' />&nbsp;
-            {this.state.session.status === 'running' ? 'Continue Session' : 'Run Session'}
-          </span>
-          <span className='divider'>&nbsp;</span>
+              <span className='glyphicon glyphicon-play' />&nbsp;
+                  {this.state.session.status === 'running' || this.state.session.quizIsActive() ? 'Continue Session' : 'Run Session'}
+         </span>
+         <span className='divider'>&nbsp;</span>
+
           <span className='toolbar-button' onClick={() => this.addAllToLibrary(questionList)}>
             Copy All Questions to Library
           </span>
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
             <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
-            <option value='visible'>{SESSION_STATUS_STRINGS['visible']}</option>
+            <option value='visible'>{this.state.session.quiz ? 'Visible' : SESSION_STATUS_STRINGS['visible']}</option>
             <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
             <option value='done'>{SESSION_STATUS_STRINGS['done']}</option>
           </select>
@@ -425,8 +512,32 @@ class _ManageSession extends Component {
             <div className='ql-session-child-container session-details-container'>
               <input type='text' className='ql-header-text-input' value={this.state.session.name} data-name='name' onChange={this.setValue} />
               <div className='ql-session-details-checkbox'>
-                <input type='checkbox' checked={this.props.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
+                <input type='checkbox' checked={this.state.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
               </div>
+              { this.state.session.quiz ?
+                 <div className='row'>
+                   <div className='col-md-3 left-column'>
+                     Start: <Datetime
+                              onChange={this.setQuizStartTime}
+                              value={this.state.quizStart ? this.state.quizStart: null}
+                             />
+                    </div>
+                  <div className='col-md-3 left-column'>
+                     End: <Datetime
+                              onChange={this.setQuizEndTime}
+                              value={this.state.quizEnd ? this.state.quizEnd : null}
+                            />
+                  </div>
+                  <div className='col-md-5'>
+                    <div className={quizTimeClassName}>
+                      {quizTimeInfo}
+                    </div>
+                  </div>
+
+                 </div>
+
+                 : ''
+              }
               <div className='row'>
                 <div className='col-md-6 left-column'>
                   <textarea className='form-control session-description' data-name='description'

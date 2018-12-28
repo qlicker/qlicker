@@ -201,7 +201,7 @@ Router.route('/course/:courseId', {
   name: 'course',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId) 
   },
   action: function () {
     const cId = this.params.courseId
@@ -354,19 +354,22 @@ Router.route('/course/:courseId/session/run/:sessionId/mobile', {
 })
 
 import { Session } from '../../ui/pages/student/session'
+import { QuizSession } from '../../ui/QuizSession'
 Router.route('/course/:courseId/session/present/:_id', {
   name: 'session',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params._id) && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions.single',this.params._id)
   },
   action: function () {
     const user = Meteor.user()
     const cId = this.params.courseId
     if (user && user.isInstructor(cId)) { // If it's an instructor, then this is called when using "2nd display" while running session
       mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
-    } else if (user) {
-      mount(AppLayout, { content: <PageContainer courseId={cId}> <Session sessionId={this.params._id} /> </PageContainer> })
+    } else if (user && user.isStudent(cId)) {
+      const sess = Sessions.findOne({_id: this.params._id})
+      if(sess.quiz) mount(AppLayout, { content: <PageContainer courseId={cId}> <QuizSession sessionId={this.params._id} /> </PageContainer> })
+      else mount(AppLayout, { content: <PageContainer courseId={cId}> <Session sessionId={this.params._id} /> </PageContainer> })
     } else Router.go('login')
   }
 })

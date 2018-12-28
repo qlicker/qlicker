@@ -224,6 +224,15 @@ $red-bar: rgba(167,37,38, 0.3);
         }
       }
     }
+
+    .q-submitted-quiz {
+      outline: 2px solid $blue;
+      color: $blue;
+      font-weight: bold;
+    }
+
+
+
   }
 
 } // end .ql-question-display

@@ -28,6 +28,7 @@ CKEDITOR.editorConfig = function (config) {
   config.line_height = '1em'
   config.uploadUrl = '/upload/images'
   config.language = 'en'
+  config.extraAllowedContent = 'pre'
   // config.allowedContent = 'img[*]'
 
 }

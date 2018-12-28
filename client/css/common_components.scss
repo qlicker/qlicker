@@ -97,8 +97,9 @@
   color: white;
   padding: 4px 12px;
   border-radius: 2px;
-  white-space: nowrap;
+  //white-space: nowrap;
   min-width: 70px;
+  max-width: 100px;
   text-align: center;
   text-transform: uppercase;
 
@@ -120,7 +121,6 @@
   }
 
 }
-
 
 // progress
 .ql-progress {

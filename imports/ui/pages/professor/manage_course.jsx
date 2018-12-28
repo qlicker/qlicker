@@ -171,7 +171,7 @@ class _ManageCourse extends Component {
     let sessions = this.props.sessions
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
     sessions = _(sessions).chain().sortBy(function (ses) {
-      return ses.date
+      return (ses.quiz && ses.quizEnd) ? ses.quizEnd : ses.date
     }).reverse().sortBy(function (ses) {
       return statusSort[ses.status]
     }).value()
@@ -192,7 +192,7 @@ class _ManageCourse extends Component {
             else Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
           const controls = []
-          if (ses.status === 'running') {
+          if (ses.status === 'running' || ses.quizIsActive() ) {
             controls.push({
               label: 'Open Session Display',
               click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') }
@@ -204,12 +204,12 @@ class _ManageCourse extends Component {
             controls.push({ divider: true })
           }
           if (ses.status === 'done') {
-            controls.push({ label: 'Restart session', click: () => this.startSession(sId) })
+            controls.push({ label: 'Make live again', click: () => this.startSession(sId) })
             controls.push({ label: 'Grade session', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
           }
-          if (ses.status !== 'done' && ses.status !== 'running') {
-            controls.push({ label: 'Start session', click: () => this.startSession(sId) })
+          if (ses.status !== 'done' && ses.status !== 'running' && !ses.quizIsActive()) {
+            controls.push({ label: 'Make live', click: () => this.startSession(sId) })
           }
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
@@ -375,7 +375,7 @@ class _ManageCourse extends Component {
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>View course grades</button>
+                {/*<button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>View course grades</button>*/}
               </div>
               { this.renderSessionList() }
             </div>

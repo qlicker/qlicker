@@ -8,7 +8,9 @@ import React, { PropTypes } from 'react'
 
 import { ListItem } from './ListItem'
 
-import { SESSION_STATUS_STRINGS, formatDate } from '../configs'
+import moment from 'moment-timezone'
+
+import { SESSION_STATUS_STRINGS } from '../configs'
 
 /**
  * React component list item for each session.
@@ -40,9 +42,20 @@ export class SessionListItem extends ListItem {
   render () {
     const session = this.props.session
     const controls = this.makeControls()
+    const currentTime = Date.now()
+    let status = session.status
+    if(session.quizIsActive() ){
+      status = 'running'
+    }
+    if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd ) {
+      status = 'done'
+    }
 
-    const status = session.status
-    const strStatus = SESSION_STATUS_STRINGS[status]
+    if (this.props.submittedQuiz){
+      status = 'done'
+    }
+
+    const strStatus = SESSION_STATUS_STRINGS[status] + (session.quiz ? ' (Quiz)' : '')
 
     const strAllowReview = this.props.session.reviewable ? 'Disable Review' : 'Allow Review'
 
@@ -65,6 +78,27 @@ export class SessionListItem extends ListItem {
     //if (session.reviewable && session.status === 'done') statusClassName += ' reviewable'
     //if (!session.reviewable && session.status === 'done') statusClassName += ' not-reviewable'
 
+    let showTime = session.date || session.quizStart || session.quizEnd
+    let timeString = moment(session.date).format('MMMM DD, YYYY')
+    if (session.quiz){
+      if (session.status === 'done'){
+        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+      }
+      else if (session.quizStart && currentTime < session.quizStart){
+        timeString = 'Opens at '+moment(session.quizStart).format('hh:mm A') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
+      }
+      else if  (session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd){
+        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+      }
+      else if (session.quizEnd && currentTime < session.quizEnd){
+        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+      }
+      else if (session.quizEnd){
+        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+      }
+      else{}
+    }
+
     return (
       <div className='ql-session-list-item ql-list-item' onClick={this.props.click}>
         <div className='row'>
@@ -74,11 +108,11 @@ export class SessionListItem extends ListItem {
           <div className={this.props.controls ? 'col-md-6 col-sm-5 col-xs-8' : 'col-md-7 col-sm-6 col-xs-8'}>
             <span className='ql-session-name'>{ session.name }</span>
             <span>
-              {session.date
+              {showTime
                 ? <span className='active-time'>
-                  { formatDate(session.date) }
+                  {timeString}
                 </span>
-               : ''}
+               : '' }
               <span className='tags'>
                 {session.tags && Meteor.user().hasRole('professor')
                   ? session.tags.map(t => <span key={t.value} className='ql-label ql-label-info'>{t.label}</span>)
@@ -109,6 +143,7 @@ export class SessionListItem extends ListItem {
 SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
   details: PropTypes.bool,
+  submittedQuiz: PropTypes.bool,// whether this is a quiz that the user has submiited
   participation: PropTypes.number,
   click: PropTypes.func
 }

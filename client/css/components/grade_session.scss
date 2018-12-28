@@ -2,7 +2,7 @@
 //@import '../common_components.scss';
 
 .ql-grading-container {
-  background: white;
+  //background: white;
 
 
   @media (max-width: 991px) {
@@ -54,12 +54,23 @@
       width: 100%;
       height: 100%;
       .ql-grading-header-title {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+
+        .title {
+
+        }
         width: 100%;
         height: 45px;
         text-align: center;
         color: white;
         font-size: 2.5em;
         background: $blue;
+        .btn {
+          height: 35px;
+        }
+
       }
       .ql-grading-header-question-preview {
           font-size: 50%;
@@ -68,6 +79,8 @@
         //border-bottom-width: 1px;
       }
       .ql-grading-header-qControls {
+        margin-bottom: 5px;
+        margin-top: 5px;
           //padding-bottom: 10px;
           .ql-grading-header-warning {
             font-size:1.5em;
@@ -88,14 +101,17 @@
       }
     }
     .ql-response-list-container {
+      //border: 1px solid $grey;
       .ql-response-list {
+        padding-bottom: 20px;
         .ql-response-table-headers {
-          background: $slightly-darker-grey;
+          background: $blue;//$slightly-darker-grey;
+          color: white;
           margin: auto;
           display: flex;
           justify-content: space-between;
           padding-bottom: 10px;
-          font-size: 2em;
+          font-size: 1.75em;
 
           .header-name {
             text-align: center;

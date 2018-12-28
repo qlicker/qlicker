@@ -47,22 +47,39 @@ export const SESSION_STATUS_STRINGS = {
   hidden: 'Draft',
   visible: 'Upcoming',
   running: '• Live',
-  done: 'Finished'
+  done: 'Ended'
 }
 
 export const formatDate = (date) => {
-  var monthNames = [
+  let monthNames = [
     'January', 'February', 'March',
     'April', 'May', 'June', 'July',
     'August', 'September', 'October',
     'November', 'December'
   ]
 
-  var day = date.getDate()
-  var monthIndex = date.getMonth()
-  var year = date.getFullYear()
+  let day = date.getDate()
+  let monthIndex = date.getMonth()
+  let year = date.getFullYear()
 
   return monthNames[monthIndex] + ' ' + day + ', ' + year
+}
+
+export const formatDateTime = (date) => {
+  let monthNames = [
+    'January', 'February', 'March',
+    'April', 'May', 'June', 'July',
+    'August', 'September', 'October',
+    'November', 'December'
+  ]
+
+  let day = date.getDate()
+  let monthIndex = date.getMonth()
+  let year = date.getFullYear()
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+
+  return hours+':'+minutes+' '+monthNames[monthIndex] + ' ' + day + ', ' + year
 }
 
 export const ROLES = { // NOTE usage of constants is not fully implmented, some code still hardcodes role strings
