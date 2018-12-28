@@ -197,7 +197,7 @@ export class QuestionDisplay extends Component {
           arrayWithoutAnswer.splice(i, 1)
           answerToSubmit = arrayWithoutAnswer
         } else answerToSubmit = this.state.submittedAnswer.concat([answer])
-        //TODO: sort the array alphabetically
+        answerToSubmit = _(answerToSubmit).sortBy( (a) => {return a})
       }
     }
 
@@ -225,7 +225,7 @@ export class QuestionDisplay extends Component {
           arrayWithoutAnswer.splice(i, 1)
           answerToSubmit = arrayWithoutAnswer
         } else answerToSubmit = this.state.submittedAnswer.concat([answer])
-        //TODO: sort the array alphabetically
+        answerToSubmit = _(answerToSubmit).sortBy( (a) => {return a})
       }
     }
 

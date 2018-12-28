@@ -195,7 +195,7 @@ if (Meteor.isServer) {
         const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } }).fetch()
 
         initialQs.forEach(q => {
-          const qToAdd = q
+          let qToAdd = q
           // if prof has marked Q with correct visible, refetch answer options
           if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne({_id: q._id}).options
           this.added('questions', qToAdd._id, qToAdd)

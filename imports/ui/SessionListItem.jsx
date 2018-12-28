@@ -51,7 +51,7 @@ export class SessionListItem extends ListItem {
       status = 'done'
     }
 
-    if (session.quizCompleted(Meteor.userId()) ){
+    if (this.props.submittedQuiz){
       status = 'done'
     }
 
@@ -140,6 +140,7 @@ export class SessionListItem extends ListItem {
 SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
   details: PropTypes.bool,
+  submittedQuiz: PropTypes.bool,// whether this is a quiz that the user has submiited
   participation: PropTypes.number,
   click: PropTypes.func
 }

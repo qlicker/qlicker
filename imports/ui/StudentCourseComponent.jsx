@@ -24,6 +24,32 @@ export class _StudentCourseComponent extends Component {
     this.unEnroll = this.unEnroll.bind(this)
   }
 
+  componentDidMount () {
+    if (this.props.sessions){
+      this.props.sessions.forEach(s => {
+        Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            this.addSubmittedQuiz(s._id)
+          }
+        })
+      })
+    }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.sessions){
+      nextProps.sessions.forEach(s => {
+        Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            this.addSubmittedQuiz(s._id)
+          }
+        })
+      })
+    }
+  }
+
   unEnroll (courseId, userId) {
     if (confirm('Are you sure you want to un-enroll from the course?')){
       Meteor.call('courses.removeStudent', courseId, userId, (error) => {
@@ -46,7 +72,7 @@ export class _StudentCourseComponent extends Component {
           <CourseListItem isTA={this.props.isTA} course={course} controls={controls} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
-                if (!s || s.quizIsClosed() || s.quizCompleted(Meteor.userId())) return
+                if (!s || s.quizIsClosed() || (this.state.submitted && _(this.state.submitted).contains(session._id))) return
                 const sId = s._id
                 const nav = () => {
                   if (!Meteor.user().isInstructor(this.props.course._id)){

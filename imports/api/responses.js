@@ -335,7 +335,21 @@ Meteor.methods({
     check(responseObject, responsePattern)
     if (Meteor.userId() !== responseObject.studentUserId) throw new Meteor.Error('Not authorized to update this response')
 
-    if (!('editable' in responseObject) || !responseObject.editable)throw new Meteor.Error('Cannot edit this response')
+
+    const q = Questions.findOne({ _id: responseObject.questionId })
+    if (!q.sessionId) throw new Meteor.Error('Question not attached to session')
+    const session = Sessions.findOne({ _id: q.sessionId})
+    if (!session.quiz) throw new Meteor.Error('Can only update quiz responses')
+    if (!session.quizIsActive()) throw new Meteor.Error('Quiz is closed')
+    const response = Responses.findOne({
+      attempt: responseObject.attempt,
+      questionId: responseObject.questionId,
+      studentUserId: responseObject.studentUserId
+    })
+    if (!response) throw new Meteor.Error('No response to update')
+    if (!('editable' in response) || !response.editable) throw new Meteor.Error('Cannot edit this response')
+    if (responseObject.attempt !== 1) throw new Meteor.Error('Only 1 attempt allowed')
+
 
     return Responses.update({
       attempt: responseObject.attempt,

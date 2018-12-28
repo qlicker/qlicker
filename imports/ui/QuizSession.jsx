@@ -25,6 +25,28 @@ class _QuizSession extends Component {
 
   }
 
+  componentDidMount () {
+    if (this.props.session){
+      Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
+        if(err) alertify.error(err.error)
+        if(!err && submitted) {
+          this.setState({submitted:true})
+        }
+      })
+    }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.session){
+      Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
+        if(err) alertify.error(err.error)
+        if(!err && submitted) {
+          this.setState({submitted:true})
+        }
+      })
+    }
+  }
+
 
   scrollTo (qId) {
     const node = ReactDOM.findDOMNode(this.refs["qdisp"+qId])
@@ -51,7 +73,7 @@ class _QuizSession extends Component {
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
-    if (this.props.session.quizCompleted(user._id)){
+    if (this.state.submitted/*this.props.session.quizCompleted(user._id)*/){
       Router.go('/course/' + this.props.session.courseId)
     }
     const status = this.props.session.status
@@ -75,7 +97,7 @@ class _QuizSession extends Component {
     if (qlist.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
     let qCount = 0
     let qCount2 = 0
-    const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length
+    const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length && !this.state.submitted
 
 
     const scrollToFirst = () => this.scrollTo(qlist[0])
@@ -128,14 +150,18 @@ class _QuizSession extends Component {
                   //const responses = _.where(this.props.myResponses, { questionId: qid })
                   //let response =  responses.length >0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
                   let response = _(this.props.myResponses).findWhere({ questionId:qid })
+                  let readOnly = undefined
                   if (!response) response = undefined
+                  else{
+                    if (!response.editable) readOnly = true
+                  }
                   const questionDisplay = user.isInstructor(session.courseId)
                     ? <QuestionDisplay question={q} readOnly />
                     : <QuestionDisplay
                         question={q}
                         isQuiz={true}
                         response={response}
-
+                        readOnly={readOnly}
                         attemptNumber={1} />
 
                   return (

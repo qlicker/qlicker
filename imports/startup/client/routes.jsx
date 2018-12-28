@@ -201,7 +201,7 @@ Router.route('/course/:courseId', {
   name: 'course',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId) 
   },
   action: function () {
     const cId = this.params.courseId
@@ -359,7 +359,7 @@ Router.route('/course/:courseId/session/present/:_id', {
   name: 'session',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params._id) && Meteor.subscribe('courses')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses') && Meteor.subscribe('sessions.single',this.params._id)
   },
   action: function () {
     const user = Meteor.user()
