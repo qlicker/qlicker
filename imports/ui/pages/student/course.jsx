@@ -65,7 +65,7 @@ class _Course extends Component {
     else if (session.status === 'done') {
       alertify.error('Session not reviewable')
     }
-    else if (session.quiz &&  !session.quizIsActive() ){
+    else if (session.quiz && !session.quizIsActive() ){
       alertify.error('Quiz not open')
     }
     else if (session.quiz && this.state.submitted && _(this.state.submitted).contains(session._id)/*session.quizCompleted(Meteor.userId())*/ ){

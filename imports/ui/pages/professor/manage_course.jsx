@@ -192,7 +192,7 @@ class _ManageCourse extends Component {
             else Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
           const controls = []
-          if (ses.status === 'running') {
+          if (ses.status === 'running' || ses.quizIsActive() ) {
             controls.push({
               label: 'Open Session Display',
               click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') }

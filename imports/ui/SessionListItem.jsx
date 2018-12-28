@@ -81,7 +81,10 @@ export class SessionListItem extends ListItem {
     let showTime = session.date || session.quizStart || session.quizEnd
     let timeString = moment(session.date).format('MMMM DD, YYYY')
     if (session.quiz){
-      if (session.quizStart && currentTime < session.quizStart){
+      if (session.status === 'done'){
+        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+      }
+      else if (session.quizStart && currentTime < session.quizStart){
         timeString = 'Opens at '+moment(session.quizStart).format('hh:mm A') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
       }
       else if  (session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd){
@@ -91,7 +94,7 @@ export class SessionListItem extends ListItem {
         timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
       }
       else if (session.quizEnd){
-        timeString = 'Closed at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
       }
       else{}
     }
