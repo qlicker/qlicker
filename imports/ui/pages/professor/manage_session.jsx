@@ -33,12 +33,12 @@ class _ManageSession extends Component {
 
   constructor (props) {
     super(props)
-
+    const now = moment()
     this.state = {
       editing: false,
       session: this.props.session,
-      quizStart: this.props.session ? this.props.session.quizStart :null,//needed for displaying in the form
-      quizEnd: this.props.session ? this.props.session.quizEnd : null,
+      quizStart: this.props.session ? this.props.session.quizStart : now.toDate(),//needed for displaying in the form
+      quizEnd: this.props.session ? this.props.session.quizEnd : now.add(1, 'day').toDate(),
       //questionPool: 'library',
       //limit: 11,
       //query: {query: {}, options: {}},

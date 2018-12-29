@@ -243,10 +243,11 @@ export class QuestionDisplay extends Component {
    */
   submitResponse () {
     if (this.disallowResponses() || this.readonly || !this.state.submittedAnswer) return
-    // TODO: Check if attempt number is higher than allowed (needs an additional prop to know if it's in a quiz)
-    // Can't choose responses after submission
+    // TODO: Check if attempt number is higher than allowed
+
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
+    // Can't choose responses after submission
     this.readonly = true
 
     this.setState({
@@ -273,13 +274,15 @@ export class QuestionDisplay extends Component {
   }
 
   submitResponseQuiz() {
-    //TODO if SA, should delete existing response if the user changed the text input to be empty during an update
     if (this.disallowResponses() || this.readonly || !this.props.isQuiz) return
 
-    // TODO: Check if attempt number is higher than allowed (needs an additional prop to know if it's in a quiz)
-    // Can't choose responses after submission
+    if (this.props.attemptNumber !== 1){
+      alertify.error("Only one attempt allowed, not submitting")
+      return
+    }
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
+
 
     let responseObject = this.props.response ? this.props.response : {
       studentUserId: Meteor.userId(),
