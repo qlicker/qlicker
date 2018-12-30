@@ -26,25 +26,52 @@ class _QuizSession extends Component {
   }
 
   componentDidMount () {
+    let isSubmitted = false
+    let emptySA = false
+
     if (this.props.session){
+      this.props.session.questions.forEach(qId => {
+        let q = this.props.questions[qId]
+        if (q && q.type === QUESTION_TYPE.SA){
+          let response = _(this.props.myResponses).findWhere({ questionId:qId })
+          if(response && response.answer == false && response.answerWysiwyg == false){//double equal matters
+            emptySA = true
+          }
+        }
+      })
       Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
         if(err) alertify.error(err.error)
         if(!err && submitted) {
-          this.setState({submitted:true})
+          isSubmitted = true
         }
       })
     }
+    this.setState({submitted:isSubmitted, emptySA:emptySA})
   }
 
   componentWillReceiveProps (nextProps) {
+    //Look for any empty SA responses
+    let isSubmitted = false
+    let emptySA = false
+
     if (nextProps.session){
+      nextProps.session.questions.forEach(qId => {
+        let q = nextProps.questions[qId]
+        if (q && q.type === QUESTION_TYPE.SA){
+          let response = _(nextProps.myResponses).findWhere({ questionId:qId })
+          if(response && response.answer == false && response.answerWysiwyg == false){//double equal matters
+            emptySA = true
+          }
+        }
+      })
       Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
         if(err) alertify.error(err.error)
         if(!err && submitted) {
-          this.setState({submitted:true})
+          isSubmitted = true
         }
       })
     }
+    this.setState({submitted:isSubmitted, emptySA:emptySA})
   }
 
 
@@ -54,6 +81,9 @@ class _QuizSession extends Component {
   }
 
   submitQuiz () {
+    if (this.state.emptySA){
+      if(!confirm("You have empty short answers, submit anyway?")) return
+    }
     //Calll a method to unset the editable part of the responses.
     if (confirm('Are you sure? You can no longer update answers after submitting.')) {
       Meteor.call('sessions.submitQuiz', this.props.session._id, (err) => {

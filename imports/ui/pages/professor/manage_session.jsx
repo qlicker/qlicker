@@ -33,12 +33,15 @@ class _ManageSession extends Component {
 
   constructor (props) {
     super(props)
+    const now = moment().add(1,'hour')
+    const quizStart = this.props.session && this.props.session.quiz && this.props.session.quizStart instanceof Date ? this.props.session.quizStart : now.toDate()
+    const quizEnd = this.props.session&& this.props.session.quiz && this.props.session.quizEnd instanceof Date ? this.props.session.quizEnd : now.add(1, 'day').toDate()
 
     this.state = {
       editing: false,
       session: this.props.session,
-      quizStart: this.props.session ? this.props.session.quizStart :null,//needed for displaying in the form
-      quizEnd: this.props.session ? this.props.session.quizEnd : null,
+      quizStart: quizStart,
+      quizEnd: quizEnd,
       //questionPool: 'library',
       //limit: 11,
       //query: {query: {}, options: {}},
@@ -78,9 +81,18 @@ class _ManageSession extends Component {
   componentWillReceiveProps (nP) {
     if (!nP) return
     if (nP.session){
-      const quizStart = nP.session.quizStart
-      const quizEnd = nP.session.quizEnd
-      this.setState({ session: nP.session, quizStart:quizStart, quizEnd:quizEnd })
+      //const quizStart = nP.session.quizStart
+      //const quizEnd = nP.session.quizEnd
+      let session = nP.session
+      const now = moment().add(1,'hour')
+      const quizStart = session.quiz && session.quizStart instanceof Date ? session.quizStart : now.toDate()
+      let quizEnd = session.quiz && session.quizEnd instanceof Date ? session.quizEnd : now.add(1, 'day').toDate()
+      if ( moment(quizStart).isAfter(moment(quizEnd))  ) quizEnd = moment(quizStart).add(1,'hour').toDate()
+      if (session.quiz){
+        session.quizStart = quizStart
+        session.quizEnd = quizEnd
+      }
+      this.setState({ session: session, quizStart:quizStart, quizEnd:quizEnd })
     }
   }
 
@@ -112,18 +124,22 @@ class _ManageSession extends Component {
     const isMoment = amoment instanceof moment
     let quizStart = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
 
-    if(!isMoment){ // likely editing, don't save
-      this.setState({ quizStart: (amoment ? amoment  : null)})
+    if(!isMoment){
+      this.setState({ quizStart: quizStart})
       return
     }
-
+    // If the user set the start time after the end time, push the end time to one hour after start time
+    let quizEnd = this.state.session.quizEnd instanceof Date ? this.state.session.quizEnd : amoment.add(1,'hour').toDate()
     let sessionEdits = this.state.session
     sessionEdits.quizStart = quizStart
-    if (this.state.session.quizEnd && amoment.isAfter(this.state.session.quizEnd)){
-      alertify.error("Cannot set start time after end time!")
-      sessionEdits.quizStart = this.state.session.quizEnd
+    sessionEdits.quizEnd = quizEnd
+
+    if (amoment.isAfter(this.state.session.quizEnd)){
+      alertify.error("pushing back end time")
+      sessionEdits.quizEnd = amoment.add(1,'hour').toDate()
     }
-    this.setState({ quizStart: quizStart})
+
+    this.setState({ quizStart: quizStart, quizEnd: quizEnd })
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
@@ -134,16 +150,19 @@ class _ManageSession extends Component {
     let quizEnd = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
 
     if(!isMoment){
-      this.setState({ quizEnd: (amoment ? amoment  : null)})
+      this.setState({ quizEnd: quizEnd })
       return
     }
 
     let sessionEdits = this.state.session
     sessionEdits.quizEnd = quizEnd
-
+    //Prevent quizEnd to be changed if earlier than quiz start
     if (this.state.session.quizStart && amoment.isBefore(this.state.session.quizStart)){
       alertify.error("Cannot set end time before start time!")
-      sessionEdits.quizEnd = this.state.session.quizEnd
+      quizEnd = this.state.quizEnd
+      sessionEdits.quizEnd = quizEnd
+      this.setState({ quizEnd: quizEnd})
+      return
     }
     this.setState({ quizEnd: quizEnd})
     this.setState({ session: sessionEdits }, () => {
@@ -154,10 +173,20 @@ class _ManageSession extends Component {
   toggleQuizMode () {
     let sessionEdits = this.state.session
     sessionEdits.quiz = !sessionEdits.quiz
-    this.setState({ session: sessionEdits }, () => {
-      this._DB_saveSessionEdits()
-    })
-
+    if (sessionEdits.quiz){
+      const now = moment().add(1,'hour')
+      const quizStart = this.props.session && this.props.session.quizStart instanceof Date ? this.props.session.quizStart : now.toDate()
+      const quizEnd = this.props.session && this.props.session.quizEnd instanceof Date ? this.props.session.quizEnd : now.add(1, 'day').toDate()
+      sessionEdits.quizStart = quizStart
+      sessionEdits.quizEnd = quizEnd
+      this.setState({ session: sessionEdits, quizStart:quizStart, quizEnd:quizEnd}, () => {
+        this._DB_saveSessionEdits()
+      })
+    } else {
+      this.setState({ session: sessionEdits}, () => {
+        this._DB_saveSessionEdits()
+      })
+    }
   }
 
   // starts the session if there are questions
@@ -418,7 +447,9 @@ class _ManageSession extends Component {
       })
 
     let quizTimeInfo = ''
+    let quizTimeInfo2 = ''
     let quizTimeClassName = 'ql-quizTimeInfo'
+
     if (this.state.quizStart && !(this.state.quizStart instanceof Date) ){
       quizTimeInfo='Start time not in correct format!'
       quizTimeClassName +=' warning'
@@ -428,18 +459,28 @@ class _ManageSession extends Component {
       quizTimeClassName +=' warning'
     }
     if ((this.state.quizStart instanceof Date) && (this.state.quizEnd instanceof Date)){
-      quizTimeInfo ='Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart),true)
-    }
-
-    if (this.props.session.quizIsActive()){
-      quizTimeInfo='Warning: quiz is active! Change the dates!'
-      quizTimeClassName +=' warning'
+      quizTimeInfo =  'Quiz starts: '+ moment(this.state.quizStart).fromNow()
+      quizTimeInfo2 = 'Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart), true)
     }
 
     if (this.props.session.status === 'running'){
-      quizTimeInfo='Warning: quiz is live! Change the status!'
+      quizTimeInfo='Quiz is live! Check status!'
       quizTimeClassName +=' warning'
+      quizTimeInfo2 ='Quiz duration: until closed!'
     }
+    else if (this.props.session.quizIsActive()){
+      quizTimeInfo='Quiz is active! Check dates!'
+      quizTimeClassName +=' warning'
+      quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+    }
+    else if (this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore() ){
+      quizTimeInfo='Quiz would be active! Check dates!'
+      quizTimeClassName +=' warning'
+      quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+    }
+    else {}
+
+
 
     return (
       <div className='ql-manage-session'>
@@ -532,6 +573,12 @@ class _ManageSession extends Component {
                     <div className={quizTimeClassName}>
                       {quizTimeInfo}
                     </div>
+                    { quizTimeInfo2 ?
+                        <div className={quizTimeClassName}>
+                          {quizTimeInfo2}
+                        </div>
+                      : ''
+                    }
                   </div>
 
                  </div>
