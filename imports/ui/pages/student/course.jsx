@@ -67,7 +67,8 @@ class _Course extends Component {
       Router.go('session.results', { sessionId: session._id, courseId: this.props.course._id })
     }
     else if (session.status === 'done') {
-      alertify.error('Session not reviewable')
+      if (session.quiz) alertify.error('Quiz not reviewable')
+      else alertify.error('Session not reviewable')
     }
     else if (session.quiz && !session.quizIsActive() ){
       alertify.error('Quiz not open')
