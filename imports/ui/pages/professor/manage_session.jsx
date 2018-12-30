@@ -156,7 +156,7 @@ class _ManageSession extends Component {
 
     let sessionEdits = this.state.session
     sessionEdits.quizEnd = quizEnd
-
+    //Prevent quizEnd to be changed if earlier than quiz start
     if (this.state.session.quizStart && amoment.isBefore(this.state.session.quizStart)){
       alertify.error("Cannot set end time before start time!")
       quizEnd = this.state.quizEnd
