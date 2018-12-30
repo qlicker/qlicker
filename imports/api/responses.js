@@ -28,6 +28,7 @@ const responsePattern = {
   answerWysiwyg: Match.Maybe(String),
   correct: Match.Maybe(Boolean), // whether or not this response was correct (used in a quiz with multiple attempts)
   createdAt: Date,
+  updatedAt: Match.Maybe(Date),
   editable: Match.Maybe(Boolean)// whether the response can be updated (e.g. in a quiz setting)
 }
 
@@ -299,7 +300,10 @@ Meteor.methods({
     const q = Questions.findOne({ _id: responseObject.questionId })
 
     if (!q.sessionId) throw Error('Question not attached to session')
-
+    if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit this response')
+    const session = Sessions.findOne({ _id: q.sessionId})
+    if (session.quiz && !session.quizIsActive()) throw new Meteor.Error('Quiz is closed')
+    if (!session.quiz && !session.status === 'running') throw new Meteor.Error('Session is closed')
     // If this is a response in a quiz where the question has multiple possible attempts,
     // check if this answer is correct
     if (Meteor.isServer && isAutoGradeable(q.type) && q.sessionOptions && q.sessionOptions.maxAttempts > 1 &&
@@ -312,7 +316,7 @@ Meteor.methods({
       responseObject.correct = (points === q.sessionOptions.points * weight)
     }
 
-    if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit this response')
+
 
     // TODO check if attempt number is current in question
 
@@ -350,12 +354,13 @@ Meteor.methods({
     if (!('editable' in response) || !response.editable) throw new Meteor.Error('Cannot edit this response')
     if (responseObject.attempt !== 1) throw new Meteor.Error('Only 1 attempt allowed')
 
+    const updatedAt = new Date()
 
     return Responses.update({
       attempt: responseObject.attempt,
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
-    }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg } })
+    }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg, updatedAt: updatedAt } })
   },
 
   'responses.makeUneditable' (responseId) {
