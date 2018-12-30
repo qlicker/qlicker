@@ -22,6 +22,13 @@ export class _StudentCourseComponent extends Component {
     super(p)
     this.state = { }
     this.unEnroll = this.unEnroll.bind(this)
+    this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)  
+  }
+
+  addSubmittedQuiz (id) {
+    let submitted = this.state.submitted ? this.state.submitted : []
+    if (!_(submitted).contains(id) )submitted.push(id)
+    this.setState({submitted:submitted})
   }
 
   componentDidMount () {

@@ -39,7 +39,7 @@ class _QuizSession extends Component {
           }
         }
       })
-      if(session.quiz) {
+      if(this.props.session.quiz) {
         Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {
