@@ -22,7 +22,7 @@ export class _StudentCourseComponent extends Component {
     super(p)
     this.state = { }
     this.unEnroll = this.unEnroll.bind(this)
-    this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)  
+    this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)
   }
 
   addSubmittedQuiz (id) {
@@ -83,7 +83,7 @@ export class _StudentCourseComponent extends Component {
           <CourseListItem isTA={this.props.isTA} course={course} controls={controls} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
-                if (!s || s.quizIsClosed() || (this.state.submitted && _(this.state.submitted).contains(session._id))) return
+                if (!s || s.quizIsClosed() || (this.state.submitted && _(this.state.submitted).contains(s._id))) return
                 const sId = s._id
                 const nav = () => {
                   if (!Meteor.user().isInstructor(this.props.course._id)){
