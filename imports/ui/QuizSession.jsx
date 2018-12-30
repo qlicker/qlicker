@@ -45,10 +45,12 @@ class _QuizSession extends Component {
           if(!err && submitted) {
             isSubmitted = true
           }
+          this.setState({submitted:isSubmitted})
         })
       }
+
     }
-    this.setState({submitted:isSubmitted, emptySA:emptySA})
+    this.setState({emptySA:emptySA})
   }
 
   componentWillReceiveProps (nextProps) {
@@ -71,10 +73,11 @@ class _QuizSession extends Component {
           if(!err && submitted) {
             isSubmitted = true
           }
+          this.setState({submitted:isSubmitted})
         })
       }
     }
-    this.setState({submitted:isSubmitted, emptySA:emptySA})
+    this.setState({emptySA:emptySA})
   }
 
 
