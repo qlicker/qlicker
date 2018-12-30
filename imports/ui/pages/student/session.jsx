@@ -30,23 +30,27 @@ class _Session extends Component {
   }
   componentDidMount () {
     if (this.props.session){
-      Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
-        if(err) alertify.error(err.error)
-        if(!err && submitted) {
-          this.setState({submitted:true})
-        }
-      })
+      if (this.props.session.quiz){
+        Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            this.setState({submitted:true})
+          }
+        })
+      }
     }
   }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.session){
-      Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
-        if(err) alertify.error(err.error)
-        if(!err && submitted) {
-          this.setState({submitted:true})
-        }
-      })
+      if (nextProps.session.quiz) {
+        Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            this.setState({submitted:true})
+          }
+        })
+      }
     }
   }
 
