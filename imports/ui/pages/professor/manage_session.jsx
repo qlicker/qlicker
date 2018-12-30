@@ -83,11 +83,16 @@ class _ManageSession extends Component {
     if (nP.session){
       //const quizStart = nP.session.quizStart
       //const quizEnd = nP.session.quizEnd
+      let session = nP.session
       const now = moment().add(1,'hour')
-      const quizStart = this.props.session && this.props.session.quiz && this.props.session.quizStart instanceof Date ? this.props.session.quizStart : now.toDate()
-      const quizEnd = this.props.session&& this.props.session.quiz && this.props.session.quizEnd instanceof Date ? this.props.session.quizEnd : now.add(1, 'day').toDate()
-
-      this.setState({ session: nP.session, quizStart:quizStart, quizEnd:quizEnd })
+      const quizStart = session.quiz && session.quizStart instanceof Date ? session.quizStart : now.toDate()
+      let quizEnd = session.quiz && session.quizEnd instanceof Date ? session.quizEnd : now.add(1, 'day').toDate()
+      if ( moment(quizStart).isAfter(moment(quizEnd))  ) quizEnd = moment(quizStart).add(1,'hour').toDate()
+      if (session.quiz){
+        session.quizStart = quizStart
+        session.quizEnd = quizEnd
+      }
+      this.setState({ session: session, quizStart:quizStart, quizEnd:quizEnd })
     }
   }
 
@@ -123,14 +128,18 @@ class _ManageSession extends Component {
       this.setState({ quizStart: quizStart})
       return
     }
-
+    // If the user set the start time after the end time, push the end time to one hour after start time
+    let quizEnd = this.state.session.quizEnd instanceof Date ? this.state.session.quizEnd : amoment.add(1,'hour').toDate()
     let sessionEdits = this.state.session
     sessionEdits.quizStart = quizStart
-    if (this.state.session.quizEnd && amoment.isAfter(this.state.session.quizEnd)){
-      alertify.error("Cannot set start time after end time!")
-      sessionEdits.quizStart = this.state.session.quizEnd
+    sessionEdits.quizEnd = quizEnd
+
+    if (amoment.isAfter(this.state.session.quizEnd)){
+      alertify.error("pushing back end time")
+      sessionEdits.quizEnd = amoment.add(1,'hour').toDate()
     }
-    this.setState({ quizStart: quizStart})
+
+    this.setState({ quizStart: quizStart, quizEnd: quizEnd })
     this.setState({ session: sessionEdits }, () => {
       this._DB_saveSessionEdits()
     })
@@ -150,7 +159,10 @@ class _ManageSession extends Component {
 
     if (this.state.session.quizStart && amoment.isBefore(this.state.session.quizStart)){
       alertify.error("Cannot set end time before start time!")
-      sessionEdits.quizEnd = this.state.session.quizEnd
+      quizEnd = this.state.quizEnd
+      sessionEdits.quizEnd = quizEnd
+      this.setState({ quizEnd: quizEnd})
+      return
     }
     this.setState({ quizEnd: quizEnd})
     this.setState({ session: sessionEdits }, () => {
@@ -447,19 +459,28 @@ class _ManageSession extends Component {
       quizTimeClassName +=' warning'
     }
     if ((this.state.quizStart instanceof Date) && (this.state.quizEnd instanceof Date)){
-      quizTimeInfo =  'Quiz starts in: '+ moment(this.state.quizStart).from(moment(),true)
-      quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart),true)
-    }
-
-    if (this.props.session.quizIsActive()){
-      quizTimeInfo='Quiz is active! Check dates!'
-      quizTimeClassName +=' warning'
+      quizTimeInfo =  'Quiz starts: '+ moment(this.state.quizStart).fromNow()
+      quizTimeInfo2 = 'Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart), true)
     }
 
     if (this.props.session.status === 'running'){
       quizTimeInfo='Quiz is live! Check status!'
       quizTimeClassName +=' warning'
+      quizTimeInfo2 ='Quiz duration: until closed!'
     }
+    else if (this.props.session.quizIsActive()){
+      quizTimeInfo='Quiz is active! Check dates!'
+      quizTimeClassName +=' warning'
+      quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+    }
+    else if (this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore() ){
+      quizTimeInfo='Quiz would be active! Check dates!'
+      quizTimeClassName +=' warning'
+      quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+    }
+    else {}
+
+
 
     return (
       <div className='ql-manage-session'>
