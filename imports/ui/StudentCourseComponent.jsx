@@ -27,12 +27,14 @@ export class _StudentCourseComponent extends Component {
   componentDidMount () {
     if (this.props.sessions){
       this.props.sessions.forEach(s => {
-        Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
-            this.addSubmittedQuiz(s._id)
-          }
-        })
+        if (s.quiz){
+          Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
+            if(err) alertify.error(err.error)
+            if(!err && submitted) {
+              this.addSubmittedQuiz(s._id)
+            }
+          })
+        }
       })
     }
   }
@@ -40,12 +42,14 @@ export class _StudentCourseComponent extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.sessions){
       nextProps.sessions.forEach(s => {
-        Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
-            this.addSubmittedQuiz(s._id)
-          }
-        })
+        if(s.quiz){
+          Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
+            if(err) alertify.error(err.error)
+            if(!err && submitted) {
+              this.addSubmittedQuiz(s._id)
+            }
+          })
+        }
       })
     }
   }

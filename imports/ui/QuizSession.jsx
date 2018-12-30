@@ -28,7 +28,7 @@ class _QuizSession extends Component {
   componentDidMount () {
     let isSubmitted = false
     let emptySA = false
-
+    //Look for any SA response that is empty, so that user can be warned upon submission
     if (this.props.session){
       this.props.session.questions.forEach(qId => {
         let q = this.props.questions[qId]
@@ -39,21 +39,22 @@ class _QuizSession extends Component {
           }
         }
       })
-      Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
-        if(err) alertify.error(err.error)
-        if(!err && submitted) {
-          isSubmitted = true
-        }
-      })
+      if(session.quiz) {
+        Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            isSubmitted = true
+          }
+        })
+      }
     }
     this.setState({submitted:isSubmitted, emptySA:emptySA})
   }
 
   componentWillReceiveProps (nextProps) {
-    //Look for any empty SA responses
     let isSubmitted = false
     let emptySA = false
-
+    //Look for any SA response that is empty, so that user can be warned upon submission
     if (nextProps.session){
       nextProps.session.questions.forEach(qId => {
         let q = nextProps.questions[qId]
@@ -64,12 +65,14 @@ class _QuizSession extends Component {
           }
         }
       })
-      Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
-        if(err) alertify.error(err.error)
-        if(!err && submitted) {
-          isSubmitted = true
-        }
-      })
+      if (nextProps.session.quiz){
+        Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
+          if(err) alertify.error(err.error)
+          if(!err && submitted) {
+            isSubmitted = true
+          }
+        })
+      }
     }
     this.setState({submitted:isSubmitted, emptySA:emptySA})
   }
