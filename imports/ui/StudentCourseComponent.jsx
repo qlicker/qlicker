@@ -83,7 +83,7 @@ export class _StudentCourseComponent extends Component {
           <CourseListItem isTA={this.props.isTA} course={course} controls={controls} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
-                if (!s || s.quizIsClosed() || (this.state.submitted && _(this.state.submitted).contains(s._id))) return
+                if (!s || s.quizIsClosed() || (s.quiz && !s.quizIsActive()) || (this.state.submitted && _(this.state.submitted).contains(s._id))) return
                 const sId = s._id
                 const nav = () => {
                   if (!Meteor.user().isInstructor(this.props.course._id)){
