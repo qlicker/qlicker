@@ -475,7 +475,7 @@ class _ManageSession extends Component {
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
       if(this.props.session.quiz) quizTimeActive = true
     }
-    else if (this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore() ){
+    else if (this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore()  && moment(this.state.quizEnd).isAfter() ){
       quizTimeInfo='Quiz would be active! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
