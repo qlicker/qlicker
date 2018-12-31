@@ -449,6 +449,7 @@ class _ManageSession extends Component {
     let quizTimeInfo = ''
     let quizTimeInfo2 = ''
     let quizTimeClassName = 'ql-quizTimeInfo'
+    let quizTimeActive = false //used to change displayed status from "Upcoming" to "Visible"
 
     if (this.state.quizStart && !(this.state.quizStart instanceof Date) ){
       quizTimeInfo='Start time not in correct format!'
@@ -472,11 +473,13 @@ class _ManageSession extends Component {
       quizTimeInfo='Quiz is active! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+      if(this.props.session.quiz) quizTimeActive = true
     }
     else if (this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore() ){
       quizTimeInfo='Quiz would be active! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+      if(this.props.session.quiz) quizTimeActive = true
     }
     else {}
 
@@ -500,7 +503,7 @@ class _ManageSession extends Component {
           <span className='divider'>&nbsp;</span>
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
             <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
-            <option value='visible'>{SESSION_STATUS_STRINGS['visible']}</option>
+            <option value='visible'>{quizTimeActive ? 'Visible' : SESSION_STATUS_STRINGS['visible']}</option>
             <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
             <option value='done'>{SESSION_STATUS_STRINGS['done']}</option>
           </select>
