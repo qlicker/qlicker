@@ -330,7 +330,7 @@ Meteor.methods({
     session.questions = []
 
     // insert new session and update course object
-    const newSessionId = Sessions.insert(_(session).omit(['_id', 'currentQuestion', 'joined', 'submittedQuiz']))
+    const newSessionId = Sessions.insert(_(session).omit(['_id', 'currentQuestion', 'joined', 'submittedQuiz','date','quizStart', 'quizEnd']))
     Courses.update({ _id: session.courseId }, {
       $addToSet: { sessions: newSessionId }
     })
