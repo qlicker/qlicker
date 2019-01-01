@@ -82,8 +82,8 @@ class _ManageCourse extends Component {
   endSession (sessionId) {
     if (confirm('Are you sure?')) {
       Meteor.call('sessions.endSession', sessionId, (error) => {
-        if (error) return alertify.error('Couldn\'t start session')
-        alertify.success('Session completed!')
+        if (error) return alertify.error('Couldn\'t end session')
+        alertify.success('Session ended!')
       })
     }
   }
@@ -188,19 +188,13 @@ class _ManageCourse extends Component {
           if (!ses) return
           const sId = ses._id
           const nav = () => {
-            if (ses.status === 'running') Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
+            if (ses.status === 'running' && !ses.quiz) Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
             else Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
           const controls = []
           if (ses.status === 'running' || ses.quizIsActive() ) {
-            controls.push({
-              label: 'Open Session Display',
-              click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') }
-            })
-            controls.push({
-              label: 'End session',
-              click: () => { this.endSession(sId) }
-            })
+            if(!ses.quiz) controls.push({ label: 'Open Session Display',  click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') } })
+            controls.push({ label: 'End session', click: () => { this.endSession(sId) } })
             controls.push({ divider: true })
           }
           if (ses.status === 'done') {
@@ -210,6 +204,10 @@ class _ManageCourse extends Component {
           }
           if (ses.status !== 'done' && ses.status !== 'running' && !ses.quizIsActive()) {
             controls.push({ label: 'Make live', click: () => this.startSession(sId) })
+          }
+          if (ses.status !== 'done' && ses.status !== 'hidden' && ses.quizIsClosed()) {
+            controls.push({ label: 'End quiz', click: () => { this.endSession(sId) }
+            })
           }
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
           controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
