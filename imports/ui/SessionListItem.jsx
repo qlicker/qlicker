@@ -33,6 +33,16 @@ export class SessionListItem extends ListItem {
     })
   }
 
+  endSession(evt){
+    const sessionId = this.props.session._id
+    if (confirm('Are you sure?')) {
+      Meteor.call('sessions.endSession', sessionId, (error) => {
+        if (error) return alertify.error('Couldn\'t end session')
+        alertify.success('Session ended!')
+      })
+    }
+  }
+
   reviewSession (evt) {
     evt.stopPropagation()
     const sessionId = this.props.session._id
@@ -70,6 +80,8 @@ export class SessionListItem extends ListItem {
     let link = ''
     if (Meteor.user().isInstructor(session.courseId) && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a>
+    } else if (Meteor.user().isInstructor(session.courseId) && session.status !== 'done' && session.status !== 'hidden' && session.quizIsClosed()) {
+      link = <a href='#' className='toolbar-button' onClick={(evt) => this.endSession(evt)}>Close quiz</a>
     } else if (Meteor.user().hasRole('student') && session.reviewable && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.reviewSession(evt)}>Review</a>
     } else {}
