@@ -7,6 +7,7 @@ import React from 'react'
 import _ from 'underscore'
 
 import { ControlledForm } from '../ControlledForm'
+import moment from 'moment-timezone'
 
 export const DEFAULT_STATE = {
   name: '',
