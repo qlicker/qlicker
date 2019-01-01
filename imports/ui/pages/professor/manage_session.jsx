@@ -504,7 +504,7 @@ class _ManageSession extends Component {
           <select className='ql-unstyled-select form-control status-select' data-name='status' onChange={this.checkReview} defaultValue={this.state.session.status}>
             <option value='hidden'>{SESSION_STATUS_STRINGS['hidden']}</option>
             <option value='visible'>{quizTimeActive ? 'Visible' : SESSION_STATUS_STRINGS['visible']}</option>
-            <option value='running'>{SESSION_STATUS_STRINGS['running']}</option>
+            <option value='running'>{this.props.session.quiz ? 'Live (ignore dates)':SESSION_STATUS_STRINGS['running']}</option>
             <option value='done'>{SESSION_STATUS_STRINGS['done']}</option>
           </select>
           <span className='divider'>&nbsp;</span>
