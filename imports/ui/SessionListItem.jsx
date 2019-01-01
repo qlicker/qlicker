@@ -35,11 +35,23 @@ export class SessionListItem extends ListItem {
 
   endSession(evt){
     evt.stopPropagation()
-    const sessionId = this.props.session._id
     if (confirm('Are you sure?')) {
+      const sessionId = this.props.session._id
       Meteor.call('sessions.endSession', sessionId, (error) => {
         if (error) return alertify.error('Couldn\'t end session')
         alertify.success('Session ended!')
+      })
+    }
+  }
+
+  makeVisible(evt){
+    evt.stopPropagation()
+    if (confirm('Are you sure?')) {
+      let session = this.props.session
+      session.status = 'visible'
+      Meteor.call('sessions.edit', session, (error) => {
+        if (error) alertify.error('Error: ' + error.error)
+        else alertify.success('Session now visible by students')
       })
     }
   }
@@ -55,17 +67,20 @@ export class SessionListItem extends ListItem {
     const controls = this.makeControls()
     const currentTime = Date.now()
     let status = session.status
+    let quizWouldBeActive = false
+
     if(session.quizIsActive() ){
       status = 'running'
     }
     if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd ) {
       status = 'done'
     }
-
     if (this.props.submittedQuiz){
       status = 'done'
     }
-
+    if (session.quiz && session.status === 'hidden' && session.quizEnd && currentTime < session.quizEnd ) {
+      quizWouldBeActive = true
+    }
     const strStatus = SESSION_STATUS_STRINGS[status] + (session.quiz ? ' (Quiz)' : '')
 
     const strAllowReview = this.props.session.reviewable ? 'Disable Review' : 'Allow Review'
@@ -83,6 +98,8 @@ export class SessionListItem extends ListItem {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a>
     } else if (Meteor.user().isInstructor(session.courseId) && session.status !== 'done' && session.status !== 'hidden' && session.quizIsClosed()) {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.endSession(evt)}>Close quiz</a>
+    } else if (Meteor.user().isInstructor(session.courseId) && quizWouldBeActive) {
+      link = <a href='#' className='toolbar-button' onClick={(evt) => this.makeVisible(evt)}>Make quiz visible</a>
     } else if (Meteor.user().hasRole('student') && session.reviewable && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.reviewSession(evt)}>Review</a>
     } else {}
