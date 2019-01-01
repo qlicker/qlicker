@@ -78,7 +78,8 @@ export class SessionListItem extends ListItem {
     if (this.props.submittedQuiz){
       status = 'done'
     }
-    if (session.quiz && session.status === 'hidden' && session.quizEnd && currentTime < session.quizEnd ) {
+    //Show a link to activate the session from draft to visible, if it has questions and would not be past
+    if (session.quiz && session.status === 'hidden' && session.quizEnd && currentTime < session.quizEnd && session.questions.length > 0) {
       quizWouldBeActive = true
     }
     const strStatus = SESSION_STATUS_STRINGS[status] + (session.quiz ? ' (Quiz)' : '')
