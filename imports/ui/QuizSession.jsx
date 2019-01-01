@@ -39,7 +39,7 @@ class _QuizSession extends Component {
           }
         }
       })
-      if(this.props.session.quiz) {
+      if(this.props.session.quizIsActive()) {
         Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {
@@ -67,7 +67,7 @@ class _QuizSession extends Component {
           }
         }
       })
-      if (nextProps.session.quiz){
+      if (nextProps.session.quizIsActive()){
         Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {
@@ -109,24 +109,9 @@ class _QuizSession extends Component {
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
-    if (this.state.submitted/*this.props.session.quizCompleted(user._id)*/){
+    if (this.state.submitted || !this.props.session.quizIsActive()){
       Router.go('/course/' + this.props.session.courseId)
     }
-    const status = this.props.session.status
-    if (status !== 'running' && !this.props.session.quizIsActive()) {
-      let statusMessage
-      if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
-      if (status === 'done') {
-        statusMessage = 'This session has finished'
-        if (user && !user.isInstructor(cId)) {
-          // if it's an instructor, this is being shown as a second display, so dont't
-          // go to the course page and show everyone the class list
-          Router.go('/course/' + this.props.session.courseId)
-        }
-      }
-      return <div className='ql-subs-loading'>{statusMessage}</div>
-    }
-
 
     const session = this.props.session
     const qlist = session.questions

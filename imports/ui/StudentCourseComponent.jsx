@@ -34,7 +34,7 @@ export class _StudentCourseComponent extends Component {
   componentDidMount () {
     if (this.props.sessions){
       this.props.sessions.forEach(s => {
-        if (s.quiz){
+        if (s.quizIsActive()){
           Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
             if(err) alertify.error(err.error)
             if(!err && submitted) {
@@ -49,7 +49,7 @@ export class _StudentCourseComponent extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.sessions){
       nextProps.sessions.forEach(s => {
-        if(s.quiz){
+        if(s.quizIsActive()){
           Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
             if(err) alertify.error(err.error)
             if(!err && submitted) {
