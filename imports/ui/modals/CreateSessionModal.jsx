@@ -14,6 +14,8 @@ export const DEFAULT_STATE = {
   courseId: '',
   quiz: false,
   date: undefined, // Added the following to have all fields:
+  quizStart: undefined,
+  quizEnd: undefined,
   status: 'hidden',
   questions: [],
   tags: [],
@@ -40,7 +42,17 @@ export class CreateSessionModal extends ControlledForm {
     let stateEdits = {}
     let key = e.target.dataset.name
     // if (key === 'quiz') stateEdits[e.target.dataset.name] = (e.target.value === 'on')
-    if (key === 'quiz') stateEdits[e.target.dataset.name] = !this.state.quiz
+    if (key === 'quiz'){
+      stateEdits[e.target.dataset.name] = !this.state.quiz
+      if(!this.state.quiz){// we are setting this to a quiz!!!!
+        const now = moment().add(1,'hour')
+        const quizStart = now.toDate()
+        const quizEnd = now.add(1, 'day').toDate()
+
+        stateEdits.quizStart = quizStart
+        stateEdits.quizEnd = quizEnd
+      }
+    }
     else stateEdits[e.target.dataset.name] = e.target.value
     // stateEdits[e.target.dataset.name] = e.target.value
     this.setState(stateEdits)
