@@ -34,6 +34,7 @@ export class SessionListItem extends ListItem {
   }
 
   endSession(evt){
+    evt.stopPropagation()
     const sessionId = this.props.session._id
     if (confirm('Are you sure?')) {
       Meteor.call('sessions.endSession', sessionId, (error) => {
