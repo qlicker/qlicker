@@ -367,9 +367,9 @@ Meteor.methods({
     check(responseId, Helpers.MongoID)
     const response = Responses.findOne({ _id: responseId })
     if (Meteor.userId() !== response.studentUserId) throw new Meteor.Error('Not authorized to update this response')
-    if (!response.editable) throw new Meteor.Error('Response is not editable')
-
-    return Responses.update({ _id: responseId }, { $set: { editable: false } })
+    //if (!response.editable) throw new Meteor.Error('Response is not editable')
+    if (response.editable) return Responses.update({ _id: responseId }, { $set: { editable: false } })
+    else return
   }
 
 
