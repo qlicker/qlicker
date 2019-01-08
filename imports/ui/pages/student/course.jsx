@@ -88,7 +88,7 @@ class _Course extends Component {
     sessions = _(sessions).chain().sortBy(function (ses) {
       return ses.date
     }).reverse().sortBy(function (ses) {
-      return statusSort[ses.status]
+      return ses.quizIsActive() ? 1 : statusSort[ses.status]
     }).value()
 
     const maxNum = 8

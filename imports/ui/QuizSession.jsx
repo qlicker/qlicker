@@ -169,7 +169,7 @@ class _QuizSession extends Component {
                   qCount2 += 1
                   const q = this.props.questions[qid]
                   if (!q || !q.sessionOptions) return <div className='ql-subs-loading'>Loading</div>
-
+                  const points = q.sessionOptions.points ? q.sessionOptions.points : 0
                   //const responses = _.where(this.props.myResponses, { questionId: qid })
                   //let response =  responses.length >0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
                   let response = _(this.props.myResponses).findWhere({ questionId:qid })
@@ -190,7 +190,7 @@ class _QuizSession extends Component {
                   return (
                     <div className='ql-quiz-session-question' ref={"qdisp"+qid} key={"qdisp"+qid} >
                       <div className='ql-quiz-session-question-title'>
-                        Question {qCount2} of {qlist.length}
+                        Question {qCount2} of {qlist.length} ({points} points)
                       </div>
                       { q ? questionDisplay : '' }
                     </div>
