@@ -114,7 +114,7 @@ export class SessionListItem extends ListItem {
     if (session.quiz){
       if (session.status === 'done'){
         timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
-      } else if (session.status === 'running' && this.props.submittedQuiz) {
+      } else if (session.quizIsActive() && this.props.submittedQuiz) {
         timeString = 'Submitted'
       }
       else if (session.quizStart && currentTime < session.quizStart){
