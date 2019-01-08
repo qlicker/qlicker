@@ -487,7 +487,7 @@ Meteor.methods({
     if (!session.quiz) throw new Meteor.Error('Not a quiz')
     if (!user.isStudent(session.courseId)) throw new Meteor.Errorr('User is not a student in course')
     if (Meteor.isServer && ! _(session.joined).contains(user._id) ) throw new Meteor.Error('User did not start quiz')
-    if ( 'submittedQuiz' in session && _(session.submittedQuiz).contains(user._id)) throw new Meteor.Error('User already submitte quiz')
+    if ( 'submittedQuiz' in session && _(session.submittedQuiz).contains(user._id)) throw new Meteor.Error('User already submitted quiz')
 
     const responseIds = _(Responses.find({ questionId: { $in: session.questions }, studentUserId: Meteor.userId(), attempt: 1 }).fetch()).pluck('_id')
 
