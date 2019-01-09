@@ -33,7 +33,10 @@ class _ResponseList extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.studentToView) {
       const node = ReactDOM.findDOMNode(this.refs[nextProps.studentToView._id])
-      if (node) window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
+      if (node){
+        window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
+        if(this.props.unsetStudentToView) this.props.unsetStudentToView()
+      }
     }
     if (nextProps.questionId !== this.props.questionId){
       this.setState( {unsavedChanges: {}}, () => {
@@ -243,5 +246,6 @@ ResponseList.propTypes = {
   students: PropTypes.array,
   studentToView: PropTypes.object,
   grades: PropTypes.array,
-  setUnsavedChanges: PropTypes.func
+  setUnsavedChanges: PropTypes.func,
+  unsetStudentToView: PropTypes.func
 }

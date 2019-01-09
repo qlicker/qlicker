@@ -44,6 +44,7 @@ class _GradeSession extends Component {
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.setAnswerSearchString = this.setAnswerSearchString.bind(this)
     this.setStudentToView = this.setStudentToView.bind(this)
+    this.unsetStudentToView = this.unsetStudentToView.bind(this)
     this.setCategory = this.setCategory.bind(this)
     this.setGroup = this.setGroup.bind(this)
     this.incrementQuestion = this.incrementQuestion.bind(this)
@@ -111,6 +112,10 @@ class _GradeSession extends Component {
 
   setStudentToView (student) {
     this.setState({studentToView: student})
+  }
+
+  unsetStudentToView () {
+    this.setState({studentToView: null})
   }
 
   setCategory (option) {
@@ -374,6 +379,7 @@ class _GradeSession extends Component {
                   students={studentsToShow}
                   studentToView={this.state.studentToView}
                   setUnsavedChanges={this.setUnsavedChanges}
+                  unsetStudentToView={this.unsetStudentToView}
                 />
               </div>
             </div>
