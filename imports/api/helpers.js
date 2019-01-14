@@ -26,8 +26,12 @@ const Helpers = {
     return x.length > 0
   }),
   MongoID: Match.Where(function (id) {
-    check(id, Helpers.NEString)
-    return /[0-9a-fA-F]/.test(id)
+    //previous
+    //check(id, Helpers.NEString)
+    //return /[0-9a-fA-F]/.test(id)
+    //but have seen documents where the id is a string, not a hex number:
+    check(x, String)
+    return x.length > 0
   }),
   Email: Match.Where(function (x) {
     check(x, String)
@@ -52,4 +56,3 @@ const Helpers = {
 }
 
 export default Helpers
-
