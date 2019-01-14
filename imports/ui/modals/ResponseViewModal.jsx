@@ -14,14 +14,16 @@ export class ResponseViewModal extends ControlledForm {
   constructor (props) {
     super(props)
     this.state = {
-      feedback: undefined,
+      feedback: '',
     }
+    this.setFeedback = this.setFeedback.bind(this)
+    this.updateFeedback = this.updateFeedback.bind(this)
+    this._DB_updateFeedback =  _.debounce(this.updateFeedback, 500)
   }
 
   componentDidMount () {
 
-    const feedback = this.props.feedback
-    this.setState({ feedback:feedback })
+    this.setState({ feedback:this.props.feedback })
     MathJax.Hub.Queue(['Typeset', MathJax.Hub])
   }
 
@@ -31,6 +33,15 @@ export class ResponseViewModal extends ControlledForm {
     const feedback = nextProps.feedback
     this.setState({ feedback:feedback })
 
+  }
+
+  updateFeedback(text) {
+    this.props.updateFeedback(this.props.studentId, text)
+  }
+
+  setFeedback (e) {
+    this.setState({ feedback: e.target.value})
+    this._DB_updateFeedback(e.target.value)
   }
 
   /**
@@ -46,10 +57,10 @@ export class ResponseViewModal extends ControlledForm {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
     //const setFeedback = (e) => _.debounce(this.props.updateFeedback(this.props.studentId, e.target.value),500)
 
-    const setFeedback = (e) =>{
+    /*const setFeedback = (e) =>{
        this.setState({ feedback: e.target.value})
        _.debounce(this.props.updateFeedback(this.props.studentId, e.target.value),500)
-     }
+     }*/
 
     const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
     let saveGrade = undefined
@@ -87,7 +98,7 @@ export class ResponseViewModal extends ControlledForm {
                       <span>&nbsp;/{outOf}</span>
                     </div>
                     <div className='ql-responseViewModal-controls-feedback'>
-                      Feedback: <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />
+                      Feedback: <textarea className='textField' value={this.state.feedback} onChange={this.setFeedback} />
                     </div>
                   </div>
                   <div className='ql-responseViewModal-buttons'>
