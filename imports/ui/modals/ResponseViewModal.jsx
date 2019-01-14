@@ -30,7 +30,7 @@ export class ResponseViewModal extends ControlledForm {
 
   render () {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
-    const setFeedback = (e) => this.props.updateFeedback(this.props.studentId, e.target.value)
+    const setFeedback = (e) => _.debounce(this.props.updateFeedback(this.props.studentId, e.target.value),500)
     const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
     let saveGrade = undefined
     let cancelChange = undefined
