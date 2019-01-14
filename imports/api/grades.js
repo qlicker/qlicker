@@ -278,7 +278,7 @@ Meteor.methods({
     // points must be positive
     if (mark.points < 0 ) throw Error('No negativ points for a mark')
 
-    const grade = Grades.findOne({ _id: gradeId })
+    let grade = Grades.findOne({ _id: gradeId })
     if (!grade) throw Error('Undefined grade in update!')
 
     const user = Meteor.user()
