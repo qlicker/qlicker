@@ -172,7 +172,7 @@ class _ResponseList extends Component {
               if (index %2 !== 0) className += ' highlight'
               const points = this.state.unsavedChanges[stuId] && 'points' in this.state.unsavedChanges[stuId] ?
                              this.state.unsavedChanges[stuId]['points'] : mark.points
-              const feedback = this.state.unsavedChanges[stuId] && this.state.unsavedChanges[stuId]['feedback'] ?
+              const feedback = this.state.unsavedChanges[stuId] && (this.state.unsavedChanges[stuId]['feedback'] || this.state.unsavedChanges[stuId]['feedback']==='')?
                             this.state.unsavedChanges[stuId]['feedback'] : (mark.feedback ? mark.feedback : '')
 
               const studentHasChanges = hasUnsaved && this.state.unsavedChanges[stuId]

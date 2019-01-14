@@ -45,7 +45,7 @@ export class ResponseDisplay extends Component {
 
   render() {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
-    const setFeedback = (e) => this.props.updateFeedback(this.props.studentId, e.target.value)
+    const setFeedback = (e) =>  _.debounce(this.props.updateFeedback(this.props.studentId, e.target.value),500)
     const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
     const saveGrade = this.props.saveGrade ? () => this.props.saveGrade(this.props.studentId) : undefined
     const cancelChange = this.props.cancelChange ? () => this.props.cancelChange(this.props.studentId) : undefined
@@ -59,6 +59,8 @@ export class ResponseDisplay extends Component {
     //const attempt = response ? response.attempt : -1
     const showPrev = response && this.state.responseIndex > 0
     const showNext =  response && this.state.responseIndex < nResponses - 1
+
+
 
     if (this.state.showResponseView && response) return(
        <ResponseViewModal
