@@ -107,7 +107,7 @@ class _ResponseList extends Component {
       return
     }
 
-    mark.feedback = studentChanges['feedback'] ? studentChanges['feedback'] : (mark.feedback ? mark.feedback : '')
+    mark.feedback = 'feedback' in studentChanges ? studentChanges['feedback'] : (mark.feedback ? mark.feedback : '')
     mark.points = points
     mark.needsGrading = false
     Meteor.call('grades.updateMark', gradeId, mark, (err) => {
