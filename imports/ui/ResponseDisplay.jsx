@@ -13,16 +13,19 @@ export class ResponseDisplay extends Component {
 
     this.state = {
       showResponseView: false,
+      feedback: undefined,
     }
 
     this.incrementResponse = this.incrementResponse.bind(this)
+    //this.updateFeedback
 
   }
 
   componentDidMount () {
     if(this.props.mark && this.props.responses && this.props.responses.length > 0){
       const index = _(this.props.responses).findIndex((r) => {return r._id === this.props.mark.responseId})
-      this.setState({ responseIndex: index })
+      const feedback = this.props.feedback
+      this.setState({ responseIndex: index, feedback:feedback })
     }
   }
 
@@ -31,7 +34,9 @@ export class ResponseDisplay extends Component {
     const index =(nextProps.mark && nextProps.responses && nextProps.responses.length > 0) ?
                   _(nextProps.responses).findIndex((r) => {return r._id === nextProps.mark.responseId})
                   : -1
-    this.setState({ responseIndex:index})
+
+    const feedback = nextProps.feedback
+    this.setState({ responseIndex:index, feedback:feedback })
 
   }
 
@@ -45,7 +50,10 @@ export class ResponseDisplay extends Component {
 
   render() {
     const outOf = this.props.mark ? this.props.mark.outOf : 0
-    const setFeedback = (e) =>  _.debounce(this.props.updateFeedback(this.props.studentId, e.target.value),500)
+    const setFeedback = (e) =>{
+       this.setState({ feedback: e.target.value})
+       _.debounce(this.props.updateFeedback(this.props.studentId, e.target.value),500)
+     }
     const setPoints = (e) => this.props.updatePoints(this.props.studentId, parseFloat(e.target.value))
     const saveGrade = this.props.saveGrade ? () => this.props.saveGrade(this.props.studentId) : undefined
     const cancelChange = this.props.cancelChange ? () => this.props.cancelChange(this.props.studentId) : undefined
@@ -67,7 +75,7 @@ export class ResponseDisplay extends Component {
           studentName={this.props.studentName}
           studentId={this.props.studentId}
           points={this.props.points}
-          feedback={this.props.feedback}
+          feedback={this.state.feedback}
           updateFeedback={this.props.updateFeedback}
           updatePoints={this.props.updatePoints}
           saveGrade={this.props.saveGrade}
@@ -122,7 +130,7 @@ export class ResponseDisplay extends Component {
               <span>&nbsp;/{outOf}</span>
           </div>
           <div className='feedback'>
-            <textarea className='textField' value={this.props.feedback} onChange={setFeedback} />
+            <textarea className='textField' value={this.state.feedback} onChange={setFeedback} />
           </div>
           <div className='save-button'>
             { saveGrade ?
