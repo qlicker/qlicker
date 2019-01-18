@@ -186,11 +186,15 @@ Meteor.methods({
    * send verification to another user email
    */
   'users.sendVerificationEmailTo' (toUserId) {
-    let userId = Meteor.userId()
-    if (userId && Meteor.isServer && Meteor.user.hasGreaterRole(ROLES.admin)) {
-      return Accounts.sendVerificationEmail(toUserId)
-    } else {
-      throw new Meteor.Error('not-authorized', 'not-authorized')
+    //let userId = Meteor.userId()
+    check(toUserId, Helpers.MongoID)
+    if(Meteor.isServer){
+      const user = Meteor.user()
+      if (user && user.hasGreaterRole(ROLES.admin)) {
+        return Accounts.sendVerificationEmail(toUserId)
+      } else {
+        throw new Meteor.Error('not-authorized', 'not-authorized')
+      }
     }
   },
   /**
