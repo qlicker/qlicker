@@ -308,7 +308,8 @@ class _GradeSession extends Component {
                         if (studentGrade && studentMark.needsGrading) className += ' red'
                         if (studentToView && student._id === studentToView._id) className += ' selected'
 
-                        const gradeString = studentGrade ? "  (Total: "+studentGrade.points+"/"+studentGrade.outOf+")" : ""
+                        const gradeString = studentGrade ? "  (Total: "+studentGrade.points.toFixed(1)+"/"+studentGrade.outOf.toFixed(1)+")" : ""
+
                         return (
                           <div key={'s2' + student._id} className={className} onClick={onClick}>
                             {student.profile.lastname}, {student.profile.firstname} {gradeString}
