@@ -119,6 +119,7 @@ class _QuizSession extends Component {
     let qCount = 0
     let qCount2 = 0
     const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length && !this.state.submitted
+    const answersLeft = qlist.length - this.props.myResponses.length
 
 
     const scrollToFirst = () => this.scrollTo(qlist[0])
@@ -156,7 +157,10 @@ class _QuizSession extends Component {
                     </div>
                   </div>
                 </div>
-
+                :''
+              }
+              { answersLeft > 0 ?
+                <div className='ql-quiz-qleft'> {answersLeft} left! </div>
                 :''
               }
             </div>
@@ -205,6 +209,10 @@ class _QuizSession extends Component {
                     </div>
                   </div>
                 </div>
+                :''
+              }
+              { answersLeft > 0 ?
+                <div className='ql-quiz-qleft'> {answersLeft} questions let to answer! </div>
                 :''
               }
             </div>
