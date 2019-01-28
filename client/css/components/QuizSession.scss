@@ -18,6 +18,20 @@
     padding-bottom: 20px;
   }
 
+  .ql-quiz-qleft {
+    //width: 100px;
+   //width: 120px;
+    height: 30px;
+    margin-top: 10px;
+    padding-top: 5px;
+    text-align: center;
+    font-size: 1.5em;
+    background: $light-red;
+    margin: auto;
+    //background: white;
+  }
+
+
   .ql-quiz-session-qnav {
     position:  fixed;
     width: 140px;
