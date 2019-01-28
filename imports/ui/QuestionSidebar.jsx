@@ -364,7 +364,7 @@ export class _QuestionSidebar extends ControlledForm {
                     controls.push({label: 'approve', click: () => this.approveQuestion(q._id)})
                   }
                   if (isInstructor){
-                    controls.push({label: 'dupplicate', click: () => this.copyQuestion(q._id)})
+                    controls.push({label: 'duplicate', click: () => this.copyQuestion(q._id)})
                   }
 
                   return (
