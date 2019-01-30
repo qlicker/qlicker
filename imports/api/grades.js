@@ -602,6 +602,7 @@ Meteor.methods({
           const studentResponses = _(responses).where({ studentUserId: studentId, questionId: question._id })
           const response = _.max(studentResponses, (resp) => { return resp.attempt })
           let markPoints = 0
+          let feedback = ''
           let attempt = 0
           let responseId = '0'
 
@@ -624,6 +625,9 @@ Meteor.methods({
               markPoints = existingMark.points
               automaticMark = false
             }
+            if (existingMark && 'feedback' in existingMark){
+              feedback = existingMark.feedback
+            }
           }
           gradePoints += markPoints
 
@@ -642,7 +646,8 @@ Meteor.methods({
             points: markPoints,
             outOf: markOutOf[iq],
             needsGrading: needsGrading,
-            automatic: automaticMark
+            automatic: automaticMark,
+            feedback: feedback
           }
           marks.push(mark)
         }// end of questions
