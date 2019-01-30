@@ -160,7 +160,7 @@ class _QuizSession extends Component {
                 :''
               }
               { answersLeft > 0 ?
-                <div className='ql-quiz-qleft'> {answersLeft} left! </div>
+                <div className='ql-quiz-qleft'> {answersLeft} left </div>
                 :''
               }
             </div>
@@ -212,7 +212,7 @@ class _QuizSession extends Component {
                 :''
               }
               { answersLeft > 0 ?
-                <div className='ql-quiz-qleft'> {answersLeft} questions let to answer! </div>
+                <div className='ql-quiz-qleft'> {answersLeft} question(s) left to answer </div>
                 :''
               }
             </div>
