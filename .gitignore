@@ -7,3 +7,6 @@ Dockerfile
 .DS_Store
 logs.txt
 private/
+
+# Ignore IntelliJ fiels
+.idea

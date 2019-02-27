@@ -23,9 +23,9 @@ const markPattern = {
   attempt: Match.Maybe(Number), // attempt for that question
   points: Match.Maybe(Number), // value of the mark for that question
   outOf: Match.Maybe(Number), // value of the mark for that question
-  automatic: Match.Maybe(Boolean), // whehter the value was automatically calculated (and should be automatically updated)
+  automatic: Match.Maybe(Boolean), // whether the value was automatically calculated (and should be automatically updated)
   needsGrading: Match.Maybe(Boolean), // whether the points need to be set manually (for a non-autogradeable question)
-  feedback: Match.Maybe(String) //feedback provided to student for that mark
+  feedback: Match.Maybe(String) // feedback provided to student for that mark
 }
 
 // expected collection pattern
@@ -35,19 +35,19 @@ const gradePattern = {
   courseId: Match.Maybe(Helpers.NEString), // course Id of the grade
   sessionId: Match.Maybe(Helpers.NEString), // session Id of the grade
   name: Match.Maybe(String), // name of grade (defaults to session name)
-  marks: Match.Maybe([ markPattern ]),// a set of marks that result in the grade
+  marks: Match.Maybe([ markPattern ]), // a set of marks that result in the grade
   joined: Match.Maybe(Boolean), // whether user had joined the session for this grade
   participation: Match.Maybe(Number), // fraction of questions worth points that were answered
   value: Match.Maybe(Number), // calculated value of grade, can be manually overridden
-  automatic: Match.Maybe(Boolean), // whether the grade was set automatically or manually overidden
+  automatic: Match.Maybe(Boolean), // whether the grade was set automatically or manually overridden
   points: Match.Maybe(Number), // number of points obtained, always calculated automatically
   outOf: Match.Maybe(Number), // total number of points available
   numAnswered: Match.Maybe(Number), // number of questions worth points answered
   numQuestions: Match.Maybe(Number), // number of questions worth points
   numAnsweredTotal: Match.Maybe(Number), // total number of questions answered
   numQuestionsTotal: Match.Maybe(Number), // total number of questions \
-  visibleToStudents: Match.Maybe(Boolean),// whether grade is visible to students (non-instructors),
-  needsGrading: Match.Maybe(Boolean) //whether any of the marks needs grading
+  visibleToStudents: Match.Maybe(Boolean), // whether grade is visible to students (non-instructors),
+  needsGrading: Match.Maybe(Boolean) // whether any of the marks needs grading
 }
 
 // Create grade class
@@ -63,7 +63,7 @@ _.extend(Grade.prototype, {
     this.marks.forEach((m) => {
       if (m.needsGrading) needsGrading = true
     })
-    return needsGrading*/
+    return needsGrading */
   },
   hasManualMarks: function () {
     let manual = false
@@ -76,6 +76,7 @@ _.extend(Grade.prototype, {
   }
 
 })
+
 // Create grade collection
 export const Grades = new Mongo.Collection('grades',
   { transform: (doc) => { return new Grade(doc) } })
@@ -138,7 +139,7 @@ if (Meteor.isServer) {
   })
   /*
   // This is untested... it needs to find the grades for which there is a mark with that
-  // question ID, not sure if this is the righ query...
+  // question ID, not sure if this is the right query...
   Meteor.publish('grades.forQuestion', function (questionId) {
     check(questionId, Helpers.MongoID)
     if (this.userId) {
@@ -239,6 +240,136 @@ Meteor.methods({
   },
 
   /**
+   * Calculates the total grade average for a given course.
+   * @param courseId - course to calculate the average
+   * @param studentId - (Optional) student to calculate average
+   * @return number average
+   */
+  'grades.forCourse.average' (courseId, studentId) {
+    check(courseId, Helpers.MongoID)
+    if (studentId) { check(studentId, Helpers.MongoID) }
+    if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      let matchCriteria = {courseId: courseId}
+
+      if (!user.hasGreaterRole(ROLES.admin) && !user.isInstructor(courseId)) {
+        matchCriteria = {userId: this.userId, courseId: courseId, visibleToStudents: true}
+      } else if (studentId) {
+        matchCriteria.userId = studentId
+      }
+
+      let sum = 0
+      const count = Grades.find(matchCriteria).count()
+      Grades.find(matchCriteria, {fields: {value: 1}}).forEach((grade) => {
+        sum += grade.value
+      })
+      return sum / count
+    }
+
+    return 0
+  },
+
+  /**
+   * Calculates the session grade average for a given session.
+   * @param sessionId - session to calculate the average
+   * @param studentId - (Optional) student to calculate average
+   * @return number average
+   */
+  'grades.forSession.average' (sessionId, studentId) {
+    check(sessionId, Helpers.MongoID)
+    if (studentId) { check(studentId, Helpers.MongoID) }
+    if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      let matchCriteria = {sessionId: sessionId}
+      const courseId = Grades.findOne(matchCriteria, {fields: {courseId: 1}})
+
+      if (user.isStudent(courseId)) {
+        matchCriteria.userId = this.userId
+        matchCriteria.visibleToStudents = true
+      } else if (studentId) {
+        matchCriteria.userId = studentId
+      }
+
+      let sum = 0
+      const count = Grades.find(matchCriteria).count()
+      Grades.find(matchCriteria, {fields: {value: 1}}).forEach((grade) => {
+        sum += grade.value
+      })
+      return sum / count
+    }
+
+    return 0
+  },
+
+  /**
+   * Calculates the question grade average for a given question.
+   * @param questionId - question to calculate the average
+   * @param studentId - (Optional) student to calculate average
+   * @return number average
+   */
+  'grades.forQuestion.average' (questionId, studentId) {
+    check(questionId, Helpers.MongoID)
+    if (studentId) { check(studentId, Helpers.MongoID) }
+    if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      let matchCriteria = {questionId: questionId}
+      const courseId = Grades.findOne(matchCriteria, {fields: {courseId: 1}})
+
+      if (user.isStudent(courseId)) {
+        matchCriteria.userId = this.userId
+        matchCriteria.visibleToStudents = true
+      } else if (studentId) {
+        matchCriteria.userId = studentId
+      }
+
+      let sum = 0
+      const count = Grades.find(matchCriteria).count()
+      Grades.find(matchCriteria, {fields: {marks: 1}}).forEach((grade) => {
+        const points = grade.marks.points
+        const maxPoints = grade.marks.outOf
+        sum += points / maxPoints
+      })
+
+      return sum / count
+    }
+
+    return 0
+  },
+
+  /**
+   * Calculates the average participation for a given course.
+   * @param courseId - course to calculate the average participation
+   * @param studentId - (Optional) student to calculate average
+   * @return number average
+   */
+  'grades.participation.average' (courseId, studentId) {
+    check(courseId, Helpers.MongoID)
+    if (studentId) { check(studentId, Helpers.MongoID) }
+
+    if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      let matchCriteria = {courseId: courseId}
+
+      if (user.isStudent(courseId)) {
+        matchCriteria.userId = this.userId
+        matchCriteria.visibleToStudents = true
+      } else if (studentId) {
+        matchCriteria.userId = studentId
+      }
+
+      let sum = 0
+      const count = Grades.find(matchCriteria).count()
+      Grades.find(matchCriteria, {fields: {participation: 1}}).forEach((grade) => {
+        sum += grade.participation
+      })
+
+      return sum / count
+    }
+
+    return 0
+  },
+
+  /**
    * Updates a grade item
    * @param {Grade} grade - grade object with id
    */
@@ -263,12 +394,10 @@ Meteor.methods({
     else throw Error('Unable to update')
   },
 
-
   /**
    * Updates a mark in a grade item
    * @param {MongoID} mark - mark object with points, outOf, studentId, questionId
    */
-
   'grades.updateMark' (gradeId, mark) {
     check(mark, markPattern)
     check(gradeId, Helpers.MongoID)
@@ -276,7 +405,7 @@ Meteor.methods({
     if (!mark) throw Error('No mark inputted')
 
     // points must be positive
-    if (mark.points < 0 ) throw Error('No negativ points for a mark')
+    if (mark.points < 0) throw Error('No negativ points for a mark')
 
     let grade = Grades.findOne({ _id: gradeId })
     if (!grade) throw Error('Undefined grade in update!')
@@ -291,8 +420,8 @@ Meteor.methods({
     let gradeMarks = grade.marks
     let index = _(gradeMarks).findIndex({ questionId: mark.questionId })
 
-    if (index>=0) {
-      grade.marks[index]=mark
+    if (index >= 0) {
+      grade.marks[index] = mark
       Meteor.call('grades.updatePoints', grade, (err, updatedGrade) => {
         if (err) throw Error(err)
         else return updatedGrade
@@ -305,10 +434,8 @@ Meteor.methods({
       Meteor.call('grades.updatePoints', grade, (err) => {
         if (err) throw Error(err)
         else return Grades.update(grade._id, grade)
-      })*/
-    }
-
-    else throw Error('Unable to update mark')
+      }) */
+    } else throw Error('Unable to update mark')
   },
 
   /**
@@ -449,7 +576,7 @@ Meteor.methods({
    * Get a participation grade for the session (average if prof, single if student)
    * @param {MongoId} sessionId - ID of session
    */
-   /*TODO: Not complete! For prof, should count students that joined?
+   /* TODO: Not complete! For prof, should count students that joined?
   'grades.getParticipationForSession' (sessionId) {
     check(sessionId, Helpers.MongoID)
     const user = Meteor.user()
@@ -469,7 +596,7 @@ Meteor.methods({
       }
       return grades.length >0 ? participation/grades.length : 0
     } else return 0
-  },*/
+  }, */
 
   /**
    * Set points for a mark in a grade item and recalulate grade point sum
