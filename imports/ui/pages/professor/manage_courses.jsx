@@ -41,7 +41,6 @@ class _ManageCourses extends Component {
     }
   }
 
-
   promptCreateCourse (e) {
     this.setState({ creatingCourse: true })
   }
@@ -52,15 +51,15 @@ class _ManageCourses extends Component {
   }
 
   renderCourseList (cList) {
-    return cList.map( (course) => {
-      controls = []
+    return cList.map((course) => {
+      let controls = []
       if (course.inactive) {
-        controls.push( { label: 'Make active', click: () => this.setCourseActive(course._id, true) } )
-        controls.push( { label: 'Delete', click: () => this.deleteCourse(course._id) } )
+        controls.push({ label: 'Make active', click: () => this.setCourseActive(course._id, true) })
+        controls.push({ label: 'Delete', click: () => this.deleteCourse(course._id) })
       } else {
-        controls.push( { label: 'Make inactive', click: () => this.setCourseActive(course._id, false) } )
+        controls.push({ label: 'Make inactive', click: () => this.setCourseActive(course._id, false) })
       }
-      return(
+      return (
         <CourseListItem
           key={course._id}
           course={course}

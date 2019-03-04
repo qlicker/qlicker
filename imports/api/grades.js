@@ -137,6 +137,18 @@ if (Meteor.isServer) {
       }
     } else this.ready()
   })
+
+  Meteor.publish('grades.forCourse.unmarked', function (courseId) {
+    check(courseId, Helpers.MongoID)
+    if (this.userId) {
+      const user = Meteor.users.findOne({ _id: this.userId })
+      if (user.isAdmin() || user.isInstructor(courseId)) {
+        return Grades.find({courseId: courseId, needsGrading: true})
+      }
+    }
+
+    this.ready()
+  })
   /*
   // This is untested... it needs to find the grades for which there is a mark with that
   // question ID, not sure if this is the right query...
