@@ -23,7 +23,7 @@ class _ResultsOverview extends Component {
 
   renderCourseList (cList) {
     return cList.map((c) => (
-      <CourseListItem key={c._id} course={c} click={() => { Router.go('course.results', { courseId: c._id }) }} />
+      <CourseListItem key={c._id} course={c} click={() => { Router.go('course.results', { courseId: c._id, students: c.students, sessions: c.sessions }) }} />
     ))
   }
 
@@ -48,7 +48,7 @@ export const ResultsOverview = createContainer((props) => {
   const handle = Meteor.subscribe('courses')
 
   const user = Meteor.user()
-  let courses = []
+  let courses = {}
   const coursesArray = user.profile.courses || []
   courses = Courses.find({instructors: user._id}) || Courses.find({ _id: { $in: coursesArray } }, { fields: { students: false } })
 
