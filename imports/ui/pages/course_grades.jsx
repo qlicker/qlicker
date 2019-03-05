@@ -9,6 +9,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { Courses } from '../../api/courses'
 
 import { GradeTable } from '../GradeTable.jsx'
+import { MaterialUITable } from '../material_ui_table.jsx'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
 import { Sessions } from '../../api/sessions'
@@ -127,6 +128,7 @@ export class _CourseGrades extends Component {
             </div>
             <div>
               <GradeTable courseId={this.props.courseId} />
+              <MaterialUITable courseId={this.props.courseId} />
             </div>
           </div>
         </div>
