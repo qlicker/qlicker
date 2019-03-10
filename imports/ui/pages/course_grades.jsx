@@ -1,5 +1,4 @@
 // QLICKER
-// Author: Enoch T <me@enocht.am>
 //
 // classlist_participation.jsx: page for displaying class participation
 
@@ -90,43 +89,65 @@ export class _CourseGrades extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
-      <div className='container ql-results-page'>
-        <div className='ql-card'>
-          <div className='ql-header-bar'>
-            <div className='row'>
-              <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.courseName}</span>: Results (participation/grade)</h4>
+      <div className='container ql-grade-page'>
+        <h2>
+          {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
+        </h2>
+        <div className='ql-shift-button'>
+          <button className= 'btn btn-primary'>View Median Grades</button>
+          <button className= 'btn btn-primary'>Export as .csv</button>
+        </div>
+        <div className='row'>
+          <div className='session-group'>
+            <div className='col-md-6'>
+              <div className='ql-card'>
+                <div className='ql-header-bar'>
+                  <h4>Students</h4>
+                </div>
+                <Select
+                  name='student-input'
+                  placeholder='Type to search students'
+                  value={this.state.studentTag}
+                  options={this.state.studentTagSuggestions}
+                  onChange={this.setStudentState}
+                />
+              </div>
+            </div>
+
+            <div className='col-md-6'>
+              <div className='ql-card'>
+                <div className='ql-header-bar'>
+                  <h4>
+                    Sessions
+                  </h4>
+                </div>
+                <Select
+                  name='session-input'
+                  placeholder='Type to search sessions'
+                  value={this.state.sessionTag}
+                  options={this.state.sessionTagSuggestions}
+                  onChange={this.setSessionState}
+                />
               </div>
             </div>
           </div>
-
-          <div className='ql-card-content'>
-            {/* TODO: Need to ensure that the student select only appears for the admins/instructors/TA's of the course */}
-            <Select
-              name='student-input'
-              placeholder='Type to search students'
-              value={this.state.studentTag}
-              options={this.state.studentTagSuggestions}
-              onChange={this.setStudentState}
-            />
-            <Select
-              name='session-input'
-              placeholder='Type to search sessions'
-              value={this.state.sessionTag}
-              options={this.state.sessionTagSuggestions}
-              onChange={this.setSessionState}
-            />
-            <div>
-              <Select
-                name='unmarked-input'
-                placeholder='Type to search unmarked sessions'
-                value={this.state.unmarkedSessionTag}
-                options={this.state.unmarkedSessionTagSuggestions}
-                onChange={this.setUnmarkedSessionState}
-              />
-              <button className='btn btn-primary' onClick={this.startMarkingClicked}>Start Marking</button>
+        </div>
+        <div className= 'session-group'>
+          <div className='ql-card'>
+            <div className='ql-header-bar'>
+              <h4>
+                Unmarked Sessions
+              </h4>
             </div>
-            <div>
-              <GradeTable courseId={this.props.courseId} />
+            <Select
+              name='unmarked-input'
+              placeholder='Search by session name'
+              value={this.state.unmarkedSessionTag}
+              options={this.state.unmarkedSessionTagSuggestions}
+              onChange={this.setUnmarkedSessionState}
+            />
+            <div className= 'ql-button-centered'>
+              <button className='btn btn-primary' onClick={this.startMarkingClicked}> Start Marking </button>
             </div>
           </div>
         </div>
@@ -179,6 +200,8 @@ export const CourseGrades = createContainer((props) => {
     sessions: sessions,
     unmarkedGrades: unmarkedGrades,
     courseName: course.name,
+    deptCode: course.deptCode,
+    courseNumber: course.courseNumber,
     loading: !handle.ready()
   }
 }, _CourseGrades)
