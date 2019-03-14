@@ -272,10 +272,12 @@ Meteor.methods({
 
       let sum = 0
       const count = Grades.find(matchCriteria).count()
-      Grades.find(matchCriteria, {fields: {value: 1}}).forEach((grade) => {
-        sum += grade.value
-      })
-      return sum / count
+      if (count > 0) {
+        Grades.find(matchCriteria, {fields: {value: 1}}).forEach((grade) => {
+          sum += grade.value
+        })
+        return sum / count
+      }
     }
 
     return 0
@@ -284,16 +286,17 @@ Meteor.methods({
   /**
    * Calculates the session grade average for a given session.
    * @param sessionId - session to calculate the average
+   * @param courseId - course for validation purposes
    * @param studentId - (Optional) student to calculate average
    * @return number average
    */
-  'grades.forSession.average' (sessionId, studentId) {
+  'grades.forSession.average' (sessionId, courseId, studentId) {
     check(sessionId, Helpers.MongoID)
+    check(courseId, Helpers.MongoID)
     if (studentId) { check(studentId, Helpers.MongoID) }
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       let matchCriteria = {sessionId: sessionId}
-      const courseId = Grades.findOne(matchCriteria, {fields: {courseId: 1}})
 
       if (user.isStudent(courseId)) {
         matchCriteria.userId = this.userId
@@ -304,12 +307,13 @@ Meteor.methods({
 
       let sum = 0
       const count = Grades.find(matchCriteria).count()
-      Grades.find(matchCriteria, {fields: {value: 1}}).forEach((grade) => {
-        sum += grade.value
-      })
-      return sum / count
+      if (count > 0) {
+        Grades.find(matchCriteria, {fields: {value: 1}}).forEach((grade) => {
+          sum += grade.value
+        })
+        return sum / count
+      }
     }
-
     return 0
   },
 
@@ -325,7 +329,7 @@ Meteor.methods({
     if (this.userId) {
       const user = Meteor.users.findOne({_id: this.userId})
       let matchCriteria = {questionId: questionId}
-      const courseId = Grades.findOne(matchCriteria, {fields: {courseId: 1}})
+      const courseId = Grades.findOne(matchCriteria, {fields: {courseId: 1}}).courseId
 
       if (user.isStudent(courseId)) {
         matchCriteria.userId = this.userId
@@ -336,13 +340,14 @@ Meteor.methods({
 
       let sum = 0
       const count = Grades.find(matchCriteria).count()
-      Grades.find(matchCriteria, {fields: {marks: 1}}).forEach((grade) => {
-        const points = grade.marks.points
-        const maxPoints = grade.marks.outOf
-        sum += points / maxPoints
-      })
-
-      return sum / count
+      if (count > 0) {
+        Grades.find(matchCriteria, {fields: {marks: 1}}).forEach((grade) => {
+          const points = grade.marks.points
+          const maxPoints = grade.marks.outOf
+          sum += points / maxPoints
+        })
+        return sum / count
+      }
     }
 
     return 0
@@ -371,11 +376,47 @@ Meteor.methods({
 
       let sum = 0
       const count = Grades.find(matchCriteria).count()
-      Grades.find(matchCriteria, {fields: {participation: 1}}).forEach((grade) => {
-        sum += grade.participation
-      })
+      if (count > 0) {
+        Grades.find(matchCriteria, {fields: {participation: 1}}).forEach((grade) => {
+          sum += grade.participation
+        })
+        return sum / count
+      }
+    }
 
-      return sum / count
+    return 0
+  },
+
+  /**
+   * Calculates the average participation for a given session.
+   * @param sessionId - session to calculate the average participation
+   * @param courseId - course for student check
+   * @param studentId - (Optional) student to calculate average
+   * @return number average
+   */
+  'grades.participation.forSession.average' (sessionId, courseId, studentId) {
+    check(sessionId, Helpers.MongoID)
+    if (studentId) { check(studentId, Helpers.MongoID) }
+
+    if (this.userId) {
+      const user = Meteor.users.findOne({_id: this.userId})
+      let matchCriteria = {sessionId: sessionId}
+
+      if (user.isStudent(courseId)) {
+        matchCriteria.userId = this.userId
+        matchCriteria.visibleToStudents = true
+      } else if (studentId) {
+        matchCriteria.userId = studentId
+      }
+
+      let sum = 0
+      const count = Grades.find(matchCriteria).count()
+      if (count > 0) {
+        Grades.find(matchCriteria, {fields: {participation: 1}}).forEach((grade) => {
+          sum += grade.participation
+        })
+        return sum / count
+      }
     }
 
     return 0
