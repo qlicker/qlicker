@@ -382,9 +382,14 @@ export class _QuestionsLibrary extends Component {
                   : '' }
               </ul>
               <br />
+
+              {isStudent
+                ? <button className='btn btn-primary' style={{ 'width': '100%' }}>Create Practice Quiz</button>
+              : '' }
+
               { canCreate
                 ? <div>
-                    <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(null)}>New Question</button>
+                  <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(null)}>New Question</button>
                   </div>
                 : ''
               }
