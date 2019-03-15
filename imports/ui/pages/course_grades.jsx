@@ -93,8 +93,9 @@ export class _CourseGrades extends Component {
         <h2>
           {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
         </h2>
-        <div className='ql-shift-button'>
+        <div className='ql-space-button'>
           <button className= 'btn btn-primary'>View Median Grades</button>
+          &nbsp;&nbsp;
           <button className= 'btn btn-primary'>Export as .csv</button>
         </div>
         <div className='row'>
