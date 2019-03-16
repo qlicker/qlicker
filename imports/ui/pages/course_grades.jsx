@@ -89,7 +89,7 @@ export class _CourseGrades extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     return (
-      <div className='container ql-grade-page'>
+      <div className='container ql-results-page'>
         <h2>
           {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
         </h2>
