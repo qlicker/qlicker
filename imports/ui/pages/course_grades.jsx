@@ -88,14 +88,13 @@ export class _CourseGrades extends Component {
   }
 
   render () {
-
-    const user =  Meteor.user()
+    const user = Meteor.user()
     const isInstructor = user.isInstructor(this.props.courseId)
     const isStudent = user.isStudent(this.props.courseId)
 
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if(isInstructor){
+    if (isInstructor) {
       return (
         <div className='container ql-results-page'>
           <h2>
@@ -169,10 +168,10 @@ export class _CourseGrades extends Component {
         </div>
       )
     }
-    if(isStudent) {
-      //insert students grades table
+    if (isStudent) {
+      // insert students grades table
       return (
-        <div className= 'container ql-results-page'>
+        <div className='container ql-results-page'>
           <h2>
             {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
           </h2>
