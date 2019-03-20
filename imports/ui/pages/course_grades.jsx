@@ -1,5 +1,4 @@
 // QLICKER
-// Author: Enoch T <me@enocht.am>
 //
 // classlist_participation.jsx: page for displaying class participation
 
@@ -8,11 +7,12 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
 
-import { GradeTable } from '../GradeTable.jsx'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
 import { Sessions } from '../../api/sessions'
 import { Grades } from '../../api/grades'
+import { CSVLink } from 'react-csv'
+import { _ } from 'underscore'
 
 export class _CourseGrades extends Component {
 
@@ -88,50 +88,96 @@ export class _CourseGrades extends Component {
   }
 
   render () {
+    const user = Meteor.user()
+    const isInstructor = user.isInstructor(this.props.courseId)
+    const isStudent = user.isStudent(this.props.courseId)
+
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    return (
-      <div className='container ql-results-page'>
-        <div className='ql-card'>
-          <div className='ql-header-bar'>
-            <div className='row'>
-              <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.courseName}</span>: Results (participation/grade)</h4>
+
+    if (isInstructor) {
+      return (
+        <div className='container ql-results-page'>
+          <h2>
+            {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
+          </h2>
+          <div className='ql-space-button'>
+            <button className='btn btn-primary'>
+              View Median Grades
+            </button>
+            &nbsp;&nbsp;
+            <CSVLink data={this.props.csvData} headers={this.props.csvHeaders} filename={this.props.csvFilename}>
+              <div type='button' className='btn btn-primary'>
+                Export as .csv
+              </div>
+            </CSVLink>
+          </div>
+          <div className='row'>
+            <div className='session-group'>
+              <div className='col-md-6'>
+                <div className='ql-card'>
+                  <div className='ql-header-bar'>
+                    <h4>Students</h4>
+                  </div>
+                  <Select
+                    name='student-input'
+                    placeholder='Type to search students'
+                    value={this.state.studentTag}
+                    options={this.state.studentTagSuggestions}
+                    onChange={this.setStudentState}
+                  />
+                </div>
+              </div>
+
+              <div className='col-md-6'>
+                <div className='ql-card'>
+                  <div className='ql-header-bar'>
+                    <h4>
+                      Sessions
+                    </h4>
+                  </div>
+                  <Select
+                    name='session-input'
+                    placeholder='Type to search sessions'
+                    value={this.state.sessionTag}
+                    options={this.state.sessionTagSuggestions}
+                    onChange={this.setSessionState}
+                  />
+                </div>
               </div>
             </div>
           </div>
-
-          <div className='ql-card-content'>
-            {/* TODO: Need to ensure that the student select only appears for the admins/instructors/TA's of the course */}
-            <Select
-              name='student-input'
-              placeholder='Type to search students'
-              value={this.state.studentTag}
-              options={this.state.studentTagSuggestions}
-              onChange={this.setStudentState}
-            />
-            <Select
-              name='session-input'
-              placeholder='Type to search sessions'
-              value={this.state.sessionTag}
-              options={this.state.sessionTagSuggestions}
-              onChange={this.setSessionState}
-            />
-            <div>
+          <div className='session-group'>
+            <div className='ql-card'>
+              <div className='ql-header-bar'>
+                <h4>
+                  Unmarked Sessions
+                </h4>
+              </div>
               <Select
                 name='unmarked-input'
-                placeholder='Type to search unmarked sessions'
+                placeholder='Search by session name'
                 value={this.state.unmarkedSessionTag}
                 options={this.state.unmarkedSessionTagSuggestions}
                 onChange={this.setUnmarkedSessionState}
               />
-              <button className='btn btn-primary' onClick={this.startMarkingClicked}>Start Marking</button>
-            </div>
-            <div>
-              <GradeTable courseId={this.props.courseId} />
+              <div className='ql-button-centered'>
+                <button className='btn btn-primary' onClick={this.startMarkingClicked}> Start Marking </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    }
+    if (isStudent) {
+      // insert students grades table
+      return (
+        <div className='container ql-results-page'>
+          <h2>
+            {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
+          </h2>
+        </div>
+      )
+    }
   }
 
   setStudentState (student) {
@@ -161,6 +207,7 @@ export const CourseGrades = createContainer((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
     Meteor.subscribe('users.studentsInCourse', props.courseId) &&
+    Meteor.subscribe('grades.forCourse', props.courseId, {'marks': 0}) &&
     Meteor.subscribe('grades.forCourse.unmarked', props.courseId)
 
   const course = Courses.findOne({_id: props.courseId})
@@ -171,7 +218,67 @@ export const CourseGrades = createContainer((props) => {
   // TODO: Check to see if they're a student somewhere maybe in the router to see if they can view this page
   const sessions = Sessions.find({courseId: props.courseId}, {sort: {date: -1}}).fetch()
 
+  const grades = Grades.find({courseId: props.courseId}).fetch()
   const unmarkedGrades = Grades.find({courseId: props.courseId, needsGrading: true}).fetch()
+
+  // Setup data for CSV downloader:
+  let csvHeaders = ['Last name', 'First name', 'Email', 'Participation']
+
+  sessions.forEach((s) => {
+    csvHeaders.push(s.name + ' Participation')
+    csvHeaders.push(s.name + ' Mark')
+  })
+
+  const tableData = []
+  const numStudents = students.length
+
+  for (let iStudent = 0; iStudent < numStudents; iStudent++) {
+    let sGrades = _(grades).where({userId: students[iStudent]._id})
+
+    let participation = 0
+    if (sGrades.length > 0) {
+      participation = _(sGrades).reduce((total, grade) => {
+        let gpart = 0
+        if (grade && grade.participation) {
+          gpart = grade.participation
+        }
+        return total + gpart
+      }, 0) / sGrades.length
+    }
+
+    let dataItem = {
+      name: students[iStudent].profile.lastname + ', ' + students[iStudent].profile.firstname,
+      firstName: students[iStudent].profile.firstname,
+      lastName: students[iStudent].profile.lastname,
+      userId: students[iStudent]._id,
+      email: students[iStudent].emails[0].address,
+      participation: participation,
+      grades: sGrades
+    }
+    tableData.push(dataItem)
+  }
+
+  let csvData = []
+  for (let iStudent = 0; iStudent < tableData.length; iStudent++) {
+    const tableRow = tableData[iStudent]
+    let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.participation]
+
+    for (let iSession = 0; iSession < sessions.length; iSession++) {
+      const sessionId = sessions[iSession]._id
+      const grade = _(tableRow.grades).findWhere({sessionId: sessionId})
+
+      if (grade) {
+        row.push(grade.participation)
+        row.push(grade.value)
+      } else {
+        row.push(0)
+        row.push(0)
+      }
+    }
+    csvData.push(row)
+  }
+
+  const csvFilename = course.name.replace(/ /g, '_') + '_results.csv'
 
   return {
     courseId: props.courseId,
@@ -179,6 +286,11 @@ export const CourseGrades = createContainer((props) => {
     sessions: sessions,
     unmarkedGrades: unmarkedGrades,
     courseName: course.name,
+    deptCode: course.deptCode,
+    courseNumber: course.courseNumber,
+    csvData: csvData,
+    csvHeaders: csvHeaders,
+    csvFilename: csvFilename,
     loading: !handle.ready()
   }
 }, _CourseGrades)

@@ -3,12 +3,25 @@
 // Component
 .ql-results-page, .ql-grades-overview {
 
+  overflow-y: hidden; // hide vertical
+  overflow-x: hidden; // hide horizontal
+
   .session-group {
-    margin-top: 20px;
+    padding-top: 20px;
   }
 
-  .ql-courselist {
-    margin-top: 20px;
+  .session-view{
+    padding-right: 5px;
   }
 
+.ql-button-centered{
+  width: 100%;
+  margin-left: 43%;
+  margin-right: 40%;
+  padding: 7px;
+}
+
+  .ql-space-button{
+    padding-top: 10px;
+  }
 }
