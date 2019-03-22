@@ -12,6 +12,7 @@ import { _ } from 'underscore'
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
 import { SessionListItem } from '../../SessionListItem'
+import { CreatePracticeQuizModal } from '../../modals/CreatePracticeQuizModal'
 
 class _Course extends Component {
 
@@ -19,12 +20,20 @@ class _Course extends Component {
     super(props)
 
     this.state = {
-      expandedSessionlist: false
+      expandedSessionlist: false,
+      createPracticeQuizModal: false,
     }
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
     this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)
+    this.toggleCreatePracticeQuizModal = this.toggleCreatePracticeQuizModal.bind(this)
+    this.state = { isOpen: false };
   }
 
+  toggleCreatePracticeQuizModal = () => {
+    this.setState({
+      isOpen: !this.state.isOpen
+    });
+  }
   componentDidMount () {
     if (this.props.sessions){
       this.props.sessions.forEach(s => {
@@ -113,6 +122,8 @@ class _Course extends Component {
 
   render () {
     //console.log(this.state)
+    const toggleCreatePracticeQuizModal = () => { this.setState({ createPracticeQuizModal: !this.state.createPracticeQuizModal }) }
+
 
     return (
       <div className='container ql-manage-course'>
@@ -122,9 +133,10 @@ class _Course extends Component {
         </h2>
 
         <div className='session-button-group'>
-          <button className='btn btn-primary'>
+          <button   className='btn btn-primary' onClick={toggleCreatePracticeQuizModal}>
            Create Practice Quiz
-         </button>
+            {this.state.createPracticeQuizModal ? <CreatePracticeQuizModal courseId={this.props.course._id} courseName={this.props.course.courseCode()} /> : '' }
+          </button>
         </div>
 
         { this.renderSessionList() }
