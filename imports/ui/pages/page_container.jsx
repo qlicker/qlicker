@@ -29,26 +29,25 @@ class _PageContainer extends Component {
     this.changeCourse = this.changeCourse.bind(this)
     this.setCourseCode = this.setCourseCode.bind(this)
 
-    if(this.state.courseId !== '') {
+    if (this.state.courseId !== '') {
       this.setCourseCode(this.state.courseId)
     }
-
   }
 
   setCourseCode (courseId) {
     Meteor.call('courses.getCourseCode', courseId, (e, c) => {
-      if(c) {
-        this.setState({ courseCode: c})
+      if (c) {
+        this.setState({courseCode: c})
       }
     })
   }
 
   componentWillMount () {
-    Meteor.call("getSSOLogoutUrl", (err,result) => {
-      if(!err){
-        this.setState({ssoLogoutUrl:result})
-        Meteor.call("settings.getSSOInstitution", (err2,name) => {
-          if(!err2)this.setState({ssoInstitution:name})
+    Meteor.call('getSSOLogoutUrl', (err, result) => {
+      if (!err) {
+        this.setState({ssoLogoutUrl: result})
+        Meteor.call('settings.getSSOInstitution', (err2, name) => {
+          if (!err2) this.setState({ssoInstitution: name})
         })
       }
     })
@@ -63,15 +62,15 @@ class _PageContainer extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false })
-    if(nextProps.courseId) this.setCourseCode(nextProps.courseId)
+    this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId })
+    if (nextProps.courseId) this.setCourseCode(nextProps.courseId)
   }
 
   changeCourse (courseId) {
     const pageName = Router.current().route.getName()
-    //TODO: double check this, that all cases are caught!
-    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor'  || pageName === 'admin' || pageName === 'student'  || pageName === 'profile' )) Router.go(pageName, { courseId: courseId })
-    else{
+    // TODO: double check this, that all cases are caught!
+    if (!(pageName.includes('session') || pageName === 'courses' || pageName === 'professor' || pageName === 'admin' || pageName === 'student' || pageName === 'profile')) Router.go(pageName, { courseId: courseId })
+    else {
       Router.go('course', { courseId: courseId })
     }
   }
@@ -79,10 +78,12 @@ class _PageContainer extends Component {
   render () {
     const user = Meteor.user()
 
-    if(!user)  Router.go('logout')
-    //const isInstructor = user.isInstructorAnyCourse() // to view student submissions
-    const canPromote = user.canPromote() //user.hasGreaterRole('professor') // to promote accounts
+    if (!user) Router.go('logout')
+    // const isInstructor = user.isInstructorAnyCourse() // to view student submissions
+    const canPromote = user.canPromote() // user.hasGreaterRole('professor') // to promote accounts
     const isAdmin = user.hasRole('admin')
+    const isInstructor = user.isInstructor(this.props.courseId)
+    const isStudent = user.isStudent(this.props.courseId)
 
     const logout = () => {
       Router.go('logout')
@@ -94,6 +95,20 @@ class _PageContainer extends Component {
     const coursesPage = user.hasGreaterRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
+
+    let gradesNavigation = ''
+    if (isAdmin) {
+      gradesNavigation = <li className='dropdown'>
+        <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
+        <ul className='dropdown-menu' >
+          <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
+        </ul>
+      </li>
+    } else if (isInstructor && this.state.showCourse) {
+      gradesNavigation = <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', {courseId: this.state.courseId})}>Grades</a></li>
+    } else if (isStudent && this.state.showCourse) {
+      gradesNavigation = <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.student.grades', {courseId: this.props.courseId, studentId: user._id})}>Grades</a></li>
+    }
 
     return (
       <div className='ql-page-container'>
@@ -114,50 +129,40 @@ class _PageContainer extends Component {
                    ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li>
                    : ''
                 }
-                {  this.state.showCourse && !isAdmin
+                { this.state.showCourse && !isAdmin
                    ? <li><a className='close-nav' role='button' onClick={() => Router.go('course', { courseId: this.state.courseId })}>Course Home</a></li>
                    : ''
                 }
-                { isAdmin
-                  ? <li className='dropdown'>
-                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
-                      <ul className='dropdown-menu' >
-                        <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
-                      </ul>
-                    </li>
-                  : this.state.showCourse
-                    ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
-                    : ''
-                }
+                {gradesNavigation}
                 { this.state.showCourse && !isAdmin
                   ? <li className='dropdown'>
                     <a className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
                       aria-haspopup='true' aria-expanded='false' onClick={() => Router.go('questions', { courseId: this.state.courseId })}>Question library</a>
-                    </li>
+                  </li>
                   : ''
 
                 }
                 { isAdmin
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
                    : <li className='dropdown'>
-                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
-                        { this.state.courseId
-                          ?  this.state.courseCode.substring(0, 4) + ' ' + this.state.courseCode.substring(4)
+                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+                       { this.state.courseId
+                          ? this.state.courseCode.substring(0, 4) + ' ' + this.state.courseCode.substring(4)
                           : 'Courses'
                         }
-                      <span className='caret' />
-                      </a>
-                      <ul className='dropdown-menu' >
-                        <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
-                        <li role='separator' className='divider' >&nbsp;</li>
-                        <li className='dropdown-header'>My Active Courses</li>
-                        {
+                       <span className='caret' />
+                     </a>
+                     <ul className='dropdown-menu' >
+                       <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
+                       <li role='separator' className='divider' >&nbsp;</li>
+                       <li className='dropdown-header'>My Active Courses</li>
+                       {
                           this.props.courses.map((c) => {
                             return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => this.changeCourse(c._id)}>{c.fullCourseCode()}</a></li>)
                           })
                         }
-                      </ul>
-                     </li>
+                     </ul>
+                   </li>
                 }
               </ul>
 
@@ -175,8 +180,8 @@ class _PageContainer extends Component {
                     <li><a className='close-nav' href={userGuideUrl}>Visit user guide</a></li>
                     <li role='separator' className='divider' />
 
-                    {this.state.ssoLogoutUrl ?
-                          <li><a className='close-nav' href={this.state.ssoLogoutUrl}> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
+                    {this.state.ssoLogoutUrl
+                      ? <li><a className='close-nav' href={this.state.ssoLogoutUrl}> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
                           : <li><a className='close-nav' href={Router.routes['logout'].path()} onClick={logout} >Logout from Qlicker</a></li>
                     }
                   </ul>
@@ -202,7 +207,7 @@ export const PageContainer = createContainer(props => {
 
   return {
     courses: courses,
-    //courseId: props.courseId,
+    // courseId: props.courseId,
     loading: !handle.ready()
   }
 }, _PageContainer)

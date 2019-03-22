@@ -88,102 +88,85 @@ export class _CourseGrades extends Component {
   }
 
   render () {
-    const user = Meteor.user()
-    const isInstructor = user.isInstructor(this.props.courseId)
-    const isStudent = user.isStudent(this.props.courseId)
-
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    if (isInstructor) {
-      return (
-        <div className='container ql-results-page'>
-          <h2>
-            {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
-          </h2>
-          <div className='ql-space-button'>
-            <button className='btn btn-primary'>
-              View Median Grades
-            </button>
-            &nbsp;&nbsp;
-            <CSVLink data={this.props.csvData} headers={this.props.csvHeaders} filename={this.props.csvFilename}>
-              <div type='button' className='btn btn-primary'>
-                Export as .csv
-              </div>
-            </CSVLink>
-          </div>
-          <div className='row'>
-            <div className='session-group'>
-              <div className='col-md-6'>
-                <div className='ql-card'>
-                  <div className='ql-header-bar'>
-                    <h4>Students</h4>
-                  </div>
-                  <Select
-                    name='student-input'
-                    placeholder='Type to search students'
-                    value={this.state.studentTag}
-                    options={this.state.studentTagSuggestions}
-                    onChange={this.setStudentState}
-                  />
-                </div>
-              </div>
-
-              <div className='col-md-6'>
-                <div className='ql-card'>
-                  <div className='ql-header-bar'>
-                    <h4>
-                      Sessions
-                    </h4>
-                  </div>
-                  <Select
-                    name='session-input'
-                    placeholder='Type to search sessions'
-                    value={this.state.sessionTag}
-                    options={this.state.sessionTagSuggestions}
-                    onChange={this.setSessionState}
-                  />
-                </div>
-              </div>
+    return (
+      <div className='container ql-results-page'>
+        <h2>
+          {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
+        </h2>
+        <div className='ql-space-button'>
+          <button className='btn btn-primary'>
+            View Median Grades
+          </button>
+          &nbsp;&nbsp;
+          <CSVLink data={this.props.csvData} headers={this.props.csvHeaders} filename={this.props.csvFilename}>
+            <div type='button' className='btn btn-primary'>
+              Export as .csv
             </div>
-          </div>
+          </CSVLink>
+        </div>
+        <div className='row'>
           <div className='session-group'>
-            <div className='ql-card'>
-              <div className='ql-header-bar'>
-                <h4>
-                  Unmarked Sessions
-                </h4>
+            <div className='col-md-6'>
+              <div className='ql-card'>
+                <div className='ql-header-bar'>
+                  <h4>Students</h4>
+                </div>
+                <Select
+                  name='student-input'
+                  placeholder='Type to search students'
+                  value={this.state.studentTag}
+                  options={this.state.studentTagSuggestions}
+                  onChange={this.setStudentState}
+                />
               </div>
-              <Select
-                name='unmarked-input'
-                placeholder='Search by session name'
-                value={this.state.unmarkedSessionTag}
-                options={this.state.unmarkedSessionTagSuggestions}
-                onChange={this.setUnmarkedSessionState}
-              />
-              <div className='ql-button-centered'>
-                <button className='btn btn-primary' onClick={this.startMarkingClicked}> Start Marking </button>
+            </div>
+
+            <div className='col-md-6'>
+              <div className='ql-card'>
+                <div className='ql-header-bar'>
+                  <h4>
+                    Sessions
+                  </h4>
+                </div>
+                <Select
+                  name='session-input'
+                  placeholder='Type to search sessions'
+                  value={this.state.sessionTag}
+                  options={this.state.sessionTagSuggestions}
+                  onChange={this.setSessionState}
+                />
               </div>
             </div>
           </div>
         </div>
-      )
-    }
-    if (isStudent) {
-      // insert students grades table
-      return (
-        <div className='container ql-results-page'>
-          <h2>
-            {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
-          </h2>
+        <div className='session-group'>
+          <div className='ql-card'>
+            <div className='ql-header-bar'>
+              <h4>
+                Unmarked Sessions
+              </h4>
+            </div>
+            <Select
+              name='unmarked-input'
+              placeholder='Search by session name'
+              value={this.state.unmarkedSessionTag}
+              options={this.state.unmarkedSessionTagSuggestions}
+              onChange={this.setUnmarkedSessionState}
+            />
+            <div className='ql-button-centered'>
+              <button className='btn btn-primary' onClick={this.startMarkingClicked}> Start Marking </button>
+            </div>
+          </div>
         </div>
-      )
-    }
+      </div>
+    )
   }
 
   setStudentState (student) {
-    // TODO: Navigate to the student grade dashboard
     this.setState({studentTag: student}, () => {
-      Router.go('results.overview', {courseId: this.props.courseId})
+      Router.go('course.student.grades', {courseId: this.props.courseId, studentId: student.value})
     })
   }
 
@@ -215,7 +198,6 @@ export const CourseGrades = createContainer((props) => {
   const studentIds = course.students || []
   const students = Meteor.users.find({_id: {$in: studentIds}}).fetch()
 
-  // TODO: Check to see if they're a student somewhere maybe in the router to see if they can view this page
   const sessions = Sessions.find({courseId: props.courseId}, {sort: {date: -1}}).fetch()
 
   const grades = Grades.find({courseId: props.courseId}).fetch()
