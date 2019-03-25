@@ -178,9 +178,9 @@ class _ManageCourse extends Component {
 
     const maxNum = 8
     const totalSessions = sessions ? sessions.length : 0
-    if (!this.state.expandedSessionlist) sessions = sessions.slice(0, maxNum)
-    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionlist: !this.state.expandedSessionlist }) }
-    const expandText = !this.state.expandedSessionlist ? 'Show all' : 'Show less'
+    if (!this.state.expandedSessionList) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionList: !this.state.expandedSessionList }) }
+    const expandText = !this.state.expandedSessionList ? 'Show all' : 'Show less'
 
     return (<div>
       {

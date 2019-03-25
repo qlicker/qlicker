@@ -21,27 +21,25 @@ export class CreatePracticeQuizModal extends ControlledForm {
     super(props)
     this.state = {
       tags: [],
-      tagSuggestions : [],
+      tagSuggestions: []
     }
 
     this.setTags = this.setTags.bind(this)
-
   }
 
   componentWillReceiveProps (nextProps) {
-
     Meteor.call('questions.possibleTags', nextProps.courseId, (e, tags) => {
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
       this.setState({ tagSuggestions: tagSuggestions })
     })
-    if(nextProps.courseId !== this.props.courseId){
+    if (nextProps.courseId !== this.props.courseId) {
       this.setTags([])
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
       // non-critical, if e: silently fail
       tagSuggestions = []
@@ -49,7 +47,6 @@ export class CreatePracticeQuizModal extends ControlledForm {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
       this.setState({tagSuggestions: tagSuggestions})
-
     })
   }
 
@@ -59,8 +56,7 @@ export class CreatePracticeQuizModal extends ControlledForm {
     })
   }
 
-  updateQuery() {
-
+  updateQuery () {
     let query = {}
 
     if (this.state.tags.length) query['tags.value'] = { $all: _.pluck(this.state.tags, 'value') }
@@ -104,7 +100,7 @@ export class CreatePracticeQuizModal extends ControlledForm {
         </div>
         <form className='ql-card-content' onSubmit={this.handleSubmit}>
 
-          <div className= 'ql-modal-createpracquiz'>
+          <div className='ql-modal-createpracquiz'>
 
             <h5>
               Number of questions:
