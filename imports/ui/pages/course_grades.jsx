@@ -195,9 +195,10 @@ export const CourseGrades = createContainer((props) => {
   const course = Courses.findOne({_id: props.courseId})
 
   const studentIds = course.students || []
-  const students = Meteor.users.find({_id: {$in: studentIds}}).fetch()
+  let students = Meteor.users.find({_id: {$in: studentIds}}).fetch()
+  students = _(students).sortBy((entry) => { return entry.profile.lastname.toLowerCase() })
 
-  const sessions = Sessions.find({courseId: props.courseId}, {sort: {date: -1}}).fetch()
+  const sessions = Sessions.find({courseId: props.courseId}, {sort: {date: 1}}).fetch()
 
   const grades = Grades.find({courseId: props.courseId}).fetch()
   const unmarkedGrades = Grades.find({courseId: props.courseId, needsGrading: true}).fetch()
@@ -264,7 +265,7 @@ export const CourseGrades = createContainer((props) => {
   return {
     courseId: props.courseId,
     students: students,
-    sessions: sessions,
+    sessions: sessions.reverse(), // Need to have the sessions in reverse chronological order for the list
     unmarkedGrades: unmarkedGrades,
     courseName: course.name,
     deptCode: course.deptCode,
