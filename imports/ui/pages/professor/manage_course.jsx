@@ -169,13 +169,13 @@ class _ManageCourse extends Component {
       if (sessions[i].quizIsClosed()) {
         Meteor.call('grades.forSession.average', sessions[i]._id, this.props.courseId, null, (error, average) => {
           if (error) {
-            alertify.error('Could not retrieve session average for: ' + sessions.name)
+            alertify.error('Could not retrieve session average for: ' + sessions[i].name)
           } else {
             this.setState((state, props) => {
               let updatedSessionAverages = state.sessionAverages
               updatedSessionAverages[sessions[i]._id] = average
               return {
-                sessionAverages: state.sessionAverages
+                sessionAverages: updatedSessionAverages
               }
             })
           }
@@ -217,9 +217,9 @@ class _ManageCourse extends Component {
 
     const maxNum = 8
     const totalSessions = sessions ? sessions.length : 0
-    if (!this.state.expandedSessionlist) sessions = sessions.slice(0, maxNum)
-    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionlist: !this.state.expandedSessionlist }) }
-    const expandText = !this.state.expandedSessionlist ? 'Show all' : 'Show less'
+    if (!this.state.expandedSessionList) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionList: !this.state.expandedSessionList }) }
+    const expandText = !this.state.expandedSessionList ? 'Show all' : 'Show less'
 
     return (<div>
       {
@@ -256,8 +256,8 @@ class _ManageCourse extends Component {
           return (<SessionListItem
             key={sId}
             session={ses}
-            average={this.state.sessionAverages[ses._id]}
-            participation={this.state.sessionParticipation[ses._id]}
+            average={this.state.sessionAverages[sId] ? this.state.sessionAverages[sId] : 0}
+            participation={this.state.sessionParticipation[sId]}
             click={nav}
             controls={controls} />)
         })
