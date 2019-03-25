@@ -261,7 +261,7 @@ Router.route('/course/:courseId/grades', {
 
 import { GradeDisplay } from '../../ui/pages/grades_display_container'
 Router.route('/course/:courseId/student/:studentId/grades', {
-  name: 'course.student.grades',
+  name: 'student.grades',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
@@ -271,6 +271,21 @@ Router.route('/course/:courseId/student/:studentId/grades', {
     const isInCourse = u.isInstructor(this.params.courseId) || u.isStudent(this.params.courseId)
     if (u && isInCourse) {
       mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <GradeDisplay courseId={this.params.courseId} studentId={this.params.studentId} /> </PageContainer> })
+    } else Router.go('login')
+  }
+})
+
+Router.route('/course/:courseId/session/:sessionId/grades', {
+  name: 'session.grades',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
+  },
+  action: function () {
+    const u = Meteor.user()
+    const isInCourse = u.isInstructor(this.params.courseId) || u.isStudent(this.params.courseId)
+    if (u && isInCourse) {
+      mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <GradeDisplay courseId={this.params.courseId} sessionId={this.params.sessionId} /> </PageContainer> })
     } else Router.go('login')
   }
 })

@@ -107,7 +107,7 @@ class _PageContainer extends Component {
     } else if (isInstructor && this.state.showCourse) {
       gradesNavigation = <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', {courseId: this.state.courseId})}>Grades</a></li>
     } else if (isStudent && this.state.showCourse) {
-      gradesNavigation = <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.student.grades', {courseId: this.props.courseId, studentId: user._id})}>Grades</a></li>
+      gradesNavigation = <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('student.grades', {courseId: this.props.courseId, studentId: user._id})}>Grades</a></li>
     }
 
     return (

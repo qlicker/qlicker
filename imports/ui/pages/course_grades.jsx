@@ -166,14 +166,13 @@ export class _CourseGrades extends Component {
 
   setStudentState (student) {
     this.setState({studentTag: student}, () => {
-      Router.go('course.student.grades', {courseId: this.props.courseId, studentId: student.value})
+      Router.go('student.grades', {courseId: this.props.courseId, studentId: student.value})
     })
   }
 
   setSessionState (session) {
-    // TODO: Navigate to the session grade dashboard
     this.setState({sessionTag: session}, () => {
-      alertify.success(session.label)
+      Router.go('session.grades', {courseId: this.props.courseId, sessionId: session.value})
     })
   }
 
