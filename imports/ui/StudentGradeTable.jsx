@@ -17,11 +17,11 @@ import { Sessions } from '../api/sessions'
 import { Grades } from '../api/grades'
 
 import { GradeViewModal } from './modals/GradeViewModal'
-import { ProfileViewModal } from './modals/ProfileViewModal'
 
 /**
- * React Component (meteor reactive) to display Question object and send question responses.
- * @prop {Id} courseId - Id of course to show
+ * React Component (meteor reactive) to display grades for a given student and a course.
+ * @prop {Id} courseId - Id of course grades to show
+ * @prop {Id} studentId - Id of student grades to show
  */
 export class _StudentGradeTable extends Component {
 
@@ -30,12 +30,13 @@ export class _StudentGradeTable extends Component {
 
     this.state = { gradeViewModal: false,
       profileViewModal: false,
+      gradeToView: null,
+      studentToView: null,
       average: 0,
       participation: 0
     }
 
     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
-    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.calculateAllGrades = this.calculateAllGrades.bind(this)
     this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
   }
@@ -66,19 +67,13 @@ export class _StudentGradeTable extends Component {
   toggleGradeViewModal (gradeToView = null) {
     this.setState({
       gradeViewModal: !this.state.gradeViewModal,
-      gradeToView: gradeToView
+      gradeToView: gradeToView,
+      studentToView: this.props.student
     })
   }
 
-  toggleProfileViewModal (studentToView = null) {
-    this.setState({
-      profileViewModal: !this.state.profileViewModal,
-      studentToView: studentToView
-    })
-  }
-
-  calculateSessionGrades (sessionId) {
-    if (confirm('Are you sure?')) {
+  calculateSessionGrades (sessionId, sessionName) {
+    if (confirm('Are you sure you want to re-calculate all student grades for ' + sessionName + '?')) {
       Meteor.call('grades.calcSessionGrades', sessionId, (err) => {
         if (err) {
           alertify.error('Error: ' + err.error)
@@ -90,7 +85,7 @@ export class _StudentGradeTable extends Component {
   }
 
   calculateAllGrades () {
-    if (confirm('Are you sure?')) {
+    if (confirm('Are you sure re-calculate all course grades for all students?')) {
       const tableData = this.props.tableData
       for (let i = 0; i < tableData.length; i++) {
         Meteor.call('grades.calcSessionGrades', tableData[i].session._id, (err) => {
@@ -188,7 +183,7 @@ export class _StudentGradeTable extends Component {
       const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
       const row = this.props.tableData[adjustedIndex]
       const session = row.session
-      const calcSessionGrades = () => this.calculateSessionGrades(session._id)
+      const calcSessionGrades = () => this.calculateSessionGrades(session._id, session.name)
       const viewSession = () => Router.go('session.results', {sessionId: session._id, courseId: this.props.courseId})
       const headerClass = session.gradesViewable()
         ? 'ql-grade-table-session-header'
@@ -231,7 +226,6 @@ export class _StudentGradeTable extends Component {
     }
 
     const showGradeViewModal = this.state.gradeViewModal && this.props.student && !this.state.profileViewModal
-    const showProfileViewModal = this.state.profileViewModal && this.props.student && !this.state.gradeViewModal
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
@@ -267,17 +261,13 @@ export class _StudentGradeTable extends Component {
           />
 
         </Table>
-        { showGradeViewModal
+        {showGradeViewModal
           ? <GradeViewModal
             grade={this.state.gradeToView}
-            student={this.props.student}
+            student={this.state.studentToView}
             done={this.toggleGradeViewModal} />
-          : '' }
-        { showProfileViewModal
-          ? <ProfileViewModal
-            user={this.props.student}
-            done={this.toggleProfileViewModal} />
-          : '' }
+          : ''
+        }
       </div>
     )
   } // end render
@@ -316,11 +306,11 @@ export const StudentGradeTable = createContainer((props) => {
     let participation = 0
     if (grades.length > 0) {
       participation = _(grades).reduce((total, grade) => {
-        let gpart = 0
+        let gPart = 0
         if (grade && grade.participation) {
-          gpart = grade.participation
+          gPart = grade.participation
         }
-        return total + gpart
+        return total + gPart
       }, 0) / grades.length
     }
 
@@ -334,7 +324,6 @@ export const StudentGradeTable = createContainer((props) => {
 
   return {
     courseId: props.courseId,
-    courseName: course.name,
     student: student,
     grades: grades,
     tableData: tableData,
@@ -343,6 +332,6 @@ export const StudentGradeTable = createContainer((props) => {
 }, _StudentGradeTable)
 
 StudentGradeTable.propTypes = {
-  courseId: PropTypes.string,
-  studentId: PropTypes.string
+  courseId: PropTypes.string.isRequired,
+  studentId: PropTypes.string.isRequired
 }
