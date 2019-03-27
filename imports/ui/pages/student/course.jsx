@@ -10,6 +10,7 @@ import { _ } from 'underscore'
 
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
+import { Questions } from '../../../api/questions'
 import { SessionListItem } from '../../SessionListItem'
 import { CreatePracticeQuizModal } from '../../modals/CreatePracticeQuizModal'
 
@@ -116,6 +117,16 @@ class _Course extends Component {
   render () {
     const toggleCreatePracticeQuizModal = () => { this.setState({ showingCreatePracticeQuizModal: !this.state.showingCreatePracticeQuizModal }) }
 
+    const callQuestions = (number, tags) => {
+      toggleCreatePracticeQuizModal()
+      Meteor.call('questions.getRandom.forTags', this.props.courseId, number, tags, (error, questions) => {
+        if (error) {
+          alertify.error('Unable to generate quiz')
+          return
+        }
+        // TODO: Implement Quiz interface with returned questions
+      })
+    }
     return (
       <div className='container ql-manage-course'>
         <h2>
@@ -125,7 +136,7 @@ class _Course extends Component {
         <div className='session-button-group'>
           <button className='btn btn-primary' onClick={toggleCreatePracticeQuizModal}>
             Create Practice Quiz
-            {this.state.showingCreatePracticeQuizModal ? <CreatePracticeQuizModal courseId={this.props.course._id} courseName={this.props.course.courseCode()} /> : '' }
+            {this.state.showingCreatePracticeQuizModal ? <CreatePracticeQuizModal courseId={this.props.course._id} courseName={this.props.course.courseCode()} done={callQuestions} /> : '' }
           </button>
         </div>
 
@@ -141,16 +152,20 @@ class _Course extends Component {
 export const Course = createContainer((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('userData') &&
-    Meteor.subscribe('sessions.forCourse', props.courseId)
+    Meteor.subscribe('sessions.forCourse', props.courseId) &&
+    Meteor.subscribe('questions.library', props.courseId) &&
+    Meteor.subscribe('questions.public', props.courseId)
 
-  let student = Meteor.users.findOne({ _id: Meteor.userId() })
-  let course = Courses.findOne({ _id: props.courseId })
-  let sessions = Sessions.find({ courseId: props.courseId }).fetch()
+  const student = Meteor.users.findOne({_id: Meteor.userId()})
+  const course = Courses.findOne({_id: props.courseId})
+  const sessions = Sessions.find({courseId: props.courseId}).fetch()
+  const questions = Questions.find({courseId: props.courseId}).fetch()
 
   return {
     course: course,
     student: student,
     sessions: sessions,
+    questions: questions,
     loading: !handle.ready()
   }
 }, _Course)
