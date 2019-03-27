@@ -21,14 +21,18 @@ export class CreatePracticeQuizModal extends ControlledForm {
     super(props)
     this.state = {
       tags: [],
-      tagSuggestions: []
+      tagSuggestions: [],
+      numberOfQuestions: 1
     }
 
     this.setTags = this.setTags.bind(this)
+    this.updateQuery = this.updateQuery.bind(this)
+    this.setNumberOfQuestions = this.setNumberOfQuestions.bind(this)
   }
 
   componentWillReceiveProps (nextProps) {
     Meteor.call('questions.possibleTags', nextProps.courseId, (e, tags) => {
+      let tagSuggestions = []
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
@@ -42,12 +46,16 @@ export class CreatePracticeQuizModal extends ControlledForm {
   componentDidMount () {
     Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
       // non-critical, if e: silently fail
-      tagSuggestions = []
+      let tagSuggestions = []
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
       this.setState({tagSuggestions: tagSuggestions})
     })
+  }
+
+  setNumberOfQuestions (value) {
+    this.setState({numberOfQuestions: parseInt(value.target.value)})
   }
 
   setTags (tags) {
@@ -67,25 +75,13 @@ export class CreatePracticeQuizModal extends ControlledForm {
    * Overrided done handler
    */
   done (e) {
-    this.setState({})
-    this.props.done()
+    this.props.done(this.state.numberOfQuestions, this.state.tags)
   }
 
-  /**
-   * handleSubmit(Event: e)
-   * onSubmit handler for add TA form. Calls courses.addTA
-   */
   handleSubmit (e) {
     super.handleSubmit(e)
 
-    if (Meteor.isTest) {
-      this.props.done()
-    }
-
-    Meteor.call('courses.addStudentByEmail', this.state.newEmail, this.props.courseId, (error) => {
-      if (error) return alertify.error('Error: ' + error.message)
-      this.done()
-    })
+    this.props.done(this.state.numberOfQuestions, this.state.tags)
   }
 
   render () {
@@ -104,7 +100,17 @@ export class CreatePracticeQuizModal extends ControlledForm {
 
             <h5>
               Number of questions:
-              &nbsp;<input type='number' className='numberField' min='0' max={100} step={1} maxLength='4' size='7' />
+              &nbsp;<input
+                type='number'
+                className='numberField'
+                min={1}
+                max={100}
+                step={1}
+                maxLength='3'
+                size='3'
+                value={this.state.numberOfQuestions}
+                onChange={this.setNumberOfQuestions}
+            />
             </h5>
 
             <Select
