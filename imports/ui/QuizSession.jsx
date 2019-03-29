@@ -1,211 +1,251 @@
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-// import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 import { _ } from 'underscore'
 
 import { Questions } from '../api/questions'
 import { Sessions } from '../api/sessions'
-import { Responses, responseDistribution } from '../api/responses'
+import { Responses } from '../api/responses'
+import { Courses } from '../api/courses'
 
 import { QuestionDisplay } from './QuestionDisplay'
-import { ShortAnswerList } from './ShortAnswerList'
 import { QUESTION_TYPE } from '../configs'
 
-class _QuizSession extends Component {
+export class _QuizSession extends Component {
 
   constructor (props) {
     super(props)
 
-    this.state = {questionsToTryAgain: []}
+    this.state = {
+      questionsToTryAgain: [],
+      practiceSession: {},
+      practiceResponses: [],
+      loading: props.isPracticeSession // only extra loading section for async practice session generation
+    }
 
     this.scrollTo = this.scrollTo.bind(this)
     this.submitQuiz = this.submitQuiz.bind(this)
-    if (Meteor.user().isStudent(this.props.session.courseId)) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
+    this.fetchPracticeQuizRandomQuestions = this.fetchPracticeQuizRandomQuestions.bind(this)
+    this.checkForSubmissionAndEmptyQuestions = this.checkForSubmissionAndEmptyQuestions.bind(this)
 
+    if (!props.isPracticeSession && Meteor.user().isStudent(this.props.session.courseId)) {
+      Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
+    }
   }
 
   componentDidMount () {
-    let isSubmitted = false
-    let emptySA = false
-    //Look for any SA response that is empty, so that user can be warned upon submission
-    if (this.props.session){
-      this.props.session.questions.forEach(qId => {
-        let q = this.props.questions[qId]
-        if (q && q.type === QUESTION_TYPE.SA){
-          let response = _(this.props.myResponses).findWhere({ questionId:qId })
-          if(response && response.answer == false && response.answerWysiwyg == false){//double equal matters
-            emptySA = true
-          }
-        }
-      })
-      if(this.props.session.quizIsActive()) {
-        Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
-            isSubmitted = true
-          }
-          this.setState({submitted:isSubmitted})
-        })
-      }
-
+    if (this.props.isPracticeSession) {
+      this.fetchPracticeQuizRandomQuestions(
+        this.props.courseId,
+        this.props.courseName,
+        this.props.numberOfQuestions,
+        this.props.tags
+      )
+    } else {
+      this.setState({loading: false})
+      this.checkForSubmissionAndEmptyQuestions(
+        this.props.session,
+        this.props.questions,
+        this.props.myResponses
+      )
     }
-    this.setState({emptySA:emptySA})
   }
 
   componentWillReceiveProps (nextProps) {
+    if (nextProps.isPracticeSession && nextProps.tags !== this.props.tags) {
+      this.fetchPracticeQuizRandomQuestions(
+        nextProps.courseId,
+        nextProps.courseName,
+        nextProps.numberOfQuestions,
+        nextProps.tags
+      )
+    } else {
+      this.checkForSubmissionAndEmptyQuestions(
+        nextProps.session,
+        nextProps.questions,
+        nextProps.myResponses
+      )
+    }
+  }
+
+  fetchPracticeQuizRandomQuestions (courseId, courseName, numberOfQuestions, tags) {
+    Meteor.call('questions.getRandom.forTags', courseId, numberOfQuestions, tags, (error, questions) => {
+      if (error) {
+        alertify.error('Unable to generate quiz')
+      } else {
+        // Fake a session object for the practice session
+        const practiceSession = {
+          name: 'Practice Session: ' + courseName,
+          description: '',
+          courseId: courseId,
+          quiz: true,
+          questions: questions,
+          createdAt: new Date(),
+          date: new Date()
+        }
+        this.setState({practiceSession: practiceSession, loading: false})
+      }
+    })
+  }
+
+  // TODO; Fix implementation of this
+  checkForSubmissionAndEmptyQuestions (session, questions, myResponses) {
     let isSubmitted = false
     let emptySA = false
-    //Look for any SA response that is empty, so that user can be warned upon submission
-    if (nextProps.session){
-      nextProps.session.questions.forEach(qId => {
-        let q = nextProps.questions[qId]
-        if (q && q.type === QUESTION_TYPE.SA){
-          let response = _(nextProps.myResponses).findWhere({ questionId:qId })
-          if(response && response.answer == false && response.answerWysiwyg == false){//double equal matters
+    // Look for any SA response that is empty, so that user can be warned upon submission
+    if (session) {
+      session.questions.forEach(qId => {
+        let q = questions[qId]
+        if (q && q.type === QUESTION_TYPE.SA) {
+          let response = _(myResponses).findWhere({ questionId: qId })
+          if (response && response.answer == false && response.answerWysiwyg == false) { // double equal matters
             emptySA = true
           }
         }
       })
-      if (nextProps.session.quizIsActive()){
-        Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
+      if (session.quizIsActive()) {
+        Meteor.call('sessions.quizSubmitted', session._id, (err, submitted) => {
+          if (err) alertify.error(err.error)
+          if (!err && submitted) {
             isSubmitted = true
           }
-          this.setState({submitted:isSubmitted})
+          this.setState({submitted: isSubmitted})
         })
       }
     }
-    this.setState({emptySA:emptySA})
+    this.setState({emptySA: emptySA})
   }
 
-
   scrollTo (qId) {
-    const node = ReactDOM.findDOMNode(this.refs["qdisp"+qId])
+    const node = ReactDOM.findDOMNode(this.refs['qdisp' + qId])
     if (node) window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
   }
 
+  // TODO: Fix this
   submitQuiz () {
-    if (this.state.emptySA){
-      if(!confirm("You have empty short answers, submit anyway?")) return
+    if (this.state.emptySA) {
+      if (!confirm('You have empty short answers, submit anyway?')) return
     }
-    //Calll a method to unset the editable part of the responses.
+    // Call a method to unset the editable part of the responses.
     if (confirm('Are you sure? You can no longer update answers after submitting.')) {
       Meteor.call('sessions.submitQuiz', this.props.session._id, (err) => {
         if (err) return alertify.error('Error: ' + err.message)
-       alertify.success('Quiz submitted')
-       Router.go('course', { courseId: this.props.session.courseId })
+        alertify.success('Quiz submitted')
+        Router.go('course', { courseId: this.props.session.courseId })
       })
     }
   }
 
-
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (this.props.loading || this.state.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    const cId = this.props.session.courseId
+    const cId = this.props.isPracticeSession ? this.props.courseId : this.props.session.courseId
     const user = Meteor.user()
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
-    if (this.state.submitted || !this.props.session.quizIsActive()){
+    if (!this.props.isPracticeSession && (this.state.submitted || !this.props.session.quizIsActive())) {
       Router.go('/course/' + this.props.session.courseId)
     }
 
-    const session = this.props.session
-    const qlist = session.questions
-    if (qlist.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
+    const session = this.props.isPracticeSession ? this.state.practiceSession : this.props.session
+    const qList = session.questions
+    if (qList.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
     let qCount = 0
     let qCount2 = 0
-    const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length && !this.state.submitted
+    // TODO: Response button
+    const canSubmit = this.props.isPracticeSession
+      ? this.state.practiceResponses.length === qList.length && !this.state.submitted
+      : this.props.myResponses && this.props.myResponses.length === qList.length && !this.state.submitted
 
-
-    const scrollToFirst = () => this.scrollTo(qlist[0])
     return (
       <div className='container ql-quiz-session'>
         <div className='row'>
           <div className='col-md-2 hidden-sm hidden-xs'>
             <div className='ql-quiz-session-qnav'>
               <div className='ql-quiz-session-qnav-title'>Questions</div>
-              <div  className='ql-quiz-session-qnav-qlist'>
-                { qlist.map( (qid) => {
-                    qCount +=1
-                    let className='ql-quiz-session-questionPad'
+              <div className='ql-quiz-session-qnav-qlist'>
+                {
+                  qList.map((qid) => {
+                    qCount += 1
+                    let className = 'ql-quiz-session-questionPad'
                     const click = () => this.scrollTo(qid)
-                    //const responses = _.where(this.props.myResponses, { questionId: qid })
-                    //let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
+                      // const responses = _.where(this.props.myResponses, { questionId: qid })
+                      // let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
 
-                    let response = _(this.props.myResponses).findWhere({ questionId:qid })
+                    let response = _(this.props.myResponses).findWhere({ questionId: qid })
                     if (!response) response = undefined
 
                     if (response) className += ' green'
                     else className += ' red'
 
                     return (
-                      <div className={className} key={"qnav"+qid} onClick={click}> {qCount}</div>
+                      <div className={className} key={qCount} onClick={click}> {qCount}</div>
                     )
                   })
                 }
               </div>
-              {canSubmit ?
-                <div className='ql-quiz-submit-button'>
+              {canSubmit
+                ? <div className='ql-quiz-submit-button'>
                   <div className='btn-group btn-group-justified'>
                     <div className='btn btn-primary' onClick={this.submitQuiz}>
                       Submit!
                     </div>
                   </div>
                 </div>
-
-                :''
+                : ''
               }
             </div>
           </div>
           <div className='col-md-10'>
             <div className='ql-quiz-session-questions'>
               <div className='ql-quiz-session-questions-title'> {session.name ? session.name : ''} </div>
-              { qlist.map( (qid) => {
-
+              {
+                qList.map((qid) => {
                   qCount2 += 1
                   const q = this.props.questions[qid]
-                  if (!q || !q.sessionOptions) return <div className='ql-subs-loading'>Loading</div>
-                  const points = q.sessionOptions.points ? q.sessionOptions.points : 0
-                  //const responses = _.where(this.props.myResponses, { questionId: qid })
-                  //let response =  responses.length >0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
-                  let response = _(this.props.myResponses).findWhere({ questionId:qid })
-                  let readOnly = undefined
+
+                  if (!q || (!this.props.isPracticeSession && !q.sessionOptions)) return <div className='ql-subs-loading'>Loading</div>
+                  const points = this.props.isPracticeSession
+                    ? ''
+                    : q.sessionOptions.points ? q.sessionOptions.points : 0
+                  const pointsString = this.props.isPracticeSession ? '' : '(' + points + ' points)'
+                    // const responses = _.where(this.props.myResponses, { questionId: qid })
+                    // let response =  responses.length >0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
+                  let response = _(this.props.myResponses).findWhere({ questionId: qid })
+                  let readOnly
                   if (!response) response = undefined
-                  else{
+                  else {
                     if (!response.editable) readOnly = true
                   }
                   const questionDisplay = user.isInstructor(session.courseId)
-                    ? <QuestionDisplay question={q} readOnly />
-                    : <QuestionDisplay
+                      ? <QuestionDisplay question={q} readOnly />
+                      : <QuestionDisplay
                         question={q}
-                        isQuiz={true}
+                        isQuiz
                         response={response}
                         readOnly={readOnly}
                         attemptNumber={1} />
 
                   return (
-                    <div className='ql-quiz-session-question' ref={"qdisp"+qid} key={"qdisp"+qid} >
+                    <div className='ql-quiz-session-question' ref={'qdisp' + qid} key={'qdisp' + qid} >
                       <div className='ql-quiz-session-question-title'>
-                        Question {qCount2} of {qlist.length} ({points} points)
+                        Question {qCount2} of {qList.length} {pointsString}
                       </div>
                       { q ? questionDisplay : '' }
                     </div>
                   )
                 })
               }
-              {canSubmit ?
-                <div className='ql-quiz-submit-button'>
+              {canSubmit
+                ? <div className='ql-quiz-submit-button'>
                   <div className='btn-group btn-group-justified'>
                     <div className='btn btn-primary' onClick={this.submitQuiz}>
                       Submit!
                     </div>
                   </div>
                 </div>
-                :''
+                : ''
               }
             </div>
           </div>
@@ -218,20 +258,52 @@ class _QuizSession extends Component {
 }
 
 export const QuizSession = createContainer((props) => {
-  const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
-    Meteor.subscribe('questions.inSession', props.sessionId) &&
-    Meteor.subscribe('responses.forQuiz', props.sessionId)
+  let handle, courseName
+  let session = {}
+  let questions = []
+  let allMyResponses = []
+  let isPracticeSession = false
 
-  const session = Sessions.findOne({ _id: props.sessionId })
-  const questionsInSession = session ? Questions.find({_id: { $in: session.questions }}).fetch() : []
-  // The user's responses
-  const allMyResponses = session ? Responses.find({ questionId: { $in: session.questions },
-                                                    studentUserId: Meteor.userId(),
-                                                    attempt: 1 }).fetch() : []
+  if (props.tags && props.numberOfQuestions) {
+    handle = Meteor.subscribe('questions.public', props.courseId) &&
+      Meteor.subscribe('questions.library', props.courseId) &&
+      Meteor.subscribe('courses.single', props.courseId)
+
+    const course = Courses.findOne({_id: props.courseId})
+    questions = Questions.find({courseId: props.courseId}).fetch()
+    courseName = course ? course.name : ''
+    isPracticeSession = true
+  } else {
+    handle = Meteor.subscribe('sessions.single', props.sessionId) &&
+      Meteor.subscribe('questions.inSession', props.sessionId) &&
+      Meteor.subscribe('responses.forQuiz', props.sessionId) &&
+      Meteor.subscribe('courses.single', props.courseId)
+
+    const course = Courses.findOne({_id: props.courseId})
+    courseName = course ? course.name : ''
+    session = Sessions.findOne({ _id: props.sessionId })
+    questions = session ? Questions.find({_id: { $in: session.questions }}).fetch() : []
+
+    // The user's responses
+    allMyResponses = session ? Responses.find({ questionId: { $in: session.questions },
+      studentUserId: Meteor.userId(),
+      attempt: 1 }).fetch() : []
+  }
+
   return {
-    questions: _.indexBy(questionsInSession, '_id'), // question map
+    courseName: courseName,
+    questions: _.indexBy(questions, '_id'), // question map
     session: session, // session object
     myResponses: allMyResponses, // responses related to this session
+    isPracticeSession: isPracticeSession,
+    tags: props.tags && props.tags[0] !== 'no tag' ? props.tags : [],
     loading: !handle.ready()
   }
 }, _QuizSession)
+
+QuizSession.propTypes = {
+  courseId: PropTypes.string,
+  sessionId: PropTypes.string,
+  numberOfQuestions: PropTypes.number,
+  tags: PropTypes.array
+}

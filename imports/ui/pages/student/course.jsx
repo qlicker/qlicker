@@ -119,12 +119,10 @@ class _Course extends Component {
 
     const callQuestions = (number, tags) => {
       toggleCreatePracticeQuizModal()
-      Meteor.call('questions.getRandom.forTags', this.props.courseId, number, tags, (error, questions) => {
-        if (error) {
-          alertify.error('Unable to generate quiz')
-          return
-        }
-        // TODO: Implement Quiz interface with returned questions
+      Router.go('practice.session', {
+        courseId: this.props.courseId,
+        numberOfQuestions: number,
+        tags: tags.length < 0 ? tags : ['no tag']
       })
     }
     return (
