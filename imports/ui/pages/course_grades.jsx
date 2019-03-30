@@ -31,6 +31,7 @@ export class _CourseGrades extends Component {
       nUnmarkedSessionQuery: 0
     }
 
+    this.calculateAllGrades = this.calculateAllGrades.bind(this)
     this.setStudentState = this.setStudentState.bind(this)
     this.setSessionState = this.setSessionState.bind(this)
     this.courseAveragesButtonClicked = this.courseAveragesButtonClicked.bind(this)
@@ -92,6 +93,21 @@ export class _CourseGrades extends Component {
     Router.go('course.averages', {courseId: this.props.courseId})
   }
 
+  calculateAllGrades () {
+    if (confirm('Are you sure re-calculate all course grades for all students?')) {
+      const tableData = this.props.tableData
+      for (let i = 0; i < tableData.length; i++) {
+        Meteor.call('grades.calcSessionGrades', tableData[i].session._id, (err) => {
+          if (err) {
+            alertify.error('Error: ' + err.error)
+          } else {
+            alertify.success('Grades calculated for ' + tableData[i].session[i].name)
+          }
+        })
+      }
+    }
+  }
+
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
@@ -110,6 +126,10 @@ export class _CourseGrades extends Component {
               Export as .csv
             </div>
           </CSVLink>
+          &nbsp;&nbsp;
+          <button className='btn btn-primary' onClick={this.calculateAllGrades}>
+            Re-calculate all course grades
+          </button>
         </div>
         <div className='row'>
           <div className='session-group'>
