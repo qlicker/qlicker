@@ -28,10 +28,10 @@ export class _StudentGradeTable extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { gradeViewModal: false,
+    this.state = {
+      gradeViewModal: false,
       profileViewModal: false,
       gradeToView: null,
-      studentToView: null,
       average: 0,
       participation: 0
     }
@@ -104,7 +104,7 @@ export class _StudentGradeTable extends Component {
 
     const user = Meteor.user()
     const isInstructor = user.isInstructor(this.props.courseId)
-    const columnNames = ['Session', 'Participation / Grade']
+    const columnNames = ['Session Name', 'Grade', 'Participation']
     const rowHeight = 35
     const headerHeight = 50
 
@@ -136,7 +136,10 @@ export class _StudentGradeTable extends Component {
           maxWidth = Math.max(getTextWidth(columnNames[0]), maxWidth)
           break
         case 1: // Grades
-          maxWidth = Math.max(getTextWidth(columnNames[1]), 'No Grade'.length, '✓100 / 100'.length)
+          maxWidth = getTextWidth(columnNames[1])
+          break
+        case 2:
+          maxWidth = getTextWidth(columnNames[2])
           break
         default:
           alertify.error('Error: Unrecognized Column Index')
@@ -170,14 +173,19 @@ export class _StudentGradeTable extends Component {
       )
     }
 
+    const ParticipationHeaderCell = () => {
+      return (
+        <Cell>
+          {columnNames[2]}
+        </Cell>
+      )
+    }
+
+
     const SessionCell = ({rowIndex}) => {
       if (rowIndex === 0) { // Special Case: Overall Average
         return (
-          <Cell>Average</Cell>
-        )
-      } else if (rowIndex === 1) { // Special Case: Overall Participation
-        return (
-          <Cell>Participation</Cell>
+          <Cell>Course Average</Cell>
         )
       }
       const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
@@ -202,10 +210,6 @@ export class _StudentGradeTable extends Component {
         return (
           <Cell>{this.state.average.toFixed(0)}%</Cell>
         )
-      } else if (rowIndex === 1) { // Special Case: Overall Participation
-        return (
-          <Cell>{this.state.participation.toFixed(0)}%</Cell>
-        )
       }
       const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
       const grade = this.props.tableData[adjustedIndex].grade
@@ -214,11 +218,39 @@ export class _StudentGradeTable extends Component {
         if (grade.hasUngradedMarks()) cellClass = 'ql-grade-cell-needs-grading'
       }
 
+      //view grading page of session
       const onClick = () => this.toggleGradeViewModal(grade)
       return (grade
           ? <Cell onClick={onClick}>
             <div className={cellClass}>
-              {grade.joined ? '✓' : '✗'} { grade.participation.toFixed(0) }% / { grade.value.toFixed(0)}%
+               { grade.value.toFixed(0)}%
+            </div>
+          </Cell>
+          : <Cell> No grade </Cell>
+      )
+
+    }
+    const ParticipationCell = ({rowIndex}) => {
+
+      if (rowIndex === 0) { // Special Case: Overall Participation
+        return (
+          <Cell>{this.state.participation.toFixed(0)}%</Cell>
+        )
+      }
+
+      const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
+      const grade = this.props.tableData[adjustedIndex].grade
+      let cellClass = 'ql-grade-cell'
+      if (grade) {
+        if (grade.hasUngradedMarks()) cellClass = 'ql-grade-cell-needs-grading'
+      }
+
+      //view grading page of session
+      const onClick = () => this.toggleGradeViewModal(grade)
+      return (grade
+          ? <Cell onClick={onClick}>
+            <div className={cellClass}>
+              { grade.participation.toFixed(0) }%
             </div>
           </Cell>
           : <Cell> No grade </Cell>
@@ -258,6 +290,12 @@ export class _StudentGradeTable extends Component {
             cell={<GradeCell />}
             fixed
             width={getTextWidth(columnNames[1])}
+          />
+          <Column
+            header={<ParticipationHeaderCell />}
+            cell={<ParticipationCell />}
+            fixed
+            width={getTextWidth(columnNames[2])}
           />
 
         </Table>
