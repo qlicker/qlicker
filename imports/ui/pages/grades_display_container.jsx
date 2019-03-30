@@ -11,6 +11,7 @@ import { Sessions } from '../../api/sessions'
 
 import { StudentGradeTable } from '../StudentGradeTable'
 import { SessionGradeTable } from '../SessionGradeTable'
+import { OverallGradeTable } from '../OverallGradeTable'
 import 'react-select/dist/react-select.css'
 
 export class _GradeDisplay extends Component {
@@ -42,7 +43,9 @@ export class _GradeDisplay extends Component {
             <div>
               {this.props.sessionId
                 ? <SessionGradeTable courseId={this.props.courseId} sessionId={this.props.sessionId} />
-                : <StudentGradeTable courseId={this.props.courseId} studentId={this.props.studentId} />
+                : this.props.studentId
+                  ? <StudentGradeTable courseId={this.props.courseId} studentId={this.props.studentId} />
+                  : <OverallGradeTable courseId={this.props.courseId} />
               }
             </div>
           </div>

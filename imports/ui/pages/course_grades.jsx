@@ -33,6 +33,7 @@ export class _CourseGrades extends Component {
 
     this.setStudentState = this.setStudentState.bind(this)
     this.setSessionState = this.setSessionState.bind(this)
+    this.courseAveragesButtonClicked = this.courseAveragesButtonClicked.bind(this)
     this.setUnmarkedSessionState = this.setUnmarkedSessionState.bind(this)
     this.startMarkingClicked = this.startMarkingClicked.bind(this)
   }
@@ -87,6 +88,10 @@ export class _CourseGrades extends Component {
     return session1.value.quizEnd - session2.value.quizEnd
   }
 
+  courseAveragesButtonClicked () {
+    Router.go('course.averages', {courseId: this.props.courseId})
+  }
+
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
@@ -96,8 +101,8 @@ export class _CourseGrades extends Component {
           {this.props.deptCode.toUpperCase() + this.props.courseNumber + ' - ' + this.props.courseName}
         </h2>
         <div className='ql-space-button'>
-          <button className='btn btn-primary'>
-            View Median Grades
+          <button className='btn btn-primary' onClick={this.courseAveragesButtonClicked}>
+            View Course Averages
           </button>
           &nbsp;&nbsp;
           <CSVLink data={this.props.csvData} headers={this.props.csvHeaders} filename={this.props.csvFilename}>
