@@ -153,15 +153,17 @@ export class SessionListItem extends ListItem {
             </span>
             <span className='completion'>{averageString}</span>
           </div>
-          { this.props.participation !== null && this.props.participation !== undefined
-            ? <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
-              <span className='completion'>Participation: {this.props.participation}% </span>
-              <div className='ql-progress'>
-                <div className='ql-progress-bar' style={{ width: this.props.participation + '%' }}>&nbsp;</div>
+          <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
+            { this.props.participation !== null && this.props.participation !== undefined
+              ? <div>
+                <span className='completion'>Participation: {this.props.participation}% </span>
+                <div className='ql-progress'>
+                  <div className='ql-progress-bar' style={{ width: this.props.participation + '%' }}>&nbsp;</div>
+                </div>
               </div>
-            </div>
-            : ''
-         }
+              : ''
+            }
+          </div>
           <div className='col-md-3 col-xs-4 col-sm-3'>
             {link}
           </div>
