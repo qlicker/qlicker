@@ -243,8 +243,6 @@ export class _OverallGradeTable extends Component {
       }
       const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
       const sessionId = this.props.tableData[adjustedIndex].session._id
-      console.log('sessionId: ' + sessionId)
-      console.log('blah: ' + JSON.stringify(this.state.sessionAverages))
       const average = this.state.sessionAverages[sessionId]
 
       return (average !== null && average !== undefined
@@ -263,8 +261,6 @@ export class _OverallGradeTable extends Component {
       }
       const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
       const sessionId = this.props.tableData[adjustedIndex].session._id
-      console.log('sessionId: ' + sessionId)
-      console.log('blah: ' + JSON.stringify(this.state.sessionParticipations))
       const participation = this.state.sessionParticipations[sessionId]
 
       return (participation !== null && participation !== undefined
