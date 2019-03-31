@@ -33,7 +33,7 @@ export class SessionListItem extends ListItem {
     })
   }
 
-  endSession(evt){
+  endSession (evt) {
     evt.stopPropagation()
     if (confirm('Are you sure?')) {
       const sessionId = this.props.session._id
@@ -44,7 +44,7 @@ export class SessionListItem extends ListItem {
     }
   }
 
-  makeVisible(evt){
+  makeVisible (evt) {
     evt.stopPropagation()
     if (confirm('Are you sure?')) {
       let session = this.props.session
@@ -59,7 +59,7 @@ export class SessionListItem extends ListItem {
   reviewSession (evt) {
     evt.stopPropagation()
     const sessionId = this.props.session._id
-    Router.go('session.results', { sessionId: sessionId, courseId: this.props.session.courseId  })
+    Router.go('session.results', { sessionId: sessionId, courseId: this.props.session.courseId })
   }
 
   render () {
@@ -69,16 +69,16 @@ export class SessionListItem extends ListItem {
     let status = session.status
     let quizWouldBeActive = false
 
-    if(session.quizIsActive() ){
+    if (session.quizIsActive()) {
       status = 'running'
     }
-    if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd ) {
+    if (session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd) {
       status = 'done'
     }
-    if (this.props.submittedQuiz){
+    if (this.props.submittedQuiz) {
       status = 'done'
     }
-    //Show a link to activate the session from draft to visible, if it has questions and would not be past
+    // Show a link to activate the session from draft to visible, if it has questions and would not be past
     if (session.quiz && session.status === 'hidden' && session.quizEnd && currentTime < session.quizEnd && session.questions.length > 0) {
       quizWouldBeActive = true
     }
@@ -106,31 +106,30 @@ export class SessionListItem extends ListItem {
     } else {}
 
     let statusClassName = 'ql-session-status ' + ('ql-' + status)
-    //if (session.reviewable && session.status === 'done') statusClassName += ' reviewable'
-    //if (!session.reviewable && session.status === 'done') statusClassName += ' not-reviewable'
+    // if (session.reviewable && session.status === 'done') statusClassName += ' reviewable'
+    // if (!session.reviewable && session.status === 'done') statusClassName += ' not-reviewable'
 
     let showTime = session.date || session.quizStart || session.quizEnd
     let timeString = moment(session.date).format('MMMM DD, YYYY')
-    if (session.quiz){
-      if (session.status === 'done'){
-        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+    if (session.quiz) {
+      if (session.status === 'done') {
+        timeString = 'Closed ' + moment(session.date).format('MMMM DD, YYYY')
       } else if (session.quizIsActive() && this.props.submittedQuiz) {
         timeString = 'Submitted'
-      }
-      else if (session.quizStart && currentTime < session.quizStart){
-        timeString = 'Opens at '+moment(session.quizStart).format('hh:mm A') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
-      }
-      else if  (session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd){
-        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
-      }
-      else if (session.quizEnd && currentTime < session.quizEnd){
-        timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
-      }
-      else if (session.quizEnd){
-        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
-      }
-      else{}
+      } else if (session.quizStart && currentTime < session.quizStart) {
+        timeString = 'Opens at ' + moment(session.quizStart).format('hh:mm A') + ' on ' + moment(session.quizStart).format('dddd MMMM DD, YYYY')
+      } else if (session.quizStart && currentTime > session.quizStart && session.quizEnd && currentTime < session.quizEnd) {
+        timeString = 'Closes at ' + moment(session.quizEnd).format('hh:mm A') + ' on ' + moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+      } else if (session.quizEnd && currentTime < session.quizEnd) {
+        timeString = 'Closes at ' + moment(session.quizEnd).format('hh:mm A') + ' on ' + moment(session.quizEnd).format('dddd MMMM DD, YYYY')
+      } else if (session.quizEnd) {
+        timeString = 'Closed ' + moment(session.date).format('MMMM DD, YYYY')
+      } else {}
     }
+
+    const averageString = this.props.average !== null && this.props.average !== undefined
+      ? 'Average: ' + this.props.average + '%'
+      : 'No grades available'
 
     return (
       <div className='ql-session-list-item ql-list-item' onClick={this.props.click}>
@@ -152,20 +151,20 @@ export class SessionListItem extends ListItem {
                   : ''}
               </span>
             </span>
+            <span className='completion'>{averageString}</span>
           </div>
-          <div className='col-md-2 col-xs-4 col-sm-3'>
+          { this.props.participation !== null && this.props.participation !== undefined
+            ? <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
+              <span className='completion'>Participation: {this.props.participation}% </span>
+              <div className='ql-progress'>
+                <div className='ql-progress-bar' style={{ width: this.props.participation + '%' }}>&nbsp;</div>
+              </div>
+            </div>
+            : ''
+         }
+          <div className='col-md-3 col-xs-4 col-sm-3'>
             {link}
           </div>
-          { /*this.props.participation ?
-            //This used to show what the current question is, better to show the grade...
-            <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
-            <span className='completion'>Participation: {this.props.participation} </span>
-            <div className='ql-progress'>
-              <div className='ql-progress-bar' style={{ width: this.props.participation + '%' }}>&nbsp;</div>
-            </div>
-          </div>
-          : ''*/
-         }
         </div>
         { this.props.controls ? <div className='controls'>{controls}</div> : '' }
       </div>)
@@ -175,8 +174,9 @@ export class SessionListItem extends ListItem {
 
 SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
+  average: PropTypes.number,
   details: PropTypes.bool,
-  submittedQuiz: PropTypes.bool,// whether this is a quiz that the user has submiited
+  submittedQuiz: PropTypes.bool, // whether this is a quiz that the user has submiited
   participation: PropTypes.number,
   click: PropTypes.func
 }

@@ -245,7 +245,7 @@ export class _SessionResultsTable extends Component {
     }
 
    // Setup data for CSV downloader:
-    let cvsHeaders = ['Last name', 'First name', 'Email', 'Particpation', 'Grade']
+    let cvsHeaders = ['Last name', 'First name', 'Email', 'Participation', 'Grade']
 
     questions.forEach((q) => {
       cvsHeaders.push(q.colName + ' points')
@@ -288,11 +288,13 @@ export class _SessionResultsTable extends Component {
                 </div>
               </div>
               <div>
+                &nbsp;&nbsp;
                 <div type='button' className='btn btn-secondary' onClick={this.calculateGrades}>
                   Re-calculate grades
                 </div>
               </div>
               <div>
+                &nbsp;&nbsp;
                 <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
                   <div type='button' className='btn btn-secondary'>
                     Export as .csv

@@ -1,6 +1,6 @@
 # Database
 
-Qlicker uses 5 mongo collections for storing persistent data. A strict schema is not enforce on any of the collections. However, using the [meteor check](https://docs.meteor.com/api/check.html) library, data integrity is preserved on inserts and updates. An object pattern is described at the top of each of the respective files.
+Qlicker uses 5 mongo collections for storing persistent data. A strict schema is not enforced on any of the collections. However, using the [meteor check](https://docs.meteor.com/api/check.html) library, data integrity is preserved on inserts and updates. An object pattern is described at the top of each of the respective files.
 
  - [`courses` (imports/api/courses.js)](../imports/api/courses.js)
  - [`questions` (imports/api/questions.js)](../imports/api/questions.js)
