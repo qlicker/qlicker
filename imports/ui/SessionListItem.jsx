@@ -127,7 +127,7 @@ export class SessionListItem extends ListItem {
       } else {}
     }
 
-    const averageString = this.props.average !== null
+    const averageString = this.props.average !== null && this.props.average !== undefined
       ? 'Average: ' + this.props.average + '%'
       : 'No grades available'
 
@@ -153,7 +153,7 @@ export class SessionListItem extends ListItem {
             </span>
             <span className='completion'>{averageString}</span>
           </div>
-          { this.props.participation !== null
+          { this.props.participation !== null && this.props.participation !== undefined
             ? <div className={this.props.controls ? 'col-md-3 col-sm-2 hidden-xs' : 'col-md-4 col-sm-3 hidden-xs'}>
               <span className='completion'>Participation: {this.props.participation}% </span>
               <div className='ql-progress'>
