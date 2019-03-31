@@ -267,7 +267,7 @@ export class QuestionDisplay extends Component {
     }
 
     Meteor.call('responses.add', responseObject, (err, answerId) => {
-      if (err) return alertify.error('Error: ' + err.error)
+      if (err) return alertify.error('Error Question: ' + err)
       alertify.success('Answer Submitted')
     })
   }
@@ -299,13 +299,17 @@ export class QuestionDisplay extends Component {
     }
     const submitted = !!(this.state.isSubmitted)
 
-    Meteor.call('responses.add', responseObject, (err, answerId) => {
-      if (err) return alertify.error('Error: ' + err.error)
-      submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
-      this.setState({
-        isSubmitted: true
+    if (this.props.isPracticeSession) {
+      this.props.savePracticeSessionResponse(responseObject)
+    } else {
+      Meteor.call('responses.add', responseObject, (err, answerId) => {
+        if (err) return alertify.error('Error Whole Quiz: ' + err)
+        submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
+        this.setState({
+          isSubmitted: true
+        })
       })
-    })
+    }
   }
   /**
    * calculate percentages for specific answer key
@@ -558,7 +562,8 @@ QuestionDisplay.propTypes = {
   prof: PropTypes.bool, // if viewed by an instructor, overrides showing correct answer
   forReview: PropTypes.bool,
   onSubmit: PropTypes.func, // function to run when clicking submit
-  solutionScroll: PropTypes.bool, // scoll to solution when show correct is clicked (use in student session review)
+  solutionScroll: PropTypes.bool, // scroll to solution when show correct is clicked (use in student session review)
   isQuiz: PropTypes.bool, // whether the question is within a quiz (responses are submitted right away)
-  isPracticeSession: PropTypes.bool // Whether the question is from a practice session
+  isPracticeSession: PropTypes.bool, // Whether the question is from a practice session
+  savePracticeSessionResponse: PropTypes.func // Function to pass the practice question response to parent
 }

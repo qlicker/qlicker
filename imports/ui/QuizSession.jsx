@@ -25,6 +25,7 @@ export class _QuizSession extends Component {
 
     this.scrollTo = this.scrollTo.bind(this)
     this.submitQuiz = this.submitQuiz.bind(this)
+    this.savePracticeQuestionResponse = this.savePracticeQuestionResponse.bind(this)
     this.fetchPracticeQuizRandomQuestions = this.fetchPracticeQuizRandomQuestions.bind(this)
     this.checkForSubmissionAndEmptyQuestions = this.checkForSubmissionAndEmptyQuestions.bind(this)
 
@@ -88,7 +89,24 @@ export class _QuizSession extends Component {
     })
   }
 
-  // TODO; Fix implementation of this
+  savePracticeQuestionResponse (responseObject) {
+    console.log('responseObject: ', JSON.stringify(responseObject))
+    this.setState((state, props) => {
+      const updatedPracticeResponses = state.practiceResponses
+      const foundIndex = updatedPracticeResponses.findIndex(q => q.questionId === responseObject.questionId)
+
+      if (foundIndex === -1) { // no response exists for questionId
+        updatedPracticeResponses.push(responseObject)
+      } else {
+        updatedPracticeResponses[foundIndex] = responseObject
+      }
+
+      return {
+        practiceResponses: updatedPracticeResponses
+      }
+    })
+  }
+
   checkForSubmissionAndEmptyQuestions (session, questions, myResponses) {
     let isSubmitted = false
     let emptySA = false
@@ -128,11 +146,16 @@ export class _QuizSession extends Component {
     }
     // Call a method to unset the editable part of the responses.
     if (confirm('Are you sure? You can no longer update answers after submitting.')) {
-      Meteor.call('sessions.submitQuiz', this.props.session._id, (err) => {
-        if (err) return alertify.error('Error: ' + err.message)
-        alertify.success('Quiz submitted')
-        Router.go('course', { courseId: this.props.session.courseId })
-      })
+      if (this.props.isPracticeSession) {
+        // TODO: figure out how to have answers displayed here
+        Router.go()
+      } else {
+        Meteor.call('sessions.submitQuiz', this.props.session._id, (err) => {
+          if (err) return alertify.error('Error: ' + err.message)
+          alertify.success('Quiz submitted')
+          Router.go('course', { courseId: this.props.session.courseId })
+        })
+      }
     }
   }
 
@@ -153,7 +176,7 @@ export class _QuizSession extends Component {
     if (qList.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
     let qCount = 0
     let qCount2 = 0
-    // TODO: Response button
+
     const canSubmit = this.props.isPracticeSession
       ? this.state.practiceResponses.length === qList.length && !this.state.submitted
       : this.props.myResponses && this.props.myResponses.length === qList.length && !this.state.submitted
@@ -173,7 +196,9 @@ export class _QuizSession extends Component {
                       // const responses = _.where(this.props.myResponses, { questionId: qid })
                       // let response =  responses.length > 0 ? _.max(responses, (resp) => { return resp.attempt }) : undefined
 
-                    let response = _(this.props.myResponses).findWhere({ questionId: qid })
+                    let response = this.props.isPracticeSession
+                      ? _(this.state.practiceResponses).findWhere({questionId: qid})
+                      : _(this.props.myResponses).findWhere({questionId: qid})
                     if (!response) response = undefined
 
                     if (response) className += ' green'
@@ -219,13 +244,15 @@ export class _QuizSession extends Component {
                     if (!response.editable) readOnly = true
                   }
                   const questionDisplay = user.isInstructor(session.courseId)
-                      ? <QuestionDisplay question={q} readOnly />
+                      ? <QuestionDisplay question={q} readOnly /> // Practice sessions only visible to students; no need to check here
                       : <QuestionDisplay
                         question={q}
                         isQuiz
                         response={response}
                         readOnly={readOnly}
-                        attemptNumber={1} />
+                        attemptNumber={1}
+                        isPracticeSession={this.props.isPracticeSession}
+                        savePracticeSessionResponse={this.props.isPracticeSession ? this.savePracticeQuestionResponse : null} />
 
                   return (
                     <div className='ql-quiz-session-question' ref={'qdisp' + qid} key={'qdisp' + qid} >
