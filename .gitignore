@@ -8,5 +8,5 @@ Dockerfile
 logs.txt
 private/
 
-# Ignore IntelliJ fiels
+# Ignore IntelliJ fields
 .idea
