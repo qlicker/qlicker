@@ -3,7 +3,7 @@
 //
 // OverallGradeTable.jsx: Component for displaying grades from a given course and student
 
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 //
 import { _ } from 'underscore'
@@ -31,8 +31,8 @@ export class _OverallGradeTable extends Component {
       gradeToView: null,
       average: 0,
       participation: 0,
-      sessionParticipation: 0,
-      sessionAverage: 0
+      sessionParticipations: {},
+      sessionAverages: {}
     }
 
     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
@@ -57,22 +57,36 @@ export class _OverallGradeTable extends Component {
       }
     })
 
-    Meteor.call('grades.participation.forSession.average', nextProps.sessionId, nextProps.courseId, (error, sessionParticipation) => {
-      if (error) {
-        alertify.error('Error calculating participation')
-      } else {
-        this.setState({sessionParticipation: sessionParticipation})
-      }
-    })
+    nextProps.tableData.forEach((row) => {
+      const session = row.session
+      Meteor.call('grades.forSession.average', session._id, nextProps.courseId, null, (error, average) => {
+        if (error) {
+          alertify.error('Could not retrieve student average for: ' + session.name)
+        } else {
+          this.setState((state, props) => {
+            let updatedSessionAverages = state.sessionAverages
+            updatedSessionAverages[session._id] = average
+            return {
+              sessionAverages: updatedSessionAverages
+            }
+          })
+        }
+      })
 
-    Meteor.call('grades.forSession.average', nextProps.sessionId, nextProps.courseId, (error, sessionAverage) => {
-      if (error) {
-        alertify.error('Error calculating average')
-      } else {
-        this.setState({sessionAverage: sessionAverage})
-      }
+      Meteor.call('grades.participation.forSession.average', session._id, nextProps.courseId, null, (error, participation) => {
+        if (error) {
+          alertify.error('Could not retrieve student average for: ' + session.name)
+        } else {
+          this.setState((state, props) => {
+            let updatedSessionParticipation = state.sessionParticipations
+            updatedSessionParticipation[session._id] = participation
+            return {
+              sessionParticipations: updatedSessionParticipation
+            }
+          })
+        }
+      })
     })
-
   }
 
   done (e) {
@@ -203,7 +217,7 @@ export class _OverallGradeTable extends Component {
         )
       }
 
-      const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
+      const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
       const row = this.props.tableData[adjustedIndex]
       const session = row.session
       const calcSessionGrades = () => this.calculateSessionGrades(session._id, session.name)
@@ -220,56 +234,44 @@ export class _OverallGradeTable extends Component {
       )
     }
 
-    const GradeCell = ({rowIndex}) => {
+    const AverageCell = ({rowIndex}) => {
       if (rowIndex === 0) { // Special Case: Overall Average
-        return (
-          <Cell>{this.state.average.toFixed(0)}%</Cell>
+        return (this.state.average !== null
+            ? <Cell>{this.state.average.toFixed(0)}%</Cell>
+            : <Cell> No Average </Cell>
         )
       }
-      const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
-      const grade = this.props.tableData[adjustedIndex].grade
-      let cellClass = 'ql-grade-cell'
-      if (grade) {
-        if (grade.hasUngradedMarks()) cellClass = 'ql-grade-cell-needs-grading'
-      }
+      const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
+      const sessionId = this.props.tableData[adjustedIndex].session._id
+      console.log('sessionId: ' + sessionId)
+      console.log('blah: ' + JSON.stringify(this.state.sessionAverages))
+      const average = this.state.sessionAverages[sessionId]
 
-      //view grading page of session
-      const onClick = () => this.toggleGradeViewModal(grade)
-
-      return (grade
-          ? <Cell onClick={onClick}>
-            <div className={cellClass}>
-              { grade.value.toFixed(0)}%
-            </div>
+      return (average !== null && average !== undefined
+          ? <Cell>
+              {average.toFixed(0)}%
           </Cell>
           : <Cell> No grade </Cell>
       )
-
     }
-    const OverallParticipationCell = ({rowIndex}) => {
-
-      if (rowIndex === 0) { // Special Case: Overall Participation
-        return (
-          <Cell>{this.state.participation.toFixed(0)}%</Cell>
+    const ParticipationCell = ({rowIndex}) => {
+      if (rowIndex === 0) { // Special Case: Overall Average
+        return (this.state.participation !== null
+            ? <Cell>{this.state.participation.toFixed(0)}%</Cell>
+            : <Cell> No Average </Cell>
         )
       }
+      const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
+      const sessionId = this.props.tableData[adjustedIndex].session._id
+      console.log('sessionId: ' + sessionId)
+      console.log('blah: ' + JSON.stringify(this.state.sessionParticipations))
+      const participation = this.state.sessionParticipations[sessionId]
 
-      const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
-      const grade = this.props.tableData[adjustedIndex].grade
-      let cellClass = 'ql-grade-cell'
-      if (grade) {
-        if (grade.hasUngradedMarks()) cellClass = 'ql-grade-cell-needs-grading'
-      }
-
-      //view grading page of session
-      const onClick = () => this.toggleGradeViewModal(grade)
-      return (grade
-          ? <Cell onClick={onClick}>
-            <div className={cellClass}>
-              { grade.participation.toFixed(0) }%
-            </div>
-          </Cell>
-          : <Cell> No grade </Cell>
+      return (participation !== null && participation !== undefined
+        ? <Cell>
+          {participation.toFixed(0)}%
+        </Cell>
+        : <Cell> No grade </Cell>
       )
     }
 
@@ -291,9 +293,9 @@ export class _OverallGradeTable extends Component {
         </div>
         <Table
           rowHeight={rowHeight}
-          rowsCount={this.props.tableData.length + 2}
+          rowsCount={this.props.tableData.length + 1}
           width={Math.min(getTableWidth(columnNames), 0.8 * window.innerWidth)}
-          height={Math.min(rowHeight * (this.props.tableData.length + 2) + headerHeight + 2, 0.7 * window.innerHeight)}
+          height={Math.min(rowHeight * (this.props.tableData.length + 1) + headerHeight + 2, 0.7 * window.innerHeight)}
           headerHeight={headerHeight}>
           <Column
             header={<SessionHeaderCell />}
@@ -303,13 +305,13 @@ export class _OverallGradeTable extends Component {
           />
           <Column
             header={<GradeHeaderCell />}
-            cell={<GradeCell />}
+            cell={<AverageCell />}
             fixed
             width={getTextWidth(columnNames[1])}
           />
           <Column
             header={<ParticipationHeaderCell />}
-            cell={<OverallParticipationCell />}
+            cell={<ParticipationCell />}
             fixed
             width={getTextWidth(columnNames[2])}
           />
@@ -335,7 +337,6 @@ export const OverallGradeTable = createContainer((props) => {
 
   const user = Meteor.user()
   const course = Courses.findOne(props.courseId)
-
   const grades = Grades.find({courseId: props.courseId}).fetch()
 
   let sessions
@@ -375,11 +376,13 @@ export const OverallGradeTable = createContainer((props) => {
 
   return {
     courseId: props.courseId,
-    //sessionId: props.sessionId,
     grades: grades,
     tableData: tableData,
     loading: !handle.ready()
   }
 }, _OverallGradeTable)
 
+OverallGradeTable.propTypes = {
+  courseId: PropTypes.string.isRequired
+}
 
