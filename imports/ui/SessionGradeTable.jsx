@@ -12,12 +12,16 @@ import { _ } from 'underscore'
 import {Table, Column, Cell} from 'fixed-data-table-2'
 import 'fixed-data-table-2/dist/fixed-data-table.css'
 
+import { CSVLink } from 'react-csv'
+
 import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 import { Grades } from '../api/grades'
 
 import { GradeViewModal } from './modals/GradeViewModal'
 import { ProfileViewModal } from './modals/ProfileViewModal'
+import { Questions } from '../api/questions'
+
 
 /**
  * React Component (meteor reactive) to display the grades of a session
@@ -115,11 +119,22 @@ export class _SessionGradeTable extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
+    const session = this.props.session
     const user = Meteor.user()
     const isInstructor = user.isInstructor(this.props.courseId)
-    const columnNames = ['Student', 'Participation / Grade', 'Overall Average', 'Overall Participation']
-    const rowHeight = 35
+    const columnNames = ['Student', 'Grade', 'Participation', 'Overall Participation']
+    const rowHeight = 43
     const headerHeight = 50
+
+    const qIds = session ? session.questions : []
+    const numQuestions = qIds.length
+    let questions = []
+
+    for (let i = 0; i < numQuestions; i++) {
+      let question = _(this.props.questions).findWhere({_id: qIds[i]})
+      _(question).extend({colName: 'Q' + (i + 1)})
+      questions.push(question)
+    }
 
     if ((!this.props.grades || this.props.grades.length < 1) && isInstructor) {
       return (<div>
@@ -149,7 +164,7 @@ export class _SessionGradeTable extends Component {
           maxWidth = Math.max(getTextWidth(columnNames[0]), maxWidth)
           break
         case 1: // Grades
-          maxWidth = Math.max(getTextWidth(columnNames[1]), 'No Grade'.length, '✓100 / 100'.length)
+          maxWidth = Math.max(getTextWidth(columnNames[1]))
           break
         case 2:
           maxWidth = getTextWidth(columnNames[2])
@@ -188,7 +203,7 @@ export class _SessionGradeTable extends Component {
       )
     }
 
-    const OverallAverageHeaderCell = () => {
+    const ParticipationHeaderCell = () => {
       return (
         <Cell>
           {columnNames[2]}
@@ -196,10 +211,12 @@ export class _SessionGradeTable extends Component {
       )
     }
 
-    const OverallParticipationHeaderCell = () => {
+    const QuestionHeaderCell = ({questionId}) => {
+      const question = _(questions).findWhere({ _id: questionId })
+
       return (
         <Cell>
-          {columnNames[3]}
+          {question.colName}
         </Cell>
       )
     }
@@ -227,30 +244,64 @@ export class _SessionGradeTable extends Component {
       return (grade
           ? <Cell onClick={onClick}>
             <div className={cellClass}>
-              {grade.joined ? '✓' : '✗'} {grade.participation.toFixed(0)}% / {grade.value.toFixed(0)}%
+               {grade.value.toFixed(0)}%
             </div>
           </Cell>
           : <Cell> No grade </Cell>
       )
     }
 
-    const OverallAverageCell = ({rowIndex}) => {
-      const studentId = this.props.tableData[rowIndex].studentId
-      return (
-        <Cell>
-          {this.state.averages[studentId].toFixed(0)}%
-        </Cell>
+    const ParticipationCell = ({rowIndex}) => {
+      const grade = this.props.tableData[rowIndex].grade
+      let cellClass = 'ql-grade-cell'
+      if (grade) {
+        if (grade.hasUngradedMarks()) cellClass = 'ql-grade-cell-needs-grading'
+      }
+
+      const onClick = () => this.toggleGradeViewModal(grade)
+      return (grade
+          ? <Cell onClick={onClick}>
+            <div className={cellClass}>
+              {grade.joined ? '✓' : '✗'} {grade.participation.toFixed(0)}%
+            </div>
+          </Cell>
+          : <Cell> No grade </Cell>
       )
     }
 
-    const OverallParticipationCell = ({rowIndex}) => {
-      const studentId = this.props.tableData[rowIndex].studentId
-      return (
-        <Cell>
-          {this.state.participations[studentId].toFixed(0)}%
-        </Cell>
+    const QuestionCell = ({rowIndex, questionId}) => {
+      const grade = this.props.tableData[rowIndex].grade
+      const mark = grade ? _(grade.marks).findWhere({questionId: questionId}) : null
+      const attemptText = mark && mark.attempt > 0 ? '(attempt ' + mark.attempt + ')' : '(no attempt)'
+      return (mark
+          ? <Cell>
+            <div>
+              {mark.points.toFixed(2)} / {mark.outOf} {attemptText}
+            </div>
+          </Cell>
+          : <Cell > No mark </Cell>
       )
     }
+    // Setup data for CSV downloader:
+    let cvsHeaders = ['Last name', 'First name', 'Email', 'Participation', 'Grade']
+
+    questions.forEach((q) => {
+      cvsHeaders.push(q.colName + ' points')
+      cvsHeaders.push(q.colName + ' outOfs')
+    })
+
+    let csvData = this.props.tableData.map((tableRow) => {
+      if (!tableRow.grade) return []
+      let participationGrade = tableRow.grade.participation
+      let gradeValue = tableRow.grade.value
+      let row = [tableRow.lastName, tableRow.firstName, tableRow.email, participationGrade, gradeValue]
+      tableRow.grade.marks.forEach((m) => {
+        row.push(m.points)
+        row.push(m.outOf)
+      })
+      return row
+    })
+    const cvsFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
 
     const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
     const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
@@ -264,6 +315,12 @@ export class _SessionGradeTable extends Component {
                 <div type='button' className='btn btn-secondary' onClick={this.calculateSessionGrades}>
                   Re-calculate grades for {this.props.session.name}
                 </div>
+                &nbsp;&nbsp;
+                <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+                  <div type='button' className='btn btn-secondary'>
+                    Export as .csv
+                  </div>
+                </CSVLink>
               </div>
             </div>
             : ''
@@ -272,7 +329,7 @@ export class _SessionGradeTable extends Component {
         <Table
           rowHeight={rowHeight}
           rowsCount={this.props.tableData.length}
-          width={Math.min(getTableWidth(columnNames), 0.8 * window.innerWidth)}
+          width={0.8 * window.innerWidth}
           height={Math.min(rowHeight * (this.props.tableData.length) + headerHeight + 2, 0.7 * window.innerHeight)}
           headerHeight={headerHeight}>
           <Column
@@ -288,17 +345,19 @@ export class _SessionGradeTable extends Component {
             width={getTextWidth(columnNames[1])}
           />
           <Column
-            header={<OverallAverageHeaderCell />}
-            cell={<OverallAverageCell />}
+            header={< ParticipationHeaderCell />}
+            cell={<ParticipationCell />}
             fixed
             width={getTextWidth(columnNames[2])}
           />
-          <Column
-            header={<OverallParticipationHeaderCell />}
-            cell={<OverallParticipationCell />}
-            fixed
-            width={getTextWidth(columnNames[3])}
-          />
+          { questions.map((q) =>
+            <Column
+              key={q._id}
+              header={<QuestionHeaderCell questionId={q._id} />}
+              cell={<QuestionCell questionId={q._id} />}
+              width={140}
+            />
+          ) }
 
         </Table>
         {showGradeViewModal
@@ -324,11 +383,13 @@ export const SessionGradeTable = createContainer((props) => {
   const handle = Meteor.subscribe('users.studentsInCourse', props.courseId) &&
     Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.single', props.sessionId) &&
-    Meteor.subscribe('grades.forSession', props.sessionId)
+    Meteor.subscribe('grades.forSession', props.sessionId) &&
+    Meteor.subscribe('questions.forReview', props.sessionId)
 
   const course = Courses.findOne(props.courseId)
   const session = Sessions.findOne({_id: props.sessionId})
   const grades = Grades.find({courseId: props.courseId, sessionId: props.sessionId}).fetch()
+  const questions = Questions.find({ sessionId: props.sessionId }).fetch()
 
   let students
 
@@ -358,6 +419,8 @@ export const SessionGradeTable = createContainer((props) => {
       name: student.profile.lastname + ', ' + student.profile.firstname,
       firstName: student.profile.firstname,
       lastName: student.profile.lastname,
+      email: student.emails[0].address,
+      userId: student._id,
       grade: grade,
       participation: participation
     }
@@ -366,6 +429,7 @@ export const SessionGradeTable = createContainer((props) => {
 
   return {
     courseId: props.courseId,
+    questions: questions,
     session: session,
     students: students,
     grades: grades,
