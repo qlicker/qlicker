@@ -181,14 +181,13 @@ export class _StudentGradeTable extends Component {
       )
     }
 
-
     const SessionCell = ({rowIndex}) => {
       if (rowIndex === 0) { // Special Case: Overall Average
         return (
           <Cell>Course Average</Cell>
         )
       }
-      const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
+      const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
       const row = this.props.tableData[adjustedIndex]
       const session = row.session
       const calcSessionGrades = () => this.calculateSessionGrades(session._id, session.name)
@@ -211,7 +210,7 @@ export class _StudentGradeTable extends Component {
           <Cell>{this.state.average.toFixed(0)}%</Cell>
         )
       }
-      const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
+      const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
       const grade = this.props.tableData[adjustedIndex].grade
       let cellClass = 'ql-grade-cell'
       if (grade) {
@@ -238,7 +237,7 @@ export class _StudentGradeTable extends Component {
         )
       }
 
-      const adjustedIndex = rowIndex - 2 >= 0 ? rowIndex - 2 : 0
+      const adjustedIndex = rowIndex - 1 >= 0 ? rowIndex - 1 : 0
       const grade = this.props.tableData[adjustedIndex].grade
       let cellClass = 'ql-grade-cell'
       if (grade) {
@@ -261,23 +260,26 @@ export class _StudentGradeTable extends Component {
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
+        {/*
         <div className='ql-grade-table-controlbar'>
           {isInstructor
             ? <div className='ql-grade-table-controlbar-div'>
               <div>
-                <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
-                  Re-calculate all course grades
-                </div>
+                <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+                  <div type='button' className='btn btn-secondary'>
+                    Export as .csv
+                  </div>
+                </CSVLink>
               </div>
             </div>
             : ''
           }
-        </div>
+        </div>*/}
         <Table
           rowHeight={rowHeight}
-          rowsCount={this.props.tableData.length + 2}
+          rowsCount={this.props.tableData.length +  1}
           width={Math.min(getTableWidth(columnNames), 0.8 * window.innerWidth)}
-          height={Math.min(rowHeight * (this.props.tableData.length + 2) + headerHeight + 2, 0.7 * window.innerHeight)}
+          height={Math.min(rowHeight * (this.props.tableData.length + 1) + headerHeight + 2, 0.7 * window.innerHeight)}
           headerHeight={headerHeight}>
           <Column
             header={<SessionHeaderCell />}
