@@ -237,7 +237,9 @@ export class _OverallGradeTable extends Component {
     const AverageCell = ({rowIndex}) => {
       if (rowIndex === 0) { // Special Case: Overall Average
         return (this.state.average !== null
-            ? <Cell>{this.state.average.toFixed(0)}%</Cell>
+            ? <Cell>
+              {this.state.average.toFixed(0)}%
+              </Cell>
             : <Cell> No Average </Cell>
         )
       }
@@ -255,7 +257,9 @@ export class _OverallGradeTable extends Component {
     const ParticipationCell = ({rowIndex}) => {
       if (rowIndex === 0) { // Special Case: Overall Average
         return (this.state.participation !== null
-            ? <Cell>{this.state.participation.toFixed(0)}%</Cell>
+            ? <Cell>
+              {this.state.participation.toFixed(0)}%
+              </Cell>
             : <Cell> No Average </Cell>
         )
       }
