@@ -41,7 +41,7 @@ _.extend(User.prototype, {
   isInstructorAnyCourse: function () {
     return !!Courses.findOne({ instructors: this._id })
   },
-  canPromote: function (){
+  canPromote: function () {
     return this.hasGreaterRole(ROLES.admin) || !!this.profile.canPromote
   },
   coursesInstructed: function () {
@@ -58,6 +58,9 @@ _.extend(User.prototype, {
     check(courseId, Helpers.MongoID)
     const c = Courses.findOne(courseId)
     return c ? _.contains(c.students, this._id) : false
+  },
+  isAdmin: function () {
+    return this.profile.roles.includes(ROLES.admin)
   },
   hasGreaterRole: function (role) {
     if (this.profile.roles.indexOf(role) !== -1) return true
