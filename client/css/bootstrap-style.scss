@@ -6,11 +6,11 @@
 
 // Mixins
 @mixin respond-to($media) {
-  @if $media == 767px {
-    @media (max-width: 767px) { @content; }
+  @if $media == 949px {
+    @media (max-width: 949px) { @content; }
   }
-  @else if $media == 768px {
-    @media (min-width: 768px) { @content; }
+  @else if $media == 950px {
+    @media (min-width: 950px) { @content; }
   }
   @else if $media == 992px {
     @media (min-width: 992px) { @content; }
@@ -221,7 +221,7 @@ code {
 
 
 .bootstrap-overrides.navbar-brand {
-  @include respond-to(767px) {
+  @include respond-to(949px) {
     z-index: 1;
     position: absolute;
     background-color: $blue;
@@ -232,7 +232,7 @@ code {
 }
 
 .navbar > .container {
-  @include respond-to(768px) {
+  @include respond-to(950px) {
     width: 100%;
     padding-right: 0;
     padding-left: 0;
@@ -245,7 +245,7 @@ code {
 }
 
 .navbar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
-  @include respond-to(768px) {
+  @include respond-to(950px) {
     margin-left: 0;
     margin-right: 0;
   }
@@ -256,7 +256,7 @@ code {
 }
 
 .navbar-right {
-  @include respond-to(768px) {
+  @include respond-to(950px) {
     margin-right: 0;
   }
   @include respond-to(992px) {

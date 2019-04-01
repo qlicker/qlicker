@@ -140,7 +140,6 @@ class _PageContainer extends Component {
                       aria-haspopup='true' aria-expanded='false' onClick={() => Router.go('questions', { courseId: this.state.courseId })}>Question library</a>
                   </li>
                   : ''
-
                 }
                 { isAdmin
                    ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
