@@ -254,7 +254,7 @@ Router.route('/course/:courseId/grades', {
     const u = Meteor.user()
     const isInCourse = u.isInstructor(this.params.courseId) || u.isStudent(this.params.courseId)
     if (u && isInCourse) {
-      mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <CourseGrades courseId={this.params.courseId} studentIds={this.params.students} sessionIds={this.params.sessions} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <CourseGrades courseId={this.params.courseId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -344,6 +344,26 @@ Router.route('/course/:courseId/session/:sessionId/results', {
   }
 })
 
+Router.route('/course/:courseId/practiceSession/:practiceSessionId/results', {
+  name: 'practice.session.results',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params.sessionId) && Meteor.subscribe('courses')
+  },
+  action: function () {
+    const cId = this.params.courseId
+    let user = Meteor.user()
+    if (user) {
+      if (user.hasRole('admin') || user.isInstructor(cId)) {
+        mount(AppLayout, { content: <PageContainer courseId={cId}> <Course courseId={cId} /> </PageContainer> })
+      } else if (user.isStudent(cId)) {
+        mount(AppLayout, { content: <PageContainer courseId={cId}>
+          <StudentSessionResultsPage courseId={this.params.courseId} practiceSessionId={this.params.practiceSessionId} studentId={Meteor.userId()} /> </PageContainer> })
+      } else Router.go('login')
+    } else Router.go('login')
+  }
+})
+
 import { ManageSession } from '../../ui/pages/professor/manage_session'
 Router.route('/course/:courseId/session/edit/:sessionId', {
   name: 'session.edit',
@@ -411,8 +431,30 @@ Router.route('/course/:courseId/session/present/:_id', {
       mount(AppLayout, { content: <Session sessionId={this.params._id} /> })
     } else if (user && user.isStudent(cId)) {
       const sess = Sessions.findOne({_id: this.params._id})
-      if (sess.quiz) mount(AppLayout, { content: <PageContainer courseId={cId}> <QuizSession sessionId={this.params._id} /> </PageContainer> })
-      else mount(AppLayout, { content: <PageContainer courseId={cId}> <Session sessionId={this.params._id} /> </PageContainer> })
+      if (sess.quiz) {
+        mount(AppLayout, {
+          content: <PageContainer courseId={cId}> <QuizSession sessionId={this.params._id} /> </PageContainer>
+        })
+      } else {
+        mount(AppLayout, { content: <PageContainer courseId={cId}> <Session sessionId={this.params._id} /> </PageContainer> })
+      }
+    } else Router.go('login')
+  }
+})
+
+Router.route('/course/:courseId/practice_session/:practiceSessionId', {
+  name: 'practice.session',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses')
+  },
+  action: function () {
+    const user = Meteor.user()
+    const cId = this.params.courseId
+    if (user && user.isStudent(cId)) {
+      mount(AppLayout, {
+        content: <PageContainer courseId={cId}> <QuizSession courseId={this.params.courseId} practiceSessionId={this.params.practiceSessionId} /> </PageContainer>
+      })
     } else Router.go('login')
   }
 })

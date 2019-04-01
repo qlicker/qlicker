@@ -382,6 +382,7 @@ export class _QuestionsLibrary extends Component {
                   : '' }
               </ul>
               <br />
+
               { canCreate
                 ? <div>
                     <button className='btn btn-primary' style={{'width':'100%'}} onClick={() => this.editQuestion(null)}>New Question</button>

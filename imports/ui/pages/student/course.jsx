@@ -1,6 +1,6 @@
 /* global confirm  */
 // QLICKER
-// Author: Enoch T <me@enocht.am>
+// Author: Enoch T <me@enocht.am>, Jacob Huschilt
 //
 // course.jsx: student page for course details
 
@@ -11,7 +11,9 @@ import { _ } from 'underscore'
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
 import { Grades } from '../../../api/grades'
+import { Questions } from '../../../api/questions'
 import { SessionListItem } from '../../SessionListItem'
+import { CreatePracticeQuizModal } from '../../modals/CreatePracticeQuizModal'
 
 class _Course extends Component {
 
@@ -20,13 +22,21 @@ class _Course extends Component {
 
     this.state = {
       expandedSessionList: false,
+      showingCreatePracticeQuizModal: false,
       sessionAverages: {}
     }
 
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
     this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)
+    this.toggleCreatePracticeQuizModal = this.toggleCreatePracticeQuizModal.bind(this)
     this.quizSubmitted = this.quizSubmitted.bind(this)
     this.fetchAverage = this.fetchAverage.bind(this)
+  }
+
+  toggleCreatePracticeQuizModal () {
+    this.setState({
+      showingCreatePracticeQuizModal: !this.state.showingCreatePracticeQuizModal
+    })
   }
 
   componentDidMount () {
@@ -129,14 +139,54 @@ class _Course extends Component {
   }
 
   render () {
+    const toggleCreatePracticeQuizModal = () => { this.setState({ showingCreatePracticeQuizModal: !this.state.showingCreatePracticeQuizModal }) }
+
+    const callQuestions = (numberOfQuestions, tags) => {
+      toggleCreatePracticeQuizModal()
+      Meteor.call('questions.getRandom.forTags', this.props.courseId, numberOfQuestions, tags, (error, questions) => {
+        if (error) {
+          alertify.error('Unable to generate quiz')
+        } else {
+          const practiceSession = {
+            name: 'Practice Session: ' + this.props.course.name,
+            courseId: this.props.courseId,
+            studentId: Meteor.userId(),
+            status: 'running',
+            questions: questions,
+            tags: tags
+          }
+
+          Meteor.call('practiceSessions.create', practiceSession, (error, practiceSessionId) => {
+            if (error) {
+              alertify.error('Unable to generate quiz')
+            } else {
+              Router.go('practice.session', {
+                courseId: this.props.courseId,
+                practiceSessionId: practiceSessionId
+              })
+            }
+          })
+        }
+      })
+    }
     return (
       <div className='container ql-manage-course'>
-        <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
+        <h2>
+          {this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]
+        </h2>
 
-        { this.renderSessionList() }
+        <div className='session-button-group'>
+          <button className='btn btn-primary' onClick={toggleCreatePracticeQuizModal}>
+            Create Practice Quiz
+            {this.state.showingCreatePracticeQuizModal ? <CreatePracticeQuizModal courseId={this.props.course._id} courseName={this.props.course.courseCode()} done={callQuestions} /> : '' }
+          </button>
+        </div>
+
+        {this.renderSessionList()}
 
         <br />
-      </div>)
+      </div>
+    )
   }
 
 }
@@ -145,17 +195,22 @@ export const Course = createContainer((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('userData') &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
+    Meteor.subscribe('questions.library', props.courseId) &&
+    Meteor.subscribe('questions.public', props.courseId) &&
+    Meteor.subscribe('practiceSessions.forCourse') &&
     Meteor.subscribe('grades.forCourse', props.courseId)
 
   const student = Meteor.users.findOne({ _id: Meteor.userId() })
   const course = Courses.findOne({ _id: props.courseId })
   const sessions = Sessions.find({ courseId: props.courseId }).fetch()
   const grades = Grades.find({courseId: props.courseId, userId: student._id}).fetch()
+  const questions = Questions.find({courseId: props.courseId}).fetch()
 
   return {
     course: course,
     student: student,
     sessions: sessions,
+    questions: questions,
     grades: grades,
     loading: !handle.ready()
   }

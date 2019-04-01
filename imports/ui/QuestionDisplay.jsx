@@ -9,6 +9,7 @@ import React, { Component, PropTypes } from 'react'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { QUESTION_TYPE } from '../configs'
 import { Editor } from './Editor'
+import { _ } from 'underscore'
 import ReactDOM from 'react-dom'
 
 /**
@@ -50,7 +51,7 @@ export class QuestionDisplay extends Component {
     this.toggleShowResponse = this.toggleShowResponse.bind(this)
 
     this.setAnswer = this.setAnswer.bind(this)
-    this.setAnswerQuiz= this.setAnswerQuiz.bind(this)
+    this.setAnswerQuiz = this.setAnswerQuiz.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
     this.setShortAnswerWysiwygQuiz = this.setShortAnswerWysiwygQuiz.bind(this)
     this._DB_SetShortAnswerWysiwygQuiz = _.debounce((content, plainText) => { this.setShortAnswerWysiwygQuiz(content, plainText) }, 800)
@@ -90,8 +91,8 @@ export class QuestionDisplay extends Component {
 
     const isNewAttempt = (this.props.attemptNumber !== nextProps.attemptNumber)
 
-    const showCorrect = (isNewQuestion || isNewAttempt ) ? false : this.state.showCorrect
-    const showResponse = (isNewQuestion || isNewAttempt ) ? false : this.state.showResponse
+    const showCorrect = (isNewQuestion || isNewAttempt) ? false : this.state.showCorrect
+    const showResponse = (isNewQuestion || isNewAttempt) ? false : this.state.showResponse
 
     if (isNewQuestion || isNewResponse || isNewAttempt) {
       if (nextProps.response) {
@@ -138,9 +139,9 @@ export class QuestionDisplay extends Component {
 
   toggleShowCorrect () {
     this.setState({showCorrect: !this.state.showCorrect}, () => {
-      if(this.state.showCorrect && this.props.solutionScroll && this.props.question && this.props.question.solution){
-        //scroll to the solution has a weird behaviour in the question library, hence the addition of the noSolutionScroll prop
-        const node = ReactDOM.findDOMNode(this.refs[this.props.question._id+"solution"])
+      if (this.state.showCorrect && this.props.solutionScroll && this.props.question && this.props.question.solution) {
+        // scroll to the solution has a weird behaviour in the question library, hence the addition of the noSolutionScroll prop
+        const node = ReactDOM.findDOMNode(this.refs[this.props.question._id + 'solution'])
         window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
       }
     })
@@ -165,10 +166,10 @@ export class QuestionDisplay extends Component {
 
   setShortAnswerWysiwygQuiz (content, plainText) {
     if (this.disallowResponses() || this.readonly) return
-    //Prevent question from being considered as submitted if one just clicked in the textbox
-    if (plainText == false && content == false) return //Double equal matters...
-    if (this.props.response && !this.props.response.editable){
-      alertify.error("Cannot edit this question anymore")
+    // Prevent question from being considered as submitted if one just clicked in the textbox
+    if (plainText == false && content == false) return // Double equal matters...
+    if (this.props.response && !this.props.response.editable) {
+      alertify.error('Cannot edit this question anymore')
       return
     }
 
@@ -178,14 +179,12 @@ export class QuestionDisplay extends Component {
     }, () => {
       this.submitResponseQuiz()
     })
-
   }
   /**
    * set answer in state for option based questions
    * @param {String} answer - the answer key
    */
   setAnswer (answer) {
-
     if (this.disallowResponses() || this.readonly) return
 
     let answerToSubmit = answer
@@ -199,7 +198,7 @@ export class QuestionDisplay extends Component {
           arrayWithoutAnswer.splice(i, 1)
           answerToSubmit = arrayWithoutAnswer
         } else answerToSubmit = this.state.submittedAnswer.concat([answer])
-        answerToSubmit = _(answerToSubmit).sortBy( (a) => {return a})
+        answerToSubmit = _(answerToSubmit).sortBy((a) => { return a })
       }
     }
 
@@ -211,8 +210,8 @@ export class QuestionDisplay extends Component {
 
   setAnswerQuiz (answer) {
     if (this.disallowResponses() || this.readonly) return
-    if (this.props.response && !this.props.response.editable){
-      alertify.error("Cannot edit this question anymore")
+    if (this.props.response && !this.props.response.editable) {
+      alertify.error('Cannot edit this question anymore')
       return
     }
 
@@ -227,7 +226,7 @@ export class QuestionDisplay extends Component {
           arrayWithoutAnswer.splice(i, 1)
           answerToSubmit = arrayWithoutAnswer
         } else answerToSubmit = this.state.submittedAnswer.concat([answer])
-        answerToSubmit = _(answerToSubmit).sortBy( (a) => {return a})
+        answerToSubmit = _(answerToSubmit).sortBy((a) => { return a })
       }
     }
 
@@ -268,46 +267,72 @@ export class QuestionDisplay extends Component {
     }
 
     Meteor.call('responses.add', responseObject, (err, answerId) => {
-      if (err) return alertify.error('Error: ' + err.error)
+      if (err) return alertify.error('Error: ' + err.message)
       alertify.success('Answer Submitted')
     })
   }
 
-  submitResponseQuiz() {
+  submitResponseQuiz () {
     if (this.disallowResponses() || this.readonly || !this.props.isQuiz) return
 
-    if (this.props.attemptNumber !== 1){
-      alertify.error("Only one attempt allowed, not submitting")
+    if (this.props.attemptNumber !== 1) {
+      alertify.error('Only one attempt allowed, not submitting')
       return
     }
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
 
+    if (this.props.practiceSessionId) {
+      let responseObject = this.props.response ? this.props.response : {
+        studentUserId: Meteor.userId(),
+        answer: answer,
+        answerWysiwyg: answerWysiwyg,
+        questionId: this.props.question._id,
+        practiceSessionId: this.props.practiceSessionId
+      }
+      if (this.props.isQuiz && !this.props.response) responseObject.editable = true
 
-    let responseObject = this.props.response ? this.props.response : {
-      studentUserId: Meteor.userId(),
-      answer: answer,
-      answerWysiwyg: answerWysiwyg,
-      attempt: this.props.attemptNumber,
-      questionId: this.props.question._id,
-    }
-    if (this.props.isQuiz && !this.props.response) responseObject.editable = true
+      responseObject.answer = answer
+      responseObject.answerWysiwyg = answerWysiwyg
 
-    responseObject.answer = answer
-    responseObject.answerWysiwyg = answerWysiwyg
+      if (this.props.onSubmit) {
+        this.props.onSubmit()
+      }
+      const submitted = !!(this.state.isSubmitted)
 
-    if (this.props.onSubmit) {
-      this.props.onSubmit()
-    }
-    const submitted = !!(this.state.isSubmitted)
-
-    Meteor.call('responses.add', responseObject, (err, answerId) => {
-      if (err) return alertify.error('Error: ' + err.error)
-      submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
-      this.setState({
-        isSubmitted: true
+      Meteor.call('practiceResponses.add', responseObject, (err, answerId) => {
+        if (err) return alertify.error('Error: ' + err.message)
+        submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
+        this.setState({
+          isSubmitted: true
+        })
       })
-    })
+    } else {
+      let responseObject = this.props.response ? this.props.response : {
+        studentUserId: Meteor.userId(),
+        answer: answer,
+        answerWysiwyg: answerWysiwyg,
+        attempt: this.props.attemptNumber,
+        questionId: this.props.question._id
+      }
+      if (this.props.isQuiz && !this.props.response) responseObject.editable = true
+
+      responseObject.answer = answer
+      responseObject.answerWysiwyg = answerWysiwyg
+
+      if (this.props.onSubmit) {
+        this.props.onSubmit()
+      }
+      const submitted = !!(this.state.isSubmitted)
+
+      Meteor.call('responses.add', responseObject, (err, answerId) => {
+        if (err) return alertify.error('Error: ' + err)
+        submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
+        this.setState({
+          isSubmitted: true
+        })
+      })
+    }
   }
   /**
    * calculate percentages for specific answer key
@@ -407,9 +432,9 @@ export class QuestionDisplay extends Component {
         }
 
         return (
-          <div key={'question_'+q._id + a.answer}
+          <div key={'question_' + q._id + a.answer}
             onClick={onClick}
-            className={'ql-answer-content-container ' + (shouldShowResponse  ? 'q-submitted' : '')} >
+            className={'ql-answer-content-container ' + (shouldShowResponse ? 'q-submitted' : '')} >
             <div className={statClass} style={widthStyle}>&nbsp;</div>
             <div className='answer-container'>
               { classSuffixStr === 'mc' || classSuffixStr === 'ms'
@@ -428,7 +453,7 @@ export class QuestionDisplay extends Component {
       let shouldShowCorrect = !! q.options[0].content
       if (this.props.forReview && !this.props.prof && !this.state.showCorrect) {
         shouldShowCorrect = false
-      }*/
+      } */
       let shouldShowResponse = !!this.props.response
       if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
         shouldShowResponse = false
@@ -439,14 +464,14 @@ export class QuestionDisplay extends Component {
             ? WysiwygHelper.htmlDiv(this.state.submittedAnswerWysiwyg)
             : ''
           }
-          {/*shouldShowCorrect
+          {/* shouldShowCorrect
             ? <h4 style={{'alignSelf': 'left'}}> Correct Answer: <br />{WysiwygHelper.htmlDiv(q.options[0].content)}</h4>
           : ''
           */}
         </div>
       )
     }
-    //let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].content
+    // let showAns = !this.props.prof && (q.sessionOptions && q.sessionOptions.correct) && q.options[0].content
     return (
       <div className='ql-short-answer' >
         { this.readonly
@@ -458,7 +483,7 @@ export class QuestionDisplay extends Component {
             toolbarDivId={this.props.question ? this.props.question._id + '_ckToolbar' : 'ckeditor-toolbar'}
             />
         }
-        { /*showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : ''*/}
+        { /* showAns ? <h4>Correct Answer:<br /> {WysiwygHelper.htmlDiv(q.options[0].content)}</h4> : '' */}
       </div>
     )
   }
@@ -517,34 +542,33 @@ export class QuestionDisplay extends Component {
         }
         { this.props.forReview && this.props.readonly && !this.props.prof
           ? <div>
-              <div className='btn-group btn-group-justified'>
-                  <div className='btn btn-primary' onClick={this.toggleShowCorrect}>
-                    {this.state.showCorrect ? 'Hide correct' : 'Show correct'}
-                  </div>
-                { this.props.response
+            <div className='btn-group btn-group-justified'>
+              <div className='btn btn-primary' onClick={this.toggleShowCorrect}>
+                {this.state.showCorrect ? 'Hide correct' : 'Show correct'}
+              </div>
+              { this.props.response
                       ? <div className='btn btn-primary' onClick={this.toggleShowResponse} >
-                          {this.state.showResponse ? 'Hide response' : 'Show response'}
-                        </div>
+                        {this.state.showResponse ? 'Hide response' : 'Show response'}
+                      </div>
                       : ''
                     }
-              </div>
+            </div>
           </div>
           : ''
         }
-        {  this.props.forReview && this.props.readonly && (this.state.showResponse || this.props.prof) && (this.props.incrementResponse || this.props.decrementResponse) ?
-            <div className='btn-group btn-group-justified'>
-                 <button className='btn btn-default' onClick={ this.props.decrementResponse } disabled={!this.props.decrementResponse}>
-                   <span className='glyphicon glyphicon-chevron-left' /> Previous attempt
+        { this.props.forReview && this.props.readonly && (this.state.showResponse || this.props.prof) && (this.props.incrementResponse || this.props.decrementResponse)
+          ? <div className='btn-group btn-group-justified'>
+            <button className='btn btn-default' onClick={this.props.decrementResponse} disabled={!this.props.decrementResponse}>
+              <span className='glyphicon glyphicon-chevron-left' /> Previous attempt
                   </button>
-                 <button className='btn btn-default' onClick={ this.props.incrementResponse } disabled={!this.props.incrementResponse}>
+            <button className='btn btn-default' onClick={this.props.incrementResponse} disabled={!this.props.incrementResponse}>
                     Next attempt <span className='glyphicon glyphicon-chevron-right' />
-                 </button>
-
-             </div>
+            </button>
+          </div>
           : ''
         }
 
-        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution  ? <div className='ql-question-solution' ref={this.props.question._id+"solution"}>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
+        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview)) && q.solution ? <div className='ql-question-solution' ref={this.props.question._id + 'solution'}>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
 
       </div>
     )
@@ -561,6 +585,7 @@ QuestionDisplay.propTypes = {
   prof: PropTypes.bool, // if viewed by an instructor, overrides showing correct answer
   forReview: PropTypes.bool,
   onSubmit: PropTypes.func, // function to run when clicking submit
-  solutionScroll: PropTypes.bool, //scoll to solution when show correct is clicked (use in student session review)
-  isQuiz: PropTypes.bool, //whether the question is within a quiz (responses are submitted right away)
+  solutionScroll: PropTypes.bool, // scroll to solution when show correct is clicked (use in student session review)
+  isQuiz: PropTypes.bool, // whether the question is within a quiz (responses are submitted right away)
+  practiceSessionId: PropTypes.string // practice session ID
 }
