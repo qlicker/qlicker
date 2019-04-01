@@ -24,7 +24,10 @@ export class StudentQuestionResultsListItem extends Component {
     return (<div className='ql-results-list-item ql-list-item'>
       <span>{(this.props.session.questions.indexOf(q._id) + 1) + '.'}</span>
       <span className='title'>{WysiwygHelper.htmlDiv(q.content)}</span>
-      <span style={{float: 'right'}} className='title'>{attempts}</span>
+      {this.props.isPracticeSession
+        ? ''
+        : <span style={{float: 'right'}} className='title'>{attempts}</span>
+      }
     </div>)
   } //  end render
 
@@ -32,5 +35,6 @@ export class StudentQuestionResultsListItem extends Component {
 
 StudentQuestionResultsListItem.propTypes = {
   question: PropTypes.object.isRequired,
-  session: PropTypes.object.isRequired
+  session: PropTypes.object.isRequired,
+  isPracticeSession: PropTypes.bool
 }

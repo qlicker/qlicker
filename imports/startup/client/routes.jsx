@@ -11,8 +11,6 @@ import { AppLayout } from '../../ui/layouts/app_layout'
 import { Homepage } from '../../ui/pages/home'
 import { Loginpage } from '../../ui/pages/login'
 
-import { Courses } from '../../api/courses.js'
-
 import { Sessions } from '../../api/sessions.js'
 
 import { ResetPasswordPage } from '../../ui/pages/reset_password'
@@ -256,7 +254,7 @@ Router.route('/course/:courseId/grades', {
     const u = Meteor.user()
     const isInCourse = u.isInstructor(this.params.courseId) || u.isStudent(this.params.courseId)
     if (u && isInCourse) {
-      mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <CourseGrades courseId={this.params.courseId} studentIds={this.params.students} sessionIds={this.params.sessions} /> </PageContainer> })
+      mount(AppLayout, { content: <PageContainer courseId={this.params.courseId}> <CourseGrades courseId={this.params.courseId} /> </PageContainer> })
     } else Router.go('login')
   }
 })
@@ -296,6 +294,26 @@ Router.route('/course/:courseId/session/:sessionId/results', {
       } else if (user.isStudent(cId)) {
         mount(AppLayout, { content: <PageContainer courseId={cId}>
           <StudentSessionResultsPage sessionId={this.params.sessionId} studentId={Meteor.userId()} /> </PageContainer> })
+      } else Router.go('login')
+    } else Router.go('login')
+  }
+})
+
+Router.route('/course/:courseId/practiceSession/:practiceSessionId/results', {
+  name: 'practice.session.results',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('sessions.single', this.params.sessionId) && Meteor.subscribe('courses')
+  },
+  action: function () {
+    const cId = this.params.courseId
+    let user = Meteor.user()
+    if (user) {
+      if (user.hasRole('admin') || user.isInstructor(cId)) {
+        mount(AppLayout, { content: <PageContainer courseId={cId}> <Course courseId={cId} /> </PageContainer> })
+      } else if (user.isStudent(cId)) {
+        mount(AppLayout, { content: <PageContainer courseId={cId}>
+          <StudentSessionResultsPage courseId={this.params.courseId} practiceSessionId={this.params.practiceSessionId} studentId={Meteor.userId()} /> </PageContainer> })
       } else Router.go('login')
     } else Router.go('login')
   }
@@ -379,7 +397,7 @@ Router.route('/course/:courseId/session/present/:_id', {
   }
 })
 
-Router.route('/course/:courseId/practice_session/:numberOfQuestions/:tags', {
+Router.route('/course/:courseId/practice_session/:practiceSessionId', {
   name: 'practice.session',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
@@ -390,8 +408,7 @@ Router.route('/course/:courseId/practice_session/:numberOfQuestions/:tags', {
     const cId = this.params.courseId
     if (user && user.isStudent(cId)) {
       mount(AppLayout, {
-        // TODO: Fix the passing of params here, especially the array
-        content: <PageContainer courseId={cId}> <QuizSession courseId={this.params.courseId} numberOfQuestions={parseInt(this.params.numberOfQuestions)} tags={[this.params.tags]} /> </PageContainer>
+        content: <PageContainer courseId={cId}> <QuizSession courseId={this.params.courseId} practiceSessionId={this.params.practiceSessionId} /> </PageContainer>
       })
     } else Router.go('login')
   }

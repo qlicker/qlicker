@@ -29,7 +29,7 @@ const responsePattern = {
   correct: Match.Maybe(Boolean), // whether or not this response was correct (used in a quiz with multiple attempts)
   createdAt: Date,
   updatedAt: Match.Maybe(Date),
-  editable: Match.Maybe(Boolean)// whether the response can be updated (e.g. in a quiz setting)
+  editable: Match.Maybe(Boolean) // whether the response can be updated (e.g. in a quiz setting)
 }
 
 // Create Response class

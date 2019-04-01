@@ -267,7 +267,7 @@ export class QuestionDisplay extends Component {
     }
 
     Meteor.call('responses.add', responseObject, (err, answerId) => {
-      if (err) return alertify.error('Error Question: ' + err)
+      if (err) return alertify.error('Error: ' + err.message)
       alertify.success('Answer Submitted')
     })
   }
@@ -282,28 +282,51 @@ export class QuestionDisplay extends Component {
     const answer = this.state.submittedAnswer
     const answerWysiwyg = this.state.submittedAnswerWysiwyg
 
-    let responseObject = this.props.response ? this.props.response : {
-      studentUserId: Meteor.userId(),
-      answer: answer,
-      answerWysiwyg: answerWysiwyg,
-      attempt: this.props.attemptNumber,
-      questionId: this.props.question._id
-    }
-    if (this.props.isQuiz && !this.props.response) responseObject.editable = true
+    if (this.props.practiceSessionId) {
+      let responseObject = this.props.response ? this.props.response : {
+        studentUserId: Meteor.userId(),
+        answer: answer,
+        answerWysiwyg: answerWysiwyg,
+        questionId: this.props.question._id,
+        practiceSessionId: this.props.practiceSessionId
+      }
+      if (this.props.isQuiz && !this.props.response) responseObject.editable = true
 
-    responseObject.answer = answer
-    responseObject.answerWysiwyg = answerWysiwyg
+      responseObject.answer = answer
+      responseObject.answerWysiwyg = answerWysiwyg
 
-    if (this.props.onSubmit) {
-      this.props.onSubmit()
-    }
-    const submitted = !!(this.state.isSubmitted)
+      if (this.props.onSubmit) {
+        this.props.onSubmit()
+      }
+      const submitted = !!(this.state.isSubmitted)
 
-    if (this.props.isPracticeSession) {
-      this.props.savePracticeSessionResponse(responseObject)
+      Meteor.call('practiceResponses.add', responseObject, (err, answerId) => {
+        if (err) return alertify.error('Error: ' + err.message)
+        submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
+        this.setState({
+          isSubmitted: true
+        })
+      })
     } else {
+      let responseObject = this.props.response ? this.props.response : {
+        studentUserId: Meteor.userId(),
+        answer: answer,
+        answerWysiwyg: answerWysiwyg,
+        attempt: this.props.attemptNumber,
+        questionId: this.props.question._id
+      }
+      if (this.props.isQuiz && !this.props.response) responseObject.editable = true
+
+      responseObject.answer = answer
+      responseObject.answerWysiwyg = answerWysiwyg
+
+      if (this.props.onSubmit) {
+        this.props.onSubmit()
+      }
+      const submitted = !!(this.state.isSubmitted)
+
       Meteor.call('responses.add', responseObject, (err, answerId) => {
-        if (err) return alertify.error('Error Whole Quiz: ' + err)
+        if (err) return alertify.error('Error: ' + err)
         submitted ? alertify.success('Answer updated') : alertify.success('Answer submitted')
         this.setState({
           isSubmitted: true
@@ -564,6 +587,5 @@ QuestionDisplay.propTypes = {
   onSubmit: PropTypes.func, // function to run when clicking submit
   solutionScroll: PropTypes.bool, // scroll to solution when show correct is clicked (use in student session review)
   isQuiz: PropTypes.bool, // whether the question is within a quiz (responses are submitted right away)
-  isPracticeSession: PropTypes.bool, // Whether the question is from a practice session
-  savePracticeSessionResponse: PropTypes.func // Function to pass the practice question response to parent
+  practiceSessionId: PropTypes.string // practice session ID
 }

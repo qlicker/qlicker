@@ -2,8 +2,10 @@ import { Meteor } from 'meteor/meteor'
 
 import '../imports/api/users.js'
 import { Sessions } from '../imports/api/sessions.js'
+import { PracticeSessions } from '../imports/api/practiceSessions'
 import { Questions } from '../imports/api/questions.js'
 import { Responses } from '../imports/api/responses.js'
+import { PracticeResponses } from '../imports/api/practiceResponses'
 import { Images } from '../imports/api/images.js'
 import { Grades } from '../imports/api/grades.js'
 
@@ -69,7 +71,13 @@ Meteor.startup(() => {
   Grades._ensureIndex({ userId: 1 })
   Grades._ensureIndex({ courseId: 1 })
   Grades._ensureIndex({ sessionId: 1 })
-
+  const expiryTime = 86400 // 1 day
+  PracticeSessions._ensureIndex({ createdAt: 1 }, { expireAfterSeconds: expiryTime })
+  PracticeSessions._ensureIndex({ courseId: 1 })
+  PracticeResponses._ensureIndex({ createdAt: 1 }, { expireAfterSeconds: expiryTime })
+  PracticeResponses._ensureIndex({ practiceSessionId: 1 })
+  PracticeResponses._ensureIndex({ studentUserId: 1 })
+  PracticeResponses._ensureIndex({ questionId: 1 })
 
   //console.log("URL: "+Meteor.absoluteUrl())
   //********************************

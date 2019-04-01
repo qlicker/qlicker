@@ -55,28 +55,28 @@ export class QuestionWithResponseArray extends Component {
 
     return (
       <div className='ql-question-with-response-array'>
-        { response
+        {!this.props.isPracticeSession && response
           ? <div className='ql-question-with-response-array-response-control'>
             <div className='ql-question-with-response-array-response-control-attempts'>
-                {this.props.responses.length > 1 ?
-                   <div> Attempt: {response.attempt} of {this.props.responses.length} </div>
-                   :''
-                 }
+              {this.props.responses.length > 1
+                ? <div> Attempt: {response.attempt} of {this.props.responses.length} </div>
+                : ''
+              }
             </div>
           </div>
           : ''
         }
         <div className='ql-question-with-response-array-question'>
           { this.props.prof
-            ? <QuestionDisplay question={this.props.question}  prof readonly forReview
-                               incrementResponse= {next >= this.props.responses.length? null : increment}
-                               decrementResponse= {prev < 0 ? null : decrement}
-                               response={response} />
+            ? <QuestionDisplay question={this.props.question} prof readonly forReview
+              incrementResponse={next >= this.props.responses.length ? null : increment}
+              decrementResponse={prev < 0 ? null : decrement}
+              response={response} />
             : <QuestionDisplay question={this.props.question} readonly forReview
-                               solutionScroll={!!this.props.solutionScroll}
-                               incrementResponse= {next >= this.props.responses.length? null : increment}
-                               decrementResponse= {prev < 0 ? null : decrement}
-                               response={response} />
+              solutionScroll={!!this.props.solutionScroll}
+              incrementResponse={next >= this.props.responses.length ? null : increment}
+              decrementResponse={prev < 0 ? null : decrement}
+              response={response} />
           }
         </div>
       </div>
@@ -89,5 +89,6 @@ QuestionWithResponseArray.propTypes = {
   question: PropTypes.object,
   responses: PropTypes.array, // responses sorted by attempt number
   prof: PropTypes.bool, // passed to QuestionDisplay, to override showing correct
-  solutionScroll: PropTypes.bool // passed to QuestionDisplay
+  solutionScroll: PropTypes.bool, // passed to QuestionDisplay
+  isPracticeSession: PropTypes.bool
 }
