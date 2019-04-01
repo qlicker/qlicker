@@ -117,14 +117,32 @@ class _Course extends Component {
   render () {
     const toggleCreatePracticeQuizModal = () => { this.setState({ showingCreatePracticeQuizModal: !this.state.showingCreatePracticeQuizModal }) }
 
-    const callQuestions = (number, tags) => {
+    const callQuestions = (numberOfQuestions, tags) => {
       toggleCreatePracticeQuizModal()
-      Meteor.call('questions.getRandom.forTags', this.props.courseId, number, tags, (error, questions) => {
+      Meteor.call('questions.getRandom.forTags', this.props.courseId, numberOfQuestions, tags, (error, questions) => {
         if (error) {
           alertify.error('Unable to generate quiz')
-          return
+        } else {
+          const practiceSession = {
+            name: 'Practice Session: ' + this.props.course.name,
+            courseId: this.props.courseId,
+            studentId: Meteor.userId(),
+            status: 'running',
+            questions: questions,
+            tags: tags
+          }
+
+          Meteor.call('practiceSessions.create', practiceSession, (error, practiceSessionId) => {
+            if (error) {
+              alertify.error('Unable to generate quiz')
+            } else {
+              Router.go('practice.session', {
+                courseId: this.props.courseId,
+                practiceSessionId: practiceSessionId
+              })
+            }
+          })
         }
-        // TODO: Implement Quiz interface with returned questions
       })
     }
     return (
@@ -154,7 +172,8 @@ export const Course = createContainer((props) => {
     Meteor.subscribe('userData') &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
     Meteor.subscribe('questions.library', props.courseId) &&
-    Meteor.subscribe('questions.public', props.courseId)
+    Meteor.subscribe('questions.public', props.courseId) &&
+    Meteor.subscribe('practiceSessions.forCourse')
 
   const student = Meteor.users.findOne({_id: Meteor.userId()})
   const course = Courses.findOne({_id: props.courseId})

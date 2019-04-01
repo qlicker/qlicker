@@ -388,27 +388,9 @@ Meteor.methods({
       const queryOwner = {courseId: courseId, owner: user._id}
       matchCriteria = {$or: [queryOwner, queryPublic]}
     }
-    const questions = Questions.find(matchCriteria).fetch()
-
-    if (!Array.isArray(tags) || !tags.length) { // Check if there are tags to filter by
-      return questions
-    }
-
+    const questions = Questions.find(matchCriteria, {fields: {_id: 1, tags: 1}}).fetch()
     let filteredQuestions = questions
 
-    // 1. Filter out questions by tags
-    // Convert array of tag objects into just tag values for easier comparison
-    const tagValues = tags.map(tag => { return tag.value })
-    filteredQuestions = questions.filter(question => question.tags.find(tag => tagValues.includes(tag.value)))
-
-    // If not enough questions, just return what there is
-    if (filteredQuestions.length <= number) {
-      return filteredQuestions
-    }
-
-    // if number < numOfFilteredQuestions
-
-    // 2. Randomize the questions
     /**
      * Shuffles array in place.
      * Source: https://stackoverflow.com/a/6274381/5897319
@@ -424,11 +406,31 @@ Meteor.methods({
       }
       return array
     }
+
+    if (!Array.isArray(tags) || !tags.length) { // Check if there are tags to filter by
+      filteredQuestions = shuffle(filteredQuestions)
+      return filteredQuestions.slice(0, number).map((question) => { return question._id })
+    }
+
+    // 1. Filter out questions by tags
+    // Convert array of tag objects into just tag values for easier comparison
+    const tagValues = tags.map(tag => { return tag.value })
+    filteredQuestions = questions.filter(question => question.tags.find(tag => tagValues.includes(tag.value)))
+
+    // If not enough questions, just return what there is
+    if (filteredQuestions.length <= number) {
+      return filteredQuestions.map((question) => { return question._id })
+    }
+
+    // if number < numOfFilteredQuestions
+
+    // 2. Randomize the questions
     filteredQuestions = shuffle(filteredQuestions)
 
     // 3. Return the specified number of questions
-    return filteredQuestions.slice(0, number)
+    return filteredQuestions.slice(0, number).map((question) => { return question._id })
   },
+
   /**
    * Copies an existing question to a user's library
    * @param {Question} question
