@@ -10,7 +10,6 @@ import _ from 'underscore'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Courses } from '../../../api/courses'
-import { Grades } from '../../../api/grades'
 import { Sessions } from '../../../api/sessions'
 import { CreateSessionModal } from '../../modals/CreateSessionModal'
 import { CourseOptionsModal } from '../../modals/CourseOptionsModal'
@@ -35,13 +34,15 @@ class _ManageCourse extends Component {
       profileViewModal: false,
       addTAModal: false,
       addStudentModal: false,
-      courseOptionsModal:false,
+      courseOptionsModal: false,
       sessionToCopy: null,
       expandedSessionlist: false,
       requireVerified: this.props.course.requireVerified,
       allowStudentQuestions: this.props.course.allowStudentQuestions,
-      searchString:'',
-      //requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
+      searchString: '',
+      sessionAverages: {},
+      sessionParticipation: {}
+      // requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
 
@@ -54,13 +55,19 @@ class _ManageCourse extends Component {
     this.generateNewCourseCode = this.generateNewCourseCode.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
     this.toggleAllowStudentQuestions = this.toggleAllowStudentQuestions.bind(this)
+    this.fetchAverages = this.fetchAverages.bind(this)
 
   //  this.toggleRequireApprovedPublicQuestions = this.toggleRequireApprovedPublicQuestions.bind(this)
   }
 
   componentWillReceiveProps (nextProps) {
     const course = nextProps.course
+    this.fetchAverages(nextProps.sessions)
     this.setState({ requireVerified: course.requireVerified, allowStudentQuestions: course.allowStudentQuestions })
+  }
+
+  componentDidMount () {
+    this.fetchAverages(this.props.sessions)
   }
 
   toggleCopySessionModal (sessionId = null) {
@@ -156,6 +163,40 @@ class _ManageCourse extends Component {
     })
     this.setState({ allowStudentQuestions: !this.state.allowStudentQuestions })
   }
+
+  fetchAverages (sessions) {
+    for (let i = 0; i < sessions.length; i++) {
+      if (sessions[i].quizIsClosed()) {
+        Meteor.call('grades.forSession.average', sessions[i]._id, this.props.courseId, null, (error, average) => {
+          if (error) {
+            alertify.error('Could not retrieve session average for: ' + sessions[i].name)
+          } else {
+            this.setState((state, props) => {
+              let updatedSessionAverages = state.sessionAverages
+              updatedSessionAverages[sessions[i]._id] = average
+              return {
+                sessionAverages: updatedSessionAverages
+              }
+            })
+          }
+        })
+        Meteor.call('grades.participation.forSession.average', sessions[i]._id, this.props.courseId, null, (error, participation) => {
+          if (error) {
+            alertify.error('Could not retrieve session participation average for: ' + sessions.name)
+          } else {
+            this.setState((state, props) => {
+              let updatedSessionParticipation = state.sessionParticipation
+              updatedSessionParticipation[sessions[i]._id] = participation
+
+              return {
+                sessionParticipation: updatedSessionParticipation
+              }
+            })
+          }
+        })
+      }
+    }
+  }
 /*
   toggleRequireApprovedPublicQuestions () {
     Meteor.call('courses.toggleRequireApprovedPublicQuestions', this.props.course._id, (error) => {
@@ -163,9 +204,7 @@ class _ManageCourse extends Component {
       else alertify.success('Students ' + (this.props.course.requireApprovedPublicQuestions ? 'can' : 'cannot') + ' view unapproved questions')
     })
     this.setState({ requireApprovedPublicQuestions: !this.state.requireApprovedPublicQuestions })
-  }*/
-
-
+  } */
 
   renderSessionList () {
     let sessions = this.props.sessions
@@ -192,8 +231,8 @@ class _ManageCourse extends Component {
             else Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
           const controls = []
-          if (ses.status === 'running' || ses.quizIsActive() ) {
-            if(!ses.quiz) controls.push({ label: 'Open Session Display',  click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') } })
+          if (ses.status === 'running' || ses.quizIsActive()) {
+            if (!ses.quiz) controls.push({ label: 'Open Session Display', click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') } })
             controls.push({ label: 'End session', click: () => { this.endSession(sId) } })
             controls.push({ divider: true })
           }
@@ -217,6 +256,8 @@ class _ManageCourse extends Component {
           return (<SessionListItem
             key={sId}
             session={ses}
+            average={this.state.sessionAverages[sId] ? this.state.sessionAverages[sId] : 0}
+            participation={this.state.sessionParticipation[sId]}
             click={nav}
             controls={controls} />)
         })
@@ -235,15 +276,15 @@ class _ManageCourse extends Component {
     let TAs = this.props.course.instructors || []
 
     // Filter using the search string, if appropriate
-    if (this.state.searchString){
-      students = _(students).filter( function (id) {
+    if (this.state.searchString) {
+      students = _(students).filter(function (id) {
         if (!this.props.students[id]) return false
         return this.props.students[id].profile.lastname.toLowerCase().includes(this.state.searchString.toLowerCase())
          || this.props.students[id].profile.firstname.toLowerCase().includes(this.state.searchString.toLowerCase())
          || this.props.students[id].emails[0].address.toLowerCase().includes(this.state.searchString.toLowerCase())
       }.bind(this))
 
-      TAs = _(TAs).filter( function (id) {
+      TAs = _(TAs).filter(function (id) {
         if (!this.props.TAs[id]) return false
         return this.props.TAs[id].profile.lastname.toLowerCase().includes(this.state.searchString.toLowerCase())
          || this.props.TAs[id].profile.firstname.toLowerCase().includes(this.state.searchString.toLowerCase())
@@ -251,14 +292,12 @@ class _ManageCourse extends Component {
       }.bind(this))
     }
 
-
     // then sort alphabetically
     students = _(students).sortBy(function (id) {
       return (this.props.students[id]
         ? this.props.students[id].profile.lastname.toLowerCase()
                    : '0')
     }.bind(this))
-
 
     TAs = _(TAs).sortBy(function (id) {
       return (this.props.TAs[id]
@@ -305,8 +344,8 @@ class _ManageCourse extends Component {
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
     const toggleCourseOptions = () => { this.setState({ courseOptionsModal: !this.state.courseOptionsModal }) }
     const manageGroups = () => Router.go('course.groups', { courseId: this.props.course._id })
-    const updateSearchString = (e) => {this.setState({ searchString: e.target.value })}
-    //console.log(this.state)
+    const updateSearchString = (e) => { this.setState({ searchString: e.target.value }) }
+    // console.log(this.state)
 
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ? this.props.sessions.length : 0
@@ -358,7 +397,7 @@ class _ManageCourse extends Component {
               <div>
                 <div className='ql-course-classlist-container'>
                   <div className='ql-course-classlist-search'>
-                    <input type='text' placeholder='Search by name or email' onChange={_.throttle(updateSearchString, 200)} value={this.state.searchString}/>
+                    <input type='text' placeholder='Search by name or email' onChange={_.throttle(updateSearchString, 200)} value={this.state.searchString} />
                   </div>
                   <div className='ql-course-classlist'>
                     { this.renderClassList() }
@@ -373,7 +412,7 @@ class _ManageCourse extends Component {
             <div className='ql-session-list'>
               <div className='btn-group session-button-group'>
                 <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                {/*<button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>View course grades</button>*/}
+                {/* <button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>View course grades</button> */}
               </div>
               { this.renderSessionList() }
             </div>
@@ -396,8 +435,8 @@ class _ManageCourse extends Component {
         : '' }
         { this.state.courseOptionsModal
           ? <CourseOptionsModal
-              course={this.props.course}
-              done={toggleCourseOptions} />
+            course={this.props.course}
+            done={toggleCourseOptions} />
           : ''
         }
       </div>)
@@ -409,8 +448,8 @@ export const ManageCourse = createContainer((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
     Meteor.subscribe('users.studentsInCourse', props.courseId) &&
-    Meteor.subscribe('users.instructorsInCourse', props.courseId)// &&
-  //  Meteor.subscribe('grades.forCourse', props.courseId)
+    Meteor.subscribe('users.instructorsInCourse', props.courseId) &&
+    Meteor.subscribe('grades.forCourse', props.courseId)
 
   const course = Courses.findOne({ _id: props.courseId })
 

@@ -10,6 +10,7 @@ import { _ } from 'underscore'
 
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'
+import { Grades } from '../../../api/grades'
 import { Questions } from '../../../api/questions'
 import { SessionListItem } from '../../SessionListItem'
 import { CreatePracticeQuizModal } from '../../modals/CreatePracticeQuizModal'
@@ -21,11 +22,15 @@ class _Course extends Component {
 
     this.state = {
       expandedSessionList: false,
-      showingCreatePracticeQuizModal: false
+      showingCreatePracticeQuizModal: false,
+      sessionAverages: {}
     }
+
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
     this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)
     this.toggleCreatePracticeQuizModal = this.toggleCreatePracticeQuizModal.bind(this)
+    this.quizSubmitted = this.quizSubmitted.bind(this)
+    this.fetchAverage = this.fetchAverage.bind(this)
   }
 
   toggleCreatePracticeQuizModal () {
@@ -33,17 +38,12 @@ class _Course extends Component {
       showingCreatePracticeQuizModal: !this.state.showingCreatePracticeQuizModal
     })
   }
+
   componentDidMount () {
     if (this.props.sessions) {
       this.props.sessions.forEach(s => {
-        if (s.quizIsActive()) {
-          Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) => {
-            if (err) alertify.error(err.error)
-            if (!err && submitted) {
-              this.addSubmittedQuiz(s._id)
-            }
-          })
-        }
+        this.quizSubmitted(s)
+        this.fetchAverage(s)
       })
     }
   }
@@ -51,11 +51,34 @@ class _Course extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.sessions) {
       nextProps.sessions.forEach(s => {
-        if (s.quizIsActive()) {
-          Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) => {
-            if (err) alertify.error(err.error)
-            if (!err && submitted) {
-              this.addSubmittedQuiz(s._id)
+        this.quizSubmitted(s)
+        this.fetchAverage(s)
+      })
+    }
+  }
+
+  quizSubmitted (session) {
+    if (session.quizIsActive()) {
+      Meteor.call('sessions.quizSubmitted', session._id, (err, submitted) => {
+        if (err) alertify.error(err.error)
+        if (!err && submitted) {
+          this.addSubmittedQuiz(session._id)
+        }
+      })
+    }
+  }
+
+  fetchAverage (session) {
+    if (session.quizIsClosed()) {
+      Meteor.call('grades.forSession.average', session._id, this.props.courseId, null, (error, average) => {
+        if (error) {
+          alertify.error('Could not retrieve session average for: ' + session.name)
+        } else {
+          this.setState((state, props) => {
+            let updatedSessionAverages = state.sessionAverages
+            updatedSessionAverages[session._id] = average
+            return {
+              sessionAverages: updatedSessionAverages
             }
           })
         }
@@ -104,6 +127,7 @@ class _Course extends Component {
         sessions.map((s) => (<SessionListItem
           key={s._id}
           session={s}
+          average={this.state.sessionAverages[s._id]}
           submittedQuiz={s.quiz && this.state.submitted && _(this.state.submitted).contains(s._id) ? true : undefined}
           click={() => this.sessionClickHandler(s)} />))
       }
@@ -173,11 +197,13 @@ export const Course = createContainer((props) => {
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
     Meteor.subscribe('questions.library', props.courseId) &&
     Meteor.subscribe('questions.public', props.courseId) &&
-    Meteor.subscribe('practiceSessions.forCourse')
+    Meteor.subscribe('practiceSessions.forCourse') &&
+    Meteor.subscribe('grades.forCourse', props.courseId)
 
-  const student = Meteor.users.findOne({_id: Meteor.userId()})
-  const course = Courses.findOne({_id: props.courseId})
-  const sessions = Sessions.find({courseId: props.courseId}).fetch()
+  const student = Meteor.users.findOne({ _id: Meteor.userId() })
+  const course = Courses.findOne({ _id: props.courseId })
+  const sessions = Sessions.find({ courseId: props.courseId }).fetch()
+  const grades = Grades.find({courseId: props.courseId, userId: student._id}).fetch()
   const questions = Questions.find({courseId: props.courseId}).fetch()
 
   return {
@@ -185,6 +211,7 @@ export const Course = createContainer((props) => {
     student: student,
     sessions: sessions,
     questions: questions,
+    grades: grades,
     loading: !handle.ready()
   }
 }, _Course)
