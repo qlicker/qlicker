@@ -262,7 +262,7 @@ export class _SessionResultsTable extends Component {
       let row = [tableRow.lastName, tableRow.firstName, tableRow.email, participationGrade, gradeValue]
       tableRow.grade.marks.forEach((m) => {
         let sresponse = _( _(tableRow.sresponses).where({questionId:m.questionId})).max(function(resp){return resp.attempt})
-        row.push(sresponse.answer)
+        row.push(sreponse ? sresponse.answer : "")
         row.push(m.points)
         row.push(m.outOf)
       })
