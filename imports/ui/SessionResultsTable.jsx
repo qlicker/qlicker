@@ -15,6 +15,7 @@ import { CSVLink } from 'react-csv'
 import { Courses } from '../api/courses'
 import { Grades } from '../api/grades'
 import { Questions } from '../api/questions'
+import { Responses } from '../api/responses'
 
 import { GradeViewModal } from './modals/GradeViewModal'
 import { ProfileViewModal } from './modals/ProfileViewModal'
@@ -248,22 +249,29 @@ export class _SessionResultsTable extends Component {
     let cvsHeaders = ['Last name', 'First name', 'Email', 'Particpation', 'Grade']
 
     questions.forEach((q) => {
+      cvsHeaders.push(q.colName + ' response')
       cvsHeaders.push(q.colName + ' points')
       cvsHeaders.push(q.colName + ' outOfs')
     })
 
     let csvData = this.props.tableData.map((tableRow) => {
       if (!tableRow.grade) return []
+
       let participationGrade = tableRow.grade.participation
       let gradeValue = tableRow.grade.value
       let row = [tableRow.lastName, tableRow.firstName, tableRow.email, participationGrade, gradeValue]
       tableRow.grade.marks.forEach((m) => {
+        let sresponse = _( _(tableRow.sresponses).where({questionId:m.questionId})).max(function(resp){return resp.attempt})
+        row.push(sresponse.answer)
         row.push(m.points)
         row.push(m.outOf)
       })
       return row
     })
     const cvsFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
+
+
+
     const handleSubmit = (e) => { e.preventDefault() }
     const goToGrade = () => Router.go('session.grade', {sessionId: this.props.session._id, courseId: this.props.session.courseId})
     const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
@@ -363,12 +371,14 @@ export const SessionResultsTable = createContainer((props) => {
     Meteor.subscribe('courses.single', props.session.courseId) &&
     Meteor.subscribe('sessions.single', props.session._id) &&
     Meteor.subscribe('grades.forSession', props.session._id) &&
-    Meteor.subscribe('questions.forReview', props.session._id)
+    Meteor.subscribe('questions.forReview', props.session._id) &&
+    Meteor.subscribe('responses.forSession', props.session._id)
 
   const course = Courses.findOne({ _id: props.session.courseId })
   const grades = Grades.find({ sessionId: props.session._id }).fetch()
   const questions = Questions.find({ sessionId: props.session._id }).fetch()
   const session = props.session
+  const responses = session ? Responses.find({ questionId: { $in: session.questions } }).fetch() : []
 
   let students
 
@@ -381,14 +391,15 @@ export const SessionResultsTable = createContainer((props) => {
 
   for (let iStu = 0; iStu < numStudents; iStu++) {
     let sgrade = _(grades).findWhere({ userId: students[iStu]._id, sessionId: session._id })
-
+    let sresponses = _(responses).where({ studentUserId: students[iStu]._id })
     let dataItem = {
       name: students[iStu].profile.lastname + ', ' + students[iStu].profile.firstname,
       firstName: students[iStu].profile.firstname,
       lastName: students[iStu].profile.lastname,
       email: students[iStu].emails[0].address,
       userId: students[iStu]._id,
-      grade: sgrade
+      grade: sgrade,
+      sresponses: sresponses
     }
     tableData.push(dataItem)
   }
