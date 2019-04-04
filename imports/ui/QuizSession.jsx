@@ -126,7 +126,9 @@ export class _QuizSession extends Component {
     let qCount = 0
     let qCount2 = 0
 
-    const canSubmit = this.props.myResponses && this.props.myResponses.length === qList.length && !this.state.submitted
+    const canSubmit = this.props.isPracticeSession
+      ? true
+      : this.props.myResponses && this.props.myResponses.length === qList.length && !this.state.submitted
 
     return (
       <div className='container ql-quiz-session'>
@@ -221,7 +223,6 @@ export class _QuizSession extends Component {
             </div>
           </div>
         </div>
-
       </div>
     )
   }

@@ -48,7 +48,6 @@ class _StudentSessionResultsPage extends Component {
     const feedback = this.props.isPracticeSession ? '' : mark.feedback
     const points = this.props.isPracticeSession ? '' : mark.points + '/' + mark.outOf + ' points'
     const pointsString = this.props.isPracticeSession ? '' : '(' + points + ')'
-    const toggleShowAll = () => this.setState({ showAllAtOnce: !this.state.showAllAtOnce })
 
     return (
       <div className='container ql-results-page'>
