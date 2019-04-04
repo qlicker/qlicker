@@ -130,6 +130,7 @@ export const StudentSessionResultsPage = createContainer((props) => {
   let grade = {}
   let questions = []
   let isPracticeSession = false
+  const userId = Meteor.userId()
 
   if (props.practiceSessionId) {
     handle = Meteor.subscribe('userData') &&
@@ -164,7 +165,6 @@ export const StudentSessionResultsPage = createContainer((props) => {
     })
   }
 
-  const userId = Meteor.userId()
   const course = Courses.findOne(session.courseId)
 
   return {
