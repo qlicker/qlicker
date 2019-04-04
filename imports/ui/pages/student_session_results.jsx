@@ -143,7 +143,8 @@ export const StudentSessionResultsPage = createContainer((props) => {
     questions = Questions.find({ _id: { $in: session.questions } }).fetch()
     questions.map((question) => {
       question.studentResponses = PracticeResponses.find({
-        practiceSessionId: props.practiceSessionId
+        practiceSessionId: props.practiceSessionId,
+        questionId: question._id
       }).fetch()
     })
     isPracticeSession = true

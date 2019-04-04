@@ -86,7 +86,6 @@ export class _QuizSession extends Component {
     if (node) window.scrollTo({ top: node.offsetTop, behavior: 'smooth' })
   }
 
-  // TODO: Fix this
   submitQuiz () {
     if (this.state.emptySA) {
       if (!confirm('You have empty short answers, submit anyway?')) return
