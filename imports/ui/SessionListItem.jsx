@@ -128,7 +128,7 @@ export class SessionListItem extends ListItem {
     }
 
     const averageString = this.props.average !== null && this.props.average !== undefined
-      ? 'Average: ' + this.props.average + '%'
+      ? 'Average: ' + this.props.average.toFixed(0) + '%'
       : 'No grades available'
 
     return (

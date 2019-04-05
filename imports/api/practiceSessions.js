@@ -22,7 +22,7 @@ const practiceSessionPattern = {
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
-  submittedQuiz: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]), // true if student has submitted quiz (used to block)
+  submittedQuiz: Match.Maybe(Boolean), // true if student has submitted quiz (used to block)
   tags: Match.Maybe([ Match.Maybe({ value: Helpers.NEString, label: Helpers.NEString, className: Match.Maybe(String) }) ])
 }
 
@@ -84,15 +84,11 @@ Meteor.methods({
 
     const responseIds = _(PracticeResponses.find({questionId: { $in: practiceSession.questions }, studentUserId: Meteor.userId(), practiceSessionId: practiceSessionId}).fetch()).pluck('_id')
 
-    if (responseIds.length !== practiceSession.questions.length) throw new Meteor.Error('Must answer all questions to submit quiz')
-
-    const nQ = practiceSession.questions.length
+    const nQ = responseIds.length
     for (let i = 0; i < nQ; i++) {
       Meteor.call('practiceResponses.makeUneditable', responseIds[i])
     }
-    if (practiceSession.submittedQuiz) practiceSession.submittedQuiz.push(user._id)
-    else practiceSession.submittedQuiz = [user._id]
 
-    return PracticeSessions.update({ _id: practiceSessionId }, {$set: { submittedQuiz: practiceSession.submittedQuiz }})
+    return PracticeSessions.update({ _id: practiceSessionId }, {$set: { submittedQuiz: true }})
   }
 }) // end Meteor.methods

@@ -48,7 +48,6 @@ class _StudentSessionResultsPage extends Component {
     const feedback = this.props.isPracticeSession ? '' : mark.feedback
     const points = this.props.isPracticeSession ? '' : mark.points + '/' + mark.outOf + ' points'
     const pointsString = this.props.isPracticeSession ? '' : '(' + points + ')'
-    const toggleShowAll = () => this.setState({ showAllAtOnce: !this.state.showAllAtOnce })
 
     return (
       <div className='container ql-results-page'>
@@ -130,6 +129,7 @@ export const StudentSessionResultsPage = createContainer((props) => {
   let grade = {}
   let questions = []
   let isPracticeSession = false
+  const userId = Meteor.userId()
 
   if (props.practiceSessionId) {
     handle = Meteor.subscribe('userData') &&
@@ -143,7 +143,8 @@ export const StudentSessionResultsPage = createContainer((props) => {
     questions = Questions.find({ _id: { $in: session.questions } }).fetch()
     questions.map((question) => {
       question.studentResponses = PracticeResponses.find({
-        practiceSessionId: props.practiceSessionId
+        practiceSessionId: props.practiceSessionId,
+        questionId: question._id
       }).fetch()
     })
     isPracticeSession = true
@@ -164,7 +165,6 @@ export const StudentSessionResultsPage = createContainer((props) => {
     })
   }
 
-  const userId = Meteor.userId()
   const course = Courses.findOne(session.courseId)
 
   return {
