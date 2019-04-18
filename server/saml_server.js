@@ -178,7 +178,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //WARNING: This does not check that the POST came from the IDP
               let xml = Buffer.from(req.body.SAMLRequest, 'base64').toString('utf8') //new Buffer(req.body.SAMLRequest, 'base64').toString('utf8'); // Buffer.from(req.body.SAMLRequest, 'base64').toString('utf8')
               let dom = new xmldom.DOMParser().parseFromString(xml);
-              let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
+              //let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
+
+              //TODO: Not sure if the "saml2p:" prefix is necessary or if it's specific to Queen's University. For Queen's this does not work without.
+              let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
                 //console.log("log out hack")
               let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':sessionIndex })
                 //console.log(user)
