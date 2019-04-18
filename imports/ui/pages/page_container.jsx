@@ -36,7 +36,7 @@ class _PageContainer extends Component {
   }
 
   setCourseCode (courseId) {
-    Meteor.call('courses.getCourseCode', courseId, (e, c) => {
+    Meteor.call('courses.getCourseCodePretty', courseId, (e, c) => {
       if(c) {
         this.setState({ courseCode: c})
       }
@@ -142,7 +142,7 @@ class _PageContainer extends Component {
                    : <li className='dropdown'>
                       <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
                         { this.state.courseId
-                          ?  this.state.courseCode.substring(0, 4) + ' ' + this.state.courseCode.substring(4)
+                          ?  this.state.courseCode
                           : 'Courses'
                         }
                       <span className='caret' />
