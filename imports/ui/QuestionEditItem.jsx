@@ -51,10 +51,12 @@ export class QuestionEditItem extends Component {
     //this.toggleShareModal = this.toggleShareModal.bind(this)
   //  this.setCourse = this.setCourse.bind(this)
     this.setPoints = this.setPoints.bind(this)
+    this.setToleranceNumerical = this.setToleranceNumerical.bind(this)
+    this.setCorrectNumerical = this.setCorrectNumerical.bind(this)
     this.setMaxAttempts = this.setMaxAttempts.bind(this)
     this._DB_saveQuestion = _.debounce(() => { if (this.props.autoSave) this.saveQuestion() }, 1600)
     //this.shareQuestion = this.shareQuestion.bind(this)
-
+    this.numericalAnswerEditor = this.numericalAnswerEditor.bind(this)
     //Set state
     this.state = {
       tagSuggestions : [],
@@ -78,6 +80,9 @@ export class QuestionEditItem extends Component {
           this.answerOrder = TF_ORDER
           break
         case QUESTION_TYPE.SA:
+          this.answerOrder = SA_ORDER
+          break
+        case QUESTION_TYPE.NU:
           this.answerOrder = SA_ORDER
           break
       }
@@ -158,7 +163,7 @@ export class QuestionEditItem extends Component {
 
     const stateUpdater = { question: question }
     if (!retainOptions) {
-      if (oldType === QUESTION_TYPE.SA || oldType === QUESTION_TYPE.TF) {
+      if (oldType === QUESTION_TYPE.SA || oldType === QUESTION_TYPE.TF || oldType === QUESTION_TYPE.NU) {
         stateUpdater.question.options = []
       } else if (this.state.question.options && this.state.question.options.length > 0) {
         if (this.state.question.options.length === 1 && this.state.question.options[0].content === '') {
@@ -177,7 +182,7 @@ export class QuestionEditItem extends Component {
       })
     }
 
-    if (question.type === QUESTION_TYPE.TF || question.type === QUESTION_TYPE.SA || !retainOptions){
+    if (question.type === QUESTION_TYPE.TF || question.type === QUESTION_TYPE.SA || question.type === QUESTION_TYPE.NU || !retainOptions){
       stateUpdater.currentAnswer = 0
     }
 
@@ -187,7 +192,7 @@ export class QuestionEditItem extends Component {
         this.addAnswer(null, null, false, () => {
           this.addAnswer(null, null, false)
         })
-      } else if (question.type === QUESTION_TYPE.SA) {
+      } else if (question.type === QUESTION_TYPE.SA|| question.type === QUESTION_TYPE.NU) {
         this.answerOrder = SA_ORDER
         this.addAnswer(null, null, true)
       } else if (!retainOptions) {
@@ -362,6 +367,27 @@ export class QuestionEditItem extends Component {
       })
     }
   }
+
+  setCorrectNumerical (e) {
+    let question = this.state.question
+    const points = parseFloat(e.target.value)
+    if (question.type !== QUESTION_TYPE.NU) return
+    question.correctNumerical = points
+    this.setState({ question: question }, () => {
+      this._DB_saveQuestion()
+    })
+  }
+
+  setToleranceNumerical (e) {
+    let question = this.state.question
+    const points = parseFloat(e.target.value)
+    if (question.type !== QUESTION_TYPE.NU) return
+    question.toleranceNumerical = (Math.abs(points))
+    this.setState({ question: question }, () => {
+      this._DB_saveQuestion()
+    })
+  }
+
 /*
   togglePrivate () {
     let question = this.state.question
@@ -519,6 +545,19 @@ componentWillReceiveProps (nextProps) {
     </div>)
   } // end shortAnswerEditor
 
+  numericalAnswerEditor () {
+    return (<div>
+      <input type='number'
+        min={0} step={0.5}
+        onChange={this.setCorrectNumerical}
+        value={this.state.question.correctNumerical ? this.state.question.correctNumerical : 0} />
+      <input type='number'
+        min={0} step={0.5}
+        onChange={this.setToleranceNumerical}
+        value={this.state.question.toleranceNumerical ? this.state.question.toleranceNumerical : 0} />
+    </div>)
+  }
+
   render () {
 
     let editorRows = []
@@ -545,7 +584,8 @@ componentWillReceiveProps (nextProps) {
       { value: QUESTION_TYPE.MC, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MC] },
       { value: QUESTION_TYPE.MS, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.MS] },
       { value: QUESTION_TYPE.TF, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.TF] },
-      { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] }
+      { value: QUESTION_TYPE.SA, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.SA] },
+      { value: QUESTION_TYPE.NU, label: QUESTION_TYPE_STRINGS[QUESTION_TYPE.NU] }
     ]
 
 
@@ -656,8 +696,10 @@ componentWillReceiveProps (nextProps) {
           value={this.state.question.type}
           onChange={this.changeType} />
 
-        { this.state.type !== QUESTION_TYPE.SA
-          ? editorRows
+        { this.state.question.type !== QUESTION_TYPE.SA
+          ? this.state.question.type !== QUESTION_TYPE.NU
+            ? editorRows
+            : this.numericalAnswerEditor()
           : ''
         }
 

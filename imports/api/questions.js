@@ -26,8 +26,10 @@ const questionPattern = {
     correct:  Match.Maybe(Boolean),
     answer:  Match.Maybe(Helpers.NEString),
     content:  Match.Maybe(String),
-    plainText:  Match.Maybe(String)
+    plainText:  Match.Maybe(String),
   } ],
+  toleranceNumerical: Match.Maybe(Number), // for a numerical type of question
+  correctNumerical: Match.Maybe(Number), //correct answer for a numerical question
   creator: Helpers.MongoID,
   owner: Match.Maybe(Helpers.MongoID),
   // null if template, questionId of original once copied to question

@@ -206,6 +206,9 @@ export const calculateResponsePoints = (response) => {
       const percentage = (2 * intersection.length - answer.length) / correct.length
       mark = percentage > 0 ? percentage : 0
       break
+    case  QUESTION_TYPE.NU:
+      mark =  Math.abs(Number(answer)-q.correctNumerical) <= q.toleranceNumerical ? 1 : 0
+      break
   }
   return mark * points
 }
