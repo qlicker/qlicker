@@ -154,7 +154,7 @@ if (Meteor.isServer) {
       if (user.isInstructor(courseId)) return Questions.find({ sessionId: { $in: course.sessions || [] } })
 
       if (user.hasRole(ROLES.student)) {
-        return Questions.find({ sessionId: { $in: course.sessions || [] } }, { fields: { 'options.correct': false } })
+        return Questions.find({ sessionId: { $in: course.sessions || [] } }, { fields: { 'options.correct': false, 'correctNumerical': false } })
       }
     } else this.ready()
   })
@@ -194,12 +194,16 @@ if (Meteor.isServer) {
 
       if (user.hasRole(ROLES.student)) {
         // by default fetch all Qs without correct indicator
-        const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false } }).fetch()
+        const initialQs = Questions.find({ sessionId: sessionId }, { fields: { 'options.correct': false, 'correctNumerical': false } }).fetch()
 
         initialQs.forEach(q => {
           let qToAdd = q
           // if prof has marked Q with correct visible, refetch answer options
-          if (q.sessionOptions && q.sessionOptions.correct) qToAdd.options = Questions.findOne({_id: q._id}).options
+          if (q.sessionOptions && q.sessionOptions.correct){
+            const qtemp =  Questions.findOne({_id: q._id})
+            qToAdd.options = qtemp.options
+            qToAdd.correctNumerical = qtemp.correctNumerical
+          }
           this.added('questions', qToAdd._id, qToAdd)
         })
 
@@ -215,9 +219,11 @@ if (Meteor.isServer) {
             if (so && so.correct) { // correct should be visible
               const q = Questions.findOne({_id: id})
               newFields['options'] = q.options
+              newFields['correctNumerical'] = q.correctNumerical
             } else if (so && !so.correct) { // correct should be hidden
-              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false } })
+              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false, 'correctNumerical': false } })
               newFields['options'] = q.options
+              newFields['correctNumerical'] = undefined
             }
 
             this.added('questions', id, newFields)
@@ -229,9 +235,11 @@ if (Meteor.isServer) {
             if (so && so.correct) { // correct should be visible
               const q = Questions.findOne({_id: id})
               newFields['options'] = q.options
+              newFields['correctNumerical'] = q.correctNumerical
             } else if (so && !so.correct) { // correct should be hidden
-              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false } })
+              const q = Questions.findOne({ _id: id }, { fields: { 'options.correct': false, 'correctNumerical': false } })
               newFields['options'] = q.options
+              newFields['correctNumerical'] = undefined
             }
 
             this.changed('questions', id, newFields)
