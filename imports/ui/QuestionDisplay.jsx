@@ -50,6 +50,7 @@ export class QuestionDisplay extends Component {
     this.toggleShowResponse = this.toggleShowResponse.bind(this)
 
     this.setAnswer = this.setAnswer.bind(this)
+    this.setNumericalAnswer = this.setNumericalAnswer.bind(this)
     this.setAnswerQuiz= this.setAnswerQuiz.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
     this.setShortAnswerWysiwygQuiz = this.setShortAnswerWysiwygQuiz.bind(this)
@@ -208,7 +209,18 @@ export class QuestionDisplay extends Component {
       submittedAnswer: answerToSubmit
     })
   }
-
+  setNumericalAnswer (e) {
+    if (this.disallowResponses() || this.readonly) return
+    if (this.props.response && !this.props.response.editable){
+      alertify.error("Cannot edit this question anymore")
+      return
+    }
+    let answerToSubmit = e.target.value
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: answerToSubmit
+    })
+  }
   setAnswerQuiz (answer) {
     if (this.disallowResponses() || this.readonly) return
     if (this.props.response && !this.props.response.editable){
@@ -463,6 +475,37 @@ export class QuestionDisplay extends Component {
     )
   }
 
+  renderNumericalQuestion (q)
+  {
+    if ((this.props.forReview || this.props.prof || (this.props.response && !this.props.response.editable))) {
+
+      let shouldShowResponse = !!this.props.response
+      if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
+        shouldShowResponse = false
+      }
+
+      return (
+        <div className='ql-short-answer' >
+          {shouldShowResponse
+            ? <div>{this.state.submittedAnswer}</div>
+            : ''
+          }
+        </div>
+      )
+    }
+    return (
+      <div className='ql-short-answer' >
+        { this.readonly
+          ? <div>{this.state.submittedAnswer}</div>
+          : <input type='number'
+            min={0}
+            onChange={this.setNumericalAnswer}
+            value={parseFloat(this.state.submittedAnswer)} />
+        }
+      </div>
+    )
+  }
+
   render () {
     if (this.props.loading || !this.props.question) return <div className='ql-subs-loading'>Loading</div>
 
@@ -487,6 +530,9 @@ export class QuestionDisplay extends Component {
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)
         msInfo = <div className='msInfo'>Select all that apply</div>
+        break
+      case QUESTION_TYPE.NU:
+        content = this.renderNumericalQuestion(q)
         break
     }
 
