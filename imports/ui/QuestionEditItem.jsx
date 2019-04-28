@@ -546,16 +546,18 @@ componentWillReceiveProps (nextProps) {
   } // end shortAnswerEditor
 
   numericalAnswerEditor () {
-    return (<div>
-      <input type='number'
-        min={0} step={0.5}
-        onChange={this.setCorrectNumerical}
-        value={this.state.question.correctNumerical ? this.state.question.correctNumerical : 0} />
-      <input type='number'
-        min={0} step={0.5}
-        onChange={this.setToleranceNumerical}
-        value={this.state.question.toleranceNumerical ? this.state.question.toleranceNumerical : 0} />
-    </div>)
+    return (
+      <div className='numerical-answer-editor'>
+        <input type='number'
+          placeholder='Correct'
+          onChange={this.setCorrectNumerical}
+          value={this.state.question.correctNumerical} />
+        <input type='number'
+          min={0}
+          onChange={this.setToleranceNumerical}
+          placeholder='Tolerance'
+          value={this.state.question.toleranceNumerical} />
+      </div>)
   }
 
   render () {

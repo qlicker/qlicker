@@ -485,7 +485,7 @@ export class QuestionDisplay extends Component {
       }
 
       return (
-        <div className='ql-short-answer' >
+        <div className='ql-numerical-answer' >
           {shouldShowResponse
             ? <div>{this.state.submittedAnswer}</div>
             : ''
@@ -494,7 +494,7 @@ export class QuestionDisplay extends Component {
       )
     }
     return (
-      <div className='ql-short-answer' >
+      <div className='ql-numerical-answer' >
         { this.readonly
           ? <div>{this.state.submittedAnswer}</div>
           : <input type='number'
@@ -590,7 +590,12 @@ export class QuestionDisplay extends Component {
           : ''
         }
 
-        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution  ? <div className='ql-question-solution' ref={this.props.question._id+"solution"}>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
+        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution
+            ? <div className='ql-question-solution' ref={this.props.question._id+"solution"}>
+                Solution: <div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div>
+              </div>
+            : ''
+        }
 
       </div>
     )

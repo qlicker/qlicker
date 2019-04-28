@@ -121,6 +121,13 @@ $red-bar: rgba(167,37,38, 0.3);
       }
     }
 
+    .ql-numerical-answer {
+      font-size: 2em;
+      background: white;
+      display: inline-block;
+      position: relative;
+    }
+
     .ql-answer-content-container {
       width: 100%;
       max-width: 400px;

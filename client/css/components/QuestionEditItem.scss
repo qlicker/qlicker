@@ -39,6 +39,26 @@
 
   }
 
+  .numerical-answer-editor {
+    font-size: 2em;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    border: none;
+    label {
+      font-size: 0.75em;
+      margin-right: 5px;
+      margin-left: 5px;
+    }
+    input[type=number] {
+      width: 150px;
+      margin-right: 10px;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+  }
+
   .header {
     margin-bottom: 8px;
 
