@@ -487,7 +487,7 @@ export class QuestionDisplay extends Component {
       return (
         <div className='ql-numerical-answer' >
           {shouldShowResponse
-            ? <div>{this.state.submittedAnswer}</div>
+            ? <div >{this.state.submittedAnswer}</div>
             : ''
           }
         </div>
@@ -498,7 +498,7 @@ export class QuestionDisplay extends Component {
         { this.readonly
           ? <div>{this.state.submittedAnswer}</div>
           : <input type='number'
-            min={0}
+            placeholder='Answer'
             onChange={this.setNumericalAnswer}
             value={parseFloat(this.state.submittedAnswer)} />
         }

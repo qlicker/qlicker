@@ -57,6 +57,11 @@
       margin-top: 5px;
       font-size: 0.9em;
     }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
 
   .header {
