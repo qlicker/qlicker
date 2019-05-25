@@ -38,7 +38,8 @@ Meteor.startup(() => {
       SSO_lastNameIdentifier:'',
       SSO_institutionName: '',
       SSO_roleIdentifier: '',
-      SSO_studentNumberIdentifier: ''
+      SSO_studentNumberIdentifier: '',
+      SSO_roleProfName: ''
     })
   } else {
     const settings = Settings.findOne()

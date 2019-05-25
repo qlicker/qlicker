@@ -93,6 +93,9 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                                       });
         } else {//new user
           profile.roles = ['student']
+          if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
+            profile.roles = ['professor']
+          }
           userId = Accounts.createUser({
                    email: profile.email,
                    password: Random.secret(),//user will need to reset password to set it to something useful!

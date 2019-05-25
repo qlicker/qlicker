@@ -28,6 +28,7 @@ export class ManageSSO extends Component {
       SSO_lastNameIdentifier: props.settings.SSO_lastNameIdentifier,
       SSO_roleIdentifier: props.settings.SSO_roleIdentifier,
       SSO_studentNumberIdentifier: props.settings.SSO_studentNumberIdentifier,
+      SSO_roleProfName: props.settings.SSO_roleProfName,
     }
 
     this.setValue = this.setValue.bind(this)
@@ -60,6 +61,7 @@ export class ManageSSO extends Component {
       SSO_institutionName: this.state.SSO_institutionName || '',
       SSO_roleIdentifier: this.state.SSO_roleIdentifier || '',
       SSO_studentNumberIdentifier: this.state.SSO_studentNumberIdentifier || '',
+      SSO_roleProfName: this.state.SSO_roleProfName || '',
     })
 
     Meteor.call('settings.update', settings, (e, d) => {
@@ -97,6 +99,7 @@ export class ManageSSO extends Component {
                     <input className='form-control' type='text' data-name='SSO_firstNameIdentifier' onChange={this.setValue} placeholder='First Name Identifier' value={this.state.SSO_firstNameIdentifier} /><br />
                     <input className='form-control' type='text' data-name='SSO_lastNameIdentifier' onChange={this.setValue} placeholder='Last Name Identifier' value={this.state.SSO_lastNameIdentifier} /><br />
                     <input className='form-control' type='text' data-name='SSO_roleIdentifier' onChange={this.setValue} placeholder='Role Identifier' value={this.state.SSO_roleIdentifier} /><br />
+                    <input className='form-control' type='text' data-name='SSO_roleProfName' onChange={this.setValue} placeholder='Name of professor role for auto-promote' value={this.state.SSO_roleProfName} /><br />
                     <input className='form-control' type='text' data-name='SSO_studentNumberIdentifier' onChange={this.setValue} placeholder='Student Number Identifier' value={this.state.SSO_studentNumberIdentifier} /><br />
                     IDP certificate (single string, no BEGIN-END)
                     <textarea className='form-control certificate' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string, no BEGIN-END)' value={this.state.SSO_cert} />
