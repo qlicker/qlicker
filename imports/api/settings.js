@@ -40,7 +40,10 @@ const pattern = {
   SSO_emailIdentifier: Match.Maybe(String),
   SSO_firstNameIdentifier: Match.Maybe(String),
   SSO_lastNameIdentifier: Match.Maybe(String),
-  SSO_institutionName: Match.Maybe(String)
+  SSO_institutionName: Match.Maybe(String),
+  SSO_roleIdentifier: Match.Maybe(String),
+  SSO_studentNumberIdentifier: Match.Maybe(String),
+  SSO_roleProfName: Match.Maybe(String), // name of the role in the SSO system that corresponds to a professor role
 }
 
 // Create course class
