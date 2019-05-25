@@ -36,7 +36,9 @@ Meteor.startup(() => {
       SSO_emailIdentifier: '',
       SSO_firstNameIdentifier: '',
       SSO_lastNameIdentifier:'',
-      SSO_institutionName: ''
+      SSO_institutionName: '',
+      SSO_roleIdentifier: '',
+      SSO_studentNumberIdentifier: ''
     })
   } else {
     const settings = Settings.findOne()
@@ -97,7 +99,7 @@ Meteor.startup(() => {
           'profile.profileThumbnail':thumb}
           })
     }
-    
+
     //console.log(user.profile.lastname)
     if(user.profile.profileImage && !user.profile.profileThumbnail){
       //console.log('   '+user.profile.firstname)

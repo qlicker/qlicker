@@ -25,7 +25,9 @@ export class ManageSSO extends Component {
       SSO_institutionName: props.settings.SSO_institutionName,
       SSO_emailIdentifier: props.settings.SSO_emailIdentifier,
       SSO_firstNameIdentifier: props.settings.SSO_firstNameIdentifier,
-      SSO_lastNameIdentifier: props.settings.SSO_lastNameIdentifier
+      SSO_lastNameIdentifier: props.settings.SSO_lastNameIdentifier,
+      SSO_roleIdentifier: props.settings.SSO_roleIdentifier,
+      SSO_studentNumberIdentifier: props.settings.SSO_studentNumberIdentifier,
     }
 
     this.setValue = this.setValue.bind(this)
@@ -55,7 +57,9 @@ export class ManageSSO extends Component {
       SSO_emailIdentifier: this.state.SSO_emailIdentifier || '',
       SSO_firstNameIdentifier: this.state.SSO_firstNameIdentifier || '',
       SSO_lastNameIdentifier: this.state.SSO_lastNameIdentifier || '',
-      SSO_institutionName: this.state.SSO_institutionName || ''
+      SSO_institutionName: this.state.SSO_institutionName || '',
+      SSO_roleIdentifier: this.state.SSO_roleIdentifier || '',
+      SSO_studentNumberIdentifier: this.state.SSO_studentNumberIdentifier || '',
     })
 
     Meteor.call('settings.update', settings, (e, d) => {
@@ -92,6 +96,8 @@ export class ManageSSO extends Component {
                     <input className='form-control' type='text' data-name='SSO_emailIdentifier' onChange={this.setValue} placeholder='Email Identifier' value={this.state.SSO_emailIdentifier} /><br />
                     <input className='form-control' type='text' data-name='SSO_firstNameIdentifier' onChange={this.setValue} placeholder='First Name Identifier' value={this.state.SSO_firstNameIdentifier} /><br />
                     <input className='form-control' type='text' data-name='SSO_lastNameIdentifier' onChange={this.setValue} placeholder='Last Name Identifier' value={this.state.SSO_lastNameIdentifier} /><br />
+                    <input className='form-control' type='text' data-name='SSO_roleIdentifier' onChange={this.setValue} placeholder='Role Identifier' value={this.state.SSO_roleIdentifier} /><br />
+                    <input className='form-control' type='text' data-name='SSO_studentNumberIdentifier' onChange={this.setValue} placeholder='Student Number Identifier' value={this.state.SSO_studentNumberIdentifier} /><br />
                     IDP certificate (single string, no BEGIN-END)
                     <textarea className='form-control certificate' data-name='SSO_cert' onChange={this.setValue} placeholder='IDP Certificate (single string, no BEGIN-END)' value={this.state.SSO_cert} />
                     SP public certificate (can contain BEGIN-END)

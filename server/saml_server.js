@@ -75,7 +75,9 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let services = { sso: {id: samlInfo.nameID,
                                nameIDFormat: samlInfo.nameIDFormat,
                                nameID:samlInfo.nameID,
-                               email: samlProfile.email } }
+                               email: samlProfile.email,
+                               SSORole: samlInfo.SSORole,
+                               studentNumber:samlInfo.studentNumber } }
 
         if(user){//existing user, update their profile
           userId = user._id
@@ -218,9 +220,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
-                  email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
-                  firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
-                  lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
+                  let email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
+                  let firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
+                  let lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
+                  let SSORole = settings.SSO_roleIdentifier ? result[settings.SSO_roleIdentifier] : ''
+                  let studentNumber = settings.SSO_studentNumberIdentifier ? result[settings.SSO_studentNumberIdentifier] : ''
 
                   profile = {email:email, firstname:firstname, lastname:lastname}
 
@@ -228,6 +232,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                                                                        sessionIndex:result['sessionIndex'],
                                                                        nameID: result.nameID,
                                                                        nameIDFormat: result.nameIDFormat,
+                                                                       SSORole:SSORole, studentNumber:studentNumber
                                                                       } );
 
                   res.writeHead(200, {'Content-Type': 'text/html'});
