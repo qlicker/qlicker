@@ -84,6 +84,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           for (key in samlProfile){
             profile[key] = samlProfile[key]
           }
+          //Update profile:
+          if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
+            profile.roles = ['professor']
+          } 
           //Note that it will not actually update the email address, since the user was found by email address
           Meteor.users.update(userId, {$set: {email: profile.email,
                                               emails: [ { address: profile.email, verified: true } ],
@@ -92,9 +96,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                                               }
                                       });
         } else {//new user
-          profile.roles = ['student']
           if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
             profile.roles = ['professor']
+          } else {
+            profile.roles = ['student']
           }
           userId = Accounts.createUser({
                    email: profile.email,
