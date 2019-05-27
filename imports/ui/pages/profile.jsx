@@ -208,7 +208,7 @@ class _Profile extends Component {
         <div className='messages'>
           { needsEmailVerification
             ? <div className='alert alert-warning' role='alert' >
-              To enroll in some courses, you may need to verify your email. &nbsp;&nbsp;&nbsp;
+              For access to certain courses, you may need to verify your email. &nbsp;&nbsp;&nbsp;
               { this.state.showResendLink ? <a href='#' onClick={this.sendVerificationEmail}>Resend Email</a> : 'Check your email' }
             </div>
             : '' }
@@ -226,23 +226,34 @@ class _Profile extends Component {
               <div className='ql-card-content'>
                 <div className='ql-profile-image-container'>
                   { !this.state.uploadActive
-                    ? (<div>
-                      <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
-                      {needsEmailVerification
-                        ? ''
-                        : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>}
-                    </div>
-                    )
-                    : (
-                      <DragAndDropArea onDrop={this.updateProfileImage} maxFiles={1}>
-                        <div className='ql-profile-image-droparea dropzone'>
-                          <div className='dz-default dz-message'>
-                            <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-                              Drag and Drop an image to upload
-                          </div>
+                    ? <div>
+                        <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>
+                          &nbsp;
+                          {needsEmailVerification
+                            ? ''
+                            : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>
+                          }
                         </div>
-                      </DragAndDropArea>
-                    )
+                        <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                           <a href='#' className='btn btn-default' onClick={toggleUpload} >Rotate <i className='fas fa-undo' /></a>
+                           <a href='#' className='btn btn-default' onClick={toggleUpload} >Rotate <i className='fas fa-redo' /></a>
+                        </div>
+                      </div>
+
+                    : <div>
+                      <DragAndDropArea onDrop={this.updateProfileImage} maxFiles={1}>
+                         <div className='ql-profile-image-droparea dropzone'>
+                           <div className='dz-default dz-message'>
+                             <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                               Drag and Drop an image to upload
+                           </div>
+                         </div>
+                       </DragAndDropArea>
+                       <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                          <a href='#' className='btn btn-default' onClick={toggleUpload} >Cancel</a>
+                       </div>
+                      </div>
+
                     }
                 </div>
 
