@@ -39,6 +39,7 @@ class _Profile extends Component {
     //this.updateFirstName = this.updateFirstName.bind(this)
     //this.updateLastName = this.updateFirstName.bind(this)
     this.saveName = this.saveName.bind(this)
+    this.rotateImage = this.rotateImage.bind(this)
   }
 
   componentWillMount () {
@@ -46,6 +47,9 @@ class _Profile extends Component {
     Meteor.call("isSSOSession", (err,result) => {
       if(!err)this.setState({isSSOSession:result})
     })
+    Meteor.call('settings.getImageSettings', (e, obj) => {
+      if (!e && obj) this.setState({imageSettings:obj})
+      })
   }
   componentDidMount () {
     this.setStorageType()
@@ -175,7 +179,37 @@ class _Profile extends Component {
       })
     })
   }
+  rotateImage (degrees) {
+    console.log("rotating")
+    let originalURL = this.props.user.getImageUrl()
+    let canvas = document.createElement('canvas')
+    let context = canvas.getContext('2d');
+    let img = new Image;
+    //img.onload = function(){
+      //context.drawImage(img,0,0); // Or at whatever offset you like
+    //};
+    img.src = this.props.user.getImageUrl()
+    context.rotate(degrees*Math.PI/180);
 
+    const UID = UUID.v5({
+      namespace: '00000000-0000-0000-0000-000000000000',
+      name: img.src})
+
+    const meta = {UID: UID, type: 'image', src: img.src}
+    let slingshotThumbnail = new Slingshot.Upload(this.state.imageSettings.storageType, meta)
+    canvas.toBlob((blob) => {
+      slingshotThumbnail.send(blob, (e, downloadUrl) => {
+        if (e) alertify.error('Error uploading')
+        else {
+          img.url = downloadUrl
+          this.saveProfileImage(img.url, meta.type)
+          img.UID = meta.UID
+          this.addImage(img)
+        }
+      })
+    })
+
+  }
 
   saveName() {
     Meteor.call('users.updateName', this.state.lastName,this.state.firstName, (err) => {
@@ -195,6 +229,8 @@ class _Profile extends Component {
     const toggleChangingName = () => { this.setState({ changingName: !this.state.changingName }) }
     const updateFirstName = (e) => {this.setState({ firstName:e.target.value }) }
     const updateLastName = (e) => {this.setState({ lastName:e.target.value }) }
+    const rotateCl = () => {this.rotateImage(90)}
+    const rotateCC = () => {this.rotateImage(-90)}
     const saveName = () => {this.saveName()}
 
     const noEdits = this.state.isSSOSession
@@ -235,8 +271,8 @@ class _Profile extends Component {
                           }
                         </div>
                         <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                           <a href='#' className='btn btn-default' onClick={toggleUpload} >Rotate <i className='fas fa-undo' /></a>
-                           <a href='#' className='btn btn-default' onClick={toggleUpload} >Rotate <i className='fas fa-redo' /></a>
+                           <a href='#' className='btn btn-default' onClick={rotateCC} >Rotate <i className='fas fa-undo' /></a>
+                           <a href='#' className='btn btn-default' onClick={rotateCl} >Rotate <i className='fas fa-redo' /></a>
                         </div>
                       </div>
 
