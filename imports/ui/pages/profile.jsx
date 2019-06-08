@@ -200,7 +200,7 @@ class _Profile extends Component {
 
       context.rotate(degrees*Math.PI/180)
       //context.translate(10,10)
-      context.drawImage(img,-width/2,-width/2)
+      context.drawImage(img,-width/2,-height/2)
 
       const UID = UUID.v5({
         namespace: '00000000-0000-0000-0000-000000000000',
