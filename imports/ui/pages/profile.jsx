@@ -40,6 +40,7 @@ class _Profile extends Component {
     //this.updateLastName = this.updateFirstName.bind(this)
     this.saveName = this.saveName.bind(this)
     this.rotateImage = this.rotateImage.bind(this)
+    this.getImageSettings = this.getImageSettings.bind(this)
   }
 
   componentWillMount () {
@@ -47,12 +48,10 @@ class _Profile extends Component {
     Meteor.call("isSSOSession", (err,result) => {
       if(!err)this.setState({isSSOSession:result})
     })
-    Meteor.call('settings.getImageSettings', (e, obj) => {
-      if (!e && obj) this.setState({imageSettings:obj})
-      })
+    this.getImageSettings()
   }
   componentDidMount () {
-    this.setStorageType()
+    this.getImageSettings()
     user = Meteor.user()
     if(user){
       this.setState({firstName: user.profile.firstname, lastName: user.profile.lastname})
@@ -60,6 +59,11 @@ class _Profile extends Component {
 
   }
 
+  getImageSettings () {
+    Meteor.call('settings.getImageSettings', (e, d) => {
+      this.setState({storageType:d.storageType, maxImageWidth:d.maxImageWidth})
+    })
+  }
 
   updateProfileImage (file, done) {
     let reader = new window.FileReader()
@@ -92,7 +96,7 @@ class _Profile extends Component {
           if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
         })
       }.bind(this)
-      //this is needed or the function never returns?
+      //this is needed to trigger the onload(), I think
       img.src = fileURL
 
       // Makes a thumbnail
@@ -104,7 +108,7 @@ class _Profile extends Component {
           if (obj) this.resizeImage(50, obj.storageType, thumb, meta, true)
         })
       }.bind(this)
-      //this is needed or the function never returns?
+      //this is needed to trigger the onload(), I think
       thumb.src = event.target.result
     }.bind(this))
   }
@@ -148,12 +152,6 @@ class _Profile extends Component {
     return userHasChanged || stateHasChanged
   }
 
-  setStorageType() {
-    Meteor.call('settings.getImageSettings', (e, d) => {
-      this.setState({ storageType: d.storageType})
-    })
-  }
-
   resizeImage (size, storageType, img, meta, save) {
     let width = img.width
     let height = img.height
@@ -179,36 +177,50 @@ class _Profile extends Component {
       })
     })
   }
+
   rotateImage (degrees) {
     console.log("rotating")
     let originalURL = this.props.user.getImageUrl()
-    let canvas = document.createElement('canvas')
-    let context = canvas.getContext('2d');
-    let img = new Image;
-    //img.onload = function(){
-      //context.drawImage(img,0,0); // Or at whatever offset you like
-    //};
-    img.src = this.props.user.getImageUrl()
-    context.rotate(degrees*Math.PI/180);
+    let img = new window.Image()
+    img.crossOrigin = "anonymous"// needed to avoid a security error ???
+    img.onload = function() {
+      console.log(img)
+      let width = img.width
+      let height = img.height
+      if (width > this.state.maxImageWidth) {
+        width = this.state.maxImageWidth
+        height = width * img.height / img.width
+      }
+      let canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      let context = canvas.getContext('2d')
 
-    const UID = UUID.v5({
-      namespace: '00000000-0000-0000-0000-000000000000',
-      name: img.src})
+      context.rotate(degrees*Math.PI/180)
+      context.drawImage(img,0,0)
 
-    const meta = {UID: UID, type: 'image', src: img.src}
-    let slingshotThumbnail = new Slingshot.Upload(this.state.imageSettings.storageType, meta)
-    canvas.toBlob((blob) => {
-      slingshotThumbnail.send(blob, (e, downloadUrl) => {
-        if (e) alertify.error('Error uploading')
-        else {
-          img.url = downloadUrl
-          this.saveProfileImage(img.url, meta.type)
-          img.UID = meta.UID
-          this.addImage(img)
-        }
+      const UID = UUID.v5({
+        namespace: '00000000-0000-0000-0000-000000000000',
+        name: originalURL})
+
+      const meta = {UID: UID, type: 'image', src: img.src}
+      let slingshotThumbnail = new Slingshot.Upload(this.state.storageType, meta)
+
+      canvas.toBlob((blob) => {
+        slingshotThumbnail.send(blob, (e, downloadUrl) => {
+          if (e) alertify.error('Error uploading')
+          else {
+            console.log(downloadUrl)
+            img.url = downloadUrl
+            this.saveProfileImage(img.url, meta.type)
+            img.UID = meta.UID
+            this.addImage(img)
+          }
+        })
       })
-    })
-
+   }.bind(this)
+  //this triggers the onload above:
+  img.src=originalURL
   }
 
   saveName() {
