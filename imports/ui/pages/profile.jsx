@@ -179,12 +179,12 @@ class _Profile extends Component {
   }
 
   rotateImage (degrees) {
-    console.log("rotating")
+
     let originalURL = this.props.user.getImageUrl()
     let img = new window.Image()
     img.crossOrigin = "anonymous"// needed to avoid a security error ???
     img.onload = function() {
-      console.log(img)
+
       let width = img.width
       let height = img.height
       if (width > this.state.maxImageWidth) {
@@ -196,24 +196,25 @@ class _Profile extends Component {
       canvas.height = height
       let context = canvas.getContext('2d')
 
+      //Rotation is about the top left corner, so need to translate in order
+      //to rotate about the centre...
+      //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
       context.translate(width/2,height/2);
-
       context.rotate(degrees*Math.PI/180)
-      //context.translate(10,10)
-      context.drawImage(img,-width/2,-height/2)
+      context.drawImage(img,-width/2,-height/2, width, height)
 
       const UID = UUID.v5({
         namespace: '00000000-0000-0000-0000-000000000000',
         name: originalURL})
 
       const meta = {UID: UID, type: 'image', src: img.src}
-      let slingshotThumbnail = new Slingshot.Upload(this.state.storageType, meta)
+      let slingshot = new Slingshot.Upload(this.state.storageType, meta)
 
       canvas.toBlob((blob) => {
-        slingshotThumbnail.send(blob, (e, downloadUrl) => {
+        slingshot.send(blob, (e, downloadUrl) => {
           if (e) alertify.error('Error uploading')
           else {
-            console.log(downloadUrl)
+            //console.log(downloadUrl)
             img.url = downloadUrl
             this.saveProfileImage(img.url, meta.type)
             img.UID = meta.UID
@@ -222,8 +223,58 @@ class _Profile extends Component {
         })
       })
    }.bind(this)
-  //this triggers the onload above:
-  img.src=originalURL
+   //this triggers the onload above:
+   img.src=originalURL
+
+  // Repeat for the thumbnail:
+  let thumb = new window.Image()
+  thumb.crossOrigin = "anonymous"// needed to avoid a security error ???
+  thumb.onload = function() {
+
+    let width = thumb.width
+    let height = thumb.height
+
+    if (width > 50) {
+      width = 50
+      height = width * thumb.height / thumb.width
+    }
+    let thumbcanvas = document.createElement('canvas')
+    thumbcanvas.width = width
+    thumbcanvas.height = height
+    let thumbcontext = thumbcanvas.getContext('2d')
+
+    //Rotation is about the top left corner, so need to translate in order
+    //to rotate about the centre...
+    //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
+    thumbcontext.translate(width/2,height/2);
+    thumbcontext.rotate(degrees*Math.PI/180)
+    thumbcontext.drawImage(thumb,-width/2,-height/2, width, height)
+
+    const UID = UUID.v5({
+      namespace: '00000000-0000-0000-0000-000000000000',
+      name: originalURL})
+
+    const thumbmeta = {UID: UID, type: 'thumbnail', src: thumb.src}
+    let thumbSlingshot = new Slingshot.Upload(this.state.storageType, thumbmeta)
+
+    thumbcanvas.toBlob((blob) => {
+      thumbSlingshot.send(blob, (e, downloadUrl) => {
+        if (e) alertify.error('Error uploading')
+        else {
+          //console.log(downloadUrl)
+          thumb.url = downloadUrl
+          this.saveProfileImage(thumb.url, thumbmeta.type)
+          thumb.UID = thumbmeta.UID
+          this.addImage(thumb)
+        }
+      })
+    })
+ }.bind(this)
+ //this triggers the onload above:
+ thumb.src = this.props.user.getThumbnailUrl()
+
+
+
   }
 
   saveName() {
