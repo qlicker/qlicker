@@ -96,7 +96,7 @@ class _Profile extends Component {
           if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
         })
       }.bind(this)
-      //this is needed to trigger the onload(), I think
+      //this is needed to trigger the onload(),
       img.src = fileURL
 
       // Makes a thumbnail
@@ -108,7 +108,7 @@ class _Profile extends Component {
           if (obj) this.resizeImage(50, obj.storageType, thumb, meta, true)
         })
       }.bind(this)
-      //this is needed to trigger the onload(), I think
+      //this is needed to trigger the onload()
       thumb.src = event.target.result
     }.bind(this))
   }
@@ -179,12 +179,10 @@ class _Profile extends Component {
   }
 
   rotateImage (degrees) {
-
     let originalURL = this.props.user.getImageUrl()
     let img = new window.Image()
-    img.crossOrigin = "anonymous"// needed to avoid a security error ???
-    img.onload = function() {
 
+    img.onload = function() {
       let width = img.width
       let height = img.height
       if (width > this.state.maxImageWidth) {
@@ -194,12 +192,13 @@ class _Profile extends Component {
       let canvas = document.createElement('canvas')
       canvas.width = width
       canvas.height = height
+
       let context = canvas.getContext('2d')
 
       //Rotation is about the top left corner, so need to translate in order
       //to rotate about the centre...
-      //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
-      context.translate(width/2,height/2);
+      //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image\
+      context.translate(canvas.width/2,canvas.height/2);
       context.rotate(degrees*Math.PI/180)
       context.drawImage(img,-width/2,-height/2, width, height)
 
@@ -214,7 +213,7 @@ class _Profile extends Component {
         slingshot.send(blob, (e, downloadUrl) => {
           if (e) alertify.error('Error uploading')
           else {
-            //console.log(downloadUrl)
+            console.log(downloadUrl)
             img.url = downloadUrl
             this.saveProfileImage(img.url, meta.type)
             img.UID = meta.UID
@@ -223,12 +222,11 @@ class _Profile extends Component {
         })
       })
    }.bind(this)
-   //this triggers the onload above:
-   img.src=originalURL
+   img.crossOrigin = "anonymous"// needed to avoid a security error !!!
+   img.src=originalURL//this triggers the onload above:
 
   // Repeat for the thumbnail:
   let thumb = new window.Image()
-  thumb.crossOrigin = "anonymous"// needed to avoid a security error ???
   thumb.onload = function() {
 
     let width = thumb.width
@@ -261,7 +259,7 @@ class _Profile extends Component {
       thumbSlingshot.send(blob, (e, downloadUrl) => {
         if (e) alertify.error('Error uploading')
         else {
-          //console.log(downloadUrl)
+          console.log(downloadUrl)
           thumb.url = downloadUrl
           this.saveProfileImage(thumb.url, thumbmeta.type)
           thumb.UID = thumbmeta.UID
@@ -270,8 +268,8 @@ class _Profile extends Component {
       })
     })
  }.bind(this)
- //this triggers the onload above:
- thumb.src = this.props.user.getThumbnailUrl()
+ thumb.crossOrigin = "anonymous"// needed to avoid a security error !
+ thumb.src = originalURL //this triggers the onload above:
 
 
 
