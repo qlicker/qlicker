@@ -178,6 +178,7 @@ class _Profile extends Component {
     })
   }
 
+  //Rotate the profile image. !! Only tested for 90 degreee roations
   rotateImage (degrees) {
     let originalURL = this.props.user.getImageUrl()
     let img = new window.Image()
@@ -190,21 +191,26 @@ class _Profile extends Component {
         height = width * img.height / img.width
       }
       let canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
+      //This assumes it's a 90 degree roation!!! Same thing for the thumbnail
+      canvas.width = height
+      canvas.height = width
 
       let context = canvas.getContext('2d')
 
       //Rotation is about the top left corner, so need to translate in order
       //to rotate about the centre...
       //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image\
-      context.translate(canvas.width/2,canvas.height/2);
+      context.save()
+      context.translate(canvas.width/2, canvas.height/2)
       context.rotate(degrees*Math.PI/180)
       context.drawImage(img,-width/2,-height/2, width, height)
+      context.restore()
+
+      //context.save()
 
       const UID = UUID.v5({
         namespace: '00000000-0000-0000-0000-000000000000',
-        name: originalURL})
+        name: originalURL+degrees})
 
       const meta = {UID: UID, type: 'image', src: img.src}
       let slingshot = new Slingshot.Upload(this.state.storageType, meta)
@@ -213,7 +219,7 @@ class _Profile extends Component {
         slingshot.send(blob, (e, downloadUrl) => {
           if (e) alertify.error('Error uploading')
           else {
-            console.log(downloadUrl)
+            //console.log(downloadUrl)
             img.url = downloadUrl
             this.saveProfileImage(img.url, meta.type)
             img.UID = meta.UID
@@ -237,20 +243,22 @@ class _Profile extends Component {
       height = width * thumb.height / thumb.width
     }
     let thumbcanvas = document.createElement('canvas')
-    thumbcanvas.width = width
-    thumbcanvas.height = height
+    thumbcanvas.width = height
+    thumbcanvas.height = width
     let thumbcontext = thumbcanvas.getContext('2d')
 
     //Rotation is about the top left corner, so need to translate in order
     //to rotate about the centre...
     //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
-    thumbcontext.translate(width/2,height/2);
+    thumbcontext.save()
+    thumbcontext.translate(thumbcanvas.width/2, thumbcanvas.height/2)
     thumbcontext.rotate(degrees*Math.PI/180)
     thumbcontext.drawImage(thumb,-width/2,-height/2, width, height)
+    thumbcontext.restore()
 
     const UID = UUID.v5({
       namespace: '00000000-0000-0000-0000-000000000000',
-      name: originalURL})
+      name: originalURL+degrees})
 
     const thumbmeta = {UID: UID, type: 'thumbnail', src: thumb.src}
     let thumbSlingshot = new Slingshot.Upload(this.state.storageType, thumbmeta)
@@ -259,7 +267,7 @@ class _Profile extends Component {
       thumbSlingshot.send(blob, (e, downloadUrl) => {
         if (e) alertify.error('Error uploading')
         else {
-          console.log(downloadUrl)
+          //console.log(downloadUrl)
           thumb.url = downloadUrl
           this.saveProfileImage(thumb.url, thumbmeta.type)
           thumb.UID = thumbmeta.UID
