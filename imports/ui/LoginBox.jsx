@@ -62,7 +62,11 @@ export class LoginBox extends Component {
       }.bind(this))
     } else {
       // signup
-      if (this.state.password !== this.state.password_verify) {
+      if (this.state.password !== this.state.password_verify ) {
+        alertify.error("Passwords don't match")
+        this.setState({ form_error: true })
+      } else if (!this.state.firstname || !this.state.lastname) {
+        alertify.error("First and last name cannot be empty")
         this.setState({ form_error: true })
       } else {
         Meteor.call('settings.allowedEmailDomain', (this.state.email), (e) => {

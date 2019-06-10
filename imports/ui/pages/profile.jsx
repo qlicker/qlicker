@@ -15,6 +15,7 @@ import { Images } from '../../api/images'
 import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
 let UUID = require('uuid-1345')
+import { ROLES } from '../../configs'
 
 class _Profile extends Component {
 
@@ -27,9 +28,11 @@ class _Profile extends Component {
       changingEmail: false,
       changingPassword: false,
       changingName: false,
+      changingSN: false,
       storageType: '',
       lastName: '',
       firstName: '',
+      studentNumber:'',
     }
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.addImage = this.addImage.bind(this)
@@ -39,6 +42,7 @@ class _Profile extends Component {
     //this.updateFirstName = this.updateFirstName.bind(this)
     //this.updateLastName = this.updateFirstName.bind(this)
     this.saveName = this.saveName.bind(this)
+    this.saveStudentNumber = this.saveStudentNumber.bind(this)
     this.rotateImage = this.rotateImage.bind(this)
     this.getImageSettings = this.getImageSettings.bind(this)
   }
@@ -291,6 +295,14 @@ class _Profile extends Component {
     })
   }
 
+  saveStudentNumber() {
+    Meteor.call('users.updateStudentNumber', Number(this.state.studentNumber), (err) => {
+      if (err) alertify.error("Error: "+ err.error)
+      else alertify.success("Student number updated")
+      this.setState({ changingSN:false })
+    })
+  }
+
   render () {
     const user = this.props.user
     const needsEmailVerification = !user.emails[0].verified
@@ -299,14 +311,19 @@ class _Profile extends Component {
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
     const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
     const toggleChangingName = () => { this.setState({ changingName: !this.state.changingName }) }
+    const toggleChangingSN = () => { this.setState({ changingSN: !this.state.changingSN }) }
     const updateFirstName = (e) => {this.setState({ firstName:e.target.value }) }
     const updateLastName = (e) => {this.setState({ lastName:e.target.value }) }
+    const updateStudentNumber = (e) => {this.setState({ studentNumber:e.target.value }) }
     const rotateCl = () => {this.rotateImage(90)}
     const rotateCC = () => {this.rotateImage(-90)}
     const saveName = () => {this.saveName()}
+    const saveStudentNumber = () => {this.saveStudentNumber()}
 
     const noEdits = this.state.isSSOSession
     const noEmail = (user.services && user.services.sso)
+
+    const numberName = user.hasRole(ROLES.student) ? "Student number" : "Employee number"
 
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
@@ -389,9 +406,24 @@ class _Profile extends Component {
                         }
                       </div>
                   }
+                </div>
+                <div>
 
+                  { this.state.changingSN ?
+                       <div className='ql-profile-sn-container'>
+                         <input type='text' placeholder={numberName} value={this.state.studentNumber} onChange={updateStudentNumber}/>
+                         <div className='ql-profile-sn-little-button' onClick={toggleChangingSN}> cancel </div>
+                         <div className='ql-profile-sn-little-button' onClick={saveStudentNumber}> save </div>
+                       </div>
+                    :  <div className='ql-profile-sn-container'>
+                        <div className='ql-profile-sn'> {numberName}: {user.getStudentNumber()} </div>
+                          { noEdits ?
+                            ''
+                            : <div className='ql-profile-sn-little-button' onClick={toggleChangingSN}> update number</div>
+                          }
 
-
+                      </div>
+                  }
                 </div>
                 <div className='ql-profile-container'>
                   Email: {user.getEmail()} - {spanVerified}<br />
