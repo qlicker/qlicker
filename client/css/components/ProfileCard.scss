@@ -33,8 +33,29 @@
     .ql-profile-name-input {
 
     }
-
   }
+
+  .ql-profile-sn-container {
+    display: flex;
+    justify-content: space-between;
+
+    .ql-profile-sn-little-button {
+       margin:auto;
+       padding-left:5px;
+       color: $blue;
+       &:hover {
+         cursor: pointer;
+         color: darken($blue,20%);
+       }
+    }
+    .input {
+      margin: 5px;
+    }
+     .ql-profile-sn {
+       font-size: 1em;
+     }
+
+   }
 
 
   .ql-profile-card-expanded {

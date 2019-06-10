@@ -48,6 +48,9 @@ _.extend(Course.prototype, {
   courseCode: function () {
     return this.deptCode.toLowerCase() + this.courseNumber.toLowerCase()
   },
+  courseCodePretty: function () {
+    return this.deptCode.toUpperCase() + ' '+ this.courseNumber.toLowerCase()
+  },
   fullCourseCode: function () {
     return this.deptCode + ' ' + this.courseNumber + ' - ' + this.section
   }
@@ -330,7 +333,7 @@ Meteor.methods({
     course.courseNumber = course.courseNumber.toLowerCase()
     course.semester = course.semester.toLowerCase()
     course.instructors = [Meteor.userId()].concat(admins)
-    
+
     const c = Courses.insert(course, (e, id) => {
       if (e) alertify.error('Error creating course')
       else {
@@ -643,6 +646,17 @@ Meteor.methods({
     check(courseId, Helpers.MongoID)
     const course = Courses.findOne(courseId)
     const c = course ? course.courseCode().toUpperCase() : null
+    return c
+  },
+  /**
+   * get course code for a specific courseid for react multi select component
+   * @param {MongoID} courseId
+   * @returns {String} courseCode
+   */
+  'courses.getCourseCodePretty' (courseId) {
+    check(courseId, Helpers.MongoID)
+    const course = Courses.findOne(courseId)
+    const c = course ? course.courseCodePretty() : null
     return c
   },
   /**

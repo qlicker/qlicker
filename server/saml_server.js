@@ -75,13 +75,19 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let services = { sso: {id: samlInfo.nameID,
                                nameIDFormat: samlInfo.nameIDFormat,
                                nameID:samlInfo.nameID,
-                               email: samlProfile.email } }
+                               email: samlProfile.email,
+                               SSORole: samlInfo.SSORole,
+                               studentNumber:samlInfo.studentNumber } }
 
         if(user){//existing user, update their profile
           userId = user._id
           for (key in samlProfile){
             profile[key] = samlProfile[key]
           }
+          //Update profile:
+          if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
+            profile.roles = ['professor']
+          } 
           //Note that it will not actually update the email address, since the user was found by email address
           Meteor.users.update(userId, {$set: {email: profile.email,
                                               emails: [ { address: profile.email, verified: true } ],
@@ -90,7 +96,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                                               }
                                       });
         } else {//new user
-          profile.roles = ['student']
+          if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
+            profile.roles = ['professor']
+          } else {
+            profile.roles = ['student']
+          }
           userId = Accounts.createUser({
                    email: profile.email,
                    password: Random.secret(),//user will need to reset password to set it to something useful!
@@ -178,7 +188,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //WARNING: This does not check that the POST came from the IDP
               let xml = Buffer.from(req.body.SAMLRequest, 'base64').toString('utf8') //new Buffer(req.body.SAMLRequest, 'base64').toString('utf8'); // Buffer.from(req.body.SAMLRequest, 'base64').toString('utf8')
               let dom = new xmldom.DOMParser().parseFromString(xml);
-              let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
+              //let sessionIndex = xpath(dom, "/*[local-name()='LogoutRequest']/*[local-name()='SessionIndex']/text()")[0].data;
+
+              //TODO: Not sure if the "saml2p:" prefix is necessary or if it's specific to Queen's University. For Queen's this does not work without.
+              let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
                 //console.log("log out hack")
               let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':sessionIndex })
                 //console.log(user)
@@ -215,9 +228,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
-                  email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
-                  firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
-                  lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
+                  let email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
+                  let firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
+                  let lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
+                  let SSORole = settings.SSO_roleIdentifier ? result[settings.SSO_roleIdentifier] : ''
+                  let studentNumber = settings.SSO_studentNumberIdentifier ? result[settings.SSO_studentNumberIdentifier] : ''
 
                   profile = {email:email, firstname:firstname, lastname:lastname}
 
@@ -225,6 +240,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                                                                        sessionIndex:result['sessionIndex'],
                                                                        nameID: result.nameID,
                                                                        nameIDFormat: result.nameIDFormat,
+                                                                       SSORole:SSORole, studentNumber:studentNumber
                                                                       } );
 
                   res.writeHead(200, {'Content-Type': 'text/html'});

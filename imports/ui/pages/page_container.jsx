@@ -36,7 +36,7 @@ class _PageContainer extends Component {
   }
 
   setCourseCode (courseId) {
-    Meteor.call('courses.getCourseCode', courseId, (e, c) => {
+    Meteor.call('courses.getCourseCodePretty', courseId, (e, c) => {
       if(c) {
         this.setState({ courseCode: c})
       }
@@ -111,25 +111,26 @@ class _PageContainer extends Component {
             <div id='navbar' className='collapse navbar-collapse'>
               <ul className='nav navbar-nav'>
                 { isAdmin
-                   ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Dashboard</a></li>
+                   ? <li><a className='close-nav' href={Router.routes['admin'].path()}>Settings</a></li>
                    : ''
                 }
-                {  this.state.showCourse && !isAdmin
+                {  this.state.showCourse
                    ? <li><a className='close-nav' role='button' onClick={() => Router.go('course', { courseId: this.state.courseId })}>Course Home</a></li>
                    : ''
                 }
-                { isAdmin
-                  ? <li className='dropdown'>
-                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Grades <span className='caret' /></a>
-                      <ul className='dropdown-menu' >
-                        <li><a className='close-nav' href={Router.routes['results.overview'].path()} >All Courses</a></li>
-                      </ul>
-                    </li>
+                { /*isAdmin
+                  ? <li> <a className='close-nav' href={Router.routes['results.overview'].path()}>Grades</a></li>
                   : this.state.showCourse
                     ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
                     : ''
+                */}
+                { this.state.showCourse
+                  ? <li className='dropdown'><a className='close-nav' role='button' onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
+                  : isAdmin
+                    ? <li className='dropdown'><a className='close-nav' href={Router.routes['results.overview'].path()}>Grades</a></li>
+                    :''
                 }
-                { this.state.showCourse && !isAdmin
+                { this.state.showCourse /*&& !isAdmin*/
                   ? <li className='dropdown'>
                     <a className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button'
                       aria-haspopup='true' aria-expanded='false' onClick={() => Router.go('questions', { courseId: this.state.courseId })}>Question library</a>
@@ -137,28 +138,40 @@ class _PageContainer extends Component {
                   : ''
 
                 }
+
                 { isAdmin
-                   ? <li><a className='close-nav' href={Router.routes['courses'].path()}>Courses</a></li>
-                   : <li className='dropdown'>
-                      <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
-                        { this.state.courseId
-                          ?  this.state.courseCode.substring(0, 4) + ' ' + this.state.courseCode.substring(4)
-                          : 'Courses'
-                        }
-                      <span className='caret' />
-                      </a>
-                      <ul className='dropdown-menu' >
-                        <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
-                        <li role='separator' className='divider' >&nbsp;</li>
-                        <li className='dropdown-header'>My Active Courses</li>
-                        {
-                          this.props.courses.map((c) => {
-                            return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => this.changeCourse(c._id)}>{c.fullCourseCode()}</a></li>)
-                          })
-                        }
-                      </ul>
-                     </li>
-                }
+                  ? this.state.showCourse && this.state.courseId
+                      ? <li className='dropdown'>
+                          <a className='close-nav' href='#'  className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+                             {this.state.courseCode}
+                             <span className='caret' />
+                           </a>
+                           <ul className='dropdown-menu' >
+                             <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
+                           </ul>
+                         </li>
+                      : <li><a className='close-nav' href={Router.routes['courses'].path()}> Courses</a></li>
+                  : <li className='dropdown'>
+                     <a href='#' className='dropdown-toggle bootstrap-overrides' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+                       { this.state.courseId
+                         ?  this.state.courseCode
+                         : 'Courses'
+                       }
+                     <span className='caret' />
+                     </a>
+                     <ul className='dropdown-menu' >
+                       <li><a className='close-nav' href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
+                       <li role='separator' className='divider' >&nbsp;</li>
+                       <li className='dropdown-header'>My Active Courses</li>
+                       {
+                         this.props.courses.map((c) => {
+                           return (<li key={c._id}><a className='close-nav uppercase' href='#' onClick={() => this.changeCourse(c._id)}>{c.fullCourseCode()}</a></li>)
+                         })
+                       }
+                     </ul>
+                    </li>
+               }
+
               </ul>
 
               <ul className='nav navbar-nav navbar-right'>
