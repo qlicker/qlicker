@@ -17,6 +17,7 @@ import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { AnswerDistribution } from '../../AnswerDistribution'
 import { ShortAnswerList } from '../../ShortAnswerList'
+import { HistogramNumerical } from '../../HistogramNumerical'
 
 import { QUESTION_TYPE } from '../../../configs'
 
@@ -317,6 +318,11 @@ class _RunSession extends Component {
             ? <div><ShortAnswerList question={q} /></div>
             : ''
           }
+          {
+            !this.state.presenting && q && q.type === QUESTION_TYPE.NU // short answer
+            ? <div><HistogramNumerical question={q} /></div>
+            : ''
+          }
           <div className='ql-session-display-mobile-buttons'>
             <div className='btn-group-lg btn-group-justified'>
               <div className='btn btn-default' onClick={this.endSession}>
@@ -443,7 +449,7 @@ class _RunSession extends Component {
 
           <div className={'ql-main-content ' + (this.state.presenting ? 'presenting' : '')}>
             {
-              !this.state.presenting && q && q.type !== QUESTION_TYPE.SA // option based questions
+              !this.state.presenting && q && q.type !== QUESTION_TYPE.SA && q.type !== QUESTION_TYPE.NU// option based questions
               ? <div><AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[q._id]} /><div className='clear' /></div>
               : ''
             }
@@ -452,7 +458,11 @@ class _RunSession extends Component {
               ? <div><ShortAnswerList question={q} /></div>
               : ''
             }
-
+            {
+              !this.state.presenting && q && q.type === QUESTION_TYPE.NU // short answer
+              ? <div><HistogramNumerical question={q} /></div>
+              : ''
+            }
             <div className='ql-question-preview'>
               { q
                  ? <div>

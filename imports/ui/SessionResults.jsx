@@ -15,6 +15,7 @@ import { QuestionResultsClassList } from './QuestionResultsClassList'
 import { QuestionResultsListItem } from './QuestionResultsListItem'
 import { QuestionDisplay } from './QuestionDisplay'
 import { ShortAnswerList } from './ShortAnswerList'
+import { HistogramNumerical } from './HistogramNumerical'
 
 import { SessionResultsTable } from './SessionResultsTable'
 
@@ -53,6 +54,10 @@ export class _SessionResults extends Component {
                     q && q.type === QUESTION_TYPE.SA // short answer
                     ? <div> <ShortAnswerList question={q} /> </div> : ''
                   }
+                  {
+                    q && q.type === QUESTION_TYPE.NU // short answer
+                    ? <div> <HistogramNumerical question={q} /> </div> : ''
+                  }
                 </div>
               </div>
               <a role='button' data-toggle='collapse' href={'#detailsCollapse_' + qId} aria-expanded='false' aria-controls={'collapse_' + qId} style={{ textDecoration: 'none' }}>
@@ -87,7 +92,7 @@ export const SessionResults = createContainer((props) => {
   return {
     questions: questions,
     responseStatsByQuestion: responseStatsByQuestion,
-    loading: !handle.ready(), 
+    loading: !handle.ready(),
     //session: props.session
   }
 }, _SessionResults)

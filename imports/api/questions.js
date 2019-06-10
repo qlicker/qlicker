@@ -81,6 +81,8 @@ export const defaultQuestion = {
   plainText: '',
   solution: '',
   solution_plainText: '',
+  toleranceNumerical: 0,
+  correctNumerical:0,
   type: QUESTION_TYPE.SA,
   content: '',
   options: [], // { correct: false, answer: 'A', content: editor content }
