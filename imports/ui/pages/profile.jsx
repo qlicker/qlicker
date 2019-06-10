@@ -189,7 +189,6 @@ class _Profile extends Component {
     img.crossOrigin = "anonymous"// needed to avoid a security error !!!
 
     img.onload = function() {
-      console.log("img loaded")
       let width = img.width
       let height = img.height
       if (width > this.state.maxImageWidth) {
