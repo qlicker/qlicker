@@ -186,6 +186,7 @@ class _Profile extends Component {
   rotateImage (degrees) {
     let originalURL = this.props.user.getImageUrl()
     let img = new window.Image()
+    img.crossOrigin = "anonymous"// needed to avoid a security error !!!
 
     img.onload = function() {
       let width = img.width
@@ -232,60 +233,57 @@ class _Profile extends Component {
         })
       })
    }.bind(this)
-   img.crossOrigin = "anonymous"// needed to avoid a security error !!!
-   img.src=originalURL//this triggers the onload above:
 
-  // Repeat for the thumbnail:
-  let thumb = new window.Image()
-  thumb.onload = function() {
+   img.src = originalURL//this triggers the onload above:
 
-    let width = thumb.width
-    let height = thumb.height
+   // Repeat for the thumbnail:
+   let thumb = new window.Image()
+   thumb.crossOrigin = "anonymous"// needed to avoid a security error !
 
-    if (width > 50) {
-      width = 50
-      height = width * thumb.height / thumb.width
-    }
-    let thumbcanvas = document.createElement('canvas')
-    thumbcanvas.width = height
-    thumbcanvas.height = width
-    let thumbcontext = thumbcanvas.getContext('2d')
+   thumb.onload = function() {
+     let width = thumb.width
+     let height = thumb.height
 
-    //Rotation is about the top left corner, so need to translate in order
-    //to rotate about the centre...
-    //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
-    thumbcontext.save()
-    thumbcontext.translate(thumbcanvas.width/2, thumbcanvas.height/2)
-    thumbcontext.rotate(degrees*Math.PI/180)
-    thumbcontext.drawImage(thumb,-width/2,-height/2, width, height)
-    thumbcontext.restore()
+     if (width > 50) {
+       width = 50
+       height = width * thumb.height / thumb.width
+     }
+     let thumbcanvas = document.createElement('canvas')
+     thumbcanvas.width = height
+     thumbcanvas.height = width
+     let thumbcontext = thumbcanvas.getContext('2d')
 
-    const UID = UUID.v5({
-      namespace: '00000000-0000-0000-0000-000000000000',
-      name: originalURL+degrees})
+     //Rotation is about the top left corner, so need to translate in order
+     //to rotate about the centre...
+     //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
+     thumbcontext.save()
+     thumbcontext.translate(thumbcanvas.width/2, thumbcanvas.height/2)
+     thumbcontext.rotate(degrees*Math.PI/180)
+     thumbcontext.drawImage(thumb,-width/2,-height/2, width, height)
+     thumbcontext.restore()
 
-    const thumbmeta = {UID: UID, type: 'thumbnail', src: thumb.src}
-    let thumbSlingshot = new Slingshot.Upload(this.state.storageType, thumbmeta)
+     const UID = UUID.v5({
+       namespace: '00000000-0000-0000-0000-000000000000',
+       name: originalURL+degrees})
 
-    thumbcanvas.toBlob((blob) => {
-      thumbSlingshot.send(blob, (e, downloadUrl) => {
-        if (e) alertify.error('Error uploading')
-        else {
-          //console.log(downloadUrl)
-          thumb.url = downloadUrl
-          this.saveProfileImage(thumb.url, thumbmeta.type)
-          thumb.UID = thumbmeta.UID
-          this.addImage(thumb)
-        }
-      })
-    })
- }.bind(this)
- thumb.crossOrigin = "anonymous"// needed to avoid a security error !
- thumb.src = originalURL //this triggers the onload above:
+     const thumbmeta = {UID: UID, type: 'thumbnail', src: thumb.src}
+     let thumbSlingshot = new Slingshot.Upload(this.state.storageType, thumbmeta)
 
-
-
-  }
+     thumbcanvas.toBlob((blob) => {
+       thumbSlingshot.send(blob, (e, downloadUrl) => {
+         if (e) alertify.error('Error uploading')
+         else {
+           //console.log(downloadUrl)
+           thumb.url = downloadUrl
+           this.saveProfileImage(thumb.url, thumbmeta.type)
+           thumb.UID = thumbmeta.UID
+           this.addImage(thumb)
+         }
+       })
+     })
+  }.bind(this)
+  thumb.src = originalURL //this triggers the onload above:
+ }
 
   saveName() {
     Meteor.call('users.updateName', this.state.lastName,this.state.firstName, (err) => {
