@@ -15,6 +15,7 @@ import { Images } from '../../api/images'
 import { DragAndDropArea } from '../DragAndDropArea.jsx'
 
 let UUID = require('uuid-1345')
+import { ROLES } from '../../configs'
 
 class _Profile extends Component {
 
@@ -27,9 +28,11 @@ class _Profile extends Component {
       changingEmail: false,
       changingPassword: false,
       changingName: false,
+      changingSN: false,
       storageType: '',
       lastName: '',
       firstName: '',
+      studentNumber:'',
     }
     this.sendVerificationEmail = this.sendVerificationEmail.bind(this)
     this.addImage = this.addImage.bind(this)
@@ -39,6 +42,9 @@ class _Profile extends Component {
     //this.updateFirstName = this.updateFirstName.bind(this)
     //this.updateLastName = this.updateFirstName.bind(this)
     this.saveName = this.saveName.bind(this)
+    this.saveStudentNumber = this.saveStudentNumber.bind(this)
+    this.rotateImage = this.rotateImage.bind(this)
+    this.getImageSettings = this.getImageSettings.bind(this)
   }
 
   componentWillMount () {
@@ -46,9 +52,10 @@ class _Profile extends Component {
     Meteor.call("isSSOSession", (err,result) => {
       if(!err)this.setState({isSSOSession:result})
     })
+    this.getImageSettings()
   }
   componentDidMount () {
-    this.setStorageType()
+    this.getImageSettings()
     user = Meteor.user()
     if(user){
       this.setState({firstName: user.profile.firstname, lastName: user.profile.lastname})
@@ -56,6 +63,11 @@ class _Profile extends Component {
 
   }
 
+  getImageSettings () {
+    Meteor.call('settings.getImageSettings', (e, d) => {
+      this.setState({storageType:d.storageType, maxImageWidth:d.maxImageWidth})
+    })
+  }
 
   updateProfileImage (file, done) {
     let reader = new window.FileReader()
@@ -88,7 +100,7 @@ class _Profile extends Component {
           if (obj) this.resizeImage(obj.maxImageWidth, obj.storageType, img, meta, true)
         })
       }.bind(this)
-      //this is needed or the function never returns?
+      //this is needed to trigger the onload(),
       img.src = fileURL
 
       // Makes a thumbnail
@@ -100,7 +112,7 @@ class _Profile extends Component {
           if (obj) this.resizeImage(50, obj.storageType, thumb, meta, true)
         })
       }.bind(this)
-      //this is needed or the function never returns?
+      //this is needed to trigger the onload()
       thumb.src = event.target.result
     }.bind(this))
   }
@@ -144,12 +156,6 @@ class _Profile extends Component {
     return userHasChanged || stateHasChanged
   }
 
-  setStorageType() {
-    Meteor.call('settings.getImageSettings', (e, d) => {
-      this.setState({ storageType: d.storageType})
-    })
-  }
-
   resizeImage (size, storageType, img, meta, save) {
     let width = img.width
     let height = img.height
@@ -176,12 +182,124 @@ class _Profile extends Component {
     })
   }
 
+  //Rotate the profile image. !! Only tested for 90 degreee roations
+  rotateImage (degrees) {
+    let originalURL = this.props.user.getImageUrl()
+    let img = new window.Image()
+
+    img.onload = function() {
+      let width = img.width
+      let height = img.height
+      if (width > this.state.maxImageWidth) {
+        width = this.state.maxImageWidth
+        height = width * img.height / img.width
+      }
+      let canvas = document.createElement('canvas')
+      //This assumes it's a 90 degree roation!!! Same thing for the thumbnail
+      canvas.width = height
+      canvas.height = width
+
+      let context = canvas.getContext('2d')
+
+      //Rotation is about the top left corner, so need to translate in order
+      //to rotate about the centre...
+      //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image\
+      context.save()
+      context.translate(canvas.width/2, canvas.height/2)
+      context.rotate(degrees*Math.PI/180)
+      context.drawImage(img,-width/2,-height/2, width, height)
+      context.restore()
+
+      //context.save()
+
+      const UID = UUID.v5({
+        namespace: '00000000-0000-0000-0000-000000000000',
+        name: originalURL+degrees})
+
+      const meta = {UID: UID, type: 'image', src: img.src}
+      let slingshot = new Slingshot.Upload(this.state.storageType, meta)
+
+      canvas.toBlob((blob) => {
+        slingshot.send(blob, (e, downloadUrl) => {
+          if (e) alertify.error('Error uploading')
+          else {
+            //console.log(downloadUrl)
+            img.url = downloadUrl
+            this.saveProfileImage(img.url, meta.type)
+            img.UID = meta.UID
+            this.addImage(img)
+          }
+        })
+      })
+   }.bind(this)
+   img.crossOrigin = "anonymous"// needed to avoid a security error !!!
+   img.src=originalURL//this triggers the onload above:
+
+  // Repeat for the thumbnail:
+  let thumb = new window.Image()
+  thumb.onload = function() {
+
+    let width = thumb.width
+    let height = thumb.height
+
+    if (width > 50) {
+      width = 50
+      height = width * thumb.height / thumb.width
+    }
+    let thumbcanvas = document.createElement('canvas')
+    thumbcanvas.width = height
+    thumbcanvas.height = width
+    let thumbcontext = thumbcanvas.getContext('2d')
+
+    //Rotation is about the top left corner, so need to translate in order
+    //to rotate about the centre...
+    //https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
+    thumbcontext.save()
+    thumbcontext.translate(thumbcanvas.width/2, thumbcanvas.height/2)
+    thumbcontext.rotate(degrees*Math.PI/180)
+    thumbcontext.drawImage(thumb,-width/2,-height/2, width, height)
+    thumbcontext.restore()
+
+    const UID = UUID.v5({
+      namespace: '00000000-0000-0000-0000-000000000000',
+      name: originalURL+degrees})
+
+    const thumbmeta = {UID: UID, type: 'thumbnail', src: thumb.src}
+    let thumbSlingshot = new Slingshot.Upload(this.state.storageType, thumbmeta)
+
+    thumbcanvas.toBlob((blob) => {
+      thumbSlingshot.send(blob, (e, downloadUrl) => {
+        if (e) alertify.error('Error uploading')
+        else {
+          //console.log(downloadUrl)
+          thumb.url = downloadUrl
+          this.saveProfileImage(thumb.url, thumbmeta.type)
+          thumb.UID = thumbmeta.UID
+          this.addImage(thumb)
+        }
+      })
+    })
+ }.bind(this)
+ thumb.crossOrigin = "anonymous"// needed to avoid a security error !
+ thumb.src = originalURL //this triggers the onload above:
+
+
+
+  }
 
   saveName() {
     Meteor.call('users.updateName', this.state.lastName,this.state.firstName, (err) => {
       if (err) alertify.error("Error: "+ err.error)
       else alertify.success("Name updated")
       this.setState({ changingName:false })
+    })
+  }
+
+  saveStudentNumber() {
+    Meteor.call('users.updateStudentNumber', Number(this.state.studentNumber), (err) => {
+      if (err) alertify.error("Error: "+ err.error)
+      else alertify.success("Student number updated")
+      this.setState({ changingSN:false })
     })
   }
 
@@ -193,12 +311,19 @@ class _Profile extends Component {
     const toggleChangeEmailModal = () => { this.setState({ changingEmail: !this.state.changingEmail }) }
     const toggleChangePasswordModal = () => { this.setState({ changingPassword: !this.state.changingPassword }) }
     const toggleChangingName = () => { this.setState({ changingName: !this.state.changingName }) }
+    const toggleChangingSN = () => { this.setState({ changingSN: !this.state.changingSN }) }
     const updateFirstName = (e) => {this.setState({ firstName:e.target.value }) }
     const updateLastName = (e) => {this.setState({ lastName:e.target.value }) }
+    const updateStudentNumber = (e) => {this.setState({ studentNumber:e.target.value }) }
+    const rotateCl = () => {this.rotateImage(90)}
+    const rotateCC = () => {this.rotateImage(-90)}
     const saveName = () => {this.saveName()}
+    const saveStudentNumber = () => {this.saveStudentNumber()}
 
     const noEdits = this.state.isSSOSession
     const noEmail = (user.services && user.services.sso)
+
+    const numberName = user.hasRole(ROLES.student) ? "Student number" : "Employee number"
 
     const spanVerified = user.emails[0].verified
       ? <span className='label label-success'>Verified</span>
@@ -208,7 +333,7 @@ class _Profile extends Component {
         <div className='messages'>
           { needsEmailVerification
             ? <div className='alert alert-warning' role='alert' >
-              To enroll in some courses, you may need to verify your email. &nbsp;&nbsp;&nbsp;
+              For access to certain courses, you may need to verify your email. &nbsp;&nbsp;&nbsp;
               { this.state.showResendLink ? <a href='#' onClick={this.sendVerificationEmail}>Resend Email</a> : 'Check your email' }
             </div>
             : '' }
@@ -226,23 +351,34 @@ class _Profile extends Component {
               <div className='ql-card-content'>
                 <div className='ql-profile-image-container'>
                   { !this.state.uploadActive
-                    ? (<div>
-                      <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>&nbsp;</div>
-                      {needsEmailVerification
-                        ? ''
-                        : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>}
-                    </div>
-                    )
-                    : (
-                      <DragAndDropArea onDrop={this.updateProfileImage} maxFiles={1}>
-                        <div className='ql-profile-image-droparea dropzone'>
-                          <div className='dz-default dz-message'>
-                            <span className='glyphicon glyphicon-camera' aria-hidden='true' />
-                              Drag and Drop an image to upload
-                          </div>
+                    ? <div>
+                        <div className='ql-profile-image' style={{ backgroundImage: 'url(' + user.getImageUrl() + ')' }}>
+                          &nbsp;
+                          {needsEmailVerification
+                            ? ''
+                            : <div className='ql-image-upload-new-button' onClick={toggleUpload}>Upload new image</div>
+                          }
                         </div>
-                      </DragAndDropArea>
-                    )
+                        <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                           <a href='#' className='btn btn-default' onClick={rotateCC} >Rotate <i className='fas fa-undo' /></a>
+                           <a href='#' className='btn btn-default' onClick={rotateCl} >Rotate <i className='fas fa-redo' /></a>
+                        </div>
+                      </div>
+
+                    : <div>
+                      <DragAndDropArea onDrop={this.updateProfileImage} maxFiles={1}>
+                         <div className='ql-profile-image-droparea dropzone'>
+                           <div className='dz-default dz-message'>
+                             <span className='glyphicon glyphicon-camera' aria-hidden='true' />
+                               Drag and Drop an image to upload
+                           </div>
+                         </div>
+                       </DragAndDropArea>
+                       <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                          <a href='#' className='btn btn-default' onClick={toggleUpload} >Cancel</a>
+                       </div>
+                      </div>
+
                     }
                 </div>
 
@@ -270,9 +406,24 @@ class _Profile extends Component {
                         }
                       </div>
                   }
+                </div>
+                <div>
 
+                  { this.state.changingSN ?
+                       <div className='ql-profile-sn-container'>
+                         <input type='text' placeholder={numberName} value={this.state.studentNumber} onChange={updateStudentNumber}/>
+                         <div className='ql-profile-sn-little-button' onClick={toggleChangingSN}> cancel </div>
+                         <div className='ql-profile-sn-little-button' onClick={saveStudentNumber}> save </div>
+                       </div>
+                    :  <div className='ql-profile-sn-container'>
+                        <div className='ql-profile-sn'> {numberName}: {user.getStudentNumber()} </div>
+                          { noEdits ?
+                            ''
+                            : <div className='ql-profile-sn-little-button' onClick={toggleChangingSN}> update number</div>
+                          }
 
-
+                      </div>
+                  }
                 </div>
                 <div className='ql-profile-container'>
                   Email: {user.getEmail()} - {spanVerified}<br />

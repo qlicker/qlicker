@@ -18,7 +18,8 @@ import { Settings } from './settings'
  *  profileImage: '',
  *  roles: ['student', 'professor', 'admin'],
  *  canPromote,
- *  courses: []
+ *  courses: [],
+ *  studentNumber
  * }
  */
 import { Courses } from './courses'
@@ -31,6 +32,9 @@ _.extend(User.prototype, {
   },
   getEmail: function () {
     return this.emails[0].address
+  },
+  getStudentNumber: function () {
+    return this.profile.studentNumber
   },
   getRole: function (role) {
     return this.profile.roles[0]
@@ -245,6 +249,13 @@ Meteor.methods({
     check(newFirst, String)
     Meteor.users.update({ _id: Meteor.userId() }, {
       '$set': { 'profile.firstname':newFirst, 'profile.lastname':newLast}
+    })
+  },
+
+  'users.updateStudentNumber' (newNumber) {
+    check(newNumber, Number)
+    Meteor.users.update({ _id: Meteor.userId() }, {
+      '$set': { 'profile.studentNumber':newNumber}
     })
   },
 

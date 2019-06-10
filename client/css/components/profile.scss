@@ -10,41 +10,42 @@
     .profile-header {
 
     }
-
-    .ql-profile-image {
+    .ql-profile-image-container {
+      position: relative;
       width: 250px;
-      height: 250px;
-    }
+      margin: auto;
+      margin-top: 10px;
+      margin-bottom: 20px;
 
-  }
+        .ql-profile-image {
+          width: 250px;
+          height: 250px;
 
+          .ql-image-upload-new-button {
+            position: absolute;
+            bottom: 45px;
+            height: 45px;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0 ,0.1);
+            color: white;
+            padding: 10px;
+            font-size: 130%;
+            text-align: center;
 
-  .ql-profile-image-container {
-    position: relative;
-    width: 250px;
-    margin: auto;  
-    margin-top: 10px;    
-    margin-bottom: 20px;
+            &:hover {
+              background: rgba(0, 0, 0 ,0.5);
+              cursor: pointer;
+            }
+          }
 
-    .ql-image-upload-new-button {
-      position: absolute;
-      bottom: 0;
-      height: 45px;
-      left: 0;
-      width: 100%;
-      background: rgba(0, 0, 0 ,0.1);
-      color: white;
-      padding: 10px;
-      font-size: 130%;
-      text-align: center;
-
-      &:hover {
-        background: rgba(0, 0, 0 ,0.5);
-        cursor: pointer;
+        }
       }
-    }
 
   }
+
+
+
 
 }
 
