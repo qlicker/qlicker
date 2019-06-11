@@ -16,7 +16,6 @@ import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } fro
  * @prop {Question} question - question object
  */
 class _HistogramNumerical extends Component {
-
   renderAnswer (r) {
     const user = Meteor.users.findOne(r.studentUserId)
     const name = user ? user.getName() : 'Unknown'
@@ -51,7 +50,7 @@ class _HistogramNumerical extends Component {
             margin={{top: 20, right: 10, left: -25, bottom: 5}}>
             <XAxis dataKey='bin' />
             <YAxis allowDecimals={false} />
-            <Legend />
+            <Tooltip />
             <Bar dataKey="counts" fill="#30B0E7" />
           </BarChart>
         </div>
@@ -71,22 +70,39 @@ export const HistogramNumerical = createContainer((props) => {
   //TODO swich to actual data!!
   const values = _(responses).pluck('answer').map(Number)
   //const values = [1,2,3,2,3,2,1,3,4,1,5,3,2,3,1,4,1,3,2,3,4,1]
-  //Histogram the data
-  const vmin = _(values).min()
+  //Histogram the data with a power of 10 as bin width
+  let vmin = _(values).min()
   const vmax = _(values).max()
   const nvals = values.length
-  let nbins = nvals > 50 ? 20 : 10
-  let binWidth = nvals > 1 ? (vmax - vmin)/nbins : 1
+  let nbins = values.length > 1 ? Math.round(Math.sqrt(values.length)) : 1 // Should this be floor?
+  if (nbins<2) nbins = 2
+  let binWidth = nbins > 0 ? (vmax-vmin)/nbins : 1
+  // Try to find a nice round bin width, either of width 0.1, 1, 10, 100
+  // The power of 10 that is just smaller than current binwidth
+  let power = Math.floor(Math.log10(binWidth))
+  //Make that the bin width
+  binWidth = Math.pow(10,power)
+  //Now we also bring down the min value of the lowest bin to be a round number based on bin wdith
+  vmin = Math.floor(vmin /binWidth)*binWidth
+  nbins = Math.round((vmax-vmin)/binWidth)+1
+  //Limit the number of bins to 20, increase the bin width
+  while(nbins > 20 ){
+    nbins = Math.floor(nbins/2)+1
+    binWidth *= 2
+  }
+
+  console.log(vmin+" "+binWidth+" "+nbins)
+  ///////////////////////////////////////////////
 
   //Count the values in each bin (+1 bin to get the upper value)
   let counts = Array(nbins+1).fill(0)
   values.forEach( function (val) {
-    let index = Math.round((val-vmin)/binWidth)
+    let index = Math.floor((val-vmin)/binWidth)
     counts[index]++
   })
   let data = []
   for(let i=0;i<nbins+1;i++){
-    data.push({bin:vmin+i*0.5*binWidth,counts:counts[i]})
+    data.push({bin:vmin+i*binWidth,counts:counts[i]})
   }
   console.log(counts)
   console.log(data)
