@@ -69,10 +69,8 @@ export const HistogramNumerical = createContainer((props) => {
   const attemptNumber = question.sessionOptions ? question.sessionOptions.attempts.length : 0
   // Get the responses for that attempt:
   const responses = Responses.find({ questionId: question._id, attempt: attemptNumber }, { sort: { createdAt: -1 } }).fetch()
-
-
+  // Histogramming code:
   // Get the values into an array to be histogramed:
-
   const values = _(responses).pluck('answer').map(Number)
   //Upper limit on the number of bins in the hisogram based on entries:
   //this one could be passed as a prop, as well as a rebinning prop..
@@ -112,11 +110,7 @@ export const HistogramNumerical = createContainer((props) => {
   }
   //Add an extra bin at the end, so that its low edge could be the max value
   nbins++
-
-  console.log(vmin+" "+binWidth+" "+nbins)
-  ///////////////////////////////////////////////
-
-  //Count the values in each bin (+1 bin to get the upper value)
+  //Now that the number of bins and the width is fixed, fill the bins!
   let counts = nbins > 0 ? Array(nbins).fill(0) : Array(1).fill(0)
   values.forEach( function (val) {
     let index = Math.floor((val-vmin)/binWidth)
@@ -131,8 +125,6 @@ export const HistogramNumerical = createContainer((props) => {
     data.push({bin:parseFloat((vmin+(i+0.5)*binWidth).toPrecision(10)),counts:counts[i]})
   }
   edges.push(vmin+nbins*binWidth)
-  console.log(counts)
-  console.log(data)
 
   return {
     responses: responses,
