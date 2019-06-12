@@ -35,6 +35,10 @@ class _HistogramNumerical extends Component {
   }
   render () {
     if (this.props.loading) return <div>Loading</div>
+    return(
+      <Histogram values={this.props.values} />
+    )
+    /*
     return (
       <div>
         <div className='ql-short-answer-list'>
@@ -45,7 +49,7 @@ class _HistogramNumerical extends Component {
         </div>
         <Histogram values={this.props.values} />
       </div>
-    )
+    )*/
   } //  end render
 
 }
