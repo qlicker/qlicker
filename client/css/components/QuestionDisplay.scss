@@ -122,6 +122,8 @@ $red-bar: rgba(167,37,38, 0.3);
     }
 
     .ql-numerical-answer {
+      min-width: 50px;
+      text-align: center;
       font-size: 2em;
       background: white;
       display: inline-block;
@@ -135,6 +137,12 @@ $red-bar: rgba(167,37,38, 0.3);
         -webkit-appearance: none;
         margin: 0;
       }
+    }
+    .ql-numerical-answer-correct {
+      margin-top:5px;
+      font-size: 1.5em;
+      text-align: center;
+      margin: auto;
     }
 
     .ql-answer-content-container {

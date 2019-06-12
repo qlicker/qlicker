@@ -99,8 +99,8 @@ export class Histogram extends Component {
     const xmin = this.state.binEdges[0]
     const xmax = parseFloat(( this.state.binEdges.slice(-1)[0]).toPrecision(5)) //gets the last element
     return (
-        <div className='ql-histogram-container'>
-          <BarChart 
+        <div >
+          <BarChart className='ql-histogram-container'
             height={190} width={500} data={this.state.data} barCategoryGap={0}
             margin={{top: 20, right: 10, left: -25, bottom: 5}}>
             <XAxis dataKey='bin'  type="number" interval='preserveStart' ticks={this.state.binEdges} domain={[xmin,xmax]} tickCount={this.state.binEdges.length} />

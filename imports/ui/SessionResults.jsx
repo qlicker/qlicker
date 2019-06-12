@@ -47,7 +47,7 @@ export class _SessionResults extends Component {
 
                 <div className='col-sm-6'>
                   {
-                    q && q.type !== QUESTION_TYPE.SA // option based questions
+                    q && q.type !== QUESTION_TYPE.SA && q.type !== QUESTION_TYPE.NU// option based questions
                     ? <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[qId]} /> : ''
                   }
                   {

@@ -477,17 +477,29 @@ export class QuestionDisplay extends Component {
 
   renderNumericalQuestion (q)
   {
+    const sess = this.props.question.sessionOptions
+    let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
+    if (shouldShowCorrect && this.props.forReview && !this.props.prof && !this.state.showCorrect) {
+      shouldShowCorrect = false
+    }
+
+
     if ((this.props.forReview || this.props.prof || (this.props.response && !this.props.response.editable))) {
 
       let shouldShowResponse = !!this.props.response
       if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
         shouldShowResponse = false
       }
-
       return (
-        <div className='ql-numerical-answer' >
-          {shouldShowResponse
-            ? <div >{this.state.submittedAnswer}</div>
+        <div>
+          <div className='ql-numerical-answer' >
+            {shouldShowResponse
+              ? <div >{this.state.submittedAnswer}</div>
+              : ''
+            }
+          </div>
+          {shouldShowCorrect
+            ? <div className='ql-numerical-answer-correct'>Answer: {this.props.question.correctNumerical} (Tolerance: {this.props.question.toleranceNumerical})</div>
             : ''
           }
         </div>
@@ -496,7 +508,13 @@ export class QuestionDisplay extends Component {
     return (
       <div className='ql-numerical-answer' >
         { this.readonly
-          ? <div>{this.state.submittedAnswer}</div>
+          ? <div>
+              {this.state.submittedAnswer}
+              {shouldShowCorrect
+                ? <div className='ql-numerical-answer-correct'>Answer: {this.props.question.correctNumerical} (Tolerance: {this.props.question.toleranceNumerical})</div>
+                : ''
+              }
+            </div>
           : <input type='number'
             placeholder='Answer'
             onChange={this.setNumericalAnswer}
