@@ -72,10 +72,8 @@ export const HistogramNumerical = createContainer((props) => {
 
 
   // Get the values into an array to be histogramed:
-  //TODO swich to actual data!!
-  //const values = _(responses).pluck('answer').map(Number)
-  const values = [1,2,3,2,3,2,1,3,4,1,5,3,2,3,1,4,1,3,2,3,4,1]
 
+  const values = _(responses).pluck('answer').map(Number)
   //Upper limit on the number of bins in the hisogram based on entries:
   //this one could be passed as a prop, as well as a rebinning prop..
   const MAX_BINS = values.length < 200 ? 20 : 50
@@ -130,7 +128,7 @@ export const HistogramNumerical = createContainer((props) => {
     //need to strip round off error, like 0.10000000000000004
     edges.push(parseFloat((vmin+i*binWidth).toPrecision(10)))
     //for the data, we use the centre of the bin:
-    data.push({bin:vmin+(i+0.5)*binWidth,counts:counts[i]})
+    data.push({bin:parseFloat((vmin+(i+0.5)*binWidth).toPrecision(10)),counts:counts[i]})
   }
   edges.push(vmin+nbins*binWidth)
   console.log(counts)
