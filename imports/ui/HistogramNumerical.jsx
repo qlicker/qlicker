@@ -29,9 +29,9 @@ class _HistogramNumerical extends Component {
   }
 
   render () {
-    if (this.props.loading) return <div>Loading</div>
+    if (this.props.loading) return <div>Loading responses</div>
     return(
-      <Histogram values={this.props.values} />
+      <Histogram values={this.props.values} width={this.props.width || undefined}/>
     )
     /*
     return (
@@ -67,5 +67,6 @@ export const HistogramNumerical = createContainer((props) => {
 }, _HistogramNumerical)
 
 HistogramNumerical.propTypes = {
-  question: PropTypes.object.isRequired
+  question: PropTypes.object.isRequired,
+  width: PropTypes.number,
 }

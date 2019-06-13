@@ -73,11 +73,12 @@ export class Histogram extends Component {
     }
     //Add an extra bin at the end, so that its low edge could be the max value
     nbins++
-    //Now that the number of bins and the width is fixed, fill the bins!
+    //console.log(nbins+" "+vmin+" "+binWidth)
+      //Now that the number of bins and the width is fixed, fill the bins!
     let counts = nbins > 0 ? Array(nbins).fill(0) : Array(1).fill(0)
-    this.props.values.forEach( function (val) {
+    values.forEach( function (val) {
       let index = Math.floor((val-vmin)/binWidth)
-      counts[index]++
+      if(index >= 0 && index < nbins ) counts[index]++
     })
     let data = []
     let edges = [] //used to draw the x axis
@@ -87,19 +88,20 @@ export class Histogram extends Component {
       //for the data, we use the centre of the bin:
       data.push({bin:parseFloat((vmin+(i+0.5)*binWidth).toPrecision(10)),counts:counts[i]})
     }
+
     edges.push(vmin+nbins*binWidth)
     this.setState({data:data, binEdges:edges})
   }
 
   render () {
-    if (this.props.values < 1 || this.state.data.length < 1){
+    if (this.props.values.length < 1 || this.state.data.length < 1){
       return <div className='ql-subs-loading'>No values to display</div>
     }
     const xmin = this.state.binEdges[0]
     const xmax = parseFloat(( this.state.binEdges.slice(-1)[0]).toPrecision(5)) //gets the last element
     return (
       <BarChart className='ql-histogram-container'
-        height={190} width={500} data={this.state.data} barCategoryGap={0}
+        height={190} width={this.props.width || 500} data={this.state.data} barCategoryGap={0}
         margin={{top: 20, right: 10, left: -25, bottom: 5}}>
         <XAxis dataKey='bin'  type="number" interval='preserveStart' ticks={this.state.binEdges} domain={[xmin,xmax]} tickCount={this.state.binEdges.length} />
         <YAxis allowDecimals={false} label='counts' />
@@ -113,5 +115,6 @@ export class Histogram extends Component {
 
 Histogram.propTypes = {
   values: PropTypes.array.isRequired,
-  max_bins: PropTypes.number
+  max_bins: PropTypes.number,
+  width: PropTypes.number,
 }

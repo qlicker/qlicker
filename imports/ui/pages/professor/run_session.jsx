@@ -320,7 +320,7 @@ class _RunSession extends Component {
           }
           {
             !this.state.presenting && q && q.type === QUESTION_TYPE.NU // short answer
-            ? <div><HistogramNumerical question={q} /></div>
+            ? <div className='ql-session-display-histogram'><HistogramNumerical question={q} width={300} /></div>
             : ''
           }
           <div className='ql-session-display-mobile-buttons'>

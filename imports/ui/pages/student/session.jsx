@@ -124,7 +124,7 @@ class _Session extends Component {
           }
           { q.sessionOptions.stats && q.type === QUESTION_TYPE.NU
             ? <div className='ql-session-display-histogram'>
-                 <HistogramNumerical question={q} />
+                 <HistogramNumerical question={q} width={300} />
               </div>
             : ''
           }

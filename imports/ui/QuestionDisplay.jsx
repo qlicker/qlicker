@@ -482,7 +482,7 @@ export class QuestionDisplay extends Component {
     if (shouldShowCorrect && this.props.forReview && !this.props.prof && !this.state.showCorrect) {
       shouldShowCorrect = false
     }
-
+    const isCorrect = Math.abs(this.state.submittedAnswer-this.props.question.correctNumerical) <= this.props.question.toleranceNumerical
 
     if ((this.props.forReview || this.props.prof || (this.props.response && !this.props.response.editable))) {
 
@@ -490,11 +490,12 @@ export class QuestionDisplay extends Component {
       if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
         shouldShowResponse = false
       }
+
       return (
         <div>
           <div className='ql-numerical-answer' >
             {shouldShowResponse
-              ? <div >{this.state.submittedAnswer}</div>
+              ? <div >{this.state.submittedAnswer}  {shouldShowCorrect ?  (isCorrect ? '✓' : '✗') : ''}</div>
               : ''
             }
           </div>
@@ -509,7 +510,7 @@ export class QuestionDisplay extends Component {
       <div className='ql-numerical-answer' >
         { this.readonly
           ? <div>
-              {this.state.submittedAnswer}
+              {this.state.submittedAnswer}  {shouldShowCorrect ?  (isCorrect ? '✓' : '✗') : ''}
               {shouldShowCorrect
                 ? <div className='ql-numerical-answer-correct'>Answer: {this.props.question.correctNumerical} (Tolerance: {this.props.question.toleranceNumerical})</div>
                 : ''

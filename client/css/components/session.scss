@@ -1,13 +1,11 @@
 
 @import '../variables.scss';
+.ql-session-display-histogram {
+  margin: auto;
+  width: 300px;
+}
 
 .ql-session-display {
-
-  .ql-session-display-histogram {
-    margin: auto;
-    width: 500px;
-  }
-
   @media (max-width: 480px) {
     .ql-session-display {
       &.container {
