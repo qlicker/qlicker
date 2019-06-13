@@ -7,7 +7,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 
 /**
  * React component (meteor reactive) that displays a list of short answer reponses for a question
@@ -45,9 +45,9 @@ export class Histogram extends Component {
     let vmin = _(values).min()
     const vmax = _(values).max()
     const nvals = values.length
-    let nbins = values.length > 1 ? Math.round(Math.sqrt(values.length)) : 1 // Should this be floor?
-    if (nbins<2) nbins = 2
-    let binWidth = nbins > 0 ? (vmax-vmin)/nbins : 1
+    let nbins = values.length > 1 ? Math.floor(Math.sqrt(values.length)) + 1 : 2 // Should this be floor?
+    //if (nbins<2) nbins = 2
+    let binWidth = (vmax-vmin) > 0 ? (vmax-vmin)/nbins : 1
     // Try to find a nice round bin width, either of width 0.1, 1, 10, 100
     // The power of 10 that is just smaller than current binwidth
     let power = Math.floor(Math.log10(binWidth))
@@ -73,7 +73,6 @@ export class Histogram extends Component {
     }
     //Add an extra bin at the end, so that its low edge could be the max value
     nbins++
-
     //Now that the number of bins and the width is fixed, fill the bins!
     let counts = nbins > 0 ? Array(nbins).fill(0) : Array(1).fill(0)
     this.props.values.forEach( function (val) {
@@ -94,21 +93,19 @@ export class Histogram extends Component {
 
   render () {
     if (this.props.values < 1 || this.state.data.length < 1){
-      return <div className='ql-subs-loading'>No data to histogram</div>
+      return <div className='ql-subs-loading'>No values to display</div>
     }
     const xmin = this.state.binEdges[0]
     const xmax = parseFloat(( this.state.binEdges.slice(-1)[0]).toPrecision(5)) //gets the last element
     return (
-        <div >
-          <BarChart className='ql-histogram-container'
-            height={190} width={500} data={this.state.data} barCategoryGap={0}
-            margin={{top: 20, right: 10, left: -25, bottom: 5}}>
-            <XAxis dataKey='bin'  type="number" interval='preserveStart' ticks={this.state.binEdges} domain={[xmin,xmax]} tickCount={this.state.binEdges.length} />
-            <YAxis allowDecimals={false} label='counts' />
-            <Tooltip />
-            <Bar dataKey="counts" fill="#30B0E7" />
-          </BarChart>
-        </div>
+      <BarChart className='ql-histogram-container'
+        height={190} width={500} data={this.state.data} barCategoryGap={0}
+        margin={{top: 20, right: 10, left: -25, bottom: 5}}>
+        <XAxis dataKey='bin'  type="number" interval='preserveStart' ticks={this.state.binEdges} domain={[xmin,xmax]} tickCount={this.state.binEdges.length} />
+        <YAxis allowDecimals={false} label='counts' />
+        <Tooltip />
+        <Bar dataKey="counts" fill="#30B0E7" />
+      </BarChart>
     )
   } //  end render
 
