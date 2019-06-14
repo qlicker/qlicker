@@ -548,10 +548,12 @@ componentWillReceiveProps (nextProps) {
   numericalAnswerEditor () {
     return (
       <div className='numerical-answer-editor'>
+        Correct: 
         <input type='number'
           placeholder='Correct'
           onChange={this.setCorrectNumerical}
           value={this.state.question.correctNumerical} />
+        Tolerance:
         <input type='number'
           min={0}
           onChange={this.setToleranceNumerical}
