@@ -9,7 +9,7 @@ import { Sessions } from '../api/sessions'
 import { Responses, responseDistribution } from '../api/responses'
 
 import { QuestionDisplay } from './QuestionDisplay'
-import { ShortAnswerList } from './ShortAnswerList'
+
 import { QUESTION_TYPE } from '../configs'
 
 class _QuizSession extends Component {

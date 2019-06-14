@@ -16,6 +16,7 @@ import { QuizSession } from '../../QuizSession'
 
 import { QuestionDisplay } from '../../QuestionDisplay'
 import { ShortAnswerList } from '../../ShortAnswerList'
+import { HistogramNumerical } from '../../HistogramNumerical'
 import { QUESTION_TYPE } from '../../../configs'
 
 class _Session extends Component {
@@ -121,7 +122,12 @@ class _Session extends Component {
             ? <ShortAnswerList question={q} />
             : ''
           }
-
+          { q.sessionOptions.stats && q.type === QUESTION_TYPE.NU
+            ? <div className='ql-session-display-histogram'>
+                 <HistogramNumerical question={q} width={300} />
+              </div>
+            : ''
+          }
         </div>)
     } else {
 

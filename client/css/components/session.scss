@@ -1,5 +1,9 @@
 
 @import '../variables.scss';
+.ql-session-display-histogram {
+  margin: auto;
+  width: 300px;
+}
 
 .ql-session-display {
   @media (max-width: 480px) {
@@ -12,12 +16,10 @@
 
   }
   .ql-session-display-mobile {
-
     .ql-session-display-mobile-infobar {
       padding: 5px;
       font-size: 120%;
     }
-
     .ql-session-display-mobile-buttons {
       padding: 5px;
       .btn-group {

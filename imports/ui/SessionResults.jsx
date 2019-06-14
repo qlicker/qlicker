@@ -15,6 +15,7 @@ import { QuestionResultsClassList } from './QuestionResultsClassList'
 import { QuestionResultsListItem } from './QuestionResultsListItem'
 import { QuestionDisplay } from './QuestionDisplay'
 import { ShortAnswerList } from './ShortAnswerList'
+import { HistogramNumerical } from './HistogramNumerical'
 
 import { SessionResultsTable } from './SessionResultsTable'
 
@@ -46,12 +47,16 @@ export class _SessionResults extends Component {
 
                 <div className='col-sm-6'>
                   {
-                    q && q.type !== QUESTION_TYPE.SA // option based questions
+                    q && q.type !== QUESTION_TYPE.SA && q.type !== QUESTION_TYPE.NU// option based questions
                     ? <AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[qId]} /> : ''
                   }
                   {
                     q && q.type === QUESTION_TYPE.SA // short answer
                     ? <div> <ShortAnswerList question={q} /> </div> : ''
+                  }
+                  {
+                    q && q.type === QUESTION_TYPE.NU // short answer
+                    ? <div> <HistogramNumerical question={q} /> </div> : ''
                   }
                 </div>
               </div>
@@ -87,7 +92,7 @@ export const SessionResults = createContainer((props) => {
   return {
     questions: questions,
     responseStatsByQuestion: responseStatsByQuestion,
-    loading: !handle.ready(), 
+    loading: !handle.ready(),
     //session: props.session
   }
 }, _SessionResults)

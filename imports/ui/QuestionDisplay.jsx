@@ -50,6 +50,7 @@ export class QuestionDisplay extends Component {
     this.toggleShowResponse = this.toggleShowResponse.bind(this)
 
     this.setAnswer = this.setAnswer.bind(this)
+    this.setNumericalAnswer = this.setNumericalAnswer.bind(this)
     this.setAnswerQuiz= this.setAnswerQuiz.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
     this.setShortAnswerWysiwygQuiz = this.setShortAnswerWysiwygQuiz.bind(this)
@@ -208,7 +209,18 @@ export class QuestionDisplay extends Component {
       submittedAnswer: answerToSubmit
     })
   }
-
+  setNumericalAnswer (e) {
+    if (this.disallowResponses() || this.readonly) return
+    if (this.props.response && !this.props.response.editable){
+      alertify.error("Cannot edit this question anymore")
+      return
+    }
+    let answerToSubmit = e.target.value
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: answerToSubmit
+    })
+  }
   setAnswerQuiz (answer) {
     if (this.disallowResponses() || this.readonly) return
     if (this.props.response && !this.props.response.editable){
@@ -463,6 +475,56 @@ export class QuestionDisplay extends Component {
     )
   }
 
+  renderNumericalQuestion (q)
+  {
+    const sess = this.props.question.sessionOptions
+    let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
+    if (shouldShowCorrect && this.props.forReview && !this.props.prof && !this.state.showCorrect) {
+      shouldShowCorrect = false
+    }
+    const isCorrect = Math.abs(this.state.submittedAnswer-this.props.question.correctNumerical) <= this.props.question.toleranceNumerical
+
+    if ((this.props.forReview || this.props.prof || (this.props.response && !this.props.response.editable))) {
+
+      let shouldShowResponse = !!this.props.response
+      if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
+        shouldShowResponse = false
+      }
+
+      return (
+        <div>
+          <div className='ql-numerical-answer' >
+            {shouldShowResponse
+              ? <div >{this.state.submittedAnswer}  {shouldShowCorrect ?  (isCorrect ? '✓' : '✗') : ''}</div>
+              : ''
+            }
+          </div>
+          {shouldShowCorrect
+            ? <div className='ql-numerical-answer-correct'>Answer: {this.props.question.correctNumerical} (Tolerance: {this.props.question.toleranceNumerical})</div>
+            : ''
+          }
+        </div>
+      )
+    }
+    return (
+      <div className='ql-numerical-answer' >
+        { this.readonly
+          ? <div>
+              {this.state.submittedAnswer}  {shouldShowCorrect ?  (isCorrect ? '✓' : '✗') : ''}
+              {shouldShowCorrect
+                ? <div className='ql-numerical-answer-correct'>Answer: {this.props.question.correctNumerical} (Tolerance: {this.props.question.toleranceNumerical})</div>
+                : ''
+              }
+            </div>
+          : <input type='number'
+            placeholder='Answer'
+            onChange={this.setNumericalAnswer}
+            value={parseFloat(this.state.submittedAnswer)} />
+        }
+      </div>
+    )
+  }
+
   render () {
     if (this.props.loading || !this.props.question) return <div className='ql-subs-loading'>Loading</div>
 
@@ -487,6 +549,9 @@ export class QuestionDisplay extends Component {
       case QUESTION_TYPE.MS:
         content = this.renderOptionQuestion('ms', q)
         msInfo = <div className='msInfo'>Select all that apply</div>
+        break
+      case QUESTION_TYPE.NU:
+        content = this.renderNumericalQuestion(q)
         break
     }
 
@@ -544,7 +609,12 @@ export class QuestionDisplay extends Component {
           : ''
         }
 
-        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution  ? <div className='ql-question-solution' ref={this.props.question._id+"solution"}>Solution:<div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div></div> : ''}
+        {(this.state.showCorrect || (q.sessionOptions && q.sessionOptions.correct && !this.props.forReview) ) && q.solution
+            ? <div className='ql-question-solution' ref={this.props.question._id+"solution"}>
+                Solution: <div className='ql-question-solution-content'>{WysiwygHelper.htmlDiv(q.solution)}</div>
+              </div>
+            : ''
+        }
 
       </div>
     )
