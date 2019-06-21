@@ -29,6 +29,7 @@ const sessionPattern = {
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
   quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
   quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
+  quizExtensions: Match.Maybe([{sid:Match.Maybe(Helpers.MongoID), date: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
