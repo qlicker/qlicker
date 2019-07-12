@@ -84,10 +84,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           for (key in samlProfile){
             profile[key] = samlProfile[key]
           }
-          //Update profile:
-          if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
-            profile.roles = ['professor']
-          } 
+          //Update profile: UPDATE: If existing user (e.g. that was promoted) don't update profile role!
+          //if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
+          //  profile.roles = ['professor']
+          //}
           //Note that it will not actually update the email address, since the user was found by email address
           Meteor.users.update(userId, {$set: {email: profile.email,
                                               emails: [ { address: profile.email, verified: true } ],
