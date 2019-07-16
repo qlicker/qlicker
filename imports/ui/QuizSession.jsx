@@ -109,7 +109,7 @@ class _QuizSession extends Component {
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
-    if (this.state.submitted || !this.props.session.quizIsActive()){
+    if (this.state.submitted || !this.props.session.quizIsActive(user)){
       Router.go('/course/' + this.props.session.courseId)
     }
 

@@ -29,7 +29,7 @@ const sessionPattern = {
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
   quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
   quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
-  quizExtensions: Match.Maybe([{sid:Match.Maybe(Helpers.MongoID), date: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
+  quizExtensions: Match.Maybe([{sid:Match.Maybe(Helpers.MongoID), quizEnd: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
@@ -53,24 +53,46 @@ _.extend(Session.prototype, {
     return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
   },*/
 
+  // check if quiz should be open for user with an extension
+  userHasActiveQuizExtension: function (user){
+    if (!user || !this.quizExtensions ) return false
+    const n = this.quizExtensions.length
+    let found = false
+    let end = NULL
+    for (let i = 0 ; i < n ; i++){
+      if (this.quizExtensions[i].sid == user._id){
+        found = true
+        end = this.quizExtensions[i].quizEnd
+        break
+      }
+    }
+    if (!found) return false
+    const currentTime = Date.now()
+    const isPastStart = currentTime > this.quizStart
+    if (isPastStart && end > currentTime) return true
+  },
   // check if quiz is currently active (iether 'running' or visible and it's the correct time)
-  quizIsActive: function () {
+  quizIsActive: function (user) {
     if (!this.quiz) return false;
     if (this.status === 'running') return true;
     if (!this.quizStart || !this.quizEnd) return false;
     if (this.status === 'hidden' || this.status === 'done') return false
 
+    if (this.userHasActiveQuizExtension(user)) return true
     const currentTime = Date.now()
     const isPastStart = currentTime > this.quizStart
     const isBeforeEnd = currentTime < this.quizEnd
+
     return isPastStart && isBeforeEnd
   },
 
-  quizIsClosed: function () {
+  quizIsClosed: function (user) {
     if (!this.quiz) return false;
     if (this.status === 'running') return false;
     if (this.status === 'hidden' || this.status === 'done') return true
     if (!this.quizEnd) return false;
+
+    if (this.userHasActiveQuizExtension(user)) return false
     const currentTime = Date.now()
     const isBeforeEnd = currentTime < this.quizEnd
     return !isBeforeEnd
