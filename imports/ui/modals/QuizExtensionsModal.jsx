@@ -6,7 +6,7 @@
 import React, { PropTypes, Component } from 'react'
 import _ from 'underscore'
 import Select from 'react-select'
-
+import 'react-select/dist/react-select.css'
 
 /**
  * modal dialog to prompt for course details
