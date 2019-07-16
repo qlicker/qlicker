@@ -666,7 +666,7 @@ class _ManageSession extends Component {
           : ''
         }
       {this.state.showQuizExtensionModal
-         ? <QuizExtensionsModal session={this.props.session} students={this.props.students} done={this.toggleExtensionModal} />
+         ? <QuizExtensionsModal session={this.props.session} done={this.toggleExtensionModal} />
          : ''
       }
       </div>)
@@ -682,13 +682,13 @@ export const ManageSession = createContainer((props) => {
       // Meteor.subscribe('courses.single', props.courseId)
 
   const session = Sessions.findOne({ _id: props.sessionId })
-  const course = session ? Courses.findOne({ _id: session.courseId}) : NULL
-  const students = course && course.students ? course.students : []
+  //const course = session ? Courses.findOne({ _id: session.courseId}) : NULL
+  //const students = course && course.students ? course.students : []
   const questionsInSession = Questions.find({ sessionId:props.sessionId} ).fetch()
 
   return {
     session: session,
-    students: students,
+    //students: students,
     questions: _.indexBy(questionsInSession, '_id'),
     loading: !handle.ready()
   }
