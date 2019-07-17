@@ -29,7 +29,7 @@ const sessionPattern = {
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
   quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
   quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
-  quizExtensions: Match.Maybe([{userId:Match.Maybe(Helpers.MongoID), quizStart: Match.OneOf(undefined, null, Date), quizEnd: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
+  quizExtensions: Match.Maybe([{userId:Helpers.MongoID, quizStart: Match.OneOf(undefined, null, Date), quizEnd: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
@@ -511,7 +511,7 @@ Meteor.methods({
 
     if (!session)  throw new Meteor.Error('No session with this id')
     if (!session.quiz) throw new Meteor.Error('Not a quiz')
-    if (!user.isStudent(session.courseId)) throw new Meteor.Errorr('User is not a student in course')
+    if (!user.isStudent(session.courseId)) throw new Meteor.Error('User is not a student in course')
     if (Meteor.isServer && ! _(session.joined).contains(user._id) ) throw new Meteor.Error('User did not start quiz')
     if ( 'submittedQuiz' in session && _(session.submittedQuiz).contains(user._id)) throw new Meteor.Error('User already submitted quiz')
 
@@ -527,6 +527,25 @@ Meteor.methods({
     else session.submittedQuiz = [user._id]
 
     return Sessions.update({ _id: sessionId }, {$set: { submittedQuiz: session.submittedQuiz }})
+  },
+
+  'sessions.updateQuizExtensions' (sessionId, extensions) {
+    check(sessionId, Helpers.MongoID)
+    check(extensions,[{userId:Helpers.MongoID,
+                        quizStart:Match.OneOf(undefined, null, Date),
+                        quizEnd: Match.OneOf(undefined, null, Date) }])
+
+    const user = Meteor.user()
+    if(!user) throw new Meteor.Error('No such user')
+    let session = Sessions.findOne({ _id: sessionId })
+
+    if (!session)  throw new Meteor.Error('No session with this id')
+    if (!session.quiz) throw new Meteor.Error('Not a quiz')
+    if (!user.isInstructor(session.courseId) && !user.hasRole(ROLES.admin)) throw new Meteor.Error('User must be instructor in the course or admin')
+
+
+    return Sessions.update({ _id: sessionId }, {$set: { quizExtensions: extensions }})
+
   }
 
 }) // end Meteor.methods

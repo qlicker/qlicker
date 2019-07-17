@@ -46,6 +46,12 @@
     margin-bottom: 5px;
     margin-top: 10px;
     border: none;
+    display: flex;
+    justify-content: flex-start;
+    .ql-num-label {
+      margin-top: 5px;
+      font-size: 0.75em;
+    }
     label {
       font-size: 0.75em;
       margin-right: 5px;

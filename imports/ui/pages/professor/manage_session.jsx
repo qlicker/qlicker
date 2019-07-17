@@ -605,7 +605,7 @@ class _ManageSession extends Component {
               { this.state.session.quiz ?
                   <div className='row'>
                     <div className='col-md-3 left-column'>
-                      <a href='#' onClick={this.toggleExtensionModal}>Add/edit quiz extensions</a>
+                      <a href='#' onClick={this.toggleExtensionModal}> {this.state.session.quizExtensions &&this.state.session.quizExtensions.length>0 ?'Manage ':'Add '}quiz extensions</a>
                     </div>
 
                   </div>

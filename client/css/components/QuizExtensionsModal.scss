@@ -3,21 +3,54 @@
 
   .ql-qExtension-add {
 
+    .ql-qExtension-add-title {
+      font-size: 1.5em;
+    }
+
+  }
+
+
+  .ql-qExtension-list-title {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 1.5em
+  }
+
+  .ql-qExtension-headers {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+
+    font-size: 1.5em;
+
+    .ql-header-name {
+      width:30%;
+      padding-left: 10px;
+    }
+
+    .ql-header-date {
+      width:35%;
+      padding-left: 10px;
+    }
   }
 
   .ql-qExtension-list {
-    .ql-qExtension-list-title {
+    //max-height: 800px; //This cuts off the calendar
+    //overflow-y: auto;
 
-    }
     .ql-qExtension-student {
       display: flex;
       justify-content: space-between;
       align-items: stretch;
 
+      padding-bottom: 5px;
+      padding-top: 5px;
+
       .ql-qExtension-name {
         width:30%;
         display: flex;
         justify-content: space-between;
+        font-size: 1.25em;
         .ql-qExtension-delete {
           &:hover {
             font-weight: bold;
@@ -32,4 +65,8 @@
 
     }
   }
+}
+
+.ql-qExtension-button {
+  padding-bottom: 5px;
 }
