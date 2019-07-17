@@ -6,6 +6,30 @@
   }
 
   .ql-qExtension-list {
+    .ql-qExtension-list-title {
 
+    }
+    .ql-qExtension-student {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+
+      .ql-qExtension-name {
+        width:30%;
+        display: flex;
+        justify-content: space-between;
+        .ql-qExtension-delete {
+          &:hover {
+            font-weight: bold;
+            cursor: pointer;
+          }
+        }
+      }
+
+      .ql-qExtesion-date {
+        width:35%;
+      }
+
+    }
   }
 }

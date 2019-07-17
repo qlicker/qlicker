@@ -29,7 +29,7 @@ const sessionPattern = {
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
   quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
   quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
-  quizExtensions: Match.Maybe([{sid:Match.Maybe(Helpers.MongoID), quizEnd: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
+  quizExtensions: Match.Maybe([{userId:Match.Maybe(Helpers.MongoID), quizStart: Match.OneOf(undefined, null, Date), quizEnd: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
@@ -58,18 +58,21 @@ _.extend(Session.prototype, {
     if (!user || !this.quizExtensions ) return false
     const n = this.quizExtensions.length
     let found = false
-    let end = NULL
+    let quizEnd = NULL
+    let quizStart = NULL
     for (let i = 0 ; i < n ; i++){
       if (this.quizExtensions[i].sid == user._id){
         found = true
-        end = this.quizExtensions[i].quizEnd
+        quizEnd = this.quizExtensions[i].quizEnd
+        quizStart = this.quizExtensions[i].quizStart
         break
       }
     }
     if (!found) return false
     const currentTime = Date.now()
-    const isPastStart = currentTime > this.quizStart
-    if (isPastStart && end > currentTime) return true
+    const isPastStart = currentTime > quizStart
+    const isBeforeEnd = currentTime < quizEnd
+    return isPastStart && isBeforeEnd
   },
   // check if quiz is currently active (iether 'running' or visible and it's the correct time)
   quizIsActive: function (user) {
