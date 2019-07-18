@@ -24,7 +24,8 @@ export class ManageUsers extends Component {
       lastname: '',
       roleNames: [{value:ROLES.admin, label:'admin'},
                   {value:ROLES.prof, label:'professor'},
-                  {value:ROLES.student, label:'student'}]
+                  {value:ROLES.student, label:'student'}],
+      searchUser:''
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -34,6 +35,9 @@ export class ManageUsers extends Component {
     this.toggleCanPromote = this.toggleCanPromote.bind(this)
     this.saveEmail = this.saveEmail.bind(this)
     this.toggleRequireVerified = this.toggleRequireVerified.bind(this)
+    this.setFilterUserSearchString = this.setFilterUserSearchString.bind(this)
+    // see https://github.com/facebook/react/issues/1360
+    this.setFilterUserSearchString = _.debounce(this.setFilterUserSearchString,400)
   }
 
   componentDidMount () {
@@ -121,22 +125,28 @@ export class ManageUsers extends Component {
       }
       this.setState({ requireVerified: this.props.settings.requireVerified })
     })
+  }
 
+  setFilterUserSearchString (val) {
+    this.setState( {filterUserSearchString:val} )
   }
 
   render() {
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
     const setSearchCourses = (val) => { this.setState({ searchCourses: val }) }
-    const setSearchUser = (e) => { this.setState({ searchUser: e.target.value }) }
+    const setSearchUser = (e) => {
+      this.setState({ searchUser: e.target.value })// need this to update the input box
+      this.setFilterUserSearchString(e.target.value)// this debounces the filtering (https://github.com/facebook/react/issues/1360)
+    }
     const setSearchRoles = (val) => { this.setState({ searchRoles: val }) }
 
     // Apply search criteria, if present
     let users = this.props.allUsers
-    if( this.state.searchUser ){
+    if( this.state.filterUserSearchString ){
       users = _(users).filter( function (user) {
-        return user.profile.lastname.toLowerCase().includes(this.state.searchUser.toLowerCase())
-         || user.profile.firstname.toLowerCase().includes(this.state.searchUser.toLowerCase())
-         || user.emails[0].address.toLowerCase().includes(this.state.searchUser.toLowerCase())
+        return user.profile.lastname.toLowerCase().includes(this.state.filterUserSearchString.toLowerCase())
+         || user.profile.firstname.toLowerCase().includes(this.state.filterUserSearchString.toLowerCase())
+         || user.emails[0].address.toLowerCase().includes(this.state.filterUserSearchString.toLowerCase())
       }.bind(this))
     }
     if( this.state.searchCourses  && this.state.searchCourses.length > 0 ){
@@ -191,7 +201,7 @@ export class ManageUsers extends Component {
         <h1>Users (with elevated permissions first)</h1>
         <div className = 'ql-admin-user-table-container'>
           <div className = 'ql-admin-user-search'>
-            <input type='text' placeholder='search by name or email' onChange = {_.throttle(setSearchUser, 200)} value={this.stateSearchUser} />
+            <input type='text' placeholder='search by name or email' onChange = {setSearchUser} value={this.state.searchUser} />
             <div className='select-container'>
               <Select
                 name='search-course'

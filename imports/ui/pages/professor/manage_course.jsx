@@ -37,7 +37,8 @@ class _ManageCourse extends Component {
       addStudentModal: false,
       courseOptionsModal:false,
       sessionToCopy: null,
-      expandedSessionlist: false,
+      expandedInteractiveSessionlist: false,
+      expandedQuizlist: false,
       requireVerified: this.props.course.requireVerified,
       allowStudentQuestions: this.props.course.allowStudentQuestions,
       searchString:'',
@@ -167,20 +168,18 @@ class _ManageCourse extends Component {
 
 
 
-  renderSessionList () {
-    let sessions = this.props.sessions
+  renderInteractiveSessionList () {
+    let sessions = _(this.props.sessions).where({quiz:false}) || []
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
     sessions = _(sessions).chain().sortBy(function (ses) {
-      return (ses.quiz && ses.quizEnd) ? ses.quizEnd : ses.date
-    }).reverse().sortBy(function (ses) {
-      return ses.quizIsActive() ? 1 : statusSort[ses.status]
-    }).value()
+      return  ses.date
+    }).reverse().value()
 
-    const maxNum = 8
+    const maxNum = 4
     const totalSessions = sessions ? sessions.length : 0
-    if (!this.state.expandedSessionlist) sessions = sessions.slice(0, maxNum)
-    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionlist: !this.state.expandedSessionlist }) }
-    const expandText = !this.state.expandedSessionlist ? 'Show all' : 'Show less'
+    if (!this.state.expandedInteractiveSessionlist) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedInteractiveSessionlist: !this.state.expandedInteractiveSessionlist }) }
+    const expandText = !this.state.expandedInteractiveSessionlist ? 'Show all' : 'Show less'
 
     return (<div>
       {
@@ -188,12 +187,12 @@ class _ManageCourse extends Component {
           if (!ses) return
           const sId = ses._id
           const nav = () => {
-            if (ses.status === 'running' && !ses.quiz) Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
+            if (ses.status === 'running') Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
             else Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
           const controls = []
-          if (ses.status === 'running' || ses.quizIsActive() ) {
-            if(!ses.quiz) controls.push({ label: 'Open Session Display',  click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') } })
+          if (ses.status === 'running' ) {
+            controls.push({ label: 'Open Session Display',  click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') } })
             controls.push({ label: 'End session', click: () => { this.endSession(sId) } })
             controls.push({ divider: true })
           }
@@ -202,8 +201,61 @@ class _ManageCourse extends Component {
             controls.push({ label: 'Grade session', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
           }
+
+          controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
+          controls.push({ label: 'Copy to Course', click: () => this.toggleCopySessionModal(sId) })
+          controls.push({ divider: true })
+          controls.push({ label: 'Delete', click: () => this.deleteSession(sId) })
+
+          return (<SessionListItem
+            key={sId}
+            session={ses}
+            click={nav}
+            controls={controls} />)
+        })
+      }
+      { totalSessions > maxNum
+        ? <a href='#' className='show-more-item' onClick={toggleExpandedSessionlist}>
+          <div className='ql-list-item'>{expandText}</div>
+        </a> : '' }
+    </div>)
+  }
+
+  renderQuizList () {
+    let sessions = _(this.props.sessions).where({quiz:true}) || []
+    const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
+    sessions = _(sessions).chain().sortBy(function (ses) {
+      return  ses.quizEnd ? ses.quizEnd : ses.date
+    }).reverse().sortBy(function (ses) {
+      return ses.quizIsActive() ? 1 : statusSort[ses.status]
+    }).value()
+
+    const maxNum = 8
+    const totalSessions = sessions ? sessions.length : 0
+    if (!this.state.expandedQuizlist) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedQuizlist: !this.state.expandedQuizlist }) }
+    const expandText = !this.state.expandedQuizlist ? 'Show all' : 'Show less'
+
+    return (<div>
+      {
+        sessions.map((ses) => {
+          if (!ses) return
+          const sId = ses._id
+          const nav = () => {
+            Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
+          }
+          const controls = []
+          if (ses.status === 'running' || ses.quizIsActive() ) {
+            controls.push({ label: 'End quiz', click: () => { this.endSession(sId) } })
+            controls.push({ divider: true })
+          }
+          if (ses.status === 'done') {
+            controls.push({ label: 'Make quiz live again', click: () => this.startSession(sId) })
+            controls.push({ label: 'Grade guiz', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
+            controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
+          }
           if (ses.status !== 'done' && ses.status !== 'running' && !ses.quizIsActive()) {
-            controls.push({ label: 'Make live', click: () => this.startSession(sId) })
+            controls.push({ label: 'Make quiz live', click: () => this.startSession(sId) })
           }
           if (ses.status !== 'done' && ses.status !== 'hidden' && ses.quizIsClosed()) {
             controls.push({ label: 'End quiz', click: () => { this.endSession(sId) }
@@ -300,6 +352,7 @@ class _ManageCourse extends Component {
   }
 
   render () {
+    if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
     const toggleCreatingSession = () => { this.setState({ creatingSession: !this.state.creatingSession }) }
     const toggleAddTA = () => { this.setState({ addTAModal: !this.state.addTAModal }) }
     const toggleAddStudent = () => { this.setState({ addStudentModal: !this.state.addStudentModal }) }
@@ -309,7 +362,8 @@ class _ManageCourse extends Component {
     //console.log(this.state)
 
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
-    const nSessions = this.props.sessions ? this.props.sessions.length : 0
+    const nSessions = this.props.sessions ?  _(this.props.sessions).where({quiz:false}).length : 0
+    const nQuizzes = this.props.sessions ? _(this.props.sessions).where({quiz:true}).length : 0
     return (
       <div className='container ql-manage-course'>
         <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
@@ -369,14 +423,28 @@ class _ManageCourse extends Component {
           </div>
 
           <div className='col-md-8'>
-            <h3>Sessions ({nSessions} session{nSessions > 1 ? 's' : '' })</h3>
-            <div className='ql-session-list'>
-              <div className='btn-group session-button-group'>
-                <button className='btn btn-primary' onClick={toggleCreatingSession}>Create Session</button>
-                {/*<button className='btn btn-primary' onClick={() => { Router.go('course.results', { courseId: this.props.course._id }) }}>View course grades</button>*/}
-              </div>
-              { this.renderSessionList() }
+            <div className='btn-group session-button-group'>
+              <button className='btn btn-primary' onClick={toggleCreatingSession}>Create new live session or quiz</button>
             </div>
+            { nSessions > 0 ?
+              <div>
+                <h3>Interactive sessions ({nSessions} session{nSessions > 1 ? 's' : '' })</h3>
+                <div className='ql-session-list'>
+                  { this.renderInteractiveSessionList() }
+                </div>
+              </div>
+              :<div><h3> no live sessions</h3> </div>
+            }
+            { nQuizzes > 0 ?
+              <div>
+                <h3>Quizzes ({nQuizzes} quiz{nQuizzes > 1 ? 'zes' : '' })</h3>
+                <div className='ql-session-list'>
+                  { this.renderQuizList() }
+                </div>
+              </div>
+              : <div><h3> no quizzes</h3> </div>
+            }
+
           </div>
         </div>
 

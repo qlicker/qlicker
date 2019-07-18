@@ -31,7 +31,7 @@ class _Session extends Component {
   }
   componentDidMount () {
     if (this.props.session){
-      if (this.props.session.quizIsActive()){
+      if (this.props.session.quizIsActive(Meteor.user())){
         Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {
@@ -44,7 +44,7 @@ class _Session extends Component {
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.session){
-      if (nextProps.session.quizIsActive()) {
+      if (nextProps.session.quizIsActive(Meteor.user())) {
         Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {
@@ -75,7 +75,7 @@ class _Session extends Component {
     }
 
     const status = this.props.session.status
-    if (status !== 'running' && !this.props.session.quizIsActive()) {
+    if (status !== 'running' && !this.props.session.quizIsActive(user)) {
       let statusMessage
 
       if (status === 'visible') statusMessage = 'This session has not started yet. You can keep this page open until your professor starts the session or check back soon.'
@@ -83,7 +83,7 @@ class _Session extends Component {
         statusMessage = 'This session has finished'
         if (user && !user.isInstructor(cId)) {
           // if it's an instructor, this is being shown as a second display, so dont't
-          // go to the course page and show everyone the class list
+          // go to the course page which would show everyone the class list
           Router.go('/course/' + this.props.session.courseId)
         }
       }

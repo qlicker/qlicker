@@ -24,6 +24,8 @@ import { QuestionSidebar } from '../../QuestionSidebar'
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionEditItem } from '../../QuestionEditItem'
 
+import { QuizExtensionsModal } from '../../modals/QuizExtensionsModal'
+
 import { SESSION_STATUS_STRINGS } from '../../../configs'
 import $ from 'jquery'
 import { defaultQuestion, Questions } from '../../../api/questions'
@@ -42,6 +44,7 @@ class _ManageSession extends Component {
       session: this.props.session,
       quizStart: quizStart,
       quizEnd: quizEnd,
+      showQuizExtensionModal: false,
       //questionPool: 'library',
       //limit: 11,
       //query: {query: {}, options: {}},
@@ -67,6 +70,7 @@ class _ManageSession extends Component {
     this.newQuestionSaved = this.newQuestionSaved.bind(this)
     this.setQuizStartTime= this.setQuizStartTime.bind(this)
     this.setQuizEndTime= this.setQuizEndTime.bind(this)
+    this.toggleExtensionModal = this.toggleExtensionModal.bind(this)
     //this.changeQuestionPool = this.changeQuestionPool.bind(this)
     this.runSession = this.runSession.bind(this)
     this.saveSessionEdits = this.saveSessionEdits.bind(this)
@@ -187,6 +191,10 @@ class _ManageSession extends Component {
         this._DB_saveSessionEdits()
       })
     }
+  }
+
+  toggleExtensionModal () {
+    this.setState({showQuizExtensionModal:!this.state.showQuizExtensionModal})
   }
 
   // starts the session if there are questions
@@ -464,16 +472,22 @@ class _ManageSession extends Component {
       quizTimeInfo =  'Quiz starts: '+ moment(this.state.quizStart).fromNow()
       quizTimeInfo2 = 'Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart), true)
     }
-
+//////////////////////////////////////////
     if (this.props.session.quiz && this.props.session.status === 'running'){
       quizTimeInfo='Quiz is live! Check status!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: until closed!'
     }
-    else if (this.props.session.quizIsActive()){
+    else if (this.props.session.quizIsActive() ){
       quizTimeInfo='Quiz is active! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+      quizTimeActive = true
+    }
+    else if (this.props.session.quizHasActiveExtensions() ) {
+      quizTimeInfo='Active extensions! Check dates and extensions!'
+      quizTimeClassName +=' warning'
+      quizTimeInfo2 = ''
       quizTimeActive = true
     }
     else if (this.props.session.quiz && this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore()  && moment(this.state.quizEnd).isAfter() ){
@@ -590,10 +604,18 @@ class _ManageSession extends Component {
                       : ''
                     }
                   </div>
-
                  </div>
 
                  : ''
+              }
+              { this.state.session.quiz ?
+                  <div className='row'>
+                    <div className='col-md-3 left-column'>
+                      <a href='#' onClick={this.toggleExtensionModal}> {this.state.session.quizExtensions &&this.state.session.quizExtensions.length>0 ?'Manage ':'Add '}quiz extensions</a>
+                    </div>
+
+                  </div>
+                  :''
               }
               <div className='row'>
                 <div className='col-md-6 left-column'>
@@ -649,6 +671,10 @@ class _ManageSession extends Component {
           </div>
           : ''
         }
+      {this.state.showQuizExtensionModal
+         ? <QuizExtensionsModal session={this.props.session} done={this.toggleExtensionModal} />
+         : ''
+      }
       </div>)
   }
 
@@ -662,13 +688,13 @@ export const ManageSession = createContainer((props) => {
       // Meteor.subscribe('courses.single', props.courseId)
 
   const session = Sessions.findOne({ _id: props.sessionId })
-  //const course = Courses.findOne({ _id: props.courseId})
-
+  //const course = session ? Courses.findOne({ _id: session.courseId}) : NULL
+  //const students = course && course.students ? course.students : []
   const questionsInSession = Questions.find({ sessionId:props.sessionId} ).fetch()
 
   return {
     session: session,
-    //course: course,
+    //students: students,
     questions: _.indexBy(questionsInSession, '_id'),
     loading: !handle.ready()
   }

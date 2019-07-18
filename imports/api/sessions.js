@@ -29,6 +29,7 @@ const sessionPattern = {
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
   quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
   quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
+  quizExtensions: Match.Maybe([{userId:Helpers.MongoID, quizStart: Match.OneOf(undefined, null, Date), quizEnd: Match.OneOf(undefined, null, Date)}]), //array of users with an extension for the quiz
   questions: Match.Maybe([ Match.Maybe(Helpers.MongoID) ]),
   createdAt: Date,
   currentQuestion: Match.Maybe(Helpers.MongoID),
@@ -52,24 +53,71 @@ _.extend(Session.prototype, {
     return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
   },*/
 
+  quizHasActiveExtensions: function () {
+    if (!this.quiz || !this.quizExtensions) return false
+    let active = false
+    let nExt = this.quizExtensions.length
+    const currentTime = Date.now()
+
+    for(let i = 0 ; i < nExt ; i++ ){
+      let quizEnd = this.quizExtensions[i].quizEnd
+      let quizStart = this.quizExtensions[i].quizStart
+      let isPastStart = currentTime > quizStart
+      let isBeforeEnd = currentTime < quizEnd
+      if (isPastStart && isBeforeEnd){
+        active = true
+        break
+      }
+    }
+
+    return active
+  },
+  // check if quiz should be open for user with an extension
+  userHasActiveQuizExtension: function (user){
+    if (!user || !this.quizExtensions ) return false
+    const n = this.quizExtensions.length
+    let found = false
+    let quizEnd = undefined
+    let quizStart = undefined
+
+    for (let i = 0 ; i < n ; i++){
+      if (this.quizExtensions[i].userId == user._id){
+        found = true
+        quizEnd = this.quizExtensions[i].quizEnd
+        quizStart = this.quizExtensions[i].quizStart
+        break
+      }
+    }
+
+    if (!found) return false
+    const currentTime = Date.now()
+    const isPastStart = currentTime > quizStart
+    const isBeforeEnd = currentTime < quizEnd
+
+    return isPastStart && isBeforeEnd
+  },
   // check if quiz is currently active (iether 'running' or visible and it's the correct time)
-  quizIsActive: function () {
+  quizIsActive: function (user) {
     if (!this.quiz) return false;
     if (this.status === 'running') return true;
     if (!this.quizStart || !this.quizEnd) return false;
     if (this.status === 'hidden' || this.status === 'done') return false
 
+    if (this.userHasActiveQuizExtension(user)) return true
     const currentTime = Date.now()
     const isPastStart = currentTime > this.quizStart
     const isBeforeEnd = currentTime < this.quizEnd
+
     return isPastStart && isBeforeEnd
   },
 
-  quizIsClosed: function () {
+  quizIsClosed: function (user) {
     if (!this.quiz) return false;
     if (this.status === 'running') return false;
     if (this.status === 'hidden' || this.status === 'done') return true
     if (!this.quizEnd) return false;
+
+    if (this.userHasActiveQuizExtension(user)) return false
     const currentTime = Date.now()
     const isBeforeEnd = currentTime < this.quizEnd
     return !isBeforeEnd
@@ -485,7 +533,7 @@ Meteor.methods({
 
     if (!session)  throw new Meteor.Error('No session with this id')
     if (!session.quiz) throw new Meteor.Error('Not a quiz')
-    if (!user.isStudent(session.courseId)) throw new Meteor.Errorr('User is not a student in course')
+    if (!user.isStudent(session.courseId)) throw new Meteor.Error('User is not a student in course')
     if (Meteor.isServer && ! _(session.joined).contains(user._id) ) throw new Meteor.Error('User did not start quiz')
     if ( 'submittedQuiz' in session && _(session.submittedQuiz).contains(user._id)) throw new Meteor.Error('User already submitted quiz')
 
@@ -501,6 +549,25 @@ Meteor.methods({
     else session.submittedQuiz = [user._id]
 
     return Sessions.update({ _id: sessionId }, {$set: { submittedQuiz: session.submittedQuiz }})
+  },
+
+  'sessions.updateQuizExtensions' (sessionId, extensions) {
+    check(sessionId, Helpers.MongoID)
+    check(extensions,[{userId:Helpers.MongoID,
+                        quizStart:Match.OneOf(undefined, null, Date),
+                        quizEnd: Match.OneOf(undefined, null, Date) }])
+
+    const user = Meteor.user()
+    if(!user) throw new Meteor.Error('No such user')
+    let session = Sessions.findOne({ _id: sessionId })
+
+    if (!session)  throw new Meteor.Error('No session with this id')
+    if (!session.quiz) throw new Meteor.Error('Not a quiz')
+    if (!user.isInstructor(session.courseId) && !user.hasRole(ROLES.admin)) throw new Meteor.Error('User must be instructor in the course or admin')
+
+
+    return Sessions.update({ _id: sessionId }, {$set: { quizExtensions: extensions }})
+
   }
 
 }) // end Meteor.methods

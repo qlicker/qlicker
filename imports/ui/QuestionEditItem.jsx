@@ -546,19 +546,32 @@ componentWillReceiveProps (nextProps) {
   } // end shortAnswerEditor
 
   numericalAnswerEditor () {
+    const minVal = (this.state.question.correctNumerical && this.state.question.toleranceNumerical) ? this.state.question.correctNumerical - this.state.question.toleranceNumerical : 0
+    const maxVal = (this.state.question.correctNumerical && this.state.question.toleranceNumerical) ? this.state.question.correctNumerical + this.state.question.toleranceNumerical :0
     return (
       <div className='numerical-answer-editor'>
-        Correct: 
+        <div className='ql-num-label'>
+          Correct:
+        </div>
         <input type='number'
           placeholder='Correct'
           onChange={this.setCorrectNumerical}
           value={this.state.question.correctNumerical} />
-        Tolerance:
+        <div className='ql-num-label'>
+          Tolerance:
+        </div>
         <input type='number'
           min={0}
           onChange={this.setToleranceNumerical}
           placeholder='Tolerance'
           value={this.state.question.toleranceNumerical} />
+        { this.state.question.correctNumerical && this.state.question.toleranceNumerical ?
+          <div className='ql-num-label'>
+              (Allowed range: {parseFloat(minVal.toPrecision(12))} - {parseFloat(maxVal.toPrecision(12))})
+          </div>
+          :  ''
+        }
+
       </div>)
   }
 
