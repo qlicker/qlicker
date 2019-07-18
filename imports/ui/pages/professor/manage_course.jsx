@@ -175,7 +175,7 @@ class _ManageCourse extends Component {
       return  ses.date
     }).reverse().value()
 
-    const maxNum = 4
+    const maxNum = 6
     const totalSessions = sessions ? sessions.length : 0
     if (!this.state.expandedInteractiveSessionlist) sessions = sessions.slice(0, maxNum)
     const toggleExpandedSessionlist = () => { this.setState({ expandedInteractiveSessionlist: !this.state.expandedInteractiveSessionlist }) }
@@ -230,7 +230,7 @@ class _ManageCourse extends Component {
       return ses.quizIsActive() ? 1 : statusSort[ses.status]
     }).value()
 
-    const maxNum = 8
+    const maxNum = 6
     const totalSessions = sessions ? sessions.length : 0
     if (!this.state.expandedQuizlist) sessions = sessions.slice(0, maxNum)
     const toggleExpandedSessionlist = () => { this.setState({ expandedQuizlist: !this.state.expandedQuizlist }) }
