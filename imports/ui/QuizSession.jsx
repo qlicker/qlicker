@@ -39,7 +39,7 @@ class _QuizSession extends Component {
           }
         }
       })
-      if(this.props.session.quizIsActive()) {
+      if(this.props.session.quizIsActive(Meteor.user())) {
         Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {
@@ -67,7 +67,7 @@ class _QuizSession extends Component {
           }
         }
       })
-      if (nextProps.session.quizIsActive()){
+      if (nextProps.session.quizIsActive(Meteor.user())){
         Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {

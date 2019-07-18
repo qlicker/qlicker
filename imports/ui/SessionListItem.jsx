@@ -68,11 +68,12 @@ export class SessionListItem extends ListItem {
     const currentTime = Date.now()
     let status = session.status
     let quizWouldBeActive = false
+    const user = Meteor.user()
 
-    if(session.quizIsActive() ){
+    if(session.quizIsActive(user) ){
       status = 'running'
     }
-    if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd ) {
+    if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd && !session.quizIsActive(user) ) {
       status = 'done'
     }
     if (this.props.submittedQuiz){
@@ -95,13 +96,13 @@ export class SessionListItem extends ListItem {
       completion = ((index + 1) / length) * 100
     }
     let link = ''
-    if (Meteor.user().isInstructor(session.courseId) && session.status === 'done') {
+    if (user.isInstructor(session.courseId) && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.toggleReview(evt)}>{strAllowReview}</a>
-    } else if (Meteor.user().isInstructor(session.courseId) && session.status !== 'done' && session.status !== 'hidden' && session.quizIsClosed()) {
+    } else if (user.isInstructor(session.courseId) && session.status !== 'done' && session.status !== 'hidden' && session.quizIsClosed()) {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.endSession(evt)}>Close quiz</a>
-    } else if (Meteor.user().isInstructor(session.courseId) && quizWouldBeActive) {
+    } else if (user.isInstructor(session.courseId) && quizWouldBeActive) {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.makeVisible(evt)}>Make quiz visible</a>
-    } else if (Meteor.user().hasRole('student') && session.reviewable && session.status === 'done') {
+    } else if (user.hasRole('student') && session.reviewable && session.status === 'done') {
       link = <a href='#' className='toolbar-button' onClick={(evt) => this.reviewSession(evt)}>Review</a>
     } else {}
 
@@ -112,9 +113,17 @@ export class SessionListItem extends ListItem {
     let showTime = session.date || session.quizStart || session.quizEnd
     let timeString = moment(session.date).format('MMMM DD, YYYY')
     if (session.quiz){
-      if (session.status === 'done'){
-        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
-      } else if (session.quizIsActive() && this.props.submittedQuiz) {
+      if (session.userHasActiveQuizExtension(user) && !this.props.submittedQuiz) {
+        const extension = _(session.quizExtensions).findWhere({userId:user._id})
+        timeString = '(Extension) Closes at '+moment(extension.quizEnd).format('hh:mm A') +' on '+moment(extension.quizEnd).format('dddd MMMM DD, YYYY')
+      }
+      else if (session.status === 'done'){
+        if (session.quizHasActiveExtensions() && user.isInstructor(session.courseId)){
+          timeString = '(Extension sill active!) Closed '+moment(session.date).format('MMMM DD, YYYY')
+        } else {
+          timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+        }
+      } else if (session.quizIsActive(user) && this.props.submittedQuiz) {
         timeString = 'Submitted'
       }
       else if (session.quizStart && currentTime < session.quizStart){
@@ -127,7 +136,11 @@ export class SessionListItem extends ListItem {
         timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
       }
       else if (session.quizEnd){
-        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+        if (session.quizHasActiveExtensions()){
+          timeString = '(Extension sill active!) Closed '+moment(session.date).format('MMMM DD, YYYY')
+        } else {
+          timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+        }
       }
       else{}
     }

@@ -19,7 +19,8 @@ class _Course extends Component {
     super(props)
 
     this.state = {
-      expandedSessionlist: false
+      expandedInteractiveSessionlist: false,
+      expandedQuizlist: false
     }
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
     this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)
@@ -28,7 +29,7 @@ class _Course extends Component {
   componentDidMount () {
     if (this.props.sessions){
       this.props.sessions.forEach(s => {
-        if (s.quizIsActive()){
+        if (s.quizIsActive(Meteor.user())){
           Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
             if(err) alertify.error(err.error)
             if(!err && submitted) {
@@ -43,7 +44,7 @@ class _Course extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.sessions){
       nextProps.sessions.forEach(s => {
-        if (s.quizIsActive()){
+        if (s.quizIsActive(Meteor.user())){
           Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
             if(err) alertify.error(err.error)
             if(!err && submitted) {
@@ -62,6 +63,7 @@ class _Course extends Component {
   }
 
   sessionClickHandler (session) {
+    const user = Meteor.user()
     // Disabled the student.results route for now:
     if (session.status === 'done' && session.reviewable  ) {
       Router.go('session.results', { sessionId: session._id, courseId: this.props.course._id })
@@ -70,7 +72,7 @@ class _Course extends Component {
       if (session.quiz) alertify.error('Quiz not reviewable')
       else alertify.error('Session not reviewable')
     }
-    else if (session.quiz && !session.quizIsActive() ){
+    else if (session.quiz && !session.quizIsActive(user) ){
       alertify.error('Quiz not open')
     }
     else if (session.quiz && this.state.submitted && _(this.state.submitted).contains(session._id)/*session.quizCompleted(Meteor.userId())*/ ){
@@ -81,21 +83,19 @@ class _Course extends Component {
     }
   }
 
-  renderSessionList () {
+  renderInteractiveSessionList () {
     // let sessions = this.props.course.sessions || []
-    let sessions = this.props.sessions || []
+    let sessions = _(this.props.sessions).where({quiz:false}) || []
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
     sessions = _(sessions).chain().sortBy(function (ses) {
       return ses.date
-    }).reverse().sortBy(function (ses) {
-      return ses.quizIsActive() ? 1 : statusSort[ses.status]
-    }).value()
+    }).reverse().value()
 
-    const maxNum = 8
+    const maxNum = 4
     const totalSessions = sessions.length
-    if (!this.state.expandedSessionlist) sessions = sessions.slice(0, maxNum)
-    const toggleExpandedSessionlist = () => { this.setState({ expandedSessionlist: !this.state.expandedSessionlist }) }
-    const expandText = !this.state.expandedSessionlist ? 'Show all' : 'Show less'
+    if (!this.state.expandedInteractiveSessionlist) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedInteractiveSessionlist: !this.state.expandedInteractiveSessionlist }) }
+    const expandText = !this.state.expandedInteractiveSessionlist ? 'Show all' : 'Show less'
     return (<div>
       {
         sessions.map((s) => (<SessionListItem
@@ -110,17 +110,45 @@ class _Course extends Component {
         </a> : '' }
     </div>)
   }
+  renderQuizList () {
+    // let sessions = this.props.course.sessions || []
+    let sessions =  _(this.props.sessions).where({quiz:true}) || []
+    const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
+    sessions = _(sessions).chain().sortBy(function (ses) {
+      return ses.quizEnd ? ses.quizEnd : ses.date
+    }).reverse().sortBy(function (ses) {
+      return ses.quizIsActive(Meteor.user()) ? 1 : statusSort[ses.status]
+    }).value()
 
+    const maxNum = 8
+    const totalSessions = sessions.length
+    if (!this.state.expandedQuizlist) sessions = sessions.slice(0, maxNum)
+    const toggleExpandedSessionlist = () => { this.setState({ expandedQuizlist: !this.state.expandedQuizlist }) }
+    const expandText = !this.state.expandedQuizlist ? 'Show all' : 'Show less'
+    return (<div>
+      {
+        sessions.map((s) => (<SessionListItem
+          key={s._id}
+          session={s}
+          submittedQuiz={this.state.submitted && _(this.state.submitted).contains(s._id) ? true: undefined}
+          click={() => this.sessionClickHandler(s)} />))
+      }
+      { totalSessions > maxNum
+        ? <a href='#' className='show-more-item' onClick={toggleExpandedSessionlist}>
+          <div className='ql-list-item'>{expandText}</div>
+        </a> : '' }
+    </div>)
+  }
   render () {
     //console.log(this.state)
 
     return (
       <div className='container ql-manage-course'>
         <h2>{this.props.course.name} [<span className='uppercase'>{this.props.course.fullCourseCode()}</span>]</h2>
-
-
-        { this.renderSessionList() }
-
+        <h3> Interactive sessions </h3>
+        { this.renderInteractiveSessionList() }
+        <h3> Quizzes </h3>
+        { this.renderQuizList() }
         <br />
 
       </div>)

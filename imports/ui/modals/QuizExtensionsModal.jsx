@@ -60,8 +60,6 @@ class _QuizExtensionsModal extends Component {
 
   componentWillReceiveProps (nextProps) {
     //Update the list of suggested students for extensions, and those that already have extensions
-    console.log("new props")
-    console.log(nextProps.session.quizExtensions)
     let suggestions = []
     let studentExtensions = nextProps.session.quizExtensions ? nextProps.session.quizExtensions : []
     nextProps.students.forEach( (sid) =>{
@@ -93,8 +91,6 @@ class _QuizExtensionsModal extends Component {
   }
 
   setQuizStartTime (sid, amoment) {
-    console.log("start")
-    console.log(sid,amoment)
     const isMoment = amoment instanceof moment
     let quizStart = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
 
@@ -115,9 +111,6 @@ class _QuizExtensionsModal extends Component {
   }
 
   setQuizEndTime (sid, amoment) {
-    console.log("end")
-    console.log(sid,amoment)
-
     const isMoment = amoment instanceof moment
     let quizEnd = isMoment ? amoment.toDate() : (amoment ? amoment  : null)
 
@@ -138,7 +131,6 @@ class _QuizExtensionsModal extends Component {
   }
 
   saveChanges (){
-    console.log("saving")
     Meteor.call('sessions.updateQuizExtensions', this.props.session._id, this.state.studentExtensions, (err) => {
      if (err) return alertify.error('Error: ' + err.message)
      alertify.success('Changes saved')
@@ -147,12 +139,6 @@ class _QuizExtensionsModal extends Component {
 
   render () {
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
-    console.log(this.props.students)
-    console.log("with extensions state")
-    console.log(this.state.studentExtensions)
-    console.log("with extensions props")
-    console.log(this.props.session.quizExtensions)
-
     const extensions = this.props.session.quizExtensions ? this.props.session.quizExtensions : []
 
     return (<div className='ql-modal-container'>
@@ -162,7 +148,7 @@ class _QuizExtensionsModal extends Component {
         <div className='ql-qExtension-container container'>
 
           <div className='row'>
-            <div className='col-sm-4 left-column'>
+            <div className='col-sm-4'>
               <div className='ql-qExtension-add'>
                 <div className='ql-qExtension-add-title'>
                   Add an extension for a student
@@ -179,7 +165,7 @@ class _QuizExtensionsModal extends Component {
           </div>
 
           <div className='row'>
-            <div className='col-sm-6 left-column'>
+            <div className='col-sm-6'>
               { this.state.studentExtensions.length > 0 ?
                 <div>
                   <div className='ql-qExtension-list-title'>
@@ -195,6 +181,9 @@ class _QuizExtensionsModal extends Component {
                     <div className='ql-header-date'>
                       Quiz end
                     </div>
+                    <div className='ql-header-note'>
+                      Notes
+                    </div>
                   </div>
                   <div className='ql-qExtension-list'>
                     { this.state.studentExtensions.map( (extObj) => {
@@ -204,7 +193,14 @@ class _QuizExtensionsModal extends Component {
                         const setQuizStartTime = (mom) => this.setQuizStartTime(sid,mom)
                         const setQuizEndTime = (mom) => this.setQuizEndTime(sid,mom)
                         const removeMe = () => this.removeStudentExtension(sid)
-                        console.log("rendering line for "+name)
+                        let note = ''
+                        if (moment(extObj.quizStart).isBefore(moment(this.props.session.quizStart))){
+                          note += 'Starts '+moment(this.props.session.quizStart).from(moment(extObj.quizStart), true)+ ' early'
+                        }
+                        if (moment(extObj.quizEnd).isAfter(moment(this.props.session.quizEnd))){
+                          note += ' Ends '+moment(extObj.quizEnd ).from(moment(this.props.session.quizEnd), true)+ ' later'
+                        }
+
                         return (
                           <div className='ql-qExtension-student' key={sid}>
                             <div className='ql-qExtension-name'>
@@ -225,7 +221,9 @@ class _QuizExtensionsModal extends Component {
                                        value={extObj.quizEnd ? extObj.quizEnd : null}
                                      />
                             </div>
-
+                            <div className='ql-qExtension-note'>
+                              {note}
+                            </div>
                           </div>
                         )
                       })

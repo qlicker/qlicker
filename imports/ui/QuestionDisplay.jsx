@@ -45,16 +45,19 @@ export class QuestionDisplay extends Component {
 
     this.submitResponse = this.submitResponse.bind(this)
     this.submitResponseQuiz = this.submitResponseQuiz.bind(this)
+    this._DB_submitResponseQuiz = _.debounce(this.submitResponseQuiz, 200)
     this.disallowResponses = this.disallowResponses.bind(this)
     this.toggleShowCorrect = this.toggleShowCorrect.bind(this)
     this.toggleShowResponse = this.toggleShowResponse.bind(this)
 
     this.setAnswer = this.setAnswer.bind(this)
-    this.setNumericalAnswer = this.setNumericalAnswer.bind(this)
     this.setAnswerQuiz= this.setAnswerQuiz.bind(this)
     this.setShortAnswerWysiwyg = this.setShortAnswerWysiwyg.bind(this)
     this.setShortAnswerWysiwygQuiz = this.setShortAnswerWysiwygQuiz.bind(this)
     this._DB_SetShortAnswerWysiwygQuiz = _.debounce((content, plainText) => { this.setShortAnswerWysiwygQuiz(content, plainText) }, 800)
+    this.setNumericalAnswer = this.setNumericalAnswer.bind(this)
+    this.setNumericalAnswerQuiz = this.setNumericalAnswerQuiz.bind(this)
+
   }
 
   componentWillMount () {
@@ -209,18 +212,7 @@ export class QuestionDisplay extends Component {
       submittedAnswer: answerToSubmit
     })
   }
-  setNumericalAnswer (e) {
-    if (this.disallowResponses() || this.readonly) return
-    if (this.props.response && !this.props.response.editable){
-      alertify.error("Cannot edit this question anymore")
-      return
-    }
-    let answerToSubmit = e.target.value
-    this.setState({
-      btnDisabled: false,
-      submittedAnswer: answerToSubmit
-    })
-  }
+
   setAnswerQuiz (answer) {
     if (this.disallowResponses() || this.readonly) return
     if (this.props.response && !this.props.response.editable){
@@ -247,6 +239,35 @@ export class QuestionDisplay extends Component {
       submittedAnswer: answerToSubmit
     }, () => {
       this.submitResponseQuiz()
+    })
+  }
+
+  setNumericalAnswer (e) {
+    if (this.disallowResponses() || this.readonly) return
+    if (this.props.response && !this.props.response.editable){
+      alertify.error("Cannot edit this question anymore")
+      return
+    }
+    let answerToSubmit = e.target.value
+    this.setState({
+      btnDisabled: false,
+      submittedAnswer: answerToSubmit
+    })
+  }
+
+  setNumericalAnswerQuiz (e) {
+    console.log("event")
+    console.log(e)
+    if (this.disallowResponses() || this.readonly) return
+    if (this.props.response && !this.props.response.editable){
+      alertify.error("Cannot edit this question anymore")
+      return
+    }
+    let answerToSubmit = e.target.value
+    this.setState({
+      submittedAnswer: answerToSubmit
+    }, () => {
+      this._DB_submitResponseQuiz()
     })
   }
 
@@ -485,12 +506,10 @@ export class QuestionDisplay extends Component {
     const isCorrect = Math.abs(this.state.submittedAnswer-this.props.question.correctNumerical) <= this.props.question.toleranceNumerical
 
     if ((this.props.forReview || this.props.prof || (this.props.response && !this.props.response.editable))) {
-
       let shouldShowResponse = !!this.props.response
       if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
         shouldShowResponse = false
       }
-
       return (
         <div>
           <div className='ql-numerical-answer' >
@@ -518,7 +537,7 @@ export class QuestionDisplay extends Component {
             </div>
           : <input type='number'
             placeholder='Answer'
-            onChange={this.setNumericalAnswer}
+            onChange={this.props.isQuiz ? this.setNumericalAnswerQuiz : this.setNumericalAnswer}
             value={parseFloat(this.state.submittedAnswer)} />
         }
       </div>

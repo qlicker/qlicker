@@ -53,25 +53,47 @@ _.extend(Session.prototype, {
     return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
   },*/
 
+  quizHasActiveExtensions: function () {
+    if (!this.quiz || !this.quizExtensions) return false
+    let active = false
+    let nExt = this.quizExtensions.length
+    const currentTime = Date.now()
+
+    for(let i = 0 ; i < nExt ; i++ ){
+      let quizEnd = this.quizExtensions[i].quizEnd
+      let quizStart = this.quizExtensions[i].quizStart
+      let isPastStart = currentTime > quizStart
+      let isBeforeEnd = currentTime < quizEnd
+      if (isPastStart && isBeforeEnd){
+        active = true
+        break
+      }
+    }
+
+    return active
+  },
   // check if quiz should be open for user with an extension
   userHasActiveQuizExtension: function (user){
     if (!user || !this.quizExtensions ) return false
     const n = this.quizExtensions.length
     let found = false
-    let quizEnd = NULL
-    let quizStart = NULL
+    let quizEnd = undefined
+    let quizStart = undefined
+
     for (let i = 0 ; i < n ; i++){
-      if (this.quizExtensions[i].sid == user._id){
+      if (this.quizExtensions[i].userId == user._id){
         found = true
         quizEnd = this.quizExtensions[i].quizEnd
         quizStart = this.quizExtensions[i].quizStart
         break
       }
     }
+
     if (!found) return false
     const currentTime = Date.now()
     const isPastStart = currentTime > quizStart
     const isBeforeEnd = currentTime < quizEnd
+
     return isPastStart && isBeforeEnd
   },
   // check if quiz is currently active (iether 'running' or visible and it's the correct time)

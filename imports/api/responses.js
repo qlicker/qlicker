@@ -302,7 +302,7 @@ Meteor.methods({
     if (!q.sessionId) throw Error('Question not attached to session')
     if (Meteor.userId() !== responseObject.studentUserId) throw Error('Cannot submit this response')
     const session = Sessions.findOne({ _id: q.sessionId})
-    if (session.quiz && !session.quizIsActive()) throw new Meteor.Error('Quiz is closed')
+    if (session.quiz && !session.quizIsActive(Meteor.user())) throw new Meteor.Error('Quiz is closed')
     if (!session.quiz && !session.status === 'running') throw new Meteor.Error('Session is closed')
     // If this is a response in a quiz where the question has multiple possible attempts,
     // check if this answer is correct
@@ -344,7 +344,7 @@ Meteor.methods({
     if (!q.sessionId) throw new Meteor.Error('Question not attached to session')
     const session = Sessions.findOne({ _id: q.sessionId})
     if (!session.quiz) throw new Meteor.Error('Can only update quiz responses')
-    if (!session.quizIsActive()) throw new Meteor.Error('Quiz is closed')
+    if (!session.quizIsActive(Meteor.user())) throw new Meteor.Error('Quiz is closed')
     const response = Responses.findOne({
       attempt: responseObject.attempt,
       questionId: responseObject.questionId,

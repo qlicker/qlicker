@@ -34,7 +34,7 @@ export class _StudentCourseComponent extends Component {
   componentDidMount () {
     if (this.props.sessions){
       this.props.sessions.forEach(s => {
-        if (s.quizIsActive()){
+        if (s.quizIsActive(Meteor.user())){
           Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
             if(err) alertify.error(err.error)
             if(!err && submitted) {
@@ -49,7 +49,7 @@ export class _StudentCourseComponent extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.sessions){
       nextProps.sessions.forEach(s => {
-        if(s.quizIsActive()){
+        if(s.quizIsActive(Meteor.user())){
           Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
             if(err) alertify.error(err.error)
             if(!err && submitted) {
@@ -83,7 +83,7 @@ export class _StudentCourseComponent extends Component {
           <CourseListItem isTA={this.props.isTA} course={course} controls={controls} click={() => Router.go('course', { courseId: course._id })} />
             {
               this.props.sessions.map((s) => {
-                if (!s || s.quizIsClosed() || (s.quiz && !s.quizIsActive()) || (this.state.submitted && _(this.state.submitted).contains(s._id))) return
+                if (!s || s.quizIsClosed(user) || (s.quiz && !s.quizIsActive(user)) || (this.state.submitted && _(this.state.submitted).contains(s._id))) return
                 const sId = s._id
                 const nav = () => {
                   if (!Meteor.user().isInstructor(this.props.course._id)){

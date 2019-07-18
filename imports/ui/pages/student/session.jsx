@@ -31,7 +31,7 @@ class _Session extends Component {
   }
   componentDidMount () {
     if (this.props.session){
-      if (this.props.session.quizIsActive()){
+      if (this.props.session.quizIsActive(Meteor.user())){
         Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {
@@ -44,7 +44,7 @@ class _Session extends Component {
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.session){
-      if (nextProps.session.quizIsActive()) {
+      if (nextProps.session.quizIsActive(Meteor.user())) {
         Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
           if(err) alertify.error(err.error)
           if(!err && submitted) {

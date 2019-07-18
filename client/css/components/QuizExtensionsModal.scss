@@ -19,19 +19,29 @@
   .ql-qExtension-headers {
     display: flex;
     justify-content: space-between;
-    align-items: stretch;
+    //justify-content: space-between;
+    //align-items: stretch;
 
     font-size: 1.5em;
 
     .ql-header-name {
-      width:30%;
-      padding-left: 10px;
+      width:180px;
+      flex: 0 0 auto;
+      //padding-left: 10px;
     }
 
     .ql-header-date {
-      width:35%;
-      padding-left: 10px;
+      width:190px;
+      flex: 0 0 auto;
+      //padding-left: 10px;
     }
+
+    .ql-header-note {
+      width:75px;
+      flex: 0 0 auto;
+      //padding-left: 10px;
+    }
+
   }
 
   .ql-qExtension-list {
@@ -41,16 +51,17 @@
     .ql-qExtension-student {
       display: flex;
       justify-content: space-between;
-      align-items: stretch;
+      //align-items: stretch;
 
       padding-bottom: 5px;
       padding-top: 5px;
 
       .ql-qExtension-name {
-        width:30%;
+        width:180px;
+        flex: 0 0 auto;
         display: flex;
         justify-content: space-between;
-        font-size: 1.25em;
+        font-size: 1.2em;
         .ql-qExtension-delete {
           &:hover {
             font-weight: bold;
@@ -59,8 +70,16 @@
         }
       }
 
-      .ql-qExtesion-date {
-        width:35%;
+      .ql-qExtension-date {
+        width:190px;
+        flex: 0 0 auto;
+      }
+
+      .ql-qExtension-note {
+        font-size:0.9em;
+        width:75px;
+        padding-left:5px;
+        flex: 0 0 auto;
       }
 
     }

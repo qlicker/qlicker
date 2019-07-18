@@ -472,16 +472,22 @@ class _ManageSession extends Component {
       quizTimeInfo =  'Quiz starts: '+ moment(this.state.quizStart).fromNow()
       quizTimeInfo2 = 'Quiz duration: '+ moment(this.state.quizEnd).from(moment(this.state.quizStart), true)
     }
-
+//////////////////////////////////////////
     if (this.props.session.quiz && this.props.session.status === 'running'){
       quizTimeInfo='Quiz is live! Check status!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: until closed!'
     }
-    else if (this.props.session.quizIsActive()){
+    else if (this.props.session.quizIsActive() ){
       quizTimeInfo='Quiz is active! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
+      quizTimeActive = true
+    }
+    else if (this.props.session.quizHasActiveExtensions() ) {
+      quizTimeInfo='Active extensions! Check dates and extensions!'
+      quizTimeClassName +=' warning'
+      quizTimeInfo2 = ''
       quizTimeActive = true
     }
     else if (this.props.session.quiz && this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore()  && moment(this.state.quizEnd).isAfter() ){
