@@ -536,6 +536,7 @@ export class QuestionDisplay extends Component {
               }
             </div>
           : <input type='number'
+            step="any"
             placeholder='Answer'
             onChange={this.props.isQuiz ? this.setNumericalAnswerQuiz : this.setNumericalAnswer}
             value={parseFloat(this.state.submittedAnswer)} />

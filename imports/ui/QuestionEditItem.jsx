@@ -555,6 +555,7 @@ componentWillReceiveProps (nextProps) {
         </div>
         <input type='number'
           placeholder='Correct'
+          step="any"
           onChange={this.setCorrectNumerical}
           value={this.state.question.correctNumerical} />
         <div className='ql-num-label'>
@@ -562,6 +563,7 @@ componentWillReceiveProps (nextProps) {
         </div>
         <input type='number'
           min={0}
+          step="any"
           onChange={this.setToleranceNumerical}
           placeholder='Tolerance'
           value={this.state.question.toleranceNumerical} />
