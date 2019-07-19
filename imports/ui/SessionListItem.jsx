@@ -80,7 +80,7 @@ export class SessionListItem extends ListItem {
     if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd && !quizIsActiveUser ) {
       status = 'done'
     }
-    if (this.props.submittedQuiz){
+    if (this.props.submittedQuiz && isStudent){
       status = 'submitted'
     }
     //Show a link to activate the session from draft to visible, if it has questions and would not be past
