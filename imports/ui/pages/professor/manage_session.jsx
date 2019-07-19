@@ -479,7 +479,7 @@ class _ManageSession extends Component {
       quizTimeInfo2 ='Quiz duration: until closed!'
     }
     else if (this.props.session.quizIsActive() || this.props.session.quizHasActiveExtensions() ){
-      quizTimeInfo='Quiz is active or has active estensions! Check dates!'
+      quizTimeInfo='Quiz is active or has active extensions! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
       quizTimeActive = true
