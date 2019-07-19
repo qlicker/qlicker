@@ -74,15 +74,18 @@ export class SessionListItem extends ListItem {
     const quizHasActiveExtensions = session.quizHasActiveExtensions()
     const quizIsActiveUser = session.quizIsActive(user)
 
-    if( (isStudent && quizIsActiveUser) || (isInstructor &&  quizHasActiveExtensions) ){
-      status = 'running'
+    if (session.quiz){
+      if( (isStudent && quizIsActiveUser) || (isInstructor &&  quizHasActiveExtensions) ){
+        status = 'running'
+      }
+      if(session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd && !quizIsActiveUser && !this.props.submittedQuiz ) {
+        status = 'done'
+      }
+      if (this.props.submittedQuiz && isStudent){
+        status = 'submitted'
+      }
     }
-    if(session.quiz && session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd && !quizIsActiveUser ) {
-      status = 'done'
-    }
-    if (this.props.submittedQuiz && isStudent){
-      status = 'submitted'
-    }
+
     //Show a link to activate the session from draft to visible, if it has questions and would not be past
     if (session.quiz && session.status === 'hidden' && session.quizEnd && currentTime < session.quizEnd && session.questions.length > 0) {
       quizWouldBeActive = true
