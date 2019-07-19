@@ -478,20 +478,20 @@ class _ManageSession extends Component {
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: until closed!'
     }
-    else if (this.props.session.quizIsActive() ){
-      quizTimeInfo='Quiz is active! Check dates!'
+    else if (this.props.session.quizIsActive() || this.props.session.quizHasActiveExtensions() ){
+      quizTimeInfo='Quiz is active or has active estensions! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
       quizTimeActive = true
     }
-    else if (this.props.session.quizHasActiveExtensions() ) {
-      quizTimeInfo='Active extensions! Check dates and extensions!'
+    else if (this.props.session.quizHasActiveExtensions() && this.props.session.status === 'hidden') {
+      quizTimeInfo='Extensions will be active once not in draft mode!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 = ''
       quizTimeActive = true
     }
     else if (this.props.session.quiz && this.props.session.status === 'hidden' && moment(this.state.quizStart).isBefore()  && moment(this.state.quizEnd).isAfter() ){
-      quizTimeInfo='Quiz would be active! Check dates!'
+      quizTimeInfo='Quiz would be active once not in draft mode! Check dates!'
       quizTimeClassName +=' warning'
       quizTimeInfo2 ='Quiz duration: '+ moment(this.state.quizEnd).fromNow(true)
       quizTimeActive = true

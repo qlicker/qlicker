@@ -54,6 +54,7 @@ _.extend(Session.prototype, {
   },*/
 
   quizHasActiveExtensions: function () {
+    if (this.status === 'hidden' || this.status === 'done') return false
     if (!this.quiz || !this.quizExtensions) return false
     let active = false
     let nExt = this.quizExtensions.length
@@ -74,6 +75,7 @@ _.extend(Session.prototype, {
   },
   // check if quiz should be open for user with an extension
   userHasActiveQuizExtension: function (user){
+    if (this.status === 'hidden' || this.status === 'done') return false
     if (!user || !this.quizExtensions ) return false
     const n = this.quizExtensions.length
     let found = false
