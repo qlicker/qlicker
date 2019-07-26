@@ -424,7 +424,7 @@ class _ManageCourse extends Component {
 
           <div className='col-md-8'>
             <div className='btn-group session-button-group'>
-              <button className='btn btn-primary' onClick={toggleCreatingSession}>Create new live session or quiz</button>
+              <button className='btn btn-primary' onClick={toggleCreatingSession}>Create new interactive session/quiz</button>
             </div>
             { nSessions > 0 ?
               <div>
