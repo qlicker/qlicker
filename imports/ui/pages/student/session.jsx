@@ -29,31 +29,6 @@ class _Session extends Component {
     // TODO: not sure this is the right point to join...
     if (Meteor.user().isStudent(this.props.session.courseId)) Meteor.call('sessions.join', this.props.session._id, Meteor.userId())
   }
-  componentDidMount () {
-    if (this.props.session){
-      if (this.props.session.quizIsActive(Meteor.user())){
-        Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
-            this.setState({submitted:true})
-          }
-        })
-      }
-    }
-  }
-
-  componentWillReceiveProps (nextProps) {
-    if (nextProps.session){
-      if (nextProps.session.quizIsActive(Meteor.user())) {
-        Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
-            this.setState({submitted:true})
-          }
-        })
-      }
-    }
-  }
 
   toggleTryAgain (qId) {
     let questionsToTryAgain = this.state.questionsToTryAgain
@@ -66,10 +41,12 @@ class _Session extends Component {
 
     const cId = this.props.session.courseId
     const user = Meteor.user()
+    const submitted = this.props.session.quizWasSubmittedByUser(user._id)
+
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
-    if (this.state.submitted){
+    if (submitted){
       //alertify.error('Quiz already completed')
       Router.go('/course/' + this.props.session.courseId)
     }

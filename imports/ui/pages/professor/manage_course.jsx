@@ -424,7 +424,7 @@ class _ManageCourse extends Component {
 
           <div className='col-md-8'>
             <div className='btn-group session-button-group'>
-              <button className='btn btn-primary' onClick={toggleCreatingSession}>Create new live session or quiz</button>
+              <button className='btn btn-primary' onClick={toggleCreatingSession}>Create new interactive session/quiz</button>
             </div>
             { nSessions > 0 ?
               <div>
@@ -433,7 +433,7 @@ class _ManageCourse extends Component {
                   { this.renderInteractiveSessionList() }
                 </div>
               </div>
-              :<div><h3> no live sessions</h3> </div>
+              :<div><h3> No interactive sessions to display</h3> </div>
             }
             { nQuizzes > 0 ?
               <div>
@@ -442,7 +442,7 @@ class _ManageCourse extends Component {
                   { this.renderQuizList() }
                 </div>
               </div>
-              : <div><h3> no quizzes</h3> </div>
+              : <div><h3> No quizzes to display</h3> </div>
             }
 
           </div>
