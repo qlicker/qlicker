@@ -23,43 +23,7 @@ class _Course extends Component {
       expandedQuizlist: false
     }
     this.sessionClickHandler = this.sessionClickHandler.bind(this)
-    this.addSubmittedQuiz = this.addSubmittedQuiz.bind(this)
-  }
 
-  componentDidMount () {
-    if (this.props.sessions){
-      this.props.sessions.forEach(s => {
-        if (s.quizIsActive(Meteor.user())){
-          Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
-            if(err) alertify.error(err.error)
-            if(!err && submitted) {
-              this.addSubmittedQuiz(s._id)
-            }
-          })
-        }
-      })
-    }
-  }
-
-  componentWillReceiveProps (nextProps) {
-    if (nextProps.sessions){
-      nextProps.sessions.forEach(s => {
-        if (s.quizIsActive(Meteor.user())){
-          Meteor.call('sessions.quizSubmitted', s._id, (err, submitted) =>{
-            if(err) alertify.error(err.error)
-            if(!err && submitted) {
-              this.addSubmittedQuiz(s._id)
-            }
-          })
-        }
-      })
-    }
-  }
-
-  addSubmittedQuiz (id) {
-    let submitted = this.state.submitted ? this.state.submitted : []
-    if (!_(submitted).contains(id) )submitted.push(id)
-    this.setState({submitted:submitted})
   }
 
   sessionClickHandler (session) {
@@ -72,11 +36,11 @@ class _Course extends Component {
       if (session.quiz) alertify.error('Quiz not reviewable')
       else alertify.error('Session not reviewable')
     }
+    else if (session.quizWasSubmittedByUser(Meteor.userId())){
+      alertify.error('Quiz already submitted')
+    }
     else if (session.quiz && !session.quizIsActive(user) ){
       alertify.error('Quiz not open')
-    }
-    else if (session.quiz && this.state.submitted && _(this.state.submitted).contains(session._id)/*session.quizCompleted(Meteor.userId())*/ ){
-      alertify.error('Quiz already submitted')
     }
     else {
       Router.go('session', { _id: session._id, courseId: this.props.course._id })
@@ -101,7 +65,6 @@ class _Course extends Component {
         sessions.map((s) => (<SessionListItem
           key={s._id}
           session={s}
-          submittedQuiz={s.quiz && this.state.submitted && _(this.state.submitted).contains(s._id) ? true: undefined}
           click={() => this.sessionClickHandler(s)} />))
       }
       { totalSessions > maxNum
@@ -130,7 +93,6 @@ class _Course extends Component {
         sessions.map((s) => (<SessionListItem
           key={s._id}
           session={s}
-          submittedQuiz={this.state.submitted && _(this.state.submitted).contains(s._id) ? true: undefined}
           click={() => this.sessionClickHandler(s)} />))
       }
       { totalSessions > maxNum

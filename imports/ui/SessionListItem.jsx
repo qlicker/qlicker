@@ -73,15 +73,17 @@ export class SessionListItem extends ListItem {
     const isStudent = user.isStudent(session.courseId)
     const quizHasActiveExtensions = session.quizHasActiveExtensions()
     const quizIsActiveUser = session.quizIsActive(user)
+    const quizIsActive = session.quizIsActive()
+    const quizSubmitted = isStudent && session.quizWasSubmittedByUser(user._id)
 
     if (session.quiz){
-      if( (isStudent && quizIsActiveUser) || (isInstructor &&  quizHasActiveExtensions) ){
+      if( (isStudent && quizIsActiveUser) || (isInstructor &&  (quizIsActive || quizHasActiveExtensions)) ){
         status = 'running'
       }
-      if(session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd && !quizIsActiveUser && !this.props.submittedQuiz ) {
+      if(session.status === 'visible' && session.quizEnd && currentTime > session.quizEnd && !quizIsActiveUser ) {
         status = 'done'
       }
-      if (this.props.submittedQuiz && isStudent){
+      if (quizSubmitted){
         status = 'submitted'
       }
     }
@@ -123,19 +125,19 @@ export class SessionListItem extends ListItem {
       if (session.status === 'done') {
         timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
       }
-      else if (session.userHasActiveQuizExtension(user) && !this.props.submittedQuiz) {
+      else if (session.userHasActiveQuizExtension(user) && !quizSubmitted) {
           const extension = _(session.quizExtensions).findWhere({userId:user._id})
           timeString = '(Extension) Closes at '+moment(extension.quizEnd).format('hh:mm A') +' on '+moment(extension.quizEnd).format('dddd MMMM DD, YYYY')
       }
       else if (status === 'done'){
-        if (session.quizHasActiveExtensions() && isInstructor){
+        if (quizHasActiveExtensions && isInstructor){
           timeString = '(Extension sill active!) Closed '+moment(session.date).format('MMMM DD, YYYY')
         } else {
           timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
         }
       }
-       else if (quizIsActiveUser && this.props.submittedQuiz) {
-        timeString = 'Submitted'
+       else if (quizIsActiveUser && quizSubmitted) {
+        timeString = 'Submitted (quiz still live)'
       }
       else if (session.quizStart && currentTime < session.quizStart){
         timeString = 'Opens at '+moment(session.quizStart).format('hh:mm A') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
@@ -147,7 +149,7 @@ export class SessionListItem extends ListItem {
         timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
       }
       else if (session.quizEnd){
-        if (session.quizHasActiveExtensions()){
+        if (quizHasActiveExtensions){
           timeString = '(Extension sill active!) Closed '+moment(session.date).format('MMMM DD, YYYY')
         } else {
           timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
@@ -200,7 +202,6 @@ export class SessionListItem extends ListItem {
 SessionListItem.propTypes = {
   session: PropTypes.object.isRequired,
   details: PropTypes.bool,
-  submittedQuiz: PropTypes.bool,// whether this is a quiz that the user has submiited
   participation: PropTypes.number,
   click: PropTypes.func
 }

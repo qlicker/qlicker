@@ -26,25 +26,20 @@ class _HistogramNumerical extends Component {
         {name}: {answer}
       </div>
     )
+
   }
 
   render () {
     if (this.props.loading) return <div>Loading responses</div>
     return(
-      <Histogram values={this.props.values} width={this.props.width || undefined}/>
-    )
-    /*
-    return (
       <div>
-        <div className='ql-short-answer-list'>
-          <h3>Responses</h3>
-          {
-            this.props.responses.map(r => <div key={r._id} className='ql-short-answer-item'>{this.renderAnswer(r)}</div>)
-          }
-        </div>
-        <Histogram values={this.props.values} />
-      </div>
-    )*/
+        <Histogram values={this.props.values} width={this.props.width || undefined}/>
+        <h3>Responses</h3>
+        {
+          this.props.responses.map(r => <div key={r._id} className='ql-short-answer-item'>{this.renderAnswer(r)}</div>)
+        }
+      </div>  
+    )
   } //  end render
 
 }

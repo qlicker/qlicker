@@ -52,6 +52,9 @@ _.extend(Session.prototype, {
   quizCompleted: function (userId) {
     return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
   },*/
+  quizWasSubmittedByUser: function (userId) {
+    return this.quiz && this.submittedQuiz &&  _(this.submittedQuiz).contains(userId)
+  },
 
   quizHasActiveExtensions: function () {
     if (this.status === 'hidden' || this.status === 'done') return false
@@ -141,16 +144,19 @@ if (Meteor.isServer) {
       if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
         return Sessions.find({ courseId: courseId })
       } else if (user.isStudent(courseId)) {
-        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false, submittedQuiz:false}})
-        /*
+        //return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false, submittedQuiz:false}})
+        // TODO should really not publish the submittedQuiz field, but can't get the commented out code to work!!!
+        return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false}})
+
         //Initial publications:
-        console.log("initial forCourse publication for "+this.userId)
+        //console.log("initial forCourse publication for "+this.userId)
 
         let sessions = Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}).fetch()
         sessions.forEach( sess => {
-          sess.joined = sess.joined && _(sess.joined).contains(this.userId) ? [this.userId] : []
-          sess.submittedQuiz = sess.quiz && sess.submittedQuiz && _(sess.submittedQuiz).contains(this.userId) ? [this.userId] : []
-          this.added('sessions', sess._id, sess)
+          let s = sess
+          s.joined = sess.joined && _(sess.joined).contains(this.userId) ? [this.userId] : []
+          s.submittedQuiz = sess.quiz && sess.submittedQuiz && _(sess.submittedQuiz).contains(this.userId) ? [this.userId] : []
+          this.added('sessions', sess._id, s)
         })
         this.ready()
         //Watch for changes
@@ -163,8 +169,6 @@ if (Meteor.isServer) {
             this.added('sessions', id, newfields)
           },
           changed: (id, fields) => {
-            console.log("changed forCourse doc for "+this.userId)
-            console.log(fields)
             let newfields = fields
             if ('joined' in fields) newfields.joined = _(fields.joined).contains(this.userId) ? [this.userId] : []
             if ('submittedQuiz' in fields) newfields.submittedQuiz =  _(fields.submittedQuiz).contains(this.userId) ? [this.userId] : []
@@ -177,7 +181,7 @@ if (Meteor.isServer) {
 
         this.onStop(function () {
           sHandle.stop()
-        })*/
+        })
         //////////////////////////////////////////////////////////////
         //return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
@@ -196,15 +200,19 @@ if (Meteor.isServer) {
       if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
         return Sessions.find({_id: sessionId})
       } else if (user.isStudent(courseId)) {
+        //return Sessions.find({ _id: sessionId, status: { $ne: 'hidden' } }, {fields: {joined: false, submittedQuiz:false}} )
+        // TODO should really not publish the submittedQuiz field, but can't get the commented out code to work!!!
+        return Sessions.find({ _id: sessionId, status: { $ne: 'hidden' } }, {fields: {joined: false}} )
         //Initial publication of the session
-        return Sessions.find({ _id: sessionId, status: { $ne: 'hidden' } }, {fields: {joined: false, submittedQuiz:false}} )
+
         /*
         let sess = Sessions.findOne({ _id: sessionId, status: { $ne: 'hidden' } })
         if (!sess) this.ready()
         else {
-          sess.joined = sess.joined && _(sess.joined).contains(this.userId) ? [this.userId] : []
-          sess.submittedQuiz = sess.quiz && sess.submittedQuiz && _(sess.submittedQuiz).contains(this.userId) ? [this.userId] : []
-          if (sess.status !== 'hidden') this.added('sessions', sess._id, sess)
+          let s = sess
+          s.joined = sess.joined && _(sess.joined).contains(this.userId) ? [this.userId] : []
+          s.submittedQuiz = sess.quiz && sess.submittedQuiz && _(sess.submittedQuiz).contains(this.userId) ? [this.userId] : []
+          this.added('sessions', sess._id, s)
           this.ready()
         }
         //Watch for changes
@@ -229,7 +237,8 @@ if (Meteor.isServer) {
 
         this.onStop(function () {
           sHandle.stop()
-        })*/
+        })
+        */
         //////////////////////////////////////////////////////////////
         //return Sessions.find({ _id: sessionId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
       } else {
@@ -517,14 +526,6 @@ Meteor.methods({
     })
 
     return [...tags]
-  },
-
-  'sessions.quizSubmitted' (sessionId) {
-    check(sessionId, Helpers.MongoID)
-    if(Meteor.isServer){
-      const session = Sessions.findOne({ _id: sessionId })
-      return session && session.quiz && session.submittedQuiz && _(session.submittedQuiz).contains(Meteor.userId())
-    }
   },
 
   'sessions.submitQuiz' (sessionId) {

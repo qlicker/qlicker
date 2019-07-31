@@ -26,7 +26,6 @@ class _QuizSession extends Component {
   }
 
   componentDidMount () {
-    let isSubmitted = false
     let emptySA = false
     //Look for any SA response that is empty, so that user can be warned upon submission
     if (this.props.session){
@@ -39,22 +38,11 @@ class _QuizSession extends Component {
           }
         }
       })
-      if(this.props.session.quizIsActive(Meteor.user())) {
-        Meteor.call('sessions.quizSubmitted', this.props.session._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
-            isSubmitted = true
-          }
-          this.setState({submitted:isSubmitted})
-        })
-      }
-
     }
     this.setState({emptySA:emptySA})
   }
 
   componentWillReceiveProps (nextProps) {
-    let isSubmitted = false
     let emptySA = false
     //Look for any SA response that is empty, so that user can be warned upon submission
     if (nextProps.session){
@@ -67,15 +55,6 @@ class _QuizSession extends Component {
           }
         }
       })
-      if (nextProps.session.quizIsActive(Meteor.user())){
-        Meteor.call('sessions.quizSubmitted', nextProps.session._id, (err, submitted) =>{
-          if(err) alertify.error(err.error)
-          if(!err && submitted) {
-            isSubmitted = true
-          }
-          this.setState({submitted:isSubmitted})
-        })
-      }
     }
     this.setState({emptySA:emptySA})
   }
@@ -106,10 +85,11 @@ class _QuizSession extends Component {
 
     const cId = this.props.session.courseId
     const user = Meteor.user()
+    const submitted = this.props.session.quizWasSubmittedByUser(user._id)
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
-    if (this.state.submitted || !this.props.session.quizIsActive(user)){
+    if (submitted || !this.props.session.quizIsActive(user)){
       Router.go('/course/' + this.props.session.courseId)
     }
 
@@ -118,7 +98,7 @@ class _QuizSession extends Component {
     if (qlist.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
     let qCount = 0
     let qCount2 = 0
-    const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length && !this.state.submitted
+    const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length && !submitted
     const answersLeft = qlist.length - this.props.myResponses.length
 
 
