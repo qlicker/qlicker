@@ -55,9 +55,9 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
 
   //Retrieved in account login handler
   Accounts.saml.retrieveCredential = function(credentialToken) {
-    let profile = Accounts.saml._loginResultForCredentialToken[credentialToken];
+    let samlInfo = Accounts.saml._loginResultForCredentialToken[credentialToken];
     delete Accounts.saml._loginResultForCredentialToken[credentialToken];
-    return profile;
+    return samlInfo;
   };
 
   //Register a login handler with Meteor (gets called by client, in loginWithSaml through
@@ -84,6 +84,13 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           for (key in samlProfile){
             profile[key] = samlProfile[key]
           }
+
+          // Don't overwrite any existing sessions:
+          // TODO: Add the sso.session object here, add to its array
+          if (user.services && user.services.resume) {
+            services.resume = user.services.resume
+          }
+
           //Update profile: UPDATE: If existing user (e.g. that was promoted) don't update profile role!
           //if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
           //  profile.roles = ['professor']
@@ -193,9 +200,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //TODO: Not sure if the "saml2p:" prefix is necessary or if it's specific to Queen's University. For Queen's this does not work without.
               let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
                 //console.log("log out hack")
+             // TODO sso.session should be an array, remove only the relevant session!!!
               let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':sessionIndex })
                 //console.log(user)
               if(user){ //remove the session ID and the login token
+                // !!!!!!!!!! Remove only the relevant session1!!!!
                 Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
               }
                 //console.log(user)
