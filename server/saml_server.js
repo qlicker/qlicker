@@ -74,13 +74,17 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let profile = (user && user.profile) ? user.profile : samlProfile
         let services = (user && user.services ) ? user.services : {}
         let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
-        services.sso = {id: samlInfo.nameID,
-                        sessions: sessions,
-                        nameIDFormat: samlInfo.nameIDFormat,
-                        nameID:samlInfo.nameID,
-                        email: samlProfile.email,
-                        SSORole: samlInfo.SSORole,
-                        studentNumber:samlInfo.studentNumber }
+        let now = new Date()
+        //remove old sessions from sso sessions (done automatically for resume.loginTokens)
+        sessions = _(sessions).filter( function(ses){return ses.tokenExpires > now} )
+        services.sso = {  id: samlInfo.nameID,
+                          sessions: sessions,
+                          nameIDFormat: samlInfo.nameIDFormat,
+                          nameID:samlInfo.nameID,
+                          email: samlProfile.email,
+                          SSORole: samlInfo.SSORole,
+                          studentNumber:samlInfo.studentNumber
+                       }
 
         if(user){//existing user, update their profile
           userId = user._id
@@ -117,13 +121,15 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let hashStampedToken = Accounts._hashStampedToken(stampedToken)
 
         Meteor.users.update(userId, { /*$push: { 'services.resume.loginTokens': hashStampedToken},*/
-                                      $push: { 'services.sso.sessions': {sessionIndex: samlInfo.sessionIndex,
-                                                                         loginToken: hashStampedToken.hashedToken}}})
+                                      $push: { 'services.sso.sessions': {  sessionIndex: samlInfo.sessionIndex,
+                                                                           loginToken: hashStampedToken.hashedToken,
+                                                                           tokenExpires: hashStampedToken.when
+                                                                         }}})
         Accounts._insertLoginToken(userId, stampedToken);
         return {  userId: userId,
                   token: stampedToken.token,
                   tokenExpires: stampedToken.when,
-                  stampedLoginToken: stampedLoginToken
+                  stampedLoginToken: stampedToken
                 }
 
         } else {
@@ -136,12 +142,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
   //This is the link that goes with the Logout From SSO button in page_container
   //This is based on what was done in https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
   Meteor.methods({
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // The issue for the two methods below is that the loginToken stored in locaLstorage is,
-  // for some reason, not the one that is hashed in the services.resume.loginTokens
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!
    "getSSOLogoutUrl": (token) => {
-      // TODO This is WRONG; needs to identify which session this is!!!!
       if (settings.SSO_logoutUrl === '') return null
       user = Meteor.user()
       if (!user || !user.services || !user.services.sso || !user.services.sso.sessions || user.services.sso.sessions.length < 1) return null
@@ -224,8 +225,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                 console.log(resumetokens)
                 console.log("Need to remove session index: "+sessionIndex)
                 console.log("with token: "+sessionToken)
-                sessions = _(sessions).reject({ sessionIndex:sessionIndex })
-                resumetokens = _(resumetokens).reject({ hashedToken:sessionToken })
+                sessions = _(sessions).reject( function(ses){return ses.sessionIndex == sessionIndex}  )
+                resumetokens = _(resumetokens).reject(  function(rt){return rt.hashedToken == sessionToken} )
                 console.log("sessions and tokens after")
                 console.log(sessions)
                 console.log(resumetokens)
