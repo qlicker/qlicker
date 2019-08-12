@@ -135,26 +135,35 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
   //This is the link that goes with the Logout From SSO button in page_container
   //This is based on what was done in https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
   Meteor.methods({
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // The issue for the two methods below is that the loginToken stored in locaLstorage is,
+  // for some reason, not the one that is hashed in the services.resume.loginTokens
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!
    "getSSOLogoutUrl": (token) => {
+      // TODO This is WRONG; needs to identify which session this is!!!!
       if (settings.SSO_logoutUrl === '') return null
       user = Meteor.user()
-      if (!user || !user.services || !user.services.sso || !user.services.sso.sessions) return null
-
+      if (!user || !user.services || !user.services.sso || !user.services.sso.sessions || user.services.sso.sessions.length < 1) return null
+       /*
       let session = _(user.services.sso.sessions).findWhere( {loginToken:token} )
       if (!session) return null
       let sessionIndex = session.sessionIndex
+      */
       var getLogoutLinkSync =  Meteor.wrapAsync(getSSLogoutAsync);
-      var result = getLogoutLinkSync(user, sessionIndex);
+      var result = getLogoutLinkSync(user);
       return result;
     },
     "isSSOSession": (token) =>{
       user = Meteor.user()
-      return (user && user.services && user.services.sso && user.services.sso.sessions && _(user.services.sso.sessions).findWhere( {loginToken:token} ))
+      return (user && user.services && user.services.sso && user.services.sso.sessions && user.services.sso.sessions.length ))
+      // TODO This is WRONG; needs to identify which session this is!!!!
+      //return (user && user.services && user.services.sso && user.services.sso.sessions && _(user.services.sso.sessions).findWhere( {loginToken:token} ))
     }
   })
 
-  let getSSLogoutAsync = function(user, sessionIndex, callback){
-      let request  = {user : {nameID : user.services.sso.id , nameIDFormat: user.services.sso.nameIDFormat, sessionIndex: sessionIndex}  };
+  let getSSLogoutAsync = function(user, callback){
+      //This will not be the correct session index!!!!
+      let request  = {user : {nameID : user.services.sso.id , nameIDFormat: user.services.sso.nameIDFormat, sessionIndex: user.services.sso.sessions[0].sessionIndex}  };
       let getLogout = Accounts.samlStrategy._saml.getLogoutUrl(request, function(error,url){
          if(error) console.log(error);
          //The IDP POST request results in the logout and erasing the session, so no need to do it here
@@ -204,10 +213,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                 //console.log("log out hack")
              // TODO sso.session should be an array, remove only the relevant session!!!
               let user = Meteor.users.findOne({ 'services.sso.sessions.sessionIndex':sessionIndex })
-              console.log("Found user to logout ")
-              console.log(user)
+              //console.log("Found user to logout ")
+              //console.log(user)
               if(user){ //remove the session ID and the login token
-                // !!!!!!!!!! Remove only the relevant session1!!!!
+                //TODO Since we do not know that we got the correct token in getSSOLogoutUrl, we need to delete all sessions!
+                ///////////////////////////
                 let resumetokens = user.services.resume.loginTokens
                 let sessions = user.services.sso.sessions
                 let session = _(sessions).findWhere( {sessionIndex:sessionIndex} )
@@ -221,7 +231,9 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                 console.log("sessions and tokens after")
                 console.log(sessions)
                 console.log(resumetokens)
-                Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
+                //Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
+                ///////////////////////////
+                Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':[], 'services.resume.loginTokens' : []} })
               }
                 //console.log(user)
               res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});//this does not work, probably need a different response
