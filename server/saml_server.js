@@ -115,11 +115,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         //By adding a stamped token, the user gets logged in
         let stampedToken = Accounts._generateStampedLoginToken()
         let hashStampedToken = Accounts._hashStampedToken(stampedToken)
-        console.log("Actual loginToken: "+hashStampedToken)
-        console.log("loginToken in services: "+hashStampedToken.hashedToken)
-        console.log("stampedtotkem: "+stampedToken.token)
-        console.log("user before update")
-        console.log(user)
+
         Meteor.users.update(userId, { $push: { 'services.resume.loginTokens': hashStampedToken},
                                       $push: { 'services.sso.sessions': {sessionIndex: samlInfo.sessionIndex,
                                                                          loginToken: hashStampedToken.hashedToken}}})
@@ -143,6 +139,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
       if (settings.SSO_logoutUrl === '') return null
       user = Meteor.user()
       if (!user || !user.services || !user.services.sso || !user.services.sso.sessions) return null
+
       let session = _(user.services.sso.sessions).findWhere( {loginToken:token} )
       if (!session) return null
       let sessionIndex = session.sessionIndex
@@ -152,7 +149,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
     },
     "isSSOSession": (token) =>{
       user = Meteor.user()
-      return (user && user.services && user.services.sso && user.services.sso.sessions && _(user.services.sso.sessions).findWhere( {loginToken:token} )
+      return (user && user.services && user.services.sso && user.services.sso.sessions && _(user.services.sso.sessions).findWhere( {loginToken:token} ))
     }
   })
 
