@@ -72,23 +72,20 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let userId = null
         let user = Accounts.findUserByEmail(samlProfile.email)
         let profile = (user && user.profile) ? user.profile : samlProfile
-        let services = { sso: {id: samlInfo.nameID,
-                               nameIDFormat: samlInfo.nameIDFormat,
-                               nameID:samlInfo.nameID,
-                               email: samlProfile.email,
-                               SSORole: samlInfo.SSORole,
-                               studentNumber:samlInfo.studentNumber } }
+        let services = (user && user.services ) ? user.services : {}
+        let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
+        services.sso = {id: samlInfo.nameID,
+                        sessions: sessions,
+                        nameIDFormat: samlInfo.nameIDFormat,
+                        nameID:samlInfo.nameID,
+                        email: samlProfile.email,
+                        SSORole: samlInfo.SSORole,
+                        studentNumber:samlInfo.studentNumber }
 
         if(user){//existing user, update their profile
           userId = user._id
           for (key in samlProfile){
             profile[key] = samlProfile[key]
-          }
-
-          // Don't overwrite any existing sessions:
-          // TODO: Add the sso.session object here, add to its array
-          if (user.services && user.services.resume) {
-            services.resume = user.services.resume
           }
 
           //Update profile: UPDATE: If existing user (e.g. that was promoted) don't update profile role!
@@ -118,9 +115,14 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         //By adding a stamped token, the user gets logged in
         let stampedToken = Accounts._generateStampedLoginToken()
         let hashStampedToken = Accounts._hashStampedToken(stampedToken)
+        console.log("Actual loginToken: "+hashStampedToken)
+        console.log("loginToken in services: "+hashStampedToken.hashedToken)
+        console.log("stampedtotkem: "+stampedToken.token)
+        console.log("user before update")
+        console.log(user)
         Meteor.users.update(userId, { $push: { 'services.resume.loginTokens': hashStampedToken},
-                                      $set: { 'services.sso.session': {sessionIndex: samlInfo.sessionIndex,
-                                                                       loginToken: hashStampedToken.hashedToken }}})
+                                      $push: { 'services.sso.sessions': {sessionIndex: samlInfo.sessionIndex,
+                                                                         loginToken: hashStampedToken.hashedToken}}})
         //user = Meteor.users.findOne(userId)
         //console.log(user)
         return {
@@ -137,22 +139,25 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
   //This is the link that goes with the Logout From SSO button in page_container
   //This is based on what was done in https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
   Meteor.methods({
-   "getSSOLogoutUrl": (callback) => {
+   "getSSOLogoutUrl": (token) => {
       if (settings.SSO_logoutUrl === '') return null
       user = Meteor.user()
-      if (!user || !user.services || !user.services.sso || !user.services.sso.session || !user.services.sso.session.sessionIndex) return null
+      if (!user || !user.services || !user.services.sso || !user.services.sso.sessions) return null
+      let session = _(user.services.sso.sessions).findWhere( {loginToken:token} )
+      if (!session) return null
+      let sessionIndex = session.sessionIndex
       var getLogoutLinkSync =  Meteor.wrapAsync(getSSLogoutAsync);
-      var result = getLogoutLinkSync(user);
+      var result = getLogoutLinkSync(user, sessionIndex);
       return result;
     },
-    "isSSOSession": () =>{
+    "isSSOSession": (token) =>{
       user = Meteor.user()
-      return (user && user.services && user.services.sso && user.services.sso.session && user.services.sso.session.sessionIndex)
+      return (user && user.services && user.services.sso && user.services.sso.sessions && _(user.services.sso.sessions).findWhere( {loginToken:token} )
     }
   })
 
-  let getSSLogoutAsync = function(user, callback){
-      let request  = {user : {nameID : user.services.sso.id , nameIDFormat: user.services.sso.nameIDFormat, sessionIndex: user.services.sso.session.sessionIndex}  };
+  let getSSLogoutAsync = function(user, sessionIndex, callback){
+      let request  = {user : {nameID : user.services.sso.id , nameIDFormat: user.services.sso.nameIDFormat, sessionIndex: sessionIndex}  };
       let getLogout = Accounts.samlStrategy._saml.getLogoutUrl(request, function(error,url){
          if(error) console.log(error);
          //The IDP POST request results in the logout and erasing the session, so no need to do it here
@@ -201,11 +206,25 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
                 //console.log("log out hack")
              // TODO sso.session should be an array, remove only the relevant session!!!
-              let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':sessionIndex })
-                //console.log(user)
+              let user = Meteor.users.findOne({ 'services.sso.sessions.sessionIndex':sessionIndex })
+              console.log("Found user to logout ")
+              console.log(user)
               if(user){ //remove the session ID and the login token
                 // !!!!!!!!!! Remove only the relevant session1!!!!
-                Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
+                let resumetokens = user.services.resume.loginTokens
+                let sessions = user.services.sso.sessions
+                let session = _(sessions).findWhere( {sessionIndex:sessionIndex} )
+                let sessionToken = session.loginToken
+
+                console.log("sessions and tokens before")
+                console.log(sessions)
+                console.log(resumetokens)
+                sessions = _(sessions).reject({ sessionIndex:sessionIndex })
+                resumetokens = _(resumetokens).without(sessionToken)
+                console.log("sessions and tokens after")
+                console.log(sessions)
+                console.log(resumetokens)
+                Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
               }
                 //console.log(user)
               res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});//this does not work, probably need a different response

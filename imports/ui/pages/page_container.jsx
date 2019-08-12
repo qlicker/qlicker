@@ -44,7 +44,8 @@ class _PageContainer extends Component {
   }
 
   componentWillMount () {
-    Meteor.call("getSSOLogoutUrl", (err,result) => {
+    const token =  Meteor._localStorage.getItem('Meteor.loginToken')
+    Meteor.call("getSSOLogoutUrl", token, (err,result) => {
       if(!err){
         this.setState({ssoLogoutUrl:result})
         Meteor.call("settings.getSSOInstitution", (err2,name) => {
