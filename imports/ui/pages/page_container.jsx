@@ -44,15 +44,17 @@ class _PageContainer extends Component {
   }
 
   componentWillMount () {
-    const token =  Meteor._localStorage.getItem('Meteor.loginToken')
-    Meteor.call("getSSOLogoutUrl", token, (err,result) => {
-      if(!err){
-        this.setState({ssoLogoutUrl:result})
-        Meteor.call("settings.getSSOInstitution", (err2,name) => {
-          if(!err2)this.setState({ssoInstitution:name})
-        })
-      }
-    })
+    const token =  Meteor.user() ? Meteor._localStorage.getItem('Meteor.loginToken') : undefined
+    if (token){
+      Meteor.call("getSSOLogoutUrl", token, (err,result) => {
+        if(!err){
+          this.setState({ssoLogoutUrl:result})
+          Meteor.call("settings.getSSOInstitution", (err2,name) => {
+            if(!err2)this.setState({ssoInstitution:name})
+          })
+        }
+      })
+    }
   }
 
   componentDidMount () {

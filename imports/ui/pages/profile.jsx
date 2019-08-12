@@ -49,19 +49,21 @@ class _Profile extends Component {
 
   componentWillMount () {
     //If the SSOlogout URL exists, user is logged in through SSO, don't let them change their password!
-    const token =  Meteor._localStorage.getItem('Meteor.loginToken')
-    Meteor.call("isSSOSession", token, (err,result) => {
-      if(!err)this.setState({isSSOSession:result})
-    })
+    const token =  Meteor.user() ? Meteor._localStorage.getItem('Meteor.loginToken') : undefined
+    if(token){
+      Meteor.call("isSSOSession", token, (err,result) => {
+        if(!err)this.setState({isSSOSession:result})
+      })
+    } else {this.setState({isSSOSession:false})}
     this.getImageSettings()
   }
+
   componentDidMount () {
     this.getImageSettings()
     user = Meteor.user()
     if(user){
       this.setState({firstName: user.profile.firstname, lastName: user.profile.lastname})
     }
-
   }
 
   getImageSettings () {
