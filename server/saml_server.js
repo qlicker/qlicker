@@ -74,10 +74,12 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let profile = (user && user.profile) ? user.profile : samlProfile
         let services = (user && user.services ) ? user.services : {}
         let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
-        let now = new Date()
-        //remove old sessions from sso sessions (done automatically for resume.loginTokens)
-        // TODO Confirm that commented out command works:
-        //sessions = _(sessions).filter( function(ses){return ses.tokenExpires >= now} )
+
+        // Remove old sessions from sso sessions (done automatically for resume.loginTokens)
+        // Remove sessions that do not have an associated token in resume.loginTokens
+        let resumeTokens = (user && user.services && user.services.resume && user.services.resume.loginTokens) ? _(user.services.resume.loginTokens).pluck('hashedToken')  : []
+        sessions = _(session).filter(function( s ){ _(resumeTokens).contains(s.loginToken) } )
+
         services.sso = {  id: samlInfo.nameID,
                           sessions: sessions,
                           nameIDFormat: samlInfo.nameIDFormat,
@@ -87,16 +89,13 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                           studentNumber:samlInfo.studentNumber
                        }
 
-        if(user){//existing user, update their profile
+        if(user){
+          //existing user, update their profile
           userId = user._id
           for (key in samlProfile){
             profile[key] = samlProfile[key]
           }
 
-          //Update profile: UPDATE: If existing user (e.g. that was promoted) don't update profile role!
-          //if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName){
-          //  profile.roles = ['professor']
-          //}
           //Note that it will not actually update the email address, since the user was found by email address
           Meteor.users.update(userId, {$set: {email: profile.email,
                                               emails: [ { address: profile.email, verified: true } ],
@@ -120,13 +119,15 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         //By adding a stamped token, the user gets logged in
         let stampedToken = Accounts._generateStampedLoginToken()
         let hashStampedToken = Accounts._hashStampedToken(stampedToken)
+        //Need to associate each SSO login session with the corresponding login token, so that we can
+        //easily log out the correct session.
+        let newSession = { sessionIndex: samlInfo.sessionIndex,
+                           loginToken: hashStampedToken.hashedToken,
+                         }
 
-        Meteor.users.update(userId, { /*$push: { 'services.resume.loginTokens': hashStampedToken},*/
-                                      $push: { 'services.sso.sessions': {  sessionIndex: samlInfo.sessionIndex,
-                                                                           loginToken: hashStampedToken.hashedToken,
-                                                                           tokenExpires: hashStampedToken.when
-                                                                         }}})
+        Meteor.users.update(userId, { $push: { 'services.sso.sessions': newSession } } )
         Accounts._insertLoginToken(userId, stampedToken);
+
         return {  userId: userId,
                   token: stampedToken.token,
                   tokenExpires: stampedToken.when,
@@ -142,6 +143,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
   //This method provides a link to the SSO logout with the required SAML request.
   //This is the link that goes with the Logout From SSO button in page_container
   //This is based on what was done in https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
+  //Each user session has a login token stored in the LocalStorage of their browswer. The token, when hashed,
+  //is the same as the one in resume.loginToken.
   Meteor.methods({
    "getSSOLogoutUrl": (token) => {
       if (settings.SSO_logoutUrl === '') return null
