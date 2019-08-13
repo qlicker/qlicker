@@ -60,6 +60,7 @@ class _AdminDashboard extends Component {
                 settings={this.props.settings}
                 allUsers={this.props.allUsers}
                 courseNames={this.props.courseNames}
+                loading={this.props.loading}
                 toggleProfileViewModal={this.toggleProfileViewModal} />
             : ''
           }

@@ -92,7 +92,7 @@ Accounts.config({
 
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
-    // TODO: Do not publish services.resume and services.sso.sessions tokens!
+    // TODO: No need to publish services.resume and services.sso.sessions 
     if (this.userId) return Meteor.users.find({ _id: this.userId })
     else this.ready()
   })
