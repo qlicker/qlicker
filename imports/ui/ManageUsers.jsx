@@ -77,7 +77,6 @@ export class ManageUsers extends Component {
         profile: {
           firstname: this.state.firstname,
           lastname: this.state.lastname,
-          profileImage: this.state.profileImage,
           roles: [role]
         }
       }
@@ -132,6 +131,8 @@ export class ManageUsers extends Component {
   }
 
   render() {
+    if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
+
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
     const setSearchCourses = (val) => { this.setState({ searchCourses: val }) }
     const setSearchUser = (e) => {
