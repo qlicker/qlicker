@@ -208,32 +208,27 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
 
               //TODO: Not sure if the "saml2p:" prefix is necessary or if it's specific to Queen's University. For Queen's this does not work without.
               let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
-                //console.log("log out hack")
-             // TODO sso.session should be an array, remove only the relevant session!!!
+
               let user = Meteor.users.findOne({ 'services.sso.sessions.sessionIndex':sessionIndex })
-              //console.log("Found user to logout ")
-              //console.log(user)
+
               if(user){ //remove the session ID and the login token
-                //TODO Since we do not know that we got the correct token in getSSOLogoutUrl, we need to delete all sessions!
-                ///////////////////////////
                 let resumetokens = user.services.resume.loginTokens
                 let sessions = user.services.sso.sessions
                 let session = _(sessions).findWhere( {sessionIndex:sessionIndex} )
                 let sessionToken = session.loginToken
 
-                console.log("sessions and tokens before")
-                console.log(sessions)
-                console.log(resumetokens)
-                console.log("Need to remove session index: "+sessionIndex)
-                console.log("with token: "+sessionToken)
+                //console.log("sessions and tokens before")
+                //console.log(sessions)
+                //console.log(resumetokens)
+                //console.log("Need to remove session index: "+sessionIndex)
+                //console.log("with token: "+sessionToken)
                 sessions = _(sessions).reject( function(ses){return ses.sessionIndex == sessionIndex}  )
                 resumetokens = _(resumetokens).reject(  function(rt){return rt.hashedToken == sessionToken} )
-                console.log("sessions and tokens after")
-                console.log(sessions)
-                console.log(resumetokens)
+                //console.log("sessions and tokens after")
+                //console.log(sessions)
+                //console.log(resumetokens)
                 Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
-                ///////////////////////////
-                //Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':[], 'services.resume.loginTokens' : []} })
+
               }
                 //console.log(user)
               res.writeHead(302, {'Location': Meteor.absoluteUrl('login')});//this does not work, probably need a different response
