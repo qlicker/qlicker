@@ -76,8 +76,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
         let now = new Date()
         //remove old sessions from sso sessions (done automatically for resume.loginTokens)
-        // TODO Confirm that commented out command works:
-        //sessions = _(sessions).filter( function(ses){return ses.tokenExpires >= now} )
+        // TODO remove sessions that do not have an associated token in resume.loginTokens
+        // TODO evaluate whether we need to keep 'tokenExpires' in the sso.sessions, not used anymore?!
         services.sso = {  id: samlInfo.nameID,
                           sessions: sessions,
                           nameIDFormat: samlInfo.nameIDFormat,
@@ -121,12 +121,14 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let stampedToken = Accounts._generateStampedLoginToken()
         let hashStampedToken = Accounts._hashStampedToken(stampedToken)
 
-        Meteor.users.update(userId, { /*$push: { 'services.resume.loginTokens': hashStampedToken},*/
-                                      $push: { 'services.sso.sessions': {  sessionIndex: samlInfo.sessionIndex,
-                                                                           loginToken: hashStampedToken.hashedToken,
-                                                                           tokenExpires: hashStampedToken.when
-                                                                         }}})
+        let newSession = { sessionIndex: samlInfo.sessionIndex,
+                           loginToken: hashStampedToken.hashedToken,
+                           tokenExpires: hashStampedToken.when
+                         }
+
+        Meteor.users.update(userId, { $push: { 'services.sso.sessions': newSession } } )
         Accounts._insertLoginToken(userId, stampedToken);
+
         return {  userId: userId,
                   token: stampedToken.token,
                   tokenExpires: stampedToken.when,
