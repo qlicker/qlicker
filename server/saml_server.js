@@ -76,7 +76,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
         let now = new Date()
         //remove old sessions from sso sessions (done automatically for resume.loginTokens)
-        sessions = _(sessions).filter( function(ses){return ses.tokenExpires > now} )
+        // TODO The command below removes everything!!! fix it!
+        //sessions = _(sessions).filter( function(ses){return ses.tokenExpires > now} )
         services.sso = {  id: samlInfo.nameID,
                           sessions: sessions,
                           nameIDFormat: samlInfo.nameIDFormat,
