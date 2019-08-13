@@ -32,7 +32,6 @@ class _AdminDashboard extends Component {
   }
 
   render () {
-
     const setTab = (tab) => { this.setState({ tab: tab })}
 
     return (

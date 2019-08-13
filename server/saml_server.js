@@ -78,7 +78,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         // Remove old sessions from sso sessions (done automatically for resume.loginTokens)
         // Remove sessions that do not have an associated token in resume.loginTokens
         let resumeTokens = (user && user.services && user.services.resume && user.services.resume.loginTokens) ? _(user.services.resume.loginTokens).pluck('hashedToken')  : []
-        sessions = _(session).filter(function( s ){ _(resumeTokens).contains(s.loginToken) } )
+        sessions = _(sessions).filter(function( s ){ return _(resumeTokens).contains(s.loginToken) } )
 
         services.sso = {  id: samlInfo.nameID,
                           sessions: sessions,
