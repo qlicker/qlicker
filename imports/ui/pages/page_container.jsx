@@ -192,7 +192,7 @@ class _PageContainer extends Component {
                     <li role='separator' className='divider' />
 
                     {this.state.ssoLogoutUrl ?
-                          <li><a className='close-nav' href={this.state.ssoLogoutUrl}> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
+                          <li><a className='close-nav' href={this.state.ssoLogoutUrl} onClick={logout}  > Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
                           : <li><a className='close-nav' href={Router.routes['logout'].path()} onClick={logout} >Logout from Qlicker</a></li>
                     }
                   </ul>
