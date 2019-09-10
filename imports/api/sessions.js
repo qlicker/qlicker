@@ -53,7 +53,7 @@ _.extend(Session.prototype, {
     return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
   },*/
   quizWasSubmittedByUser: function (userId) {
-    return this.quiz && this.submittedQuiz &&  _(this.submittedQuiz).contains(userId)
+    return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
   },
 
   quizHasActiveExtensions: function () {
@@ -126,6 +126,17 @@ _.extend(Session.prototype, {
     const currentTime = Date.now()
     const isBeforeEnd = currentTime < this.quizEnd
     return !isBeforeEnd
+  },
+  quizIsUpcoming: function (user) {
+    if (!this.quiz) return false;
+    if (this.status !== 'visible') return false;
+    if (!this.quizStart || !this.quizEnd) return false;
+
+    if (this.userHasActiveQuizExtension(user)) return false
+    const currentTime = Date.now()
+    const isBeforeStart = currentTime < this.quizStart
+
+    return isBeforeStart
   },
 })
 

@@ -225,7 +225,12 @@ class _ManageCourse extends Component {
     let sessions = _(this.props.sessions).where({quiz:true}) || []
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
     sessions = _(sessions).chain().sortBy(function (ses) {
-      return  ses.quizEnd ? ses.quizEnd : ses.date
+      if (ses.quizEnd){
+        if (ses.quizIsUpcoming()) return -ses.quizStart
+        if (ses.quizIsActive()) return -ses.quizEnd
+        return ses.quizEnd
+      } else return ses.date
+      //return ses.quizEnd ? (ses.quizIsActive() ? -ses.quizEnd:-ses.quizEnd) : ses.date
     }).reverse().sortBy(function (ses) {
       return ses.quizIsActive() ? 1 : statusSort[ses.status]
     }).value()

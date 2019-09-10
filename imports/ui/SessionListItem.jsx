@@ -137,7 +137,7 @@ export class SessionListItem extends ListItem {
         }
       }
        else if (quizIsActiveUser && quizSubmitted) {
-        timeString = 'Submitted (quiz still live)'
+        timeString = 'Submitted (Closes at '+moment(session.quizStart).format('hh:mm A') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')+')'
       }
       else if (session.quizStart && currentTime < session.quizStart){
         timeString = 'Opens at '+moment(session.quizStart).format('hh:mm A') +' on '+moment(session.quizStart).format('dddd MMMM DD, YYYY')
@@ -148,12 +148,15 @@ export class SessionListItem extends ListItem {
       else if (session.quizEnd && currentTime < session.quizEnd){
         timeString = 'Closes at '+moment(session.quizEnd).format('hh:mm A') +' on '+moment(session.quizEnd).format('dddd MMMM DD, YYYY')
       }
-      else if (session.quizEnd){
+      else if (session.quizEnd && status !== 'running'){
         if (quizHasActiveExtensions){
           timeString = '(Extension sill active!) Closed '+moment(session.date).format('MMMM DD, YYYY')
         } else {
           timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
         }
+      }
+      else if (status === 'running'){
+        timeString = 'Live until closed by instructor'
       }
       else{}
     }

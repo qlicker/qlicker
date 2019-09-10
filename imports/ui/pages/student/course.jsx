@@ -77,10 +77,16 @@ class _Course extends Component {
     // let sessions = this.props.course.sessions || []
     let sessions =  _(this.props.sessions).where({quiz:true}) || []
     const statusSort = {hidden: 2, visible: 3, running: 1, done: 4}
+    const user = Meteor.user()
     sessions = _(sessions).chain().sortBy(function (ses) {
-      return ses.quizEnd ? ses.quizEnd : ses.date
+      if (ses.quizEnd){
+        if (ses.quizIsUpcoming(user) ) return -ses.quizStart
+        if (ses.quizIsActive(user) ) return -ses.quizEnd
+        return ses.quizEnd
+      } else return ses.date
+      //return ses.quizEnd ? (ses.quizIsActive(Meteor.user()) ? -ses.quizEnd:-ses.quizEnd) : ses.date
     }).reverse().sortBy(function (ses) {
-      return ses.quizIsActive(Meteor.user()) ? 1 : statusSort[ses.status]
+      return ses.quizIsActive(user) ? 1 : statusSort[ses.status]
     }).value()
 
     const maxNum = 6
