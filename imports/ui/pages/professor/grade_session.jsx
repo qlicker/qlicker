@@ -224,7 +224,7 @@ class _GradeSession extends Component {
                                                entry.profile.firstname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
                                                entry.emails[0].address.toLowerCase().includes(studentSearchString.toLowerCase())) : true
 
-        return hasName && hasResponse && hasResponseString
+        return hasName /*&& hasResponse*/ && hasResponseString //TODO likely need to comment out hasRespons here
       })
 
     //console.log(studentsToShow)
@@ -406,7 +406,8 @@ export const GradeSession = createContainer((props) => {
   const grades = Grades.find({ sessionId: props.sessionId }).fetch()
   const allResponses = Responses.find({questionId: { $in: session.questions }}).fetch()
 
-  const studentIds = session.joined || [] //course.students || []
+  //const studentIds = session.joined || [] //course.students || []
+  const studentIds = course.students || []
   const students = Meteor.users.find({ _id: { $in: studentIds } }).fetch()
 
   let questions = Questions.find({_id: { $in: session.questions }}).fetch()

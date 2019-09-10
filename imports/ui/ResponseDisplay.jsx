@@ -132,7 +132,7 @@ export class ResponseDisplay extends Component {
                   }
 
                 </div>
-              : ''
+              : <div className='answer'><div className='mctype'>no response</div></div>
             }
           </div>
 
