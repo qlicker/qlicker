@@ -51,7 +51,7 @@ class _GradeSession extends Component {
     this.calculateGrades = this.calculateGrades.bind(this)
     this.assignMark = this.assignMark.bind(this)
     this.setUnsavedChanges = this.setUnsavedChanges.bind(this)
-    this.calculateGrades = this.calculateGrades.bind(this)
+    //this.calculateGrades = this.calculateGrades.bind(this)
 
   }
   componentDidMount() {
