@@ -622,6 +622,8 @@ Meteor.methods({
 
           // don't update a mark if its automatic flag is set to false
           let automaticMark = true
+          let needsGrading = false
+
           if (existingGrade) {
             let existingMark = _(existingGrade.marks).findWhere({questionId: question._id})
             if (existingMark && (existingMark.automatic === false || !isAutoGradeable(question.type) )) {
@@ -631,16 +633,21 @@ Meteor.methods({
             if (existingMark && 'feedback' in existingMark){
               feedback = existingMark.feedback
             }
+
+            if (existingMark && !isAutoGradeable(question.type)){
+              needsGrading = existingMark.needsGrading
+            }
           }
           gradePoints += markPoints
 
-          let needsGrading = false
           if (question && !isAutoGradeable(question.type) && automaticMark &&
              question.sessionOptions && ('points' in question.sessionOptions) &&
              question.sessionOptions.points > 0 && responseId !== '0') {
             needsGrading = true
             grade.needsGrading = true
           }
+
+          if(needsGrading) grade.needsGrading = true
 
           let mark = {
             questionId: question._id,
