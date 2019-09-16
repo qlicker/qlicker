@@ -620,11 +620,11 @@ Meteor.methods({
             }
           }
 
-          // don't update a mark if its automatic flag is sest to false
+          // don't update a mark if its automatic flag is set to false
           let automaticMark = true
           if (existingGrade) {
             let existingMark = _(existingGrade.marks).findWhere({questionId: question._id})
-            if (existingMark && existingMark.automatic === false) {
+            if (existingMark && (existingMark.automatic === false || !isAutoGradeable(question.type) )) {
               markPoints = existingMark.points
               automaticMark = false
             }
