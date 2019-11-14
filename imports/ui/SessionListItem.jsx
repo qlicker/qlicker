@@ -150,9 +150,9 @@ export class SessionListItem extends ListItem {
       }
       else if (session.quizEnd && status !== 'running'){
         if (quizHasActiveExtensions){
-          timeString = '(Extension sill active!) Closed '+moment(session.date).format('MMMM DD, YYYY')
+          timeString = '(Extension sill active!) Closed '+moment(session.quizEnd).format('MMMM DD, YYYY')
         } else {
-          timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+          timeString = 'Closed '+moment(session.quizEnd).format('MMMM DD, YYYY')
         }
       }
       else if (status === 'running'){
