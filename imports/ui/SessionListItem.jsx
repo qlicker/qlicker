@@ -123,7 +123,7 @@ export class SessionListItem extends ListItem {
     let timeString = moment(session.date).format('MMMM DD, YYYY')
     if (session.quiz){
       if (session.status === 'done') {
-        timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+        timeString = 'Closed '+moment(session.quizEnd).format('MMMM DD, YYYY')
       }
       else if (session.userHasActiveQuizExtension(user) && !quizSubmitted) {
           const extension = _(session.quizExtensions).findWhere({userId:user._id})
@@ -131,9 +131,9 @@ export class SessionListItem extends ListItem {
       }
       else if (status === 'done'){
         if (quizHasActiveExtensions && isInstructor){
-          timeString = '(Extension sill active!) Closed '+moment(session.date).format('MMMM DD, YYYY')
+          timeString = '(Extension sill active!) Closed '+moment(session.quizEnd).format('MMMM DD, YYYY')
         } else {
-          timeString = 'Closed '+moment(session.date).format('MMMM DD, YYYY')
+          timeString = 'Closed '+moment(session.quizEnd).format('MMMM DD, YYYY')
         }
       }
        else if (quizIsActiveUser && quizSubmitted) {
