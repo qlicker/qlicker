@@ -422,7 +422,7 @@ Meteor.methods({
 
     const copiedQuestion = _.extend({ sharedCopy: true }, _.omit(question, 'sharedCopy'))
 
-    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    const user = Accounts.findUserByEmail(email)// Meteor.users.findOne({ 'emails.0.address': email })
     if(!user) throw new Meteor.Error('User not found')
 
     return Meteor.call('questions.duplicate', copiedQuestion, user._id)

@@ -96,8 +96,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             profile[key] = samlProfile[key]
           }
 
-          //Note that it will not actually update the email address, since the user was found by email address
-          Meteor.users.update(userId, {$set: {email: profile.email,
+          //Note that it will not actually update the email address (except to change the case), since the user was found by email address
+          Meteor.users.update(userId, {$set: {email: profile.email.toLowerCase(),
                                               emails: [ { address: profile.email, verified: true } ],
                                               profile: profile,
                                               services: services
@@ -110,7 +110,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             profile.roles = ['student']
           }
           userId = Accounts.createUser({
-                   email: profile.email,
+                   email: profile.email.toLowerCase(),
                    password: Random.secret(),//user will need to reset password to set it to something useful!
                    profile: profile
                  })
