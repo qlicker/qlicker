@@ -255,17 +255,28 @@ export class _SessionResultsTable extends Component {
     })
 
     let csvData = this.props.tableData.map((tableRow) => {
-      if (!tableRow.grade) return []
+      //if (!tableRow.grade) return []
 
-      let participationGrade = tableRow.grade.participation
-      let gradeValue = tableRow.grade.value
+      let participationGrade = tableRow.grade ? tableRow.grade.participation : 0
+      let gradeValue = tableRow.grade ? tableRow.grade.value : 0
       let row = [tableRow.lastName, tableRow.firstName, tableRow.email, participationGrade, gradeValue]
-      tableRow.grade.marks.forEach((m) => {
-        let sresponse = _( _(tableRow.sresponses).where({questionId:m.questionId})).max(function(resp){return resp.attempt})
-        row.push(sresponse ? sresponse.answer : "")
-        row.push(m.points)
-        row.push(m.outOf)
-      })
+      if (!tableRow.grade) {  //can only happen if grades were not calculated for the session
+        questions.forEach((q) => {
+          row.push("")
+          row.push(0)
+          q.sessionOptions && q.sessionOptions.point ? row.push(q.sessionOptions.points): row.push(0)
+        })
+      }
+      else {
+          tableRow.grade.marks.forEach((m) => {
+          let sresponse = _( _(tableRow.sresponses).where({questionId:m.questionId})).max(function(resp){return resp.attempt})
+          row.push(sresponse ? sresponse.answer : "")
+          row.push(m.points)
+          row.push(m.outOf)
+        })
+      }
+
+
       return row
     })
     const cvsFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
