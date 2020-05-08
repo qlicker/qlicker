@@ -207,7 +207,8 @@ export const calculateResponsePoints = (response) => {
       mark = percentage > 0 ? percentage : 0
       break
     case  QUESTION_TYPE.NU:
-      mark =  Math.abs(Number(answer)-q.correctNumerical) <= q.toleranceNumerical ? 1 : 0
+      //Need the toPrecision to get rid of roundoff (0.200000000004), and that returns a string
+      mark =  Number(Math.abs(Number(answer)-q.correctNumerical).toPrecision(7)) <= q.toleranceNumerical ? 1 : 0
       break
   }
   return mark * points
