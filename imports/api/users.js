@@ -92,7 +92,7 @@ Accounts.config({
 
 if (Meteor.isServer) {
   Meteor.publish('userData', function () {
-    // TODO: No need to publish services.resume and services.sso.sessions 
+    // TODO: No need to publish services.resume and services.sso.sessions
     if (this.userId) return Meteor.users.find({ _id: this.userId })
     else this.ready()
   })
@@ -264,7 +264,7 @@ Meteor.methods({
     check(email, Helpers.Email)
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
     if (user.hasRole(ROLES.admin)) {
-      let emailUser = Meteor.users.findOne({'emails.address': email})
+      let emailUser = Accounts.findUserByEmail(email)//Meteor.users.findOne({'emails.address': email})
       if (!emailUser) throw new Meteor.Error('Couldn\'t find user')
       return Meteor.users.update({_id: emailUser._id}, {'$set': {'emails.0.verified': true}})
     }
@@ -310,7 +310,7 @@ Meteor.methods({
     check(email, Helpers.Email)
     check(newRole, String)
     if (!Meteor.user().hasRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
-    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    const user = Accounts.findUserByEmail(email)//Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
     return Meteor.call('users.changeRole', user._id, newRole)
   },
@@ -322,7 +322,7 @@ Meteor.methods({
   'users.promote' (email) {
     check(email, Helpers.Email)
     if (!Meteor.user().canPromote()) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
-    const user = Meteor.users.findOne({ 'emails.0.address': email })
+    const user = Accounts.findUserByEmail(email) //Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
     // Prevents a professor from demoting an admin.
