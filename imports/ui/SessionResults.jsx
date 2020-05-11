@@ -5,7 +5,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
-import { _ } from 'underscore'
+//import { _ } from 'underscore'
 
 import { Questions } from '../api/questions'
 import { Responses, responseDistribution } from '../api/responses'

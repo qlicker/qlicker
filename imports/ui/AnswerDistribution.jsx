@@ -5,7 +5,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
-import { _ } from 'underscore'
+//import { _ } from 'underscore'
 
 import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
 
