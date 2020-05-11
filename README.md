@@ -92,7 +92,8 @@ meteor build ../image/build --server-only --architecture os.linux.x86_64
 
 Create a Dockerfile in the directory ../images (if following above build command), so that the application tar file is located in build/
 ```
-FROM node:8.11.4-alpine
+#FROM node:8.11.4-alpine #Qlicker up to 1.4.7
+FROM node:12.16.3-alpine #Qlicker 1.5+ (meteor 1.9 requires node 12)
 #Based on
 #https://medium.com/@gary.ascuy/dockerize-deploy-meteor-app-using-docker-with-5-mo-the-force-awakens-d9c72d111198
 
@@ -104,8 +105,8 @@ ENV BUILD_PACKAGES="python make gcc g++ git libuv bash curl tar bzip2" \
 WORKDIR /root/app/bundle
 
 ADD ./build/app.tar.gz /root/app
-RUN apk --update add ${BUILD_PACKAGES} \
-    && (cd programs/server/ && npm install --unsafe-perm) \
+RUN apk --update add ${BUILD_PACKAGES}
+RUN (cd programs/server/ && npm install --unsafe-perm) \
     && apk --update del ${BUILD_PACKAGES}
     
 RUN apk update && apk upgrade
