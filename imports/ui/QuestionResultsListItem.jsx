@@ -9,7 +9,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 
 import { Responses } from '../api/responses'
-import { _ } from 'underscore'
+//import { _ } from 'underscore'
 
 export class _QuestionResultsListItem extends Component {
 

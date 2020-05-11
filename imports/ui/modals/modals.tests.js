@@ -8,7 +8,7 @@ import React from 'react'
 import { shallow, mount } from 'enzyme'
 import { expect } from 'meteor/practicalmeteor:chai'
 import { sinon } from 'meteor/practicalmeteor:sinon'
-import { _ } from 'underscore'
+//import { _ } from 'underscore'
 
 import { CreateCourseModal, FORM_INPUTS as CREATE_FORM_INPUTS } from './CreateCourseModal'
 import { EnrollCourseModal, FORM_INPUTS as ENROLL_FORM_INPUTS } from './EnrollCourseModal'

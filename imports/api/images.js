@@ -10,7 +10,7 @@ import { Questions } from './questions'
 import { check, Match } from 'meteor/check'
 import Helpers from './helpers.js'
 
-import { _ } from 'underscore'
+//import { _ } from 'underscore'
 
 // expected collection pattern
 const imagePattern = {
