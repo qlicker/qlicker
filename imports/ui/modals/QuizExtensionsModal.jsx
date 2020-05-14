@@ -3,7 +3,8 @@
 //
 // CreateCourseModal.jsx
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import _ from 'underscore'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'

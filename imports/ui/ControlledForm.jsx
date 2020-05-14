@@ -3,8 +3,8 @@
 //
 // ControlledForm.jsx: super class for controlled form components
 
-import { Component, PropTypes } from 'react'
-
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 /**
  * super class for make component with react 'controlled' form. Provided methods for setting and storing value fo controlled form elements usind the data-id attribute.
  */

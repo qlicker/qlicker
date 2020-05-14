@@ -4,7 +4,8 @@
 //
 // ResponseList.jsx: page for displaying a list of responses to a question
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 

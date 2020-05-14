@@ -4,7 +4,8 @@
 //
 // manage_course.jsx: page for managing a specific course
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 import _ from 'underscore'
 

@@ -3,7 +3,8 @@
 //
 // A general purpose drag and drop component.
 
-import { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import Dropzone from 'dropzone'
 

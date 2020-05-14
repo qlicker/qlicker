@@ -3,7 +3,8 @@
 //
 // QuestionEditItem.jsx: component for editing/create used in session creation
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import _ from 'underscore'
 
 import Select, { Creatable } from 'react-select'
