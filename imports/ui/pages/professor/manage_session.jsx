@@ -107,7 +107,7 @@ class _ManageSession extends Component {
    */
   componentDidMount () {
     // populate tagging suggestions
-    tagSuggestions = []
+    let tagSuggestions = []
     Meteor.call('sessions.possibleTags', (e, tags) => {
       // non-critical, if e: silently fail
       tags.forEach((t) => {

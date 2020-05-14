@@ -4,7 +4,8 @@
 //
 // ShortAnswerList.jsx
 
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data'
 import { Histogram } from './Histogram'
 //import { WysiwygHelper } from '../wysiwyg-helpers'
@@ -38,7 +39,7 @@ class _HistogramNumerical extends Component {
         {
           this.props.responses.map(r => <div key={r._id} className='ql-short-answer-item'>{this.renderAnswer(r)}</div>)
         }
-      </div>  
+      </div>
     )
   } //  end render
 

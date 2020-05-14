@@ -4,7 +4,8 @@
 //
 // StudentQuestionResultsListItem.jsx: List displaying student session results
 
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import { WysiwygHelper } from '../wysiwyg-helpers'
 
 export class StudentQuestionResultsListItem extends Component {

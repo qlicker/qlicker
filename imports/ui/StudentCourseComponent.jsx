@@ -3,7 +3,8 @@
 //
 // StudentCourseComponent.jsx: expanding UI component for student dashboard
 
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data'
 
 import { Sessions } from '../api/sessions'
