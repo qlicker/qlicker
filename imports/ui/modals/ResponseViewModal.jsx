@@ -3,7 +3,8 @@
 //
 // ResponseViewModal.jsx: modal for viewing a full response to a question
 
-import React, { PropTypes } from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import { ControlledForm } from '../ControlledForm'
 

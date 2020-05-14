@@ -3,7 +3,8 @@
 //
 // CreateQuestionModal.jsx
 
-import React, { PropTypes } from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 import { ControlledForm } from '../ControlledForm'
 import { QuestionEditItem } from '../QuestionEditItem'
 

@@ -3,7 +3,8 @@
 //
 // ExportModal.jsx: modal for exporting a question to a user outside of the current course
 
-import React, { PropTypes } from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import { ControlledForm } from '../ControlledForm'
 

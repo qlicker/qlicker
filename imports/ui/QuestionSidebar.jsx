@@ -3,7 +3,8 @@
 //
 // QuestionSidebar.jsx: vertical component to search for questions
 
-import React, { PropTypes } from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 import { createContainer } from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
