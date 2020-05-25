@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 import { WysiwygHelper } from '../wysiwyg-helpers'
 
 import { Responses } from '../api/responses'
@@ -31,7 +31,7 @@ export class _QuestionResultsListItem extends Component {
 
 }
 
-export const QuestionResultsListItem = createContainer((props) => {
+export const QuestionResultsListItem = withTracker((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const responses = Responses.find({ questionId: props.question._id }).fetch()
 
@@ -39,10 +39,9 @@ export const QuestionResultsListItem = createContainer((props) => {
     responses: responses,
     loading: !handle.ready()
   }
-}, _QuestionResultsListItem)
+})(_QuestionResultsListItem)
 
 QuestionResultsListItem.propTypes = {
   question: PropTypes.object.isRequired,
   session: PropTypes.object.isRequired
 }
-

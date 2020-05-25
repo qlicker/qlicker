@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 //
 //import { _ } from 'underscore'
 
@@ -283,7 +283,7 @@ export class _GradeTable extends Component {
       }
       csvData.push(row)
     }
-    
+
     const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
     const handleSubmit = (e) => { e.preventDefault() }
 
@@ -363,7 +363,7 @@ export class _GradeTable extends Component {
 }
 
 // meteor reactive data container
-export const GradeTable = createContainer((props) => {
+export const GradeTable = withTracker((props) => {
   const handle = Meteor.subscribe('users.studentsInCourse', props.courseId) &&
     Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
@@ -425,7 +425,7 @@ export const GradeTable = createContainer((props) => {
     sessions: sessions,
     loading: !handle.ready()
   }
-}, _GradeTable)
+})( _GradeTable)
 
 GradeTable.propTypes = {
   courseId: PropTypes.string

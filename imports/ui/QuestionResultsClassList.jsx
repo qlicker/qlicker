@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import _ from 'underscore'
 
@@ -67,7 +67,7 @@ export class _QuestionResultsClassList extends Component {
 
 }
 
-export const QuestionResultsClassList = createContainer((props) => {
+export const QuestionResultsClassList = withTracker((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id) &&
                  Meteor.subscribe('users.studentsInCourse', props.session.courseId)
 
@@ -79,7 +79,7 @@ export const QuestionResultsClassList = createContainer((props) => {
     students: students,
     loading: !handle.ready()
   }
-}, _QuestionResultsClassList)
+})(_QuestionResultsClassList)
 
 QuestionResultsClassList.propTypes = {
   question: PropTypes.object.isRequired,

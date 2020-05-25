@@ -492,6 +492,7 @@ Meteor.methods({
       // If making the session reviewable, calculate/update the grades
       if (!session.reviewable) {
         Meteor.call('grades.calcSessionGrades', session._id)
+
       } else { // If the session is made non-reviewable, hide the grades from students
         const grades = Grades.find({ sessionId: session._id }).fetch()
         if (grades.length > 0) {

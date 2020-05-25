@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
 import { StudentCourseComponent } from '../../StudentCourseComponent'
@@ -52,7 +52,7 @@ class _ProfessorDashboard extends Component {
 
 }
 
-export const ProfessorDashboard = createContainer(() => {
+export const ProfessorDashboard = withTracker(() => {
   const handle = Meteor.subscribe('courses') //&& Meteor.subscribe('sessions')
 
   const courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } }).fetch()
@@ -65,4 +65,4 @@ export const ProfessorDashboard = createContainer(() => {
     //sessions: sessions,
     loading: !handle.ready()
   }
-}, _ProfessorDashboard)
+})(_ProfessorDashboard)

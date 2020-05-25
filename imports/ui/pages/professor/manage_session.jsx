@@ -8,7 +8,7 @@ import React, { Component } from 'react'
 
 import _ from 'underscore'
 
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 import { SingleDatePicker } from 'react-dates'
 import moment from 'moment-timezone'
 import { Creatable } from 'react-select'
@@ -680,7 +680,7 @@ class _ManageSession extends Component {
 
 }
 
-export const ManageSession = createContainer((props) => {
+export const ManageSession = withTracker((props) => {
   //const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor})
 
   const handle =  Meteor.subscribe('sessions.single', props.sessionId) &&
@@ -698,4 +698,4 @@ export const ManageSession = createContainer((props) => {
     questions: _.indexBy(questionsInSession, '_id'),
     loading: !handle.ready()
   }
-}, _ManageSession)
+})(_ManageSession)

@@ -7,7 +7,7 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
 
@@ -44,7 +44,7 @@ class _ResultsOverview extends Component {
 
 }
 
-export const ResultsOverview = createContainer((props) => {
+export const ResultsOverview = withTracker((props) => {
   const handle = Meteor.subscribe('courses')
 
   const user = Meteor.user()
@@ -56,4 +56,4 @@ export const ResultsOverview = createContainer((props) => {
     courses: courses.fetch(),
     loading: !handle.ready()
   }
-}, _ResultsOverview)
+})(_ResultsOverview)

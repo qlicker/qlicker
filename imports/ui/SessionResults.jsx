@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 import { Questions } from '../api/questions'
@@ -76,7 +76,7 @@ export class _SessionResults extends Component {
 
 }
 
-export const SessionResults = createContainer((props) => {
+export const SessionResults = withTracker((props) => {
   const handle = Meteor.subscribe('questions.inSession', props.session._id) &&
                  Meteor.subscribe('responses.forSession', props.session._id)
 
@@ -96,7 +96,7 @@ export const SessionResults = createContainer((props) => {
     loading: !handle.ready(),
     //session: props.session
   }
-}, _SessionResults)
+})(_SessionResults)
 
 SessionResults.propTypes = {
   session: PropTypes.object.isRequired

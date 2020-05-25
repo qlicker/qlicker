@@ -104,7 +104,7 @@ export class QuestionEditItem extends Component {
   componentDidMount() {
     Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
       // non-critical, if e: silently fail
-      tagSuggestions = []
+      let tagSuggestions = []
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })

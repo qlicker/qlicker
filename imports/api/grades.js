@@ -164,18 +164,19 @@ if (Meteor.isServer) {
 export const calculateResponsePoints = (response) => {
   if (!response) return 0
   // if (!response || !response.attempt) return 0
+
   const q = Questions.findOne({ _id: response.questionId })
   const answer = response.answer
   if (!q || !answer) return 0
 
   if (!isAutoGradeable(q.type)) return 0
-
-  const correct = _.map(_.filter(q.options, {correct: true}), (op) => op.answer) // correct responses
+  const correct = _.map(_.where(q.options, {correct: true}), (op) => op.answer) // correct responses
   const attemptNumber = response.attempt
   let points = 1.0 // points that the question is worth
 
   let weight = 1.0 // weight of that attempt of the question (e.g. second attempt could be worth less points)
   if (q.sessionOptions) {
+
     if ('points' in q.sessionOptions) {
       points = q.sessionOptions.points
     }
@@ -519,6 +520,7 @@ Meteor.methods({
    */
   'grades.calcSessionGrades' (sessionId) {
     if (Meteor.isServer) { // only run this on the server!
+
       const user = Meteor.user()
       const sess = Sessions.findOne({_id: sessionId})
       if (!sess) {
@@ -549,6 +551,7 @@ Meteor.methods({
       let numQuestions = 0 // worth points
       let markOutOf = []
       let gradeOutOf = 0
+
       for (let iq = 0; iq < numQuestionsTotal; iq++) {
         let question = questions[iq]
         // assume that it is worth 1 point
@@ -619,6 +622,7 @@ Meteor.methods({
               markPoints = calculateResponsePoints(response)
               numAnswered += 1
             }
+
           }
 
           // don't update a mark if its automatic flag is set to false

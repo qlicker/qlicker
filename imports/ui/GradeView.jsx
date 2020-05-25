@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 // import { ControlledForm } from './ControlledForm'
@@ -330,7 +330,7 @@ export class _GradeView extends Component {
 } // end GradeView
 
 // meteor reactive data container
-export const GradeView = createContainer((props) => {
+export const GradeView = withTracker((props) => {
   const courseId = props.grade.courseId
   const sessionId = props.grade.sessionId
 
@@ -357,7 +357,7 @@ export const GradeView = createContainer((props) => {
     courseId: courseId,
     showAttempts: showAttempts
   }
-}, _GradeView)
+})( _GradeView)
 
 GradeView.propTypes = {
   grade: PropTypes.object,

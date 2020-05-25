@@ -7,7 +7,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
 
@@ -477,7 +477,7 @@ export class _QuestionsLibrary extends Component {
 
 
 
-export const QuestionsLibrary = createContainer((props) => {
+export const QuestionsLibrary = withTracker((props) => {
 
   const handle =  Meteor.subscribe('courses.single', props.courseId)
   const course = Courses.findOne({_id: props.courseId})
@@ -487,4 +487,4 @@ export const QuestionsLibrary = createContainer((props) => {
     course: course
   }
 
-}, _QuestionsLibrary)
+})(_QuestionsLibrary)

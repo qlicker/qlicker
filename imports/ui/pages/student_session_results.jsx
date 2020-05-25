@@ -4,7 +4,7 @@
 // student_session_results.jsx: page for students to review previous sessions
 
 import React, { Component } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
 import { Grades } from '../../api/grades'
@@ -118,7 +118,7 @@ class _StudentSessionResultsPage extends Component {
 }
 
 // meteor reactive data container
-export const StudentSessionResultsPage = createContainer((props) => {
+export const StudentSessionResultsPage = withTracker((props) => {
   const handle = Meteor.subscribe('userData') &&
     Meteor.subscribe('courses') &&
     Meteor.subscribe('sessions.single', props.sessionId) &&
@@ -145,4 +145,4 @@ export const StudentSessionResultsPage = createContainer((props) => {
     userId: userId,
     questions: questions
   }
-}, _StudentSessionResultsPage)
+})(_StudentSessionResultsPage)

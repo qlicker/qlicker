@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 import { Questions } from '../../../api/questions'
@@ -203,7 +203,7 @@ class _Session extends Component {
 }
 
 // meteor reactive data container
-export const Session = createContainer((props) => {
+export const Session = withTracker((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
                  Meteor.subscribe('questions.inSession', props.sessionId) &&
                  Meteor.subscribe('responses.forSession', props.sessionId)
@@ -232,4 +232,4 @@ export const Session = createContainer((props) => {
     responseStatsByQuestion: responseStatsByQuestion,
     loading: !handle.ready()
   }
-}, _Session)
+})(_Session)

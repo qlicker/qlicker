@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
@@ -46,7 +46,7 @@ class _ShortAnswerList extends Component {
 
 }
 
-export const ShortAnswerList = createContainer((props) => {
+export const ShortAnswerList = withTracker((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
   const question = props.question
   const attemptNumber = question.sessionOptions ? question.sessionOptions.attempts.length : 0
@@ -58,7 +58,7 @@ export const ShortAnswerList = createContainer((props) => {
     responses: responses,
     loading: !handle.ready()
   }
-}, _ShortAnswerList)
+})(_ShortAnswerList)
 
 ShortAnswerList.propTypes = {
   question: PropTypes.object.isRequired

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 import { Questions } from '../api/questions'
@@ -205,7 +205,7 @@ class _QuizSession extends Component {
 
 }
 
-export const QuizSession = createContainer((props) => {
+export const QuizSession = withTracker((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
     Meteor.subscribe('questions.inSession', props.sessionId) &&
     Meteor.subscribe('responses.forQuiz', props.sessionId)
@@ -222,4 +222,4 @@ export const QuizSession = createContainer((props) => {
     myResponses: allMyResponses, // responses related to this session
     loading: !handle.ready()
   }
-}, _QuizSession)
+})(_QuizSession)

@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
 
@@ -36,7 +36,7 @@ export class _CourseGrades extends Component {
 
 }
 
-export const CourseGrades = createContainer((props) => {
+export const CourseGrades = withTracker((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId)
 
   const course = Courses.findOne(props.courseId)
@@ -45,7 +45,7 @@ export const CourseGrades = createContainer((props) => {
     courseName: course.name,
     loading: !handle.ready()
   }
-}, _CourseGrades)
+})( _CourseGrades)
 
 CourseGrades.propTypes = {
   courseId: PropTypes.string
