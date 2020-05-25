@@ -2,9 +2,6 @@
 // Author: Enoch T <me@enocht.am>
 //
 // AddTAModal.jsx
-
-//import React, { PropTypes } from 'react'
-
 import React from 'react';
 import PropTypes from 'prop-types';
 
