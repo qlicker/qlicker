@@ -4,11 +4,12 @@
 //
 // manage_course.jsx: page for managing a specific course
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 import _ from 'underscore'
 
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
@@ -393,7 +394,7 @@ class _GradeSession extends Component {
 
 }
 
-export const GradeSession = createContainer((props) => {
+export const GradeSession = withTracker((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId) &&
                  Meteor.subscribe('grades.forSession', props.sessionId) &&
                  Meteor.subscribe('courses.single', props.courseId) &&
@@ -446,7 +447,7 @@ export const GradeSession = createContainer((props) => {
     questions: sortedQuestions,
     responseStatsByQuestion: responseStatsByQuestion
   }
-}, _GradeSession)
+})(_GradeSession)
 
 GradeSession.propTypes = {
   sessionId: PropTypes.string,

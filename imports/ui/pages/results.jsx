@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
 import { Sessions } from '../../api/sessions'
@@ -41,7 +41,7 @@ class _Results extends Component {
 }
 
 // meteor reactive data container
-export const ResultsPage = createContainer((props) => {
+export const ResultsPage = withTracker((props) => {
   const handle = Meteor.subscribe('userData') &&
     Meteor.subscribe('courses') &&
     Meteor.subscribe('sessions.single', props.sessionId)
@@ -53,4 +53,4 @@ export const ResultsPage = createContainer((props) => {
     session: session,
     loading: !handle.ready()
   }
-}, _Results)
+})(_Results)

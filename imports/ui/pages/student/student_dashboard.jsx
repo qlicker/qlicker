@@ -4,7 +4,7 @@
 // student_dashboard.jsx: student overview page
 
 import React, { Component } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Courses } from '../../../api/courses.js'
 
@@ -97,7 +97,7 @@ class _StudentDashboard extends Component {
   }
 }
 
-export const StudentDashboard = createContainer(() => {
+export const StudentDashboard = withTracker(() => {
   const handle = Meteor.subscribe('courses')
   const myId = Meteor.userId()
   const courses = Courses.find({ '$or' :[{ students:myId }, { instructors:myId }] }).fetch()
@@ -107,4 +107,4 @@ export const StudentDashboard = createContainer(() => {
     loading: !handle.ready(),
     handle: handle
   }
-}, _StudentDashboard)
+})(_StudentDashboard)

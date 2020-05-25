@@ -4,8 +4,9 @@
 //
 // ResponseList.jsx: page for displaying a list of responses to a question
 
-import React, { PropTypes, Component } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { withTracker }  from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 
 import _ from 'underscore'
@@ -203,7 +204,7 @@ class _ResponseList extends Component {
   }
 }
 
-export const ResponseList = createContainer((props) => {
+export const ResponseList = withTracker((props) => {
   const handle = Meteor.subscribe('responses.forSession', props.sessionId) &&
                  Meteor.subscribe('grades.forSession', props.sessionId)
 
@@ -238,7 +239,7 @@ export const ResponseList = createContainer((props) => {
     markByStudentId: markByStudentId,
     gradeByStudenId: gradeByStudenId,
   }
-}, _ResponseList)
+})(_ResponseList)
 
 ResponseList.propTypes = {
   session: PropTypes.object,

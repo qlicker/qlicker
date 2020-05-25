@@ -4,7 +4,7 @@
 // admin_dashboard.jsx: admin overview page
 
 import React, { Component } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker } from 'meteor/react-meteor-data'
 
 import { Settings } from '../../../api/settings'
 
@@ -76,7 +76,7 @@ class _AdminDashboard extends Component {
   }
 }
 
-export const AdminDashboard = createContainer(() => {
+export const AdminDashboard = withTracker(() => {
   const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings') &&
                  Meteor.subscribe('courses')
   const courses = Courses.find({}, {sort: {name : 1, createdAt: -1}}).fetch()
@@ -93,4 +93,4 @@ export const AdminDashboard = createContainer(() => {
     courseNames: courseNames,
     loading: !handle.ready()
   }
-}, _AdminDashboard)
+})(_AdminDashboard)

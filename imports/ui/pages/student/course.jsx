@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 import { Courses } from '../../../api/courses'
@@ -124,7 +124,7 @@ class _Course extends Component {
 
 }
 
-export const Course = createContainer((props) => {
+export const Course = withTracker((props) => {
   //console.log("subscribing")
   const handle = Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('userData') &&
@@ -141,4 +141,4 @@ export const Course = createContainer((props) => {
     sessions: sessions,
     loading: !handle.ready()
   }
-}, _Course)
+})(_Course)

@@ -7,7 +7,7 @@ import React, { Component } from 'react'
 //import { _ } from 'underscore'
 import ReactTooltip from 'react-tooltip'
 
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
@@ -482,7 +482,7 @@ class _RunSession extends Component {
 
 }
 
-export const RunSession = createContainer((props) => {
+export const RunSession = withTracker((props) => {
   const handle = Meteor.subscribe('sessions.single', props.sessionId)
   Meteor.subscribe('questions.library') &&
     Meteor.subscribe('responses.forSession', props.sessionId) &&
@@ -518,4 +518,4 @@ export const RunSession = createContainer((props) => {
     session: session,
     loading: !handle.ready()
   }
-}, _RunSession)
+})(_RunSession)

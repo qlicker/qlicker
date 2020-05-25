@@ -3,7 +3,8 @@
 //
 // ListItem.jsx: list item super class
 
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 
 import '../api/courses.js'
 

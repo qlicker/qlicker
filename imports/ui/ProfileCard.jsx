@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import '../api/users.js'
 
@@ -47,11 +47,11 @@ export class ProfileCard extends Component {
 //  user: PropTypes.object.isRequired,
 // };
 
-export default createContainer(() => {
+export default withTracker(() => {
   const sub = Meteor.subscribe('userData')
 
   return {
     user: Meteor.users.find({ _id: Meteor.userId() }).fetch(),
     loading: !sub.ready()
   }
-}, ProfileCard)
+})(ProfileCard)

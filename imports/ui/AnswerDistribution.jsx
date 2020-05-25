@@ -3,8 +3,9 @@
 //
 // AnswerDistribution.jsx
 
-import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 import { BarChart, Bar, XAxis, YAxis, Legend } from 'recharts'
@@ -46,7 +47,7 @@ export class _AnswerDistribution extends Component {
 
 }
 
-export const AnswerDistribution = createContainer((props) => {
+export const AnswerDistribution = withTracker((props) => {
   const responseStats = props.responseStats
   const maxEntry = _(responseStats).max((s) => { return s.attempt })
   const maxAttempt = !(_.isEmpty(maxEntry)) ? maxEntry.attempt : 0
@@ -71,7 +72,7 @@ export const AnswerDistribution = createContainer((props) => {
     distribution: distribution,
     maxAttempt: maxAttempt
   }
-}, _AnswerDistribution)
+})( _AnswerDistribution)
 
 AnswerDistribution.propTypes = {
   question: PropTypes.object.isRequired,

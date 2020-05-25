@@ -257,7 +257,7 @@ export class ManageUsers extends Component {
                         </select>
                         &nbsp;&nbsp;{u.isInstructorAnyCourse() && u.hasRole('student') ? '(TA)' : ''}
                         {couldPromote ?
-                          <div> &nbsp;&nbsp;<input type='checkbox' checked={u.canPromote()} onClick={toggleCanPromote} /> &nbsp; can promote</div>
+                          <div> &nbsp;&nbsp;<input type='checkbox' checked={u.canPromote()} onChange={toggleCanPromote} /> &nbsp; can promote</div>
                           : ''
                         }
                       </td>

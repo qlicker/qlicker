@@ -4,7 +4,7 @@
 // page_container.jsx: generic wrapper for logged in pages
 
 import React, { Component } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { PromoteAccountModal } from '../modals/PromoteAccountModal'
 import { Courses } from '../../api/courses'
@@ -212,7 +212,7 @@ class _PageContainer extends Component {
   }
 }
 
-export const PageContainer = createContainer(props => {
+export const PageContainer = withTracker(props => {
   const handle = Meteor.subscribe('courses')
   const courses = Courses.find({ inactive: { $in: [null, false] } }).fetch()
 
@@ -221,4 +221,4 @@ export const PageContainer = createContainer(props => {
     //courseId: props.courseId,
     loading: !handle.ready()
   }
-}, _PageContainer)
+})( _PageContainer)

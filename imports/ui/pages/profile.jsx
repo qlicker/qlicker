@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 import { Slingshot } from 'meteor/edgee:slingshot'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { ChangeEmailModal } from '../modals/ChangeEmailModal'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
@@ -452,11 +452,11 @@ class _Profile extends Component {
 }
 
 // meteor reactive data container
-export const ProfilePage = createContainer((props) => {
+export const ProfilePage = withTracker((props) => {
   const handle = Meteor.subscribe('userData')
 
   return {
     user: Meteor.users.findOne({ _id: Meteor.userId() }), // user object needs to be reactive
     loading: !handle.ready()
   }
-}, _Profile)
+})(_Profile)

@@ -3,8 +3,9 @@
 //
 // StudentQuestionResultsClassList.jsx: List displaying student session results
 
-import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { WysiwygHelper } from '../wysiwyg-helpers'
 // import { QuestionDisplay } from './QuestionDisplay'
@@ -42,7 +43,7 @@ export class _StudentQuestionResultsClassList extends Component {
 
 }
 
-export const StudentQuestionResultsClassList = createContainer((props) => {
+export const StudentQuestionResultsClassList = withTracker((props) => {
   const handle = Meteor.subscribe('responses.forQuestion', props.question._id)
 
   const responses = Responses.find({ questionId: props.question._id, studentUserId: Meteor.userId() },
@@ -51,7 +52,7 @@ export const StudentQuestionResultsClassList = createContainer((props) => {
     responses: responses,
     loading: !handle.ready()
   }
-}, _StudentQuestionResultsClassList)
+})(_StudentQuestionResultsClassList)
 
 StudentQuestionResultsClassList.propTypes = {
   question: PropTypes.object.isRequired,

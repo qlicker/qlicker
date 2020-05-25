@@ -3,7 +3,8 @@
 //
 // CreateCourseModal.jsx
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import _ from 'underscore'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
@@ -12,7 +13,7 @@ import moment from 'moment-timezone'
 import Datetime from 'react-datetime'
 
 import { Courses } from '../../api/courses'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 /**
  * modal dialog to prompt for course details
@@ -251,7 +252,7 @@ class _QuizExtensionsModal extends Component {
 
 } // end courseoptions modal
 
-export const QuizExtensionsModal = createContainer((props) => {
+export const QuizExtensionsModal = withTracker((props) => {
   //const handle = Meteor.subscribe('sessions', {isInstructor: props.isInstructor})
 
   const handle =  Meteor.subscribe('users.studentsInCourse', props.session.courseId) &&
@@ -262,7 +263,7 @@ export const QuizExtensionsModal = createContainer((props) => {
     students: students,
     loading: !handle.ready()
   }
-}, _QuizExtensionsModal)
+})( _QuizExtensionsModal)
 
 QuizExtensionsModal.propTypes = {
   done: PropTypes.func.isRequired,

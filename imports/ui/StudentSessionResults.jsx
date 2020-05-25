@@ -3,8 +3,9 @@
 //
 // StudentSessionResults.jsx: Component for student-specific session review
 
-import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 import { Questions } from '../api/questions'
@@ -40,7 +41,7 @@ export class _StudentSessionResults extends Component {
 
 }
 
-export const StudentSessionResults = createContainer((props) => {
+export const StudentSessionResults = withTracker((props) => {
   const handle = Meteor.subscribe('questions.forReview', props.session._id) &&
                 Meteor.subscribe('responses.forSession', props.session._id) &&
                 Meteor.subscribe('grades.forSession', props.session._id)
@@ -57,7 +58,7 @@ export const StudentSessionResults = createContainer((props) => {
     grade: grade,
     loading: !handle.ready()
   }
-}, _StudentSessionResults)
+})(_StudentSessionResults)
 
 StudentSessionResults.propTypes = {
   session: PropTypes.object.isRequired

@@ -3,8 +3,9 @@
 //
 // QuestionStats.jsx: Component for attempt distributions for a question
 
-import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
+import { withTracker }  from 'meteor/react-meteor-data'
 //import { _ } from 'underscore'
 
 import {Table, Column, Cell} from 'fixed-data-table-2'
@@ -370,7 +371,7 @@ export class _SessionResultsTable extends Component {
   }
 }
 
-export const SessionResultsTable = createContainer((props) => {
+export const SessionResultsTable = withTracker((props) => {
   /*
   const handle = Meteor.subscribe('users.myStudents', { cId: props.session.courseId }) &&
     Meteor.subscribe('courses') &&
@@ -424,7 +425,7 @@ export const SessionResultsTable = createContainer((props) => {
     done: () => {},
     loading: !handle.ready()
   }
-}, _SessionResultsTable)
+})(_SessionResultsTable)
 
 SessionResultsTable.propTypes = {
   session: PropTypes.object.isRequired

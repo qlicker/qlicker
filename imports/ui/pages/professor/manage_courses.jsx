@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { CourseListItem } from '../../CourseListItem'
 import { CreateCourseModal } from '../../modals/CreateCourseModal'
@@ -89,11 +89,11 @@ class _ManageCourses extends Component {
   }
 }
 
-export const ManageCourses = createContainer(() => {
+export const ManageCourses = withTracker(() => {
   const handle = Meteor.subscribe('courses')
 
   return {
     courses: Courses.find({ instructors: Meteor.userId() }).fetch(),
     loading: !handle.ready()
   }
-}, _ManageCourses)
+})(_ManageCourses)

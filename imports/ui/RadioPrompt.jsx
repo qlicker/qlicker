@@ -3,7 +3,8 @@
 //
 // RadioPrompt.jsx
 
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 
 /**
  * Controlled React component. custom "radio button" style group of buttons. horizontal set of buttons that allows for one selection

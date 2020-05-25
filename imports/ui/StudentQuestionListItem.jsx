@@ -5,7 +5,7 @@
 // QuestionListItem.jsx: React component list item for each course
 // typically used on student and professor overview page
 
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { QuestionListItem } from './QuestionListItem'
 
@@ -19,7 +19,7 @@ export class _StudentQuestionListItem extends QuestionListItem {
   // render in super class
 }
 
-export const StudentQuestionListItem = createContainer((props) => {
+export const StudentQuestionListItem = withTracker((props) => {
   const handle = Meteor.subscribe('users.studentsInCourse', props.question.courseId) &&
      Meteor.subscribe('users.instructorsInCourse', props.question.courseId)
 
@@ -32,4 +32,4 @@ export const StudentQuestionListItem = createContainer((props) => {
     details: 'Submitted by: ' + name + ', owned by: ' + nameOwner,
     loading: !handle.ready()
   }
-}, _StudentQuestionListItem)
+})(_StudentQuestionListItem)

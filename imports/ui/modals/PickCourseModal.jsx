@@ -4,7 +4,7 @@
 // PickCourseModal.jsx
 
 import React from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Courses } from '../../api/courses'
 
@@ -43,7 +43,7 @@ export class _PickCourseModal extends ControlledForm {
 
 } // end PickCourseModal
 
-export const PickCourseModal = createContainer((props) => {
+export const PickCourseModal = withTracker((props) => {
   const handle = Meteor.subscribe('courses')
 
   const courses = Courses.find({ instructors: Meteor.userId(), inactive: { $in: [null, false] } }).fetch()
@@ -52,4 +52,4 @@ export const PickCourseModal = createContainer((props) => {
     courses: courses,
     loading: !handle.ready()
   }
-}, _PickCourseModal)
+})( _PickCourseModal)

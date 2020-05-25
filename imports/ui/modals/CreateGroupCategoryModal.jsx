@@ -3,7 +3,8 @@
 //
 // AddTAModal.jsx
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import '../../api/users.js'
 
 export class CreateGroupCategoryModal extends Component {

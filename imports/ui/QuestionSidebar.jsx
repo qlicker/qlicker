@@ -3,8 +3,9 @@
 //
 // QuestionSidebar.jsx: vertical component to search for questions
 
-import React, { PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { withTracker }  from 'meteor/react-meteor-data'
 import _ from 'underscore'
 
 import { ControlledForm } from './ControlledForm'
@@ -400,7 +401,7 @@ export class _QuestionSidebar extends ControlledForm {
 
 } // end QuestionSidebar
 
-export const QuestionSidebar = createContainer((props) => {
+export const QuestionSidebar = withTracker((props) => {
 
   //const subscription = 'questions.' + props.questionLibrary
   //const handle =  Meteor.subscribe(subscription, props.courseId)
@@ -444,7 +445,7 @@ export const QuestionSidebar = createContainer((props) => {
     done: () => console.log('')
   }
 
-}, _QuestionSidebar)
+})(_QuestionSidebar)
 
 QuestionSidebar.propTypes = {
   session: PropTypes.object,

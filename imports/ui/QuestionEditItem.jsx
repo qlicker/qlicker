@@ -3,7 +3,8 @@
 //
 // QuestionEditItem.jsx: component for editing/create used in session creation
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import _ from 'underscore'
 
 import Select, { Creatable } from 'react-select'
@@ -103,7 +104,7 @@ export class QuestionEditItem extends Component {
   componentDidMount() {
     Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
       // non-critical, if e: silently fail
-      tagSuggestions = []
+      let tagSuggestions = []
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })

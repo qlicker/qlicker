@@ -3,8 +3,9 @@
 //
 // StudentCourseComponent.jsx: expanding UI component for student dashboard
 
-import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
+import { withTracker }  from 'meteor/react-meteor-data'
 
 import { Sessions } from '../api/sessions'
 
@@ -64,7 +65,7 @@ export class _StudentCourseComponent extends Component {
   } //  end render
 }
 
-export const StudentCourseComponent = createContainer((props) => {
+export const StudentCourseComponent = withTracker((props) => {
   const handle = Meteor.subscribe('sessions.forCourse', props.course._id)
   const sessions = Sessions.find({ courseId: props.course._id, $or: [{ status: 'visible' }, { status: 'running' }] }).fetch()
   const user = Meteor.user()
@@ -75,7 +76,7 @@ export const StudentCourseComponent = createContainer((props) => {
     loading: !handle.ready(),
     isTA: isTA,
   }
-}, _StudentCourseComponent)
+})(_StudentCourseComponent)
 
 StudentCourseComponent.propTypes = {
   course: PropTypes.object.isRequired,
