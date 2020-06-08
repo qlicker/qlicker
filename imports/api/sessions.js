@@ -157,8 +157,12 @@ if (Meteor.isServer) {
       } else if (user.isStudent(courseId)) {
         //return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false, submittedQuiz:false}})
         // TODO should really not publish the submittedQuiz field, but can't get the commented out code to work!!!
+        // Should only publish the submittedQuiz if this person submitted the quiz (as in the below commented code)
+        // Fixing this publication means updating all the code that displays lists of sessions if they have been submitted
+        // including in the Quiz display
         return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false}})
 
+        /*
         //Initial publications:
         //console.log("initial forCourse publication for "+this.userId)
 
@@ -194,7 +198,7 @@ if (Meteor.isServer) {
           sHandle.stop()
         })
         //////////////////////////////////////////////////////////////
-        //return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' } }, {fields: {joined: false}})
+        */
       } else {
         return this.ready()
       }

@@ -10,7 +10,6 @@ import { withTracker }  from 'meteor/react-meteor-data'
 import { Histogram } from './Histogram'
 //import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 
 /**
  * React component (meteor reactive) that displays a list of short answer reponses for a question

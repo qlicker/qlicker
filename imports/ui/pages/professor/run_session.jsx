@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 //import { _ } from 'underscore'
-import ReactTooltip from 'react-tooltip'
+//import ReactTooltip from 'react-tooltip'
 
 import { withTracker }  from 'meteor/react-meteor-data'
 
@@ -377,13 +377,6 @@ class _RunSession extends Component {
           </span>
           <span className='divider'>&nbsp;</span>
           <span data-tip data-for='students' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
-          <ReactTooltip id='students' place='bottom' type='dark' effect='solid'>
-            {students.map((student) =>
-              <div key={student._id}>
-                <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>
-              </div>
-            )}
-          </ReactTooltip>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
