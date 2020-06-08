@@ -105,7 +105,7 @@ export class Histogram extends Component {
         height={190} width={this.props.width || 500} data={this.state.data} barCategoryGap={0}
         margin={{top: 20, right: 10, left: -25, bottom: 5}}>
         <XAxis dataKey='bin'  type="number" interval='preserveStart' ticks={this.state.binEdges} domain={[xmin,xmax]} tickCount={this.state.binEdges.length} />
-        <YAxis allowDecimals={false} label='counts' />
+        <YAxis allowDecimals={false} label={{value:'counts', angle:-90}} />
         <Tooltip />
         <Bar dataKey="counts" fill="#30B0E7" />
       </BarChart>

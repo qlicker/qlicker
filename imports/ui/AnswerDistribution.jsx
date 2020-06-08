@@ -30,7 +30,14 @@ export class _AnswerDistribution extends Component {
     const bars = []
     _(this.props.maxAttempt).times((i) => {
       const color = colorSeq[i] || this.getRandomColor()
-      bars.push(<Bar key={i} dataKey={'pct_attempt_' + (i + 1)} maxBarSize={45} fill={color} label isAnimationActive={false} />)
+      const keyName = 'pct_attempt_' + (i + 1)
+      const labelName = 'label_' + (i + 1)
+      bars.push(<Bar key={i}
+                     dataKey={keyName}
+                     maxBarSize={45}
+                     fill={color}
+                     label={ {dataKey:labelName, stroke:color, strokeWidth:0.3, position:"top"} }
+                     isAnimationActive={false} />)
     })
     return (<div className='ql-center-answer-distribution'>
       <BarChart className='ql-answer-distribution'
@@ -64,6 +71,7 @@ export const AnswerDistribution = withTracker((props) => {
     _(responseStatsByAttempt).keys().forEach((aNumber) => {
       answerEntry['attempt_' + aNumber] = responseStatsByAttempt[aNumber][0]['counts']
       answerEntry['pct_attempt_' + aNumber] = responseStatsByAttempt[aNumber][0]['pct']
+      answerEntry['label_' + aNumber] = responseStatsByAttempt[aNumber][0]['pct']+'%'
     })
     distribution.push(answerEntry)
   })
