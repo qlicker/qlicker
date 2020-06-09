@@ -10,10 +10,13 @@ import { withTracker }  from 'meteor/react-meteor-data'
 import { Courses } from '../../api/courses'
 
 import { GradeTable } from '../GradeTable.jsx'
+import { CleanTable } from '../CleanTable.jsx'
+
 
 export class _CourseGrades extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+
     return (
       <div className='container ql-results-page'>
         <div className='ql-card'>
@@ -27,6 +30,9 @@ export class _CourseGrades extends Component {
           <div className='ql-card-content'>
             <div>
               <GradeTable courseId={this.props.courseId} />
+            </div>
+            <div>
+              <CleanTable />
             </div>
           </div>
         </div>

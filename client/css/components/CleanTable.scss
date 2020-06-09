@@ -1,0 +1,34 @@
+@import '../variables.scss';
+//@import '../common_components.scss';
+
+.ql-gt-table-outer {
+
+  .ql-gt-row-inner {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    .ql-gt-row-item {
+      padding: 5px;
+      width: 75px;
+    }
+  }
+
+  .ql-gt-row-header {
+
+  }
+
+  .ql-gt-rows {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    .ql-gt-rows-fixed-col {
+
+    }
+
+    .ql-gt-rows-scroll-col {
+
+    }
+  }
+}
