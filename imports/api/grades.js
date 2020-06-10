@@ -671,7 +671,7 @@ Meteor.methods({
         let participation = 0
         if (numAnswered > 0) {
           if (numQuestions > 0) {
-            participation = (100 * numAnswered / numQuestions)
+            participation = Math.round(1000 * numAnswered / numQuestions)/10
           } else {
             // answered at least one question, but none of the questions were worth points
             participation = 100
@@ -687,7 +687,7 @@ Meteor.methods({
 
         if (gradePoints > 0 && grade.automatic) { // only update if not an existing grade with automatic set to false
           if (gradeOutOf > 0) {
-            gradeValue = (100 * gradePoints / gradeOutOf)
+            gradeValue = Math.round(1000 * gradePoints / gradeOutOf)/10
           } else {
             gradeValue = 100
           }

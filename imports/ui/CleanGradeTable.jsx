@@ -2,9 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { withTracker }  from 'meteor/react-meteor-data'
 
-
-
-
 import { CSVLink } from 'react-csv'
 
 import { Courses } from '../api/courses'
@@ -16,24 +13,12 @@ import { ProfileViewModal } from './modals/ProfileViewModal'
 
 import { CleanTable } from './CleanTable'
 
-
 import { ROLES } from '../configs'
-
 
 export class _CleanGradeTable extends Component {
   constructor (props) {
     super(props)
-    this.state = { gradeViewModal: false,
-      profileViewModal: false,
-      studentSearchString: '',
-      sortByColumn: 'name',
-      sortAsc: true
-    }
     this.calculateAllGrades = this.calculateAllGrades.bind(this)
-    this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
-    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
-    this.setStudentSearchString = this.setStudentSearchString.bind(this)
-    this.setSortByColumn = this.setSortByColumn.bind(this)
   }
 
   calculateAllGrades () {
@@ -51,122 +36,38 @@ export class _CleanGradeTable extends Component {
     }
   }
 
-  done (e) {
-    this.refs.searchStudentForm.reset()
-    this.props.done()
-  }
-
-  toggleGradeViewModal (gradeToView = null) {
-    const studentToView = _(this.props.students).findWhere({ _id: gradeToView.userId })
-    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToView: studentToView })
-  }
-
-  toggleProfileViewModal (studentToView = null) {
-    this.setState({ profileViewModal: !this.state.profileViewModal, studentToView: studentToView })
-  }
-
-  setStudentSearchString (e) {
-    this.setState({ studentSearchString: e.target.value })
-  }
-
-  // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
-  // Expects either a sessionId for the column, or the string 'name' if sorting by name
-  setSortByColumn (colName) {
-    let sortAsc = (colName === this.state.sortByColumn) ? !this.state.sortAsc : true
-
-    this.setState({ sortByColumn: colName, sortAsc: sortAsc })
-  }
-
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    if (!this.props.students || this.props.students.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
+    if (!this.props.tableHeaders|| !this.props.tableRows || this.props.tableRows.length < 1 || this.props.tableHeaders.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
 
-    const sessions = this.props.sessions
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
+    const csvFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
 
-    if ((!this.props.grades || this.props.grades.length < 1) && isInstructor) {
-      return (<div>
-        <div type='button' className='btn btn-secondary' onClick={this.calculateAllGrades}>
-          Calculate grades!
+    const FancySessionHeader = ( {session, participation} ) => {
+      const viewSession = () => Router.go('session.results', { sessionId: session._id , courseId:this.props.courseId})
+      return(
+
+        <div className='ql-cgt-fancy-session-header'>
+          <div onClick={viewSession} className='ql-cgt-fancy-session-header-link'>
+           {session.name + (participation ? ' participation': ' mark')}
+          </div>
         </div>
-      </div>)
+
+    )}
+
+
+    //Make fancy headers for the sessions
+    const nSess = this.props.sessions.length
+    let headers = ["Last Name", "First Name", "Email"]
+    for (let iSess = 0; iSess<nSess; iSess++){
+      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={false}  />)
+      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={true}  />)
     }
-
-    const studentSearchString = this.state.studentSearchString
-    const sortByColumn = this.state.sortByColumn
-    const sortAsc = this.state.sortAsc
-
-    // Grab only the rows we need if the search string is set
-    let tableData = studentSearchString
-      ? _(this.props.tableData).filter((entry) => {
-        return entry.name.toLowerCase().includes(studentSearchString.toLowerCase()) ||
-              entry.email.toLowerCase().includes(studentSearchString.toLowerCase())
-      })
-      : this.props.tableData
-
-    // Sort if needed
-    if (sortByColumn) {
-      if (sortByColumn === 'name') {
-        tableData = _(tableData).sortBy((entry) => { return entry.name.toLowerCase() })
-      } else if (sortByColumn === 'participation') {
-        tableData = _(tableData).sortBy((entry) => { return entry.participation })
-      } else {
-        tableData = _(tableData).sortBy((entry) => {
-          const grade = _(entry.grades).findWhere({ sessionId: sortByColumn })
-          return ((grade && grade.value) ? grade.value : 0)
-        })
-      }
-      if (!sortAsc) {
-        tableData = tableData.reverse()
-      }
-    }
-
-    const nRows = tableData.length
-
-
-   // Setup data for CSV downloader:
-    let cvsHeaders = ['Last name', 'First name', 'Email', 'Particpation']
-
-    sessions.forEach((s) => {
-      cvsHeaders.push(s.name + ' Participation')
-      cvsHeaders.push(s.name + ' Mark')
-    })
-
-    let csvData = []
-    for(let istu=0; istu<this.props.tableData.length ;istu++){
-      const tableRow = this.props.tableData[istu]
-      let row = [tableRow.lastName, tableRow.firstName, tableRow.email, tableRow.participation]
-      for (let isess=0; isess<this.props.sessions.length ; isess++){
-        const sessionId = this.props.sessions[isess]._id
-        const grade = _(tableRow.grades).findWhere({sessionId: sessionId})
-        if (grade){
-          row.push(grade.participation)
-          row.push(grade.value)
-        } else {
-          row.push(0)
-          row.push(0)
-        }
-      }
-      csvData.push(row)
-    }
-
-    const cvsFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
-    const handleSubmit = (e) => { e.preventDefault() }
-
-    const showGradeViewModal = this.state.gradeViewModal && this.state.studentToView && !this.state.profileViewModal
-    const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
+    headers.push("Avg. Participation")
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
-          {this.props.students.length > 1
-            ? <div className='ql-grade-table-controlbar-divh'>
-              <form ref='searchStudentForm' onSubmit={handleSubmit}>
-                <input type='text' maxLength='32' size='32' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
-              </form>
-            </div>
-            : ''
-          }
           {isInstructor
             ? <div className='ql-grade-table-controlbar-div'>
               <div>
@@ -175,7 +76,7 @@ export class _CleanGradeTable extends Component {
                 </div>
               </div>
               <div>
-                <CSVLink data={csvData} headers={cvsHeaders} filename={cvsFilename}>
+                <CSVLink data={this.props.tableRows} headers={this.props.tableHeaders} filename={csvFilename}>
                   <div type='button' className='btn btn-secondary'>
                     Export as .csv
                   </div>
@@ -184,20 +85,8 @@ export class _CleanGradeTable extends Component {
             </div>
             : ''
           }
-        </div>
-        <CleanTable rows={csvData} headers={cvsHeaders} />
-
-        { showGradeViewModal
-          ? <GradeViewModal
-            grade={this.state.gradeToView}
-            student={this.state.studentToView}
-            done={this.toggleGradeViewModal} />
-          : '' }
-        { showProfileViewModal
-          ? <ProfileViewModal
-            user={this.state.studentToView}
-            done={this.toggleProfileViewModal} />
-          : '' }
+      </div>
+        <CleanTable rows={this.props.tableRows} headers={headers} />
       </div>
     )
   } // end render
@@ -217,7 +106,7 @@ export const CleanGradeTable = withTracker((props) => {
   let students, sessions
 
   if (course) {
-    students = Meteor.users.find({ _id: { $in: course.students || [] } }).fetch()
+    students = Meteor.users.find({ _id: { $in: props.studentIds || [] } }).fetch()
     students = _(students).sortBy((entry) => { return entry.profile.lastname.toLowerCase() })
 
     const sessionQuery = { courseId: course._id }
@@ -225,49 +114,61 @@ export const CleanGradeTable = withTracker((props) => {
       sessionQuery.status = { $ne: 'hidden' }
       sessionQuery.reviewable = true
     }
+    sessionQuery._id ={ $in: props.sessionIds || [] }
     sessions = Sessions.find(sessionQuery, { sort: { date: 1 } }).fetch()
   }
 
-  const tableData = []
+
+  let tableRows = []
   const numStudents = students.length
 
-  for (let iStu = 0; iStu < numStudents; iStu++) {
-    let sgrades = _(grades).where({userId: students[iStu]._id})
+  let tableHeaders = ["Last Name", "First Name", "Email"]
+  const numSessions = sessions.length
+  for (let iSess = 0; iSess < numSessions; iSess++) {
+    tableHeaders.push(sessions[iSess].name+' mark')
+    tableHeaders.push(sessions[iSess].name+' participation')
+  }
+  tableHeaders.push("Avg participation")
+  //console.log(sessions)
+  //console.log(grades)
 
+  for (let iStu = 0; iStu < numStudents; iStu++) {
+    let tableRow = [students[iStu].profile.lastname, students[iStu].profile.firstname, students[iStu].emails[0].address]
+
+    let sgrades =  _(grades).where({userId: students[iStu]._id})
     let participation = 0
-    if (sgrades.length > 0) {
-      participation = _(sgrades).reduce((total, grade) => {
-        let gpart = 0
-        if (grade && grade.participation) {
+
+    for (let iSess = 0; iSess < numSessions; iSess++) {
+      let gvalue = 0
+      let gpart = 0
+      if(sgrades){
+        let grade = _(sgrades).findWhere( {sessionId:sessions[iSess]._id} )
+        if (grade) {
+          gvalue = grade.value
           gpart = grade.participation
         }
-        return total + gpart
-      }, 0) / sgrades.length
+      }
+      tableRow.push(gvalue)
+      tableRow.push(gpart)
+      participation += gpart
     }
-
-    let dataItem = {
-      name: students[iStu].profile.lastname + ', ' + students[iStu].profile.firstname,
-      firstName: students[iStu].profile.firstname,
-      lastName: students[iStu].profile.lastname,
-      userId: students[iStu]._id,
-      email: students[iStu].emails[0].address,
-      participation: participation,
-      grades: sgrades
-    }
-    tableData.push(dataItem)
+    participation = numSessions == 0 ? 0 : participation/numSessions
+    tableRow.push(participation)
+    tableRows.push(tableRow)
   }
 
   return {
-    courseId: props.courseId,
+    sessions: sessions, //required to calculate all grades...
+    tableRows: tableRows,
+    tableHeaders: tableHeaders,
     courseName: course.name,
-    students: students,
-    grades: grades,
-    tableData: tableData,
-    sessions: sessions,
     loading: !handle.ready()
   }
+
 })( _CleanGradeTable)
 
 CleanGradeTable.propTypes = {
-  courseId: PropTypes.string
+  courseId: PropTypes.string.isRequired,
+  studentIds: PropTypes.array.isRequired,
+  sessionIds: PropTypes.array.isRequired
 }

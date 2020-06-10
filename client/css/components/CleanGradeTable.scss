@@ -1,0 +1,9 @@
+@import '../variables.scss';
+
+.ql-cgt-fancy-session-header-link{
+  color: fff;
+  &:hover {
+    cursor: pointer;
+    color: $hover-color;
+  }
+}

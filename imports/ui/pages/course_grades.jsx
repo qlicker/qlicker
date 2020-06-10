@@ -32,7 +32,7 @@ export class _CourseGrades extends Component {
 
           <div className='ql-card-content'>
             <div>
-              <CleanGradeTable courseId={this.props.courseId} />
+              <CleanGradeTable courseId={this.props.courseId} studentIds={this.props.studentIds} sessionIds={this.props.sessionIds} />
             </div>
           </div>
         </div>
@@ -49,6 +49,8 @@ export const CourseGrades = withTracker((props) => {
   return {
     courseId: props.courseId,
     courseName: course.name,
+    studentIds: course.students,
+    sessionIds: course.sessions,
     loading: !handle.ready()
   }
 })( _CourseGrades)

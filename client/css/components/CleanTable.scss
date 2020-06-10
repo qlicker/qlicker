@@ -12,6 +12,7 @@
   height: 450px;
 
   a {
+    color: fff;
     &:hover {
       cursor: pointer;
       color: $hover-color;
@@ -37,6 +38,7 @@
   border: 0.2px solid $light-blue;
   background: #fff;
   vertical-align: top;
+  
 }
 
  tbody tr:nth-child(even) td{
