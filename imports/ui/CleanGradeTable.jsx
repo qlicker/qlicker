@@ -49,7 +49,7 @@ export class _CleanGradeTable extends Component {
 
         <div className='ql-cgt-fancy-session-header'>
           <div onClick={viewSession} className='ql-cgt-fancy-session-header-link'>
-           {session.name + (participation ? ' participation': ' mark')}
+           {session.name + (participation ? ' particip.': ' mark')}
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export const CleanGradeTable = withTracker((props) => {
   //console.log(grades)
 
   for (let iStu = 0; iStu < numStudents; iStu++) {
-    let tableRow = [students[iStu].profile.lastname, students[iStu].profile.firstname, students[iStu].emails[0].address]
+    let tableRow = [students[iStu].profile.lastname, students[iStu].profile.firstname, students[iStu].emails[0].address.toLowerCase()]
 
     let sgrades =  _(grades).where({userId: students[iStu]._id})
     let participation = 0
@@ -152,7 +152,7 @@ export const CleanGradeTable = withTracker((props) => {
       tableRow.push(gpart)
       participation += gpart
     }
-    participation = numSessions == 0 ? 0 : participation/numSessions
+    participation = numSessions == 0 ? 0 : Math.round(10*participation/numSessions)/10
     tableRow.push(participation)
     tableRows.push(tableRow)
   }

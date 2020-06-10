@@ -1,7 +1,6 @@
 @import '../variables.scss';
 //@import '../common_components.scss';
 
-
 //From: https://codepen.io/paulobrien/pen/LBrMxa
 .ql-table-scroll {
   position: relative;
@@ -9,10 +8,9 @@
   z-index: 1;
   margin: auto;
   overflow: auto;
-  height: 450px;
+  height: 550px;
 
   a {
-    color: fff;
     &:hover {
       cursor: pointer;
       color: $hover-color;
@@ -38,7 +36,7 @@
   border: 0.2px solid $light-blue;
   background: #fff;
   vertical-align: top;
-  
+
 }
 
  tbody tr:nth-child(even) td{
