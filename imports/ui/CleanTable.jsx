@@ -2,17 +2,17 @@
 // QLICKER
 // Author: Ryan Martin
 //
-// CleanTable.jsx: Component for displaying grades from a course
+// CleanTable.jsx: Component for displaying a simple table with fixed header and
+// first column
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { withTracker }  from 'meteor/react-meteor-data'
 
 /**
  * React Component (meteor reactive) to display Question object and send question reponses.
  * @prop {Id} courseId - Id of course to show
  */
-export class _CleanTable extends Component {
+export class CleanTable extends Component {
 
   constructor (props) {
     super(props)
@@ -28,81 +28,79 @@ export class _CleanTable extends Component {
     const rows = this.props.rows
     const headers = this.props.headers
 
+    //Check that there is data, and that it has the right shape:
+    if(rows.length <1 || headers.length <1 || rows[0].length<1){
+      return <div className='ql-subs-loading'>No data for table</div>
+    }
 
-    //Display all the items in a row
+    let nCol = headers.length
+    for(let irow=0; irow<rows.length; irow++) {
+      if(rows[irow].length != nCol){
+        return <div className='ql-subs-loading'>Incorrect format for table</div>
+      }
+    }
+
+    //Build a row (except for the header row, done directly in render())
     const Row = ({rowData, rowCount}) => {
       let rowItemCount = 0
       return(
-        <div key={'ql-gtr_'+rowCount} className='ql-gt-row-inner'>
+        <tr key={'ql-gtr_'+rowCount} className='ql-gt-row-inner'>
           {
             rowData.map((rowItem) => {
               rowItemCount += 1
+              if (rowItemCount == 1) {
+                return (
+                  <th key={'ql-gti_'+rowCount+'_'+rowItemCount} className='ql-gt-row-item'>
+                    {rowItem}
+                  </th>
+                )
+              }
               return(
-                <div key={'ql-gti_'+rowCount+'_'+rowItemCount} className='ql-gt-row-item'>
+                <td key={'ql-gti_'+rowCount+'_'+rowItemCount} className='ql-gt-row-item'>
                   {rowItem}
-                </div>
+                </td>
               )
             })
           }
-        </div>
+        </tr>
 
       )}
 
     //Render the header row, then the list of rows
     let rowCount = 0
+    let hcount = 0
     return(
-      <div className='ql-gt-table-outer'>
-        <div className='ql-gt-row-header'>
-          <Row rowData={headers} />
-        </div>
-        <div className='ql-gt-rows'>
-
-          <div className='ql-gt-rows-fixed-col'>
+      <div className='ql-table-scroll'>
+        <table>
+          <thead>
+            <tr>
             {
-              rows.map( (row) => {
-                rowCount += 1
+              headers.map((h) => {
+                hcount += 1
                 return(
-                  <div className='ql-gt-row-inner' key={'ql-gtrfc_'+rowCount}>
-                    <div className='ql-gt-row-item' > {row[0]} </div>
-                  </div>
+                  <th key={'qlthi_'+hcount}> {h} </th>
                 )
               })
             }
-          </div>
-
-          <div className='ql-gt-rows-scroll-col'>
-            {
-              rows.map( (row) => {
-                rowCount += 1
-                return(
-                  <Row key={'tabler'+rowCount} rowData={row.slice(1)} rowCount={rowCount}/>
-                )
-              })
-            }
-          </div>
-        </div>
+            </tr>
+          </thead>
+          <tbody>
+          {
+            rows.map( (row) => {
+              rowCount += 1
+              return(
+                <Row key={'tabler'+rowCount} rowData={row} rowCount={rowCount}/>
+              )
+            })
+          }
+          </tbody>
+        </table>
       </div>
     )
   } // end render
 }
 
-export const CleanTable = withTracker((props) => {
-
-  let fakeData = []
-  let fakeHeaders = ["Name","L1","L2","A not very smart name", "participation"]
-
-  fakeData.push(["Ryan 1",85, 75, 65, 100])
-  fakeData.push(["Ryan 2",65, 75, 85, 100])
-  fakeData.push(["Ryan 3",0, 75, 0, 33])
-
-  return {
-    rows:fakeData,
-    headers:fakeHeaders
-  }
-})( _CleanTable)
-
-
-
 CleanTable.propTypes = {
-
+  rows:PropTypes.array.isRequired,
+  headers:PropTypes.array.isRequired
 }

@@ -1,34 +1,66 @@
 @import '../variables.scss';
 //@import '../common_components.scss';
 
-.ql-gt-table-outer {
 
-  .ql-gt-row-inner {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+//From: https://codepen.io/paulobrien/pen/LBrMxa
+.ql-table-scroll {
+  position: relative;
+  width:100%;
+  z-index: 1;
+  margin: auto;
+  overflow: auto;
+  height: 450px;
 
-    .ql-gt-row-item {
-      padding: 5px;
-      width: 75px;
+  a {
+    &:hover {
+      cursor: pointer;
+      color: $hover-color;
     }
   }
+}
 
-  .ql-gt-row-header {
+.ql-table-scroll table {
+  width: 100%;
+  min-width: 800px;
+  margin: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+}
 
-  }
+.ql-table-wrap {
+  position: relative;
+}
 
-  .ql-gt-rows {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+.ql-table-scroll th,
+.ql-table-scroll td {
+  padding: 5px 5px;
+  border: 0.2px solid $light-blue;
+  background: #fff;
+  vertical-align: top;
+}
 
-    .ql-gt-rows-fixed-col {
+ tbody tr:nth-child(even) td{
+   background: $lighter-blue;
+ }
+ tbody tr:nth-child(even) th{
+   background: $lighter-blue;
+ }
 
-    }
+ th:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
 
-    .ql-gt-rows-scroll-col {
+.ql-table-scroll thead th {
+  background: $blue;
+  color: #fff;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
 
-    }
-  }
+thead th:first-child {
+  z-index: 5;
 }
