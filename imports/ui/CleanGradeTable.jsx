@@ -18,8 +18,25 @@ import { ROLES } from '../configs'
 export class _CleanGradeTable extends Component {
   constructor (props) {
     super(props)
+
+    this.state = {
+      sortByColumn: 0, //default sort by last name (first column)
+      sortAsc: true
+    }
+
+    this.setSortByColumn = this.setSortByColumn.bind(this)
     this.calculateAllGrades = this.calculateAllGrades.bind(this)
   }
+
+  // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
+  // Expects either a sessionId for the column, or the string 'name' if sorting by name
+  setSortByColumn (colNumber) {
+    let sortAsc = (colNumber == this.state.sortByColumn) ? !this.state.sortAsc : true
+
+    this.setState({ sortByColumn: colNumber, sortAsc: sortAsc })
+
+  }
+
 
   calculateAllGrades () {
     if (confirm('Are you sure?')) {
@@ -37,33 +54,90 @@ export class _CleanGradeTable extends Component {
   }
 
   render () {
+    // The CSV download uses the tableRows and tableHeaders that are passed as props
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     if (!this.props.tableHeaders|| !this.props.tableRows || this.props.tableRows.length < 1 || this.props.tableHeaders.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
 
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
     const csvFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
 
-    const FancySessionHeader = ( {session, participation} ) => {
+    const sortByColumn = this.state.sortByColumn
+    const sortAsc = this.state.sortAsc
+    const nRows = this.props.tableRows.length
+
+
+
+    let rows = this.props.tableRows
+    // Sort if needed
+    if (sortByColumn) {
+      if (sortByColumn < 3) {//Last, first, email
+        rows = _(rows).sortBy((entry) => { return entry[sortByColumn].toLowerCase() })
+      } else {
+        rows = _(rows).sortBy((entry) => { return entry[sortByColumn] })
+      }
+      if (!sortAsc) {
+        rows = rows.reverse()
+      }
+    }
+
+    const FancySessionHeader = ( {session, participation, colNumber, title} ) => {
+
       const viewSession = () => Router.go('session.results', { sessionId: session._id , courseId:this.props.courseId})
-      return(
+      const onClickSort = () => this.setSortByColumn(colNumber)
 
-        <div className='ql-cgt-fancy-session-header'>
-          <div onClick={viewSession} className='ql-cgt-fancy-session-header-link'>
-           {session.name + (participation ? ' particip.': ' mark')}
+      let sortButtonClass = 'glyphicon glyphicon-minus'
+      if (sortByColumn == colNumber) {
+        sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
+      }
+      //sortButtonClass += ' ql-cgt-fancy-session-header-sortbutton'
+
+      if (session){
+        return(
+          <div className='ql-cgt-fancy-session-header'>
+            <div onClick={viewSession} className='ql-cgt-fancy-session-header-link'>
+             {session.name + (participation ? ' particip.': ' mark')}
+            </div>
+            <div onClick={onClickSort} className='ql-cgt-fancy-session-header-sortbutton'>
+            {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
+            </div>
           </div>
-        </div>
+      )}
+      else if (title){
+        return(
+          <div className='ql-cgt-fancy-session-header'>
+            <div className='ql-cgt-fancy-session-header-nolink'>
+             {title}
+            </div>
+            <div onClick={onClickSort} className='ql-cgt-fancy-session-header-sortbutton'>
+            {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
+            </div>
+          </div>
+        )
+      }
+      else return(  <div className='ql-cgt-fancy-session-header'> Missing header </div>)
+      }
 
-    )}
 
 
     //Make fancy headers for the sessions
     const nSess = this.props.sessions.length
-    let headers = ["Last Name", "First Name", "Email"]
+    let colNumber = 0
+    let headers = []
+    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'Last name'} />)
+    colNumber += 1
+    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'First name'} />)
+    colNumber += 1
+    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'Email'} />)
+    colNumber += 1
+    //Two columns per session (mark and participation)
     for (let iSess = 0; iSess<nSess; iSess++){
-      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={false}  />)
-      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={true}  />)
+      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={false} colNumber = {colNumber}  />)
+      colNumber += 1
+      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={true} colNumber = {colNumber} />)
+      colNumber += 1
     }
-    headers.push("Avg. Participation")
+    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'Avg. Participation'} />)
+    //headers.push("Avg. Participation")
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
@@ -86,7 +160,7 @@ export class _CleanGradeTable extends Component {
             : ''
           }
       </div>
-        <CleanTable rows={this.props.tableRows} headers={headers} />
+        <CleanTable rows={rows} headers={headers} />
       </div>
     )
   } // end render

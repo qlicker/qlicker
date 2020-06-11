@@ -348,8 +348,11 @@ export class _GradeTable extends Component {
         </Table>
         { showGradeViewModal
           ? <GradeViewModal
-            grade={this.state.gradeToView}
-            student={this.state.studentToView}
+            gradeId={this.state.gradeToView._id}
+            courseId = {this.state.gradeToView.courseId}
+            sessionId = {this.state.gradeToView.sessionId}
+            gradeName={this.state.gradeToView.name}
+            studentName={this.state.studentToView.profile.lastname+', '+this.state.studentToView.profile.firstname}
             done={this.toggleGradeViewModal} />
           : '' }
         { showProfileViewModal

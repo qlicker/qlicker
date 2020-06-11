@@ -1,9 +1,30 @@
 @import '../variables.scss';
+.ql-cgt-fancy-session-header{
 
-.ql-cgt-fancy-session-header-link{
   color: fff;
-  &:hover {
-    cursor: pointer;
-    color: $hover-color;
+  flex-flow: row nowrap;
+
+  .ql-cgt-fancy-session-header-link{
+
+    &:hover {
+      cursor: pointer;
+      color: $hover-color;
+    }
   }
+
+  .ql-cgt-fancy-session-header-nolink{
+
+  }
+
+  .ql-cgt-fancy-session-header-sortbutton {
+     position: absolute;
+     top: 0px;
+     right: 0px;
+    &:hover {
+      cursor: pointer;
+      color: $hover-color;
+    }
+  }
+
+
 }

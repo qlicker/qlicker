@@ -331,21 +331,21 @@ export class _GradeView extends Component {
 
 // meteor reactive data container
 export const GradeView = withTracker((props) => {
-  const courseId = props.grade.courseId
-  const sessionId = props.grade.sessionId
+  const courseId = props.courseId
+  const sessionId = props.sessionId
 
   const handle = Meteor.subscribe('questions.forReview', sessionId) &&
                  Meteor.subscribe('sessions.single', sessionId) &&
                  Meteor.subscribe('responses.forSession', sessionId) &&
-                 Meteor.subscribe('grades.single', props.grade._id)
+                 Meteor.subscribe('grades.single', props.gradeId)
 
   const session = Sessions.findOne({ _id: sessionId })
-  const grade = Grades.findOne({_id: props.grade._id}) // Makes the grade reactive!
+  const grade = Grades.findOne({_id: props.gradeId}) // Makes the grade reactive!
 
   let questions = Questions.find({_id: { $in: session.questions }}).fetch()
 
   const questionIds = questions ? _(questions).pluck('_id') : []
-  const responses = Responses.find({ questionId: { $in: questionIds }, studentUserId: props.grade.userId }, { sort: { attempt: 1 } }).fetch()
+  const responses = grade ? Responses.find({ questionId: { $in: questionIds }, studentUserId: grade.userId }, { sort: { attempt: 1 } }).fetch() : []
 
   const showAttempts = !!props.showAttempts
 
@@ -360,6 +360,8 @@ export const GradeView = withTracker((props) => {
 })( _GradeView)
 
 GradeView.propTypes = {
-  grade: PropTypes.object,
+  gradeId: PropTypes.string,
+  courseId: PropTypes.string,
+  sessionId: PropTypes.string,
   showAttempts: PropTypes.bool
 }
