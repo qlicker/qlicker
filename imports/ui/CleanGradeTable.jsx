@@ -63,7 +63,42 @@ export class _CleanGradeTable extends Component {
 
     const sortByColumn = this.state.sortByColumn
     const sortAsc = this.state.sortAsc
-    const nRows = this.props.tableRows.length
+
+    const gradeRows = this.props.gradeRows
+    const nRows = gradeRows.length
+    const nSess = this.props.sessions.length
+
+
+    let csvHeaders = _(this.props.gradeHeaders).pluck('colName').slice(0,3)
+    let csvRows = []
+
+    for(let iStu = 0; iStu < nRows; iStu++){
+      let csvRow = [gradeRows[iStu][0], gradeRows[iStu][1], gradeRows[iStu][2] ]
+      let avgParticipation = 0
+      for(let iSess = 0; iSess <nSess; iSess++){
+        let grade = gradeRows[iStu][3+iSess] // + 3 because of last, first, email
+        if(iStu ==0 ){
+          csvHeaders.push(grade.name+' mark')
+          csvHeaders.push(grade.name+' particip.')
+        }
+        let gvalue = grade ? 0 : grade.value
+        let gpart =  grade ? 0 : grade.participation
+
+        avgParticipation += gpart
+        csvRow.push(gvalue)
+        csvRow.push(gpart)
+      }
+      if(iStu ==0 ){
+        csvHeaders.push('Avg. participation')
+      }
+      avgParticipation = (nSess == 0 ? 0 : avgParticipation/nSess)
+      csvRow.push(avgParticipation)
+      csvRows.push(csvRow)
+    }
+    //TODO:
+    // - Add sorting on the gradeData
+    // - Remove tableHeaders and tableRows from props, instead, make them here (fancy or CVS)
+    // - Check data integrity at the top of render with new props.
 
 
 
@@ -120,7 +155,6 @@ export class _CleanGradeTable extends Component {
 
 
     //Make fancy headers for the sessions
-    const nSess = this.props.sessions.length
     let colNumber = 0
     let headers = []
     headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'Last name'} />)
@@ -150,7 +184,7 @@ export class _CleanGradeTable extends Component {
                 </div>
               </div>
               <div>
-                <CSVLink data={this.props.tableRows} headers={this.props.tableHeaders} filename={csvFilename}>
+                <CSVLink data={csvRows} headers={csvHeaders} filename={csvFilename}>
                   <div type='button' className='btn btn-secondary'>
                     Export as .csv
                   </div>
@@ -192,22 +226,24 @@ export const CleanGradeTable = withTracker((props) => {
     sessions = Sessions.find(sessionQuery, { sort: { date: 1 } }).fetch()
   }
 
-
-  let tableRows = []
-  const numStudents = students.length
-
   let tableHeaders = ["Last Name", "First Name", "Email"]
+  let gradeHeaders = [{colName:"Last Name"}, {colName:"First Name"}, {colName:"Email"}]
   const numSessions = sessions.length
   for (let iSess = 0; iSess < numSessions; iSess++) {
     tableHeaders.push(sessions[iSess].name+' mark')
     tableHeaders.push(sessions[iSess].name+' participation')
+    gradeHeaders.push({colName:sessions[iSess].name, sessionId:sessions[iSess]._id})
   }
   tableHeaders.push("Avg participation")
-  //console.log(sessions)
-  //console.log(grades)
+  gradeHeaders.push({colName:"Avg participation"})
+
+  let tableRows = [] //just the numerical values
+  let gradeRows = [] //table of grade objects (half as many columns)
+  const numStudents = students.length
 
   for (let iStu = 0; iStu < numStudents; iStu++) {
     let tableRow = [students[iStu].profile.lastname, students[iStu].profile.firstname, students[iStu].emails[0].address.toLowerCase()]
+    let gradeRow = [students[iStu].profile.lastname, students[iStu].profile.firstname, students[iStu].emails[0].address.toLowerCase()]
 
     let sgrades =  _(grades).where({userId: students[iStu]._id})
     let participation = 0
@@ -220,6 +256,9 @@ export const CleanGradeTable = withTracker((props) => {
         if (grade) {
           gvalue = grade.value
           gpart = grade.participation
+          gradeRow.push(grade)
+        } else {
+          gradeRow.push(0)
         }
       }
       tableRow.push(gvalue)
@@ -229,12 +268,15 @@ export const CleanGradeTable = withTracker((props) => {
     participation = numSessions == 0 ? 0 : Math.round(10*participation/numSessions)/10
     tableRow.push(participation)
     tableRows.push(tableRow)
+    gradeRows.push(gradeRow)
   }
 
   return {
     sessions: sessions, //required to calculate all grades...
     tableRows: tableRows,
     tableHeaders: tableHeaders,
+    gradeRows: gradeRows,
+    gradeHeaders: gradeHeaders,
     courseName: course.name,
     loading: !handle.ready()
   }

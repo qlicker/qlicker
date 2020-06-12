@@ -331,16 +331,16 @@ export class _GradeView extends Component {
 
 // meteor reactive data container
 export const GradeView = withTracker((props) => {
-  const courseId = props.courseId
-  const sessionId = props.sessionId
+  const courseId = props.grade.courseId
+  const sessionId = props.grade.sessionId
 
   const handle = Meteor.subscribe('questions.forReview', sessionId) &&
                  Meteor.subscribe('sessions.single', sessionId) &&
                  Meteor.subscribe('responses.forSession', sessionId) &&
-                 Meteor.subscribe('grades.single', props.gradeId)
+                 Meteor.subscribe('grades.single', props.grade._id)
 
   const session = Sessions.findOne({ _id: sessionId })
-  const grade = Grades.findOne({_id: props.gradeId}) // Makes the grade reactive!
+  const grade = Grades.findOne({_id: props.grade._id}) // Makes the grade reactive!
 
   let questions = Questions.find({_id: { $in: session.questions }}).fetch()
 
@@ -360,8 +360,6 @@ export const GradeView = withTracker((props) => {
 })( _GradeView)
 
 GradeView.propTypes = {
-  gradeId: PropTypes.string,
-  courseId: PropTypes.string,
-  sessionId: PropTypes.string,
+  grade: PropTypes.object,
   showAttempts: PropTypes.bool
 }

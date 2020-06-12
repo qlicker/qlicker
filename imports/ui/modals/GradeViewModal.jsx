@@ -18,14 +18,14 @@ export class GradeViewModal extends ControlledForm {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    const gradeId = this.props.gradeId
+    const grade = this.props.grade
     return ( gradeId
        ? <div className='ql-modal-container' >
           <div className='ql-modal ql-card' >
-            <div className='ql-modal-header ql-header-bar'><h3>{this.props.gradeName} {this.props.studentName}</h3> </div>
+            <div className='ql-modal-header ql-header-bar'><h3>{grade.name} {this.props.studentName}</h3> </div>
             <div className='ql-card-content'>
               <div className='row'>
-                <GradeView gradeId={this.props.gradeId} courseId={this.props.courseId} sessionId={this.props.sessionId} />
+                <GradeView grade={this.props.grade}/>
                   <div className='btn-group btn-group-justified' role='group' aria-label='...'>
                     <a className='btn btn-default' onClick={this.props.done}>Close</a>
                   </div>
@@ -40,9 +40,6 @@ export class GradeViewModal extends ControlledForm {
 
 GradeViewModal.propTypes = {
   done: PropTypes.func,
-  gradeId: PropTypes.string,
-  courseId: PropTypes.string,
-  sessionId: PropTypes.string,
-  gradeName: PropTypes.string,
+  grade: PropTypes.object,
   studentName: PropTypes.string
 }
