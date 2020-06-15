@@ -50,14 +50,10 @@ _.extend(Session.prototype, {
   },
 
   gradesCalculated: function () {
-    let grades = Grades.find({ sessionId: this._id }).fetch()
-    if grades.length < 1 return false
-    if (this.quiz){
-      if (this.submittedQuiz && this.submittedQuiz.length > 0) {
-        return grades.length >= this.submittedQuiz.length
-      } else return false
-    }
-    return grades.length >= this.joined.length
+    const grades = Grades.find({ sessionId: this._id }).fetch()
+    if (!grades || grades.length < 1) return false
+    const course = Courses.findOne({ _id:this.courseId })
+    return course && course.students && course.students.length <= grades.length
   },
   /*
   quizCompleted: function (userId) {

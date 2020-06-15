@@ -148,7 +148,7 @@ export class _CleanGradeTable extends Component {
       if (session){
         const calcGrades = () => this.calculateSessionGrades(session._id)
         const viewSession = () => Router.go('session.results', { sessionId: session._id , courseId:this.props.courseId})
-        const gradesCalculated = session.gradesCalculated()
+        const gradesCalculated = isInstructor && session.gradesCalculated()
 
         return(
           <div className='ql-cgt-fancy-session-header'>
