@@ -7,8 +7,10 @@
   flex-flow: row nowrap;
   padding: 4px 4px;
 
+  .ql-cgt-fancy-session-header-grey{
+    color: $slightly-darker-grey;
+  }
   .ql-cgt-fancy-session-header-link{
-
     &:hover {
       cursor: pointer;
       color: $hover-color;

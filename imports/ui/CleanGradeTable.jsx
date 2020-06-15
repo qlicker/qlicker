@@ -150,9 +150,13 @@ export class _CleanGradeTable extends Component {
         const viewSession = () => Router.go('session.results', { sessionId: session._id , courseId:this.props.courseId})
         const gradesCalculated = isInstructor && session.gradesCalculated()
 
+        let extraClass = ''
+        if (!session.reviewable) extraClass += ' ql-cgt-fancy-session-header-grey'
+        console.log(session.name)
+        console.log(session.reviewable)
         return(
           <div className='ql-cgt-fancy-session-header'>
-            <div onClick={viewSession} className='ql-cgt-fancy-session-header-link'>
+            <div onClick={viewSession} className={'ql-cgt-fancy-session-header-link'+extraClass}>
              {session.name + (participation ? ' particip.': ' mark')}
             </div>
             { isInstructor && !gradesCalculated ?
