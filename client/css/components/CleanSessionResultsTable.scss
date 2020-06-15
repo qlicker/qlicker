@@ -1,0 +1,51 @@
+@import '../variables.scss';
+
+
+.ql-csrt-fancy-header {
+
+  color: fff;
+  flex-flow: row nowrap;
+  padding: 4px 4px;
+
+  .ql-cgt-fancy-header-nolink{
+
+  }
+
+  .ql-csrt-fancy-header-sortbutton {
+     position: absolute;
+     top: 0px;
+     right: 0px;
+    &:hover {
+      cursor: pointer;
+      color: $hover-color;
+    }
+  }
+
+
+}
+
+.ql-csrt-fancy-cell {
+  padding: 4px 4px;
+  //min-width: 110px;
+  .ql-csrt-fancy-cell-link{
+    color: $dark-blue;
+    font-weight: bold;
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+
+  .ql-csrt-fancy-cell-grey {
+    color: $darker-grey;
+  }
+
+}
+
+.ql-csrt-needs-grading {
+  background: $light-red;
+}
+
+//.ql-csrt-fancy-cell-grey {
+//  color: $darker-grey;
+//}

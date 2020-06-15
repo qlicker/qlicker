@@ -152,8 +152,7 @@ export class _CleanGradeTable extends Component {
 
         let extraClass = ''
         if (!session.reviewable) extraClass += ' ql-cgt-fancy-session-header-grey'
-        console.log(session.name)
-        console.log(session.reviewable)
+
         return(
           <div className='ql-cgt-fancy-session-header'>
             <div onClick={viewSession} className={'ql-cgt-fancy-session-header-link'+extraClass}>
@@ -185,8 +184,8 @@ export class _CleanGradeTable extends Component {
     }
     // Create the array of FancyHeaders to pass to CleanTable
     let headers = []
-    headers.push(<FancySessionHeader  colSortName = {'last'} title ={'Last name'} />)
-    headers.push(<FancySessionHeader  colSortName = {'first'} title ={'First name'} />)
+    headers.push(<FancySessionHeader  colSortName = {'last'} title ={'Last name, first name'} />)
+    //headers.push(<FancySessionHeader  colSortName = {'first'} title ={'First name'} />)
     headers.push(<FancySessionHeader  colSortName = {'email'} title ={'Email'} />)
     headers.push(<FancySessionHeader  colSortName = {'avgParticipation'} title ={'Avg. Participation'} />)
     //Two columns per session (mark and participation)
@@ -233,8 +232,8 @@ export class _CleanGradeTable extends Component {
     let rows = []
     for(let iStu = 0; iStu < nStu; iStu++){
       let row = []
-      row.push(<FancyCell title={gradeRows[iStu][0].last} />)
-      row.push(<FancyCell title={gradeRows[iStu][0].first} />)
+      row.push(<FancyCell title={gradeRows[iStu][0].last+', '+gradeRows[iStu][0].first} />)
+      //row.push(<FancyCell title={gradeRows[iStu][0].first} />)
       row.push(<FancyCell title={gradeRows[iStu][0].email} />)
       row.push(<FancyCell title={gradeRows[iStu][0].avgParticipation} />)
       let studentName = gradeRows[iStu][0].last + ', ' + gradeRows[iStu][0].first
