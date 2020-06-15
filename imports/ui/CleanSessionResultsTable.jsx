@@ -32,6 +32,7 @@ export class _CleanSessionResultsTable extends Component {
     this.calculateGrades = this.calculateGrades.bind(this)
     this.setSortByColumn = this.setSortByColumn.bind(this)
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
+    this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
   }
 
   setSortByColumn (colId) {
@@ -54,6 +55,11 @@ export class _CleanSessionResultsTable extends Component {
       })
     }
   }
+
+  toggleGradeViewModal (gradeToView = null, studentToViewName = '') {
+    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToViewName: studentToViewName })
+  }
+
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
@@ -143,7 +149,7 @@ export class _CleanSessionResultsTable extends Component {
           if(sortByColumn.includes('_response')){
             let qid = sortByColumn.split('_response')[0]
             let sresponse = _( _(entry.sresponses).where({questionId:qid})).max(function(resp){return resp.attempt})
-            return (sresponse ? sresponse : 'ZZZZZZZZZZZZZ') //just to be at the end if sorting on response and now response
+            return (sresponse && sresponse.answer ? sresponse.answer : 'ZZZZZZZZZZZZZ') //just to be at the end if sorting on response and now response
           } else if(sortByColumn.includes('_points')){
             let qid = sortByColumn.split('_points')[0]
             const mark = _(entry.grade.marks).findWhere({ questionId: qid })
@@ -192,12 +198,34 @@ export class _CleanSessionResultsTable extends Component {
     }
 
     //Define a component to hold cell data
-    const FancyCell = ( {title} ) => {
-      return(
-        <div className='ql-cgt-fancy-cell'>
-         {title}
-        </div>
-      )
+    const FancyCell = ( {title, grade, participation, studentName} ) => {
+      if (title){
+        return(
+          <div className='ql-csrt-fancy-cell'>
+           {title}
+          </div>
+        )
+      } else if(grade) {
+        const onClick = () => this.toggleGradeViewModal(grade, studentName)
+        return(
+          <div className='ql-csrt-fancy-cell'>
+            <div onClick={onClick} className='ql-csrt-fancy-cell-link'>
+              {(participation ?
+                   (grade.participation ? grade.participation : 0)
+                 : (grade.value ? grade.value : 0 )
+               )}
+            </div>
+          </div>
+        )
+      } else {
+        return(
+          <div className='ql-csrt-fancy-cell'>
+           {0}
+          </div>
+        )
+      }
+
+
     }
     //Fill rows of the display table
     let rows = []
@@ -207,8 +235,14 @@ export class _CleanSessionResultsTable extends Component {
       row.push(<FancyCell title={tableData[iStu].name} />)
       row.push(<FancyCell title={tableData[iStu].email} />)
       let grade = tableData[iStu].grade
-      row.push(<FancyCell title={grade? grade.value : 0} />)
-      row.push(<FancyCell title={grade? grade.participation : 0} />)
+      if (grade){
+        row.push(<FancyCell grade={grade} studentName={tableData[iStu].name} />)
+        row.push(<FancyCell grade={grade} participation studentName={tableData[iStu].name}/>)
+      } else {
+        row.push(<FancyCell title={0} />)
+        row.push(<FancyCell title={0} />)
+      }
+
 
       for (let iQ = 0; iQ<nQues; iQ++){
         let questionId = questions[iQ]._id
@@ -216,7 +250,7 @@ export class _CleanSessionResultsTable extends Component {
         const attemptText = mark && mark.attempt > 0 ? '(attempt ' + mark.attempt + ')' : '(no attempt)'
         const sresponse = _( _(tableData[iStu].sresponses).where({questionId:mark.questionId})).max(function(resp){return resp.attempt})
         const pointsText= (mark ? mark.points.toFixed(2) :0) +'/'+ mark.outOf +' '+attemptText
-        row.push(<FancyCell title={sresponse ? sresponse.answer : ""} />)
+        row.push(<FancyCell title={sresponse && sresponse.answer ? sresponse.answer : "N/A"} />)
         row.push(<FancyCell title={pointsText} />)
       }
       rows.push(row)
@@ -225,6 +259,9 @@ export class _CleanSessionResultsTable extends Component {
 
     const goToGrade = () => Router.go('session.grade', {sessionId: this.props.session._id, courseId: this.props.session.courseId})
     const handleSubmit = (e) => { e.preventDefault() } // for student search form
+    //Check to make sure only 1 modal open at a time:
+    const showGradeViewModal = this.state.gradeViewModal
+
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
@@ -261,7 +298,13 @@ export class _CleanSessionResultsTable extends Component {
           }
         </div>
         <CleanTable rows={rows} headers={headers}  />
-
+        { showGradeViewModal
+          ? <GradeViewModal
+              grade={this.state.gradeToView}
+              studentName={this.state.studentToViewName}
+              done={this.toggleGradeViewModal}
+             />
+          : '' }
       </div>
     )
   }

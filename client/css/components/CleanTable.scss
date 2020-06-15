@@ -8,13 +8,17 @@
   z-index: 1;
   margin: auto;
   overflow: auto;
-  height: 550px;
+  max-height: 550px;
 
   a {
     &:hover {
       cursor: pointer;
       color: $hover-color;
     }
+  }
+
+  table {
+    padding-bottom: 5px;
   }
 }
 

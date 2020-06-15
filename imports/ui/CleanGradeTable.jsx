@@ -39,7 +39,6 @@ export class _CleanGradeTable extends Component {
   }
 
   toggleGradeViewModal (gradeToView = null, studentToViewName = '') {
-    const studentToView = _(this.props.students).findWhere({ _id: gradeToView.userId })
     this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToViewName: studentToViewName })
   }
 

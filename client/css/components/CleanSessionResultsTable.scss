@@ -26,7 +26,10 @@
 
 .ql-csrt-fancy-cell {
   padding: 4px 4px;
-  //min-width: 110px;
+  width: max-content;
+  max-width: 170px;
+  min-width: 85px;
+
   .ql-csrt-fancy-cell-link{
     color: $dark-blue;
     font-weight: bold;
