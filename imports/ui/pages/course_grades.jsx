@@ -25,7 +25,7 @@ export class _CourseGrades extends Component {
         <div className='ql-card'>
           <div className='ql-header-bar'>
             <div className='row'>
-              <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.courseName}</span>: Results (participation/grade)</h4>
+              <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.courseName}</span>: Grades </h4>
               </div>
             </div>
           </div>
