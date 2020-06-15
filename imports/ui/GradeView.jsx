@@ -266,8 +266,8 @@ export class _GradeView extends Component {
                     <div className={infoClass} onClick={containerClick}>
                       { (this.state.markToEdit === mark.questionId) && canEdit
                            ? <form ref='editMarkForm' onSubmit={this.handleMarkSubmit}>
-                             <input type='number' min={0} step={0.01} onChange={this.setMarkPoints} maxLength='4' size='4' placeholder={mark.points.toFixed(2)} />
-                              out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
+                             <input type='number' min={0} step={0.25} onChange={this.setMarkPoints} maxLength='4' size='4' placeholder={mark.points.toFixed(2)} />
+                              out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a> &nbsp;
                              <a onClick={cancelEditing}>cancel</a>
                            </form>
 

@@ -281,7 +281,7 @@ Meteor.methods({
     if (!mark) throw Error('No mark inputted')
 
     // points must be positive
-    if (mark.points < 0 ) throw Error('No negativ points for a mark')
+    if (mark.points < 0 ) throw Error('No negative points for a mark')
 
     let grade = Grades.findOne({ _id: gradeId })
     if (!grade) throw Error('Undefined grade in update!')
@@ -294,7 +294,17 @@ Meteor.methods({
     }
 
     let gradeMarks = grade.marks
-    let index = _(gradeMarks).findIndex({ questionId: mark.questionId })
+    let index = -1 // for some reason, the one liner below doesn't work anymore ?
+    //let index = gradeMarks.length > 0 ? _(gradeMarks).findIndex({ questionId: mark.questionId })
+    for (im = 0; im<gradeMarks.length ; im++){
+      if(gradeMarks[im].questionId == mark.questionId){
+        index = im
+        break
+      }
+    }
+
+
+
 
     if (index>=0) {
       grade.marks[index]=mark

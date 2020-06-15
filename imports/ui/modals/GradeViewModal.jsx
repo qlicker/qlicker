@@ -17,9 +17,8 @@ import { ControlledForm } from '../ControlledForm'
 export class GradeViewModal extends ControlledForm {
 
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const grade = this.props.grade
-    return ( gradeId
+    return ( grade
        ? <div className='ql-modal-container' >
           <div className='ql-modal ql-card' >
             <div className='ql-modal-header ql-header-bar'><h3>{grade.name} {this.props.studentName}</h3> </div>
@@ -33,7 +32,7 @@ export class GradeViewModal extends ControlledForm {
           </div>
         </div>
       </div>
-      : 'Loading')
+      : <div className='ql-subs-loading'>Loading</div>)
   } //  end render
 
 } // end GradeViewModal

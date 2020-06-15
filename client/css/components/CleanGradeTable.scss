@@ -1,8 +1,11 @@
 @import '../variables.scss';
+
+
 .ql-cgt-fancy-session-header{
 
   color: fff;
   flex-flow: row nowrap;
+  padding: 4px 4px;
 
   .ql-cgt-fancy-session-header-link{
 
@@ -26,5 +29,38 @@
     }
   }
 
+  .ql-cgt-fancy-session-header-calcButton {
+
+    &:hover {
+      cursor: pointer;
+      color: $hover-color;
+    }
+  }
 
 }
+
+.ql-cgt-fancy-cell {
+  padding: 4px 4px;
+
+  .ql-cgt-fancy-cell-link{
+    color: $dark-blue;
+    font-weight: bold;
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+
+  .ql-cgt-fancy-cell-grey {
+    color: $darker-grey;
+  }
+
+}
+
+.ql-cgt-needs-grading {
+  background: $light-red;
+}
+
+//.ql-cgt-fancy-cell-grey {
+//  color: $darker-grey;
+//}

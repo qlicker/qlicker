@@ -43,11 +43,16 @@ const sessionPattern = {
 const Session = function (doc) { _.extend(this, doc) }
 // Add some methods:
 _.extend(Session.prototype, {
+
   gradesViewable: function () {
     let grades = Grades.find({ sessionId: this._id, visibleToStudents: true }).fetch()
     return grades.length > 0
   },
 
+  gradesCalculated: function () {
+    let grades = Grades.find({ sessionId: this._id }).fetch()
+    return grades.length >= (this.quiz ? this.submittedQuiz.length : this.joined.length)
+  },
   /*
   quizCompleted: function (userId) {
     return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)

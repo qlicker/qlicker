@@ -20,26 +20,43 @@ export class _CleanGradeTable extends Component {
     super(props)
 
     this.state = {
-      sortByColumn: 0, //default sort by last name (first column)
-      sortAsc: true
+      sortByColumn: 'last', //default sort by last name (first column)
+      sortAsc: true,
+      gradeViewModal: false
     }
 
     this.setSortByColumn = this.setSortByColumn.bind(this)
+    this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
     this.calculateAllGrades = this.calculateAllGrades.bind(this)
+    this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
   }
 
   // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
   // Expects either a sessionId for the column, or the string 'name' if sorting by name
-  setSortByColumn (colNumber) {
-    let sortAsc = (colNumber == this.state.sortByColumn) ? !this.state.sortAsc : true
-
-    this.setState({ sortByColumn: colNumber, sortAsc: sortAsc })
-
+  setSortByColumn (colId) {
+    let sortAsc = (colId === this.state.sortByColumn) ? !this.state.sortAsc : true
+    this.setState({ sortByColumn: colId, sortAsc: sortAsc })
   }
 
+  toggleGradeViewModal (gradeToView = null, studentToViewName = '') {
+    const studentToView = _(this.props.students).findWhere({ _id: gradeToView.userId })
+    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToViewName: studentToViewName })
+  }
+
+  calculateSessionGrades (sessionId) {
+    if (confirm('Are you sure?')) {
+      Meteor.call('grades.calcSessionGrades', sessionId, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Grades calculated')
+        }
+      })
+    }
+  }
 
   calculateAllGrades () {
-    if (confirm('Are you sure?')) {
+    if (confirm('This will re-calculate all grades, leaving all manual overrides untouched. Are you sure?')) {
       const sessions = this.props.sessions
       for (let i = 0; i < sessions.length; i++) {
         Meteor.call('grades.calcSessionGrades', sessions[i]._id, (err) => {
@@ -56,122 +73,178 @@ export class _CleanGradeTable extends Component {
   render () {
     // The CSV download uses the tableRows and tableHeaders that are passed as props
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    if (!this.props.tableHeaders|| !this.props.tableRows || this.props.tableRows.length < 1 || this.props.tableHeaders.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
+    if (!this.props.gradeRows|| this.props.gradeRows.length < 1 ) return <div className='ql-subs-loading'>No students in course!</div>
 
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
     const csvFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
 
-    const sortByColumn = this.state.sortByColumn
-    const sortAsc = this.state.sortAsc
+    let gradeRows = this.props.gradeRows
+    const nStu = gradeRows.length
+    const sessions = this.props.sessions
+    const nSess =sessions.length
 
-    const gradeRows = this.props.gradeRows
-    const nRows = gradeRows.length
-    const nSess = this.props.sessions.length
-
-
-    let csvHeaders = _(this.props.gradeHeaders).pluck('colName').slice(0,3)
+    //First, generate the data for the CSV export (so that it's sorted by student last name)
+    let csvHeaders = ["Last name", "First name", "Email", "Avg. Participation"] //_(this.props.gradeHeaders).pluck('colName').slice(0,3)
     let csvRows = []
 
-    for(let iStu = 0; iStu < nRows; iStu++){
-      let csvRow = [gradeRows[iStu][0], gradeRows[iStu][1], gradeRows[iStu][2] ]
-      let avgParticipation = 0
+    for(let iStu = 0; iStu < nStu; iStu++){
+      let csvRow = [gradeRows[iStu][0].first, gradeRows[iStu][0].last, gradeRows[iStu][0].email, gradeRows[iStu][0].avgParticipation ]
       for(let iSess = 0; iSess <nSess; iSess++){
-        let grade = gradeRows[iStu][3+iSess] // + 3 because of last, first, email
+        let grade = gradeRows[iStu][1+iSess] // + 3 because of last, first, email
         if(iStu ==0 ){
           csvHeaders.push(grade.name+' mark')
           csvHeaders.push(grade.name+' particip.')
         }
-        let gvalue = grade ? 0 : grade.value
-        let gpart =  grade ? 0 : grade.participation
-
-        avgParticipation += gpart
-        csvRow.push(gvalue)
-        csvRow.push(gpart)
+        csvRow.push( grade && grade.value ? grade.value : 0)
+        csvRow.push( grade && grade.participation ? grade.participation : 0)
       }
-      if(iStu ==0 ){
-        csvHeaders.push('Avg. participation')
-      }
-      avgParticipation = (nSess == 0 ? 0 : avgParticipation/nSess)
-      csvRow.push(avgParticipation)
       csvRows.push(csvRow)
     }
-    //TODO:
-    // - Add sorting on the gradeData
-    // - Remove tableHeaders and tableRows from props, instead, make them here (fancy or CVS)
-    // - Check data integrity at the top of render with new props.
+    //Apply any sorting to the gradeRows:
+    const sortByColumn = this.state.sortByColumn
+    const sortAsc = this.state.sortAsc
 
-
-
-    let rows = this.props.tableRows
     // Sort if needed
     if (sortByColumn) {
-      if (sortByColumn < 3) {//Last, first, email
-        rows = _(rows).sortBy((entry) => { return entry[sortByColumn].toLowerCase() })
+      if (sortByColumn === 'last') {//Last, first, email
+        gradeRows = _(gradeRows).sortBy((entry) => { return entry[0].last })
+      } else if (sortByColumn === 'first') {
+        gradeRows = _(gradeRows).sortBy((entry) => { return entry[0].first })
+      } else if (sortByColumn === 'email') {
+        gradeRows = _(gradeRows).sortBy((entry) => { return entry[0].email })
+      } else if (sortByColumn === 'avgParticipation') {
+        gradeRows = _(gradeRows).sortBy((entry) => { return entry[0].avgParticipation })
       } else {
-        rows = _(rows).sortBy((entry) => { return entry[sortByColumn] })
+        if (sortByColumn.includes('smark')){ // grade.values
+          let sid = sortByColumn.split('_smark')[0]
+          gradeRows = _(gradeRows).sortBy((entry) => {
+            const grade = _(entry.grades).findWhere({ sessionId: sid })
+            return ((grade && grade.value) ? grade.value : 0)
+          })
+        } else if (sortByColum.includes('spart')){ // grade.participations
+          let sid = sortByColumn.split('_spart')[0]
+          gradeRows = _(gradeRows).sortBy((entry) => {
+            const grade = _(entry.grades).findWhere({ sessionId: sid })
+            return ((grade && grade.participation) ? grade.participation : 0)
+          })
+        } else { }
       }
+
       if (!sortAsc) {
-        rows = rows.reverse()
+        gradeRows = gradeRows.reverse()
       }
     }
 
-    const FancySessionHeader = ( {session, participation, colNumber, title} ) => {
 
-      const viewSession = () => Router.go('session.results', { sessionId: session._id , courseId:this.props.courseId})
-      const onClickSort = () => this.setSortByColumn(colNumber)
+    //Define a component to hold a header that allows sorting
+    const FancySessionHeader = ( {session, title, colSortName, participation} ) => {
 
+      const onClickSort = () => this.setSortByColumn(colSortName)
       let sortButtonClass = 'glyphicon glyphicon-minus'
-      if (sortByColumn == colNumber) {
+      if (sortByColumn == colSortName) { //choose which way to point the sort button
         sortButtonClass = sortAsc ? 'glyphicon glyphicon-chevron-down' : 'glyphicon glyphicon-chevron-up'
       }
-      //sortButtonClass += ' ql-cgt-fancy-session-header-sortbutton'
 
       if (session){
+        const calcGrades = () => this.calculateSessionGrades(session._id)
+        const viewSession = () => Router.go('session.results', { sessionId: session._id , courseId:this.props.courseId})
+        const gradesCalculated = session.gradesCalculated()
+
         return(
           <div className='ql-cgt-fancy-session-header'>
             <div onClick={viewSession} className='ql-cgt-fancy-session-header-link'>
              {session.name + (participation ? ' particip.': ' mark')}
             </div>
+            { isInstructor && !gradesCalculated ?
+              <div  className='ql-cgt-fancy-session-header-calcButton'>
+                <div onClick={calcGrades} className='glyphicon glyphicon-refresh'>  </div>
+              </div>
+              : ''
+            }
             <div onClick={onClickSort} className='ql-cgt-fancy-session-header-sortbutton'>
-            {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
+             {nStu > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
             </div>
           </div>
-      )}
-      else if (title){
+      )} else if (title){
         return(
           <div className='ql-cgt-fancy-session-header'>
             <div className='ql-cgt-fancy-session-header-nolink'>
              {title}
             </div>
             <div onClick={onClickSort} className='ql-cgt-fancy-session-header-sortbutton'>
-            {nRows > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
+             {nStu > 1 ? <div className={sortButtonClass} onClick={onClickSort} /> : '' }
             </div>
           </div>
         )
       }
       else return(  <div className='ql-cgt-fancy-session-header'> Missing header </div>)
-      }
-
-
-
-    //Make fancy headers for the sessions
-    let colNumber = 0
+    }
+    // Create the array of FancyHeaders to pass to CleanTable
     let headers = []
-    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'Last name'} />)
-    colNumber += 1
-    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'First name'} />)
-    colNumber += 1
-    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'Email'} />)
-    colNumber += 1
+    headers.push(<FancySessionHeader  colSortName = {'last'} title ={'Last name'} />)
+    headers.push(<FancySessionHeader  colSortName = {'first'} title ={'First name'} />)
+    headers.push(<FancySessionHeader  colSortName = {'email'} title ={'Email'} />)
+    headers.push(<FancySessionHeader  colSortName = {'avgParticipation'} title ={'Avg. Participation'} />)
     //Two columns per session (mark and participation)
     for (let iSess = 0; iSess<nSess; iSess++){
-      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={false} colNumber = {colNumber}  />)
-      colNumber += 1
-      headers.push(<FancySessionHeader session={this.props.sessions[iSess]} participation={true} colNumber = {colNumber} />)
-      colNumber += 1
+      headers.push(<FancySessionHeader session={sessions[iSess]} participation={false} colSortName = {sessions[iSess]._id+'_smark'}  />)
+      headers.push(<FancySessionHeader session={sessions[iSess]} participation={true} colSortName = {sessions[iSess]._id+'_spart'} />)
     }
-    headers.push(<FancySessionHeader  participation={true} colNumber = {colNumber} title ={'Avg. Participation'} />)
-    //headers.push("Avg. Participation")
+
+    //Define a component to hold cell data
+    const FancyCell = ( {grade, title, participation, studentName} ) => {
+      if (title){
+        return(
+          <div className='ql-cgt-fancy-cell'>
+           {title}
+          </div>
+        )
+      }else if(grade){
+        let extraClassOuter = ''
+        let extraClassInner = ''
+
+        if (grade.needsGrading && grade.joined) extraClassOuter += ' ql-cgt-needs-grading'
+        if (!grade.joined) extraClassInner += ' ql-cgt-fancy-cell-grey'
+
+        const onClick = () => this.toggleGradeViewModal(grade, studentName)
+        return(
+          <div className={'ql-cgt-fancy-cell'+extraClassOuter}>
+            <div onClick={onClick} className={'ql-cgt-fancy-cell-link'+extraClassInner}>
+              {(participation ?
+                   (grade.participation ? grade.participation : 0)
+                 : (grade.value ? grade.value : 0 )
+               )}
+            </div>
+          </div>
+        )
+      }  else {
+        return(
+          <div className='ql-cgt-fancy-cell'>
+           {0}
+          </div>
+        )
+      }
+    }
+    // Fill in the rows
+    let rows = []
+    for(let iStu = 0; iStu < nStu; iStu++){
+      let row = []
+      row.push(<FancyCell title={gradeRows[iStu][0].last} />)
+      row.push(<FancyCell title={gradeRows[iStu][0].first} />)
+      row.push(<FancyCell title={gradeRows[iStu][0].email} />)
+      row.push(<FancyCell title={gradeRows[iStu][0].avgParticipation} />)
+      let studentName = gradeRows[iStu][0].last + ', ' + gradeRows[iStu][0].first
+
+      for(let iSess = 0; iSess <nSess; iSess++){
+        let grade = gradeRows[iStu][1+iSess] // + 1 because of last, first, email
+        row.push(<FancyCell grade={grade} studentName={studentName} />)
+        row.push(<FancyCell grade={grade} studentName={studentName} participation={true} />)
+      }
+      rows.push(row)
+    }
+
+    //Check to make sure only 1 modal open at a time:
+    const showGradeViewModal = this.state.gradeViewModal
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
@@ -195,6 +268,14 @@ export class _CleanGradeTable extends Component {
           }
       </div>
         <CleanTable rows={rows} headers={headers} />
+
+        { showGradeViewModal
+          ? <GradeViewModal
+              grade={this.state.gradeToView}
+              studentName={this.state.studentToViewName}
+              done={this.toggleGradeViewModal}
+             />
+          : '' }
       </div>
     )
   } // end render
@@ -226,58 +307,44 @@ export const CleanGradeTable = withTracker((props) => {
     sessions = Sessions.find(sessionQuery, { sort: { date: 1 } }).fetch()
   }
 
-  let tableHeaders = ["Last Name", "First Name", "Email"]
-  let gradeHeaders = [{colName:"Last Name"}, {colName:"First Name"}, {colName:"Email"}]
-  const numSessions = sessions.length
-  for (let iSess = 0; iSess < numSessions; iSess++) {
-    tableHeaders.push(sessions[iSess].name+' mark')
-    tableHeaders.push(sessions[iSess].name+' participation')
-    gradeHeaders.push({colName:sessions[iSess].name, sessionId:sessions[iSess]._id})
-  }
-  tableHeaders.push("Avg participation")
-  gradeHeaders.push({colName:"Avg participation"})
-
-  let tableRows = [] //just the numerical values
   let gradeRows = [] //table of grade objects (half as many columns)
   const numStudents = students.length
+  const numSessions = sessions.length
 
+  //Add grade data to a table, calculate average participation grade
   for (let iStu = 0; iStu < numStudents; iStu++) {
-    let tableRow = [students[iStu].profile.lastname, students[iStu].profile.firstname, students[iStu].emails[0].address.toLowerCase()]
-    let gradeRow = [students[iStu].profile.lastname, students[iStu].profile.firstname, students[iStu].emails[0].address.toLowerCase()]
+    //First entry has name, and avg participation
+    let gradeRow = [{last: students[iStu].profile.lastname,
+                     first:students[iStu].profile.firstname,
+                     email:students[iStu].emails[0].address.toLowerCase(),
+                     avgParticipation: 0, //update this below
+                     id:students[iStu]._id}]
 
     let sgrades =  _(grades).where({userId: students[iStu]._id})
     let participation = 0
 
     for (let iSess = 0; iSess < numSessions; iSess++) {
-      let gvalue = 0
       let gpart = 0
       if(sgrades){
         let grade = _(sgrades).findWhere( {sessionId:sessions[iSess]._id} )
         if (grade) {
-          gvalue = grade.value
-          gpart = grade.participation
+          gpart = grade.participation ? grade.participation : 0
           gradeRow.push(grade)
         } else {
           gradeRow.push(0)
         }
       }
-      tableRow.push(gvalue)
-      tableRow.push(gpart)
       participation += gpart
     }
-    participation = numSessions == 0 ? 0 : Math.round(10*participation/numSessions)/10
-    tableRow.push(participation)
-    tableRows.push(tableRow)
+    participation = (numSessions == 0 ? 0 : Math.round(10*participation/numSessions)/10 )
+    if( participation ) gradeRow[0].avgParticipation = participation
     gradeRows.push(gradeRow)
   }
 
   return {
-    sessions: sessions, //required to calculate all grades...
-    tableRows: tableRows,
-    tableHeaders: tableHeaders,
+    sessions: sessions, // used to get the names (and ids for clickable links)
     gradeRows: gradeRows,
-    gradeHeaders: gradeHeaders,
-    courseName: course.name,
+    courseName: course.name, //used for CSV filename output
     loading: !handle.ready()
   }
 
