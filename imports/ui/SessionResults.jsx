@@ -18,7 +18,6 @@ import { QuestionDisplay } from './QuestionDisplay'
 import { ShortAnswerList } from './ShortAnswerList'
 import { HistogramNumerical } from './HistogramNumerical'
 
-import { SessionResultsTable } from './SessionResultsTable'
 import { CleanSessionResultsTable } from './CleanSessionResultsTable'
 import { QUESTION_TYPE } from '../configs'
 

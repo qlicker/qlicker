@@ -27,12 +27,15 @@ export class _CleanSessionResultsTable extends Component {
       sortByColumn: 'last',
       sortAsc: true,
       studentSearchString: '',
+      gradeViewModal: false,
+      profileViewModal: false
     }
 
     this.calculateGrades = this.calculateGrades.bind(this)
     this.setSortByColumn = this.setSortByColumn.bind(this)
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
+    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
 
   setSortByColumn (colId) {
@@ -60,10 +63,13 @@ export class _CleanSessionResultsTable extends Component {
     this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToViewName: studentToViewName })
   }
 
+  toggleProfileViewModal (studentToView = null) {
+    this.setState({ profileViewModal: !this.state.profileViewModal, studentToView: studentToView })
+  }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    if (!this.props.students || this.props.students.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
+    if (!this.props.tableData || this.props.tableData.length < 1) return <div className='ql-subs-loading'>No students in course!</div>
     const session = this.props.session
     let tableData = this.props.tableData
     const isInstructor = Meteor.user().isInstructor(session.courseId)
@@ -134,8 +140,7 @@ export class _CleanSessionResultsTable extends Component {
       }
       csvRows.push(csvRow)
     }
-
-
+    
     // Sort if needed
     if (sortByColumn) {
       if (sortByColumn === 'name') {
@@ -198,7 +203,7 @@ export class _CleanSessionResultsTable extends Component {
     }
 
     //Define a component to hold cell data
-    const FancyCell = ( {title, grade, participation, studentName} ) => {
+    const FancyCell = ( {title, grade, participation, studentName, student} ) => {
       if (title){
         return(
           <div className='ql-csrt-fancy-cell'>
@@ -217,6 +222,15 @@ export class _CleanSessionResultsTable extends Component {
             </div>
           </div>
         )
+      } else if(student) {
+        const viewStudent = () => this.toggleProfileViewModal(student)
+        return(
+          <div className={'ql-csrt-fancy-cell'}>
+            <div onClick={viewStudent} className={'ql-csrt-fancy-cell-link'}>
+              {student.profile.lastname+', '+student.profile.firstname}
+            </div>
+          </div>
+        )
       } else {
         return(
           <div className='ql-csrt-fancy-cell'>
@@ -224,15 +238,13 @@ export class _CleanSessionResultsTable extends Component {
           </div>
         )
       }
-
-
     }
     //Fill rows of the display table
     let rows = []
 
     for(let iStu = 0; iStu<nStu; iStu++){
       let row = []
-      row.push(<FancyCell title={tableData[iStu].name} />)
+      row.push(<FancyCell student={tableData[iStu].student} />)
       row.push(<FancyCell title={tableData[iStu].email} />)
       let grade = tableData[iStu].grade
       if (grade){
@@ -260,12 +272,13 @@ export class _CleanSessionResultsTable extends Component {
     const goToGrade = () => Router.go('session.grade', {sessionId: this.props.session._id, courseId: this.props.session.courseId})
     const handleSubmit = (e) => { e.preventDefault() } // for student search form
     //Check to make sure only 1 modal open at a time:
-    const showGradeViewModal = this.state.gradeViewModal
+    const showGradeViewModal = this.state.gradeViewModal && this.state.studentToViewName && !this.state.profileViewModal
+    const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
-          {this.props.students.length > 1
+          {nStu > 1
             ? <div className='ql-grade-table-controlbar-div'>
               <form ref='searchStudentForm' onSubmit={handleSubmit}>
                 <input type='text' maxLength='32' size='32' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
@@ -305,6 +318,11 @@ export class _CleanSessionResultsTable extends Component {
               done={this.toggleGradeViewModal}
              />
           : '' }
+        { showProfileViewModal
+          ? <ProfileViewModal
+            user={this.state.studentToView}
+            done={this.toggleProfileViewModal} />
+          : '' }
       </div>
     )
   }
@@ -343,6 +361,7 @@ export const CleanSessionResultsTable = withTracker((props) => {
       lastName: students[iStu].profile.lastname,
       email: students[iStu].emails[0].address,
       userId: students[iStu]._id,
+      student: students[iStu],
       grade: sgrade,
       sresponses: sresponses
     }
@@ -350,7 +369,6 @@ export const CleanSessionResultsTable = withTracker((props) => {
   }
 
   return {
-    students: students,
     questions: questions,
     grades: grades,
     tableData: tableData,

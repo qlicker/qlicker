@@ -22,13 +22,15 @@ export class _CleanGradeTable extends Component {
     this.state = {
       sortByColumn: 'last', //default sort by last name (first column)
       sortAsc: true,
-      gradeViewModal: false
+      gradeViewModal: false,
+      profileViewModal: false
     }
 
     this.setSortByColumn = this.setSortByColumn.bind(this)
     this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
     this.calculateAllGrades = this.calculateAllGrades.bind(this)
     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
+    this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
 
   // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
@@ -40,6 +42,10 @@ export class _CleanGradeTable extends Component {
 
   toggleGradeViewModal (gradeToView = null, studentToViewName = '') {
     this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToViewName: studentToViewName })
+  }
+
+  toggleProfileViewModal (studentToView = null) {
+    this.setState({ profileViewModal: !this.state.profileViewModal, studentToView: studentToView })
   }
 
   calculateSessionGrades (sessionId) {
@@ -183,8 +189,7 @@ export class _CleanGradeTable extends Component {
     }
     // Create the array of FancyHeaders to pass to CleanTable
     let headers = []
-    headers.push(<FancySessionHeader  colSortName = {'last'} title ={'Last name, first name'} />)
-    //headers.push(<FancySessionHeader  colSortName = {'first'} title ={'First name'} />)
+    headers.push(<FancySessionHeader  colSortName = {'last'} title ={'Last name, First name'} />)
     headers.push(<FancySessionHeader  colSortName = {'email'} title ={'Email'} />)
     headers.push(<FancySessionHeader  colSortName = {'avgParticipation'} title ={'Avg. Participation'} />)
     //Two columns per session (mark and participation)
@@ -194,7 +199,7 @@ export class _CleanGradeTable extends Component {
     }
 
     //Define a component to hold cell data
-    const FancyCell = ( {grade, title, participation, studentName} ) => {
+    const FancyCell = ( {grade, title, participation, studentName, student} ) => {
       if (title){
         return(
           <div className='ql-cgt-fancy-cell'>
@@ -219,7 +224,16 @@ export class _CleanGradeTable extends Component {
             </div>
           </div>
         )
-      }  else {
+      } else if(student) {
+        const viewStudent = () => this.toggleProfileViewModal(student)
+        return(
+          <div className={'ql-cgt-fancy-cell'}>
+            <div onClick={viewStudent} className={'ql-cgt-fancy-cell-link'}>
+              {student.profile.lastname+', '+student.profile.firstname}
+            </div>
+          </div>
+        )
+      } else {
         return(
           <div className='ql-cgt-fancy-cell'>
            {0}
@@ -231,14 +245,13 @@ export class _CleanGradeTable extends Component {
     let rows = []
     for(let iStu = 0; iStu < nStu; iStu++){
       let row = []
-      row.push(<FancyCell title={gradeRows[iStu][0].last+', '+gradeRows[iStu][0].first} />)
-      //row.push(<FancyCell title={gradeRows[iStu][0].first} />)
+      row.push(<FancyCell student={gradeRows[iStu][0].student} />)
       row.push(<FancyCell title={gradeRows[iStu][0].email} />)
       row.push(<FancyCell title={gradeRows[iStu][0].avgParticipation} />)
       let studentName = gradeRows[iStu][0].last + ', ' + gradeRows[iStu][0].first
 
       for(let iSess = 0; iSess <nSess; iSess++){
-        let grade = gradeRows[iStu][1+iSess] // + 1 because of last, first, email
+        let grade = gradeRows[iStu][1+iSess] // 1+ because of last, first, email etc stored in [0]
         row.push(<FancyCell grade={grade} studentName={studentName} />)
         row.push(<FancyCell grade={grade} studentName={studentName} participation={true} />)
       }
@@ -246,7 +259,8 @@ export class _CleanGradeTable extends Component {
     }
 
     //Check to make sure only 1 modal open at a time:
-    const showGradeViewModal = this.state.gradeViewModal
+    const showGradeViewModal = this.state.gradeViewModal && this.state.studentToViewName && !this.state.profileViewModal
+    const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
@@ -278,6 +292,12 @@ export class _CleanGradeTable extends Component {
               done={this.toggleGradeViewModal}
              />
           : '' }
+        { showProfileViewModal
+          ? <ProfileViewModal
+            user={this.state.studentToView}
+            done={this.toggleProfileViewModal} />
+          : '' }
+
       </div>
     )
   } // end render
@@ -319,6 +339,7 @@ export const CleanGradeTable = withTracker((props) => {
     let gradeRow = [{last: students[iStu].profile.lastname,
                      first:students[iStu].profile.firstname,
                      email:students[iStu].emails[0].address.toLowerCase(),
+                     student:students[iStu],
                      avgParticipation: 0, //update this below
                      id:students[iStu]._id}]
 
