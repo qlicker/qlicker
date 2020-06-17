@@ -126,7 +126,7 @@ export class _CleanGradeTable extends Component {
             const grade = _(entry.grades).findWhere({ sessionId: sid })
             return ((grade && grade.value) ? grade.value : 0)
           })
-        } else if (sortByColum.includes('spart')){ // grade.participations
+        } else if (sortByColumn.includes('spart')){ // grade.participations
           let sid = sortByColumn.split('_spart')[0]
           gradeRows = _(gradeRows).sortBy((entry) => {
             const grade = _(entry.grades).findWhere({ sessionId: sid })
