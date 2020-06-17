@@ -305,14 +305,17 @@ export class _CleanGradeTable extends Component {
 
 // meteor reactive data container
 export const CleanGradeTable = withTracker((props) => {
+  //don't load all of these grade fields
+  const gradeFields = {marks:0, numAnswered:0, numAnsweredTotal:0, numQuestions:0, numQuestionsTotal:0, outOf:0, automatic:0, points:0}
   const handle = Meteor.subscribe('users.studentsInCourse', props.courseId) &&
     Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
-    Meteor.subscribe('grades.forCourse', props.courseId, {'marks':0} )
-  //{value: 1, participation: 1, userId: 1, sessionId:1, joined:1, needsGrading:1}
+    Meteor.subscribe('grades.forCourse', props.courseId )
+
   const user = Meteor.user()
   const course = Courses.findOne(props.courseId)
   const grades = Grades.find({ courseId: props.courseId }).fetch()
+  if (grades && grades[0]) console.log(grades[0])
 
   let students, sessions
 
