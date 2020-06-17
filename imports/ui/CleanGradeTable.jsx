@@ -310,12 +310,11 @@ export const CleanGradeTable = withTracker((props) => {
   const handle = Meteor.subscribe('users.studentsInCourse', props.courseId) &&
     Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
-    Meteor.subscribe('grades.forCourse', props.courseId )
+    Meteor.subscribe('grades.forCourse', props.courseId, gradeFields )
 
   const user = Meteor.user()
   const course = Courses.findOne(props.courseId)
   const grades = Grades.find({ courseId: props.courseId }).fetch()
-  if (grades && grades[0]) console.log(grades[0])
 
   let students, sessions
 
