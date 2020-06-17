@@ -123,13 +123,13 @@ export class _CleanGradeTable extends Component {
         if (sortByColumn.includes('smark')){ // grade.values
           let sid = sortByColumn.split('_smark')[0]
           gradeRows = _(gradeRows).sortBy((entry) => {
-            const grade = _(entry.grades).findWhere({ sessionId: sid })
+            const grade = _(entry.slice(1)).findWhere({ sessionId: sid })
             return ((grade && grade.value) ? grade.value : 0)
           })
         } else if (sortByColumn.includes('spart')){ // grade.participations
           let sid = sortByColumn.split('_spart')[0]
           gradeRows = _(gradeRows).sortBy((entry) => {
-            const grade = _(entry.grades).findWhere({ sessionId: sid })
+            const grade = _(entry.slice(1)).findWhere({ sessionId: sid })
             return ((grade && grade.participation) ? grade.participation : 0)
           })
         } else { }
