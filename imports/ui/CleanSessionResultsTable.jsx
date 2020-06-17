@@ -97,16 +97,8 @@ export class _CleanSessionResultsTable extends Component {
       questions.push(question)
     }
 
-    // Grab only the rows we need if the search string is set
-    if (studentSearchString) {
-      tableData = _(tableData).filter((entry) => {
-        return entry.name.toLowerCase().includes(studentSearchString.toLowerCase()) ||
-              entry.email.toLowerCase().includes(studentSearchString.toLowerCase())
-      })
-    }
-
-    //Number of students has to be set after filtering!
-    const nStu = tableData.length
+    //Number of students:
+    let nStu = tableData.length
     const csvFilename = this.props.session.name.replace(/ /g, '_') + '_results.csv'
     //First, generate the data for the CSV export (so that it's sorted by student last name)
     let csvHeaders = ["Last name", "First name", "Email", "grade", "participation"] //_(this.props.gradeHeaders).pluck('colName').slice(0,3)
@@ -140,7 +132,16 @@ export class _CleanSessionResultsTable extends Component {
       }
       csvRows.push(csvRow)
     }
-    
+
+    // Grab only the rows we need if the search string is set
+    if (studentSearchString) {
+      tableData = _(tableData).filter((entry) => {
+        return entry.name.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+              entry.email.toLowerCase().includes(studentSearchString.toLowerCase())
+      })
+    }
+    //update the number of students
+    nStu = tableData.length
     // Sort if needed
     if (sortByColumn) {
       if (sortByColumn === 'name') {
