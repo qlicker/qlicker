@@ -8,7 +8,9 @@ import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 import { Grades } from '../api/grades'
 
+import { GradeViewModal } from './modals/GradeViewModal'
 import { ProfileViewModal } from './modals/ProfileViewModal'
+
 import { CleanTable } from './CleanTable'
 
 import { ROLES } from '../configs'
@@ -27,6 +29,7 @@ export class _CleanGradeTable extends Component {
     this.setSortByColumn = this.setSortByColumn.bind(this)
     this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
     this.calculateAllGrades = this.calculateAllGrades.bind(this)
+    this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
 
@@ -35,6 +38,10 @@ export class _CleanGradeTable extends Component {
   setSortByColumn (colId) {
     let sortAsc = (colId === this.state.sortByColumn) ? !this.state.sortAsc : true
     this.setState({ sortByColumn: colId, sortAsc: sortAsc })
+  }
+
+  toggleGradeViewModal (gradeToView = null, studentToViewName = '') {
+    this.setState({ gradeViewModal: !this.state.gradeViewModal, gradeToView: gradeToView, studentToViewName: studentToViewName })
   }
 
   toggleProfileViewModal (studentToView = null) {
@@ -187,8 +194,8 @@ export class _CleanGradeTable extends Component {
     headers.push(<FancySessionHeader  colSortName = {'avgParticipation'} title ={'Avg. Participation'} />)
     //Two columns per session (mark and participation)
     for (let iSess = 0; iSess<nSess; iSess++){
-      headers.push(<FancySessionHeader session={sessions[iSess]} colSortName = {sessions[iSess]._id+'_smark'}  />)
-      headers.push(<FancySessionHeader session={sessions[iSess]} participation colSortName = {sessions[iSess]._id+'_spart'} />)
+      headers.push(<FancySessionHeader session={sessions[iSess]} participation={false} colSortName = {sessions[iSess]._id+'_smark'}  />)
+      headers.push(<FancySessionHeader session={sessions[iSess]} participation={true} colSortName = {sessions[iSess]._id+'_spart'} />)
     }
 
     //Define a component to hold cell data
@@ -201,14 +208,20 @@ export class _CleanGradeTable extends Component {
         )
       }else if(grade){
         let extraClassOuter = ''
+        let extraClassInner = ''
+
         if (grade.needsGrading && grade.joined) extraClassOuter += ' ql-cgt-needs-grading'
-        if (!grade.joined) extraClassOuter += ' ql-cgt-fancy-cell-grey'
+        if (!grade.joined) extraClassInner += ' ql-cgt-fancy-cell-grey'
+
+        const onClick = () => this.toggleGradeViewModal(grade, studentName)
         return(
           <div className={'ql-cgt-fancy-cell'+extraClassOuter}>
+            <div onClick={onClick} className={'ql-cgt-fancy-cell-link'+extraClassInner}>
               {(participation ?
                    (grade.participation ? grade.participation : 0)
                  : (grade.value ? grade.value : 0 )
                )}
+            </div>
           </div>
         )
       } else if(student) {
@@ -239,14 +252,15 @@ export class _CleanGradeTable extends Component {
 
       for(let iSess = 0; iSess <nSess; iSess++){
         let grade = gradeRows[iStu][1+iSess] // 1+ because of last, first, email etc stored in [0]
-        row.push(<FancyCell grade={grade} />)
-        row.push(<FancyCell grade={grade} participation />)
+        row.push(<FancyCell grade={grade} studentName={studentName} />)
+        row.push(<FancyCell grade={grade} studentName={studentName} participation={true} />)
       }
       rows.push(row)
     }
 
     //Check to make sure only 1 modal open at a time:
-    const showProfileViewModal = this.state.profileViewModal
+    const showGradeViewModal = this.state.gradeViewModal && this.state.studentToViewName && !this.state.profileViewModal
+    const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
@@ -270,6 +284,14 @@ export class _CleanGradeTable extends Component {
           }
       </div>
         <CleanTable rows={rows} headers={headers} />
+
+        { showGradeViewModal
+          ? <GradeViewModal
+              grade={this.state.gradeToView}
+              studentName={this.state.studentToViewName}
+              done={this.toggleGradeViewModal}
+             />
+          : '' }
         { showProfileViewModal
           ? <ProfileViewModal
             user={this.state.studentToView}
