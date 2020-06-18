@@ -153,14 +153,14 @@ export const Sessions = new Mongo.Collection('sessions',
 // data publishing
 if (Meteor.isServer) {
 
-  Meteor.publish('sessions.forCourse', function (courseId) {
+  Meteor.publish('sessions.forCourse', function (courseId, fields) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const course = Courses.findOne({ _id: courseId })
       if (!course || !user) return this.ready()
 
       if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
-        return Sessions.find({ courseId: courseId })
+        return Sessions.find({ courseId: courseId }, {fields: fields})
       } else if (user.isStudent(courseId)) {
         //return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false, submittedQuiz:false}})
         // TODO should really not publish the submittedQuiz field, but can't get the commented out code to work!!!

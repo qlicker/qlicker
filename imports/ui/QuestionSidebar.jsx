@@ -71,7 +71,7 @@ export class _QuestionSidebar extends ControlledForm {
 //    if(nextProps.selected.tags !== this.props.selected.tags)
     Meteor.call('questions.possibleTags',  nextProps.courseId, (e, tags) => {
       // non-critical, if e: silently fail
-      tagSuggestions = []
+      let tagSuggestions = []
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
@@ -105,7 +105,7 @@ export class _QuestionSidebar extends ControlledForm {
   componentDidMount() {
     Meteor.call('questions.possibleTags', this.props.courseId, (e, tags) => {
       // non-critical, if e: silently fail
-      tagSuggestions = []
+      let tagSuggestions = []
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
