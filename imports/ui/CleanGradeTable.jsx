@@ -22,19 +22,24 @@ export class _CleanGradeTable extends Component {
     this.state = {
       sortByColumn: 'last', //default sort by last name (first column)
       sortAsc: true,
+      studentSearchString: '',
       gradeViewModal: false,
       profileViewModal: false
     }
 
     this.setSortByColumn = this.setSortByColumn.bind(this)
+    this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.calculateSessionGrades = this.calculateSessionGrades.bind(this)
     this.calculateAllGrades = this.calculateAllGrades.bind(this)
     this.toggleGradeViewModal = this.toggleGradeViewModal.bind(this)
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
 
+  setStudentSearchString (e) {
+    this.setState({ studentSearchString: e.target.value })
+  }
+
   // Set as the sort column, toggle order if already the sort column, set to ascending otherwise
-  // Expects either a sessionId for the column, or the string 'name' if sorting by name
   setSortByColumn (colId) {
     let sortAsc = (colId === this.state.sortByColumn) ? !this.state.sortAsc : true
     this.setState({ sortByColumn: colId, sortAsc: sortAsc })
@@ -84,7 +89,7 @@ export class _CleanGradeTable extends Component {
     const csvFilename = this.props.courseName.replace(/ /g, '_') + '_results.csv'
 
     let gradeRows = this.props.gradeRows
-    const nStu = gradeRows.length
+    let nStu = gradeRows.length
     const sessions = this.props.sessions
     const nSess =sessions.length
 
@@ -105,6 +110,18 @@ export class _CleanGradeTable extends Component {
       }
       csvRows.push(csvRow)
     }
+
+    const studentSearchString = this.state.studentSearchString
+    if (studentSearchString) {
+      gradeRows = _(gradeRows).filter((entry) => {
+        return entry[0].first.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+              entry[0].last.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+              entry[0].email.toLowerCase().includes(studentSearchString.toLowerCase())
+      })
+    }
+    //update the number of students
+    nStu = gradeRows.length
+
     //Apply any sorting to the gradeRows:
     const sortByColumn = this.state.sortByColumn
     const sortAsc = this.state.sortAsc
@@ -139,7 +156,6 @@ export class _CleanGradeTable extends Component {
         gradeRows = gradeRows.reverse()
       }
     }
-
 
     //Define a component to hold a header that allows sorting
     const FancySessionHeader = ( {session, title, colSortName, participation} ) => {
@@ -261,10 +277,19 @@ export class _CleanGradeTable extends Component {
     //Check to make sure only 1 modal open at a time:
     const showGradeViewModal = this.state.gradeViewModal && this.state.studentToViewName && !this.state.profileViewModal
     const showProfileViewModal = this.state.profileViewModal && this.state.studentToView && !this.state.gradeViewModal
+    const handleSubmit = (e) => { e.preventDefault() } // for student search form
 
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
+          {isInstructor
+            ? <div className='ql-grade-table-controlbar-div'>
+              <form ref='searchStudentForm' onSubmit={handleSubmit}>
+                <input type='text' maxLength='32' size='32' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
+              </form>
+            </div>
+            : ''
+          }
           {isInstructor
             ? <div className='ql-grade-table-controlbar-div'>
               <div>

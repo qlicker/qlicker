@@ -279,7 +279,7 @@ export class _CleanSessionResultsTable extends Component {
     return (
       <div className='ql-grade-table-container' ref='gradeTableContainer'>
         <div className='ql-grade-table-controlbar'>
-          {nStu > 1
+          {isInstructor
             ? <div className='ql-grade-table-controlbar-div'>
               <form ref='searchStudentForm' onSubmit={handleSubmit}>
                 <input type='text' maxLength='32' size='32' placeholder='search by student name or email' onChange={_.throttle(this.setStudentSearchString, 200)} />
