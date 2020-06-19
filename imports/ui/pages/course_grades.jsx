@@ -29,6 +29,7 @@ export class _CourseGrades extends Component {
 
     this.setSessions = this.setSessions.bind(this)
     this.selectAllSessions = this.selectAllSessions.bind(this)
+    this.clearAllSessions = this.clearAllSessions.bind(this)
   }
 
   setSessions (sessions) {
@@ -36,38 +37,53 @@ export class _CourseGrades extends Component {
   }
 
   selectAllSessions() {
-    this.setState({selectedSessions:this.props.possibleSessions, allSelected:true})
+    this.setState({allSelected:true, selectedSession:[]})
   }
+
+  clearAllSessions() {
+    this.setState({allSelected:false, selectedSession:[]})
+  }
+
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
-    let possibleSessions = this.props.possibleSessions
-    let selectedSessions = this.state.selectedSessions
-    let sessionIds = _(selectedSessions).pluck('value')
+    const allSelected = this.state.allSelected
+    const possibleSessions = this.props.possibleSessions
+    const selectedSessions = allSelected ? possibleSessions : this.state.selectedSessions
+    const sessionIds = _(selectedSessions).pluck('value')
     return (
       <div className='container ql-results-page'>
         <div className='ql-card'>
           <div className='ql-header-bar'>
             <div className='row'>
               <div className='col-xs-offset-2 col-xs-8'><h4><span className='uppercase'>{this.props.courseName}</span>: Grades </h4>
-                <div className='ql-results-page-select-container'>
-                  <div className='ql-results-page-select-item'>
-                    <Select
-                      name='tag-input'
-                      placeholder='Session(s) to display'
-                      multi
-                      value={selectedSessions}
-                      options={possibleSessions}
-                      onChange={this.setSessions}
-                      />
-                  </div>
-                  <div className='ql-results-page-select-button'>
-                    <div type='button' className='btn btn-secondary' onClick={this.selectAllSessions} >
-                      Show All
+                { allSelected
+                  ? <div className='ql-results-page-select-container'>
+                      <div className='ql-results-page-select-button'>
+                        <div type='button' className='btn btn-secondary' onClick={this.clearAllSessions} >
+                          Clear all sessions
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  : <div className='ql-results-page-select-container'>
+                      <div className='ql-results-page-select-item'>
+                        <Select
+                          name='tag-input'
+                          placeholder='Session(s) to display'
+                          multi
+                          value={selectedSessions}
+                          options={possibleSessions}
+                          onChange={this.setSessions}
+                          />
+                      </div>
+                      <div className='ql-results-page-select-button'>
+                        <div type='button' className='btn btn-secondary' onClick={this.selectAllSessions} >
+                          Show all sessions
+                        </div>
+                      </div>
+                    </div>
+                }
               </div>
             </div>
           </div>
