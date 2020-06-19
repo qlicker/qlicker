@@ -37,11 +37,11 @@ export class _CourseGrades extends Component {
   }
 
   selectAllSessions() {
-    this.setState({allSelected:true, selectedSessions:[]})
+    this.setState({allSelected:true, selectedSession:[]})
   }
 
   clearAllSessions() {
-    this.setState({allSelected:false, selectedSessions:[]})
+    this.setState({allSelected:false, selectedSession:[]})
   }
 
 
