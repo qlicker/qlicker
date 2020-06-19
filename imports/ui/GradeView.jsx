@@ -199,9 +199,9 @@ export class _GradeView extends Component {
                 {this.state.editGrade
                   ? <form className={gradeInfoClass} ref='editGradeForm' onSubmit={this.handleGradeSubmit} >
                      Grade:
-                     <input type='number' min={0} max={100} step={0.01} onChange={this.setGradeValue} maxLength='4' size='4' placeholder={grade.value} />
+                     <input type='number' min={0} max={100} step={0.1} onChange={this.setGradeValue} maxLength='4' size='4' placeholder={grade.value} />
                      % ({grade.points} out of {grade.outOf} {gradeAutoText})
-                      &nbsp; <a onClick={updateGrade}>submit</a>
+                      &nbsp; <a onClick={updateGrade}>submit</a>&nbsp;
                     <a onClick={toggleGradeEditable}>cancel</a>
                   </form>
                   : <div className={gradeInfoClass} >
@@ -209,7 +209,7 @@ export class _GradeView extends Component {
                        Grade: {grade.value.toFixed(1)}% ({grade.points} out of {grade.outOf}) {gradeAutoText}
                     </div>
                     {canEdit
-                         ? <div>
+                         ? <div>&nbsp;
                            <a onClick={toggleGradeEditable}>edit</a>
                            { !grade.automatic
                                ? <div>&nbsp;&nbsp; <a onClick={this.autogradeGrade}>auto-grade</a> </div>

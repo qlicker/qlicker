@@ -22,8 +22,14 @@
 .ql-results-page-select-container{
   display: flex;
   flex-flow: row nowrap;
+  justify-content: center;
 }
 
 .ql-results-page-select-item{
-  min-width: 150px;
+    width: 500px;
+    padding-right: 5px;
+
+    .Select-menu-outer {
+      z-index: 6; //CleanTable header at z-index 5
+    }
 }

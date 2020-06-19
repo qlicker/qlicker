@@ -28,6 +28,10 @@ export class _AnswerDistribution extends Component {
   render () {
     const colorSeq = ['#2FB0E8', '#FFC32A', '#27EE77', '#FF532A']
     const bars = []
+    if(!this.props.distribution || !this.props.distribution.length){
+       return <div >No data</div>
+    }
+
     _(this.props.maxAttempt).times((i) => {
       const color = colorSeq[i] || this.getRandomColor()
       const keyName = 'pct_attempt_' + (i + 1)

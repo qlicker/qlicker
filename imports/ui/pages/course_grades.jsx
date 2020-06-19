@@ -28,11 +28,15 @@ export class _CourseGrades extends Component {
     }
 
     this.setSessions = this.setSessions.bind(this)
-
+    this.selectAllSessions = this.selectAllSessions.bind(this)
   }
 
   setSessions (sessions) {
     this.setState({ selectedSessions: sessions })
+  }
+
+  selectAllSessions() {
+    this.setState({selectedSessions:this.props.possibleSessions, allSelected:true})
   }
 
   render () {
@@ -53,13 +57,15 @@ export class _CourseGrades extends Component {
                       name='tag-input'
                       placeholder='Session(s) to display'
                       multi
-                      value={this.state.selectedSessions}
+                      value={selectedSessions}
                       options={possibleSessions}
                       onChange={this.setSessions}
                       />
                   </div>
-                  <div className='ql-results-page-select-item'>
-                  There would be a button
+                  <div className='ql-results-page-select-button'>
+                    <div type='button' className='btn btn-secondary' onClick={this.selectAllSessions} >
+                      Show All
+                    </div>
                   </div>
                 </div>
               </div>

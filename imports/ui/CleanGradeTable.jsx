@@ -130,8 +130,6 @@ export class _CleanGradeTable extends Component {
     if (sortByColumn) {
       if (sortByColumn === 'last') {//Last, first, email
         gradeRows = _(gradeRows).sortBy((entry) => { return entry[0].last })
-      } else if (sortByColumn === 'first') {
-        gradeRows = _(gradeRows).sortBy((entry) => { return entry[0].first })
       } else if (sortByColumn === 'email') {
         gradeRows = _(gradeRows).sortBy((entry) => { return entry[0].email })
       } else if (sortByColumn === 'avgParticipation') {
@@ -261,10 +259,13 @@ export class _CleanGradeTable extends Component {
     let rows = []
     for(let iStu = 0; iStu < nStu; iStu++){
       let row = []
-      row.push(<FancyCell student={gradeRows[iStu][0].student} />)
+      let studentName = gradeRows[iStu][0].last + ', ' + gradeRows[iStu][0].first
+
+      row.push(isInstructor
+                ? <FancyCell student={gradeRows[iStu][0].student} />
+                : <FancyCell title={studentName}  />)
       row.push(<FancyCell title={gradeRows[iStu][0].email} />)
       row.push(<FancyCell title={gradeRows[iStu][0].avgParticipation} />)
-      let studentName = gradeRows[iStu][0].last + ', ' + gradeRows[iStu][0].first
 
       for(let iSess = 0; iSess <nSess; iSess++){
         let grade = gradeRows[iStu][1+iSess] // 1+ because of last, first, email etc stored in [0]
@@ -332,6 +333,9 @@ export class _CleanGradeTable extends Component {
 export const CleanGradeTable = withTracker((props) => {
   //don't load all of these grade fields
   const gradeFields = {marks:0, numAnswered:0, numAnsweredTotal:0, numQuestions:0, numQuestionsTotal:0, outOf:0, automatic:0, points:0}
+
+  //TODO: Try a new session subscription based on an array, to speed it up
+  // TODO: Same but for the grades, based on an array of sessions
   const handle = Meteor.subscribe('users.studentsInCourse', props.courseId) &&
     Meteor.subscribe('courses.single', props.courseId) &&
     Meteor.subscribe('sessions.forCourse', props.courseId) &&
