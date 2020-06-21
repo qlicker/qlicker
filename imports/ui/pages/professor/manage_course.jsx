@@ -190,7 +190,7 @@ class _ManageCourse extends Component {
             if (ses.status === 'running') Router.go('session.run', { sessionId: sId, courseId: this.props.course._id })
             else Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
-          const controls = []
+          let controls = []
           if (ses.status === 'running' ) {
             controls.push({ label: 'Open Session Display',  click: () => { window.open('/session/present/' + sId, 'Qlicker', 'height=768,width=1024') } })
             controls.push({ label: 'End session', click: () => { this.endSession(sId) } })
@@ -249,7 +249,7 @@ class _ManageCourse extends Component {
           const nav = () => {
             Router.go('session.edit', { sessionId: sId, courseId: this.props.course._id })
           }
-          const controls = []
+          let controls = []
           if (ses.status === 'running' || ses.quizIsActive() ) {
             controls.push({ label: 'End quiz', click: () => { this.endSession(sId) } })
             controls.push({ divider: true })

@@ -53,7 +53,7 @@ class _ManageCourses extends Component {
 
   renderCourseList (cList) {
     return cList.map( (course) => {
-      controls = []
+      let controls = []
       if (course.inactive) {
         controls.push( { label: 'Make active', click: () => this.setCourseActive(course._id, true) } )
         controls.push( { label: 'Delete', click: () => this.deleteCourse(course._id) } )
