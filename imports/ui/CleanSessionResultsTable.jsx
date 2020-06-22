@@ -106,8 +106,8 @@ export class _CleanSessionResultsTable extends Component {
     let csvRows = []
     for(let iStu = 0; iStu<nStu; iStu++){
       let tableRow = tableData[iStu]
-      let participationGrade = tableRow.grade ? tableRow.grade.participation : 0
-      let gradeValue = tableRow.grade ? tableRow.grade.value : 0
+      let participationGrade = tableRow.grade ? Math.round(10*tableRow.grade.participation)/10 : 0
+      let gradeValue = tableRow.grade ? Math.round(10*tableRow.grade.value)/10 : 0
       let csvRow = [tableRow.lastName, tableRow.firstName, tableRow.email, gradeValue, participationGrade]
 
       for (let iQ = 0; iQ<nQues; iQ++){
@@ -217,8 +217,8 @@ export class _CleanSessionResultsTable extends Component {
           <div className='ql-csrt-fancy-cell'>
             <div onClick={onClick} className='ql-csrt-fancy-cell-link'>
               {(participation ?
-                   (grade.participation ? grade.participation : 0)
-                 : (grade.value ? grade.value : 0 )
+                   (grade.participation ? Math.round(10*grade.participation)/10 : 0)
+                 : (grade.value ? Math.round(10*grade.value)/10 : 0 )
                )}
             </div>
           </div>
