@@ -18,8 +18,7 @@ import { QuestionDisplay } from './QuestionDisplay'
 import { ShortAnswerList } from './ShortAnswerList'
 import { HistogramNumerical } from './HistogramNumerical'
 
-import { SessionResultsTable } from './SessionResultsTable'
-
+import { CleanSessionResultsTable } from './CleanSessionResultsTable'
 import { QUESTION_TYPE } from '../configs'
 
 export class _SessionResults extends Component {
@@ -31,8 +30,7 @@ export class _SessionResults extends Component {
     return (
       <div>
          Number of students in session: { total }
-        <SessionResultsTable session={this.props.session} />
-
+        <CleanSessionResultsTable session={this.props.session} />
         {
         this.props.session.questions.map(qId => {
           const q = this.props.questions[qId]

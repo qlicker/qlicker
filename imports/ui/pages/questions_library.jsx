@@ -354,7 +354,7 @@ export class _QuestionsLibrary extends Component {
     } else { // can't edit if there is no questions
       canEdit = false
       canToggleApprove = false
-      canMakePublic = false
+      canTogglePublic = false
       canCopy = false
     }
     //can't create if not instructor or course does not allow student questions

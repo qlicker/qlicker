@@ -199,9 +199,9 @@ export class _GradeView extends Component {
                 {this.state.editGrade
                   ? <form className={gradeInfoClass} ref='editGradeForm' onSubmit={this.handleGradeSubmit} >
                      Grade:
-                     <input type='number' min={0} max={100} step={0.01} onChange={this.setGradeValue} maxLength='4' size='4' placeholder={grade.value} />
+                     <input type='number' min={0} max={100} step={0.1} onChange={this.setGradeValue} maxLength='4' size='4' placeholder={grade.value} />
                      % ({grade.points} out of {grade.outOf} {gradeAutoText})
-                      &nbsp; <a onClick={updateGrade}>submit</a>
+                      &nbsp; <a onClick={updateGrade}>submit</a>&nbsp;
                     <a onClick={toggleGradeEditable}>cancel</a>
                   </form>
                   : <div className={gradeInfoClass} >
@@ -209,7 +209,7 @@ export class _GradeView extends Component {
                        Grade: {grade.value.toFixed(1)}% ({grade.points} out of {grade.outOf}) {gradeAutoText}
                     </div>
                     {canEdit
-                         ? <div>
+                         ? <div>&nbsp;
                            <a onClick={toggleGradeEditable}>edit</a>
                            { !grade.automatic
                                ? <div>&nbsp;&nbsp; <a onClick={this.autogradeGrade}>auto-grade</a> </div>
@@ -266,8 +266,8 @@ export class _GradeView extends Component {
                     <div className={infoClass} onClick={containerClick}>
                       { (this.state.markToEdit === mark.questionId) && canEdit
                            ? <form ref='editMarkForm' onSubmit={this.handleMarkSubmit}>
-                             <input type='number' min={0} step={0.01} onChange={this.setMarkPoints} maxLength='4' size='4' placeholder={mark.points.toFixed(2)} />
-                              out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a>
+                             <input type='number' min={0} step={0.25} onChange={this.setMarkPoints} maxLength='4' size='4' placeholder={mark.points.toFixed(2)} />
+                              out of {mark.outOf} on attempt {mark.attempt} {autoText} &nbsp; <a onClick={udpateMark}>submit</a> &nbsp;
                              <a onClick={cancelEditing}>cancel</a>
                            </form>
 
@@ -345,7 +345,7 @@ export const GradeView = withTracker((props) => {
   let questions = Questions.find({_id: { $in: session.questions }}).fetch()
 
   const questionIds = questions ? _(questions).pluck('_id') : []
-  const responses = Responses.find({ questionId: { $in: questionIds }, studentUserId: props.grade.userId }, { sort: { attempt: 1 } }).fetch()
+  const responses = grade ? Responses.find({ questionId: { $in: questionIds }, studentUserId: grade.userId }, { sort: { attempt: 1 } }).fetch() : []
 
   const showAttempts = !!props.showAttempts
 

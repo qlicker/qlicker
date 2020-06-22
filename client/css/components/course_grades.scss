@@ -1,0 +1,35 @@
+
+
+// Component
+.ql-results-page, .ql-grades-overview {
+
+  .session-group {
+    margin-top: 20px;
+  }
+
+  .ql-courselist {
+    margin-top: 20px;
+  }
+
+}
+
+.ql-resuls-page-notable {
+  text-align: center;
+  font-size: 200%;
+
+}
+
+.ql-results-page-select-container{
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+}
+
+.ql-results-page-select-item{
+    width: 500px;
+    padding-right: 5px;
+
+    .Select-menu-outer {
+      z-index: 6; //CleanTable header at z-index 5
+    }
+}

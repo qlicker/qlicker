@@ -25,8 +25,6 @@
     "docdash": "^0.4.0",
     "draftjs-to-html": "^0.6.0",
     "dropzone": "^4.3.0",
-    "fixed-data-table": "^0.6.5",
-    "fixed-data-table-2": "^0.8.28",
     "immutable": "^3.8.1",
     "jquery": "^3.4.1",
     "jshint": "^2.11.1",

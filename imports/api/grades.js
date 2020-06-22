@@ -281,7 +281,7 @@ Meteor.methods({
     if (!mark) throw Error('No mark inputted')
 
     // points must be positive
-    if (mark.points < 0 ) throw Error('No negativ points for a mark')
+    if (mark.points < 0 ) throw Error('No negative points for a mark')
 
     let grade = Grades.findOne({ _id: gradeId })
     if (!grade) throw Error('Undefined grade in update!')
@@ -294,7 +294,17 @@ Meteor.methods({
     }
 
     let gradeMarks = grade.marks
-    let index = _(gradeMarks).findIndex({ questionId: mark.questionId })
+    let index = -1 // for some reason, the one liner below doesn't work anymore ?
+    //let index = gradeMarks.length > 0 ? _(gradeMarks).findIndex({ questionId: mark.questionId })
+    for (im = 0; im<gradeMarks.length ; im++){
+      if(gradeMarks[im].questionId == mark.questionId){
+        index = im
+        break
+      }
+    }
+
+
+
 
     if (index>=0) {
       grade.marks[index]=mark
@@ -671,7 +681,7 @@ Meteor.methods({
         let participation = 0
         if (numAnswered > 0) {
           if (numQuestions > 0) {
-            participation = (100 * numAnswered / numQuestions)
+            participation = Math.round(1000 * numAnswered / numQuestions)/10
           } else {
             // answered at least one question, but none of the questions were worth points
             participation = 100
@@ -687,7 +697,7 @@ Meteor.methods({
 
         if (gradePoints > 0 && grade.automatic) { // only update if not an existing grade with automatic set to false
           if (gradeOutOf > 0) {
-            gradeValue = (100 * gradePoints / gradeOutOf)
+            gradeValue = Math.round(1000 * gradePoints / gradeOutOf)/10
           } else {
             gradeValue = 100
           }

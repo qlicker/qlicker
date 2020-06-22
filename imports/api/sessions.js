@@ -43,11 +43,18 @@ const sessionPattern = {
 const Session = function (doc) { _.extend(this, doc) }
 // Add some methods:
 _.extend(Session.prototype, {
+
   gradesViewable: function () {
     let grades = Grades.find({ sessionId: this._id, visibleToStudents: true }).fetch()
     return grades.length > 0
   },
 
+  gradesCalculated: function () {
+    const grades = Grades.find({ sessionId: this._id }).fetch()
+    if (!grades || grades.length < 1) return false
+    const course = Courses.findOne({ _id:this.courseId })
+    return course && course.students && course.students.length <= grades.length
+  },
   /*
   quizCompleted: function (userId) {
     return this.quiz && this.submittedQuiz && _(this.submittedQuiz).contains(userId)
@@ -146,14 +153,14 @@ export const Sessions = new Mongo.Collection('sessions',
 // data publishing
 if (Meteor.isServer) {
 
-  Meteor.publish('sessions.forCourse', function (courseId) {
+  Meteor.publish('sessions.forCourse', function (courseId, fields) {
     if (this.userId) {
       const user = Meteor.users.findOne({ _id: this.userId })
       const course = Courses.findOne({ _id: courseId })
       if (!course || !user) return this.ready()
 
       if (user.isInstructor(courseId) || user.hasGreaterRole(ROLES.admin)) {
-        return Sessions.find({ courseId: courseId })
+        return Sessions.find({ courseId: courseId }, {fields: fields})
       } else if (user.isStudent(courseId)) {
         //return Sessions.find({ courseId: courseId, status: { $ne: 'hidden' }}, {fields: {joined: false, submittedQuiz:false}})
         // TODO should really not publish the submittedQuiz field, but can't get the commented out code to work!!!

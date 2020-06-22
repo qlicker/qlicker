@@ -17,25 +17,22 @@ import { ControlledForm } from '../ControlledForm'
 export class GradeViewModal extends ControlledForm {
 
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const grade = this.props.grade
-    const student = this.props.student
-
-    return (grade
-      ? <div className='ql-modal-container' >
-        <div className='ql-modal ql-card' >
-          <div className='ql-modal-header ql-header-bar'><h3>{grade.name} {student.profile.lastname}, {student.profile.firstname}</h3> </div>
-          <div className='ql-card-content'>
-            <div className='row'>
-              <GradeView grade={grade} />
-              <div className='btn-group btn-group-justified' role='group' aria-label='...'>
-                <a className='btn btn-default' onClick={this.props.done}>Close</a>
-              </div>
+    return ( grade
+       ? <div className='ql-modal-container' >
+          <div className='ql-modal ql-card' >
+            <div className='ql-modal-header ql-header-bar'><h3>{grade.name} {this.props.studentName}</h3> </div>
+            <div className='ql-card-content'>
+              <div className='row'>
+                <GradeView grade={this.props.grade}/>
+                  <div className='btn-group btn-group-justified' role='group' aria-label='...'>
+                    <a className='btn btn-default' onClick={this.props.done}>Close</a>
+                  </div>
             </div>
           </div>
         </div>
       </div>
-      : 'Loading')
+      : <div className='ql-subs-loading'>Loading</div>)
   } //  end render
 
 } // end GradeViewModal
@@ -43,5 +40,5 @@ export class GradeViewModal extends ControlledForm {
 GradeViewModal.propTypes = {
   done: PropTypes.func,
   grade: PropTypes.object,
-  student: PropTypes.object
+  studentName: PropTypes.string
 }

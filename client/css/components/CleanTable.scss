@@ -1,0 +1,70 @@
+@import '../variables.scss';
+//@import '../common_components.scss';
+
+//From: https://codepen.io/paulobrien/pen/LBrMxa
+.ql-table-scroll {
+  position: relative;
+  width:100%;
+  z-index: 1;
+  margin: auto;
+  overflow: auto;
+  max-height: 550px;
+
+  a {
+    &:hover {
+      cursor: pointer;
+      color: $hover-color;
+    }
+  }
+
+  table {
+    padding-bottom: 10px;
+  }
+}
+
+.ql-table-scroll table {
+  width: 100%;
+  min-width: 800px;
+  margin: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ql-table-wrap {
+  position: relative;
+}
+
+.ql-table-scroll th,
+.ql-table-scroll td {
+  padding: 1px 1px;
+  border: 1px solid $light-blue;
+  background: #fff;
+  vertical-align: top;
+
+}
+
+ tbody tr:nth-child(even) td{
+   background: $lighter-blue;
+ }
+ tbody tr:nth-child(even) th{
+   background: $lighter-blue;
+ }
+
+ th:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.ql-table-scroll thead th {
+  background: $blue;
+  color: #fff;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+
+thead th:first-child {
+  z-index: 5;
+}

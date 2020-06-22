@@ -40,7 +40,7 @@ export class ListItem extends Component {
   }
 
   makeControls () {
-    const controls = []
+    let controls = []
     let divCount = 1
     ;(this.props.controls || []).forEach((c) => {
       divCount += 1
