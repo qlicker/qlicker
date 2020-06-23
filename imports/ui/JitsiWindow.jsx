@@ -17,7 +17,8 @@ export class JitsiWindow extends Component {
     const domain = 'meet.qlicker.org';
     const options = {
      roomName: 'qlicker-jitsi-1',
-     height: 400,
+     width: 500,
+     height:500,
      parentNode: document.getElementById('jitsi-inner'),
      interfaceConfigOverwrite: {
       filmStripOnly: false,
