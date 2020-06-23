@@ -7,7 +7,7 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
 
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 import Helpers from './helpers.js'
 import { Sessions } from './sessions.js'

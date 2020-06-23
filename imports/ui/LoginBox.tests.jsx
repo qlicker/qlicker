@@ -7,7 +7,7 @@ import React from 'react'
 import { shallow, mount } from 'enzyme'
 import { expect } from 'meteor/practicalmeteor:chai'
 // import { sinon } from 'meteor/practicalmeteor:sinon'
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 import { LoginBox } from './LoginBox.jsx'
 

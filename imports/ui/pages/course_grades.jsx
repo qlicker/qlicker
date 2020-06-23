@@ -6,7 +6,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { withTracker }  from 'meteor/react-meteor-data'
-
+import _ from 'underscore'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
 
@@ -123,7 +123,6 @@ export const CourseGrades = withTracker((props) => {
     sessionQuery._id ={ $in: course.sessions || [] }
     sessions = Sessions.find(sessionQuery, { sort: { date: 1 } }).fetch().reverse()
   }
-
   let possibleSessions = []
   let nSess = sessions.length
 

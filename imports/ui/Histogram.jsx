@@ -7,7 +7,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { withTracker }  from 'meteor/react-meteor-data'
-
+import _ from 'underscore'
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 
 /**

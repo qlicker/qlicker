@@ -8,6 +8,7 @@ import saml from 'passport-saml'
 import url from 'url'
 import xmldom from 'xmldom'
 import xpath from 'xpath'
+import _ from 'underscore'
 
 //console.log(Meteor.absoluteUrl())
 

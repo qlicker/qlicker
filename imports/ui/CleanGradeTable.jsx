@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { withTracker }  from 'meteor/react-meteor-data'
+import _ from 'underscore'
 
 import { CSVLink } from 'react-csv'
 

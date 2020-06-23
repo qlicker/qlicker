@@ -1,5 +1,5 @@
 
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 import { check, Match } from 'meteor/check'
 import { QUESTION_TYPE, TF_ORDER, MC_ORDER } from '../configs'
