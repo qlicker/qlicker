@@ -24,6 +24,8 @@ import { ROLES } from '../../../configs'
 import { SessionListItem } from '../../SessionListItem'
 import { StudentListItem } from '../../StudentListItem'
 
+import { JitsiWindow } from '../../JitsiWindow'
+
 class _ManageCourse extends Component {
 
   constructor (props) {
@@ -449,7 +451,7 @@ class _ManageCourse extends Component {
               </div>
               : <div><h3> No quizzes to display</h3> </div>
             }
-
+            <JitsiWindow />
           </div>
         </div>
 
