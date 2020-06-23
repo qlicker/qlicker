@@ -5,7 +5,7 @@
 
 import React, { Component } from 'react'
 
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 import { Settings } from '../api/settings'
 

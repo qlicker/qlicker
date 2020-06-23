@@ -23,7 +23,7 @@ import { Settings } from './settings'
  * }
  */
 import { Courses } from './courses'
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 const User = function (doc) { _.extend(this, doc) }
 _.extend(User.prototype, {

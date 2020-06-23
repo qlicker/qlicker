@@ -7,7 +7,7 @@
 import { Meteor } from 'meteor/meteor'
 import { expect } from 'meteor/practicalmeteor:chai'
 
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 import { restoreStubs } from '../../stubs.tests.js'
 

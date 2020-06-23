@@ -7,7 +7,7 @@
 import React, { Component } from 'react'
 // import ReactDOM from 'react-dom'
 import { withTracker }  from 'meteor/react-meteor-data'
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 import { Courses } from '../../../api/courses'
 import { Sessions } from '../../../api/sessions'

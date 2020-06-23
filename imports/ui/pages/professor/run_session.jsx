@@ -4,7 +4,7 @@
 // run_session.jsx: page for managing a currently running session
 
 import React, { Component } from 'react'
-//import { _ } from 'underscore'
+import _ from 'underscore'
 //import ReactTooltip from 'react-tooltip'
 
 import { withTracker }  from 'meteor/react-meteor-data'

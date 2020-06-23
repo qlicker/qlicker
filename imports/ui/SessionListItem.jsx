@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import { ListItem } from './ListItem'
 
 import moment from 'moment-timezone'
-
+import _ from 'underscore'
 import { SESSION_STATUS_STRINGS } from '../configs'
 
 /**

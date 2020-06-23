@@ -8,7 +8,7 @@
 // import { mount } from 'enzyme'
 // import { expect } from 'meteor/practicalmeteor:chai'
 // import { sinon } from 'meteor/practicalmeteor:sinon'
-// //import { _ } from 'underscore'
+import _ from 'underscore'
 
 // import { restoreStubs } from '../../../stubs.tests.js'
 // import { createAndStubProfessor } from '../../api/courses.tests.js'

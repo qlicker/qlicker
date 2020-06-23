@@ -6,7 +6,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { withTracker }  from 'meteor/react-meteor-data'
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 // import { ControlledForm } from './ControlledForm'
 import { Sessions } from '../api/sessions'
