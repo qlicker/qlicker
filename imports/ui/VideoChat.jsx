@@ -24,17 +24,38 @@ export class _VideoChat extends Component {
     super(props)
 
     this.state = {
-
+      api:null
     }
+
+    this.setJitsiApi = this.setJitsiApi.bind(this)
+  }
+
+  setJitsiApi(api) {
+    this.setState({api:api})
 
   }
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
-    console.log("hello")
+
+    let options = {
+     roomName: 'qlicker-jitsi-1',
+     width: 500,
+     height:500,
+     interfaceConfigOverwrite: {
+      filmStripOnly: false,
+      SHOW_JITSI_WATERMARK: false,
+     },
+     configOverwrite: {
+      disableSimulcast: false,
+     },
+    }
+
+    let domain = 'meet.qlicker.org'
     return (
       <div className='ql-video-page'>
-        <JitsiWindow />
+
+        <JitsiWindow options={options} domain={domain}  />
       </div>
     )
   }
