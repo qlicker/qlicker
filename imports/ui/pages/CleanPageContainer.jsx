@@ -102,19 +102,63 @@ class _CleanPageContainer extends Component {
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
 
+    const click = () =>{console.log("click")}
+
     return (
       <div className='ql-page-body'>
         <div className='ql-page-nav'>
+
           <div className='ql-page-horiz-menu'>
+            <input type="checkbox" id="ql-page-horiz-menu" /><label htmlFor="ql-page-horiz-menu"></label>
             <ul>
               <li >
-               Item 1
+               <div className='ql-page-menu-item' onClick={click}>
+                Item 1
+               </div>
               </li>
-              <li>
-               Item 2
+              <li className='ql-page-menu-dropdown'>
+                Item2 dropdown
+                <div className='ql-page-menu-dropdown-content'>
+
+                     <div className='ql-page-menu-item'  onClick={click}>
+                      Sub item 1
+                     </div>
+
+                     <div className='ql-page-menu-item'  onClick={click}>
+                      Sub item 2
+                     </div>
+
+                </div>
+              </li>
+              <li >
+               <div className='ql-page-menu-item' onClick={click}>
+                Item 3
+               </div>
+              </li>
+              <li >
+               <div className='ql-page-menu-item' onClick={click}>
+                Item 4
+               </div>
+              </li>
+              <li >
+               <div className='ql-page-menu-item' onClick={click}>
+                Item 5
+               </div>
+              </li>
+              <li >
+               <div className='ql-page-menu-item' onClick={click}>
+                Item 6
+               </div>
+              </li>
+              <li className='right'>
+                <div className='ql-page-menu-item'  onClick={click}>
+                 The profile
+                </div>
               </li>
             </ul>
           </div>
+
+
         </div>
 
         <div className='ql-page-content'>
