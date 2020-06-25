@@ -12,7 +12,9 @@
   font-family: $font-stack;
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
 }
-
+.ql-page-horiz-menu {
+  min-height:50px;// to keep a white bar when it's collapsed
+}
 .ql-page-horiz-menu ul {
   list-style-type: none;
   margin: 0;
@@ -87,6 +89,8 @@ label {
     position: absolute;
     right: 20px;
     top: 0px;
+    padding-top: 5px;
+    z-index: 11;
    }
 
   label:after {
@@ -95,7 +99,7 @@ label {
     width: 30px;
     height: 5px;
     background: $blue;
-    margin: 7px 5px;
+    margin: 7px 15px;
     box-shadow: 0px 10px 0px $blue, 0px 20px 0px $blue
   }
 
@@ -104,9 +108,9 @@ label {
     z-index: 10;
     background-color: white;
     position: absolute;
-    right: 20px;
-    left: 20px;
-    width: 80%;// leave space for the hamburger icon
+    //right: 20px;
+    //left: 20px;
+    width: 100%;// leave space for the hamburger icon
   }
 
   .ql-page-horiz-menu li, .ql-page-horiz-menu li.right {
