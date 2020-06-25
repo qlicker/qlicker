@@ -1,0 +1,39 @@
+@import '../variables.scss';
+
+.ql-page-nav {
+  background-color: white;
+  min-height:50px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.ql-page-horiz-menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+.ql-page-horiz-menu li {
+  float: left;
+}
+
+.ql-page-horiz-menu li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.ql-page-horiz-menu li a:hover {
+  background-color: #111;
+}
+
+
+.ql-page-content {
+  margin-top: 50px;
+}
