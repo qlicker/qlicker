@@ -109,6 +109,7 @@ class _CleanPageContainer extends Component {
         <div className='ql-page-nav'>
 
           <div className='ql-page-horiz-menu'>
+            <div onClick={homePath} className='ql-logo'>Qlicker</div>
             <input type="checkbox" id="ql-page-horiz-menu" /><label htmlFor="ql-page-horiz-menu"></label>
             <ul>
               <li >

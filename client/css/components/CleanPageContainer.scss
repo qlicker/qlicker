@@ -1,6 +1,11 @@
 @import '../variables.scss';
 //inspired by https://www.w3schools.com/css/css_navbar_horizontal.asp
 
+div.ql-logo {
+  background-color: $blue;
+  display:inline;
+}
+
 .ql-page-nav {
   background-color: white;
   //min-height:50px;
@@ -67,7 +72,7 @@ li.ql-page-menu-dropdown:hover .ql-page-menu-dropdown-content {
 }
 
 .ql-page-content {
-  margin-top: 55px;
+  margin-top: 60px;
 }
 
 [type="checkbox"],
@@ -93,7 +98,7 @@ label {
     z-index: 11;
    }
 
-  label:after {
+  label:after { // this makes the hamburger, by adding 2 shadows below the label above...
     content: '';
     display: block;
     width: 30px;
@@ -108,13 +113,23 @@ label {
     z-index: 10;
     background-color: white;
     position: absolute;
+    //height:auto; //can controle height instead of display
     //right: 20px;
     //left: 20px;
     width: 100%;// leave space for the hamburger icon
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+    border-radius: 0px 0px 2px 2px; //two bottom corners slightly rounded
   }
 
   .ql-page-horiz-menu li, .ql-page-horiz-menu li.right {
     float: none; //makes the li go vertically instead of horizontally
+  }
+
+  .ql-page-menu-dropdown-content {
+    //display: block;
+    position: relative;
+    padding-left: 80px;
+    box-shadow: none;
   }
 
 }
