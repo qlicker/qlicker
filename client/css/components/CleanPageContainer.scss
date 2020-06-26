@@ -3,7 +3,20 @@
 
 div.ql-logo {
   background-color: $blue;
-  display:inline;
+  display: inline-block;
+  color: white;
+  font-family: $font-stack;
+  font-weight: 200;
+  font-size: 20px;
+  min-height: 50px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+div.ql-logo:hover{
+  color: $grey;
+  //position: absolute;
+  //top: 0px;
 }
 
 .ql-page-nav {
@@ -19,8 +32,12 @@ div.ql-logo {
 }
 .ql-page-horiz-menu {
   min-height:50px;// to keep a white bar when it's collapsed
+  //display: flex;
+  //flex-flow: row nowrap;
+  //justify-content: flex-start;
 }
 .ql-page-horiz-menu ul {
+  //display: inline-block;
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -39,6 +56,7 @@ div.ql-logo {
 
 .ql-page-horiz-menu li.right {
   float: right;
+  align-self: flex-end;
   display: block;
   text-align: center;
 }
@@ -113,6 +131,7 @@ label {
     z-index: 10;
     background-color: white;
     position: absolute;
+    top: 50px;
     //height:auto; //can controle height instead of display
     //right: 20px;
     //left: 20px;
