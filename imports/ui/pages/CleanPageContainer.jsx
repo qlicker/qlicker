@@ -97,7 +97,7 @@ class _CleanPageContainer extends Component {
 
     const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }
 
-    const homePath = Router.routes[user.profile.roles[0]].path()
+    const homePath = () => { Router.go(user.profile.roles[0]) }
     const coursesPage = user.hasGreaterRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
