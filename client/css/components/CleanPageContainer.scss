@@ -2,28 +2,25 @@
 //inspired by https://www.w3schools.com/css/css_navbar_horizontal.asp
 
 div.ql-logo {
-
   display: inline-block;
   float: left;
   color: white;
   font-family: $font-stack;
-  font-weight: 200;
-  font-size: 25px;
+  font-weight: 100;
+  font-size: 20px;
   min-height: 55px;
-  padding: 10px;
+  padding: 11px;
   cursor: pointer;
   background-color: $blue;
 }
 
 div.ql-logo:hover{
   color: $grey;
-  //position: absolute;
-  //top: 0px;
 }
 
-.ql-page-nav {
+// wrap all of nav in this style:
+.ql-page-nav nav {
   background-color: white;
-  //min-height:50px;
   font-size: large;
   position: fixed;
   top: 0;
@@ -32,50 +29,59 @@ div.ql-logo:hover{
   font-family: $font-stack;
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
 }
-.ql-page-horiz-menu {
-  min-height:50px;// to keep a white bar when it's collapsed
-  //display: flex;
-  //flex-flow: row nowrap;
-  //justify-content: flex-start;
-}
-.ql-page-horiz-menu ul {
-  //display: inline-block;
+
+// top level menu
+nav > ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
   overflow: hidden;
   background-color: white;
 }
-
-.ql-page-horiz-menu li {
+// top level menu item
+nav > ul > li {
   float: left;
   display: block;
   text-align: center;
   cursor: pointer;
-  padding-right: 10px;
-  padding-left: 10px;
+  margin-left: 5px;
+  padding-right: 15px;
+  min-height: 55px;
+  padding-top: 15px;
 }
 
-.ql-page-horiz-menu li.right {
+// top level menu item with class ' right'
+nav > ul > li.right {
   float: right;
-  align-self: flex-end;
-  display: block;
-  text-align: center;
 }
 
-li.ql-page-menu-dropdown, .ql-page-menu-item {
-  text-align: center;
-  min-height:50px;
-  padding: 15px 10px 15px 0px;
-}
-
-li.ql-page-menu-dropdown:hover, .ql-page-menu-item:hover {
+// hover on all menu items
+nav ul > li:hover {
   background-color: $grey;
 }
 
-.ql-page-menu-dropdown-content {
+// link styling
+nav li > a {
+  text-decoration: none;
+  text-align: center;
+  min-height:50px;
+  padding: 15px 10px 15px 0px;
+  color: black;
+}
+
+// link styling, don't underline on hover
+nav li > a:hover, nav li > a:visited, nav li > a:active, nav li > a:link  {
+  text-decoration: none;
+  color: black;
+}
+
+
+
+//dropdown menu outer container
+nav > ul > li > ul {
   display: none;
   position: absolute;
+  padding-left: 0px;
   margin-top: 15px;
   background-color: white;
   min-width: 160px;
@@ -83,25 +89,31 @@ li.ql-page-menu-dropdown:hover, .ql-page-menu-item:hover {
   z-index: 10;
 }
 
-li.ql-page-menu-dropdown:hover .ql-page-menu-dropdown-content {
+//show drop down if hovering on li above it
+nav > ul > li:hover > ul {
   display: block;
 }
 
-.ql-page-menu-dropdown-content li {
+nav > ul > li > ul > li {
   display:block;
+  text-align: center;
+  padding-right: 10px;
+  padding-left: 10px;
+  min-height: 55px;
+  padding-top: 15px;
 }
 
 .ql-page-content {
   margin-top: 60px;
 }
 
-[type="checkbox"],
-label {
+// Use the label on a checkbox as the hamburger in collapsed mode
+[type="checkbox"], label {
     display: none;
 }
 
 @media screen and (max-width: 700px) {
-  .ql-page-horiz-menu ul {
+  nav > ul {
         display: none;
     }
 
@@ -133,23 +145,23 @@ label {
     z-index: 10;
     background-color: white;
     position: absolute;
-    top: 50px;
-    //height:auto; //can controle height instead of display
-    //right: 20px;
-    //left: 20px;
+    top: 55px;
     width: 100%;// leave space for the hamburger icon
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
     border-radius: 0px 0px 2px 2px; //two bottom corners slightly rounded
   }
 
-  .ql-page-horiz-menu li, .ql-page-horiz-menu li.right {
+  nav > ul > li {
+    padding-right: 0px;
+    margin-left: 0px;
+  }
+
+  nav > ul > li, nav > ul > li.right {
     float: none; //makes the li go vertically instead of horizontally
   }
 
-  .ql-page-menu-dropdown-content {
-    //display: block;
+  nav > ul > li > ul {
     position: relative;
-    padding-left: 80px;
     box-shadow: none;
   }
 

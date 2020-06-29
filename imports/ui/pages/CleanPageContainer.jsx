@@ -107,68 +107,50 @@ class _CleanPageContainer extends Component {
     return (
       <div className='ql-page-body'>
         <div className='ql-page-nav'>
-
-          <div className='ql-page-horiz-menu'>
+          <nav>
             <div className='ql-logo' onClick={homePath} >Qlicker</div>
             <input type="checkbox" id="ql-page-horiz-menu" /><label htmlFor="ql-page-horiz-menu"></label>
             <ul>
               <li >
-               <div className='ql-page-menu-item' onClick={click}>
-                Item 1
-               </div>
+                <a href='#'> Item 1 </a>
               </li>
-              <li className='ql-page-menu-dropdown'>
-                Item2 dropdown
-                <div className='ql-page-menu-dropdown-content'>
-
-                     <div className='ql-page-menu-item'  onClick={click}>
-                      Sub item 1
-                     </div>
-
-                     <div className='ql-page-menu-item'  onClick={click}>
-                      Sub item 2
-                     </div>
-
-                </div>
+              <li>
+                <a href='#'> Item2 dropdown </a>
+                <ul>
+                   <li>
+                     <a href='#'> Sub item 1 </a>
+                   </li>
+                   <li >
+                     <a href='#'> Sub item 1 </a>
+                   </li>
+                </ul>
               </li>
               <li >
-               <div className='ql-page-menu-item' onClick={click}>
-                Item 3
-               </div>
+                <a href='#'> Item 3 </a>
               </li>
               <li >
-               <div className='ql-page-menu-item' onClick={click}>
-                Item 4
-               </div>
+                <a href='#'> Item 4 </a>
               </li>
               <li >
-               <div className='ql-page-menu-item' onClick={click}>
-                Item 5
-               </div>
+                <a href='#'> Item 5 </a>
               </li>
               <li >
-               <div className='ql-page-menu-item' onClick={click}>
-                Item 6
-               </div>
+                <a href='#'> Item 6 </a>
               </li>
               <li className='right'>
-                <div className='ql-page-menu-item'  onClick={click}>
-                 The profile
-                </div>
+                <a href='#'> The profile </a>
               </li>
-            </ul>
-          </div>
-
-
-        </div>
-
-        <div className='ql-page-content'>
-          { this.props.children }
-          { canPromote && this.state.promotingAccount
-            ? <PromoteAccountModal done={togglePromotingAccount} />
-            : '' }
-        </div>
+          </ul>
+        </nav>
       </div>
+
+      <div className='ql-page-content'>
+        { this.props.children }
+        { canPromote && this.state.promotingAccount
+          ? <PromoteAccountModal done={togglePromotingAccount} />
+          : '' }
+      </div>
+    </div>
     )}
 }
 
