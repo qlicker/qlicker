@@ -111,34 +111,70 @@ class _CleanPageContainer extends Component {
             <div className='ql-logo' onClick={homePath} >Qlicker</div>
             <input type="checkbox" id="ql-page-horiz-menu" /><label htmlFor="ql-page-horiz-menu"></label>
             <ul>
-              <li >
-                <a href='#'> Item 1 </a>
-              </li>
-              <li>
-                <a href='#'> Item2 dropdown </a>
-                <ul>
-                   <li>
-                     <a href='#'> Sub item 1 </a>
-                   </li>
-                   <li >
-                     <a href='#'> Sub item 1 </a>
-                   </li>
-                </ul>
-              </li>
-              <li >
-                <a href='#'> Item 3 </a>
-              </li>
-              <li >
-                <a href='#'> Item 4 </a>
-              </li>
-              <li >
-                <a href='#'> Item 5 </a>
-              </li>
-              <li >
-                <a href='#'> Item 6 </a>
-              </li>
+              { isAdmin
+                 ? <li><a href={Router.routes['admin'].path()}>Settings</a></li>
+                 : ''
+              }
+              {  this.state.showCourse
+                 ? <li><a onClick={() => Router.go('course', { courseId: this.state.courseId })}>Course Home</a></li>
+                 : ''
+              }
+              { this.state.showCourse
+                ? <li ><a onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
+                : isAdmin
+                  ? <li ><a href={Router.routes['results.overview'].path()}>Grades</a></li>
+                  :''
+              }
+              { this.state.showCourse /*&& !isAdmin*/
+                ? <li> <a onClick={() => Router.go('questions', { courseId: this.state.courseId })}>Question library</a></li>
+                : ''
+              }
+              { isAdmin
+                ? this.state.showCourse && this.state.courseId
+                    ? <li>
+                        <a> {this.state.courseCode} </a>
+                         <ul >
+                           <li><a href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
+                         </ul>
+                       </li>
+                    : <li><a href={Router.routes['courses'].path()}> Courses</a></li>
+                : <li>
+                     <a className='dropdown'>
+                       { this.state.courseId
+                         ?  this.state.courseCode
+                         : 'Courses'
+                       }
+                     </a>
+                   <ul>
+                     <li><a href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
+                     <li className='divider' />
+                     <li className='infolabel'> My Active Courses</li>
+                     {
+                       this.props.courses.map((c) => {
+                         return (<li key={c._id}><a onClick={() => this.changeCourse(c._id)}>{c.fullCourseCode()}</a></li>)
+                       })
+                     }
+                   </ul>
+                  </li>
+              }
               <li className='right'>
-                <a href='#'> The profile </a>
+                <a className='dropdown' >
+                  <img src={user.getThumbnailUrl()} className='nav-circle' /> {user.getName()}
+                </a>
+                <ul >
+                  <li><a href={Router.routes['profile'].path()}>User profile</a></li>
+                  {canPromote
+                    ? <li><a href='#' onClick={togglePromotingAccount}>Promote an account to professor</a></li>
+                    : ''
+                  }
+                  <li><a href={userGuideUrl}>Visit user guide</a></li>
+                  <li className='divider' />
+
+                  {this.state.ssoLogoutUrl ?
+                        <li><a href={this.state.ssoLogoutUrl} onClick={logout}  > Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
+                        : <li><a href={Router.routes['logout'].path()} onClick={logout} >Logout from Qlicker</a></li>
+                  }
+                </ul>
               </li>
           </ul>
         </nav>

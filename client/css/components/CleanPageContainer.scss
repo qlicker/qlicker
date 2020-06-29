@@ -4,14 +4,16 @@
 div.ql-logo {
   display: inline-block;
   float: left;
+  height: 55px;
+  width: 150px;
+  padding-top: 15px;
+  padding-left: 35px;
+  cursor: pointer;
+  background-color: $blue;
   color: white;
   font-family: $font-stack;
   font-weight: 100;
   font-size: 20px;
-  min-height: 55px;
-  padding: 11px;
-  cursor: pointer;
-  background-color: $blue;
 }
 
 div.ql-logo:hover{
@@ -21,14 +23,54 @@ div.ql-logo:hover{
 // wrap all of nav in this style:
 .ql-page-nav nav {
   background-color: white;
-  font-size: large;
+
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 10;
-  font-family: $font-stack;
+
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+
+  font-family: $font-stack;
+  font-size: large;
+  font-weight: 100;
+  color: black;
 }
+
+nav li.divider {
+  display: block;
+  background: $darker-grey;
+  height: 1px;
+  padding: 0;
+  margin-bottom: 5px;
+}
+
+nav li.infolabel {
+  display: block;
+  font-size: 0.75em;
+  height: 20px;
+  padding-top: 0px;
+  padding-bottom: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+nav li img.nav-circle {
+  border: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  height: 40px;
+}
+
+nav a.dropdown:after {
+  content:'\02C7'; ///2228
+}
+
+nav li.infolabel:hover {
+  background:white;
+}
+
+nav > ul > li
 
 // top level menu
 nav > ul {
@@ -46,7 +88,8 @@ nav > ul > li {
   cursor: pointer;
   margin-left: 5px;
   padding-right: 15px;
-  min-height: 55px;
+  height: 55px;
+  min-width: 160px;
   padding-top: 15px;
 }
 
@@ -84,7 +127,7 @@ nav > ul > li > ul {
   padding-left: 0px;
   margin-top: 15px;
   background-color: white;
-  min-width: 160px;
+  min-width: 150px;
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
@@ -99,7 +142,7 @@ nav > ul > li > ul > li {
   text-align: center;
   padding-right: 10px;
   padding-left: 10px;
-  min-height: 55px;
+  height: 55px;
   padding-top: 15px;
 }
 
@@ -114,8 +157,8 @@ nav > ul > li > ul > li {
 
 @media screen and (max-width: 700px) {
   nav > ul {
-        display: none;
-    }
+    display: none;
+  }
 
   label {
     display: block;
@@ -146,23 +189,26 @@ nav > ul > li > ul > li {
     background-color: white;
     position: absolute;
     top: 55px;
+    padding: 0px;
     width: 100%;// leave space for the hamburger icon
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
     border-radius: 0px 0px 2px 2px; //two bottom corners slightly rounded
   }
 
-  nav > ul > li {
+  nav > ul > li, nav > ul > li.right {
+    display: block;
     padding-right: 0px;
     margin-left: 0px;
-  }
-
-  nav > ul > li, nav > ul > li.right {
     float: none; //makes the li go vertically instead of horizontally
   }
 
   nav > ul > li > ul {
     position: relative;
     box-shadow: none;
+  }
+
+  nav > ul > li > ul > li {
+    display: inline;
   }
 
 }
