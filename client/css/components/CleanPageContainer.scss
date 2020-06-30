@@ -95,18 +95,18 @@ nav li.profile-pic > a {
   align-items: baseline;
 }
 
-nav li a div.img-circle-crop {
-  border: 0;
-  overflow: hidden;
+//GENERAL component... In pricinple should be used everywhere
+div.img-circle-crop img {
+  object-fit: cover;
   border-radius: 50%;
-  height: 40px;
+  height: 100%;
+  width: 100%;
 }
 
-nav li a div.img-circle-crop img {
-  display: inline;
-  margin: 0 auto;
-  height: 100%;
-  width: auto;
+//Constrain circle crop of profile pic to be 40px x 40px
+nav li a div.img-circle-crop {
+  height: 40px;
+  width: 40px;
 }
 
 nav li.ql-dropdown {
