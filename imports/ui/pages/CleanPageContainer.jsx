@@ -148,12 +148,14 @@ class _CleanPageContainer extends Component {
       Router.go(  user.hasGreaterRole('professor') ? 'courses' : 'student'  )
       this.setState({ courseId: '', showCourse: false })
       closeMobileMenu()
+      //don't close submenu because the top level button already toggles it...
     }
 
     const goProfile = () => {
-      $('#ql-page-horiz-menu').prop("checked", false)
       Router.go('profile');
       this.setState({ courseId: '', showCourse: false });
+      closeMobileMenu()
+      //don't close submenu because the top level button already toggles it...
     }
 
     return (
