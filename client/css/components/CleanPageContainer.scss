@@ -37,6 +37,11 @@ div.ql-logo:hover{
   color: black;
 }
 
+div.ql-page-nav nav {
+  min-height: 50px;
+}
+
+
 nav li.divider {
   display: block;
   background: $darker-grey;
@@ -149,6 +154,7 @@ nav > ul > li:hover > ul {
   display: block;
 }
 
+//drop down meny item (less margin)
 nav > ul > li > ul > li {
   display: block;
   margin-top: 5px;
@@ -194,19 +200,42 @@ nav > ul > li > ul > li {
   }
 
   [type="checkbox"]:checked ~ ul {
-    display: block;
+    display: table;
     z-index: 10;
     background-color: white;
     position: absolute;
     top: 50px;
     padding: 0px;
     width: 100%;// leave space for the hamburger icon
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
     border-radius: 0px 0px 2px 2px; //two bottom corners slightly rounded
   }
 
+  nav > ul > li:hover > ul, nav > ul > li.profile-pic:hover > ul {
+    display: table;
+    position: fixed;
+    //width: 100%;
+  }
+
+  nav ul li, nav ul li.right, nav ul li.profile-pic {
+    float: none;
+    width: 100%;
+  }
+
+  nav ul li ul li, nav ul li.right ul li, nav ul li.profile-pic ul li {
+    float: none;
+    width: 100%;
+  }
+
+/*
+  nav > ul > li {
+    display: table-row;
+    float: none;
+  }
+ /*
+
   nav > ul > li, nav > ul > li.right {
-    display: block;
+    //display: block;
     padding-right: 0px;
     margin-left: 0px;
     padding-top: 10px;
@@ -214,12 +243,14 @@ nav > ul > li > ul > li {
   }
 
   nav > ul > li > ul {
+    display: flex;
+    flex-direction: column;
     position: relative;
     box-shadow: none;
   }
 
   nav > ul > li > ul > li {
-    display: inline;
+    //display: inline;
   }
-
+ */
 }
