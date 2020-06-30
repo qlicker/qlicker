@@ -58,13 +58,14 @@ class _CleanPageContainer extends Component {
     }
   }
 
+/*
   componentDidMount () {
     // Close the dropdown when selecting a link during mobile
     // view.
-    $('.navbar-collapse .dropdown-menu').click(function () {
-      $('.navbar-collapse').collapse('hide')
+    $('nav ul li:not(.dropdown), nav ul li ul li').click(function () {
+      $('#ql-page-horiz-menu').prop("checked", false)
     })
-  }
+  }*/
 
   componentWillReceiveProps (nextProps) {
     this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false })
@@ -78,8 +79,10 @@ class _CleanPageContainer extends Component {
              pageName === 'professor'  || pageName === 'admin' || pageName === 'student'  ||
              pageName === 'profile' )){
       Router.go(pageName, { courseId: courseId })
+      $('#ql-page-horiz-menu').prop("checked", false)
     } else{
       Router.go('course', { courseId: courseId })
+      $('#ql-page-horiz-menu').prop("checked", false)
     }
   }
 
@@ -93,16 +96,57 @@ class _CleanPageContainer extends Component {
 
     const logout = () => {
       Router.go('logout')
+      closeMobileMenu()
     }
 
-    const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }) }
+    const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }); closeMobileMenu() }
 
     const homePath = () => { Router.go(user.profile.roles[0]) }
     const coursesPage = user.hasGreaterRole('professor')
       ? Router.routes['courses'].path()
       : Router.routes['student'].path()
-
+    const goCoursesPage = () => {Router.go(  user.hasGreaterRole('professor') ? 'courses' : 'student'  )}
     const click = () =>{console.log("click")}
+
+    //------------------
+    const closeMobileMenu = () => {$('#ql-page-horiz-menu').prop("checked", false)}
+
+    const goAdmin = () => {
+      Router.go('admin')
+      closeMobileMenu()
+    }
+
+    const goCourseHome = () => {
+      Router.go('course', { courseId: this.state.courseId })
+      closeMobileMenu()
+    }
+
+    const goCourseGrades = () => {
+      Router.go('course.results', { courseId: this.state.courseId })
+      closeMobileMenu()
+    }
+
+    const goAllCourseGrades = () => {
+      Router.go('results.overview')
+      closeMobileMenu()
+    }
+
+    const goCourseQuestions = () => {
+      Router.go('questions', { courseId: this.state.courseId })
+      closeMobileMenu()
+    }
+
+    const goAllCoursesPage = () => {
+      Router.go(  user.hasGreaterRole('professor') ? 'courses' : 'student'  )
+      this.setState({ courseId: '', showCourse: false })
+      closeMobileMenu()
+    }
+
+    const goProfile = () => {
+      Router.go('profile');
+      this.setState({ courseId: '', showCourse: false });
+      closeMobileMenu()
+    }
 
     return (
       <div className='ql-page-body'>
@@ -112,59 +156,63 @@ class _CleanPageContainer extends Component {
             <input type="checkbox" id="ql-page-horiz-menu" /><label htmlFor="ql-page-horiz-menu"></label>
             <ul>
               { isAdmin
-                 ? <li><a href={Router.routes['admin'].path()}>Settings</a></li>
+                 ? <li onClick={goAdmin}><a>Settings</a></li>
                  : ''
               }
               {  this.state.showCourse
-                 ? <li><a onClick={() => Router.go('course', { courseId: this.state.courseId })}>Course Home</a></li>
+                 ? <li onClick={goCourseHome}><a>Course Home</a></li>
                  : ''
               }
               { this.state.showCourse
-                ? <li ><a onClick={() => Router.go('course.results', { courseId: this.state.courseId })}>Grades</a></li>
+                ? <li onClick={goCourseGrades}><a>Grades</a></li>
                 : isAdmin
-                  ? <li ><a href={Router.routes['results.overview'].path()}>Grades</a></li>
+                  ? <li onClick={goAllCourseGrades}><a>Grades</a></li>
                   :''
               }
               { this.state.showCourse /*&& !isAdmin*/
-                ? <li> <a onClick={() => Router.go('questions', { courseId: this.state.courseId })}>Question library</a></li>
+                ? <li onClick={goCourseQuestions}> <a>Question library</a></li>
                 : ''
               }
               { isAdmin
-                ? this.state.showCourse && this.state.courseId
+                ? (this.state.showCourse && this.state.courseId)
                     ? <li>
-                        <a> {this.state.courseCode} </a>
+                        <a href='#'> {this.state.courseCode} </a>
                          <ul >
-                           <li><a href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
+                           <li onClick={goAllCoursesPage}><a>All Courses</a></li>
                          </ul>
                        </li>
-                    : <li><a href={Router.routes['courses'].path()}> Courses</a></li>
-                : <li>
-                     <a className='dropdown'>
+                    : <li onClick={goAllCoursesPage}><a> Courses</a></li>
+                : <li className='dropdown'>
+                     <a>
                        { this.state.courseId
                          ?  this.state.courseCode
                          : 'Courses'
                        }
                      </a>
-                   <ul>
-                     <li><a href={coursesPage} onClick={() => this.setState({ courseId: '', showCourse: false })}>All Courses</a></li>
-                     <li className='divider' />
-                     <li className='infolabel'> My Active Courses</li>
-                     {
-                       this.props.courses.map((c) => {
-                         return (<li key={c._id}><a onClick={() => this.changeCourse(c._id)}>{c.fullCourseCode()}</a></li>)
-                       })
-                     }
-                   </ul>
+                     <ul>
+                       <li onClick={goAllCoursesPage}> <a>All Courses</a> </li>
+                       { (this.props.courses && this.props.courses.length > 1)
+                         ? <div>
+                             <li className='divider' />
+                             <li className='infolabel'> My Active Courses</li>
+                               { this.props.courses.map((c) => {
+                                    return (<li key={c._id} onClick={() => this.changeCourse(c._id)} ><a>{c.fullCourseCode()}</a></li>)
+                                  })
+                                }
+                           </div>
+                         : ''
+                       }
+                     </ul>
                   </li>
               }
-              <li className='right profile-pic'>
-                <a className='dropdown' >
+              <li className='dropdown right profile-pic '>
+                <a>
                   <img src={user.getThumbnailUrl()} className='nav-circle' /> {user.getName()}
                 </a>
                 <ul >
-                  <li><a href={Router.routes['profile'].path()}>User profile</a></li>
+                  <li onClick={goProfile} ><a>User profile</a></li>
                   {canPromote
-                    ? <li><a href='#' onClick={togglePromotingAccount}>Promote an account to professor</a></li>
+                    ? <li><a onClick={togglePromotingAccount}>Promote an account to professor</a></li>
                     : ''
                   }
                   <li><a href={userGuideUrl}>Visit user guide</a></li>

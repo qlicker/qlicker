@@ -60,7 +60,7 @@ class _Profile extends Component {
 
   componentDidMount () {
     this.getImageSettings()
-    user = Meteor.user()
+    const user = Meteor.user()
     if(user){
       this.setState({firstName: user.profile.firstname, lastName: user.profile.lastname})
     }

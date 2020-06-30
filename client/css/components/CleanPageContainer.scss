@@ -1,6 +1,19 @@
 @import '../variables.scss';
 //inspired by https://www.w3schools.com/css/css_navbar_horizontal.asp
 
+
+.ql-page-content {
+  margin-top: 60px;
+}
+
+@media screen and (max-width:900px) and (min-width:700px) {
+  //more space for header before it collapses at 700px
+  .ql-page-content {
+    margin-top: 130px;
+  }
+
+}
+
 div.ql-logo {
   display: inline-block;
   float: left;
@@ -41,7 +54,6 @@ div.ql-page-nav nav {
   min-height: 50px;
 }
 
-
 nav li.divider {
   display: block;
   background: $darker-grey;
@@ -72,6 +84,7 @@ nav li.profile-pic {
 
 nav li.right {
   min-width: 160px; // same as min width of ul as sub menu
+  margin-right: 10px;
 }
 
 nav li img.nav-circle {
@@ -81,7 +94,13 @@ nav li img.nav-circle {
   height: 40px;
 }
 
-nav a.dropdown:after {
+nav li.dropdown {
+  position: unset;
+  float: left;
+}
+
+// Stick an arrow after the link in a drop down li
+nav li.dropdown > a:after {
   content:'\02C7'; ///2228
 }
 
@@ -94,7 +113,7 @@ nav > ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  //overflow: hidden;
   background-color: white;
 }
 // top level menu item
@@ -114,7 +133,7 @@ nav > ul > li.right {
 }
 
 // hover on all menu items
-nav ul > li:hover {
+nav ul li:hover {
   background-color: $grey;
 }
 
@@ -129,7 +148,6 @@ nav li > a:hover, nav li > a:visited, nav li > a:active, nav li > a:link  {
   text-decoration: none;
   color: black;
 }
-
 
 //dropdown menu outer container
 nav > ul > li > ul {
@@ -150,21 +168,18 @@ nav > ul > li.profile-pic ul {
 }
 
 //show drop down if hovering on li above it
-nav > ul > li:hover > ul {
+nav > ul > li.dropdown:hover > ul {
   display: block;
 }
 
 //drop down meny item (less margin)
-nav > ul > li > ul > li {
+nav ul li ul li {
   display: block;
   margin-top: 5px;
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
-.ql-page-content {
-  margin-top: 60px;
-}
 
 // Use the label on a checkbox as the hamburger in collapsed mode
 [type="checkbox"], label {
@@ -200,7 +215,8 @@ nav > ul > li > ul > li {
   }
 
   [type="checkbox"]:checked ~ ul {
-    display: table;
+    display: flex;
+    flex-direction: column;
     z-index: 10;
     background-color: white;
     position: absolute;
@@ -227,30 +243,4 @@ nav > ul > li > ul > li {
     width: 100%;
   }
 
-/*
-  nav > ul > li {
-    display: table-row;
-    float: none;
-  }
- /*
-
-  nav > ul > li, nav > ul > li.right {
-    //display: block;
-    padding-right: 0px;
-    margin-left: 0px;
-    padding-top: 10px;
-    float: none; //makes the li go vertically instead of horizontally
-  }
-
-  nav > ul > li > ul {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    box-shadow: none;
-  }
-
-  nav > ul > li > ul > li {
-    //display: inline;
-  }
- */
 }
