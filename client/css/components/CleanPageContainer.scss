@@ -57,7 +57,7 @@ nav li.infolabel {
   padding-left: 10px;
 }
 
-nav li.infolabel + li { // less top margin for li immediately after a label 
+nav li.infolabel + li { // less top margin for li immediately after a label
   margin-top: 0px;
 }
 
@@ -209,6 +209,7 @@ nav > ul > li > ul > li {
     display: block;
     padding-right: 0px;
     margin-left: 0px;
+    padding-top: 10px;
     float: none; //makes the li go vertically instead of horizontally
   }
 
