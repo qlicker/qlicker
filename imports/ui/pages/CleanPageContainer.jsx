@@ -62,9 +62,10 @@ class _CleanPageContainer extends Component {
   componentDidMount () {
     // Close the dropdown when selecting a link during mobile
     // view.
-    $('#ql-page-horiz-menu').prop("checked", false)
     $('#course-dropdown').hide()
     $('#profile-dropdown').hide()
+    $('#ql-page-horiz-menu').prop("checked", false)
+
   }
 
   componentWillReceiveProps (nextProps) {
@@ -101,8 +102,9 @@ class _CleanPageContainer extends Component {
     }
 
     const closeMobileMenu = () => {
+      closeSubMenus() // TODO check if necessary, likely not
       $('#ql-page-horiz-menu').prop("checked", false)
-      closeSubMenus()
+
     }
     // All of the links to follow (except links to specific courses)
     const logout = () => {
@@ -142,9 +144,10 @@ class _CleanPageContainer extends Component {
     }
 
     const goProfile = () => {
+      $('#ql-page-horiz-menu').prop("checked", false)
       Router.go('profile');
       this.setState({ courseId: '', showCourse: false });
-      closeMobileMenu()
+
     }
 
     return (
@@ -181,7 +184,7 @@ class _CleanPageContainer extends Component {
                          </ul>
                        </li>
                     : <li onClick={goAllCoursesPage}><a> Courses</a></li>
-                : <li className='dropdown' onClick = { () => {$('#course-dropdown').toggle()}}>
+                : <li className='ql-dropdown' onClick = { () => {$('#course-dropdown').toggle(); $('#profile-dropdown').hide()}}>
                      <a>
                        { this.state.courseId
                          ?  this.state.courseCode
@@ -204,7 +207,7 @@ class _CleanPageContainer extends Component {
                      </ul>
                   </li>
               }
-              <li className='dropdown right profile-pic' onClick = { () => {$('#profile-dropdown').toggle()}}>
+              <li className='ql-dropdown right profile-pic' onClick = { () => {$('#profile-dropdown').toggle(); $('#course-dropdown').hide()}}>
                 <a>
                   <div className='img-circle-crop'>
                     <img src={user.getThumbnailUrl()}  />

@@ -109,13 +109,13 @@ nav li a div.img-circle-crop img {
   width: auto;
 }
 
-nav li.dropdown {
+nav li.ql-dropdown {
   position: unset;
   float: left;
 }
 
 // Stick an arrow after the link in a drop down li
-nav li.dropdown > a:after {
+nav li.ql-dropdown > a:after {
   content:'\02C7'; ///2228
 }
 
@@ -183,7 +183,7 @@ nav > ul > li.profile-pic ul {
 }
 
 //show drop down if hovering on li above it (incompatible with click to open/close in mobile...)
-//nav > ul > li.dropdown:hover > ul {
+//nav > ul > li.ql-dropdown:hover > ul {
 //  display: block;
 //}
 
