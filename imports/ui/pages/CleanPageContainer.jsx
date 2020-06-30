@@ -62,8 +62,8 @@ class _CleanPageContainer extends Component {
   componentDidMount () {
     // Close the dropdown when selecting a link during mobile
     // view.
-    $('#course-dropdown').hide()
-    $('#profile-dropdown').hide()
+    //$('#course-dropdown').hide()
+  //  $('#profile-dropdown').hide()
     $('#ql-page-horiz-menu').prop("checked", false)
 
   }
@@ -101,10 +101,13 @@ class _CleanPageContainer extends Component {
       $('#profile-dropdown').hide()
     }
 
+/* // click any where to close a sub menu, but then messes up the toggle aspect of the dropdown li
+    $(document).click(function() {
+      closeSubMenus()
+    });
+*/
     const closeMobileMenu = () => {
-      closeSubMenus() // TODO check if necessary, likely not
       $('#ql-page-horiz-menu').prop("checked", false)
-
     }
     // All of the links to follow (except links to specific courses)
     const logout = () => {
@@ -120,21 +123,25 @@ class _CleanPageContainer extends Component {
     const goCourseHome = () => {
       Router.go('course', { courseId: this.state.courseId })
       closeMobileMenu()
+      closeSubMenus()
     }
 
     const goCourseGrades = () => {
       Router.go('course.results', { courseId: this.state.courseId })
       closeMobileMenu()
+      closeSubMenus()
     }
 
     const goAllCourseGrades = () => {
       Router.go('results.overview')
       closeMobileMenu()
+      closeSubMenus()
     }
 
     const goCourseQuestions = () => {
       Router.go('questions', { courseId: this.state.courseId })
       closeMobileMenu()
+      closeSubMenus()
     }
 
     const goAllCoursesPage = () => {
@@ -147,7 +154,6 @@ class _CleanPageContainer extends Component {
       $('#ql-page-horiz-menu').prop("checked", false)
       Router.go('profile');
       this.setState({ courseId: '', showCourse: false });
-
     }
 
     return (

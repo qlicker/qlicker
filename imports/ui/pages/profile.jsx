@@ -306,6 +306,7 @@ class _Profile extends Component {
 
   render () {
     const user = this.props.user
+    if (!user) { return <div className='ql-subs-loading'>loading</div>}
     const needsEmailVerification = !user.emails[0].verified
 
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
