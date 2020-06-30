@@ -21,7 +21,7 @@ div.ql-logo:hover{
 }
 
 // wrap all of nav in this style:
-.ql-page-nav nav {
+.ql-page-nav {
   background-color: white;
 
   position: fixed;
@@ -29,10 +29,10 @@ div.ql-logo:hover{
   width: 100%;
   z-index: 10;
 
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
 
   font-family: $font-stack;
-  font-size: large;
+  font-size: medium;
   font-weight: 100;
   color: black;
 }
@@ -41,6 +41,7 @@ nav li.divider {
   display: block;
   background: $darker-grey;
   height: 1px;
+  min-height: 1px; //inherits this from nav>ul>li>ul>li
   padding: 0;
   margin-bottom: 5px;
 }
@@ -49,10 +50,23 @@ nav li.infolabel {
   display: block;
   font-size: 0.75em;
   height: 20px;
+  min-height: 20px; //inherits this from nav>ul>li>ul>li
   padding-top: 0px;
   padding-bottom: 5px;
   padding-right: 10px;
   padding-left: 10px;
+}
+
+nav li.infolabel + li { // less top margin for li immediately after a label 
+  margin-top: 0px;
+}
+
+nav li.profile-pic {
+  padding-top: 5px; // less padding to accomodate 40px profile pic
+}
+
+nav li.right {
+  min-width: 160px; // same as min width of ul as sub menu
 }
 
 nav li img.nav-circle {
@@ -84,11 +98,9 @@ nav > ul > li {
   display: block;
   text-align: center;
   cursor: pointer;
-  margin-left: 5px;
-  padding-right: 15px;
+  padding-top: 15px;
   height: 50px;
-  min-width: 160px;
-  padding-top: 10px;
+  min-width: 140px;
 }
 
 // top level menu item with class ' right'
@@ -104,9 +116,6 @@ nav ul > li:hover {
 // link styling
 nav li > a {
   text-decoration: none;
-  text-align: center;
-  //min-height:50px;
-  padding: 15px 10px 15px 0px;
   color: black;
 }
 
@@ -117,17 +126,22 @@ nav li > a:hover, nav li > a:visited, nav li > a:active, nav li > a:link  {
 }
 
 
-
 //dropdown menu outer container
 nav > ul > li > ul {
   display: none;
   position: absolute;
   padding-left: 0px;
-  margin-top: 15px;
+  margin-top: 13px;
   background-color: white;
-  min-width: 150px;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+  min-width: 160px;
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
   z-index: 10;
+  font-size: 90%;
+}
+
+// different margin if a profile pic
+nav > ul > li.profile-pic ul {
+  margin-top: 5px;
 }
 
 //show drop down if hovering on li above it
@@ -136,12 +150,10 @@ nav > ul > li:hover > ul {
 }
 
 nav > ul > li > ul > li {
-  display:block;
-  text-align: center;
-  padding-right: 10px;
-  padding-left: 10px;
-  height: 50px;
-  padding-top: 15px;
+  display: block;
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .ql-page-content {

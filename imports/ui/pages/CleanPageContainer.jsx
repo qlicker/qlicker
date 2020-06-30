@@ -157,7 +157,7 @@ class _CleanPageContainer extends Component {
                    </ul>
                   </li>
               }
-              <li className='right'>
+              <li className='right profile-pic'>
                 <a className='dropdown' >
                   <img src={user.getThumbnailUrl()} className='nav-circle' /> {user.getName()}
                 </a>
@@ -169,7 +169,6 @@ class _CleanPageContainer extends Component {
                   }
                   <li><a href={userGuideUrl}>Visit user guide</a></li>
                   <li className='divider' />
-
                   {this.state.ssoLogoutUrl ?
                         <li><a href={this.state.ssoLogoutUrl} onClick={logout}  > Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
                         : <li><a href={Router.routes['logout'].path()} onClick={logout} >Logout from Qlicker</a></li>
