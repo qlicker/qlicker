@@ -58,14 +58,14 @@ class _CleanPageContainer extends Component {
     }
   }
 
-/*
+
   componentDidMount () {
     // Close the dropdown when selecting a link during mobile
     // view.
-    $('nav ul li:not(.dropdown), nav ul li ul li').click(function () {
-      $('#ql-page-horiz-menu').prop("checked", false)
-    })
-  }*/
+    $('#ql-page-horiz-menu').prop("checked", false)
+    $('#course-dropdown').hide()
+    $('#profile-dropdown').hide()
+  }
 
   componentWillReceiveProps (nextProps) {
     this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false })
@@ -93,23 +93,22 @@ class _CleanPageContainer extends Component {
 
     const canPromote = user.canPromote()
     const isAdmin = user.hasRole('admin')
+    const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }); closeMobileMenu() }
 
+    const closeSubMenus = () => {
+      $('#course-dropdown').hide()
+      $('#profile-dropdown').hide()
+    }
+
+    const closeMobileMenu = () => {
+      $('#ql-page-horiz-menu').prop("checked", false)
+      closeSubMenus()
+    }
+    // All of the links to follow (except links to specific courses)
     const logout = () => {
       Router.go('logout')
       closeMobileMenu()
     }
-
-    const togglePromotingAccount = () => { this.setState({ promotingAccount: !this.state.promotingAccount }); closeMobileMenu() }
-
-    const homePath = () => { Router.go(user.profile.roles[0]) }
-    const coursesPage = user.hasGreaterRole('professor')
-      ? Router.routes['courses'].path()
-      : Router.routes['student'].path()
-    const goCoursesPage = () => {Router.go(  user.hasGreaterRole('professor') ? 'courses' : 'student'  )}
-    const click = () =>{console.log("click")}
-
-    //------------------
-    const closeMobileMenu = () => {$('#ql-page-horiz-menu').prop("checked", false)}
 
     const goAdmin = () => {
       Router.go('admin')
@@ -152,8 +151,8 @@ class _CleanPageContainer extends Component {
       <div className='ql-page-body'>
         <div className='ql-page-nav'>
           <nav>
-            <div className='ql-logo' onClick={homePath} >Qlicker</div>
-            <input type="checkbox" id="ql-page-horiz-menu" /><label htmlFor="ql-page-horiz-menu"></label>
+            <div className='ql-logo' onClick={goAllCoursesPage} >Qlicker</div>
+            <input type="checkbox" id="ql-page-horiz-menu" /><label onClick={closeSubMenus} htmlFor="ql-page-horiz-menu"></label>
             <ul>
               { isAdmin
                  ? <li onClick={goAdmin}><a>Settings</a></li>
@@ -182,14 +181,14 @@ class _CleanPageContainer extends Component {
                          </ul>
                        </li>
                     : <li onClick={goAllCoursesPage}><a> Courses</a></li>
-                : <li className='dropdown'>
+                : <li className='dropdown' onClick = { () => {$('#course-dropdown').toggle()}}>
                      <a>
                        { this.state.courseId
                          ?  this.state.courseCode
                          : 'Courses'
                        }
                      </a>
-                     <ul>
+                     <ul id='course-dropdown'>
                        <li onClick={goAllCoursesPage}> <a>All Courses</a> </li>
                        { (this.props.courses && this.props.courses.length > 1)
                          ? <div>
@@ -205,11 +204,14 @@ class _CleanPageContainer extends Component {
                      </ul>
                   </li>
               }
-              <li className='dropdown right profile-pic '>
+              <li className='dropdown right profile-pic' onClick = { () => {$('#profile-dropdown').toggle()}}>
                 <a>
-                  <img src={user.getThumbnailUrl()} className='nav-circle' /> {user.getName()}
+                  <div className='img-circle-crop'>
+                    <img src={user.getThumbnailUrl()}  />
+                  </div>
+                  &nbsp; {user.getName()}
                 </a>
-                <ul >
+                <ul id='profile-dropdown' >
                   <li onClick={goProfile} ><a>User profile</a></li>
                   {canPromote
                     ? <li><a onClick={togglePromotingAccount}>Promote an account to professor</a></li>

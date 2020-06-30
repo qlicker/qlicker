@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  z-index: 99;
+  z-index: 9;
   flex-flow: row wrap;
 
   .divider {
@@ -40,7 +40,6 @@
 
 .ql-manage-session {
   //overflow: hidden;
-
   .read-only-cover {
     position: absolute;
     top: 50px;
@@ -66,7 +65,7 @@
     width: 100%;
     top: 50px;
     left: 0;
-    position: absolute;
+    position: sticky;
     margin-top: 1px;
     @include session-toolbar();
 
@@ -108,7 +107,7 @@
     width: 100%;
     @include session-toolbar();
     padding-left: 12px;
-
+    position: sticky;
 
     .btn-group-justified {
       width: unset;
@@ -128,7 +127,7 @@
 
 
   .ql-row-container {
-    top: 50px;
+    top: 5px;
     left: 0;
     height: calc(100vh - 50px);
     position: relative;

@@ -1,9 +1,12 @@
 @import '../variables.scss';
 //inspired by https://www.w3schools.com/css/css_navbar_horizontal.asp
 
+.ql-page-body {
+
+}
 
 .ql-page-content {
-  margin-top: 60px;
+  margin-top: 50px;
 }
 
 @media screen and (max-width:900px) and (min-width:700px) {
@@ -87,11 +90,23 @@ nav li.right {
   margin-right: 10px;
 }
 
-nav li img.nav-circle {
+nav li.profile-pic > a {
+  display: flex;
+  align-items: baseline;
+}
+
+nav li a div.img-circle-crop {
   border: 0;
   overflow: hidden;
   border-radius: 50%;
   height: 40px;
+}
+
+nav li a div.img-circle-crop img {
+  display: inline;
+  margin: 0 auto;
+  height: 100%;
+  width: auto;
 }
 
 nav li.dropdown {
@@ -167,10 +182,10 @@ nav > ul > li.profile-pic ul {
   margin-top: 5px;
 }
 
-//show drop down if hovering on li above it
-nav > ul > li.dropdown:hover > ul {
-  display: block;
-}
+//show drop down if hovering on li above it (incompatible with click to open/close in mobile...)
+//nav > ul > li.dropdown:hover > ul {
+//  display: block;
+//}
 
 //drop down meny item (less margin)
 nav ul li ul li {
@@ -227,15 +242,21 @@ nav ul li ul li {
     border-radius: 0px 0px 2px 2px; //two bottom corners slightly rounded
   }
 
+/*
   nav > ul > li:hover > ul, nav > ul > li.profile-pic:hover > ul {
     display: table;
     position: fixed;
     //width: 100%;
-  }
+  }*/
 
   nav ul li, nav ul li.right, nav ul li.profile-pic {
     float: none;
     width: 100%;
+  }
+
+  nav ul li.profile-pic a{
+    display:flex;
+    justify-content: center;
   }
 
   nav ul li ul li, nav ul li.right ul li, nav ul li.profile-pic ul li {
