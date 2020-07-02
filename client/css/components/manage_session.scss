@@ -2,16 +2,15 @@
 @import '../variables.scss';
 
 @mixin session-toolbar() {
-  height: 50px;
+  //height: 50px;
   background: #F8F8F8;
   padding: 4px;
   padding-left: 8px;
   border-bottom: 2px solid #ccc;
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   align-items: center;
   z-index: 9;
-  flex-flow: row wrap;
 
   .divider {
     border-left: 1px solid #d7d7d7;
@@ -46,7 +45,7 @@
     left: 0;
     width: 100%;
     background: rgba(20, 20, 20, 0.7);
-    height: calc(100vh - 50px);
+    //height: calc(100vh - 50px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -129,15 +128,16 @@
   .ql-row-container {
     top: 5px;
     left: 0;
-    height: calc(100vh - 50px);
+    //height: calc(100vh - 50px);
     position: relative;
     width: 100%;
 
     .ql-sidebar-container {
       position: absolute;
-      height: calc(100vh - 100px);
-      left: 0;
+      //height: calc(100vh - 100px);
+      left: 10px;
       top: 0px;
+      padding-left: 5px;
 
       &.with-2nd-toolbar {
         height: calc(100vh - 150px);
@@ -152,7 +152,7 @@
       top: 0;
       left: 0;
       width: 360px;
-      height: calc(100vh - 100px);
+      //height: calc(100vh - 100px);
       padding: 20px;
       overflow: auto;
 
@@ -191,9 +191,9 @@
 
     .ql-main-content {
       margin-left: 360px;
-      padding: 20px;
+      padding-left: 15px;
       overflow: auto;
-      height: calc(100vh - 100px);
+      //height: calc(100vh - 100px);
       max-width: 1000px;
 
       .ql-short-answer-list {
@@ -334,22 +334,57 @@
     }
   }
 
-  @media (max-width: 518px) {
+
+// Half collapsed version
 
 
+
+  //Mobile version
+  @media screen and (max-width: $mobile-max-width) {
     .ql-session-toolbar, .ql-question-toolbar {
-      height: 150px;
+    //  height: 150px;
+      top: 50px;
     }
+
+    .ql-row-container {
+      //top: 100px!important;
+      .ql-sidebar-container {
+        display: none!important;
+      }
+      .ql-main-content {
+        margin-left: 0px!important;
+      }
+    }
+
+  }
+
+  @media screen and (max-width:$full-min-width) and (min-width:$mobile-max-width) {
+    //more space for header before it collapses at 700px
+    .ql-page-content {
+      margin-top: 100px;
+    }
+    .ql-session-toolbar, .ql-question-toolbar {
+    //  height: 150px;
+      top: 100px;
+    }
+
+  }
+
+/*
+
+  @media (max-width: 700px) {
+
+
     .ql-session-toolbar {
     }
     .ql-row-container {
-      top: 150px!important;
+      //top: 150px!important;
     }
   }
 
-  @media (max-width: 800px) {
+  @media (max-width: 900px) {
     .ql-row-container {
-      top: 100px!important;
+      //top: 100px!important;
       .ql-sidebar-container {
         display: none!important;
       }
@@ -359,13 +394,14 @@
     }
 
     .ql-session-toolbar, .ql-question-toolbar {
-      height: 100px;
+      //height: 100px;
+      top: 100px;
     }
     .ql-session-toolbar {
 
     }
     .ql-question-toolbar {
-      top: 100px;
+      //top: 100px;
     }
   }
 
@@ -378,5 +414,5 @@
         padding-left: 15px!important;
       }
     }
-  }
+  } */
 }
