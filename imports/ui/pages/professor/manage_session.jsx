@@ -671,10 +671,11 @@ class _ManageSession extends Component {
 
           </div>
         </div>
-      {this.state.showQuizExtensionModal
-         ? <QuizExtensionsModal session={this.props.session} done={this.toggleExtensionModal} />
-         : ''
-      }
+
+        {this.state.showQuizExtensionModal
+           ? <QuizExtensionsModal session={this.props.session} done={this.toggleExtensionModal} />
+           : ''
+        }
       </div>)
   }
 
