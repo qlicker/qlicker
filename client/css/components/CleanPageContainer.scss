@@ -198,7 +198,7 @@ nav ul li ul li {
 
 
 // Use the label on a checkbox as the hamburger in collapsed mode
-[type="checkbox"], label {
+nav [type="checkbox"]:first-of-type, nav [type="checkbox"]:first-of-type ~ label {
     display: none;
 }
 
@@ -207,7 +207,7 @@ nav ul li ul li {
     display: none;
   }
 
-  label {
+  nav [type="checkbox"]:first-of-type ~ label {
     display: block;
     background: white;
     width: 40px;
@@ -220,7 +220,7 @@ nav ul li ul li {
     z-index: 11;
    }
 
-  label:after { // this makes the hamburger, by adding 2 shadows below the label above...
+  nav [type="checkbox"]:first-of-type ~ label:after { // this makes the hamburger, by adding 2 shadows below the label above...
     content: '';
     display: block;
     width: 30px;
@@ -230,7 +230,7 @@ nav ul li ul li {
     box-shadow: 0px 10px 0px $blue, 0px 20px 0px $blue
   }
 
-  [type="checkbox"]:checked ~ ul {
+  nav [type="checkbox"]:first-of-type:checked ~ ul {
     display: flex;
     flex-direction: column;
     z-index: 10;
