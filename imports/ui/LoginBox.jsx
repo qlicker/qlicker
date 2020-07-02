@@ -5,7 +5,7 @@
 // calls account creation method and redirects after login
 
 import React, { Component } from 'react'
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 export const DEFAULT_STATE = {
   login: true,

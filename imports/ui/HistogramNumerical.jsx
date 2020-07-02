@@ -8,6 +8,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { withTracker }  from 'meteor/react-meteor-data'
 import { Histogram } from './Histogram'
+import _ from 'underscore'
 //import { WysiwygHelper } from '../wysiwyg-helpers'
 import { Responses } from '../api/responses'
 

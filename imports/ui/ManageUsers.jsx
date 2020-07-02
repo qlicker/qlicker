@@ -8,7 +8,7 @@ import React, { Component } from 'react'
 import { RestrictDomainForm } from './RestrictDomainForm'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
-
+import _ from 'underscore'
 import { ROLES } from '../configs'
 
 export class ManageUsers extends Component {

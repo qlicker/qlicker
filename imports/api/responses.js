@@ -12,7 +12,7 @@ import { Sessions } from './sessions'
 import { Questions } from './questions'
 import { calculateResponsePoints } from './grades'
 
-//import { _ } from 'underscore'
+import _ from 'underscore'
 
 import Helpers from './helpers.js'
 

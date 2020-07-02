@@ -4,7 +4,7 @@
 // run_session.jsx: page for managing a currently running session
 
 import React, { Component } from 'react'
-//import { _ } from 'underscore'
+import _ from 'underscore'
 //import ReactTooltip from 'react-tooltip'
 
 import { withTracker }  from 'meteor/react-meteor-data'
@@ -368,6 +368,7 @@ class _RunSession extends Component {
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
     return (
       <div className='ql-manage-session'>
+
         <div className='ql-session-toolbar'>
           <h3 className='session-title'>{ this.state.session.name }</h3>
           <span className='divider'>&nbsp;</span>
@@ -396,26 +397,26 @@ class _RunSession extends Component {
           </a>
         </div>
 
-        <div className='ql-row-container'>
-          <div className='ql-question-toolbar'>
-            <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
-            <span className='divider'>&nbsp;</span>
-            <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
-            <span className='divider'>&nbsp;</span>
-            <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
-            <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>
-            <span className='divider'>&nbsp;</span>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
-            <span className='divider'>&nbsp;</span>
-            <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
-            <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
-            <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
-            <span className='divider'>&nbsp;</span>
-          </div>
+        <div className='ql-question-toolbar'>
+          <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
+          <span className='divider'>&nbsp;</span>
+          <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
+          <span className='divider'>&nbsp;</span>
+          <a href='#' className='toolbar-button next' onClick={this.prevQuestion}><span className='glyphicon glyphicon-arrow-left' />&nbsp; Previous</a>
+          <a href='#' className='toolbar-button prev' onClick={this.nextQuestion}>Next &nbsp;<span className='glyphicon glyphicon-arrow-right' /></a>
+          <span className='divider'>&nbsp;</span>
+          <a href='#' className='toolbar-button' onClick={() => this.toggleHidden(q._id)}>{strQuestionVisible}</a>
+          <a href='#' className='toolbar-button' onClick={() => this.toggleCorrect(q._id)}>{strCorrectVisible}</a>
+          <a href='#' className='toolbar-button' onClick={() => this.toggleStats(q._id)}>{strStatsVisible}</a>
+          <span className='divider'>&nbsp;</span>
+          <a href='#' className='toolbar-button' onClick={() => this.toggleAttempt(q._id)}>{strAttemptEnabled}</a>
+          <a href='#' className='toolbar-button' onClick={this.newAttempt}>New Attempt</a>
+          <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
+          <span className='divider'>&nbsp;</span>
+        </div>
 
-          <div className='ql-sidebar-container with-2nd-toolbar'>
+      <div className='ql-row-container'>
+          <div className='ql-sidebar-container'>
             <div className={'ql-session-sidebar' + (this.state.presenting ? 'presenting' : '')}>
               {
                 !this.state.presenting
@@ -446,16 +447,7 @@ class _RunSession extends Component {
               ? <div><AnswerDistribution question={q} title='Responses' responseStats={this.props.responseStatsByQuestion[q._id]} /><div className='clear' /></div>
               : ''
             }
-            {
-              !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
-              ? <div><ShortAnswerList question={q} /></div>
-              : ''
-            }
-            {
-              !this.state.presenting && q && q.type === QUESTION_TYPE.NU // short answer
-              ? <div><HistogramNumerical question={q} /></div>
-              : ''
-            }
+
             <div className='ql-question-preview'>
               { q
                  ? <div>
@@ -467,6 +459,17 @@ class _RunSession extends Component {
                  : ''
                }
             </div>
+
+            { //Since these have lists of responses, place after the question
+              !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
+              ? <div><ShortAnswerList question={q} /></div>
+              : ''
+            }
+            { //Since these have lists of responses, place after the question
+              !this.state.presenting && q && q.type === QUESTION_TYPE.NU // short answer
+              ? <div><HistogramNumerical question={q} /></div>
+              : ''
+            }
           </div>
 
         </div>
