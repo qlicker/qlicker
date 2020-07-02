@@ -375,8 +375,8 @@ Router.route('/course/:courseId/session/present/:_id', {
 })
 
 import { VideoChat } from '../../ui/VideoChat'
-Router.route('/course/:courseId/chat', {
-  name: 'chat',
+Router.route('/course/:courseId/videochat', {
+  name: 'videochat',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
     return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId) && Meteor.subscribe('sessions.single',this.params._id)
@@ -385,7 +385,56 @@ Router.route('/course/:courseId/chat', {
     const user = Meteor.user()
     const cId = this.params.courseId
     if(user && (user.isInstructor(cId) || user.isStudent(cId)) ){
-      mount(AppLayout, { content: <PageContainer courseId={cId}> <VideoChat  courseId={cId} /> </PageContainer> })
+      mount(AppLayout, { content: <CleanPageContainer courseId={cId}> <VideoChat  courseId={cId} /> </CleanPageContainer> })
+    } else Router.go('login')
+  }
+})
+
+import { JitsiWindow } from '../../ui/JitsiWindow'
+Router.route('/course/:courseId/videochatwindow/:vId', {
+  name: 'videochatwindow',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId) && Meteor.subscribe('sessions.single',this.params._id)
+  },
+  action: function () {
+    const user = Meteor.user()
+    const cId = this.params.courseId
+
+    // Grab these from inside course, using vId
+    let options = {
+     roomName: 'qlicker-jitsi-1',
+     //width: 500,
+     height: 768,
+     interfaceConfigOverwrite: {
+      filmStripOnly: false,
+      HIDE_INVITE_MORE_HEADER: true,
+      SHOW_JITSI_WATERMARK: false,
+      TOOLBAR_BUTTONS: [
+        'microphone', 'camera', 'desktop', 'fullscreen',
+        'fodeviceselection', 'hangup', 'chat',
+         'etherpad', 'raisehand',
+        'videoquality', 'filmstrip', 'settings',
+        'tileview', 'videobackgroundblur', 'mute-everyone', 'security'
+        ],
+     },
+     configOverwrite: {
+      disableSimulcast: false,
+      enableClosePage: false,
+      disableThirdPartyRequests: true,
+     },
+    }
+
+    options.userInfo = {
+        email: user.getEmail(),
+        displayName: user.getName()
+    }
+
+    let domain = 'meet.jit.si'
+    let tileView = true
+
+    if(user && (user.isInstructor(cId) || user.isStudent(cId)) ){
+      mount(AppLayout, { content: <JitsiWindow options={options} domain={domain} tileView={tileView} /> })
     } else Router.go('login')
   }
 })

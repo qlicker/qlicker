@@ -38,6 +38,7 @@ export class _VideoChat extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
 
+/*
     let options = {
      roomName: 'qlicker-jitsi-1',
      width: 500,
@@ -49,13 +50,18 @@ export class _VideoChat extends Component {
      configOverwrite: {
       disableSimulcast: false,
      },
-    }
+   }*/
 
     let domain = 'meet.qlicker.org'
+
+    let vId = 123456543321
+
+    const openChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow/' +vId, 'Qlicker Video Chat', 'height=768,width=1024') }
     return (
       <div className='ql-video-page'>
-
-        <JitsiWindow options={options} domain={domain}  />
+        <div type='button' className='btn btn-secondary' onClick={openChatWindow}>
+          Open video chat window
+        </div>
       </div>
     )
   }

@@ -144,6 +144,12 @@ class _CleanPageContainer extends Component {
       closeSubMenus()
     }
 
+    const goVideoChat = () => {
+      Router.go('videochat', { courseId: this.state.courseId })
+      closeMobileMenu()
+      closeSubMenus()
+    }
+
     const goAllCoursesPage = () => {
       Router.go(  user.hasGreaterRole('professor') ? 'courses' : 'student'  )
       this.setState({ courseId: '', showCourse: false })
@@ -181,6 +187,10 @@ class _CleanPageContainer extends Component {
               }
               { this.state.showCourse /*&& !isAdmin*/
                 ? <li onClick={goCourseQuestions}> <a>Question library</a></li>
+                : ''
+              }
+              { this.state.showCourse /*&& !isAdmin*/
+                ? <li onClick={goVideoChat}> <a>Video chat</a></li>
                 : ''
               }
               { isAdmin
