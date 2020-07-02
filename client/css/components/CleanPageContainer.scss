@@ -1,0 +1,261 @@
+@import '../variables.scss';
+//inspired by https://www.w3schools.com/css/css_navbar_horizontal.asp
+
+.ql-page-body {
+
+}
+
+.ql-page-content {
+  margin-top: 50px;
+}
+
+//Change these in manage_session.scss
+@media screen and (max-width:$full-min-width) and (min-width:$mobile-max-width) {
+  //more space for header before it collapses at 700px
+  .ql-page-content {
+    margin-top: 100px;
+  }
+
+}
+
+div.ql-logo {
+  display: inline-block;
+  float: left;
+  height: 50px;
+  width: 150px;
+  padding-top: 10px;
+  padding-left: 35px;
+  cursor: pointer;
+  background-color: $blue;
+  color: white;
+  font-family: $font-stack;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+div.ql-logo:hover{
+  color: $grey;
+}
+
+// wrap all of nav in this style:
+.ql-page-nav {
+  background-color: white;
+
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+
+  font-family: $font-stack;
+  font-size: medium;
+  font-weight: 100;
+  color: black;
+}
+
+div.ql-page-nav nav {
+  min-height: 50px;
+}
+
+nav li.divider {
+  display: block;
+  background: $darker-grey;
+  height: 1px;
+  min-height: 1px; //inherits this from nav>ul>li>ul>li
+  padding: 0;
+  margin-bottom: 5px;
+}
+
+nav li.infolabel {
+  display: block;
+  font-size: 0.75em;
+  height: 20px;
+  min-height: 20px; //inherits this from nav>ul>li>ul>li
+  padding-top: 0px;
+  padding-bottom: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+nav li.infolabel + li { // less top margin for li immediately after a label
+  margin-top: 0px;
+}
+
+nav li.profile-pic {
+  padding-top: 5px; // less padding to accomodate 40px profile pic
+}
+
+nav li.right {
+  min-width: 160px; // same as min width of ul as sub menu
+  margin-right: 10px;
+}
+
+nav li.profile-pic > a {
+  display: flex;
+  align-items: baseline;
+}
+
+//GENERAL component... In pricinple should be used everywhere
+div.img-circle-crop img {
+  object-fit: cover;
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+}
+
+//Constrain circle crop of profile pic to be 40px x 40px
+nav li a div.img-circle-crop {
+  height: 40px;
+  width: 40px;
+}
+
+nav li.ql-dropdown {
+  position: unset;
+  float: left;
+}
+
+// Stick an arrow after the link in a drop down li
+nav li.ql-dropdown > a:after {
+  content:'\02C7'; ///2228
+}
+
+nav li.infolabel:hover {
+  background:white;
+}
+
+// top level menu
+nav > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  //overflow: hidden;
+  background-color: white;
+}
+// top level menu item
+nav > ul > li {
+  float: left;
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  padding-top: 15px;
+  height: 50px;
+  min-width: 140px;
+}
+
+// top level menu item with class ' right'
+nav > ul > li.right {
+  float: right;
+}
+
+// hover on all menu items
+nav ul li:hover {
+  background-color: $grey;
+}
+
+// link styling
+nav li > a {
+  text-decoration: none;
+  color: black;
+}
+
+// link styling, don't underline on hover
+nav li > a:hover, nav li > a:visited, nav li > a:active, nav li > a:link  {
+  text-decoration: none;
+  color: black;
+}
+
+//dropdown menu outer container
+nav > ul > li > ul {
+  display: none;
+  position: absolute;
+  padding-left: 0px;
+  margin-top: 13px;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  font-size: 90%;
+}
+
+// different margin if a profile pic
+nav > ul > li.profile-pic ul {
+  margin-top: 5px;
+}
+
+//show drop down if hovering on li above it (incompatible with click to open/close in mobile...)
+//nav > ul > li.ql-dropdown:hover > ul {
+//  display: block;
+//}
+
+//drop down meny item (less margin)
+nav ul li ul li {
+  display: block;
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+
+// Use the label on a checkbox as the hamburger in collapsed mode
+[type="checkbox"], label {
+    display: none;
+}
+
+@media screen and (max-width: $mobile-max-width) {
+  nav > ul {
+    display: none;
+  }
+
+  label {
+    display: block;
+    background: white;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 0px;
+    padding-top: 5px;
+    z-index: 11;
+   }
+
+  label:after { // this makes the hamburger, by adding 2 shadows below the label above...
+    content: '';
+    display: block;
+    width: 30px;
+    height: 5px;
+    background: $blue;
+    margin: 7px 15px;
+    box-shadow: 0px 10px 0px $blue, 0px 20px 0px $blue
+  }
+
+  [type="checkbox"]:checked ~ ul {
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    background-color: white;
+    position: absolute;
+    top: 50px;
+    padding: 0px;
+    width: 100%;// leave space for the hamburger icon
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+    border-radius: 0px 0px 2px 2px; //two bottom corners slightly rounded
+  }
+
+  nav ul li, nav ul li.right, nav ul li.profile-pic {
+    float: none;
+    width: 100%;
+  }
+
+  nav ul li.profile-pic a{
+    display:flex;
+    justify-content: center;
+  }
+
+  nav ul li ul li, nav ul li.right ul li, nav ul li.profile-pic ul li {
+    float: none;
+    width: 100%;
+  }
+
+}

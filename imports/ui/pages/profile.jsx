@@ -60,7 +60,7 @@ class _Profile extends Component {
 
   componentDidMount () {
     this.getImageSettings()
-    user = Meteor.user()
+    const user = Meteor.user()
     if(user){
       this.setState({firstName: user.profile.firstname, lastName: user.profile.lastname})
     }
@@ -306,6 +306,7 @@ class _Profile extends Component {
 
   render () {
     const user = this.props.user
+    if (!user) { return <div className='ql-subs-loading'>loading</div>}
     const needsEmailVerification = !user.emails[0].verified
 
     const toggleUpload = () => { this.setState({ uploadActive: !this.state.uploadActive }) }
