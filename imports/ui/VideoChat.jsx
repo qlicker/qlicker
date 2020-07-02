@@ -6,6 +6,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { withTracker }  from 'meteor/react-meteor-data'
+import _ from 'underscore'
 
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
@@ -29,14 +30,28 @@ export class _VideoChat extends Component {
 
 
     this.toggleCourseVideoChat = this.toggleCourseVideoChat.bind(this)
-    //this.toggleCategoryVideoChat = this.toggleCategoryVideoChat.bind(this)
+    this.toggleCategoryVideoChat = this.toggleCategoryVideoChat.bind(this)
   }
 
   toggleCourseVideoChat (courseId, enabled) {
     let question = (enabled ? 'Disable ' :'Enable ')+'video chat access for whole class?'
-    let success = 'Video chat '+(enabled ? 'disabled' :'enabled')
+    let success = 'Video chat '+(enabled ? 'disabled' :'enabled')+' for whole class'
     if (confirm(question)) {
       Meteor.call('courses.toggleVideoChat', courseId, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success(success)
+        }
+      })
+    }
+  }
+
+  toggleCategoryVideoChat (courseId, enabled, categoryNumber) {
+    let question = (enabled ? 'Disable ' :'Enable ')+'video chat for group?'
+    let success = 'Video chat '+(enabled ? 'disabled' :'enabled')
+    if (confirm(question)) {
+      Meteor.call('courses.toggleCategoryVideoChat', courseId, categoryNumber, (err) => {
         if (err) {
           alertify.error('Error: ' + err.error)
         } else {
@@ -62,19 +77,20 @@ export class _VideoChat extends Component {
 
     const groupCategories = this.props.course.groupCategories
 
-    const categoriesWithChatEnabled = groupCategories //TODO select only with those enabled, and those selected in drop down
+    const categoriesWithChatEnabled = _(groupCategories).where({categoryVideoChat:true}) //TODO select only with those enabled, and those selected in drop down
     const courseVideoChatEnabled = this.props.course.videoChatEnabled
     const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, this.props.course.videoChatEnabled)
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick}) => {
       if (name){
+        let extraClass = courseVideoChatEnabled ? 'active' : ''
         return(
           <li>
             <div className='ql-group-list-item-name'>
               {name}
             </div>
             <div className='ql-group-list-item-controls'>
-              <div className='btn' onClick={onClick}>
+              <div className={'btn '+extraClass} onClick={onClick}>
                 {courseVideoChatEnabled ? 'Disable' : 'Enable' }
               </div>
             </div>
@@ -82,14 +98,15 @@ export class _VideoChat extends Component {
         )
       }
       if (category) {
+        let extraClass = category.categoryVideoChat ? 'active' : ''
         return(
           <li>
             <div className='ql-group-list-item-name'>
               {category.categoryName} ({category.groups.length} groups)
             </div>
             <div className='ql-group-list-item-controls'>
-              <div className='btn ' onClick={onClick}>
-                {category.videoChatEnabled ? 'Disable' : 'Enable' }
+              <div className={'btn '+extraClass} onClick={onClick}>
+                {category.categoryVideoChat ? 'Disable' : 'Enable' }
               </div>
             </div>
           </li>
@@ -108,9 +125,12 @@ export class _VideoChat extends Component {
 
             <div className='ql-card-content'>
               <ul>
-                <VideoSessionControl name={'Entire class'} onClick={toggleCourseVideoChat} />
+                <VideoSessionControl name={'Course-wide video chat'} onClick={toggleCourseVideoChat} />
                 { groupCategories.map(cat => {
-                  return <VideoSessionControl category={cat} key={'vc'+cat.categoryCount+cat.categoryName} />
+                    const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, cat.categoryVideoChat, cat.categoryNumber)
+                    return(
+                      <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} key={'vc'+cat.categoryNumber+cat.categoryName} />
+                    )
                   })
                 }
               </ul>
@@ -125,30 +145,39 @@ export class _VideoChat extends Component {
             </div>
 
             <div className='ql-card-content'>
-
-              <div className='btn' onClick={openChatWindow}>
-                Entire class
-              </div>
+              { courseVideoChatEnabled
+                ? <div>
+                    <div className='ql-video-catname'>
+                     Course-wide video chat
+                    </div>
+                    <div className='btn' onClick={openChatWindow}>
+                      Join class-wide chat
+                    </div>
+                  </div>
+                : categoriesWithChatEnabled.length > 0
+                  ? ''
+                  : <div className='ql-video-catname'> No video chats enabled </div>
+              }
 
               { categoriesWithChatEnabled.map(cat => {
                 return(
-                  <div key={'vcc'+cat.categoryCount+cat.categoryName} >
+                  <div key={'vcc'+cat.categoryNumber+cat.categoryName} >
                     <div className='ql-video-catname'> {cat.categoryName} </div>
                       { cat.groups.map(group => {
-                          return <div key={'vccg'+cat.categoryCount+cat.categoryName+'g'+group.groupNumber+group.groupName} className='btn' onClick={openChatWindow}> {group.groupName} </div>
+                          return(
+                            <div className='btn' onClick={openChatWindow} key={'vccg'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName}>
+                              {'Join '+group.groupName}
+                            </div>
+                          )
                         })
                       }
                   </div>
                 )
-
                 })
               }
-
             </div>
           </div>
-
         </div>
-
       </div>
     )
   }
