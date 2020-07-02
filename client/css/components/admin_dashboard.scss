@@ -20,10 +20,10 @@
   padding-left: 8px;
   border-bottom: 2px solid #ccc;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  z-index: 99;
   flex-flow: row wrap;
+  align-items: center;
+  //z-index: 99;
+
 
   .divider {
     border-left: 1px solid #d7d7d7;
