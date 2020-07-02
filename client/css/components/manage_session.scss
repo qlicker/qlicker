@@ -41,21 +41,20 @@
   //overflow: hidden;
   .read-only-cover {
     position: absolute;
-    top: 50px;
+    //top: 150px;
     left: 0;
     width: 100%;
     background: rgba(20, 20, 20, 0.7);
-    //height: calc(100vh - 50px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    height: 100%;
+    z-index: 8; //under the toolbar (9) and navbar (10)
 
     .message {
       color: white;
       font-size: 2em;
-      width: 600px;
+      width: 80%;
       height: 300px;
+      padding-top: 150px;
+      margin: auto;
       text-align: center;
     }
   }

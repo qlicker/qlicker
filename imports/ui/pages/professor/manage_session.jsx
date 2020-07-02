@@ -540,6 +540,15 @@ class _ManageSession extends Component {
           <span className='divider'>&nbsp;</span>
           <div id='ckeditor-toolbar' />
         </div>
+        {
+          this.state.session.status === 'done'
+          ? <div className='read-only-cover'>
+            <div className='message'>
+              Session has finished. To make edits, please set the status to Draft (or Upcoming). Qlicker recommends that you avoid editing sessions that students have submitted responses to.
+            </div>
+          </div>
+          : ''
+        }
         <div className='ql-row-container'>
           <div className='ql-sidebar-container'>
             <div className='ql-session-sidebar'>
@@ -662,19 +671,11 @@ class _ManageSession extends Component {
 
           </div>
         </div>
-        {
-          this.state.session.status === 'done'
-          ? <div className='read-only-cover'>
-            <div className='message'>
-              Session has finished. To make edits, please set the status to Draft (or Upcoming). Qlicker recommends that you avoid editing sessions that students have submitted responses to.
-            </div>
-          </div>
-          : ''
+
+        {this.state.showQuizExtensionModal
+           ? <QuizExtensionsModal session={this.props.session} done={this.toggleExtensionModal} />
+           : ''
         }
-      {this.state.showQuizExtensionModal
-         ? <QuizExtensionsModal session={this.props.session} done={this.toggleExtensionModal} />
-         : ''
-      }
       </div>)
   }
 
