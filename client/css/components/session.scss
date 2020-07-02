@@ -6,6 +6,8 @@
 }
 
 .ql-session-display {
+  margin-top: 5px;
+  /*
   @media (max-width: 480px) {
     .ql-session-display {
       &.container {
@@ -14,7 +16,7 @@
       }
     }
 
-  }
+  }*/
   .ql-session-display-mobile {
     .ql-session-display-mobile-infobar {
       padding: 5px;

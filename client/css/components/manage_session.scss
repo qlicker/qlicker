@@ -106,7 +106,7 @@
     width: 100%;
     @include session-toolbar();
     padding-left: 12px;
-    position: sticky;
+    //position: sticky;
 
     .btn-group-justified {
       width: unset;
@@ -138,11 +138,6 @@
       left: 10px;
       top: 0px;
       padding-left: 5px;
-
-      &.with-2nd-toolbar {
-        height: calc(100vh - 150px);
-        top: 50px;
-      }
     }
 
     .ql-session-sidebar {
@@ -341,7 +336,7 @@
 
   //Mobile version
   @media screen and (max-width: $mobile-max-width) {
-    .ql-session-toolbar, .ql-question-toolbar {
+    .ql-session-toolbar {
     //  height: 150px;
       top: 50px;
     }
@@ -358,61 +353,17 @@
 
   }
 
+//hybrid version (two row navbar)
   @media screen and (max-width:$full-min-width) and (min-width:$mobile-max-width) {
     //more space for header before it collapses at 700px
     .ql-page-content {
       margin-top: 100px;
     }
-    .ql-session-toolbar, .ql-question-toolbar {
+    .ql-session-toolbar {
     //  height: 150px;
       top: 100px;
     }
-
   }
 
-/*
 
-  @media (max-width: 700px) {
-
-
-    .ql-session-toolbar {
-    }
-    .ql-row-container {
-      //top: 150px!important;
-    }
-  }
-
-  @media (max-width: 900px) {
-    .ql-row-container {
-      //top: 100px!important;
-      .ql-sidebar-container {
-        display: none!important;
-      }
-      .ql-main-content {
-        margin-left: 0px!important;
-      }
-    }
-
-    .ql-session-toolbar, .ql-question-toolbar {
-      //height: 100px;
-      top: 100px;
-    }
-    .ql-session-toolbar {
-
-    }
-    .ql-question-toolbar {
-      //top: 100px;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .session-details-container {
-      .left-column {
-        padding-right: 15px!important;
-      }
-      .right-column {
-        padding-left: 15px!important;
-      }
-    }
-  } */
 }
