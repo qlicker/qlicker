@@ -121,7 +121,7 @@ export class _VideoChat extends Component {
               { categoriesWithChatEnabled.map(cat => {
                 return(
                   <div key={'vcc'+cat.categoryCount+cat.categoryName} >
-                    <div> {cat.categoryName} </div>
+                    <div className='ql-video-catname'> {cat.categoryName} </div>
                       { cat.groups.map(group => {
                           return <div key={'vccg'+cat.categoryCount+cat.categoryName+'g'+group.groupNumber+group.groupName} className='btn' onClick={openChatWindow}> {group.groupName} </div>
                         })

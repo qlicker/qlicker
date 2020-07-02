@@ -2,14 +2,29 @@
 
 .ql-video-page {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   font-size: large;
-
+  justify-content: center;
+  
   .ql-card {
     margin: 15px;
   }
 
-  .ql-video-page-controls {}
+  .ql-video-catname {
+    padding: 5px;
+  }
+
+  .ql-video-page-controls {
+    max-width: 400px;
+  }
+
+  .ql-video-page-rooms {
+    max-width: 900px;
+  }
+
+  .btn {
+    min-width: 100px;
+  }
 
   ul {
     list-style-type: none;
