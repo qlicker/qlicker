@@ -24,15 +24,26 @@ export class _VideoChat extends Component {
     super(props)
 
     this.state = {
-      api:null
+
     }
 
-    this.setJitsiApi = this.setJitsiApi.bind(this)
+
+    this.toggleCourseVideoChat = this.toggleCourseVideoChat.bind(this)
+    //this.toggleCategoryVideoChat = this.toggleCategoryVideoChat.bind(this)
   }
 
-  setJitsiApi(api) {
-    this.setState({api:api})
-
+  toggleCourseVideoChat (courseId, enabled) {
+    let question = (enabled ? 'Disable ' :'Enable ')+'video chat access for whole class?'
+    let success = 'Video chat '+(enabled ? 'disabled' :'enabled')
+    if (confirm(question)) {
+      Meteor.call('courses.toggleVideoChat', courseId, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success(success)
+        }
+      })
+    }
   }
 
   render () {
@@ -52,9 +63,10 @@ export class _VideoChat extends Component {
     const groupCategories = this.props.course.groupCategories
 
     const categoriesWithChatEnabled = groupCategories //TODO select only with those enabled, and those selected in drop down
-
+    const courseVideoChatEnabled = this.props.course.videoChatEnabled
+    const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, this.props.course.videoChatEnabled)
     //A component to display group category name and controls to enable the chat
-    const VideoSessionControl = ({name, category}) => {
+    const VideoSessionControl = ({name, category, onClick}) => {
       if (name){
         return(
           <li>
@@ -62,8 +74,8 @@ export class _VideoChat extends Component {
               {name}
             </div>
             <div className='ql-group-list-item-controls'>
-              <div className='btn'>
-                Enable
+              <div className='btn' onClick={onClick}>
+                {courseVideoChatEnabled ? 'Disable' : 'Enable' }
               </div>
             </div>
           </li>
@@ -76,8 +88,8 @@ export class _VideoChat extends Component {
               {category.categoryName} ({category.groups.length} groups)
             </div>
             <div className='ql-group-list-item-controls'>
-              <div className='btn '>
-                Enable
+              <div className='btn ' onClick={onClick}>
+                {category.videoChatEnabled ? 'Disable' : 'Enable' }
               </div>
             </div>
           </li>
@@ -96,7 +108,7 @@ export class _VideoChat extends Component {
 
             <div className='ql-card-content'>
               <ul>
-                <VideoSessionControl name={'Entire class'} />
+                <VideoSessionControl name={'Entire class'} onClick={toggleCourseVideoChat} />
                 { groupCategories.map(cat => {
                   return <VideoSessionControl category={cat} key={'vc'+cat.categoryCount+cat.categoryName} />
                   })

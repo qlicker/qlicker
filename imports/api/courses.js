@@ -30,10 +30,12 @@ const coursePattern = {
   createdAt: Date,
   requireVerified: Match.Maybe(Boolean),
   allowStudentQuestions: Match.Maybe(Boolean),
+  videoChatEnabled: Match.Maybe(Boolean),
   //requireApprovedPublicQuestions: Match.Maybe(Boolean),
   groupCategories: Match.Maybe([{
     categoryNumber: Match.Maybe(Helpers.Number),
     categoryName: Match.Maybe(Helpers.NEString),
+    categoryVideoChat: Match.Maybe(Boolean),
     groups: Match.Maybe([{
       groupNumber: Match.Maybe(Helpers.Number),
       groupName: Match.Maybe(Helpers.NEString),
@@ -88,6 +90,7 @@ if (Meteor.isServer) {
                 groupCategories.push({
                   categoryNumber: cat.categoryNumber,
                   categoryName: cat.categoryName,
+                  categoryVideoChat: cat.categoryVideoChat,
                   groups: [{
                     groupName: g.groupName,
                     groupNumber: g.groupNumber,
@@ -117,6 +120,7 @@ if (Meteor.isServer) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
+                      categoryVideoChat: cat.categoryVideoChat,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -143,6 +147,7 @@ if (Meteor.isServer) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
+                      categoryVideoChat: cat.categoryVideoChat,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -199,6 +204,7 @@ if (Meteor.isServer) {
                   groupCategories.push({
                     categoryNumber: cat.categoryNumber,
                     categoryName: cat.categoryName,
+                    categoryVideoChat: cat.categoryVideoChat,
                     groups: [{
                       groupName: g.groupName,
                       groupNumber: g.groupNumber,
@@ -234,6 +240,7 @@ if (Meteor.isServer) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
+                      categoryVideoChat: cat.categoryVideoChat,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -259,6 +266,7 @@ if (Meteor.isServer) {
                     groupCategories.push({
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
+                      categoryVideoChat: cat.categoryVideoChat,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -888,7 +896,47 @@ Meteor.methods({
         groupCategories: categories
       }
     })
-  }
+  },
+
+  'courses.toggleCategoryVideoChat' (courseId, categoryNumber) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    category.categoryVideoChat = !category.categoryVideoChat
+    Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
+
+  'courses.toggleVideoChat' (courseId) {
+    check(courseId, Helpers.MongoID)
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+
+    if (!course) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let chatEnabled = course.videoChatEnabled
+
+    Courses.update({ _id: courseId }, {
+      $set: {
+        videoChatEnabled: !chatEnabled
+      }
+    })
+
+
+  },
+
+
+
 }) // end Meteor.methods
 
 /*
