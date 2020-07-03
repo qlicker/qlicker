@@ -15,35 +15,58 @@ export class JitsiWindow extends Component {
 
   componentDidMount() {
 
-    if(this.props.domain && this.props.options ) {
-      const domain = this.props.domain
-      let options = this.props.options
+    if (!this.props.connectionInfo) {
+      alertify.error('Error: no connection info on mount')
+    }
 
-      options.parentNode = document.getElementById('jitsi-inner')//has to be set here
-      const api = new JitsiMeetExternalAPI(domain, options)
-      this.setState({api:api})
-      if (api && this.props.tileView){
-        ////https://github.com/jitsi/jitsi-meet/issues/5764 - should eventually be able to do with settings
-        api.addEventListener(`videoConferenceJoined`, () => {
-          const listener = ({ enabled }) => {
-            api.removeEventListener(`tileViewChanged`, listener);
-            if (!enabled) {
-              api.executeCommand(`toggleTileView`);
-            }
-          };
-          api.addEventListener(`tileViewChanged`, listener);
-          api.executeCommand(`toggleTileView`);
+    const domain = this.props.connectionInfo.domain
+    const apiOptions = this.props.connectionInfo.apiOptions
+    let options = this.props.connectionInfo.options
+
+    //has to be set here, only exists once mounted
+    options.parentNode = document.getElementById('ql-jitsi-inner')
+
+    const api = new JitsiMeetExternalAPI(domain, options)
+    this.setState({api:api})
+
+    const closeWindow = () => {
+      this.state.api.dispose()
+      window.close()
+    }
+
+    if (api){
+      //Close the window on hangup
+      api.addListener('videoConferenceLeft', closeWindow)
+
+      //Mute audio on join
+      if (apiOptions.startAudioMuted){
+        api.isAudioMuted().then(muted => {
+          if(!muted) api.executeCommand('toggleAudio');
         });
       }
-      if(this.props.setApi) this.props.setApi(api)// pass the api object to whoever created the component
+      //tile view toggle is set as a cookie, so need to check each time...
+      //https://github.com/jitsi/jitsi-meet/issues/5764 - should eventually be able to do with settings
+      if (apiOptions.tileView){
+        api.addListener('videoConferenceJoined', () => {
+          const listener = ({ enabled }) => {
+            if (!enabled) {
+              api.executeCommand('toggleTileView');
+            }
+            api.removeListener('tileViewChanged', listener); //remove so this only gets called once!
+          };
+          api.addEventListener('tileViewChanged', listener);
+          api.executeCommand('toggleTileView'); //triggers the listener, which will toggle back to tileView if appropriate!
+        });
+      }
     }
+    if(this.props.setApi) this.props.setApi(api)// pass the api object to whoever created the component
   }
 
   render () {
-
+    if (!this.props.connectionInfo) return <div className='ql-subs-loading'>No connection info</div>
     return(
-      <div className='jitsi-outer'>
-        <div id='jitsi-inner' />
+      <div className='ql-jitsi-outer' style={{width:'100%', 'height':'100vh'}}>
+        <div id='ql-jitsi-inner' style={{width:'100%', 'height':'100%'}} />
       </div>
     )
   }
@@ -52,8 +75,6 @@ export class JitsiWindow extends Component {
 
 
 JitsiWindow.propTypes = {
-  domain: PropTypes.string.isRequired,
-  options: PropTypes.object.isRequired,
-  tileView:  PropTypes.bool,
-  setApi: PropTypes.func,
+  connectionInfo: PropTypes.object.isRequired,
+  setApi: PropTypes.func
 }

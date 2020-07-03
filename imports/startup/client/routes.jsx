@@ -391,50 +391,50 @@ Router.route('/course/:courseId/videochat', {
 })
 
 import { JitsiWindow } from '../../ui/JitsiWindow'
-Router.route('/course/:courseId/videochatwindow/:vId', {
-  name: 'videochatwindow',
+Router.route('/course/:courseId/videochatwindow', {
+  name: 'courseVideoChatWindow',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId) && Meteor.subscribe('sessions.single',this.params._id)
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
   },
   action: function () {
     const user = Meteor.user()
     const cId = this.params.courseId
 
-    // Grab these from inside course, using vId
-    let options = {
-     roomName: 'qlicker-jitsi-1',
-     //width: 500,
-     height: 768,
-     interfaceConfigOverwrite: {
-      filmStripOnly: false,
-      HIDE_INVITE_MORE_HEADER: true,
-      SHOW_JITSI_WATERMARK: false,
-      TOOLBAR_BUTTONS: [
-        'microphone', 'camera', 'desktop', 'fullscreen',
-        'fodeviceselection', 'hangup', 'chat',
-         'etherpad', 'raisehand',
-        'videoquality', 'filmstrip', 'settings',
-        'tileview', 'videobackgroundblur', 'mute-everyone', 'security'
-        ],
-     },
-     configOverwrite: {
-      disableSimulcast: false,
-      enableClosePage: false,
-      disableThirdPartyRequests: true,
-     },
-    }
+    if(user && (user.isInstructor(cId) || user.isStudent(cId)) ){
+      const course = Courses.findOne({_id: cId})
+      const connectionInfo = course ? course.videoConnectionInfo() : null
 
-    options.userInfo = {
-        email: user.getEmail(),
-        displayName: user.getName()
-    }
+      mount(AppLayout, { content:
+        <JitsiWindow connectionInfo={connectionInfo} />
+      })  
 
-    let domain = 'meet.jit.si'
-    let tileView = true
+    } else Router.go('login')
+  }
+})
+
+
+Router.route('/course/:courseId/categoryvideochatwindow/:catNumber/:gNumber', {
+  name: 'categoryVideoChatWindow',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
+  },
+  action: function () {
+    const user = Meteor.user()
+    const cId = this.params.courseId
 
     if(user && (user.isInstructor(cId) || user.isStudent(cId)) ){
-      mount(AppLayout, { content: <JitsiWindow options={options} domain={domain} tileView={tileView} /> })
+      const course = Courses.findOne({_id: cId})
+      if(!course) Router.go('login')
+      const connectionInfo = user.isInstructor(cId)
+        ? course.categoryVideoConnectionInfo(this.params.catNumber, this.params.gNumber)
+        : course.categoryVideoConnectionInfo(this.params.catNumber)
+
+      mount(AppLayout, { content:
+        <JitsiWindow connectionInfo={connectionInfo} />
+      })
+
     } else Router.go('login')
   }
 })

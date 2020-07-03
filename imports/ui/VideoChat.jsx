@@ -63,17 +63,9 @@ export class _VideoChat extends Component {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    const isInstructor = Meteor.user().isInstructor(this.props.courseId)
 
-    let domain = 'meet.qlicker.org'
-
-    let vId = 123456543321
-    const openChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow/' +vId, 'Qlicker Video Chat', 'height=768,width=1024') }
-
-    /*
-    <div type='button' className='btn btn-secondary' onClick={openChatWindow}>
-      Open video chat window
-    </div>
-    */
+    const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
 
     const groupCategories = this.props.course.groupCategories
 
@@ -116,28 +108,29 @@ export class _VideoChat extends Component {
 
     return (
       <div className='ql-video-page'>
+        { isInstructor
+          ? <div className='ql-video-page-controls'>
+              <div className='ql-card'>
+                <div className='ql-header-bar'>
+                  <h4>Enable/Disable Chat Rooms</h4>
+                </div>
 
-        <div className='ql-video-page-controls'>
-          <div className='ql-card'>
-            <div className='ql-header-bar'>
-              <h4>Enable/Disable Chat Rooms</h4>
+                <div className='ql-card-content'>
+                  <ul>
+                    <VideoSessionControl name={'Course-wide video chat'} onClick={toggleCourseVideoChat} />
+                    { groupCategories.map(cat => {
+                        const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, cat.categoryVideoChat, cat.categoryNumber)
+                        return(
+                          <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} key={'vc'+cat.categoryNumber+cat.categoryName} />
+                        )
+                      })
+                    }
+                  </ul>
+                </div>
+              </div>
             </div>
-
-            <div className='ql-card-content'>
-              <ul>
-                <VideoSessionControl name={'Course-wide video chat'} onClick={toggleCourseVideoChat} />
-                { groupCategories.map(cat => {
-                    const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, cat.categoryVideoChat, cat.categoryNumber)
-                    return(
-                      <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} key={'vc'+cat.categoryNumber+cat.categoryName} />
-                    )
-                  })
-                }
-              </ul>
-            </div>
-          </div>
-        </div>
-
+          : ''
+        }
         <div className='ql-video-page-rooms'>
           <div className='ql-card'>
             <div className='ql-header-bar'>
@@ -150,7 +143,7 @@ export class _VideoChat extends Component {
                     <div className='ql-video-catname'>
                      Course-wide video chat
                     </div>
-                    <div className='btn' onClick={openChatWindow}>
+                    <div className='btn' onClick={courseChatWindow}>
                       Join class-wide chat
                     </div>
                   </div>
@@ -164,8 +157,12 @@ export class _VideoChat extends Component {
                   <div key={'vcc'+cat.categoryNumber+cat.categoryName} >
                     <div className='ql-video-catname'> {cat.categoryName} </div>
                       { cat.groups.map(group => {
+
+                          const link = '/course/'+this.props.courseId+'/categoryvideochatwindow/'+cat.categoryNumber+'/'+group.groupNumber
+                          const categoryChatWindow = () => { window.open(link, 'Video chat with '+group.groupName, 'height=768,width=1024')}
+
                           return(
-                            <div className='btn' onClick={openChatWindow} key={'vccg'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName}>
+                            <div className='btn' onClick={categoryChatWindow} key={'vccg'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName}>
                               {'Join '+group.groupName}
                             </div>
                           )
@@ -185,11 +182,9 @@ export class _VideoChat extends Component {
 }
 
 export const VideoChat = withTracker((props) => {
-  //const sessionFields = {_id:1, name:1, status:1, reviewable:1, date:1 }
   const handle = Meteor.subscribe('courses.single', props.courseId)
-
   const course = Courses.findOne(props.courseId)
-  console.log(course)
+
   return {
     course: course,
     loading: !handle.ready()

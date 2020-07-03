@@ -31,11 +31,13 @@ const coursePattern = {
   requireVerified: Match.Maybe(Boolean),
   allowStudentQuestions: Match.Maybe(Boolean),
   videoChatEnabled: Match.Maybe(Boolean),
+  videoChatId: Match.Maybe(Helpers.NEString),
   //requireApprovedPublicQuestions: Match.Maybe(Boolean),
   groupCategories: Match.Maybe([{
     categoryNumber: Match.Maybe(Helpers.Number),
     categoryName: Match.Maybe(Helpers.NEString),
     categoryVideoChat: Match.Maybe(Boolean),
+    categoryVideoId:Match.Maybe(Helpers.NEString),
     groups: Match.Maybe([{
       groupNumber: Match.Maybe(Helpers.Number),
       groupName: Match.Maybe(Helpers.NEString),
@@ -43,6 +45,31 @@ const coursePattern = {
     }])
   }])
 }
+
+/////////////////////////////////////////////////////////////
+//Default configuration for connection to Jitsi video chat
+/////////////////////////////////////////////////////////////
+const default_Jitsi_configOverwrite = {
+   disableSimulcast: false,
+   enableClosePage: false,
+   disableThirdPartyRequests: true,//removes recording ability, etc, but safer
+}
+
+const default_Jitsi_interfaceConfigOverwrite = {
+  filmStripOnly: false,
+  HIDE_INVITE_MORE_HEADER: true,
+  SHOW_JITSI_WATERMARK: false,
+  TOOLBAR_BUTTONS: [
+    'microphone', 'camera', 'desktop', 'fullscreen',
+    'fodeviceselection', 'hangup', 'chat',
+     'etherpad', 'raisehand',
+    'videoquality', 'filmstrip', 'settings',
+    'tileview', 'videobackgroundblur', 'mute-everyone', 'security'
+    ]
+}
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 
 // Create course class
 export const Course = function (doc) { _.extend(this, doc) }
@@ -55,7 +82,108 @@ _.extend(Course.prototype, {
   },
   fullCourseCode: function () {
     return this.deptCode + ' ' + this.courseNumber + ' - ' + this.section
+  },
+
+  videoConnectionInfo: function () {
+    if (!this.videoChatEnabled || !this.videoChatId) return null
+    //Check if user in course
+    const user = Meteor.user()
+    if(!user || !(user.isInstructor(this._id) || user.isStudent(this._id)) ) return null
+
+    const userInfo = {
+        email: user.getEmail(),
+        displayName: user.getName()
+    }
+
+    const roomName = this._id+'Qlicker'+this.videoChatId+'all'
+    const domain = 'meet.jit.si'
+
+    let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
+    let configOverwrite = default_Jitsi_configOverwrite
+
+    //Configure the conference based on number of participants
+    //If more than 6, no video when starting
+    //configOverwrite.startWithVideoMuted = (this.students.length > 6)
+    const apiOptions = {
+      tileView : false,
+      startAudioMuted: true,
+    }
+    configOverwrite.startWithVideoMuted = true
+
+    let options = {
+      roomName: roomName,
+      userInfo: userInfo,
+      interfaceConfigOverwrite: interfaceConfigOverwrite,
+      configOverwrite: configOverwrite
+    }
+    const connectionInfo = {options:options, domain:domain, apiOptions:apiOptions}
+    return connectionInfo
+  },
+
+  categoryVideoConnectionInfo: function (categoryNumber, groupNumber) {
+    //groupNumber is only passed in if user is an instructer (see routes.jsx)
+    //Check if video enabled for this category of groups
+    //Check if user is in course
+    const user = Meteor.user()
+    const userId = user._id
+    if(!user || !(user.isInstructor(this._id) || user.isStudent(this._id)) ) return null
+
+    //Check that category exists
+    if (categoryNumber < 1 || !this.groupCategories
+       || this.groupCategories.length < categoryNumber) return null
+
+    const category = this.groupCategories[categoryNumber-1]
+
+    //Check that video is enabled and that there exists groups
+    if ( !category.categoryVideoChat
+       || !category.categoryVideoId
+       || !category.groups
+       ) return null
+
+    const groups = category.groups
+    //Find the group
+    let group = {}
+    if(user.isInstructor(this._id) ){
+      group = _(groups).find( (g) =>{return g.groupNumber == groupNumber} )
+      if (!group) return null
+    } else {
+      group = _(groups).find( (g) =>{return g.students.includes(userId)} )
+      if (!group) return null
+      groupNumber = group.groupNumber
+    }
+    //Build the connection information
+    const userInfo = {
+        email: user.getEmail(),
+        displayName: user.getName()
+    }
+    const roomName = this._id+'Qlicker'+this.videoChatId+'cat-'+category.categoryName+category.categoryVideoId+'grp-'+group.groupName
+    const domain = 'meet.jit.si'
+
+    let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
+    let configOverwrite = default_Jitsi_configOverwrite
+
+    //Configure the conference based on number of participants
+    //If more than 6, no video when starting
+    // Students cannot know how many students are in a group, it's not published...
+    configOverwrite.startWithVideoMuted = (group.students.length > 6)
+    const apiOptions = {
+      tileView : true,
+      startAudioMuted: true,
+    }
+    configOverwrite.startWithVideoMuted = true
+
+
+    let options = {
+      roomName: roomName,
+      userInfo: userInfo,
+      interfaceConfigOverwrite: interfaceConfigOverwrite,
+      configOverwrite: configOverwrite
+    }
+
+    const connectionInfo = {options:options, domain:domain, apiOptions:apiOptions}
+    return connectionInfo
   }
+
 })
 
 // Create course collection
@@ -91,6 +219,7 @@ if (Meteor.isServer) {
                   categoryNumber: cat.categoryNumber,
                   categoryName: cat.categoryName,
                   categoryVideoChat: cat.categoryVideoChat,
+                  categoryVideoId: cat.categoryVideoId,
                   groups: [{
                     groupName: g.groupName,
                     groupNumber: g.groupNumber,
@@ -121,6 +250,7 @@ if (Meteor.isServer) {
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
                       categoryVideoChat: cat.categoryVideoChat,
+                      categoryVideoId: cat.categoryVideoId,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -148,6 +278,7 @@ if (Meteor.isServer) {
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
                       categoryVideoChat: cat.categoryVideoChat,
+                      categoryVideoId: cat.categoryVideoId,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -205,6 +336,7 @@ if (Meteor.isServer) {
                     categoryNumber: cat.categoryNumber,
                     categoryName: cat.categoryName,
                     categoryVideoChat: cat.categoryVideoChat,
+                    categoryVideoId: cat.categoryVideoId,
                     groups: [{
                       groupName: g.groupName,
                       groupNumber: g.groupNumber,
@@ -241,6 +373,7 @@ if (Meteor.isServer) {
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
                       categoryVideoChat: cat.categoryVideoChat,
+                      categoryVideoId: cat.categoryVideoId,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -267,6 +400,7 @@ if (Meteor.isServer) {
                       categoryNumber: cat.categoryNumber,
                       categoryName: cat.categoryName,
                       categoryVideoChat: cat.categoryVideoChat,
+                      categoryVideoId: cat.categoryVideoId,
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
@@ -908,6 +1042,11 @@ Meteor.methods({
     }
     let categories = course.groupCategories
     let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+
+    //Generate a new video id each time this is enabled:
+    if(!category.categoryVideoChat){
+      category.categoryVideoId = Helpers.RandomVideoId()
+    }
     category.categoryVideoChat = !category.categoryVideoChat
     Courses.update({ _id: courseId }, {
       $set: {
@@ -925,10 +1064,13 @@ Meteor.methods({
       throw new Meteor.Error('Category does not exist!')
     }
     let chatEnabled = course.videoChatEnabled
+    //Generate new random id for course chat if toggled
+    let videoChatId = chatEnabled ? course.videoChatId : Helpers.RandomVideoId()
 
     Courses.update({ _id: courseId }, {
       $set: {
-        videoChatEnabled: !chatEnabled
+        videoChatEnabled: !chatEnabled,
+        videoChatId: videoChatId
       }
     })
 
