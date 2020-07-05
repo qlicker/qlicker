@@ -92,7 +92,7 @@ _.extend(Course.prototype, {
 
     const userInfo = {
         email: user.getEmail(),
-        displayName: user.getName()
+        displayName: user.getNameFL()
     }
 
     const roomName = this._id+'Qlicker'+this.videoChatId+'all'
@@ -101,9 +101,7 @@ _.extend(Course.prototype, {
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
 
-    //Configure the conference based on number of participants
-    //If more than 6, no video when starting
-    //configOverwrite.startWithVideoMuted = (this.students.length > 6)
+    //Configure the conferenc
     const apiOptions = {
       tileView : false,
       startAudioMuted: true,
@@ -154,18 +152,15 @@ _.extend(Course.prototype, {
     //Build the connection information
     const userInfo = {
         email: user.getEmail(),
-        displayName: user.getName()
+        displayName: user.getNameFL()
     }
     const roomName = this._id+'Qlicker'+this.videoChatId+'cat-'+category.categoryName+category.categoryVideoId+'grp-'+group.groupName
     const domain = 'meet.jit.si'
 
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
-
     //Configure the conference based on number of participants
-    //If more than 6, no video when starting
     // Students cannot know how many students are in a group, it's not published...
-    configOverwrite.startWithVideoMuted = (group.students.length > 6)
     const apiOptions = {
       tileView : true,
       startAudioMuted: true,
