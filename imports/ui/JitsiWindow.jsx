@@ -38,15 +38,24 @@ export class JitsiWindow extends Component {
       //Close the window on hangup
       api.addListener('videoConferenceLeft', closeWindow)
 
+      //Use Qlicker avatar:
+      //api.executeCommand('avatarUrl', Meteor.User().getThumbnailUrl())
       //Mute audio on join
       if (apiOptions.startAudioMuted){
         api.isAudioMuted().then(muted => {
           if(!muted) api.executeCommand('toggleAudio');
         });
       }
-      //tile view toggle is set as a cookie, so need to check each time...
+      if (apiOptions.startVideoMuted){
+        //redundant with the option set in configOverwrite:
+        api.isVideoMuted().then(muted => {
+          if(!muted) api.executeCommand('toggleVideo');
+        });
+      }
+
+      //tile view toggle is set as a cookie, so need to check each time, for both true and false...
       //https://github.com/jitsi/jitsi-meet/issues/5764 - should eventually be able to do with settings
-      if (apiOptions.tileView){
+      if (apiOptions.startTileView){
         api.addListener('videoConferenceJoined', () => {
           const listener = ({ enabled }) => {
             if (!enabled) {
@@ -58,8 +67,22 @@ export class JitsiWindow extends Component {
           api.executeCommand('toggleTileView'); //triggers the listener, which will toggle back to tileView if appropriate!
         });
       }
-    }
-    if(this.props.setApi) this.props.setApi(api)// pass the api object to whoever created the component
+      if (apiOptions.startTileView == false){ //set
+        api.addListener('videoConferenceJoined', () => {
+          const listener = ({ enabled }) => {
+            if (enabled) {
+              api.executeCommand('toggleTileView');
+            }
+            api.removeListener('tileViewChanged', listener); //remove so this only gets called once!
+          };
+          api.addEventListener('tileViewChanged', listener);
+          api.executeCommand('toggleTileView'); //triggers the listener, which will toggle back to tileView if appropriate!
+        });
+      }
+
+    }//end if api
+
+    if(this.props.setApi) this.props.setApi(api)// pass the api object to whoever created the component (if desired)
   }
 
   render () {

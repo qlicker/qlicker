@@ -48,7 +48,7 @@ export class _VideoChat extends Component {
   }
 
   toggleCategoryVideoChat (courseId, enabled, categoryNumber) {
-    let question = (enabled ? 'Disable ' :'Enable ')+'video chat for group?'
+    let question = (enabled ? 'Disable ' :'Enable ')+'video chat for group category?'
     let success = 'Video chat '+(enabled ? 'disabled' :'enabled')
     if (confirm(question)) {
       Meteor.call('courses.toggleCategoryVideoChat', courseId, categoryNumber, (err) => {
@@ -64,14 +64,15 @@ export class _VideoChat extends Component {
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
-
+    //The course wide video chat:
+    const courseVideoChatEnabled = !!this.props.course.videoChatOptions
+    //The link that opens the whole course video chat
     const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
 
     const groupCategories = this.props.course.groupCategories
+    const categoriesWithChatEnabled = _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
 
-    const categoriesWithChatEnabled = _(groupCategories).where({categoryVideoChat:true}) //TODO select only with those enabled, and those selected in drop down
-    const courseVideoChatEnabled = this.props.course.videoChatEnabled
-    const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, this.props.course.videoChatEnabled)
+    const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, courseVideoChatEnabled)
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick}) => {
       if (name){
@@ -82,7 +83,7 @@ export class _VideoChat extends Component {
               {name}
             </div>
             <div className='ql-group-list-item-controls'>
-              <div className={'btn '+extraClass} onClick={onClick}>
+              <div className={'btn '+extraClass} onClick={toggleCourseVideoChat}>
                 {courseVideoChatEnabled ? 'Disable' : 'Enable' }
               </div>
             </div>
@@ -90,7 +91,7 @@ export class _VideoChat extends Component {
         )
       }
       if (category) {
-        let extraClass = category.categoryVideoChat ? 'active' : ''
+        let extraClass = category.catVideoChatOptions ? 'active' : ''
         return(
           <li>
             <div className='ql-group-list-item-name'>
@@ -98,7 +99,7 @@ export class _VideoChat extends Component {
             </div>
             <div className='ql-group-list-item-controls'>
               <div className={'btn '+extraClass} onClick={onClick}>
-                {category.categoryVideoChat ? 'Disable' : 'Enable' }
+                {category.catVideoChatOptions ? 'Disable' : 'Enable' }
               </div>
             </div>
           </li>
@@ -119,7 +120,7 @@ export class _VideoChat extends Component {
                   <ul>
                     <VideoSessionControl name={'Course-wide video chat'} onClick={toggleCourseVideoChat} />
                     { groupCategories.map(cat => {
-                        const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, cat.categoryVideoChat, cat.categoryNumber)
+                        const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, !!cat.catVideoChatOptions, cat.categoryNumber)
                         return(
                           <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} key={'vc'+cat.categoryNumber+cat.categoryName} />
                         )
@@ -157,7 +158,7 @@ export class _VideoChat extends Component {
                   <div key={'vcc'+cat.categoryNumber+cat.categoryName} >
                     <div className='ql-video-catname'> {cat.categoryName} </div>
                       { cat.groups.map(group => {
-
+                          //this link is parsed in routes.jsx to ultimately create a route for JitsiWindow
                           const link = '/course/'+this.props.courseId+'/categoryvideochatwindow/'+cat.categoryNumber+'/'+group.groupNumber
                           const categoryChatWindow = () => { window.open(link, 'Video chat with '+group.groupName, 'height=768,width=1024')}
 
@@ -184,7 +185,7 @@ export class _VideoChat extends Component {
 export const VideoChat = withTracker((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId)
   const course = Courses.findOne(props.courseId)
-
+  console.log(course)
   return {
     course: course,
     loading: !handle.ready()
