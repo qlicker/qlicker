@@ -44,6 +44,9 @@ const pattern = {
   SSO_roleIdentifier: Match.Maybe(String),
   SSO_studentNumberIdentifier: Match.Maybe(String),
   SSO_roleProfName: Match.Maybe(String), // name of the role in the SSO system that corresponds to a professor role
+  Jitsi_Enabled: Match.Maybe(Boolean),
+  Jitsi_Domain: Match.Maybe(String),
+  Jitsi_EnabledCourses: Match.Maybe([Helpers.NEString])
 }
 
 // Create course class
@@ -125,7 +128,7 @@ Meteor.methods({
     return Settings.update(id, {'$set':{email:email}} )
   },
 
-  'settings.toggleRequireVerified' (id, email) {
+  'settings.toggleRequireVerified' (id) {
     check(id,Helpers.NEString)
     let user = Meteor.users.findOne({_id: this.userId})
     if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
@@ -190,6 +193,22 @@ Meteor.methods({
       return approved
     }
     return true
-  }
+  },
+
+  'settings.toggleEnableJitsi' (id) {
+    check(id,Helpers.NEString)
+    let user = Meteor.users.findOne({_id: this.userId})
+    if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
+    const settings = Settings.findOne({ _id:id })
+    return Settings.update(id, {'$set':{Jitsi_Enabled:!settings.Jitsi_Enabled}} )
+  },
+
+  'settings.setJitsiDomain' (id, domain) {
+    check(domain,Helpers.JitsiDomain)
+    check(id,Helpers.NEString)
+    let user = Meteor.users.findOne({_id: this.userId})
+    if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
+    return Settings.update(id, {'$set':{Jitsi_Domain:domain}} )
+  },
 
 }) // end Meteor.methods

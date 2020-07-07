@@ -185,7 +185,7 @@ export class _VideoChat extends Component {
 export const VideoChat = withTracker((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId)
   const course = Courses.findOne(props.courseId)
-  console.log(course)
+
   return {
     course: course,
     loading: !handle.ready()

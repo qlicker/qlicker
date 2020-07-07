@@ -79,7 +79,6 @@ export class JitsiWindow extends Component {
           api.executeCommand('toggleTileView'); //triggers the listener, which will toggle back to tileView if appropriate!
         });
       }
-
     }//end if api
 
     if(this.props.setApi) this.props.setApi(api)// pass the api object to whoever created the component (if desired)

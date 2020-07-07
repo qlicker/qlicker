@@ -37,6 +37,11 @@ const Helpers = {
     check(x, String)
     return x.length <= 254 && /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(x)
   }),
+  JitsiDomain: Match.Where(function (x) {
+    check(x, String)
+    //TODO Actually check if the string is a correct domain (without https)
+    return x.length <= 254 /*&& /^[A-Z0-9._%+-]+\.[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(x)*/
+  }),
   QuestionType: Match.Where(function (n) {
     check(n, Number)
     return _(QUESTION_TYPE).chain().values().contains(n) || n === -1

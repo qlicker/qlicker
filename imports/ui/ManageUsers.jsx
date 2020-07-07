@@ -34,7 +34,9 @@ export class ManageUsers extends Component {
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleCanPromote = this.toggleCanPromote.bind(this)
     this.saveEmail = this.saveEmail.bind(this)
+    this.saveJitsiDomain = this.saveJitsiDomain.bind(this)
     this.toggleRequireVerified = this.toggleRequireVerified.bind(this)
+    this.toggleEnableJitsi = this.toggleEnableJitsi.bind(this)
     this.setFilterUserSearchString = this.setFilterUserSearchString.bind(this)
     // see https://github.com/facebook/react/issues/1360
     this.setFilterUserSearchString = _.debounce(this.setFilterUserSearchString,400)
@@ -102,7 +104,7 @@ export class ManageUsers extends Component {
     })
   }
 
-   saveEmail () {
+  saveEmail () {
      Meteor.call('settings.setAdminEmail',this.props.settings._id, this.state.supportEmail, (e, d) => {
        if (e){
          alertify.error(e)
@@ -112,7 +114,19 @@ export class ManageUsers extends Component {
          alertify.error('Server restart required!')
        }
      })
-   }
+  }
+
+  saveJitsiDomain () {
+     Meteor.call('settings.setJitsiDomain',this.props.settings._id, this.state.jitsiDomain, (e, d) => {
+       if (e){
+         alertify.error(e)
+         this.setState({ jitsiDomain: this.props.settings.Jitsi_Domain })
+       }
+       else{
+         alertify.error('Server restart required!')
+       }
+     })
+  }
 
   toggleRequireVerified () {
     Meteor.call('settings.toggleRequireVerified',this.props.settings._id, (e, d) => {
@@ -126,6 +140,18 @@ export class ManageUsers extends Component {
     })
   }
 
+  toggleEnableJitsi () {
+    Meteor.call('settings.toggleEnableJitsi',this.props.settings._id, (e, d) => {
+      if (e){
+        alertify.error(e)
+      }
+      else{
+        alertify.success('updated!')
+      }
+      this.setState({ Jitsi_Enabled: this.props.settings.Jitsi_Enabled })
+    })
+  }
+
   setFilterUserSearchString (val) {
     this.setState( {filterUserSearchString:val} )
   }
@@ -134,6 +160,7 @@ export class ManageUsers extends Component {
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
+    const setJitsiDomain  = (e) => { this.setState({ jitsiDomain: e.target.value }) }
     const setSearchCourses = (val) => { this.setState({ searchCourses: val }) }
     const setSearchUser = (e) => {
       this.setState({ searchUser: e.target.value })// need this to update the input box
@@ -160,7 +187,7 @@ export class ManageUsers extends Component {
         return (_.intersection( _(this.state.searchRoles).pluck('value'), user.profile.roles)).length > 0
       }.bind(this))
     }
-
+    console.log(this.props.settings)
     return(
       <div className='container'>
         <div className='row'>
@@ -174,10 +201,25 @@ export class ManageUsers extends Component {
         <input type='checkbox' checked={this.props.settings.requireVerifie} onChange={this.toggleRequireVerified} />
         <br />
 
+        <h4>Enable Jitsi?</h4>
+        <input type='checkbox' checked={!!this.props.settings.Jitsi_Enabled} onChange={this.toggleEnableJitsi} />
+        <br />
+        { this.props.settings.Jitsi_Enabled
+          ? <div>
+              <input className='form-control' value={this.state.jitsiDomain} type='text' onChange={setJitsiDomain} placeholder='Jitsi Domain, e.g. meet.jit.si' />
+              <button className='btn btn-primary' onClick={() => {this.saveJitsiDomain()}} > Save Domain </button>
+              <br />
+            </div>
+          : ''
+        }
+
+
         <RestrictDomainForm
           done={() => { return true }}
           settings={this.props.settings}
         />
+
+
         <br />
       </div>
       <div className='col-md-6'>
