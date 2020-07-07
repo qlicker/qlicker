@@ -25,9 +25,7 @@ export class _VideoChat extends Component {
     super(props)
 
     this.state = {
-
     }
-
 
     this.toggleCourseVideoChat = this.toggleCourseVideoChat.bind(this)
     this.toggleCategoryVideoChat = this.toggleCategoryVideoChat.bind(this)
@@ -62,17 +60,19 @@ export class _VideoChat extends Component {
   }
 
   render () {
-    if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    console.log("entering render")
+    if (this.props.loading || !this.props.course) return <div className='ql-subs-loading'>Loading</div>
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
     //The course wide video chat:
     const courseVideoChatEnabled = !!this.props.course.videoChatOptions
     //The link that opens the whole course video chat
     const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
-
+console.log("getting categories")
     const groupCategories = this.props.course.groupCategories
-    const categoriesWithChatEnabled = _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
+    const categoriesWithChatEnabled = this.props.course.groupCategories ? _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} ) : []
 
     const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, courseVideoChatEnabled)
+    console.log(this.props.course)
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick}) => {
       if (name){
