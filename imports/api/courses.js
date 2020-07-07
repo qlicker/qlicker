@@ -70,6 +70,7 @@ const default_Jitsi_interfaceConfigOverwrite = {
   filmStripOnly: false,
   HIDE_INVITE_MORE_HEADER: true,
   SHOW_JITSI_WATERMARK: false,
+  SHOW_WATERMARK_FOR_GUESTS: false,
   DEFAULT_REMOTE_DISPLAY_NAME: 'Classmate',
   TOOLBAR_BUTTONS: [
     'microphone', 'camera', 'desktop', 'fullscreen',
