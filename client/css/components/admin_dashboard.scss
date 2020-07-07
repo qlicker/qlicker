@@ -9,7 +9,30 @@
 .ql-admin-settings {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+.ql-admin-tab {
+
+  padding-left: 10px;
+  .ql-admin-tab-col {
+    min-width: 400px;
+  }
+  .btn{
+    margin: 5px;
+  }
+
+  .ql-card-content > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .ql-card-content  .Select-input {
+    min-width: 200px;
+  }
+
 }
 
 .ql-admin-toolbar {

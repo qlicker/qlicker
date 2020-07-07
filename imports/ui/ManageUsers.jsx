@@ -34,9 +34,7 @@ export class ManageUsers extends Component {
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleCanPromote = this.toggleCanPromote.bind(this)
     this.saveEmail = this.saveEmail.bind(this)
-    this.saveJitsiDomain = this.saveJitsiDomain.bind(this)
     this.toggleRequireVerified = this.toggleRequireVerified.bind(this)
-    this.toggleEnableJitsi = this.toggleEnableJitsi.bind(this)
     this.setFilterUserSearchString = this.setFilterUserSearchString.bind(this)
     // see https://github.com/facebook/react/issues/1360
     this.setFilterUserSearchString = _.debounce(this.setFilterUserSearchString,400)
@@ -116,18 +114,6 @@ export class ManageUsers extends Component {
      })
   }
 
-  saveJitsiDomain () {
-     Meteor.call('settings.setJitsiDomain',this.props.settings._id, this.state.jitsiDomain, (e, d) => {
-       if (e){
-         alertify.error(e)
-         this.setState({ jitsiDomain: this.props.settings.Jitsi_Domain })
-       }
-       else{
-         alertify.error('Saved - may need server restart')
-       }
-     })
-  }
-
   toggleRequireVerified () {
     Meteor.call('settings.toggleRequireVerified',this.props.settings._id, (e, d) => {
       if (e){
@@ -137,18 +123,6 @@ export class ManageUsers extends Component {
         alertify.success('updated!')
       }
       this.setState({ requireVerified: this.props.settings.requireVerified })
-    })
-  }
-
-  toggleEnableJitsi () {
-    Meteor.call('settings.toggleEnableJitsi',this.props.settings._id, (e, d) => {
-      if (e){
-        alertify.error(e)
-      }
-      else{
-        alertify.success('updated!')
-      }
-      this.setState({ Jitsi_Enabled: this.props.settings.Jitsi_Enabled })
     })
   }
 
@@ -200,19 +174,6 @@ export class ManageUsers extends Component {
         <h4>Require verified email to login</h4>
         <input type='checkbox' checked={this.props.settings.requireVerifie} onChange={this.toggleRequireVerified} />
         <br />
-
-        <h4>Enable Jitsi?</h4>
-        <input type='checkbox' checked={!!this.props.settings.Jitsi_Enabled} onChange={this.toggleEnableJitsi} />
-        <br />
-        { this.props.settings.Jitsi_Enabled
-          ? <div>
-              <input className='form-control' value={this.state.jitsiDomain} type='text' onChange={setJitsiDomain} placeholder='Jitsi Domain, e.g. meet.jit.si' />
-              <button className='btn btn-primary' onClick={() => {this.saveJitsiDomain()}} > Save Domain </button>
-              <br />
-            </div>
-          : ''
-        }
-
 
         <RestrictDomainForm
           done={() => { return true }}

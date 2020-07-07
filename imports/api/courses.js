@@ -70,6 +70,7 @@ const default_Jitsi_interfaceConfigOverwrite = {
   filmStripOnly: false,
   HIDE_INVITE_MORE_HEADER: true,
   SHOW_JITSI_WATERMARK: false,
+  DEFAULT_REMOTE_DISPLAY_NAME: 'Classmate',
   TOOLBAR_BUTTONS: [
     'microphone', 'camera', 'desktop', 'fullscreen',
     'fodeviceselection', 'hangup', 'chat',
@@ -120,6 +121,7 @@ _.extend(Course.prototype, {
       startTileView : false,
       startAudioMuted: true,
       startVideoMuted : true,
+      subjectTitle: 'Course chat'
     }
     configOverwrite.startWithVideoMuted = true
 
@@ -178,6 +180,7 @@ _.extend(Course.prototype, {
       startTileView : true,
       startAudioMuted: true,
       startVideoMuted : false,
+      subjectTitle: category.categoryName+': '+group.groupName
     }
     configOverwrite.startWithVideoMuted = false
 

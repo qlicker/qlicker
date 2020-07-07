@@ -176,11 +176,6 @@ Meteor.methods({
     if (settings) return settings.SSO_institutionName
   },
 
-  'settings.getJitsiDomain' () {
-    const settings = Settings.findOne()
-    if (settings) return settings.Jitsi_Domain
-  },
-
    'settings.getSSOEnabled' () {
     const settings = Settings.findOne()
     if (settings) return settings.SSO_enabled
@@ -214,6 +209,29 @@ Meteor.methods({
     let user = Meteor.users.findOne({_id: this.userId})
     if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
     return Settings.update(id, {'$set':{Jitsi_Domain:domain}} )
+  },
+
+  'settings.setJitsiEnabledCourses' (id, enabledCourses) {
+    check(enabledCourses,[Helpers.NEString])
+    check(id,Helpers.NEString)
+    let user = Meteor.users.findOne({_id: this.userId})
+    if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
+    return Settings.update(id, {'$set':{Jitsi_EnabledCourses:enabledCourses}} )
+  },
+
+  'settings.getJitsiDomain' () {
+    if (Meteor.isServer){
+      const settings = Settings.findOne()
+      if (settings) return settings.Jitsi_Domain
+    } else return ''
+  },
+
+  'settings.courseHasJitsiEnabled' (cid) {
+    check(cid,Helpers.NEString)
+    if (Meteor.isServer){
+      const settings = Settings.findOne()
+      return settings && _(settings.Jitsi_EnabledCourses).contains(cid)
+    } else return false
   },
 
 }) // end Meteor.methods
