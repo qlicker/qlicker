@@ -60,19 +60,18 @@ export class _VideoChat extends Component {
   }
 
   render () {
-    console.log("entering render")
     if (this.props.loading || !this.props.course) return <div className='ql-subs-loading'>Loading</div>
+
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
     //The course wide video chat:
     const courseVideoChatEnabled = !!this.props.course.videoChatOptions
     //The link that opens the whole course video chat
     const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
-console.log("getting categories")
-    const groupCategories = this.props.course.groupCategories
-    const categoriesWithChatEnabled = this.props.course.groupCategories ? _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} ) : []
+    const groupCategories = this.props.course.groupCategories ? this.props.course.groupCategories : []
+    const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} ) 
 
     const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, courseVideoChatEnabled)
-    console.log(this.props.course)
+
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick}) => {
       if (name){
@@ -119,12 +118,14 @@ console.log("getting categories")
                 <div className='ql-card-content'>
                   <ul>
                     <VideoSessionControl name={'Course-wide video chat'} onClick={toggleCourseVideoChat} />
-                    { groupCategories.map(cat => {
+                    { groupCategories.length > 0
+                      ? groupCategories.map(cat => {
                         const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, !!cat.catVideoChatOptions, cat.categoryNumber)
                         return(
                           <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} key={'vc'+cat.categoryNumber+cat.categoryName} />
                         )
                       })
+                      : <div> Create groups in main course page! </div>
                     }
                   </ul>
                 </div>
