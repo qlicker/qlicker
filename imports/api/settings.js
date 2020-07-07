@@ -176,6 +176,11 @@ Meteor.methods({
     if (settings) return settings.SSO_institutionName
   },
 
+  'settings.getJitsiDomain' () {
+    const settings = Settings.findOne()
+    if (settings) return settings.Jitsi_Domain
+  },
+
    'settings.getSSOEnabled' () {
     const settings = Settings.findOne()
     if (settings) return settings.SSO_enabled

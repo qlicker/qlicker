@@ -123,7 +123,7 @@ export class ManageUsers extends Component {
          this.setState({ jitsiDomain: this.props.settings.Jitsi_Domain })
        }
        else{
-         alertify.error('Server restart required!')
+         alertify.error('Saved - may need server restart')
        }
      })
   }
