@@ -105,7 +105,7 @@ _.extend(Course.prototype, {
     if (!this.videoChatOptions) return null
 
     const userInfo = {
-        email: user.getEmail(),
+        //email: user.getEmail(),
         displayName: user.getNameFL()
     }
 
@@ -164,7 +164,7 @@ _.extend(Course.prototype, {
     }
     //Build the connection information
     const userInfo = {
-        email: user.getEmail(),
+        //email: user.getEmail(),
         displayName: user.getNameFL() //First Last - so that Jitsi makes the correct initials
     }
     const roomName = 'Ql_C_'+this._id+this.videoChatOptions.urlId+'cat_'+category.categoryName+category.catVideoChatOptions.urlId+'grp_'+group.groupName
