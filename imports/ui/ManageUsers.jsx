@@ -187,7 +187,7 @@ export class ManageUsers extends Component {
         return (_.intersection( _(this.state.searchRoles).pluck('value'), user.profile.roles)).length > 0
       }.bind(this))
     }
-    console.log(this.props.settings)
+
     return(
       <div className='container'>
         <div className='row'>
