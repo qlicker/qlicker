@@ -16,8 +16,8 @@
     "test:all": "npm run test:unit-watch && npm run test:app-watch"
   },
   "dependencies": {
-    "@babel/runtime": "^7.9.6",
-    "aws-sdk": "^2.683.0",
+    "@babel/runtime": "^7.10.4",
+    "aws-sdk": "^2.711.0",
     "azure-storage": "^2.10.3",
     "babel-eslint": "^7.1.1",
     "bcrypt": "^4.0.1",
@@ -29,7 +29,7 @@
     "jquery": "^3.4.1",
     "jshint": "^2.11.1",
     "meteor-node-stubs": "~0.2.0",
-    "moment": "^2.26.0",
+    "moment": "^2.27.0",
     "moment-timezone": "^0.5.31",
     "passport-saml": "^0.33.0",
     "prop-types": "^15.7.2",
@@ -58,7 +58,7 @@
   "devDependencies": {
     "codecov": ">=3.6.5",
     "enzyme": "^2.7.0",
-    "eslint": ">=4.18.2",
+    "eslint": "^7.4.0",
     "ignore-styles": "^5.0.1"
   },
   "standard": {
