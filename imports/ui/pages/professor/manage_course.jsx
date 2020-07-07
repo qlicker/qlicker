@@ -449,7 +449,6 @@ class _ManageCourse extends Component {
               </div>
               : <div><h3> No quizzes to display</h3> </div>
             }
-
           </div>
         </div>
 

@@ -15,6 +15,8 @@ import { ProfileViewModal } from '../../modals/ProfileViewModal'
 import { ManageUsers } from '../../ManageUsers'
 import { ManageImages } from '../../ManageImages'
 import { ManageSSO } from '../../ManageSSO'
+import { ManageJitsi } from '../../ManageJitsi'
+
 
 class _AdminDashboard extends Component {
 
@@ -50,6 +52,8 @@ class _AdminDashboard extends Component {
                 <span className='button' onClick={() => setTab('server')}>Images</span>
                 <span className='divider'>&nbsp;</span>
                 <span className='button' onClick={() => setTab('sso')}>Single Sign On</span>
+                <span className='divider'>&nbsp;</span>
+                <span className='button' onClick={() => setTab('jitsi')}>Video chat</span>
               </span>
         }
 
@@ -68,7 +72,12 @@ class _AdminDashboard extends Component {
             : ''
           }
           { this.state.tab === 'sso'
-           ?  <ManageSSO settings={this.props.settings}/>
+           ?  <ManageSSO settings={this.props.settings} />
+           : ''
+          }
+          { this.state.tab === 'jitsi' /*Emulate this one when updating admin interface!!! */
+           ?  <ManageJitsi settings={this.props.settings}
+                          courseNames={this.props.courseNames} />
            : ''
           }
         </div>

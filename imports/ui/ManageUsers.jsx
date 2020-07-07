@@ -102,7 +102,7 @@ export class ManageUsers extends Component {
     })
   }
 
-   saveEmail () {
+  saveEmail () {
      Meteor.call('settings.setAdminEmail',this.props.settings._id, this.state.supportEmail, (e, d) => {
        if (e){
          alertify.error(e)
@@ -112,7 +112,7 @@ export class ManageUsers extends Component {
          alertify.error('Server restart required!')
        }
      })
-   }
+  }
 
   toggleRequireVerified () {
     Meteor.call('settings.toggleRequireVerified',this.props.settings._id, (e, d) => {
@@ -134,6 +134,7 @@ export class ManageUsers extends Component {
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
     const setSupportEmail = (e) => { this.setState({ supportEmail: e.target.value }) }
+    const setJitsiDomain  = (e) => { this.setState({ jitsiDomain: e.target.value }) }
     const setSearchCourses = (val) => { this.setState({ searchCourses: val }) }
     const setSearchUser = (e) => {
       this.setState({ searchUser: e.target.value })// need this to update the input box
@@ -178,6 +179,8 @@ export class ManageUsers extends Component {
           done={() => { return true }}
           settings={this.props.settings}
         />
+
+
         <br />
       </div>
       <div className='col-md-6'>

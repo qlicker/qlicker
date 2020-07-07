@@ -1,0 +1,51 @@
+@import '../variables.scss';
+
+.ql-video-page {
+  display: flex;
+  flex-flow: row wrap;
+  font-size: large;
+  //justify-content: center;
+
+  .ql-card {
+    margin: 15px;
+  }
+
+  .ql-video-catname {
+    padding: 5px;
+  }
+
+  .ql-video-page-controls {
+    min-width: 350px;
+    max-width: 400px;
+  }
+
+  .ql-video-page-rooms {
+    min-width: 350px;
+    max-width: 900px;
+  }
+
+  .btn {
+    min-width: 100px;
+  }
+
+  ul {
+    list-style-type: none;
+
+    li {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      div.ql-group-list-item-name {
+        width: 200px;
+      }
+      div.ql-group-list-item-controls {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+      }
+    }
+  }
+
+
+}

@@ -37,6 +37,11 @@ const Helpers = {
     check(x, String)
     return x.length <= 254 && /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(x)
   }),
+  JitsiDomain: Match.Where(function (x) {
+    check(x, String)
+    //TODO Actually check if the string is a correct domain (without https)
+    return x.length <= 254 /*&& /^[A-Z0-9._%+-]+\.[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(x)*/
+  }),
   QuestionType: Match.Where(function (n) {
     check(n, Number)
     return _(QUESTION_TYPE).chain().values().contains(n) || n === -1
@@ -51,6 +56,11 @@ const Helpers = {
   RandomEnrollmentCode: function () {
     // TODO someone do some math on how often this will collide and wether or not we should do something about that
     return Array(6).join().split(',').map(function () { return Helpers.chars.charAt(Math.floor(Math.random() * Helpers.chars.length)) }).join('')
+  },
+
+  RandomVideoId: function () {
+    // TODO someone do some math on how often this will collide and wether or not we should do something about that
+    return Array(18).join().split(',').map(function () { return Helpers.chars.charAt(Math.floor(Math.random() * Helpers.chars.length)) }).join('')
   }
 
 }

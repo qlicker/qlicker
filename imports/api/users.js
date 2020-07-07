@@ -30,6 +30,9 @@ _.extend(User.prototype, {
   getName: function () {
     return this.profile.lastname + ', ' + this.profile.firstname
   },
+  getNameFL: function () {
+    return this.profile.firstname+ ' ' + this.profile.lastname 
+  },
   getEmail: function () {
     return this.emails[0].address
   },

@@ -23,7 +23,8 @@ class _CleanPageContainer extends Component {
       courseCode: '',
       ssoLogoutUrl: null,
       ssoInstitution: null,
-      showCourse: (this.props && this.props.courseId)
+      showCourse: (this.props && this.props.courseId),
+      showVideo: false
     }
     alertify.logPosition('bottom right')
 
@@ -45,6 +46,14 @@ class _CleanPageContainer extends Component {
   }
 
   componentWillMount () {
+    if (this.props && this.props.courseId){
+      Meteor.call('settings.courseHasJitsiEnabled', this.props.courseId, (err,result) => {
+        if(!err){
+          this.setState({showVideo:result})
+        }
+      })
+    }
+
     const token =  Meteor.user() ? Meteor._localStorage.getItem('Meteor.loginToken') : undefined
     if (token){
       Meteor.call("getSSOLogoutUrl", token, (err,result) => {
@@ -69,8 +78,19 @@ class _CleanPageContainer extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false })
-    if(nextProps.courseId) this.setCourseCode(nextProps.courseId)
+    if(nextProps.courseId && nextProps.courseId != this.state.courseId){
+      Meteor.call('settings.courseHasJitsiEnabled', nextProps.courseId, (err,result) => {
+        if(!err){
+          this.setState({showVideo:result})
+        }
+      })
+    }
+
+    this.setState({ courseId: nextProps.courseId ? nextProps.courseId : this.state.courseId, showCourse: nextProps.courseId ? true : false } )
+
+    if(nextProps.courseId){
+      this.setCourseCode(nextProps.courseId)
+    }
   }
 
   changeCourse (courseId) {
@@ -144,6 +164,12 @@ class _CleanPageContainer extends Component {
       closeSubMenus()
     }
 
+    const goVideoChat = () => {
+      Router.go('videochat', { courseId: this.state.courseId })
+      closeMobileMenu()
+      closeSubMenus()
+    }
+
     const goAllCoursesPage = () => {
       Router.go(  user.hasGreaterRole('professor') ? 'courses' : 'student'  )
       this.setState({ courseId: '', showCourse: false })
@@ -181,6 +207,10 @@ class _CleanPageContainer extends Component {
               }
               { this.state.showCourse /*&& !isAdmin*/
                 ? <li onClick={goCourseQuestions}> <a>Question library</a></li>
+                : ''
+              }
+              { this.state.showCourse && this.state.showVideo /*&& !isAdmin*/
+                ? <li onClick={goVideoChat}> <a>Video chat</a></li>
                 : ''
               }
               { isAdmin
