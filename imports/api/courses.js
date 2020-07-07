@@ -110,7 +110,6 @@ _.extend(Course.prototype, {
     }
 
     const roomName = this._id+'Qlicker'+this.videoChatOptions.urlId+'all'
-    const domain = 'meet.jit.si'
 
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
@@ -131,7 +130,7 @@ _.extend(Course.prototype, {
       interfaceConfigOverwrite: interfaceConfigOverwrite,
       configOverwrite: configOverwrite
     }
-    const connectionInfo = {options:options, domain:domain, apiOptions:apiOptions}
+    const connectionInfo = {options:options, apiOptions:apiOptions}
     return connectionInfo
   },
 
@@ -169,7 +168,6 @@ _.extend(Course.prototype, {
         displayName: user.getNameFL() //First Last - so that Jitsi makes the correct initials
     }
     const roomName = 'Ql_C_'+this._id+this.videoChatOptions.urlId+'cat_'+category.categoryName+category.catVideoChatOptions.urlId+'grp_'+group.groupName
-    const domain = 'meet.jit.si'
 
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
@@ -191,7 +189,7 @@ _.extend(Course.prototype, {
       configOverwrite: configOverwrite
     }
 
-    const connectionInfo = {options:options, domain:domain, apiOptions:apiOptions}
+    const connectionInfo = {options:options, apiOptions:apiOptions}
     return connectionInfo
   }
 

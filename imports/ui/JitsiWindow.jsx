@@ -31,6 +31,7 @@ export class JitsiWindow extends Component {
     }
 
     Meteor.call('settings.getJitsiDomain',  (err,result) => {
+      //This seemed like the best way to run the server side method to get the domain name from the settings. 
       if(!err){ //only once the domain is known, can the API be initialized...
         const domain = result
         const apiOptions = this.props.connectionInfo.apiOptions
@@ -54,7 +55,6 @@ export class JitsiWindow extends Component {
           if(apiOptions.subjectTitle){
             api.executeCommand('subject', apiOptions.subjectTitle);
           }
-
           //Use Qlicker avatar:
           //api.executeCommand('avatarUrl', Meteor.User().getThumbnailUrl())
           //Mute audio on join
