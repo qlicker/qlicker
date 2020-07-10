@@ -1,0 +1,21 @@
+
+
+
+.ql-checkbox {
+  display:flex;
+  //padding: 5px;
+
+  :hover {
+    cursor: pointer;
+  }
+
+  label {
+    padding-right: 3px;
+    padding-left: 3px;
+    font-weight: inherit;
+    font-size: 80%;
+    margin: 0px;
+  }
+
+
+}

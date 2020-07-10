@@ -15,6 +15,7 @@ import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 
 import { JitsiWindow } from './JitsiWindow'
+import { CheckBoxOption } from './CleanForm'
 
 import { ROLES } from '../configs'
 
@@ -68,9 +69,11 @@ export class _VideoChat extends Component {
     //The link that opens the whole course video chat
     const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
     const groupCategories = this.props.course.groupCategories ? this.props.course.groupCategories : []
-    const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} ) 
+    const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
 
     const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, courseVideoChatEnabled)
+
+
 
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick}) => {
@@ -82,9 +85,7 @@ export class _VideoChat extends Component {
               {name}
             </div>
             <div className='ql-group-list-item-controls'>
-              <div className={'btn '+extraClass} onClick={toggleCourseVideoChat}>
-                {courseVideoChatEnabled ? 'Disable' : 'Enable' }
-              </div>
+              <CheckBoxOption label={'Enabled'} checked={courseVideoChatEnabled} onChange={toggleCourseVideoChat} id ={'courseChatVidToggler'} />
             </div>
           </li>
         )
@@ -97,9 +98,7 @@ export class _VideoChat extends Component {
               {category.categoryName} ({category.groups.length} groups)
             </div>
             <div className='ql-group-list-item-controls'>
-              <div className={'btn '+extraClass} onClick={onClick}>
-                {category.catVideoChatOptions ? 'Disable' : 'Enable' }
-              </div>
+              <CheckBoxOption label={'Enabled'} checked={category.catVideoChatOptions} onChange={onClick} id ={'courseChatCatToggler'+category.categoryName+'N'+category.categoryNumber} />
             </div>
           </li>
         )

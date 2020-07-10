@@ -64,6 +64,7 @@ const default_Jitsi_configOverwrite = {
    disableSimulcast: false,
    enableClosePage: false,
    disableThirdPartyRequests: true,//removes recording ability, etc, but safer
+   //etherpad_base: 'https://wbo.ophir.dev/boards/'
 }
 
 const default_Jitsi_interfaceConfigOverwrite = {
@@ -72,13 +73,14 @@ const default_Jitsi_interfaceConfigOverwrite = {
   SHOW_JITSI_WATERMARK: false,
   SHOW_WATERMARK_FOR_GUESTS: false,
   DEFAULT_REMOTE_DISPLAY_NAME: 'Classmate',
+  //DEFAULT_BACKGROUND: '#ffffff', //has no effect? needed for WBO?
   TOOLBAR_BUTTONS: [
     'microphone', 'camera', 'desktop', 'fullscreen',
     'fodeviceselection', 'hangup', 'chat',
-     'etherpad', 'raisehand',
+    'etherpad', 'raisehand',
     'videoquality', 'filmstrip', 'settings',
     'tileview', 'videobackgroundblur', 'mute-everyone', 'security'
-    ]
+  ],
 }
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -1039,6 +1041,7 @@ Meteor.methods({
   // Toggle the course video chat, pass options in to configure display
   // Generates a new random urlId each time it's toggled
   'courses.toggleVideoChat' (courseId, apiOptions) {
+
     check(courseId, Helpers.MongoID)
     if (apiOptions) check(apiOptions, videoOptionsPattern.apiOptions)
     profHasCoursePermission(courseId)
