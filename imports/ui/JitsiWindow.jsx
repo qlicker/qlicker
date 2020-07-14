@@ -33,9 +33,21 @@ export class JitsiWindow extends Component {
     Meteor.call('settings.getJitsiDomain',  (err,result) => {
       //This seemed like the best way to run the server side method to get the domain name from the settings.
       if(!err){ //only once the domain is known, can the API be initialized...
-        const domain = result.domain
         const apiOptions = this.props.connectionInfo.apiOptions
         let options = this.props.connectionInfo.options
+
+
+        const domain = result.domain
+        //Check if an etherpad/whiteboard domain exists
+        
+        //In principle, can pass an options as etherpad_base, but doesn't always work
+        const etherpadDomain = apiOptions.useWhiteboard && result.whiteboard
+          ? result.whiteboard
+          : (result.etherpad ? result.etherpad : '')
+
+        if(etherpadDomain){
+          options.etherpad_base = etherpadDomain
+        }
 
         //has to be set here, only exists once mounted
         options.parentNode = document.getElementById('ql-jitsi-inner')

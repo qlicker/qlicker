@@ -17,11 +17,22 @@ import { ROLES } from '../configs'
 const videoOptionsPattern = {
   urlId: Helpers.NEString, //required to get connection Info
   joined: Match.Maybe([Helpers.NEString]),
-  apiOptions: Match.Maybe([{
+  apiOptions: Match.Maybe({
     startAudioMuted: Match.Maybe(Boolean),
     startVideoMuted: Match.Maybe(Boolean),
-    startTileView: Match.Maybe(Boolean)
-  }])
+    startTileView: Match.Maybe(Boolean),
+    useWhiteboard: Match.Maybe(Boolean),
+    subjectTitle: Match.Maybe(Helpers.NEString),
+  })
+}
+
+//Note that additional apiOptions can be added by GetConnectionInfo (like subject)
+export const default_VideoChat_apiOptions = {
+  startAudioMuted: true,
+  startVideoMuted: true,
+  startTileView: true,
+  useWhiteboard: false,
+
 }
 
 // expected collection pattern
@@ -117,15 +128,10 @@ _.extend(Course.prototype, {
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
 
-    //Configure the conference
-   //TODO: currently ignoring if apiOptions are being set by the ui
-    let apiOptions = {
-      startTileView : false,
-      startAudioMuted: true,
-      startVideoMuted : true,
-      subjectTitle: 'Course chat'
-    }
-    configOverwrite.startWithVideoMuted = true
+    //Configure the conference, using apiOptions
+    let apiOptions = this.videoChatOptions.apiOptions
+    apiOptions.subjectTitle = 'Course chat'
+    if(apiOptions.startVideoMuted) configOverwrite.startWithVideoMuted = true
 
     let options = {
       roomName: roomName,
@@ -174,16 +180,11 @@ _.extend(Course.prototype, {
 
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
-    //Configure the conference based on number of participants
 
-    //TODO: currently ignoring if apiOptions are being set by the ui
-    let apiOptions = {
-      startTileView : true,
-      startAudioMuted: true,
-      startVideoMuted : false,
-      subjectTitle: category.categoryName+': '+group.groupName
-    }
-    configOverwrite.startWithVideoMuted = false
+    //Configure the conference, using apiOptions
+    let apiOptions = category.catVideoChatOptions
+    apiOptions.subjectTitle = category.categoryName+': '+group.groupName
+    if(apiOptions.startVideoMuted) configOverwrite.startWithVideoMuted = true
 
     let options = {
       roomName: roomName,
@@ -1040,10 +1041,9 @@ Meteor.methods({
 
   // Toggle the course video chat, pass options in to configure display
   // Generates a new random urlId each time it's toggled
-  'courses.toggleVideoChat' (courseId, apiOptions) {
+  'courses.toggleVideoChat' (courseId) {
 
     check(courseId, Helpers.MongoID)
-    if (apiOptions) check(apiOptions, videoOptionsPattern.apiOptions)
     profHasCoursePermission(courseId)
 
     let course = Courses.findOne(courseId)
@@ -1062,7 +1062,7 @@ Meteor.methods({
         urlId: Helpers.RandomVideoId(), //new random ID each time it's toggled
         joined: [],
       }
-      if (apiOptions) videoChatOptions.apiOptions = apiOptions
+      videoChatOptions.apiOptions = default_VideoChat_apiOptions
       Courses.update({ _id: courseId }, {
         $set: {
           videoChatOptions: videoChatOptions,
@@ -1072,10 +1072,36 @@ Meteor.methods({
     }
   },
 
-  'courses.toggleCategoryVideoChat' (courseId, categoryNumber, apiOptions) {
+  // Set the api options for the course video chat (if this is enabled)
+  'courses.setApiOptions' (courseId, apiOptions) {
+
+    check(courseId, Helpers.MongoID)
+    check(apiOptions, videoOptionsPattern.apiOptions)
+
+    profHasCoursePermission(courseId)
+
+    let course = Courses.findOne(courseId)
+    if (!course) {
+      throw new Meteor.Error('Course does not exist!')
+    }
+
+    if (course.videoChatOptions){ //only set if they exist
+      let videoChatOptions = course.videoChatOptions
+      videoChatOptions.apiOptions = apiOptions
+      Courses.update({ _id: courseId }, {
+        $set: {
+          videoChatOptions: videoChatOptions,
+        }
+      })
+    } else { //Enable video chat
+      throw new Meteor.Error('No videooptions for which to add apiOptions!')
+    }
+  },
+
+  'courses.toggleCategoryVideoChat' (courseId, categoryNumber) {
     check(courseId, Helpers.MongoID)
     check(categoryNumber, Number)
-    if (apiOptions) check(apiOptions, videoOptionsPattern.apiOptions)
+
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
     if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
@@ -1096,7 +1122,7 @@ Meteor.methods({
         urlId: Helpers.RandomVideoId(), //new random ID each time it's toggled
         joined: [],
       }
-      if (apiOptions) videoChatOptions.apiOptions = apiOptions
+      videoChatOptions.apiOptions = default_VideoChat_apiOptions
       category.catVideoChatOptions = videoChatOptions
       Courses.update({ _id: courseId }, {
         $set: {
@@ -1104,6 +1130,34 @@ Meteor.methods({
         }
       })
 
+    }
+  },
+  // Set the api options for the course video chat (if this is enabled)
+  'courses.setCategoryApiOptions' (courseId, categoryNumber, apiOptions) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(apiOptions, videoOptionsPattern.apiOptions)
+    profHasCoursePermission(courseId)
+
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+
+    if (category.catVideoChatOptions) {
+      let catVideoChatOptions = category.catVideoChatOptions
+      catVideoChatOptions.apiOptions = apiOptions
+
+      Courses.update({ _id: courseId, 'groupCategories.categoryNumber': categoryNumber }, {
+        $set: { //selects the first element in groupCategories that matches the above query...
+          'groupCategories.$.catVideoChatOptions' : catVideoChatOptions
+        }
+      })
+
+    } else {
+      throw new Meteor.Error('No videooptions for which to add apiOptions!')
     }
   },
 

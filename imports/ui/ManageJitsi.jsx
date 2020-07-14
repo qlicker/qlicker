@@ -18,12 +18,12 @@ export class ManageJitsi extends Component {
     this.state = {
       jitsiDomain: props.settings.Jitsi_Domain ? props.settings.Jitsi_Domain : '',
       jitsiEtherpadDomain: props.settings.Jitsi_EtherpadDomain ? props.settings.Jitsi_EtherpadDomain : '',
-      jitsiWhiteBoardDomain: props.settings.Jitsi_WhiteBoardDomain ? props.settings.Jitsi_WhiteBoardDomain : '',
+      jitsiWhiteboardDomain: props.settings.Jitsi_WhiteboardDomain ? props.settings.Jitsi_WhiteboardDomain : '',
       enabledCourses: this.props.settings.Jitsi_EnabledCourses ? this.props.settings.Jitsi_EnabledCourses : []
     }
 
     this.saveJitsiDomain = this.saveJitsiDomain.bind(this)
-    this.saveWhiteBoardJitsiDomain = this.saveWhiteBoardJitsiDomain.bind(this)
+    this.saveWhiteboardJitsiDomain = this.saveWhiteboardJitsiDomain.bind(this)
     this.saveEtherpadJitsiDomain = this.saveEtherpadJitsiDomain.bind(this)
     this.toggleEnableJitsi = this.toggleEnableJitsi.bind(this)
     this.saveEnabledCourses = this.saveEnabledCourses.bind(this)
@@ -50,11 +50,11 @@ export class ManageJitsi extends Component {
      })
   }
 
-  saveWhiteBoardJitsiDomain () {
-     Meteor.call('settings.setJitsiWhiteBoardDomain',this.props.settings._id, this.state.jitsiWhiteBoardDomain, (e, d) => {
+  saveWhiteboardJitsiDomain () {
+     Meteor.call('settings.setJitsiWhiteboardDomain',this.props.settings._id, this.state.jitsiWhiteboardDomain, (e, d) => {
        if (e){
          alertify.error(e)
-         this.setState({ jitsiWhiteBoardDomain: this.props.settings.Jitsi_WhiteBoardDomain })
+         this.setState({ jitsiWhiteboardDomain: this.props.settings.Jitsi_WhiteboardDomain })
        }
        else{
          alertify.success('Saved')
@@ -98,7 +98,7 @@ export class ManageJitsi extends Component {
 
   render() {
     const setJitsiDomain  = (e) => { this.setState({ jitsiDomain: e.target.value }) }
-    const setWhiteBoardJitsiDomain  = (e) => { this.setState({ jitsiWhiteBoardDomain: e.target.value }) }
+    const setWhiteboardJitsiDomain  = (e) => { this.setState({ jitsiWhiteboardDomain: e.target.value }) }
     const setEtherpadJitsiDomain  = (e) => { this.setState({ jitsiEtherpadDomain: e.target.value }) }
 
     const saveEnabledCourses = (val) => { this.saveEnabledCourses(val) }
@@ -119,8 +119,8 @@ export class ManageJitsi extends Component {
                     <button className='btn btn-primary' onClick={() => {this.saveJitsiDomain()}} > Save </button>
                   </div>
                   <div>
-                    <input className='form-control' value={this.state.jitsiWhiteBoardDomain} type='text' onChange={setWhiteBoardJitsiDomain} placeholder='Whitebord Domain, e.g. wbo.ophir.dev' />
-                    <button className='btn btn-primary' onClick={() => {this.saveWhiteBoardJitsiDomain()}} > Save </button>
+                    <input className='form-control' value={this.state.jitsiWhiteboardDomain} type='text' onChange={setWhiteboardJitsiDomain} placeholder='Whitebord Domain, e.g. wbo.ophir.dev' />
+                    <button className='btn btn-primary' onClick={() => {this.saveWhiteboardJitsiDomain()}} > Save </button>
                   </div>
                   <div>
                     <input className='form-control' value={this.state.jitsiEtherpadDomain} type='text' onChange={setEtherpadJitsiDomain} placeholder='Etherpad Domain, e.g. etherpad.wikimedia.org' />

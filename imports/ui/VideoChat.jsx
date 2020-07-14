@@ -30,6 +30,9 @@ export class _VideoChat extends Component {
 
     this.toggleCourseVideoChat = this.toggleCourseVideoChat.bind(this)
     this.toggleCategoryVideoChat = this.toggleCategoryVideoChat.bind(this)
+  //  this.toggleCourseWhiteboard = this.toggleCourseWhiteboard.bind(this)
+    this.toggleCourseTileView = this.toggleCourseTileView.bind(this)
+    this.toggleCategoryTileView = this.toggleCategoryTileView.bind(this)
   }
 
   toggleCourseVideoChat (courseId, enabled) {
@@ -46,7 +49,43 @@ export class _VideoChat extends Component {
     }
   }
 
-  toggleCategoryVideoChat (courseId, enabled, categoryNumber) {
+  /*toggleCourseWhiteboard(courseId) {
+    let hasApiOptions = this.props.course && this.props.course.videoChatOptions && this.props.course.videoChatOptions.apiOptions
+
+    if (hasApiOptions){
+      let apiOptions = this.props.course.videoChatOptions.apiOptions
+      apiOptions.useWhiteboard = !apiOptions.useWhiteboard
+
+      Meteor.call('courses.setApiOptions', courseId, apiOptions, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Updated')
+        }
+      })
+    } else {
+      alertify.error('Error: no video options')
+    }
+  }*/
+
+  toggleCourseTileView(courseId) {
+    let hasApiOptions = this.props.course && this.props.course.videoChatOptions && this.props.course.videoChatOptions.apiOptions
+    if (hasApiOptions){
+      let apiOptions = this.props.course.videoChatOptions.apiOptions
+      apiOptions.startTileView = !apiOptions.startTileView
+      Meteor.call('courses.setApiOptions', courseId, apiOptions, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Updated')
+        }
+      })
+    } else {
+      alertify.error('Error: no video options')
+    }
+  }
+
+    toggleCategoryVideoChat (courseId, enabled, categoryNumber) {
     let question = (enabled ? 'Disable ' :'Enable ')+'video chat for group category?'
     let success = 'Video chat '+(enabled ? 'disabled' :'enabled')
     if (confirm(question)) {
@@ -60,23 +99,47 @@ export class _VideoChat extends Component {
     }
   }
 
+  toggleCategoryTileView(courseId, category) {
+    let hasApiOptions = category.catVideoChatOptions && category.catVideoChatOptions.apiOptions
+    if (hasApiOptions){
+      let apiOptions = category.catVideoChatOptions.apiOptions
+      apiOptions.startTileView = !apiOptions.startTileView
+      Meteor.call('courses.setCategoryApiOptions', courseId, category.categoryNumber, apiOptions, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Updated')
+        }
+      })
+    } else {
+      alertify.error('Error: no video options')
+    }
+  }
+
   render () {
     if (this.props.loading || !this.props.course) return <div className='ql-subs-loading'>Loading</div>
 
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
-    //The course wide video chat:
+
+    //Course-wide options abd functions
     const courseVideoChatEnabled = !!this.props.course.videoChatOptions
-    //The link that opens the whole course video chat
-    const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
-    const groupCategories = this.props.course.groupCategories ? this.props.course.groupCategories : []
-    const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
+    const courseApiOptions = courseVideoChatEnabled && this.props.course.videoChatOptions.apiOptions
+    //const courseWhiteboardEnabled = courseApiOptions && !!courseApiOptions.useWhiteboard
+    const courseTileView = courseApiOptions && !!courseApiOptions.startTileView
 
     const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, courseVideoChatEnabled)
+    //const toggleCourseWhiteboard = () => this.toggleCourseWhiteboard(this.props.course._id)
+    const toggleCourseTileView = () => this.toggleCourseTileView(this.props.course._id)
+    //The link that opens the whole course video chat
+    const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
+
+    const groupCategories = this.props.course.groupCategories ? this.props.course.groupCategories : []
+    const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
 
 
 
     //A component to display group category name and controls to enable the chat
-    const VideoSessionControl = ({name, category, onClick}) => {
+    const VideoSessionControl = ({name, category, onClick, onClick2}) => {
       if (name){
         let extraClass = courseVideoChatEnabled ? 'active' : ''
         return(
@@ -86,19 +149,34 @@ export class _VideoChat extends Component {
             </div>
             <div className='ql-group-list-item-controls'>
               <CheckBoxOption label={'Enabled'} checked={courseVideoChatEnabled} onChange={toggleCourseVideoChat} id ={'courseChatVidToggler'} />
+              { courseVideoChatEnabled
+                 ? <div>
+                     <CheckBoxOption label={'Tileview'} checked={courseTileView} onChange={toggleCourseTileView} id ={'courseChatTileToggler'} />
+                   </div>
+                 : ''
+              }
             </div>
           </li>
         )
       }
       if (category) {
         let extraClass = category.catVideoChatOptions ? 'active' : ''
+        let catChatEnabled = !!category.catVideoChatOptions
+        let chatTileEnabled = catChatEnabled && category.catVideoChatOptions.apiOptions && category.catVideoChatOptions.apiOptions.startTileView
+
         return(
           <li>
             <div className='ql-group-list-item-name'>
               {category.categoryName} ({category.groups.length} groups)
             </div>
             <div className='ql-group-list-item-controls'>
-              <CheckBoxOption label={'Enabled'} checked={category.catVideoChatOptions} onChange={onClick} id ={'courseChatCatToggler'+category.categoryName+'N'+category.categoryNumber} />
+              <CheckBoxOption label={'Enabled'} checked={catChatEnabled} onChange={onClick} id ={'courseChatCatToggler'+category.categoryName+'N'+category.categoryNumber} />
+              { catChatEnabled
+                ? <div>
+                    <CheckBoxOption label={'Tile view'} checked={chatTileEnabled} onChange={onClick2} id ={'courseChatCatTileToggler'+category.categoryName+'N'+category.categoryNumber} />
+                  </div>
+                : ''
+              }
             </div>
           </li>
         )
@@ -120,8 +198,9 @@ export class _VideoChat extends Component {
                     { groupCategories.length > 0
                       ? groupCategories.map(cat => {
                         const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, !!cat.catVideoChatOptions, cat.categoryNumber)
+                        const toggleCategoryTileView = () => this.toggleCategoryTileView(this.props.course._id, cat)
                         return(
-                          <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} key={'vc'+cat.categoryNumber+cat.categoryName} />
+                          <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} onClick2 = {toggleCategoryTileView} key={'vc'+cat.categoryNumber+cat.categoryName} o/>
                         )
                       })
                       : <div> Create groups in main course page! </div>
