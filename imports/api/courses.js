@@ -16,7 +16,7 @@ import { ROLES } from '../configs'
 //video options pattern (should eventually be moved...)
 const videoOptionsPattern = {
   urlId: Helpers.NEString, //required to get connection Info
-  joined: Match.Maybe([Helpers.NEString]),
+  joined: Match.Maybe([Helpers.MongoID]),
   apiOptions: Match.Maybe({
     startAudioMuted: Match.Maybe(Boolean),
     startVideoMuted: Match.Maybe(Boolean),
@@ -32,7 +32,6 @@ export const default_VideoChat_apiOptions = {
   startVideoMuted: true,
   startTileView: true,
   useWhiteboard: false,
-
 }
 
 // expected collection pattern
@@ -63,7 +62,8 @@ const coursePattern = {
     groups: Match.Maybe([{
       groupNumber: Match.Maybe(Helpers.Number),
       groupName: Match.Maybe(Helpers.NEString),
-      students: Match.Maybe([Helpers.MongoID])
+      students: Match.Maybe([Helpers.MongoID]),
+      joinedVideoChat: Match.Maybe([Helpers.MongoID]),//not hidden, so pointless to hide students...
     }])
   }])
 }
@@ -139,7 +139,7 @@ _.extend(Course.prototype, {
       interfaceConfigOverwrite: interfaceConfigOverwrite,
       configOverwrite: configOverwrite
     }
-    const connectionInfo = {options:options, apiOptions:apiOptions}
+    const connectionInfo = {options:options, apiOptions:apiOptions, courseId:this._id}
     return connectionInfo
   },
 
@@ -193,7 +193,11 @@ _.extend(Course.prototype, {
       configOverwrite: configOverwrite
     }
 
-    const connectionInfo = {options:options, apiOptions:apiOptions}
+    const connectionInfo = {options:options,
+                            apiOptions:apiOptions,
+                            courseId:this._id,
+                            categoryNumber:category.categoryNumber,
+                            groupNumber:groupNumber}
     return connectionInfo
   }
 
@@ -235,7 +239,8 @@ if (Meteor.isServer) {
                   groups: [{
                     groupName: g.groupName,
                     groupNumber: g.groupNumber,
-                    students: [this.userId]
+                    students: [this.userId],
+                    joinedVideoChat:g.joinedVideoChat
                   }]
                 })
               }
@@ -265,7 +270,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -292,7 +298,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -349,7 +356,8 @@ if (Meteor.isServer) {
                     groups: [{
                       groupName: g.groupName,
                       groupNumber: g.groupNumber,
-                      students: [this.userId]
+                      students: [this.userId],
+                      joinedVideoChat:g.joinedVideoChat
                     }]
                   })
                 }
@@ -385,7 +393,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -411,7 +420,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -1161,9 +1171,57 @@ Meteor.methods({
     }
   },
 
+  'courses.joinVideoChat' (courseId) {
+    check(courseId, Helpers.MongoID)
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      return Courses.update({ _id: courseId }, {
+        '$addToSet': { 'videoChatOptions.joined': user._id }
+      })
+    }
+  },
 
+  'courses.leaveVideoChat' (courseId) {
+    check(courseId, Helpers.MongoID)
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      return Courses.update({ _id: courseId }, {
+        '$pull': { 'videoChatOptions.joined': user._id }
+      })
+    }
+  },
+
+  'courses.joinCategoryVideoChat' (courseId, categoryNumber, groupNumber) {
+    check(courseId, Helpers.MongoID)
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      //return Courses.update({ _id: courseId, 'groupCategories.categoryNumber': categoryNumber, 'groupCategories.groups.groupNumber':groupNumber }, {
+      //  '$addToSet': { 'groupCategories.$[].groups.$[].joinedVideoChat': user._id }
+      //})
+      return Courses.update({ _id: courseId, groupCategories : {'$elemMatch':
+                                            {categoryNumber: categoryNumber, groups: {'$elemMatch':{groupNumber:groupNumber} } }  }},
+         {'$addToSet': { 'groupCategories.$.joinedVideoChat': user._id }}
+      )
+    }
+  },
+
+  'courses.leaveCategoryVideoChat' (courseId, categoryNumber, groupNumber) {
+    check(courseId, Helpers.MongoID)
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      return Courses.update({ _id: courseId, 'groupCategories.categoryNumber': categoryNumber, 'groupCategories.groups.groupNumber':groupNumber }, {
+        '$pull': { 'groupCategories.$[].groups.$[].joinedVideoChat': user._id }
+      })
+    }
+  },
 
 }) // end Meteor.methods
 
