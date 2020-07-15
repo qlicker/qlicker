@@ -196,8 +196,8 @@ _.extend(Course.prototype, {
     const connectionInfo = {options:options,
                             apiOptions:apiOptions,
                             courseId:this._id,
-                            categoryNumber:category.categoryNumber,
-                            groupNumber:groupNumber}
+                            categoryNumber:Number(category.categoryNumber),
+                            groupNumber:Number(groupNumber)}
     return connectionInfo
   }
 
@@ -1134,6 +1134,13 @@ Meteor.methods({
       }
       videoChatOptions.apiOptions = default_VideoChat_apiOptions
       category.catVideoChatOptions = videoChatOptions
+      //easier to reset this on enable, to avoid a horrible query to modify an array in an array...
+      if(categories.groups && categories.groups.length > 0){
+        for (let ig=0; ig<categories.groups.length ;ig++){
+          groups[ig].joinedVideoChat = []
+        }
+      }
+
       Courses.update({ _id: courseId }, {
         $set: {
           groupCategories: categories
@@ -1197,30 +1204,72 @@ Meteor.methods({
 
   'courses.joinCategoryVideoChat' (courseId, categoryNumber, groupNumber) {
     check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
+
     const user = Meteor.user()
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    if (!( user.isInstructor(courseId) || user.isStudent(courseId) )) throw new Meteor.Error('Not authorized')
+    let course = Courses.findOne(courseId)
 
-    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
-      //return Courses.update({ _id: courseId, 'groupCategories.categoryNumber': categoryNumber, 'groupCategories.groups.groupNumber':groupNumber }, {
-      //  '$addToSet': { 'groupCategories.$[].groups.$[].joinedVideoChat': user._id }
-      //})
-      return Courses.update({ _id: courseId, groupCategories : {'$elemMatch':
-                                            {categoryNumber: categoryNumber, groups: {'$elemMatch':{groupNumber:groupNumber} } }  }},
-         {'$addToSet': { 'groupCategories.$.joinedVideoChat': user._id }}
-      )
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
     }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber: (groupNumber) })
+
+    if (!group) {
+      throw new Meteor.Error('Group does not exist!')
+    }
+    let joined = group.joinedVideoChat ? group.joinedVideoChat : []
+
+    if (joined.indexOf(user._id) === -1){
+      joined.push(user._id)
+      group.joinedVideoChat = joined
+    }
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
   },
 
   'courses.leaveCategoryVideoChat' (courseId, categoryNumber, groupNumber) {
     check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
+
     const user = Meteor.user()
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    if (!( user.isInstructor(courseId) || user.isStudent(courseId) )) throw new Meteor.Error('Not authorized')
+    let course = Courses.findOne(courseId)
 
-    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
-      return Courses.update({ _id: courseId, 'groupCategories.categoryNumber': categoryNumber, 'groupCategories.groups.groupNumber':groupNumber }, {
-        '$pull': { 'groupCategories.$[].groups.$[].joinedVideoChat': user._id }
-      })
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
     }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber: (groupNumber) })
+
+    if (!group) {
+      throw new Meteor.Error('Group does not exist!')
+    }
+    let joined = group.joinedVideoChat ? group.joinedVideoChat : []
+
+    if (joined.indexOf(user._id) !== -1){
+      joined = joined.filter( (a) => {return a !== user._id} )//remove all instances
+      group.joinedVideoChat = joined
+    }
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
   },
 
 }) // end Meteor.methods

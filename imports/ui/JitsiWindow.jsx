@@ -64,7 +64,7 @@ export class JitsiWindow extends Component {
         const joinCall = () =>{
           if(courseId){
             if(categoryNumber && groupNumber){
-              Meteor.call('courses.joinCategoryVideoChat',courseId, categoryNumber, groupNumber)
+              Meteor.call('courses.joinCategoryVideoChat',courseId, categoryNumber, Number(groupNumber))
             } else {
               Meteor.call('courses.joinVideoChat',courseId)
             }
@@ -75,7 +75,7 @@ export class JitsiWindow extends Component {
         const leaveCall = () =>{
           if(courseId){
             if(categoryNumber && groupNumber){
-              Meteor.call('courses.leaveCategoryVideoChat',courseId, categoryNumber, groupNumber)
+              Meteor.call('courses.leaveCategoryVideoChat',courseId, categoryNumber,  Number(groupNumber))
             } else {
               Meteor.call('courses.leaveVideoChat',courseId)
             }

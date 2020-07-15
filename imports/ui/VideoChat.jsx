@@ -240,7 +240,7 @@ export class _VideoChat extends Component {
                           //this link is parsed in routes.jsx to ultimately create a route for JitsiWindow
                           const link = '/course/'+this.props.courseId+'/categoryvideochatwindow/'+cat.categoryNumber+'/'+group.groupNumber
                           const categoryChatWindow = () => { window.open(link, 'Video chat with '+group.groupName, 'height=768,width=1024')}
-                          const nParticipants = group.joinVideoChat ? group.joinVideoChat.length : 0
+                          const nParticipants = group.joinedVideoChat ? group.joinedVideoChat.length : 0
                           return(
                             <div className='btn' onClick={categoryChatWindow} key={'vccg'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName}>
                               {'Join '+group.groupName+' ('+nParticipants+')'}
@@ -264,7 +264,6 @@ export class _VideoChat extends Component {
 export const VideoChat = withTracker((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId)
   const course = Courses.findOne(props.courseId)
- console.log(course)
   return {
     course: course,
     loading: !handle.ready()
