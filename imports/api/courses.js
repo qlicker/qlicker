@@ -21,7 +21,7 @@ const videoOptionsPattern = {
     startAudioMuted: Match.Maybe(Boolean),
     startVideoMuted: Match.Maybe(Boolean),
     startTileView: Match.Maybe(Boolean),
-    useWhiteboard: Match.Maybe(Boolean),
+    //useWhiteboard: Match.Maybe(Boolean),
     subjectTitle: Match.Maybe(Helpers.NEString),
   })
 }
@@ -31,7 +31,7 @@ export const default_VideoChat_apiOptions = {
   startAudioMuted: true,
   startVideoMuted: true,
   startTileView: true,
-  useWhiteboard: false,
+  //useWhiteboard: false,
 }
 
 // expected collection pattern

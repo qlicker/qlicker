@@ -33,6 +33,8 @@ export class _VideoChat extends Component {
   //  this.toggleCourseWhiteboard = this.toggleCourseWhiteboard.bind(this)
     this.toggleCourseTileView = this.toggleCourseTileView.bind(this)
     this.toggleCategoryTileView = this.toggleCategoryTileView.bind(this)
+    this.toggleCourseStartVideo = this.toggleCourseStartVideo.bind(this)
+    this.toggleCourseStartAudio= this.toggleCourseStartAudio.bind(this)
   }
 
   toggleCourseVideoChat (courseId, enabled) {
@@ -49,13 +51,12 @@ export class _VideoChat extends Component {
     }
   }
 
-  /*toggleCourseWhiteboard(courseId) {
-    let hasApiOptions = this.props.course && this.props.course.videoChatOptions && this.props.course.videoChatOptions.apiOptions
 
+  toggleCourseStartVideo(courseId) {
+    let hasApiOptions = this.props.course && this.props.course.videoChatOptions && this.props.course.videoChatOptions.apiOptions
     if (hasApiOptions){
       let apiOptions = this.props.course.videoChatOptions.apiOptions
-      apiOptions.useWhiteboard = !apiOptions.useWhiteboard
-
+      apiOptions.startVideoMuted = !apiOptions.startVideoMuted
       Meteor.call('courses.setApiOptions', courseId, apiOptions, (err) => {
         if (err) {
           alertify.error('Error: ' + err.error)
@@ -66,7 +67,24 @@ export class _VideoChat extends Component {
     } else {
       alertify.error('Error: no video options')
     }
-  }*/
+  }
+
+  toggleCourseStartAudio(courseId) {
+    let hasApiOptions = this.props.course && this.props.course.videoChatOptions && this.props.course.videoChatOptions.apiOptions
+    if (hasApiOptions){
+      let apiOptions = this.props.course.videoChatOptions.apiOptions
+      apiOptions.startAudioMuted = !apiOptions.startAudioMuted
+      Meteor.call('courses.setApiOptions', courseId, apiOptions, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Updated')
+        }
+      })
+    } else {
+      alertify.error('Error: no video options')
+    }
+  }
 
   toggleCourseTileView(courseId) {
     let hasApiOptions = this.props.course && this.props.course.videoChatOptions && this.props.course.videoChatOptions.apiOptions
@@ -84,6 +102,8 @@ export class _VideoChat extends Component {
       alertify.error('Error: no video options')
     }
   }
+
+
 
     toggleCategoryVideoChat (courseId, enabled, categoryNumber) {
     let question = (enabled ? 'Disable ' :'Enable ')+'video chat for group category?'
@@ -126,9 +146,13 @@ export class _VideoChat extends Component {
     const courseApiOptions = courseVideoChatEnabled && this.props.course.videoChatOptions.apiOptions
     //const courseWhiteboardEnabled = courseApiOptions && !!courseApiOptions.useWhiteboard
     const courseTileView = courseApiOptions && !!courseApiOptions.startTileView
+    const courseAudioMuted = courseApiOptions && !!courseApiOptions.startAudioMuted
+    const courseVideoMuted = courseApiOptions && !!courseApiOptions.startVideoMuted
 
     const toggleCourseVideoChat = () => this.toggleCourseVideoChat(this.props.course._id, courseVideoChatEnabled)
     //const toggleCourseWhiteboard = () => this.toggleCourseWhiteboard(this.props.course._id)
+    const toggleCourseStartVideo = () => this.toggleCourseStartVideo(this.props.course._id)
+    const toggleCourseStartAudio = () => this.toggleCourseStartAudio(this.props.course._id)
     const toggleCourseTileView = () => this.toggleCourseTileView(this.props.course._id)
     //The link that opens the whole course video chat
     const courseChatWindow = () => { window.open('/course/'+this.props.courseId+'/videochatwindow', 'Qlicker Video Chat', 'height=768,width=1024') }
@@ -149,7 +173,9 @@ export class _VideoChat extends Component {
               <CheckBoxOption label={'Enabled'} checked={courseVideoChatEnabled} onChange={toggleCourseVideoChat} id ={'courseChatVidToggler'} />
               { courseVideoChatEnabled
                  ? <div>
-                     <CheckBoxOption label={'Tileview'} checked={courseTileView} onChange={toggleCourseTileView} id ={'courseChatTileToggler'} />
+                     <CheckBoxOption label={'Mute video'} checked={courseVideoMuted} onChange={toggleCourseStartVideo} id ={'courseChatTileToggler'} />
+                     <CheckBoxOption label={'Mute audo'} checked={courseAudioMuted} onChange={toggleCourseStartAudio} id ={'courseChatTileToggler'} />
+                     <CheckBoxOption label={'Tile view'} checked={courseTileView} onChange={toggleCourseTileView} id ={'courseChatTileToggler'} />
                    </div>
                  : ''
               }
