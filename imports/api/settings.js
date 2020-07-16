@@ -212,7 +212,7 @@ Meteor.methods({
     if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
     return Settings.update(id, {'$set':{Jitsi_Domain:domain}} )
   },
-  
+
   'settings.setJitsiWhiteboardDomain' (id, domain) {
     check(domain,Helpers.JitsiDomain)
     check(id,Helpers.NEString)
@@ -244,7 +244,7 @@ Meteor.methods({
         let domain = {
           domain: settings.Jitsi_Domain,
           etherpad: settings.Jitsi_EtherpadDomain,
-          Whiteboard: settings.Jitsi_WhiteboardDomain
+          whiteboard: settings.Jitsi_WhiteboardDomain
         }
         return domain
       }
