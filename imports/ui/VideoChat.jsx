@@ -136,8 +136,6 @@ export class _VideoChat extends Component {
     const groupCategories = this.props.course.groupCategories ? this.props.course.groupCategories : []
     const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
 
-
-
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick, onClick2}) => {
       if (name){
@@ -223,9 +221,9 @@ export class _VideoChat extends Component {
                     <div className='ql-video-catname'>
                      Course-wide video chat
                     </div>
-                    <div className='btn' onClick={courseChatWindow}>
-                      Join class-wide chat ({this.props.course.videoChatOptions.joined.length})
-                    </div>
+                      <div className='btn' onClick={courseChatWindow}>
+                        Join class-wide chat ({this.props.course.videoChatOptions.joined.length})
+                      </div>
                   </div>
                 : categoriesWithChatEnabled.length > 0
                   ? ''
@@ -264,6 +262,7 @@ export class _VideoChat extends Component {
 export const VideoChat = withTracker((props) => {
   const handle = Meteor.subscribe('courses.single', props.courseId)
   const course = Courses.findOne(props.courseId)
+
   return {
     course: course,
     loading: !handle.ready()

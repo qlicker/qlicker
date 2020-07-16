@@ -16,7 +16,7 @@ import { ROLES } from '../configs'
 //video options pattern (should eventually be moved...)
 const videoOptionsPattern = {
   urlId: Helpers.NEString, //required to get connection Info
-  joined: Match.Maybe([Helpers.MongoID]),
+  joined: Match.Maybe([Helpers.MongoID]),//not used in category, since needs to be tracked per group
   apiOptions: Match.Maybe({
     startAudioMuted: Match.Maybe(Boolean),
     startVideoMuted: Match.Maybe(Boolean),
@@ -182,7 +182,7 @@ _.extend(Course.prototype, {
     let configOverwrite = default_Jitsi_configOverwrite
 
     //Configure the conference, using apiOptions
-    let apiOptions = category.catVideoChatOptions
+    let apiOptions = category.catVideoChatOptions.apiOptions
     apiOptions.subjectTitle = category.categoryName+': '+group.groupName
     if(apiOptions.startVideoMuted) configOverwrite.startWithVideoMuted = true
 
@@ -217,9 +217,7 @@ if (Meteor.isServer) {
       const c = Courses.findOne({ _id: courseId })
       if (!c || !user) return this.ready()
 
-      if (user.hasGreaterRole(ROLES.admin)) {
-        return Courses.find({ _id: courseId })
-      } else if (user.isInstructor(courseId)) {
+      if (user.hasGreaterRole(ROLES.admin) || user.isInstructor(courseId)) {
         return Courses.find({ _id: courseId })
       } else if (user.isStudent(courseId)) {
         // return Courses.find({ _id:courseId }, { fields: { students: false } })
@@ -335,7 +333,6 @@ if (Meteor.isServer) {
         return Courses.find()
       } else {
  // could be a student or a prof
-
         // Initial subscription to existing courses
         const studentCourses = Courses.find({ students: this.userId }).fetch()
         const instructorCourses = Courses.find({ instructors: this.userId }).fetch()

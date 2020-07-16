@@ -379,7 +379,7 @@ Router.route('/course/:courseId/videochat', {
   name: 'videochat',
   waitOn: function () {
     if (!Meteor.userId()) Router.go('login')
-    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId) && Meteor.subscribe('sessions.single',this.params._id)
+    return Meteor.subscribe('userData') && Meteor.subscribe('courses.single', this.params.courseId)
   },
   action: function () {
     const user = Meteor.user()
@@ -407,7 +407,7 @@ Router.route('/course/:courseId/videochatwindow', {
 
       mount(AppLayout, { content:
         <JitsiWindow connectionInfo={connectionInfo} />
-      })  
+      })
 
     } else Router.go('login')
   }

@@ -16,3 +16,19 @@ export const CheckBoxOption = ({label, checked, onChange, id}) => {
     </div>
   )
 }
+
+export const CleanTooltip = (props) =>{
+  return(
+    <div className='ql-tooltip'>
+      <div className='ql-tooltip-target'>
+        {props.children}
+      </div>
+      { props.info
+        ? <div className='ql-tooltip-info'>
+          {props.info}
+         </div>
+        : ''
+      }
+    </div>
+  )
+}
