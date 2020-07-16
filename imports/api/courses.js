@@ -176,7 +176,7 @@ _.extend(Course.prototype, {
         //email: user.getEmail(),
         displayName: user.getNameFL() //First Last - so that Jitsi makes the correct initials
     }
-    const roomName = 'Ql_C_'+this._id+this.videoChatOptions.urlId+'cat_'+category.categoryName+category.catVideoChatOptions.urlId+'grp_'+group.groupName
+    const roomName = 'Ql_C_'+this._id+'cat_'+category.categoryName+category.catVideoChatOptions.urlId+'grp_'+group.groupName
 
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
