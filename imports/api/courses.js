@@ -16,12 +16,22 @@ import { ROLES } from '../configs'
 //video options pattern (should eventually be moved...)
 const videoOptionsPattern = {
   urlId: Helpers.NEString, //required to get connection Info
-  joined: Match.Maybe([Helpers.NEString]),
-  apiOptions: Match.Maybe([{
+  joined: Match.Maybe([Helpers.MongoID]),//not used in category, since needs to be tracked per group
+  apiOptions: Match.Maybe({
     startAudioMuted: Match.Maybe(Boolean),
     startVideoMuted: Match.Maybe(Boolean),
-    startTileView: Match.Maybe(Boolean)
-  }])
+    startTileView: Match.Maybe(Boolean),
+    useWhiteboard: Match.Maybe(Boolean),
+    subjectTitle: Match.Maybe(Helpers.NEString),
+  })
+}
+
+//Note that additional apiOptions can be added by GetConnectionInfo (like subject)
+export const default_VideoChat_apiOptions = {
+  startAudioMuted: true,
+  startVideoMuted: true,
+  startTileView: true,
+  useWhiteboard: false,
 }
 
 // expected collection pattern
@@ -52,7 +62,8 @@ const coursePattern = {
     groups: Match.Maybe([{
       groupNumber: Match.Maybe(Helpers.Number),
       groupName: Match.Maybe(Helpers.NEString),
-      students: Match.Maybe([Helpers.MongoID])
+      students: Match.Maybe([Helpers.MongoID]),
+      joinedVideoChat: Match.Maybe([Helpers.MongoID]),//not hidden, so pointless to hide students...
     }])
   }])
 }
@@ -64,6 +75,7 @@ const default_Jitsi_configOverwrite = {
    disableSimulcast: false,
    enableClosePage: false,
    disableThirdPartyRequests: true,//removes recording ability, etc, but safer
+   //etherpad_base: 'https://wbo.ophir.dev/boards/'
 }
 
 const default_Jitsi_interfaceConfigOverwrite = {
@@ -72,13 +84,14 @@ const default_Jitsi_interfaceConfigOverwrite = {
   SHOW_JITSI_WATERMARK: false,
   SHOW_WATERMARK_FOR_GUESTS: false,
   DEFAULT_REMOTE_DISPLAY_NAME: 'Classmate',
+  //DEFAULT_BACKGROUND: '#ffffff', //has no effect? needed for WBO?
   TOOLBAR_BUTTONS: [
     'microphone', 'camera', 'desktop', 'fullscreen',
     'fodeviceselection', 'hangup', 'chat',
-     'etherpad', 'raisehand',
+    'etherpad', 'raisehand',
     'videoquality', 'filmstrip', 'settings',
     'tileview', 'videobackgroundblur', 'mute-everyone', 'security'
-    ]
+  ],
 }
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -115,15 +128,10 @@ _.extend(Course.prototype, {
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
 
-    //Configure the conference
-   //TODO: currently ignoring if apiOptions are being set by the ui
-    let apiOptions = {
-      startTileView : false,
-      startAudioMuted: true,
-      startVideoMuted : true,
-      subjectTitle: 'Course chat'
-    }
-    configOverwrite.startWithVideoMuted = true
+    //Configure the conference, using apiOptions
+    let apiOptions = this.videoChatOptions.apiOptions
+    apiOptions.subjectTitle = 'Course chat'
+    if(apiOptions.startVideoMuted) configOverwrite.startWithVideoMuted = true
 
     let options = {
       roomName: roomName,
@@ -131,7 +139,7 @@ _.extend(Course.prototype, {
       interfaceConfigOverwrite: interfaceConfigOverwrite,
       configOverwrite: configOverwrite
     }
-    const connectionInfo = {options:options, apiOptions:apiOptions}
+    const connectionInfo = {options:options, apiOptions:apiOptions, courseId:this._id}
     return connectionInfo
   },
 
@@ -172,16 +180,11 @@ _.extend(Course.prototype, {
 
     let interfaceConfigOverwrite = default_Jitsi_interfaceConfigOverwrite
     let configOverwrite = default_Jitsi_configOverwrite
-    //Configure the conference based on number of participants
 
-    //TODO: currently ignoring if apiOptions are being set by the ui
-    let apiOptions = {
-      startTileView : true,
-      startAudioMuted: true,
-      startVideoMuted : false,
-      subjectTitle: category.categoryName+': '+group.groupName
-    }
-    configOverwrite.startWithVideoMuted = false
+    //Configure the conference, using apiOptions
+    let apiOptions = category.catVideoChatOptions.apiOptions
+    apiOptions.subjectTitle = category.categoryName+': '+group.groupName
+    if(apiOptions.startVideoMuted) configOverwrite.startWithVideoMuted = true
 
     let options = {
       roomName: roomName,
@@ -190,7 +193,11 @@ _.extend(Course.prototype, {
       configOverwrite: configOverwrite
     }
 
-    const connectionInfo = {options:options, apiOptions:apiOptions}
+    const connectionInfo = {options:options,
+                            apiOptions:apiOptions,
+                            courseId:this._id,
+                            categoryNumber:Number(category.categoryNumber),
+                            groupNumber:Number(groupNumber)}
     return connectionInfo
   }
 
@@ -210,9 +217,7 @@ if (Meteor.isServer) {
       const c = Courses.findOne({ _id: courseId })
       if (!c || !user) return this.ready()
 
-      if (user.hasGreaterRole(ROLES.admin)) {
-        return Courses.find({ _id: courseId })
-      } else if (user.isInstructor(courseId)) {
+      if (user.hasGreaterRole(ROLES.admin) || user.isInstructor(courseId)) {
         return Courses.find({ _id: courseId })
       } else if (user.isStudent(courseId)) {
         // return Courses.find({ _id:courseId }, { fields: { students: false } })
@@ -232,7 +237,8 @@ if (Meteor.isServer) {
                   groups: [{
                     groupName: g.groupName,
                     groupNumber: g.groupNumber,
-                    students: [this.userId]
+                    students: [this.userId],
+                    joinedVideoChat:g.joinedVideoChat
                   }]
                 })
               }
@@ -262,7 +268,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -289,7 +296,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -325,7 +333,6 @@ if (Meteor.isServer) {
         return Courses.find()
       } else {
  // could be a student or a prof
-
         // Initial subscription to existing courses
         const studentCourses = Courses.find({ students: this.userId }).fetch()
         const instructorCourses = Courses.find({ instructors: this.userId }).fetch()
@@ -346,7 +353,8 @@ if (Meteor.isServer) {
                     groups: [{
                       groupName: g.groupName,
                       groupNumber: g.groupNumber,
-                      students: [this.userId]
+                      students: [this.userId],
+                      joinedVideoChat:g.joinedVideoChat
                     }]
                   })
                 }
@@ -382,7 +390,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -408,7 +417,8 @@ if (Meteor.isServer) {
                       groups: [{
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
-                        students: [this.userId]
+                        students: [this.userId],
+                        joinedVideoChat:g.joinedVideoChat
                       }]
                     })
                   }
@@ -1038,9 +1048,9 @@ Meteor.methods({
 
   // Toggle the course video chat, pass options in to configure display
   // Generates a new random urlId each time it's toggled
-  'courses.toggleVideoChat' (courseId, apiOptions) {
+  'courses.toggleVideoChat' (courseId) {
+
     check(courseId, Helpers.MongoID)
-    if (apiOptions) check(apiOptions, videoOptionsPattern.apiOptions)
     profHasCoursePermission(courseId)
 
     let course = Courses.findOne(courseId)
@@ -1059,7 +1069,7 @@ Meteor.methods({
         urlId: Helpers.RandomVideoId(), //new random ID each time it's toggled
         joined: [],
       }
-      if (apiOptions) videoChatOptions.apiOptions = apiOptions
+      videoChatOptions.apiOptions = default_VideoChat_apiOptions
       Courses.update({ _id: courseId }, {
         $set: {
           videoChatOptions: videoChatOptions,
@@ -1069,10 +1079,36 @@ Meteor.methods({
     }
   },
 
-  'courses.toggleCategoryVideoChat' (courseId, categoryNumber, apiOptions) {
+  // Set the api options for the course video chat (if this is enabled)
+  'courses.setApiOptions' (courseId, apiOptions) {
+
+    check(courseId, Helpers.MongoID)
+    check(apiOptions, videoOptionsPattern.apiOptions)
+
+    profHasCoursePermission(courseId)
+
+    let course = Courses.findOne(courseId)
+    if (!course) {
+      throw new Meteor.Error('Course does not exist!')
+    }
+
+    if (course.videoChatOptions){ //only set if they exist
+      let videoChatOptions = course.videoChatOptions
+      videoChatOptions.apiOptions = apiOptions
+      Courses.update({ _id: courseId }, {
+        $set: {
+          videoChatOptions: videoChatOptions,
+        }
+      })
+    } else { //Enable video chat
+      throw new Meteor.Error('No videooptions for which to add apiOptions!')
+    }
+  },
+
+  'courses.toggleCategoryVideoChat' (courseId, categoryNumber) {
     check(courseId, Helpers.MongoID)
     check(categoryNumber, Number)
-    if (apiOptions) check(apiOptions, videoOptionsPattern.apiOptions)
+
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
     if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
@@ -1093,8 +1129,15 @@ Meteor.methods({
         urlId: Helpers.RandomVideoId(), //new random ID each time it's toggled
         joined: [],
       }
-      if (apiOptions) videoChatOptions.apiOptions = apiOptions
+      videoChatOptions.apiOptions = default_VideoChat_apiOptions
       category.catVideoChatOptions = videoChatOptions
+      //easier to reset this on enable, to avoid a horrible query to modify an array in an array...
+      if(categories.groups && categories.groups.length > 0){
+        for (let ig=0; ig<categories.groups.length ;ig++){
+          groups[ig].joinedVideoChat = []
+        }
+      }
+
       Courses.update({ _id: courseId }, {
         $set: {
           groupCategories: categories
@@ -1103,10 +1146,128 @@ Meteor.methods({
 
     }
   },
+  // Set the api options for the course video chat (if this is enabled)
+  'courses.setCategoryApiOptions' (courseId, categoryNumber, apiOptions) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(apiOptions, videoOptionsPattern.apiOptions)
+    profHasCoursePermission(courseId)
 
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
 
+    if (category.catVideoChatOptions) {
+      let catVideoChatOptions = category.catVideoChatOptions
+      catVideoChatOptions.apiOptions = apiOptions
 
+      Courses.update({ _id: courseId, 'groupCategories.categoryNumber': categoryNumber }, {
+        $set: { //selects the first element in groupCategories that matches the above query...
+          'groupCategories.$.catVideoChatOptions' : catVideoChatOptions
+        }
+      })
 
+    } else {
+      throw new Meteor.Error('No videooptions for which to add apiOptions!')
+    }
+  },
+
+  'courses.joinVideoChat' (courseId) {
+    check(courseId, Helpers.MongoID)
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      return Courses.update({ _id: courseId }, {
+        '$addToSet': { 'videoChatOptions.joined': user._id }
+      })
+    }
+  },
+
+  'courses.leaveVideoChat' (courseId) {
+    check(courseId, Helpers.MongoID)
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+
+    if (user.isInstructor(courseId) || user.isStudent(courseId)) {
+      return Courses.update({ _id: courseId }, {
+        '$pull': { 'videoChatOptions.joined': user._id }
+      })
+    }
+  },
+
+  'courses.joinCategoryVideoChat' (courseId, categoryNumber, groupNumber) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
+
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    if (!( user.isInstructor(courseId) || user.isStudent(courseId) )) throw new Meteor.Error('Not authorized')
+    let course = Courses.findOne(courseId)
+
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber: (groupNumber) })
+
+    if (!group) {
+      throw new Meteor.Error('Group does not exist!')
+    }
+    let joined = group.joinedVideoChat ? group.joinedVideoChat : []
+
+    if (joined.indexOf(user._id) === -1){
+      joined.push(user._id)
+      group.joinedVideoChat = joined
+    }
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
+
+  'courses.leaveCategoryVideoChat' (courseId, categoryNumber, groupNumber) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
+
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    if (!( user.isInstructor(courseId) || user.isStudent(courseId) )) throw new Meteor.Error('Not authorized')
+    let course = Courses.findOne(courseId)
+
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber: (groupNumber) })
+
+    if (!group) {
+      throw new Meteor.Error('Group does not exist!')
+    }
+    let joined = group.joinedVideoChat ? group.joinedVideoChat : []
+
+    if (joined.indexOf(user._id) !== -1){
+      joined = joined.filter( (a) => {return a !== user._id} )//remove all instances
+      group.joinedVideoChat = joined
+    }
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
 
 }) // end Meteor.methods
 

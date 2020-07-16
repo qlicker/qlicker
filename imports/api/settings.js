@@ -46,7 +46,9 @@ const pattern = {
   SSO_roleProfName: Match.Maybe(String), // name of the role in the SSO system that corresponds to a professor role
   Jitsi_Enabled: Match.Maybe(Boolean),
   Jitsi_Domain: Match.Maybe(String),
-  Jitsi_EnabledCourses: Match.Maybe([Helpers.NEString])
+  Jitsi_EnabledCourses: Match.Maybe([Helpers.NEString]),
+  Jitsi_WhiteboardDomain: Match.Maybe(String),
+  Jitsi_EtherpadDomain: Match.Maybe(String),
 }
 
 // Create course class
@@ -210,6 +212,22 @@ Meteor.methods({
     if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
     return Settings.update(id, {'$set':{Jitsi_Domain:domain}} )
   },
+  
+  'settings.setJitsiWhiteboardDomain' (id, domain) {
+    check(domain,Helpers.JitsiDomain)
+    check(id,Helpers.NEString)
+    let user = Meteor.users.findOne({_id: this.userId})
+    if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
+    return Settings.update(id, {'$set':{Jitsi_WhiteboardDomain:domain}} )
+  },
+
+  'settings.setJitsiEtherpadDomain' (id, domain) {
+    check(domain,Helpers.JitsiDomain)
+    check(id,Helpers.NEString)
+    let user = Meteor.users.findOne({_id: this.userId})
+    if (!user || !user.hasRole(ROLES.admin)) throw new Error('Not authorized')
+    return Settings.update(id, {'$set':{Jitsi_EtherpadDomain:domain}} )
+  },
 
   'settings.setJitsiEnabledCourses' (id, enabledCourses) {
     check(enabledCourses,[Helpers.NEString])
@@ -222,7 +240,14 @@ Meteor.methods({
   'settings.getJitsiDomain' () {
     if (Meteor.isServer){
       const settings = Settings.findOne()
-      if (settings) return settings.Jitsi_Domain
+      if (settings){
+        let domain = {
+          domain: settings.Jitsi_Domain,
+          etherpad: settings.Jitsi_EtherpadDomain,
+          Whiteboard: settings.Jitsi_WhiteboardDomain
+        }
+        return domain
+      }
     } else return ''
   },
 

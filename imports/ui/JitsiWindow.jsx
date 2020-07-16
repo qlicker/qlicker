@@ -31,11 +31,24 @@ export class JitsiWindow extends Component {
     }
 
     Meteor.call('settings.getJitsiDomain',  (err,result) => {
-      //This seemed like the best way to run the server side method to get the domain name from the settings. 
+      //This seemed like the best way to run the server side method to get the domain name from the settings.
       if(!err){ //only once the domain is known, can the API be initialized...
-        const domain = result
         const apiOptions = this.props.connectionInfo.apiOptions
         let options = this.props.connectionInfo.options
+        let courseId = this.props.connectionInfo.courseId
+        let categoryNumber = this.props.connectionInfo.categoryNumber
+        let groupNumber = this.props.connectionInfo.groupNumber
+
+        const domain = result.domain
+        //Check if an etherpad/whiteboard domain exists
+        //In principle, can pass an options as etherpad_base, but doesn't always work
+        const etherpadDomain = apiOptions.useWhiteboard && result.whiteboard
+          ? result.whiteboard
+          : (result.etherpad ? result.etherpad : '')
+
+        if(etherpadDomain){
+          options.etherpad_base = etherpadDomain
+        }
 
         //has to be set here, only exists once mounted
         options.parentNode = document.getElementById('ql-jitsi-inner')
@@ -48,9 +61,34 @@ export class JitsiWindow extends Component {
           window.close()
         }
 
+        const joinCall = () =>{
+          if(courseId){
+            if(categoryNumber && groupNumber){
+              Meteor.call('courses.joinCategoryVideoChat',courseId, categoryNumber, Number(groupNumber))
+            } else {
+              Meteor.call('courses.joinVideoChat',courseId)
+            }
+          }
+          return null
+        }
+
+        const leaveCall = () =>{
+          if(courseId){
+            if(categoryNumber && groupNumber){
+              Meteor.call('courses.leaveCategoryVideoChat',courseId, categoryNumber,  Number(groupNumber))
+            } else {
+              Meteor.call('courses.leaveVideoChat',courseId)
+            }
+          }
+          return null
+        }
+
         if (api){
           //Close the window on hangup
+          api.addListener('videoConferenceJoined', joinCall)
+          api.addListener('videoConferenceLeft', leaveCall)
           api.addListener('videoConferenceLeft', closeWindow)
+          window.onbeforeunload = leaveCall //also leave call if window is closed
 
           if(apiOptions.subjectTitle){
             api.executeCommand('subject', apiOptions.subjectTitle);

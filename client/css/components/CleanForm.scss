@@ -1,0 +1,46 @@
+@import '../variables.scss';
+
+.ql-checkbox {
+  display:flex;
+  //padding: 5px;
+
+  :hover {
+    cursor: pointer;
+  }
+
+  label {
+    padding-right: 3px;
+    padding-left: 3px;
+    font-weight: inherit;
+    font-size: 80%;
+    margin: 0px;
+  }
+
+}
+
+/*Tool tip */
+.ql-tooltip {
+  width: fit-content;
+}
+
+.ql-tooltip  .ql-tooltip-info {
+  display: none;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 2;
+  font-size: 80%;
+  padding: 4px;
+  margin-top: 2px;
+  margin-left: 2px;
+  width: fit-content;
+  max-width: 200px;
+  border-radius: 5px;
+  color: black;
+  background-color: $light-blue;
+}
+
+.ql-tooltip:hover > .ql-tooltip-info {
+  display: block;
+  opacity:0.9;
+}

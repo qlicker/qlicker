@@ -30,19 +30,23 @@
 
   ul {
     list-style-type: none;
+    padding-left: unset;
 
     li {
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+      border: solid $slightly-darker-grey 1px;
+      margin: 3px;
 
       div.ql-group-list-item-name {
         width: 200px;
+        padding-left: 3px;
       }
       div.ql-group-list-item-controls {
         display: flex;
-        flex-flow: row nowrap;
-        align-items: center;
+        flex-flow: column nowrap;
+        //align-items: center;
       }
     }
   }
