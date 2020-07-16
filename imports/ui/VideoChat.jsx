@@ -35,6 +35,8 @@ export class _VideoChat extends Component {
     this.toggleCategoryTileView = this.toggleCategoryTileView.bind(this)
     this.toggleCourseStartVideo = this.toggleCourseStartVideo.bind(this)
     this.toggleCourseStartAudio= this.toggleCourseStartAudio.bind(this)
+    this.toggleCategoryStartVideo = this.toggleCategoryStartVideo.bind(this)
+    this.toggleCategoryStartAudio= this.toggleCategoryStartAudio.bind(this)
   }
 
   toggleCourseVideoChat (courseId, enabled) {
@@ -136,6 +138,42 @@ export class _VideoChat extends Component {
     }
   }
 
+  toggleCategoryStartAudio(courseId, category) {
+    let hasApiOptions = category.catVideoChatOptions && category.catVideoChatOptions.apiOptions
+    if (hasApiOptions){
+      let apiOptions = category.catVideoChatOptions.apiOptions
+      apiOptions.startAudioMuted = !apiOptions.startAudioMuted
+      Meteor.call('courses.setCategoryApiOptions', courseId, category.categoryNumber, apiOptions, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Updated')
+        }
+      })
+    } else {
+      alertify.error('Error: no video options')
+    }
+  }
+
+
+  toggleCategoryStartVideo(courseId, category) {
+    let hasApiOptions = category.catVideoChatOptions && category.catVideoChatOptions.apiOptions
+    if (hasApiOptions){
+      let apiOptions = category.catVideoChatOptions.apiOptions
+      apiOptions.startVideoMuted = !apiOptions.startVideoMuted
+      Meteor.call('courses.setCategoryApiOptions', courseId, category.categoryNumber, apiOptions, (err) => {
+        if (err) {
+          alertify.error('Error: ' + err.error)
+        } else {
+          alertify.success('Updated')
+        }
+      })
+    } else {
+      alertify.error('Error: no video options')
+    }
+  }
+
+
   render () {
     if (this.props.loading || !this.props.course) return <div className='ql-subs-loading'>Loading</div>
 
@@ -161,7 +199,7 @@ export class _VideoChat extends Component {
     const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
 
     //A component to display group category name and controls to enable the chat
-    const VideoSessionControl = ({name, category, onClick, onClick2}) => {
+    const VideoSessionControl = ({name, category, onClick, catTileClick, catAudioClick, catVideoClick}) => {
       if (name){
         let extraClass = courseVideoChatEnabled ? 'active' : ''
         return(
@@ -174,7 +212,7 @@ export class _VideoChat extends Component {
               { courseVideoChatEnabled
                  ? <div>
                      <CheckBoxOption label={'Mute video'} checked={courseVideoMuted} onChange={toggleCourseStartVideo} id ={'courseChatTileToggler'} />
-                     <CheckBoxOption label={'Mute audo'} checked={courseAudioMuted} onChange={toggleCourseStartAudio} id ={'courseChatTileToggler'} />
+                     <CheckBoxOption label={'Mute audio'} checked={courseAudioMuted} onChange={toggleCourseStartAudio} id ={'courseChatTileToggler'} />
                      <CheckBoxOption label={'Tile view'} checked={courseTileView} onChange={toggleCourseTileView} id ={'courseChatTileToggler'} />
                    </div>
                  : ''
@@ -187,7 +225,8 @@ export class _VideoChat extends Component {
         let extraClass = category.catVideoChatOptions ? 'active' : ''
         let catChatEnabled = !!category.catVideoChatOptions
         let chatTileEnabled = catChatEnabled && category.catVideoChatOptions.apiOptions && category.catVideoChatOptions.apiOptions.startTileView
-
+        let muteVideoEnabled = catChatEnabled && category.catVideoChatOptions.apiOptions && category.catVideoChatOptions.apiOptions.startVideoMuted
+        let muteAudioEnabled = catChatEnabled && category.catVideoChatOptions.apiOptions && category.catVideoChatOptions.apiOptions.startAudioMuted
         return(
           <li>
             <div className='ql-group-list-item-name'>
@@ -197,7 +236,9 @@ export class _VideoChat extends Component {
               <CheckBoxOption label={'Enabled'} checked={catChatEnabled} onChange={onClick} id ={'courseChatCatToggler'+category.categoryName+'N'+category.categoryNumber} />
               { catChatEnabled
                 ? <div>
-                    <CheckBoxOption label={'Tile view'} checked={chatTileEnabled} onChange={onClick2} id ={'courseChatCatTileToggler'+category.categoryName+'N'+category.categoryNumber} />
+                    <CheckBoxOption label={'Mute video'} checked={muteVideoEnabled} onChange={catVideoClick} id ={'courseChatVideoMuteToggler'} />
+                    <CheckBoxOption label={'Mute audio'} checked={muteAudioEnabled} onChange={catAudioClick} id ={'courseChatAudioMuteToggler'} />
+                    <CheckBoxOption label={'Tile view'} checked={chatTileEnabled} onChange={catTileClick} id ={'courseChatCatTileToggler'+category.categoryName+'N'+category.categoryNumber} />
                   </div>
                 : ''
               }
@@ -223,8 +264,13 @@ export class _VideoChat extends Component {
                       ? groupCategories.map(cat => {
                         const toggleCategoryVideoChat = () => this.toggleCategoryVideoChat(this.props.course._id, !!cat.catVideoChatOptions, cat.categoryNumber)
                         const toggleCategoryTileView = () => this.toggleCategoryTileView(this.props.course._id, cat)
+                        const toggleCategoryStartAudio = () => this.toggleCategoryStartAudio(this.props.course._id, cat)
+                        const toggleCategoryStartVideo = () => this.toggleCategoryStartVideo(this.props.course._id, cat)
                         return(
-                          <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat} onClick2 = {toggleCategoryTileView} key={'vc'+cat.categoryNumber+cat.categoryName} o/>
+                          <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat}
+                           catTileClick = {toggleCategoryTileView} catVideoClick = {toggleCategoryStartVideo} catAudioClick = {toggleCategoryStartAudio}
+
+                            key={'vc'+cat.categoryNumber+cat.categoryName} />
                         )
                       })
                       : <div> Create groups in main course page! </div>
