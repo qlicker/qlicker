@@ -18,6 +18,10 @@ export const CheckBoxOption = ({label, checked, onChange, id}) => {
 }
 
 export const CleanTooltip = (props) =>{
+  if (!props.info){//no tooltip
+    console.log("ere")
+    return props.children
+  }
   return(
     <div className='ql-tooltip'>
       <div className='ql-tooltip-target'>

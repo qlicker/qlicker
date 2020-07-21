@@ -15,7 +15,7 @@ import { Courses } from '../api/courses'
 import { Sessions } from '../api/sessions'
 
 import { JitsiWindow } from './JitsiWindow'
-import { CheckBoxOption } from './CleanForm'
+import { CheckBoxOption, CleanTooltip } from './CleanForm'
 
 import { ROLES } from '../configs'
 
@@ -311,10 +311,21 @@ export class _VideoChat extends Component {
                           const link = '/course/'+this.props.courseId+'/categoryvideochatwindow/'+cat.categoryNumber+'/'+group.groupNumber
                           const categoryChatWindow = () => { window.open(link, 'Video chat with '+group.groupName, 'height=768,width=1024')}
                           const nParticipants = group.joinedVideoChat ? group.joinedVideoChat.length : 0
-                          return(
-                            <div className='btn' onClick={categoryChatWindow} key={'vccg'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName}>
-                              {'Join '+group.groupName+' ('+nParticipants+')'}
+                          //list of students
+                          const students = isInstructor && group.joinedVideoChat
+                                            ? Meteor.users.find({ _id: { $in: group.joinedVideoChat || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
+                                            : []
+                          const studentsToolTip = students.map((student) =>
+                            <div key={student._id}>
+                              <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>
                             </div>
+                          )
+                          return(
+                            <CleanTooltip key={'vccgctp'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName} info={isInstructor && nParticipants  ? studentsToolTip: null}>
+                              <div className='btn' onClick={categoryChatWindow} key={'vccg'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName}>
+                                {'Join '+group.groupName+' ('+nParticipants+')'}
+                              </div>
+                            </CleanTooltip>
                           )
                         })
                       }
@@ -332,7 +343,7 @@ export class _VideoChat extends Component {
 }
 
 export const VideoChat = withTracker((props) => {
-  const handle = Meteor.subscribe('courses.single', props.courseId)
+  const handle = Meteor.subscribe('courses.single', props.courseId) && Meteor.subscribe('users.studentsInCourse', props.courseId)
   const course = Courses.findOne(props.courseId)
 
   return {
