@@ -156,7 +156,7 @@ export class JitsiWindow extends Component {
         <div className='ql-jitsi-toolbar'>
           { callButton
             ? <div className={'btn'+extraClass} onClick={toggleHelp}>
-                {help ? 'Calling for help... ':'Call for help '}
+                {help ? 'Notifying instructor... ':'Call instructor for help '}
               </div>
             : ''
           }
