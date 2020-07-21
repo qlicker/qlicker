@@ -289,13 +289,15 @@ export class _VideoChat extends Component {
 
             <div className='ql-card-content'>
               { courseVideoChatEnabled
-                ? <div>
+                ? <div className='ql-video-join'>
                     <div className='ql-video-catname'>
                      Course-wide video chat
                     </div>
+                    <div className='ql-video-join-buttons'>
                       <div className='btn' onClick={courseChatWindow}>
                         Join class-wide chat ({this.props.course.videoChatOptions.joined.length})
                       </div>
+                    </div>
                   </div>
                 : categoriesWithChatEnabled.length > 0
                   ? ''
@@ -304,13 +306,16 @@ export class _VideoChat extends Component {
 
               { categoriesWithChatEnabled.map(cat => {
                 return(
-                  <div key={'vcc'+cat.categoryNumber+cat.categoryName} >
+                  <div className='ql-video-join' key={'vcc'+cat.categoryNumber+cat.categoryName} >
                     <div className='ql-video-catname'> {cat.categoryName} </div>
+                    <div className='ql-video-join-buttons'>
                       { cat.groups.map(group => {
                           //this link is parsed in routes.jsx to ultimately create a route for JitsiWindow
                           const link = '/course/'+this.props.courseId+'/categoryvideochatwindow/'+cat.categoryNumber+'/'+group.groupNumber
                           const categoryChatWindow = () => { window.open(link, 'Video chat with '+group.groupName, 'height=768,width=1024')}
                           const nParticipants = group.joinedVideoChat ? group.joinedVideoChat.length : 0
+                          let extraClass = nParticipants > 0 ? ' ql-back-light-green' : ''
+                          extraClass = isInstructor && group.helpVideoChat ? ' ql-blinking' : extraClass
                           //list of students
                           const students = isInstructor && group.joinedVideoChat
                                             ? Meteor.users.find({ _id: { $in: group.joinedVideoChat || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
@@ -322,13 +327,14 @@ export class _VideoChat extends Component {
                           )
                           return(
                             <CleanTooltip key={'vccgctp'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName} info={isInstructor && nParticipants  ? studentsToolTip: null}>
-                              <div className='btn' onClick={categoryChatWindow} key={'vccg'+cat.categoryNumber+'gx'+group.groupNumber+group.groupName}>
+                              <div className={'btn'+extraClass} onClick={categoryChatWindow}>
                                 {'Join '+group.groupName+' ('+nParticipants+')'}
                               </div>
                             </CleanTooltip>
                           )
                         })
                       }
+                    </div>
                   </div>
                 )
                 })

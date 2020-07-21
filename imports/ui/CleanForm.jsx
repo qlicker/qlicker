@@ -17,9 +17,9 @@ export const CheckBoxOption = ({label, checked, onChange, id}) => {
   )
 }
 
+//pass null/undefined as info prop, and there will be no tooltip or CSS change
 export const CleanTooltip = (props) =>{
   if (!props.info){//no tooltip
-    console.log("ere")
     return props.children
   }
   return(
