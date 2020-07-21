@@ -177,6 +177,13 @@ class _CleanPageContainer extends Component {
       //don't close submenu because the top level button already toggles it...
     }
 
+    const goAllCoursesPageAndClose = () => {
+      Router.go(  user.hasGreaterRole('professor') ? 'courses' : 'student'  )
+      this.setState({ courseId: '', showCourse: false })
+      closeMobileMenu()
+      closeSubMenus()// when qlicking the Qlicker logo...
+    }
+
     const goProfile = () => {
       Router.go('profile');
       this.setState({ courseId: '', showCourse: false });
@@ -188,7 +195,7 @@ class _CleanPageContainer extends Component {
       <div className='ql-page-body'>
         <div className='ql-page-nav'>
           <nav>
-            <div className='ql-logo' onClick={goAllCoursesPage} >Qlicker</div>
+            <div className='ql-logo' onClick={goAllCoursesPageAndClose} >Qlicker</div>
             <input type="checkbox" id="ql-page-horiz-menu" /><label onClick={closeSubMenus} htmlFor="ql-page-horiz-menu"></label>
             <ul>
               { isAdmin

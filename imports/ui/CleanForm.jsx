@@ -17,7 +17,11 @@ export const CheckBoxOption = ({label, checked, onChange, id}) => {
   )
 }
 
+//pass null/undefined as info prop, and there will be no tooltip or CSS change
 export const CleanTooltip = (props) =>{
+  if (!props.info){//no tooltip
+    return props.children
+  }
   return(
     <div className='ql-tooltip'>
       <div className='ql-tooltip-target'>

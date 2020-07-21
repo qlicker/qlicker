@@ -9,21 +9,19 @@ export class JitsiWindow extends Component {
 
     this.state = {
         api:null,
-        domain: null
       }
 
+    this.toggleHelpButton = this.toggleHelpButton.bind(this)
   }
-
-/*
-  componentWillMount() {
-    Meteor.call('settings.getJitsiDomain',  (err,result) => {
-      if(!err){
-        console.log(result)
-        this.setState({domain:result})
+  toggleHelpButton (courseId, catNumber, groupNumber) {
+    Meteor.call('courses.toggleGroupHelpVideoChat', courseId, catNumber, groupNumber, (err) => {
+      if (err) {
+        alertify.error('Error: ' + err.error)
+      } else {
+        alertify.success('Help button toggled')
       }
     })
-  }*/
-
+  }
 
   componentDidMount() {
     if (!this.props.connectionInfo) {
@@ -142,9 +140,27 @@ export class JitsiWindow extends Component {
   render () {
 
     if (!this.props.connectionInfo) return <div className='ql-subs-loading'>No connection info</div>
+
+    let categoryNumber = Number(this.props.connectionInfo.categoryNumber)
+    let groupNumber = Number(this.props.connectionInfo.groupNumber)
+    let courseId = this.props.connectionInfo.courseId
+    let help = this.props.connectionInfo.helpVideoChat
+
+    let callButton = categoryNumber && groupNumber && courseId && Meteor.user().isStudent(courseId)
+
+    const toggleHelp = callButton ? () =>{this.toggleHelpButton(courseId, categoryNumber, groupNumber)} : null
+    let extraClass = help ? ' ql-blinking' : ''
     return(
-      <div className='ql-jitsi-outer' style={{width:'100%', 'height':'100vh'}}>
-        <div id='ql-jitsi-inner' style={{width:'100%', 'height':'100%'}} />
+      <div className='ql-jitsi-outer' >
+        <div className='ql-jitsi-inner' id='ql-jitsi-inner' />
+        <div className='ql-jitsi-toolbar'>
+          { callButton
+            ? <div className={'btn'+extraClass} onClick={toggleHelp}>
+                {help ? 'Calling instructor... ':'Call instructor for help '}
+              </div>
+            : ''
+          }
+        </div>
       </div>
     )
   }

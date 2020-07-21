@@ -1,5 +1,20 @@
 @import '../variables.scss';
 
+.ql-back-light-green{
+  background-color: $light-green;
+}
+.ql-blinking {
+ animation: blinkingContent 1.5s cubic-bezier(0.36, 0.38, 0.62, 0.6) infinite;
+ color:$blue;
+}
+
+@keyframes blinkingContent {
+  0% { background-color: $lighter-blue;}
+  50% { opacity: 0.6; }
+  100% { background-color: $lighter-blue;}
+}
+
+
 .ql-checkbox {
   display:flex;
   //padding: 5px;
@@ -27,20 +42,20 @@
   display: none;
   position: absolute;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.5s;
   z-index: 2;
-  font-size: 80%;
-  padding: 4px;
+  font-size: 65%;
+  padding: 5px;
   margin-top: 2px;
   margin-left: 2px;
   width: fit-content;
   max-width: 200px;
-  border-radius: 5px;
-  color: black;
-  background-color: $light-blue;
+  border-radius: 2px;
+  color: white;
+  background-color: #808080bf;
 }
 
 .ql-tooltip:hover > .ql-tooltip-info {
   display: block;
-  opacity:0.9;
+  opacity: 1.0;
 }

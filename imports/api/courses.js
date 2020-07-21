@@ -64,6 +64,7 @@ const coursePattern = {
       groupName: Match.Maybe(Helpers.NEString),
       students: Match.Maybe([Helpers.MongoID]),
       joinedVideoChat: Match.Maybe([Helpers.MongoID]),//not hidden, so pointless to hide students...
+      helpVideoChat:Match.Maybe(Boolean),//whether group has activated help/call button in their video chat
     }])
   }])
 }
@@ -197,7 +198,9 @@ _.extend(Course.prototype, {
                             apiOptions:apiOptions,
                             courseId:this._id,
                             categoryNumber:Number(category.categoryNumber),
-                            groupNumber:Number(groupNumber)}
+                            groupNumber:Number(groupNumber),
+                            helpVideoChat:group.helpVideoChat
+                          }
     return connectionInfo
   }
 
@@ -238,7 +241,8 @@ if (Meteor.isServer) {
                     groupName: g.groupName,
                     groupNumber: g.groupNumber,
                     students: [this.userId],
-                    joinedVideoChat:g.joinedVideoChat
+                    joinedVideoChat:g.joinedVideoChat,
+                    helpVideoChat: g.helpVideoChat
                   }]
                 })
               }
@@ -269,7 +273,8 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId],
-                        joinedVideoChat:g.joinedVideoChat
+                        joinedVideoChat:g.joinedVideoChat,
+                        helpVideoChat: g.helpVideoChat
                       }]
                     })
                   }
@@ -297,7 +302,8 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId],
-                        joinedVideoChat:g.joinedVideoChat
+                        joinedVideoChat:g.joinedVideoChat,
+                        helpVideoChat: g.helpVideoChat
                       }]
                     })
                   }
@@ -354,7 +360,8 @@ if (Meteor.isServer) {
                       groupName: g.groupName,
                       groupNumber: g.groupNumber,
                       students: [this.userId],
-                      joinedVideoChat:g.joinedVideoChat
+                      joinedVideoChat:g.joinedVideoChat,
+                      helpVideoChat: g.helpVideoChat
                     }]
                   })
                 }
@@ -391,7 +398,8 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId],
-                        joinedVideoChat:g.joinedVideoChat
+                        joinedVideoChat:g.joinedVideoChat,
+                        helpVideoChat: g.helpVideoChat
                       }]
                     })
                   }
@@ -418,7 +426,8 @@ if (Meteor.isServer) {
                         groupName: g.groupName,
                         groupNumber: g.groupNumber,
                         students: [this.userId],
-                        joinedVideoChat:g.joinedVideoChat
+                        joinedVideoChat:g.joinedVideoChat,
+                        helpVideoChat: g.helpVideoChat
                       }]
                     })
                   }
@@ -1127,7 +1136,7 @@ Meteor.methods({
     } else {
       let videoChatOptions = {
         urlId: Helpers.RandomVideoId(), //new random ID each time it's toggled
-        joined: [],
+        joined: [],//not used in category (have to keep track of each group, use joinedVideoChat instead)
       }
       videoChatOptions.apiOptions = default_VideoChat_apiOptions
       category.catVideoChatOptions = videoChatOptions
@@ -1135,6 +1144,7 @@ Meteor.methods({
       if(categories.groups && categories.groups.length > 0){
         for (let ig=0; ig<categories.groups.length ;ig++){
           groups[ig].joinedVideoChat = []
+          groups[ig].helpVideoChat = false
         }
       }
 
@@ -1260,6 +1270,9 @@ Meteor.methods({
     if (joined.indexOf(user._id) !== -1){
       joined = joined.filter( (a) => {return a !== user._id} )//remove all instances
       group.joinedVideoChat = joined
+      if(group.joinedVideoChat.length < 1){
+        group.helpVideoChat = false //turn of ask for help when last person leaves!
+      }
     }
 
     return Courses.update({ _id: courseId }, {
@@ -1268,6 +1281,42 @@ Meteor.methods({
       }
     })
   },
+
+  'courses.toggleGroupHelpVideoChat' (courseId, categoryNumber, groupNumber) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
+
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    if (!user.isStudent(courseId)) throw new Meteor.Error('Not authorized')
+    let course = Courses.findOne(courseId)
+
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber: (groupNumber) })
+
+    if (!group) {
+      throw new Meteor.Error('Group does not exist!')
+    }
+
+    if (!group.students || !group.students.includes(user._id)) {
+      throw new Meteor.Error('Not in group')
+    }
+
+    group.helpVideoChat = !group.helpVideoChat
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
+
 
 }) // end Meteor.methods
 

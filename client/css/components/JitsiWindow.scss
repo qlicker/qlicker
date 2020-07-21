@@ -1,0 +1,25 @@
+@import '../variables.scss';
+
+.ql-jitsi-outer {
+  width:100%;
+  height: 100vh;
+  display: flex;
+  flex-flow: column nowrap;
+
+  .ql-jitsi-inner {
+    width:100%;
+    height: 100%;
+
+  }
+
+  .ql-jitsi-toolbar {
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: #000000d1;
+    .btn {
+      background: white;
+    }
+  }
+}

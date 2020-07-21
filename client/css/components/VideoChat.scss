@@ -22,6 +22,22 @@
   .ql-video-page-rooms {
     min-width: 350px;
     max-width: 900px;
+
+    .ql-video-join {
+
+      .ql-video-join-buttons{
+        display: flex;
+        flex-flow: row wrap;
+
+        /*> div {
+          flex-basis: 20%
+        }*/
+
+        .ql-tooltip-target .btn {
+          width: 100%;
+        }
+      }
+    }
   }
 
   .btn {
