@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.10.4",
-    "aws-sdk": "^2.711.0",
+    "aws-sdk": "^2.717.0",
     "azure-storage": "^2.10.3",
     "babel-eslint": "^7.1.1",
     "bcrypt": "^4.0.1",
@@ -56,9 +56,9 @@
     "xmldom": "^0.1.31"
   },
   "devDependencies": {
-    "codecov": ">=3.6.5",
+    "codecov": "^3.7.1",
     "enzyme": "^2.7.0",
-    "eslint": "^7.4.0",
+    "eslint": "^7.5.0",
     "ignore-styles": "^5.0.1"
   },
   "standard": {
