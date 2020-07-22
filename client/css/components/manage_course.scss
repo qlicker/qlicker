@@ -1,20 +1,8 @@
 @import '../variables.scss';
 .ql-manage-course {
 
-  h2, h3 {
-    padding: 10px;
-    margin-bottom: 0px;
-    margin-top: 10px;
-    background-color: $blue;
-    color: white;
-  }
-
   .ql-card {
     margin-top: 0px;
-  }
-
-  .ql-course-session-col .btn {
-    background-color: white;
   }
 
   .ql-course-details {

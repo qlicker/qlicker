@@ -460,13 +460,16 @@ class _RunSession extends Component {
                }
             </div>
 
-            { //Since these have lists of responses, place after the question
+
+            { // !! Can't show the distributions when presenting because it would show the student names in the list of responses...
+              // should really test: q && q.type === QUESTION_TYPE.SA && (!this.state.presenting ||  q.sessionOptions.stats)
+              //Since these have lists of responses, place after the question
               !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
               ? <div><ShortAnswerList question={q} /></div>
               : ''
             }
             { //Since these have lists of responses, place after the question
-              !this.state.presenting && q && q.type === QUESTION_TYPE.NU // short answer
+              !this.state.presenting && q && q.type === QUESTION_TYPE.NU // numberical answer
               ? <div><HistogramNumerical question={q} /></div>
               : ''
             }
