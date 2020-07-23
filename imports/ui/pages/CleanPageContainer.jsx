@@ -135,6 +135,11 @@ class _CleanPageContainer extends Component {
       closeMobileMenu()
     }
 
+    const logoutSSO = () => {
+      Router.go('logout')
+      closeMobileMenu()
+    }
+
     const goAdmin = () => {
       Router.go('admin')
       closeMobileMenu()
@@ -262,14 +267,14 @@ class _CleanPageContainer extends Component {
                 <ul id='profile-dropdown' >
                   <li onClick={goProfile} ><a>User profile</a></li>
                   {canPromote
-                    ? <li><a onClick={togglePromotingAccount}>Promote an account to professor</a></li>
+                    ? <li onClick={togglePromotingAccount}><a>Promote an account to professor</a></li>
                     : ''
                   }
                   <li><a href={userGuideUrl}>Visit user guide</a></li>
-                  <li className='divider' />
+                  <li className='divider' onClick={logout} />
                   {this.state.ssoLogoutUrl ?
-                        <li><a href={this.state.ssoLogoutUrl} onClick={logout}  > Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
-                        : <li><a href={Router.routes['logout'].path()} onClick={logout} >Logout from Qlicker</a></li>
+                        <li ><a onClick={logoutSSO} href={this.state.ssoLogoutUrl}> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
+                        : <li onClick={logout}><a> Logout from Qlicker</a></li>
                   }
                 </ul>
               </li>
