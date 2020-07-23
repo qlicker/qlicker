@@ -8,13 +8,19 @@ body {
 
 }
 
-h1, h2, h3 {
-  margin-bottom: 4px;
-  margin-top: 4px;
-}
+
 h1 {
   font-size: 3em;
 }
+
+h1, h2, h3 {
+  padding: 10px;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  background-color: $blue;
+  color: white;
+}
+
 
 p {
   margin-bottom: 0px;
