@@ -370,7 +370,7 @@ class _RunSession extends Component {
       <div className='ql-manage-session'>
 
         <div className='ql-session-toolbar'>
-          <h3 className='session-title'>{ this.state.session.name }</h3>
+          <div className='ql-title'>{ this.state.session.name }</div>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={() => Router.go('session.edit', {sessionId: this.state.session._id, courseId: this.state.session.courseId })}>
             <span className='glyphicon glyphicon-edit' />&nbsp;
@@ -398,7 +398,7 @@ class _RunSession extends Component {
         </div>
 
         <div className='ql-question-toolbar'>
-          <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
+          <div className='ql-title' >Question {questionList.indexOf(current) + 1}/{questionList.length}</div>
           <span className='divider'>&nbsp;</span>
           <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
           <span className='divider'>&nbsp;</span>
