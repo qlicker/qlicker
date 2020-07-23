@@ -48,6 +48,27 @@ p {
   cursor: pointer;
 }
 
+
+.ql-back-light-green{
+  background-color: $light-green;
+}
+.ql-blinking {
+ animation: blinkingContent 1.5s cubic-bezier(0.36, 0.38, 0.62, 0.6) infinite;
+ color:$blue;
+}
+
+.ql-title {
+  font-weight: 700;
+  font-size: 120%;
+}
+
+@keyframes blinkingContent {
+  0% { background-color: $lighter-blue;}
+  50% { opacity: 0.6; }
+  100% { background-color: $lighter-blue;}
+}
+
+
 .ql-child-container {
   > .container {
     padding-top: 20px;
@@ -80,11 +101,9 @@ p {
 
 }
 
-
 .ql-course-code, .ql-course-semester, .ql-enrollment-code {
   text-transform: uppercase;
 }
-
 
 .uppercase {
   text-transform: uppercase;
