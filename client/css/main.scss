@@ -8,13 +8,19 @@ body {
 
 }
 
-h1, h2, h3 {
-  margin-bottom: 4px;
-  margin-top: 4px;
-}
+
 h1 {
   font-size: 3em;
 }
+
+h1, h2, h3 {
+  padding: 10px;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  background-color: $blue;
+  color: white;
+}
+
 
 p {
   margin-bottom: 0px;
@@ -41,6 +47,27 @@ p {
 .cursor-pointer {
   cursor: pointer;
 }
+
+
+.ql-back-light-green{
+  background-color: $light-green;
+}
+.ql-blinking {
+ animation: blinkingContent 1.5s cubic-bezier(0.36, 0.38, 0.62, 0.6) infinite;
+ color:$blue;
+}
+
+.ql-title {
+  font-weight: 700;
+  font-size: 120%;
+}
+
+@keyframes blinkingContent {
+  0% { background-color: $lighter-blue;}
+  50% { opacity: 0.6; }
+  100% { background-color: $lighter-blue;}
+}
+
 
 .ql-child-container {
   > .container {
@@ -74,11 +101,9 @@ p {
 
 }
 
-
 .ql-course-code, .ql-course-semester, .ql-enrollment-code {
   text-transform: uppercase;
 }
-
 
 .uppercase {
   text-transform: uppercase;

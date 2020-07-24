@@ -71,19 +71,27 @@ class _ManageCourses extends Component {
   }
 
   render () {
+    if (this.props.loading || !this.props.courses) return <div className='ql-subs-loading'>Loading</div>
+    let active = this.props.courses.filter((c) => !c.inactive)
+    let inactive = this.props.courses.filter((c) => c.inactive)
+
     return (
       <div className='container ql-professor-page'>
         <h1>Courses</h1>
-        <button className='btn btn-primary' onClick={this.promptCreateCourse}>Create Course</button>
+        <button className='btn' onClick={this.promptCreateCourse}>Create new course</button>
         <div className='ql-courselist'>
-          { this.renderCourseList(this.props.courses.filter((c) => !c.inactive)) }
+          { this.renderCourseList(active) }
         </div>
         <br /><br />
-        <h2>Inactive Courses</h2>
-        <div className='ql-courselist'>
-          { this.renderCourseList(this.props.courses.filter((c) => c.inactive)) }
-        </div>
-
+        { inactive && inactive.length > 0
+          ? <div>
+              <h2>Inactive Courses</h2>
+              <div className='ql-courselist'>
+                { this.renderCourseList(inactive) }
+              </div>
+            </div>
+          : ''
+        }
         { this.state.creatingCourse ? <CreateCourseModal done={this.doneCreatingCourse} /> : '' }
       </div>)
   }

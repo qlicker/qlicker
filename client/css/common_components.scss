@@ -221,7 +221,8 @@ input[type=text], input[type=email], input[type=password], textarea.form-control
   border-color: #ccc;
   color: #666;
   border-radius: 3px;
-
+  background: white;
+  
   &:hover {
     border-color: $blue;
     color: $blue;

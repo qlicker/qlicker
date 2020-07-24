@@ -370,7 +370,7 @@ class _RunSession extends Component {
       <div className='ql-manage-session'>
 
         <div className='ql-session-toolbar'>
-          <h3 className='session-title'>{ this.state.session.name }</h3>
+          <div className='ql-title'>{ this.state.session.name }</div>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={() => Router.go('session.edit', {sessionId: this.state.session._id, courseId: this.state.session.courseId })}>
             <span className='glyphicon glyphicon-edit' />&nbsp;
@@ -398,7 +398,7 @@ class _RunSession extends Component {
         </div>
 
         <div className='ql-question-toolbar'>
-          <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
+          <div className='ql-title' >Question {questionList.indexOf(current) + 1}/{questionList.length}</div>
           <span className='divider'>&nbsp;</span>
           <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
           <span className='divider'>&nbsp;</span>
@@ -460,13 +460,16 @@ class _RunSession extends Component {
                }
             </div>
 
-            { //Since these have lists of responses, place after the question
+
+            { // !! Can't show the distributions when presenting because it would show the student names in the list of responses...
+              // should really test: q && q.type === QUESTION_TYPE.SA && (!this.state.presenting ||  q.sessionOptions.stats)
+              //Since these have lists of responses, place after the question
               !this.state.presenting && q && q.type === QUESTION_TYPE.SA // short answer
               ? <div><ShortAnswerList question={q} /></div>
               : ''
             }
             { //Since these have lists of responses, place after the question
-              !this.state.presenting && q && q.type === QUESTION_TYPE.NU // short answer
+              !this.state.presenting && q && q.type === QUESTION_TYPE.NU // numberical answer
               ? <div><HistogramNumerical question={q} /></div>
               : ''
             }
