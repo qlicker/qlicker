@@ -136,7 +136,15 @@ class _CleanPageContainer extends Component {
     }
 
     const logoutSSO = () => {
+      if (this.state.ssoLogoutUrl){
+        window.location.href=this.state.ssoLogoutUrl
+      }
       Router.go('logout')
+      closeMobileMenu()
+    }
+
+    const goUserGuide = () => {
+      window.location.href=userGuideUrl
       closeMobileMenu()
     }
 
@@ -204,25 +212,25 @@ class _CleanPageContainer extends Component {
             <input type="checkbox" id="ql-page-horiz-menu" /><label onClick={closeSubMenus} htmlFor="ql-page-horiz-menu"></label>
             <ul>
               { isAdmin
-                 ? <li onClick={goAdmin}><a>Settings</a></li>
+                 ? <li onClick={goAdmin}><a href='#'>Settings</a></li>
                  : ''
               }
               {  this.state.showCourse
-                 ? <li onClick={goCourseHome}><a>Course Home</a></li>
+                 ? <li onClick={goCourseHome}><a href='#'>Course Home</a></li>
                  : ''
               }
               { this.state.showCourse
-                ? <li onClick={goCourseGrades}><a>Grades</a></li>
+                ? <li onClick={goCourseGrades}><a href='#'>Grades</a></li>
                 : isAdmin
-                  ? <li onClick={goAllCourseGrades}><a>Grades</a></li>
+                  ? <li onClick={goAllCourseGrades}><a href='#'>Grades</a></li>
                   :''
               }
               { this.state.showCourse /*&& !isAdmin*/
-                ? <li onClick={goCourseQuestions}> <a>Question library</a></li>
+                ? <li onClick={goCourseQuestions}> <a href='#'>Question library</a></li>
                 : ''
               }
               { this.state.showCourse && this.state.showVideo /*&& !isAdmin*/
-                ? <li onClick={goVideoChat}> <a>Video chat</a></li>
+                ? <li onClick={goVideoChat}> <a href='#'>Video chat</a></li>
                 : ''
               }
               { isAdmin
@@ -230,12 +238,12 @@ class _CleanPageContainer extends Component {
                     ? <li>
                         <a href='#'> {this.state.courseCode} </a>
                          <ul >
-                           <li onClick={goAllCoursesPage}><a>All Courses</a></li>
+                           <li onClick={goAllCoursesPage}><a href='#'>All Courses</a></li>
                          </ul>
                        </li>
-                    : <li onClick={goAllCoursesPage}><a> Courses</a></li>
+                    : <li onClick={goAllCoursesPage}><a href='#'> Courses</a></li>
                 : <li className='ql-dropdown' onClick = { () => {$('#course-dropdown').toggle(); $('#profile-dropdown').hide()}}>
-                     <a>
+                     <a href='#'>
                        { this.state.courseId
                          ?  this.state.courseCode
                          : 'Courses'
@@ -248,7 +256,7 @@ class _CleanPageContainer extends Component {
                              <li className='divider' />
                              <li className='infolabel'> My Active Courses</li>
                                { this.props.courses.map((c) => {
-                                    return (<li key={c._id} onClick={() => this.changeCourse(c._id)} ><a>{c.fullCourseCode()}</a></li>)
+                                    return (<li key={c._id} onClick={() => this.changeCourse(c._id)} ><a href='#'>{c.fullCourseCode()}</a></li>)
                                   })
                                 }
                            </div>
@@ -258,23 +266,23 @@ class _CleanPageContainer extends Component {
                   </li>
               }
               <li className='ql-dropdown right profile-pic' onClick = { () => {$('#profile-dropdown').toggle(); $('#course-dropdown').hide()}}>
-                <a>
+                <a href='#'>
                   <div className='img-circle-crop'>
                     <img src={user.getThumbnailUrl()}  />
                   </div>
                   &nbsp; {user.getName()}
                 </a>
                 <ul id='profile-dropdown' >
-                  <li onClick={goProfile} ><a>User profile</a></li>
+                  <li onClick={goProfile} ><a href='#'>User profile</a></li>
                   {canPromote
-                    ? <li onClick={togglePromotingAccount}><a>Promote an account to professor</a></li>
+                    ? <li onClick={togglePromotingAccount}><a href='#'>Promote an account to professor</a></li>
                     : ''
                   }
-                  <li><a href={userGuideUrl}>Visit user guide</a></li>
+                  <li onClick={goUserGuide}><a href='#'>Visit user guide</a></li>
                   <li className='divider' onClick={logout} />
                   {this.state.ssoLogoutUrl ?
-                        <li ><a onClick={logoutSSO} href={this.state.ssoLogoutUrl}> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
-                        : <li onClick={logout}><a> Logout from Qlicker</a></li>
+                        <li onClick={logoutSSO} ><a href='#'> Logout from Qlicker and {this.state.ssoInstitution ? this.state.ssoInstitution : 'SSO' }</a></li>
+                        : <li onClick={logout}><a href='#'> Logout from Qlicker</a></li>
                   }
                 </ul>
               </li>
