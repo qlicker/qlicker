@@ -376,7 +376,7 @@ class _RunSession extends Component {
 
     return (
       <div className='ql-manage-session'>
-
+      <div className='ql-session-toolbar-container'>
         <div className='ql-session-toolbar'>
           <div className='ql-title'>{ this.state.session.name }</div>
           <span className='divider'>&nbsp;</span>
@@ -424,6 +424,8 @@ class _RunSession extends Component {
           <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
           <span className='divider'>&nbsp;</span>
         </div>
+
+      </div>
 
       <div className='ql-row-container'>
           <div className='ql-sidebar-container'>

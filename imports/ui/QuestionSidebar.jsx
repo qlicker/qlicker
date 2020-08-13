@@ -109,11 +109,7 @@ export class _QuestionSidebar extends ControlledForm {
       tags.forEach((t) => {
         tagSuggestions.push({ value: t, label: t.toUpperCase() })
       })
-      let atMaxLimit = false
-      let nQuery =  Questions.find(this.props.libQuery).count()
-      const newQuestions = Questions.find(this.props.libQuery, {sort:{createdAt: -1 }, limit:this.state.limit}).fetch()
-      if( this.props.questions && this.props.questions.length >= nQuery) atMaxLimit = true
-      this.setState({tagSuggestions: tagSuggestions, nQuery: nQuery, atMaxLimit:atMaxLimit, questionPool: newQuestions})
+      this.setState({tagSuggestions: tagSuggestions})
       //this.forceUpdate()
     })
   }
