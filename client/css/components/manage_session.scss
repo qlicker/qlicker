@@ -101,6 +101,15 @@
     }
   }
 
+  .ql-session-toolbar-container{
+    position: sticky;
+    top: 50px; //TODO this should adjust based on screen size
+    z-index: 9; //Main navbar is a z = 10
+  }
+  .ql-session-toolbar-container > .ql-session-toolbar {
+    position: unset;
+  }
+
   .ql-question-toolbar {
     width: 100%;
     @include session-toolbar();
@@ -149,7 +158,10 @@
       //height: calc(100vh - 100px);
       padding: 20px;
       overflow: auto;
-
+      overflow-y: scroll;
+      max-height: 800px;
+      padding-top: 5px;
+      padding-bottom: 5px;
       .list-item-selected {
         font-weight: normal;
       }
@@ -339,7 +351,6 @@
     //  height: 150px;
       top: 50px;
     }
-
     .ql-row-container {
       //top: 100px!important;
       .ql-sidebar-container {
@@ -349,6 +360,12 @@
         margin-left: 0px!important;
       }
     }
+    .ql-session-toolbar-container{
+      top: 50px;
+    }
+    .ql-session-toolbar-container > .ql-session-toolbar {
+      position: unset;
+    }
 
   }
 
@@ -357,6 +374,12 @@
     //more space for header before it collapses at 700px
     .ql-page-content {
       margin-top: 100px;
+    }
+    .ql-session-toolbar-container{
+      top: 100px;
+    }
+    .ql-session-toolbar-container > .ql-session-toolbar {
+      position: unset;
     }
     .ql-session-toolbar {
     //  height: 150px;
