@@ -155,11 +155,11 @@
       top: 0;
       left: 0;
       width: 360px;
-      //height: calc(100vh - 100px);
+      height: calc(100vh - 120px);
       padding: 20px;
       overflow: auto;
-      overflow-y: scroll;
-      max-height: 800px;
+      //overflow-y: scroll;
+      //max-height: 800px;
       padding-top: 5px;
       padding-bottom: 5px;
       .list-item-selected {
@@ -199,7 +199,7 @@
       margin-left: 360px;
       padding-left: 15px;
       overflow: auto;
-      //height: calc(100vh - 100px);
+      height: calc(100vh - 120px);
       max-width: 1000px;
 
       .ql-short-answer-list {
@@ -355,6 +355,7 @@
       //top: 100px!important;
       .ql-sidebar-container {
         display: none!important;
+
       }
       .ql-main-content {
         margin-left: 0px!important;
@@ -384,6 +385,12 @@
     .ql-session-toolbar {
     //  height: 150px;
       top: 100px;
+    }
+    .ql-session-sidebar {
+      height: calc(100vh - 200px);
+    }
+    .ql-main-content{
+      height: calc(100vh - 200px);
     }
   }
 
