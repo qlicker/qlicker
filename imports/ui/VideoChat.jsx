@@ -198,6 +198,16 @@ export class _VideoChat extends Component {
     const groupCategories = this.props.course.groupCategories ? this.props.course.groupCategories : []
     const categoriesWithChatEnabled =  _(groupCategories).filter( (cat) => {return !!cat.catVideoChatOptions} )
 
+    const studentsInCourseVideoChat = isInstructor && courseVideoChatEnabled && this.props.course.videoChatOptions.joined
+                      ? Meteor.users.find({ _id: { $in: this.props.course.videoChatOptions.joined || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
+                      : []
+    const nStudentsInCourseVideoChat = studentsInCourseVideoChat ? studentsInCourseVideoChat.length : 0
+    const courseStudentsToolTip = studentsInCourseVideoChat.map((student) =>
+      <div key={student._id}>
+        <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>
+      </div>
+    )
+
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick, catTileClick, catAudioClick, catVideoClick}) => {
       if (name){
@@ -294,9 +304,11 @@ export class _VideoChat extends Component {
                      Course-wide video chat
                     </div>
                     <div className='ql-video-join-buttons'>
-                      <div className='btn' onClick={courseChatWindow}>
-                        Join class-wide chat ({this.props.course.videoChatOptions.joined.length})
-                      </div>
+                      <CleanTooltip info={isInstructor && nStudentsInCourseVideoChat ? courseStudentsToolTip: null}>
+                        <div className='btn' onClick={courseChatWindow}>
+                          Join class-wide chat ({this.props.course.videoChatOptions.joined.length})
+                        </div>
+                      </CleanTooltip>
                     </div>
                   </div>
                 : categoriesWithChatEnabled.length > 0
