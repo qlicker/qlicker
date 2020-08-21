@@ -20,7 +20,7 @@
     "aws-sdk": "^2.717.0",
     "azure-storage": "^2.10.3",
     "babel-eslint": "^7.1.1",
-    "bcrypt": "^4.0.1",
+    "bcrypt": ">=5.0.0",
     "body-parser": "^1.19.0",
     "docdash": "^0.4.0",
     "draftjs-to-html": "^0.6.0",
