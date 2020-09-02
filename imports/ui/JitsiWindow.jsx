@@ -92,7 +92,7 @@ export class JitsiWindow extends Component {
             api.executeCommand('subject', apiOptions.subjectTitle);
           }
           //Use Qlicker avatar:
-          //api.executeCommand('avatarUrl', Meteor.User().getThumbnailUrl())
+          api.executeCommand('avatarUrl',  Meteor.user().getImageUrl())
           //Mute audio on join
           if (apiOptions.startAudioMuted){
             api.isAudioMuted().then(muted => {
