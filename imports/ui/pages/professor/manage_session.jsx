@@ -509,7 +509,7 @@ class _ManageSession extends Component {
     return (
       <div className='ql-manage-session'>
         <div className='ql-session-toolbar'>
-          <h3 className='session-title'>Session Editor</h3>
+          <div className='ql-title'>Session Editor</div>
           <span className='divider'>&nbsp;</span>
 
           <span className='toolbar-button' onClick={this.runSession}>

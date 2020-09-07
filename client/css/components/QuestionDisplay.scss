@@ -206,7 +206,7 @@ $red-bar: rgba(167,37,38, 0.3);
         background-color: transparent;
         transition: 0.6s ease-out;
         transition-property: width, background-color;
-        z-index: 10;
+        z-index: 5;
 
         &.show-stats {
           background-color: $blue-bar;

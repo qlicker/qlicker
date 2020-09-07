@@ -12,6 +12,7 @@ import { withTracker }  from 'meteor/react-meteor-data'
 import { Sessions } from '../../../api/sessions'
 import { Questions } from '../../../api/questions'
 import { Responses, responseDistribution } from '../../../api/responses'
+import { CheckBoxOption, CleanTooltip } from '../../CleanForm'
 
 import { QuestionListItem } from '../../QuestionListItem'
 import { QuestionDisplay } from '../../QuestionDisplay'
@@ -361,23 +362,32 @@ class _RunSession extends Component {
     const numAnswered = this.props.responseCounts[q._id][currentAttemptNumber]
     const numJoined = this.props.session.joined ? this.props.session.joined.length : 0
 
-    const students = Meteor.users.find({ _id: { $in: this.state.session.joined || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
+    const students = Meteor.users.find({ _id: { $in: this.props.session.joined || [] } }, { sort: { 'profile.lastname': 1 } }).fetch()
 
     // small methods
     const secondDisplay = () => { window.open('/course/'+this.state.session.courseId+'/session/present/' + this.state.session._id, 'Qlicker', 'height=768,width=1024') }
     const togglePresenting = () => { this.setState({ presenting: !this.state.presenting }) }
+
+    const studentsToolTip = students.map((student) =>
+      <div key={student._id}>
+        <p>{student.profile.lastname + ', ' + student.profile.firstname}</p>
+      </div>
+    )
+
     return (
       <div className='ql-manage-session'>
-
+      <div className='ql-session-toolbar-container'>
         <div className='ql-session-toolbar'>
-          <h3 className='session-title'>{ this.state.session.name }</h3>
+          <div className='ql-title'>{ this.state.session.name }</div>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={() => Router.go('session.edit', {sessionId: this.state.session._id, courseId: this.state.session.courseId })}>
             <span className='glyphicon glyphicon-edit' />&nbsp;
             Edit Session
           </span>
           <span className='divider'>&nbsp;</span>
-          <span data-tip data-for='students' className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          <CleanTooltip info={numJoined > 0  ? studentsToolTip: null}>
+            <span className='session-title'><span className='glyphicon glyphicon-user' />&nbsp;{ numJoined }</span>
+          </CleanTooltip>
           <span className='divider'>&nbsp;</span>
           <span className='toolbar-button' onClick={this.endSession}>
             <span className='glyphicon glyphicon-stop' />&nbsp;
@@ -398,7 +408,7 @@ class _RunSession extends Component {
         </div>
 
         <div className='ql-question-toolbar'>
-          <h3 className='question-number'>Question {questionList.indexOf(current) + 1}/{questionList.length}</h3>
+          <div className='ql-title' >Question {questionList.indexOf(current) + 1}/{questionList.length}</div>
           <span className='divider'>&nbsp;</span>
           <div className='student-counts'><span className='glyphicon glyphicon-check' />&nbsp;{numAnswered}/{numJoined}</div>
           <span className='divider'>&nbsp;</span>
@@ -414,6 +424,8 @@ class _RunSession extends Component {
           <span className='attempt-message'>Attempt ({currentAttempt.number})</span>
           <span className='divider'>&nbsp;</span>
         </div>
+
+      </div>
 
       <div className='ql-row-container'>
           <div className='ql-sidebar-container'>

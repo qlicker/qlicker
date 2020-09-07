@@ -101,6 +101,15 @@
     }
   }
 
+  .ql-session-toolbar-container{
+    position: sticky;
+    top: 50px; //TODO this should adjust based on screen size
+    z-index: 9; //Main navbar is a z = 10
+  }
+  .ql-session-toolbar-container > .ql-session-toolbar {
+    position: unset;
+  }
+
   .ql-question-toolbar {
     width: 100%;
     @include session-toolbar();
@@ -146,10 +155,13 @@
       top: 0;
       left: 0;
       width: 360px;
-      //height: calc(100vh - 100px);
+      height: calc(100vh - 120px);
       padding: 20px;
       overflow: auto;
-
+      //overflow-y: scroll;
+      //max-height: 800px;
+      padding-top: 5px;
+      padding-bottom: 5px;
       .list-item-selected {
         font-weight: normal;
       }
@@ -187,7 +199,7 @@
       margin-left: 360px;
       padding-left: 15px;
       overflow: auto;
-      //height: calc(100vh - 100px);
+      height: calc(100vh - 120px);
       max-width: 1000px;
 
       .ql-short-answer-list {
@@ -339,15 +351,21 @@
     //  height: 150px;
       top: 50px;
     }
-
     .ql-row-container {
       //top: 100px!important;
       .ql-sidebar-container {
         display: none!important;
+
       }
       .ql-main-content {
         margin-left: 0px!important;
       }
+    }
+    .ql-session-toolbar-container{
+      top: 50px;
+    }
+    .ql-session-toolbar-container > .ql-session-toolbar {
+      position: unset;
     }
 
   }
@@ -358,9 +376,21 @@
     .ql-page-content {
       margin-top: 100px;
     }
+    .ql-session-toolbar-container{
+      top: 100px;
+    }
+    .ql-session-toolbar-container > .ql-session-toolbar {
+      position: unset;
+    }
     .ql-session-toolbar {
     //  height: 150px;
       top: 100px;
+    }
+    .ql-session-sidebar {
+      height: calc(100vh - 200px);
+    }
+    .ql-main-content{
+      height: calc(100vh - 200px);
     }
   }
 

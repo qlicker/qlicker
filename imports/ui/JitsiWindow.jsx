@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 
-
-
 export class JitsiWindow extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
         api:null,
+        directLink:null
       }
 
     this.toggleHelpButton = this.toggleHelpButton.bind(this)
@@ -38,6 +37,7 @@ export class JitsiWindow extends Component {
         let groupNumber = this.props.connectionInfo.groupNumber
 
         const domain = result.domain
+
         //Check if an etherpad/whiteboard domain exists
         //In principle, can pass an options as etherpad_base, but doesn't always work
         const etherpadDomain = apiOptions.useWhiteboard && result.whiteboard
@@ -51,8 +51,13 @@ export class JitsiWindow extends Component {
         //has to be set here, only exists once mounted
         options.parentNode = document.getElementById('ql-jitsi-inner')
 
-        const api = new JitsiMeetExternalAPI(domain, options)
-        this.setState({api:api})
+        const  api = (typeof JitsiMeetExternalAPI === 'function')
+                      ? new JitsiMeetExternalAPI(domain, options)
+                      : null
+
+        //const api = new JitsiMeetExternalAPI(domain, options)
+        const directLink = domain ? 'https://'+domain+'/'+options.roomName: null
+        this.setState({api:api, directLink:directLink})
 
         const closeWindow = () => {
           this.state.api.dispose()
@@ -150,10 +155,15 @@ export class JitsiWindow extends Component {
 
     const toggleHelp = callButton ? () =>{this.toggleHelpButton(courseId, categoryNumber, groupNumber)} : null
     let extraClass = help ? ' ql-blinking' : ''
+
     return(
       <div className='ql-jitsi-outer' >
+
         <div className='ql-jitsi-inner' id='ql-jitsi-inner' />
         <div className='ql-jitsi-toolbar'>
+          <div className='ql-jitsi-toolbar-info'>
+            Chat room direct link: <a href={this.state.directLink}> {this.state.directLink} </a>
+          </div>
           { callButton
             ? <div className={'btn'+extraClass} onClick={toggleHelp}>
                 {help ? 'Calling instructor... ':'Call instructor for help '}

@@ -144,6 +144,7 @@ class _ManageCourseGroups extends Component {
 
   render () {
     if (this.props.loading) return <div className='ql-subs-loading'>Loading</div>
+    if (!this.props.course || !this.props.course.students ||this.props.course.students.length < 1) return <div className='ql-subs-loading'>No students</div>
     const studentsInCourse = this.props.course.students
     let categoryOptions = []
     const groupCategories = this.props.course.groupCategories ? this.props.course.groupCategories : []

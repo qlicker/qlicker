@@ -35,7 +35,7 @@ class _HistogramNumerical extends Component {
     return(
       <div>
         <Histogram values={this.props.values} width={this.props.width || undefined}/>
-        <h3>Responses</h3>
+        <div className='ql-title'>Responses</div>
         {
           this.props.responses.map(r => <div key={r._id} className='ql-short-answer-item'>{this.renderAnswer(r)}</div>)
         }
