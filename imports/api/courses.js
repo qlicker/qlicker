@@ -1055,7 +1055,7 @@ Meteor.methods({
     })
   },
 
-  // Toggle the course video chat, pass options in to configure display
+  // Toggle the course video chat
   // Generates a new random urlId each time it's toggled
   'courses.toggleVideoChat' (courseId) {
 
@@ -1141,10 +1141,11 @@ Meteor.methods({
       videoChatOptions.apiOptions = default_VideoChat_apiOptions
       category.catVideoChatOptions = videoChatOptions
       //easier to reset this on enable, to avoid a horrible query to modify an array in an array...
-      if(categories.groups && categories.groups.length > 0){
-        for (let ig=0; ig<categories.groups.length ;ig++){
-          groups[ig].joinedVideoChat = []
-          groups[ig].helpVideoChat = false
+
+      if(category.groups && category.groups.length > 0){
+        for (let ig=0; ig<category.groups.length ;ig++){
+          category.groups[ig].joinedVideoChat = []
+          category.groups[ig].helpVideoChat = false
         }
       }
 
