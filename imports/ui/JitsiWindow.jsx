@@ -59,11 +59,6 @@ export class JitsiWindow extends Component {
         const directLink = domain ? 'https://'+domain+'/'+options.roomName: null
         this.setState({api:api, directLink:directLink})
 
-        const closeWindow = () => {
-          this.state.api.dispose()
-          window.close()
-        }
-
         const joinCall = () =>{
           if(courseId){
             if(categoryNumber && groupNumber){
@@ -86,12 +81,21 @@ export class JitsiWindow extends Component {
           return null
         }
 
+        const closeWindow = () => {
+          leaveCall()
+          this.state.api.dispose()
+          window.close()
+        }
+
         if (api){
           //Close the window on hangup
           api.addListener('videoConferenceJoined', joinCall)
           api.addListener('videoConferenceLeft', leaveCall)
           api.addListener('videoConferenceLeft', closeWindow)
-          window.onbeforeunload = leaveCall //also leave call if window is closed
+          //window.onbeforeunload = leaveCall //also leave call if window is closed
+          window.addEventListener("beforeunload", leaveCall); //same
+          //window.addEventListener("unload", leaveCall); //same
+
 
           if(apiOptions.subjectTitle){
             api.executeCommand('subject', apiOptions.subjectTitle);
