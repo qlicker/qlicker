@@ -27,7 +27,7 @@ class _ReplaySession extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { currentQuestion: 0, showStats: false, showCorrect:false }
+    this.state = { currentQuestion: 0, showStats: false }
 
     this.sessionId = this.props.sessionId
 
@@ -42,13 +42,13 @@ class _ReplaySession extends Component {
 
   prevQuestion () {
     const currentQuestion = this.state.currentQuestion
-    if (currentQuestion > 0) this.setState({currentQuestion:currentQuestion-1})
+    if (currentQuestion > 0) this.setState({currentQuestion:currentQuestion-1, showStats:false})
   }
 
   nextQuestion () {
     const l = this.props.session.questions.length
     const currentQuestion = this.state.currentQuestion
-    if (currentQuestion < l - 1) this.setState({currentQuestion:currentQuestion+1})
+    if (currentQuestion < l - 1) this.setState({currentQuestion:currentQuestion+1, showStats:false})
   }
 
 
