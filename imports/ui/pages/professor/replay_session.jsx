@@ -35,7 +35,7 @@ class _ReplaySession extends Component {
     this.prevQuestion = this.prevQuestion.bind(this)
     this.nextQuestion = this.nextQuestion.bind(this)
   }
-  
+
   toggleStats () {
     this.setState({showStats:!this.state.showStats})
   }
@@ -103,11 +103,6 @@ class _ReplaySession extends Component {
                      forReview
                      showStatsOverride={this.state.showStats} /> : '' }
           </div>
-          {
-            q && q.type === QUESTION_TYPE.NU // short answer
-            ? <div className='ql-session-display-histogram'><HistogramNumerical question={q} width={300} /></div>
-            : ''
-          }
         </div>
       </div>)
   }
