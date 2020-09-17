@@ -200,6 +200,7 @@ class _ManageCourse extends Component {
             controls.push({ label: 'Make live again', click: () => this.startSession(sId) })
             controls.push({ label: 'Grade session', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
+            controls.push({ label: 'Replay session', click: () => Router.go('session.replay', {sessionId: sId, courseId: this.props.course._id}) })
           }
 
           controls.push({ label: 'Duplicate', click: () => this.copySession(sId) })
