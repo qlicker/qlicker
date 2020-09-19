@@ -1148,14 +1148,37 @@ Meteor.methods({
           category.groups[ig].helpVideoChat = false
         }
       }
-
       Courses.update({ _id: courseId }, {
         $set: {
           groupCategories: categories
         }
       })
-
     }
+  },
+  // Clear the people that have joined and reset the call button for all rooms in the category:
+  'courses.clearCategoryRooms' (courseId, categoryNumber) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+
+    if(category.groups && category.groups.length > 0){
+      for (let ig=0; ig<category.groups.length ;ig++){
+        category.groups[ig].joinedVideoChat = []
+        category.groups[ig].helpVideoChat = false
+      }
+    }
+    Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
   },
   // Set the api options for the course video chat (if this is enabled)
   'courses.setCategoryApiOptions' (courseId, categoryNumber, apiOptions) {
@@ -1238,6 +1261,11 @@ Meteor.methods({
       group.joinedVideoChat = joined
     }
 
+    //always disable call button when instructor joins
+    if ( user.isInstructor(courseId) ) {
+      group.helpVideoChat = false
+    }
+
     return Courses.update({ _id: courseId }, {
       $set: {
         groupCategories: categories
@@ -1317,8 +1345,38 @@ Meteor.methods({
       }
     })
   },
+  //Reset the number of people to 0 in the room, and turn off call button
+  'courses.clearGroupRoom' (courseId, categoryNumber, groupNumber) {
+    check(courseId, Helpers.MongoID)
+    check(categoryNumber, Number)
+    check(groupNumber, Number)
 
+    const user = Meteor.user()
+    if (!user) throw new Meteor.Error('user-not-found', 'User not found')
+    if (!user.isInstructor(courseId)) throw new Meteor.Error('Not authorized')
+    let course = Courses.findOne(courseId)
 
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+      throw new Meteor.Error('Category does not exist!')
+    }
+    let categories = course.groupCategories
+    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let groups = category.groups
+    let group = _(groups).findWhere({ groupNumber: (groupNumber) })
+
+    if (!group) {
+      throw new Meteor.Error('Group does not exist!')
+    }
+
+    group.helpVideoChat = false
+    group.joinedVideoChat = []
+
+    return Courses.update({ _id: courseId }, {
+      $set: {
+        groupCategories: categories
+      }
+    })
+  },
 }) // end Meteor.methods
 
 /*
