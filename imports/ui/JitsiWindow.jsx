@@ -21,7 +21,15 @@ export class JitsiWindow extends Component {
       }
     })
   }
-
+  clearRoom (courseId, catNumber, groupNumber) {
+    Meteor.call('courses.clearGroupRoom', courseId, catNumber, groupNumber, (err) => {
+      if (err) {
+        alertify.error('Error: ' + err.error)
+      } else {
+        alertify.success('Room cleared of participants')
+      }
+    })
+  }
   componentDidMount() {
     if (!this.props.connectionInfo) {
       alertify.error('Error: no connection info  on mount')
@@ -154,10 +162,12 @@ export class JitsiWindow extends Component {
     let groupNumber = Number(this.props.connectionInfo.groupNumber)
     let courseId = this.props.connectionInfo.courseId
     let help = this.props.connectionInfo.helpVideoChat
-
-    let callButton = categoryNumber && groupNumber && courseId && Meteor.user().isStudent(courseId)
+    const user = Meteor.user()
+    let callButton = categoryNumber && groupNumber && courseId && user.isStudent(courseId)
+    const isInstructor = user.isInstructor(courseId)
 
     const toggleHelp = callButton ? () =>{this.toggleHelpButton(courseId, categoryNumber, groupNumber)} : null
+    const clearRoom = isInstructor ? () =>{this.clearRoom(courseId, categoryNumber, groupNumber)} : null
     let extraClass = help ? ' ql-blinking' : ''
 
     return(
@@ -174,6 +184,12 @@ export class JitsiWindow extends Component {
               </div>
             : ''
           }
+          { isInstructor
+            ? <div className={'btn'+extraClass} onClick={clearRoom}>
+                Clear room of participants
+              </div>
+            : ''
+           }
         </div>
       </div>
     )
