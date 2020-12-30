@@ -36,7 +36,7 @@ class _Course extends Component {
       if (session.quiz) alertify.error('Quiz not reviewable')
       else alertify.error('Session not reviewable')
     }
-    else if (session.quizWasSubmittedByUser(Meteor.userId())){
+    else if (session.quizWasSubmittedByUser(Meteor.userId() && !session.practiceQuiz)){
       alertify.error('Quiz already submitted')
     }
     else if (session.quiz && !session.quizIsActive(user) ){
