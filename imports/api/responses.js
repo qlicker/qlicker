@@ -316,10 +316,7 @@ Meteor.methods({
       responseObject.correct = (points === q.sessionOptions.points * weight)
     }
 
-
-
     // TODO check if attempt number is current in question
-
     const c = Responses.find({
       attempt: responseObject.attempt,
       questionId: responseObject.questionId,
@@ -336,9 +333,9 @@ Meteor.methods({
    * @param {Response} responseObject
    */
   'responses.update' (responseObject) {
+
     check(responseObject, responsePattern)
     if (Meteor.userId() !== responseObject.studentUserId) throw new Meteor.Error('Not authorized to update this response')
-
 
     const q = Questions.findOne({ _id: responseObject.questionId })
     if (!q.sessionId) throw new Meteor.Error('Question not attached to session')
@@ -360,7 +357,7 @@ Meteor.methods({
       attempt: responseObject.attempt,
       questionId: responseObject.questionId,
       studentUserId: responseObject.studentUserId
-    }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg, updatedAt: updatedAt } })
+    }, { $set: { answer: responseObject.answer, answerWysiwyg: responseObject.answerWysiwyg, updatedAt: updatedAt, editable: responseObject.editable} })
   },
 
   'responses.makeUneditable' (responseId) {

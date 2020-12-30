@@ -89,16 +89,21 @@ class _QuizSession extends Component {
     if (!user.isStudent(cId) && !user.isInstructor(cId)) {
       Router.go('login')
     }
-    if (submitted || !this.props.session.quizIsActive(user)){
+
+    const session = this.props.session
+    const isPracticeQuiz = session.quiz && session.practiceQuiz
+
+    if ( (submitted && !isPracticeQuiz) || !this.props.session.quizIsActive(user)){
       Router.go('/course/' + this.props.session.courseId)
     }
 
-    const session = this.props.session
+
     const qlist = session.questions
     if (qlist.length < 1) return <div className='ql-subs-loading'>No questions in session</div>
     let qCount = 0
     let qCount2 = 0
     const canSubmit = this.props.myResponses && this.props.myResponses.length === qlist.length && !submitted
+    const practiceSubmitted = submitted && isPracticeQuiz
     const answersLeft = qlist.length - this.props.myResponses.length
 
 
@@ -167,6 +172,7 @@ class _QuizSession extends Component {
                     : <QuestionDisplay
                         question={q}
                         isQuiz={true}
+                        isPracticeQuiz = {isPracticeQuiz}
                         response={response}
                         readOnly={readOnly}
                         attemptNumber={1} />
@@ -185,10 +191,14 @@ class _QuizSession extends Component {
                 <div className='ql-quiz-submit-button'>
                   <div className='btn-group btn-group-justified'>
                     <div className='btn btn-primary' onClick={this.submitQuiz}>
-                      Submit!
+                      Submit the quiz!
                     </div>
                   </div>
                 </div>
+                :''
+              }
+              { practiceSubmitted ?
+                <div className='ql-quiz-qleft'> Practice quiz already submitted </div>
                 :''
               }
               { answersLeft > 0 ?

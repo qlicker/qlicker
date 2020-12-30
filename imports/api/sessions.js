@@ -26,6 +26,7 @@ const sessionPattern = {
   courseId: Helpers.MongoID, // parent course, mongo db id reference
   status: Helpers.NEString, // hidden, visible, running, done
   quiz: Boolean, // true = quiz mode, false = (default) lecture session,
+  practiceQuiz: Match.Maybe(Boolean), //true = practice quiz, students have access to answers
   date: Match.Optional(Match.OneOf(undefined, null, Date)), // planned session date
   quizStart:Match.Maybe(Match.OneOf(undefined, null, Date)), // quiz start time
   quizEnd:  Match.Maybe(Match.OneOf(undefined, null, Date)),  // quiz end time
@@ -528,6 +529,20 @@ Meteor.methods({
     return Sessions.update({ _id: sessionId }, {$set: { quiz: !session.quiz }})
   },
 
+  /**
+   * toggles whether the session is a quiz
+   * @param {MongoId} sessionId
+   */
+  'sessions.togglePracticeQuiz' (sessionId) {
+    check(sessionId, Helpers.MongoID)
+    const session = Sessions.findOne({ _id: sessionId })
+    if (!session) {
+      throw Error('No session with this id')
+    }
+    profHasCoursePermission(session.courseId)
+
+    return Sessions.update({ _id: sessionId }, {$set: { practiceQuiz: !session.practiceQuiz }})
+  },
   /**
    * returns a list of autocomplete tag sugguestions specific for session (different than questions)
    * @returns {String[]} array of string tags
