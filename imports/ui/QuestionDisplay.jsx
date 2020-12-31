@@ -584,7 +584,7 @@ export class QuestionDisplay extends Component {
     }
 
 
-    let solBtnInfo =  this.props.isPracticeQuiz && this.props.response && this.props.response.editable ? "View solution/submit answer" : "Show solution"
+    let solBtnInfo =  this.props.isPracticeQuiz && this.props.response && this.props.response.editable ? "Show solution (locks answer)" : "Show solution"
     return (
 
       <div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
