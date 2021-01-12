@@ -178,7 +178,7 @@ console.log("finding group number")
       if (!group) return null
       groupNumber = group.groupNumber
     }
-console.log(groupnumber)
+console.log(groupNumber)
     //Build the connection information
     const userInfo = {
         //email: user.getEmail(),
