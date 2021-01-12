@@ -148,25 +148,21 @@ _.extend(Course.prototype, {
     //groupNumber is only passed in if user is an instructer (see routes.jsx)
     //Check if video enabled for this category of groups
     //Check if user is in course
-console.log("course.catvideoconnection info start")
+
     const user = Meteor.user()
     if(!user || !(user.isInstructor(this._id) || user.isStudent(this._id)) ) return null
     const userId = user._id
 
-console.log("got id")
-console.log(userId)
-    //Check that category exists
-    if (categoryNumber < 1 || !this.groupCategories
-       || this.groupCategories.length < categoryNumber) return null
-console.log("cat number ok")
-    const category = this.groupCategories[categoryNumber-1]//category number starts at 1... :-(
-console.log(category)
+
+
+    if (categoryNumber < 1 || !this.groupCategories) return null
+    const category = _(this.groupCategories).find( (c) => {return c.categoryNumber == categoryNumber })
+
     //Check that video is enabled and that there exists groups
     if (!category.catVideoChatOptions || !category.groups) return null
-console.log("category has groups and video")
+
     const groups = category.groups
-console.log(groups)
-console.log("finding group number")
+
     //Find the group
     let group = {}
     if(user.isInstructor(this._id) ){
@@ -174,11 +170,11 @@ console.log("finding group number")
       if (!group) return null
     } else {
       group = _(groups).find( (g) =>{return g.students.includes(userId)} )
-      console.log(group)
+
       if (!group) return null
       groupNumber = group.groupNumber
     }
-console.log(groupNumber)
+
     //Build the connection information
     const userInfo = {
         //email: user.getEmail(),
@@ -208,7 +204,7 @@ console.log(groupNumber)
                             groupNumber:Number(groupNumber),
                             helpVideoChat:group.helpVideoChat
                           }
-    console.log(connectionInfo)
+
     return connectionInfo
   }
 
