@@ -21,7 +21,15 @@ export class JitsiWindow extends Component {
       }
     })
   }
-
+  clearRoom (courseId, catNumber, groupNumber) {
+    Meteor.call('courses.clearGroupRoom', courseId, catNumber, groupNumber, (err) => {
+      if (err) {
+        alertify.error('Error: ' + err.error)
+      } else {
+        alertify.success('Room cleared of participants')
+      }
+    })
+  }
   componentDidMount() {
     if (!this.props.connectionInfo) {
       alertify.error('Error: no connection info  on mount')
@@ -59,11 +67,6 @@ export class JitsiWindow extends Component {
         const directLink = domain ? 'https://'+domain+'/'+options.roomName: null
         this.setState({api:api, directLink:directLink})
 
-        const closeWindow = () => {
-          this.state.api.dispose()
-          window.close()
-        }
-
         const joinCall = () =>{
           if(courseId){
             if(categoryNumber && groupNumber){
@@ -86,12 +89,21 @@ export class JitsiWindow extends Component {
           return null
         }
 
+        const closeWindow = () => {
+          leaveCall()
+          this.state.api.dispose()
+          window.close()
+        }
+
         if (api){
           //Close the window on hangup
           api.addListener('videoConferenceJoined', joinCall)
           api.addListener('videoConferenceLeft', leaveCall)
           api.addListener('videoConferenceLeft', closeWindow)
-          window.onbeforeunload = leaveCall //also leave call if window is closed
+          //window.onbeforeunload = leaveCall //also leave call if window is closed
+          window.addEventListener("beforeunload", leaveCall); //same
+          //window.addEventListener("unload", leaveCall); //same
+
 
           if(apiOptions.subjectTitle){
             api.executeCommand('subject', apiOptions.subjectTitle);
@@ -150,10 +162,12 @@ export class JitsiWindow extends Component {
     let groupNumber = Number(this.props.connectionInfo.groupNumber)
     let courseId = this.props.connectionInfo.courseId
     let help = this.props.connectionInfo.helpVideoChat
-
-    let callButton = categoryNumber && groupNumber && courseId && Meteor.user().isStudent(courseId)
+    const user = Meteor.user()
+    let callButton = categoryNumber && groupNumber && courseId && user.isStudent(courseId)
+    const isInstructor = user.isInstructor(courseId)
 
     const toggleHelp = callButton ? () =>{this.toggleHelpButton(courseId, categoryNumber, groupNumber)} : null
+    const clearRoom = isInstructor ? () =>{this.clearRoom(courseId, categoryNumber, groupNumber)} : null
     let extraClass = help ? ' ql-blinking' : ''
 
     return(
@@ -170,6 +184,12 @@ export class JitsiWindow extends Component {
               </div>
             : ''
           }
+          { isInstructor
+            ? <div className={'btn'+extraClass} onClick={clearRoom}>
+                Clear room of participants
+              </div>
+            : ''
+           }
         </div>
       </div>
     )

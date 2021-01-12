@@ -353,6 +353,24 @@ Router.route('/course/:courseId/session/run/:sessionId/mobile', {
   }
 })
 
+import { ReplaySession } from '../../ui/pages/professor/replay_session'
+Router.route('/course/:courseId/session/replay/:sessionId', {
+  name: 'session.replay',
+  waitOn: function () {
+    if (!Meteor.userId()) Router.go('login')
+    return Meteor.subscribe('userData') &&
+           Meteor.subscribe('sessions.single', this.params.sessionId) &&
+           Meteor.subscribe('courses') &&
+           Meteor.subscribe('questions.inSession', this.params.sessionId)
+  },
+  action: function () {
+    if (Meteor.userId() && Meteor.user().isInstructor(this.params.courseId)) {
+      mount(AppLayout, { content: <CleanPageContainer courseId={this.params.courseId}> <ReplaySession sessionId={this.params.sessionId} courseId={this.params.courseId} /> </CleanPageContainer> })
+    } else Router.go('login')
+  }
+})
+
+
 import { Session } from '../../ui/pages/student/session'
 import { QuizSession } from '../../ui/QuizSession'
 Router.route('/course/:courseId/session/present/:_id', {

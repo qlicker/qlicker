@@ -37,6 +37,7 @@ export class _VideoChat extends Component {
     this.toggleCourseStartAudio= this.toggleCourseStartAudio.bind(this)
     this.toggleCategoryStartVideo = this.toggleCategoryStartVideo.bind(this)
     this.toggleCategoryStartAudio= this.toggleCategoryStartAudio.bind(this)
+    this.clearCategoryRooms = this.clearCategoryRooms.bind(this)
   }
 
   toggleCourseVideoChat (courseId, enabled) {
@@ -173,6 +174,16 @@ export class _VideoChat extends Component {
     }
   }
 
+  clearCategoryRooms(courseId, category) {
+    Meteor.call('courses.clearCategoryRooms', courseId, category.categoryNumber, (err) => {
+      if (err) {
+        alertify.error('Error: ' + err.error)
+      } else {
+        alertify.success('Room counters cleared')
+      }
+    })
+  }
+
 
   render () {
     if (this.props.loading || !this.props.course) return <div className='ql-subs-loading'>Loading</div>
@@ -209,7 +220,7 @@ export class _VideoChat extends Component {
     )
 
     //A component to display group category name and controls to enable the chat
-    const VideoSessionControl = ({name, category, onClick, catTileClick, catAudioClick, catVideoClick}) => {
+    const VideoSessionControl = ({name, category, onClick, catTileClick, catAudioClick, catVideoClick, catVideoReset}) => {
       if (name){
         let extraClass = courseVideoChatEnabled ? 'active' : ''
         return(
@@ -249,6 +260,9 @@ export class _VideoChat extends Component {
                     <CheckBoxOption label={'Mute video'} checked={muteVideoEnabled} onChange={catVideoClick} id ={'courseChatVideoMuteToggler'} />
                     <CheckBoxOption label={'Mute audio'} checked={muteAudioEnabled} onChange={catAudioClick} id ={'courseChatAudioMuteToggler'} />
                     <CheckBoxOption label={'Tile view'} checked={chatTileEnabled} onChange={catTileClick} id ={'courseChatCatTileToggler'+category.categoryName+'N'+category.categoryNumber} />
+                    <div className='btn' onClick={catVideoReset} style={{height:'20px', padding:'0 5px 0 5px'}}>
+                      Clear participants
+                    </div>
                   </div>
                 : ''
               }
@@ -276,11 +290,15 @@ export class _VideoChat extends Component {
                         const toggleCategoryTileView = () => this.toggleCategoryTileView(this.props.course._id, cat)
                         const toggleCategoryStartAudio = () => this.toggleCategoryStartAudio(this.props.course._id, cat)
                         const toggleCategoryStartVideo = () => this.toggleCategoryStartVideo(this.props.course._id, cat)
+                        const clearCategoryRooms = () => this.clearCategoryRooms(this.props.course._id, cat)
                         return(
-                          <VideoSessionControl category={cat} onClick = {toggleCategoryVideoChat}
-                           catTileClick = {toggleCategoryTileView} catVideoClick = {toggleCategoryStartVideo} catAudioClick = {toggleCategoryStartAudio}
-
-                            key={'vc'+cat.categoryNumber+cat.categoryName} />
+                          <VideoSessionControl category={cat}
+                           onClick = {toggleCategoryVideoChat}
+                           catTileClick = {toggleCategoryTileView}
+                           catVideoClick = {toggleCategoryStartVideo}
+                           catAudioClick = {toggleCategoryStartAudio}
+                           catVideoReset = {clearCategoryRooms}
+                           key={'vc'+cat.categoryNumber+cat.categoryName} />
                         )
                       })
                       : <div> Create groups in main course page! </div>

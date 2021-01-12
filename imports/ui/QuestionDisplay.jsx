@@ -143,6 +143,10 @@ export class QuestionDisplay extends Component {
 
   toggleShowCorrect () {
     this.setState({showCorrect: !this.state.showCorrect}, () => {
+      if(this.props.isPracticeQuiz){
+        //true locks the answer
+        this.submitResponseQuiz(true)
+      }
       if(this.state.showCorrect && this.props.solutionScroll && this.props.question && this.props.question.solution){
         //scroll to the solution has a weird behaviour in the question library, hence the addition of the noSolutionScroll prop
         const node = ReactDOM.findDOMNode(this.refs[this.props.question._id+"solution"])
@@ -257,8 +261,6 @@ export class QuestionDisplay extends Component {
   }
 
   setNumericalAnswerQuiz (e) {
-    console.log("event")
-    console.log(e)
     if (this.disallowResponses() || this.readonly) return
     if (this.props.response && !this.props.response.editable){
       alertify.error("Cannot edit this question anymore")
@@ -307,7 +309,7 @@ export class QuestionDisplay extends Component {
     })
   }
 
-  submitResponseQuiz() {
+  submitResponseQuiz(lockAnswer) {
     if (this.disallowResponses() || this.readonly || !this.props.isQuiz) return
 
     if (this.props.attemptNumber !== 1){
@@ -326,6 +328,11 @@ export class QuestionDisplay extends Component {
       questionId: this.props.question._id,
     }
     if (this.props.isQuiz && !this.props.response) responseObject.editable = true
+
+    if (this.props.isPracticeQuiz && lockAnswer) {
+      responseObject.editable = false
+      this.readonly = true
+    }
 
     responseObject.answer = answer
     responseObject.answerWysiwyg = answerWysiwyg
@@ -576,6 +583,8 @@ export class QuestionDisplay extends Component {
         break
     }
 
+
+    let solBtnInfo =  this.props.isPracticeQuiz && this.props.response && this.props.response.editable ? "Show solution (locks answer)" : "Show solution"
     return (
 
       <div className={'ql-question-display ' + (this.disallowResponses() || this.readonly ? '' : 'interactive')}>
@@ -601,6 +610,19 @@ export class QuestionDisplay extends Component {
           </div>
           : ''
         }
+
+        { this.props.isPracticeQuiz && this.props.response && !this.props.prof
+          /*Show solution button for practice quiz */
+          ? <div>
+              <div className='btn-group btn-group-justified'>
+                  <div className='btn btn-primary' onClick={this.toggleShowCorrect}>
+                    {this.state.showCorrect ? 'Hide solution' : solBtnInfo}
+                  </div>
+              </div>
+          </div>
+          : ''
+        }
+
         { this.props.forReview && this.props.readonly && !this.props.prof
           ? <div>
               <div className='btn-group btn-group-justified'>
@@ -653,5 +675,6 @@ QuestionDisplay.propTypes = {
   forReview: PropTypes.bool,
   onSubmit: PropTypes.func, // function to run when clicking submit
   solutionScroll: PropTypes.bool, //scoll to solution when show correct is clicked (use in student session review)
-  isQuiz: PropTypes.bool, //whether the question is within a quiz (responses are submitted right away)
+  isQuiz: PropTypes.bool, //whether the question is within a quiz (responses are submitted right away),
+  isPracticeQuiz: PropTypes.bool //whether the solution will show once a response is chosen
 }

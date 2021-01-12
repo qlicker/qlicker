@@ -57,6 +57,7 @@ class _ManageSession extends Component {
     this.addTag = this.addTag.bind(this)
     this.setDate = this.setDate.bind(this)
     this.toggleQuizMode = this.toggleQuizMode.bind(this)
+    this.togglePracticeQuiz = this.togglePracticeQuiz.bind(this)
     this.checkReview = this.checkReview.bind(this)
     this.setValue = this.setValue.bind(this)
     this.addToSession = this.addToSession.bind(this)
@@ -191,6 +192,16 @@ class _ManageSession extends Component {
         this._DB_saveSessionEdits()
       })
     }
+  }
+
+  togglePracticeQuiz () {
+    let sessionEdits = this.state.session
+    sessionEdits.practiceQuiz = !sessionEdits.practiceQuiz
+
+    this.setState({ session: sessionEdits}, () => {
+      this._DB_saveSessionEdits()
+    })
+
   }
 
   toggleExtensionModal () {
@@ -588,6 +599,12 @@ class _ManageSession extends Component {
               <div className='ql-session-details-checkbox'>
                 <input type='checkbox' checked={this.state.session.quiz} data-name='quiz' onChange={this.toggleQuizMode} /> Quiz (all questions shown at once)<br />
               </div>
+              { this.state.session.quiz ?
+                  <div className='ql-session-details-checkbox'>
+                    <input type='checkbox' checked={this.state.session.practiceQuiz} data-name='practiceQuiz' onChange={this.togglePracticeQuiz} /> Practice quiz (solutions visible to students) <br />
+                  </div>
+                  : ''
+              }
               { this.state.session.quiz ?
                  <div className='row'>
                    <div className='col-md-3 left-column'>
