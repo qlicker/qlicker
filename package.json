@@ -18,7 +18,7 @@
   "dependencies": {
     "@babel/runtime": "^7.10.4",
     "aws-sdk": "^2.717.0",
-    "azure-storage": "^2.10.3",
+    "azure-storage": "^2.10.4",
     "babel-eslint": "^7.1.1",
     "bcrypt": ">=5.0.0",
     "body-parser": "^1.19.0",
@@ -35,8 +35,8 @@
     "prop-types": "^15.7.2",
     "rc-datetime-picker": "^1.6.1",
     "react": "^15.6.2",
-    "react-addons-pure-render-mixin": "^15.4.1",
-    "react-addons-shallow-compare": "^15.4.2",
+    "react-addons-pure-render-mixin": "^15.6.3",
+    "react-addons-shallow-compare": "^15.6.3",
     "react-addons-test-utils": "^15.4.2",
     "react-addons-transition-group": "^15.4.2",
     "react-csv": "^1.1.2",
@@ -51,9 +51,9 @@
     "semver": "^5.7.1",
     "streamsearch": "^0.1.2",
     "syntastic-react": "^1.0.3",
-    "underscore": "^1.10.2",
+    "underscore": "^1.13.1",
     "uuid-1345": "^0.99.7",
-    "xmldom": "^0.1.31"
+    "xmldom": "^0.6.0"
   },
   "devDependencies": {
     "codecov": "^3.7.1",
