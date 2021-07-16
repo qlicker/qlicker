@@ -11,6 +11,8 @@ import 'react-select/dist/react-select.css'
 import _ from 'underscore'
 import { ROLES } from '../configs'
 
+MAXUSERS_DEFAULT = 10
+
 export class ManageUsers extends Component {
 
   constructor(props) {
@@ -25,7 +27,8 @@ export class ManageUsers extends Component {
       roleNames: [{value:ROLES.admin, label:'admin'},
                   {value:ROLES.prof, label:'professor'},
                   {value:ROLES.student, label:'student'}],
-      searchUser:''
+      searchUser:'',
+      maxUsers: MAXUSERS_DEFAULT //limit to 10 by default...
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
@@ -36,6 +39,7 @@ export class ManageUsers extends Component {
     this.saveEmail = this.saveEmail.bind(this)
     this.toggleRequireVerified = this.toggleRequireVerified.bind(this)
     this.setFilterUserSearchString = this.setFilterUserSearchString.bind(this)
+    this.toggleShowAll = this.toggleShowAll.bind(this)
     // see https://github.com/facebook/react/issues/1360
     this.setFilterUserSearchString = _.debounce(this.setFilterUserSearchString,400)
   }
@@ -130,6 +134,11 @@ export class ManageUsers extends Component {
     this.setState( {filterUserSearchString:val} )
   }
 
+  toggleShowAll() {
+    const newVal = this.state.maxUsers > 0 ? 0 : MAXUSERS_DEFAULT
+    this.setState({ maxUsers: newVal })
+  }
+
   render() {
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
 
@@ -143,7 +152,9 @@ export class ManageUsers extends Component {
     const setSearchRoles = (val) => { this.setState({ searchRoles: val }) }
 
     // Apply search criteria, if present
-    let users = this.props.allUsers
+    let users = this.props.allUsers.slice() //added slice to pass as a copy or else the filtering modified the prop somehow!!!
+    const maxUsers = this.state.maxUsers
+
     if( this.state.filterUserSearchString ){
       users = _(users).filter( function (user) {
         return user.profile.lastname.toLowerCase().includes(this.state.filterUserSearchString.toLowerCase())
@@ -161,7 +172,17 @@ export class ManageUsers extends Component {
         return (_.intersection( _(this.state.searchRoles).pluck('value'), user.profile.roles)).length > 0
       }.bind(this))
     }
+    const totalUsers = users.length
+    let askShowMore = false
+    let askShowLess = false
 
+    if( maxUsers > 0 && totalUsers > maxUsers ){
+      askShowMore = true
+      users.splice(maxUsers) //deletes all elements after [maxUsers-1]
+    }
+    if( maxUsers == 0 ){
+      askShowLess = true
+    }
     return(
       <div className='container'>
         <div className='row'>
@@ -228,6 +249,12 @@ export class ManageUsers extends Component {
             </div>
           </div>
           <div className = 'ql-admin-user-table'>
+            { askShowLess ?
+              <div>
+                <button className='btn btn-primary' onClick={() => {this.toggleShowAll()}} > Limit to first {MAXUSERS_DEFAULT} users</button>
+              </div>
+              : ''
+            }
             <table className='table table-bordered'>
               <tbody>
                 <tr>
@@ -269,6 +296,18 @@ export class ManageUsers extends Component {
                 }
               </tbody>
             </table>
+            { askShowMore ?
+              <div>
+                <button className='btn btn-primary' onClick={() => {this.toggleShowAll()}} > Show all {totalUsers} users</button>
+              </div>
+              : ''
+            }
+            { askShowLess ?
+              <div>
+                <button className='btn btn-primary' onClick={() => {this.toggleShowAll()}} > Limit to first {MAXUSERS_DEFAULT} users</button>
+              </div>
+              : ''
+            }
           </div>
         </div>
 
