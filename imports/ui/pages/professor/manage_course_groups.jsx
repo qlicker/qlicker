@@ -39,6 +39,8 @@ class _ManageCourseGroups extends Component {
     this.toggleShowUngoupedStudents = this.toggleShowUngoupedStudents.bind(this)
     this.setStudentSearchString = this.setStudentSearchString.bind(this)
     this.addGroupToCategory = this.addGroupToCategory.bind(this)
+    this.deleteCategory = this.deleteCategory.bind(this)
+    this.deleteGroup = this.deleteGroup.bind(this)
     this.incrementGroup = this.incrementGroup.bind(this)
   }
 
@@ -121,12 +123,34 @@ class _ManageCourseGroups extends Component {
     this.setState({ studentSearchString: e.target.value })
   }
 
+  deleteCategory () {
+    if (this.state.category && confirm('Delete category and all related groups?')) {
+      Meteor.call('courses.deleteCategory', this.props.courseId, this.state.category.categoryName, (error) => {
+        if (error) return alertify.error(error.err)
+        alertify.success('Deleted category')
+      })
+      this.setState({ category: null, group: null })
+    }
+  }
+
   addGroupToCategory () {
     if (this.state.category) {
       Meteor.call('courses.addGroupsToCategory', this.props.courseId, this.state.category.categoryName, (error) => {
         if (error) return alertify.error(error.err)
         alertify.success('Added group')
       })
+    }
+  }
+
+  deleteGroup () {
+    if (this.state.category && this.state.category.groups.length > 1 && this.state.group && confirm('Delete the group?')) {
+      Meteor.call('courses.deleteGroup', this.props.courseId, this.state.category.categoryNumber,
+                  this.state.group.groupNumber,
+                  (error) => {
+                    if (error) return alertify.error(error.err)
+                    alertify.success('Group deleted')
+                  })
+      this.setState({ group: null  })
     }
   }
 
@@ -152,7 +176,7 @@ class _ManageCourseGroups extends Component {
 
     groupCategories.forEach((category) => {
       categoryOptions.push({ value: category.categoryNumber,
-        label: category.categoryName })
+        label: category.categoryName+' ('+category.groups.length+' groups)' })
     })
 
     let groupOptions = []
@@ -160,7 +184,7 @@ class _ManageCourseGroups extends Component {
     if (this.state.category) {
       this.state.category.groups.forEach((g) => {
         groupOptions.push({ value: g.groupNumber,
-          label: g.groupName })
+          label: g.groupName + ' (' + g.students.length + ' members)' })
         studentsInCategory = studentsInCategory.concat(g.students)
       })
     }
@@ -211,7 +235,7 @@ class _ManageCourseGroups extends Component {
               </div>
               <div className='ql-card-content'>
                 <div className='btn-group btn-group-justified'>
-                  <div className='btn btn-default' onClick={toggleCreateCategory}> Create a new category </div>
+                  <div className='btn btn-default' onClick={toggleCreateCategory}> Create category or add groups </div>
                   { this.state.categoryModal ? <CreateGroupCategoryModal courseId={this.props.course._id} done={toggleCreateCategory} /> : '' }
                 </div>
                 { categoryOptions.length
@@ -240,7 +264,13 @@ class _ManageCourseGroups extends Component {
                 }
                 { this.state.category
                   ? <div className='btn-group btn-group-justified'>
-                    <div className='btn btn-default' onClick={this.addGroupToCategory}> Add a group to category </div>
+                    <div className='btn btn-default' onClick={this.addGroupToCategory}> Add one group to category </div>
+                  </div>
+                  : ''
+                }
+                { this.state.category
+                  ? <div className='btn-group btn-group-justified'>
+                    <div className='btn btn-default' onClick={this.deleteCategory}> Delete category </div>
                   </div>
                   : ''
                 }
@@ -267,7 +297,16 @@ class _ManageCourseGroups extends Component {
                                 &nbsp;&nbsp;
                               <a onClick={this.toggleChanginGroupName}>cancel</a>
                             </div>
-                            : <div> {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change name</a> </div>
+                            : <div>
+                               {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change name</a>
+                               {this.state.category.groups.length > 1
+                                 ? <div>
+                                      &nbsp;&nbsp; <a onClick={this.deleteGroup}>Delete group</a>
+                                   </div>
+                                 : ''
+                               }
+
+                              </div>
                           }
                       </div>
                       { nGroups > 1

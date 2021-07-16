@@ -28,7 +28,7 @@ export class CreateGroupCategoryModal extends Component {
 
   createCategory () {
     if (!this.state.categoryName) {
-      alertify.error('Specoify category')
+      alertify.error('Specify category')
       return
     }
     Meteor.call('courses.addGroupsToCategory', this.props.courseId, this.state.categoryName, this.state.nGroups, (err) => {
@@ -41,7 +41,7 @@ export class CreateGroupCategoryModal extends Component {
   render () {
     return (<div className='ql-modal-container'>
       <div className='ql-modal ql-card ql-modal-create-group-category' >
-        <div className='ql-modal-header ql-header-bar'><h3>Add a group category</h3></div>
+        <div className='ql-modal-header ql-header-bar'><h3>Create category or add groups to existing</h3></div>
         <div className='ql-card-content'>
           <div className='ql-modal-create-group-category-input'>
             <div>
