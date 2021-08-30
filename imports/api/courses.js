@@ -971,10 +971,12 @@ Meteor.methods({
     let course = Courses.findOne(courseId)
 
     let categories = course.groupCategories ? course.groupCategories : []
+
     if (!_(categories).findWhere({ categoryName: categoryName })) {
       //creating new category
-      let catNumber = Math.max( _(categories).max( (cat) => {return cat.categoryNumber} ).categoryNumber,
+      let catNumber = categories.length >0 ? Math.max( _(categories).max( (cat) => {return cat.categoryNumber} ).categoryNumber,
                                categories.length ) + 1
+                               : 1
       categories.push({
         categoryNumber: catNumber,
         categoryName: categoryName,
@@ -1035,19 +1037,19 @@ Meteor.methods({
    * @param {Number} categoryNumber
    * @param {Number} groupNumber // number of groups to create
    */
-  'courses.addRemoveStudentToGroup' (courseId, categoryNumber, groupNumber, studentId) {
+  'courses.addRemoveStudentToGroup' (courseId, categoryName, groupNumber, studentId) {
     check(courseId, Helpers.MongoID)
     check(studentId, Helpers.MongoID)
-    check(categoryNumber, Number)
+    check(categoryName, Helpers.NEString)
     check(groupNumber, Number)
 
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
-    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryName: categoryName })) {
       throw new Meteor.Error('Category does not exist!')
     }
     let categories = course.groupCategories
-    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let category = _(categories).findWhere({ categoryName: categoryName })
     let groups = category.groups
     let group = _(groups).findWhere({ groupNumber: groupNumber })
     if (!group) {
@@ -1072,19 +1074,19 @@ Meteor.methods({
    * @param {Number} categoryNumber
    * @param {Number} groupNumber // number of groups to create
    */
-  'courses.changeGroupName' (courseId, categoryNumber, groupNumber, newGroupName) {
+  'courses.changeGroupName' (courseId, categoryName, groupNumber, newGroupName) {
     check(courseId, Helpers.MongoID)
     check(newGroupName, Helpers.NEString)
-    check(categoryNumber, Number)
+    check(categoryName, Helpers.NEString)
     check(groupNumber, Number)
 
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
-    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryName: categoryName })) {
       throw new Meteor.Error('Category does not exist!')
     }
     let categories = course.groupCategories
-    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let category = _(categories).findWhere({ categoryName: categoryName })
     let groups = category.groups
     let group = _(groups).findWhere({ groupNumber: groupNumber })
     if (!group) {
@@ -1103,18 +1105,18 @@ Meteor.methods({
    * @param {Number} categoryNumber
    * @param {Number} groupNumber
    */
-  'courses.deleteGroup' (courseId, categoryNumber, groupNumber) {
+  'courses.deleteGroup' (courseId, categoryName, groupNumber) {
     check(courseId, Helpers.MongoID)
-    check(categoryNumber, Number)
+    check(categoryName, Helpers.NEString)
     check(groupNumber, Number)
 
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
-    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
+    if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryName: categoryName })) {
       throw new Meteor.Error('Category does not exist!')
     }
     let categories = course.groupCategories
-    let category = _(categories).findWhere({ categoryNumber: categoryNumber })
+    let category = _(categories).findWhere({ categoryName: categoryName })
     let groups = category.groups
     if (groups.length < 2) {
       throw new Meteor.Error('Must have at least 1 group in category')
