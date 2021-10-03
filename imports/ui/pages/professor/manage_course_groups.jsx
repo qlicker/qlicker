@@ -196,13 +196,16 @@ class _ManageCourseGroups extends Component {
       this.state.category.groups.forEach((g) => {
         groupOptions.push({ value: g.groupNumber,
           label: g.groupName + ' (' + g.students.length + ' members)' })
-        studentsInCategory = studentsInCategory.concat(g.students)
+        //studentsInCategory = studentsInCategory.concat(g.students)
+        //Need to account for the fact that a student removed from the course
+        //could still be listed in a group
+        studentsInCategory = studentsInCategory.concat( _(g.students).filter( (s) => {return this.props.students[s]} ) )
       })
     }
 
     const studentsNotInCategory = _(studentsInCourse).filter((s) => { return !_(studentsInCategory).contains(s) })
-    let studentsInGroup = this.state.group ? this.state.group.students : []
-
+    //let studentsInGroup = this.state.group ? this.state.group.students : []
+    let studentsInGroup = this.state.group ? _(this.state.group.students).filter( (s) => {return this.props.students[s]} ) : []
     // Students to show in the student column
     let studentsToShow = studentsInCourse
     let studentsToShowStr = 'All students'
@@ -347,9 +350,11 @@ class _ManageCourseGroups extends Component {
                         { studentsInGroup.map((sId) => {
                           const onStudentClick = () => this.toggleStudentInGroup(sId)
                           return (
-                            <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
-                              {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
-                                </div>
+                            this.props.students[sId] ?
+                              <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
+                                {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
+                              </div>
+                            : ''
                           )
                         })
                           }
@@ -393,9 +398,11 @@ class _ManageCourseGroups extends Component {
                                                  ? () => this.toggleStudentInGroup(sId)
                                                  : () => this.setGroupFromStudent(sId)
                         return (
-                          <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
-                            {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname}
-                          </div>
+                          this.props.students[sId] ?
+                            <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
+                              {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname}
+                            </div>
+                          : ''
                         )
                       })
                       }
