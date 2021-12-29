@@ -75,6 +75,7 @@ const coursePattern = {
 const default_Jitsi_configOverwrite = {
    disableSimulcast: false,
    enableClosePage: false,
+   /*prejoinPageEnabled:false,*/
    disableThirdPartyRequests: true,//removes recording ability, etc, but safer
    //etherpad_base: 'https://wbo.ophir.dev/boards/'
 }
@@ -89,9 +90,9 @@ const default_Jitsi_interfaceConfigOverwrite = {
   TOOLBAR_BUTTONS: [
     'microphone', 'camera', 'desktop', 'fullscreen',
     'fodeviceselection', 'hangup', 'chat',
-    'etherpad', 'raisehand',
-    'videoquality', 'filmstrip', 'settings',
-    'tileview', 'videobackgroundblur', 'mute-everyone', 'security'
+    'etherpad', 'raisehand', 'participants-pane',
+    'videoquality', 'filmstrip', 'settings','select-background',
+    'tileview', 'mute-everyone',/* 'security'*/
   ],
 }
 /////////////////////////////////////////////////////////////
