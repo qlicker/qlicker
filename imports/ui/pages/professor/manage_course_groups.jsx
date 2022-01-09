@@ -45,21 +45,30 @@ class _ManageCourseGroups extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (this.state.category) {
+    if (nextProps.course._id == this.props.course._id && this.state.category) {
       // handle the case where the group or category was modified, so update the state
-      const newCategory = _(nextProps.course.groupCategories).findWhere({ categoryNumber: this.state.category.categoryNumber })
+      const newCategory = _(nextProps.course.groupCategories).findWhere({ categoryName: this.state.category.categoryName })
       if (this.state.group) {
         const newGroup = _(newCategory.groups).findWhere({ groupNumber: this.state.group.groupNumber })
         this.setState({ category: newCategory, group: newGroup })
       } else {
         this.setState({ category: newCategory })
       }
+    } else { //this happens if switching course
+      this.setState( {
+        category: null,
+        group: null,
+        changingGroupeName: false,
+        newGroupName: '',
+        showUngroupedStudents: true,
+        studentSearchString: ''
+      })
     }
   }
 
   setCategory (option) {
     if (option) {
-      const category = _(this.props.course.groupCategories).findWhere({ categoryNumber: option.value })
+      const category = _(this.props.course.groupCategories).findWhere({ categoryName: option.value })
       this.setState({ category: category, group: category.groups[0] })
     } else {
       this.setState({ category: null, group: null })
@@ -85,7 +94,7 @@ class _ManageCourseGroups extends Component {
 
   changeGroupName () {
     if (this.state.category && this.state.group && this.state.newGroupName) {
-      Meteor.call('courses.changeGroupName', this.props.courseId, this.state.category.categoryNumber,
+      Meteor.call('courses.changeGroupName', this.props.courseId, this.state.category.categoryName,
                   this.state.group.groupNumber, this.state.newGroupName,
                   (error) => {
                     if (error) return alertify.error(error.err)
@@ -97,7 +106,7 @@ class _ManageCourseGroups extends Component {
 
   toggleStudentInGroup (sId) {
     if (this.state.category && this.state.group) {
-      Meteor.call('courses.addRemoveStudentToGroup', this.props.courseId, this.state.category.categoryNumber,
+      Meteor.call('courses.addRemoveStudentToGroup', this.props.courseId, this.state.category.categoryName,
                    this.state.group.groupNumber, sId, (error) => {
                      if (error) return alertify.error(error.err)
                      alertify.success('Student membership updated')
@@ -144,7 +153,7 @@ class _ManageCourseGroups extends Component {
 
   deleteGroup () {
     if (this.state.category && this.state.category.groups.length > 1 && this.state.group && confirm('Delete the group?')) {
-      Meteor.call('courses.deleteGroup', this.props.courseId, this.state.category.categoryNumber,
+      Meteor.call('courses.deleteGroup', this.props.courseId, this.state.category.categoryName,
                   this.state.group.groupNumber,
                   (error) => {
                     if (error) return alertify.error(error.err)
@@ -157,12 +166,14 @@ class _ManageCourseGroups extends Component {
   incrementGroup (index) {
     if (this.state.category) {
       const currentGroupNumber = this.state.group.groupNumber
-      const newGroupNumber = currentGroupNumber + index
+      const currentGroupIndex = _(this.state.category.groups).findIndex( {groupNumber:currentGroupNumber} )
+      const newGroupIndex = currentGroupIndex + index
       const nGroups = this.state.category.groups.length
-      if (newGroupNumber <= nGroups && newGroupNumber > 0) {
-        const group = this.state.category.groups[newGroupNumber - 1]
+      if (newGroupIndex <= nGroups-1 && newGroupIndex >= 0) {
+        const group = this.state.category.groups[newGroupIndex]
         if (group) this.setState({ group: group })
       }
+
     }
   }
 
@@ -175,7 +186,7 @@ class _ManageCourseGroups extends Component {
     const toggleCreateCategory = () => { this.setState({ categoryModal: !this.state.categoryModal }) }
 
     groupCategories.forEach((category) => {
-      categoryOptions.push({ value: category.categoryNumber,
+      categoryOptions.push({ value: category.categoryName,
         label: category.categoryName+' ('+category.groups.length+' groups)' })
     })
 
@@ -185,13 +196,16 @@ class _ManageCourseGroups extends Component {
       this.state.category.groups.forEach((g) => {
         groupOptions.push({ value: g.groupNumber,
           label: g.groupName + ' (' + g.students.length + ' members)' })
-        studentsInCategory = studentsInCategory.concat(g.students)
+        //studentsInCategory = studentsInCategory.concat(g.students)
+        //Need to account for the fact that a student removed from the course
+        //could still be listed in a group
+        studentsInCategory = studentsInCategory.concat( _(g.students).filter( (s) => {return this.props.students[s]} ) )
       })
     }
 
     const studentsNotInCategory = _(studentsInCourse).filter((s) => { return !_(studentsInCategory).contains(s) })
-    let studentsInGroup = this.state.group ? this.state.group.students : []
-
+    //let studentsInGroup = this.state.group ? this.state.group.students : []
+    let studentsInGroup = this.state.group ? _(this.state.group.students).filter( (s) => {return this.props.students[s]} ) : []
     // Students to show in the student column
     let studentsToShow = studentsInCourse
     let studentsToShowStr = 'All students'
@@ -208,20 +222,22 @@ class _ManageCourseGroups extends Component {
 
     // Filter the list of students to show in student column
     const studentSearchString = this.state.studentSearchString
-    studentsToShow = studentSearchString
+    studentsToShow = studentSearchString //TODO <should this check studentsToShow as well???
       ? _(studentsToShow).filter((entry) => {
-        return this.props.students[entry].profile.lastname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
-               this.props.students[entry].profile.firstname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
-               this.props.students[entry].emails[0].address.toLowerCase().includes(studentSearchString.toLowerCase())
+        return this.props.students[entry] && (
+                 this.props.students[entry].profile.lastname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+                 this.props.students[entry].profile.firstname.toLowerCase().includes(studentSearchString.toLowerCase()) ||
+                 this.props.students[entry].emails[0].address.toLowerCase().includes(studentSearchString.toLowerCase()) )
       })
       : studentsToShow
 
     // Sort the students alphabetically
-    studentsToShow = _(studentsToShow).sortBy((entry) => { return this.props.students[entry].profile.lastname.toLowerCase() })
-    studentsInGroup = _(studentsInGroup).sortBy((entry) => { return this.props.students[entry].profile.lastname.toLowerCase() })
+    studentsToShow = _(studentsToShow).sortBy((entry) => { return this.props.students[entry] ? this.props.students[entry].profile.lastname.toLowerCase() : '0' })
+    studentsInGroup = _(studentsInGroup).sortBy((entry) => { return this.props.students[entry] ? this.props.students[entry].profile.lastname.toLowerCase() : '0' })
 
     const nGroups = this.state.category ? this.state.category.groups.length : 0
     const currentGroupNumber = this.state.group ? this.state.group.groupNumber : 0
+    const currentGroupIndex = this.state.group ? _(this.state.category.groups).findIndex( {groupNumber:currentGroupNumber} ) : 0
     const nextGroup = () => this.incrementGroup(1)
     const prevGroup = () => this.incrementGroup(-1)
 
@@ -243,7 +259,7 @@ class _ManageCourseGroups extends Component {
                     <Select
                       name='category-input'
                       placeholder='Type to search for a category'
-                      value={this.state.category ? this.state.category.categoryNumber : null}
+                      value={this.state.category ? this.state.category.categoryName : null}
                       options={categoryOptions}
                       onChange={this.setCategory}
                       />
@@ -298,10 +314,10 @@ class _ManageCourseGroups extends Component {
                               <a onClick={this.toggleChanginGroupName}>cancel</a>
                             </div>
                             : <div>
-                               {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>change name</a>
+                               {this.state.group.groupName}&nbsp;&nbsp; <a onClick={this.toggleChanginGroupName}>Change name</a>
                                {this.state.category.groups.length > 1
                                  ? <div>
-                                      &nbsp;&nbsp; <a onClick={this.deleteGroup}>Delete group</a>
+                                      &nbsp;&nbsp; <a onClick={this.deleteGroup}>Delete</a>
                                    </div>
                                  : ''
                                }
@@ -312,12 +328,12 @@ class _ManageCourseGroups extends Component {
                       { nGroups > 1
                           ? <div className='btn-group btn-group-justified'>
                             <div className='btn-group'>
-                              <button className='btn btn-default' onClick={prevGroup} disabled={currentGroupNumber < 2}>
+                              <button className='btn btn-default' onClick={prevGroup} disabled={currentGroupIndex < 1}>
                                 <span className='glyphicon glyphicon-chevron-left' /> Previous group
                                 </button>
                             </div>
                             <div className='btn-group'>
-                              <button className='btn btn-default' onClick={nextGroup} disabled={currentGroupNumber >= nGroups}>
+                              <button className='btn btn-default' onClick={nextGroup} disabled={currentGroupIndex >= nGroups-1}>
                                   Next group <span className='glyphicon glyphicon-chevron-right' />
                               </button>
                             </div>
@@ -334,9 +350,11 @@ class _ManageCourseGroups extends Component {
                         { studentsInGroup.map((sId) => {
                           const onStudentClick = () => this.toggleStudentInGroup(sId)
                           return (
-                            <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
-                              {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
-                                </div>
+                            this.props.students[sId] ?
+                              <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
+                                {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname} ({this.props.students[sId].emails[0].address})
+                              </div>
+                            : ''
                           )
                         })
                           }
@@ -380,9 +398,11 @@ class _ManageCourseGroups extends Component {
                                                  ? () => this.toggleStudentInGroup(sId)
                                                  : () => this.setGroupFromStudent(sId)
                         return (
-                          <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
-                            {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname}
-                          </div>
+                          this.props.students[sId] ?
+                            <div key={'s2' + sId} className='ql-simple-studentlist-student' onClick={onStudentClick}>
+                              {this.props.students[sId].profile.lastname}, {this.props.students[sId].profile.firstname}
+                            </div>
+                          : ''
                         )
                       })
                       }
