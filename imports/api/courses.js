@@ -92,7 +92,7 @@ const default_Jitsi_interfaceConfigOverwrite = {
     'fodeviceselection', 'hangup', 'chat',
     'etherpad', 'raisehand', 'participants-pane',
     'videoquality', 'filmstrip', 'settings','select-background',
-    'tileview', 'mute-everyone',/* 'security'*/
+    'tileview', 'mute-everyone', 'shareaudio', 'sharedvideo'/* 'security'*/
   ],
 }
 /////////////////////////////////////////////////////////////
