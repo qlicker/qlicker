@@ -189,7 +189,6 @@ export class _VideoChat extends Component {
     if (this.props.loading || !this.props.course) return <div className='ql-subs-loading'>Loading</div>
 
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
-
     //Course-wide options abd functions
     const courseVideoChatEnabled = !!this.props.course.videoChatOptions
     const courseApiOptions = courseVideoChatEnabled && this.props.course.videoChatOptions.apiOptions

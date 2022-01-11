@@ -77,7 +77,6 @@ const default_Jitsi_configOverwrite = {
    enableClosePage: false,
    /*prejoinPageEnabled:false,*/
    disableThirdPartyRequests: true,//removes recording ability, etc, but safer
-   //etherpad_base: 'https://wbo.ophir.dev/boards/'
 }
 
 const default_Jitsi_interfaceConfigOverwrite = {
@@ -975,8 +974,7 @@ Meteor.methods({
 
     if (!_(categories).findWhere({ categoryName: categoryName })) {
       //creating new category
-      let catNumber = categories.length >0 ? Math.max( _(categories).max( (cat) => {return cat.categoryNumber} ).categoryNumber,
-                               categories.length ) + 1
+      let catNumber = categories.length >0 ? Math.max( _(categories).max( (cat) => {return cat.categoryNumber} ).categoryNumber, categories.length ) + 1
                                : 1
       categories.push({
         categoryNumber: catNumber,
@@ -1436,10 +1434,23 @@ Meteor.methods({
     check(categoryNumber, Number)
     check(groupNumber, Number)
 
+    //TODO: Deal with group and cat = -1
+
     const user = Meteor.user()
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
     if (!user.isInstructor(courseId)) throw new Meteor.Error('Not authorized')
     let course = Courses.findOne(courseId)
+
+
+    if (course && categoryNumber == -1 && groupNumber == -1) { //Course-wide chat
+      let videoChatOptions = course.videoChatOptions
+      videoChatOptions.joined  = []
+      return Courses.update({ _id: courseId }, {
+        $set: {
+          videoChatOptions: videoChatOptions
+        }
+      })
+    }
 
     if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
       throw new Meteor.Error('Category does not exist!')
