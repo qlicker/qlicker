@@ -175,7 +175,10 @@ export class _VideoChat extends Component {
   }
 
   clearCategoryRooms(courseId, category) {
-    Meteor.call('courses.clearCategoryRooms', courseId, category.categoryNumber, (err) => {
+
+    let catNumber = category ? category.categoryNumber : -1
+
+    Meteor.call('courses.clearCategoryRooms', courseId, catNumber, (err) => {
       if (err) {
         alertify.error('Error: ' + err.error)
       } else {
@@ -189,7 +192,6 @@ export class _VideoChat extends Component {
     if (this.props.loading || !this.props.course) return <div className='ql-subs-loading'>Loading</div>
 
     const isInstructor = Meteor.user().isInstructor(this.props.courseId)
-
     //Course-wide options abd functions
     const courseVideoChatEnabled = !!this.props.course.videoChatOptions
     const courseApiOptions = courseVideoChatEnabled && this.props.course.videoChatOptions.apiOptions
@@ -221,6 +223,7 @@ export class _VideoChat extends Component {
 
     //A component to display group category name and controls to enable the chat
     const VideoSessionControl = ({name, category, onClick, catTileClick, catAudioClick, catVideoClick, catVideoReset}) => {
+      const courseVideoReset = () => this.clearCategoryRooms(this.props.course._id, null)
       if (name){
         let extraClass = courseVideoChatEnabled ? 'active' : ''
         return(
@@ -238,6 +241,9 @@ export class _VideoChat extends Component {
                    </div>
                  : ''
               }
+              <div className='btn' onClick={courseVideoReset} style={{height:'20px', padding:'0 5px 0 5px'}}>
+                Clear participants
+              </div>
             </div>
           </li>
         )
