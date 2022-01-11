@@ -1245,6 +1245,18 @@ Meteor.methods({
 
     profHasCoursePermission(courseId)
     let course = Courses.findOne(courseId)
+
+    if (course && categoryNumber == -1) {
+      let videoChatOptions = course.videoChatOptions
+      videoChatOptions.joined  = []
+
+      return Courses.update({ _id: courseId }, {
+        $set: {
+          videoChatOptions: videoChatOptions
+        }
+      })
+    }
+
     if (!course || !course.groupCategories || !_(course.groupCategories).findWhere({ categoryNumber: categoryNumber })) {
       throw new Meteor.Error('Category does not exist!')
     }
