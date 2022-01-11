@@ -46,6 +46,9 @@ export class JitsiWindow extends Component {
 
         const domain = result.domain
 
+        options.configOverwrite.startWithAudioMuted = apiOptions.startAudioMuted
+        options.configOverwrite.startWithVideoMuted = apiOptions.startVideoMuted
+
         //Check if an etherpad/whiteboard domain exists
         //In principle, can pass an options as etherpad_base, but doesn't always work
         const etherpadDomain = apiOptions.useWhiteboard && result.whiteboard
@@ -104,7 +107,6 @@ export class JitsiWindow extends Component {
           window.addEventListener("beforeunload", leaveCall); //same
           //window.addEventListener("unload", leaveCall); //same
 
-
           if(apiOptions.subjectTitle){
             api.executeCommand('subject', apiOptions.subjectTitle);
           }
@@ -158,14 +160,13 @@ export class JitsiWindow extends Component {
 
     if (!this.props.connectionInfo) return <div className='ql-subs-loading'>No connection info</div>
 
-    let categoryNumber = Number(this.props.connectionInfo.categoryNumber)
-    let groupNumber = Number(this.props.connectionInfo.groupNumber)
+    let categoryNumber = this.props.connectionInfo.categoryNumber ? Number(this.props.connectionInfo.categoryNumber) : -1
+    let groupNumber = this.props.connectionInfo.groupNumber ? Number(this.props.connectionInfo.groupNumber) : -1
     let courseId = this.props.connectionInfo.courseId
     let help = this.props.connectionInfo.helpVideoChat
     const user = Meteor.user()
     let callButton = categoryNumber && groupNumber && courseId && user.isStudent(courseId)
     const isInstructor = user.isInstructor(courseId)
-
     const toggleHelp = callButton ? () =>{this.toggleHelpButton(courseId, categoryNumber, groupNumber)} : null
     const clearRoom = isInstructor ? () =>{this.clearRoom(courseId, categoryNumber, groupNumber)} : null
     let extraClass = help ? ' ql-blinking' : ''
