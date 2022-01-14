@@ -257,7 +257,7 @@ class _ManageCourse extends Component {
           }
           if (ses.status === 'done') {
             controls.push({ label: 'Make quiz live again', click: () => this.startSession(sId) })
-            controls.push({ label: 'Grade guiz', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
+            controls.push({ label: 'Grade quiz', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Replay session', click: () => Router.go('session.replay', {sessionId: sId, courseId: this.props.course._id}) })
           }
