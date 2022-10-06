@@ -127,8 +127,12 @@ export const ManageUsersTable = withTracker(( props ) => {
   courses.map((c) => {
     courseNames[c._id] = c.courseCode().toUpperCase()+'-'+c.semester.toUpperCase()
   })
-  const allUsers = Meteor.users.find({ $or: [ {'profile.lastname': { $regex: props.filterUserSearchString }},
-                                              {'profile.firstname': { $regex: props.filterUserSearchString }}
+  console.log(props.searchCourses)
+
+  const allUsers = Meteor.users.find({ $or: [ {'profile.lastname': { $regex: props.filterUserSearchString, "$options" : "i" } },
+                                              {'profile.firstname': { $regex: props.filterUserSearchString, "$options" : "i" }},
+                                              {'emails.address': { $regex: props.filterUserSearchString, "$options" : "i" }},
+                                              //{'profile.courses': { $regex: props.searchCourses, "$options" : "i" }}
                                             ]
                                       },
                                      { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 },

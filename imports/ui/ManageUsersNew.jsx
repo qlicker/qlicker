@@ -39,7 +39,7 @@ export class ManageUsers extends Component {
     this.setFilterUserSearchString = this.setFilterUserSearchString.bind(this)
     this.toggleShowAll = this.toggleShowAll.bind(this)
     // see https://github.com/facebook/react/issues/1360
-    this.setFilterUserSearchString = _.debounce(this.setFilterUserSearchString,1800)
+    this.setFilterUserSearchString = _.debounce(this.setFilterUserSearchString,500)
   }
 
   componentDidMount () {
@@ -195,6 +195,8 @@ export class ManageUsers extends Component {
              maxUsers={maxUsers}
              filterUserSearchString={this.state.filterUserSearchString ?
                                       this.state.filterUserSearchString : '' }
+             searchCourses={this.state.searchCourses?
+                            this.state.searchCourses: ''}
              />
         </div>
       </div>
