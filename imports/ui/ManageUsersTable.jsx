@@ -127,20 +127,62 @@ export const ManageUsersTable = withTracker(( props ) => {
   courses.map((c) => {
     courseNames[c._id] = c.courseCode().toUpperCase()+'-'+c.semester.toUpperCase()
   })
-  console.log(props.searchCourses)
 
-  const allUsers = Meteor.users.find({ $or: [ {'profile.lastname': { $regex: props.filterUserSearchString, "$options" : "i" } },
-                                              {'profile.firstname': { $regex: props.filterUserSearchString, "$options" : "i" }},
-                                              {'emails.address': { $regex: props.filterUserSearchString, "$options" : "i" }},
-                                              //{'profile.courses': { $regex: props.searchCourses, "$options" : "i" }}
-                                            ]
-                                      },
+  let userNameSearch = props.filterUserSearchString ?
+                         { $or: [ {'profile.lastname': { $regex: props.filterUserSearchString, "$options" : "i" }},
+                          {'profile.firstname': { $regex: props.filterUserSearchString, "$options" : "i" }},
+                          {'emails.address': { $regex: props.filterUserSearchString, "$options" : "i" }}
+                         ]}
+                         : undefined
+
+  let courseSearch = props.searchCourseId ?
+                       { 'profile.courses': {$regex: props.searchCourseId} }
+                       : undefined
+
+  let roleSearch = props.searchRole ?
+                      { 'profile.roles': {$regex: props.searchRole} }
+                      : undefined
+
+  let query = {}
+
+  //Build a user search query depending on what parameters were given:
+  if(userNameSearch){
+    if(courseSearch){
+      if(roleSearch){
+        query = {$and:[userNameSearch,courseSearch,roleSearch]}
+      }else{
+        query = {$and:[userNameSearch,courseSearch]}
+      }
+    } else {
+      if(roleSearch){
+        query = {$and:[userNameSearch,roleSearch]}
+      }else{
+        query = userNameSearch
+      }
+    }
+  }
+  else{
+    if(courseSearch){
+      if(roleSearch){
+        query = {$and:[courseSearch,roleSearch]}
+      }else{
+        query = courseSearch
+      }
+    } else{
+      if(roleSearch){
+        query = roleSearch
+      }
+    }
+  }
+
+
+  const allUsers = Meteor.users.find( query,
                                      { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 },
                                        limit: props.maxUsers
                                      }).fetch()
 
   return {
-    allUsers: allUsers,
+    allUsers: allUsers, //TODO: Remove one of these
     users: allUsers,
     courseNames: courseNames,
     loading: !handle.ready()

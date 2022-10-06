@@ -174,7 +174,6 @@ export class ManageUsers extends Component {
               <Select
                 name='search-course'
                 placeholder='Course'
-                multi
                 value={this.state.searchCourses}
                 options={this.state.courseNames}
                 onChange={setSearchCourses}
@@ -184,7 +183,6 @@ export class ManageUsers extends Component {
               <Select
                 name='search-role'
                 placeholder='Role'
-                multi
                 value={this.state.searchRoles}
                 options={this.state.roleNames}
                 onChange={setSearchRoles}
@@ -193,10 +191,12 @@ export class ManageUsers extends Component {
           </div>
           <ManageUsersTable
              maxUsers={maxUsers}
-             filterUserSearchString={this.state.filterUserSearchString ?
-                                      this.state.filterUserSearchString : '' }
-             searchCourses={this.state.searchCourses?
-                            this.state.searchCourses: ''}
+             filterUserSearchString = {this.state.filterUserSearchString ?
+                                       this.state.filterUserSearchString : '' }
+             searchCourseId = {this.state.searchCourses ?
+                               this.state.searchCourses.value: ''}
+             searchRole = {this.state.searchRoles ?
+                               this.state.searchRoles.value: ''}
              />
         </div>
       </div>
