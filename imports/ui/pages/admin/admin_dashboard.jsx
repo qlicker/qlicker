@@ -16,7 +16,7 @@ import { ManageUsers } from '../../ManageUsers'
 import { ManageImages } from '../../ManageImages'
 import { ManageSSO } from '../../ManageSSO'
 import { ManageJitsi } from '../../ManageJitsi'
-
+import { ManageMainSettings } from '../../ManageMainSettings'
 
 class _AdminDashboard extends Component {
 
@@ -24,7 +24,7 @@ class _AdminDashboard extends Component {
     super(p)
 
     this.state = {
-      tab: 'users',
+      tab: 'mainsettings',
     }
     this.toggleProfileViewModal = this.toggleProfileViewModal.bind(this)
   }
@@ -47,6 +47,8 @@ class _AdminDashboard extends Component {
           : <span className='ql-admin-toolbar'>
                 <span className='title'>Dashboard</span>
                 <span className='divider'>&nbsp;</span>
+                <span className='button' onClick={() => setTab('mainsettings')}>Main settings</span>
+                <span className='divider'>&nbsp;</span>
                 <span className='button' onClick={() => setTab('users')}>Users</span>
                 <span className='divider'>&nbsp;</span>
                 <span className='button' onClick={() => setTab('server')}>Images</span>
@@ -58,10 +60,14 @@ class _AdminDashboard extends Component {
         }
 
         <div className='ql-admin-settings'>
+          { this.state.tab === 'mainsettings'
+            ? <ManageMainSettings
+                settings={this.props.settings} />
+            : ''
+          }
           { this.state.tab === 'users'
             ? <ManageUsers
                 settings={this.props.settings}
-                allUsers={this.props.allUsers}
                 courseNames={this.props.courseNames}
                 loading={this.props.loading}
                 toggleProfileViewModal={this.toggleProfileViewModal} />
@@ -86,19 +92,16 @@ class _AdminDashboard extends Component {
 }
 
 export const AdminDashboard = withTracker(() => {
-  const handle = Meteor.subscribe('users.all') && Meteor.subscribe('settings') &&
-                 Meteor.subscribe('courses')
+  const handle = Meteor.subscribe('settings') && Meteor.subscribe('courses')
   const courses = Courses.find({}, {sort: {name : 1, createdAt: -1}}).fetch()
   let courseNames = {}
   courses.map((c) => {
     courseNames[c._id] = c.courseCode().toUpperCase()+'-'+c.semester.toUpperCase()
   })
   const settings = Settings.findOne()
-  const allUsers = Meteor.users.find({ }, { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 } }).fetch()
 
   return {
     settings: settings,
-    allUsers: allUsers,
     courseNames: courseNames,
     loading: !handle.ready()
   }
