@@ -6,13 +6,11 @@
 import React, { Component } from 'react'
 import { withTracker } from 'meteor/react-meteor-data'
 import { Courses } from '../api/courses'
-import { RestrictDomainForm } from './RestrictDomainForm'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
 import _ from 'underscore'
 import { ROLES } from '../configs'
 
-MAXUSERS_DEFAULT = 10
 
 export class _ManageUsersTable extends Component {
 
@@ -67,9 +65,7 @@ export class _ManageUsersTable extends Component {
 
   render() {
     if (this.props.loading ) return <div className='ql-subs-loading'>Loading</div>
-    const maxUsers = this.props.maxUsers
     let users = this.props.users
-    const totalUsers = users.length
 
     return(
           <div className = 'ql-admin-user-table'>
@@ -176,14 +172,13 @@ export const ManageUsersTable = withTracker(( props ) => {
   }
 
 
-  const allUsers = Meteor.users.find( query,
+  const filteredUsers = Meteor.users.find( query,
                                      { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 },
                                        limit: props.maxUsers
                                      }).fetch()
 
   return {
-    allUsers: allUsers, //TODO: Remove one of these
-    users: allUsers,
+    users: filteredUsers,
     courseNames: courseNames,
     loading: !handle.ready()
   }

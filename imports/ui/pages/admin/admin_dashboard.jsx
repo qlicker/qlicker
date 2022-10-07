@@ -12,7 +12,7 @@ import { Courses } from '../../../api/courses'
 
 import { ProfileViewModal } from '../../modals/ProfileViewModal'
 
-import { ManageUsers } from '../../ManageUsersNew'
+import { ManageUsers } from '../../ManageUsers'
 import { ManageImages } from '../../ManageImages'
 import { ManageSSO } from '../../ManageSSO'
 import { ManageJitsi } from '../../ManageJitsi'
