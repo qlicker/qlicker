@@ -158,6 +158,7 @@ export class ManageUsers extends Component {
                                this.state.searchCourses.value: ''}
              searchRole = {this.state.searchRoles ?
                                this.state.searchRoles.value: ''}
+             toggleProfileViewModal={this.props.toggleProfileViewModal}
              />
         </div>
       </div>
