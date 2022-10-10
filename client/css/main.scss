@@ -175,3 +175,21 @@ p {
     }
   }
 }
+.ql-label-input-horiz {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left:10px;
+  padding-right:10px;
+  .ql-label-input-horiz-smallnumber{
+    size:20px;
+  }
+
+  * {
+    padding-right:10px;
+  }
+
+  .ql-label-input-horiz-number{
+    min-width:100px !important; // overwrite setting in admin-dashboard
+  }
+}

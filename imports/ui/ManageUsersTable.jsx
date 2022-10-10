@@ -1,14 +1,10 @@
 // QLICKER
-// Author: Hayden Pfeiffer <hayden.pfeiffer@queensu.ca>
+// Author: Ryan Martin
 //
-// ManageUsers.jsx: Component for admin user management
+// ManageUsersTable.jsx: Component for admin user management
 
 import React, { Component } from 'react'
 import { withTracker } from 'meteor/react-meteor-data'
-import { Courses } from '../api/courses'
-import Select from 'react-select'
-import 'react-select/dist/react-select.css'
-import _ from 'underscore'
 import { ROLES } from '../configs'
 
 
@@ -21,14 +17,11 @@ export class _ManageUsersTable extends Component {
                   {value:ROLES.prof, label:'professor'},
                   {value:ROLES.student, label:'student'}],
       searchUser:'',
-      maxUsers: MAXUSERS_DEFAULT //limit to 10 by default...
     }
 
     this.saveRoleChange = this.saveRoleChange.bind(this)
     this.verifyUserEmail = this.verifyUserEmail.bind(this)
     this.toggleCanPromote = this.toggleCanPromote.bind(this)
-    this.toggleShowAll = this.toggleShowAll.bind(this)
-
   }
 
   componentDidMount () {
@@ -55,12 +48,6 @@ export class _ManageUsersTable extends Component {
       if (e) alertify.error(e)
       if (d) alertify.success('Changed!')
     })
-  }
-
-
-  toggleShowAll() {
-    const newVal = this.state.maxUsers > 0 ? 0 : MAXUSERS_DEFAULT
-    this.setState({ maxUsers: newVal })
   }
 
   render() {
@@ -117,12 +104,7 @@ export class _ManageUsersTable extends Component {
 
 export const ManageUsersTable = withTracker(( props ) => {
 
-  const handle = Meteor.subscribe('users.all') &&  Meteor.subscribe('courses')
-  const courses = Courses.find({}, {sort: {name : 1, createdAt: -1}}).fetch()
-  let courseNames = {}
-  courses.map((c) => {
-    courseNames[c._id] = c.courseCode().toUpperCase()+'-'+c.semester.toUpperCase()
-  })
+  const handle = Meteor.subscribe('users.all')
 
   let userNameSearch = props.filterUserSearchString ?
                          { $or: [ {'profile.lastname': { $regex: props.filterUserSearchString, "$options" : "i" }},
@@ -171,7 +153,6 @@ export const ManageUsersTable = withTracker(( props ) => {
     }
   }
 
-
   const filteredUsers = Meteor.users.find( query,
                                      { sort: { 'profile.roles.0': 1, 'profile.lastname': 1 },
                                        limit: props.maxUsers
@@ -179,7 +160,6 @@ export const ManageUsersTable = withTracker(( props ) => {
 
   return {
     users: filteredUsers,
-    courseNames: courseNames,
     loading: !handle.ready()
   }
 })(_ManageUsersTable)
