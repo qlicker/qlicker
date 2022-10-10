@@ -11,7 +11,7 @@ import 'react-select/dist/react-select.css'
 import _ from 'underscore'
 import { ROLES } from '../configs'
 
-MAXUSERS_DEFAULT = 10
+MAXUSERS_DEF = 25
 
 export class ManageUsers extends Component {
 
@@ -27,16 +27,14 @@ export class ManageUsers extends Component {
                   {value:ROLES.prof, label:'professor'},
                   {value:ROLES.student, label:'student'}],
       searchUser:'',
-      maxUsers: MAXUSERS_DEFAULT //limit to 10 by default...
+      maxUsers: MAXUSERS_DEF //limit to 10 by default...
     }
 
-    this.saveRoleChange = this.saveRoleChange.bind(this)
     this.setValue = this.setValue.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
-    this.verifyUserEmail = this.verifyUserEmail.bind(this)
-    this.toggleCanPromote = this.toggleCanPromote.bind(this)
     this.setFilterUserSearchString = this.setFilterUserSearchString.bind(this)
-    this.toggleShowAll = this.toggleShowAll.bind(this)
+    this.setMaxUsers = this.setMaxUsers.bind(this)
+
     // see https://github.com/facebook/react/issues/1360
     this.setFilterUserSearchString = _.debounce(this.setFilterUserSearchString,500)
   }
@@ -50,15 +48,6 @@ export class ManageUsers extends Component {
     this.setState({ courseNames: courseNames })
   }
 
-  saveRoleChange (uId, newRole) {
-    if (confirm('Are you sure?')) {
-      Meteor.call('users.changeRole', uId, newRole, (e) => {
-        if (e) return alertify.error('Error: ' + e.message)
-        alertify.success('Role changed')
-      })
-    }
-  }
-
   setValue (e) {
     let stateEdits = {}
     stateEdits[e.target.dataset.name] = e.target.value
@@ -67,7 +56,7 @@ export class ManageUsers extends Component {
 
   handleSubmit (e) {
     e.preventDefault()
-      // signup
+    // signup
     if (this.state.password !== this.state.password_verify) {
       alertify.error('Passwords don\'t match')
     } else {
@@ -89,27 +78,13 @@ export class ManageUsers extends Component {
     }
   } // end handleSubmit
 
-  verifyUserEmail (email) {
-    Meteor.call('users.verifyEmail', email, (e, d) => {
-      if (e) alertify.error(e)
-      if (d) alertify.success('Email verified')
-    })
-  }
-
-  toggleCanPromote (id) {
-    Meteor.call('users.toggleCanPromote', id, (e, d) => {
-      if (e) alertify.error(e)
-      if (d) alertify.success('Changed!')
-    })
-  }
-
   setFilterUserSearchString (val) {
     this.setState( {filterUserSearchString:val} )
   }
 
-  toggleShowAll() {
-    const newVal = this.state.maxUsers > 0 ? 0 : MAXUSERS_DEFAULT
-    this.setState({ maxUsers: newVal })
+  setMaxUsers (val) {
+  //console.log(val)
+  this.setState( {maxUsers:parseInt(val) } )
   }
 
   render() {
@@ -122,27 +97,9 @@ export class ManageUsers extends Component {
     }
     const setSearchRoles = (val) => { this.setState({ searchRoles: val }) }
 
-    // Apply search criteria, if present
-    let users = [] // this.props.allUsers.slice() //added slice to pass as a copy or else the filtering modified the prop somehow!!!
     const maxUsers = this.state.maxUsers
+    const setMaxUsers = (e) => { this.setMaxUsers(e.target.value) }
 
-    if( this.state.filterUserSearchString ){
-      users = _(users).filter( function (user) {
-        return user.profile.lastname.toLowerCase().includes(this.state.filterUserSearchString.toLowerCase())
-         || user.profile.firstname.toLowerCase().includes(this.state.filterUserSearchString.toLowerCase())
-         || user.emails[0].address.toLowerCase().includes(this.state.filterUserSearchString.toLowerCase())
-      }.bind(this))
-    }
-    if( this.state.searchCourses  && this.state.searchCourses.length > 0 ){
-      users = _(users).filter( function (user) {
-        return (_.intersection( _(this.state.searchCourses).pluck('value'), user.profile.courses)).length > 0
-      }.bind(this))
-    }
-    if( this.state.searchRoles  && this.state.searchRoles.length > 0 ){
-      users = _(users).filter( function (user) {
-        return (_.intersection( _(this.state.searchRoles).pluck('value'), user.profile.roles)).length > 0
-      }.bind(this))
-    }
     return(
       <div className='container'>
         <div className='row'>
@@ -187,9 +144,14 @@ export class ManageUsers extends Component {
                 onChange={setSearchRoles}
                 />
             </div>
+            <div className='ql-label-input-horiz'>
+              <label htmlFor="maxUsersInput">Max results:</label>
+              <input className="ql-label-input-horiz-number" name="maxUsersInput" type="number" min={5} step={10} max={100} maxLength={5} onChange={setMaxUsers} placeholder='Max users' value={maxUsers} />
+            </div>
           </div>
           <ManageUsersTable
              maxUsers={maxUsers}
+             courseNames = {this.props.courseNames}
              filterUserSearchString = {this.state.filterUserSearchString ?
                                        this.state.filterUserSearchString : '' }
              searchCourseId = {this.state.searchCourses ?

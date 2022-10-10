@@ -21,9 +21,6 @@ export class ManageMainSettings extends Component {
       supportEmail: props.settings.email,
     }
 
-
-    this.setValue = this.setValue.bind(this)
-
     this.saveEmail = this.saveEmail.bind(this)
     this.toggleRequireVerified = this.toggleRequireVerified.bind(this)
 
@@ -31,13 +28,6 @@ export class ManageMainSettings extends Component {
 
   componentDidMount () {
 
-  }
-
-
-  setValue (e) {
-    let stateEdits = {}
-    stateEdits[e.target.dataset.name] = e.target.value
-    this.setState(stateEdits)
   }
 
   saveEmail () {
