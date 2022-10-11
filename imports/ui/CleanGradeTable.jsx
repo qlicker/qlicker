@@ -140,13 +140,13 @@ export class _CleanGradeTable extends Component {
           let sid = sortByColumn.split('_smark')[0]
           gradeRows = _(gradeRows).sortBy((entry) => {
             const grade = _(entry.slice(1)).findWhere({ sessionId: sid })
-            return ((grade && grade.value) ? Math.rount(10*grade.value)/10 : 0)
+            return ((grade && grade.value) ? Math.round(10*grade.value)/10 : 0)
           })
         } else if (sortByColumn.includes('spart')){ // grade.participations
           let sid = sortByColumn.split('_spart')[0]
           gradeRows = _(gradeRows).sortBy((entry) => {
             const grade = _(entry.slice(1)).findWhere({ sessionId: sid })
-            return ((grade && grade.participation) ? Math.rount(10*grade.participation)/10 : 0)
+            return ((grade && grade.participation) ? Math.round(10*grade.participation)/10 : 0)
           })
         } else { }
       }
