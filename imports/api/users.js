@@ -31,7 +31,7 @@ _.extend(User.prototype, {
     return this.profile.lastname + ', ' + this.profile.firstname
   },
   getNameFL: function () {
-    return this.profile.firstname+ ' ' + this.profile.lastname 
+    return this.profile.firstname+ ' ' + this.profile.lastname
   },
   getEmail: function () {
     return this.emails[0].address
@@ -266,7 +266,7 @@ Meteor.methods({
   'users.verifyEmail' (email) {
     check(email, Helpers.Email)
     const user = Meteor.users.findOne({ _id: Meteor.userId() })
-    if (user.hasRole(ROLES.admin)) {
+    if (Meteor.isServer && user.hasRole(ROLES.admin)) {
       let emailUser = Accounts.findUserByEmail(email)//Meteor.users.findOne({'emails.address': email})
       if (!emailUser) throw new Meteor.Error('Couldn\'t find user')
       return Meteor.users.update({_id: emailUser._id}, {'$set': {'emails.0.verified': true}})
@@ -312,6 +312,7 @@ Meteor.methods({
   'users.changeRoleByEmail' (email, newRole) {
     check(email, Helpers.Email)
     check(newRole, String)
+    if (!Meteor.isServer) return
     if (!Meteor.user().hasRole(ROLES.admin)) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
     const user = Accounts.findUserByEmail(email)//Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
@@ -325,6 +326,7 @@ Meteor.methods({
   'users.promote' (email) {
     check(email, Helpers.Email)
     if (!Meteor.user().canPromote()) throw new Meteor.Error('invalid-permissions', 'Invalid permissions')
+    if (!Meteor.isServer) return
     const user = Accounts.findUserByEmail(email) //Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
