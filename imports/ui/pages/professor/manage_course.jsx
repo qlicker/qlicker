@@ -71,6 +71,7 @@ class _ManageCourse extends Component {
   toggleProfileViewModal (userToView = null) {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
+
   startSession (sessionId) {
     if (confirm('Are you sure?')) {
       Meteor.call('sessions.startSession', sessionId, (error) => {

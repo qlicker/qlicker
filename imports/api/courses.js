@@ -653,7 +653,7 @@ Meteor.methods({
     check(courseId, Helpers.MongoID)
 
     profHasCoursePermission(courseId)
-
+    if (!Meteor.isServer) return
     const user = Accounts.findUserByEmail(email) //Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
@@ -685,7 +685,7 @@ Meteor.methods({
     check(courseId, Helpers.MongoID)
 
     profHasCoursePermission(courseId)
-
+    if (!Meteor.isServer) return
     const user = Accounts.findUserByEmail(email) //Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
