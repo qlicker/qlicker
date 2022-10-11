@@ -438,10 +438,11 @@ export class QuestionDisplay extends Component {
         }
         const statsStr = '(' + stats + '%)'
         const sess = this.props.question.sessionOptions
-        let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
+        let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct) || (this.state.showCorrect && this.props.isPracticeQuiz)
         if (shouldShowCorrect && this.props.forReview && !this.props.prof && !this.state.showCorrect) {
           shouldShowCorrect = false
         }
+
         let shouldShowResponse = this.state.submittedAnswer === a.answer || this.state.submittedAnswer.indexOf(a.answer) > -1
         if (shouldShowResponse && this.props.forReview && !this.props.prof && !this.state.showResponse) {
           shouldShowResponse = false
@@ -507,7 +508,7 @@ export class QuestionDisplay extends Component {
   renderNumericalQuestion (q)
   {
     const sess = this.props.question.sessionOptions
-    let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct)
+    let shouldShowCorrect = this.props.forReview || this.props.prof || (sess && sess.correct) || (this.state.showCorrect && this.props.isPracticeQuiz)
     if (shouldShowCorrect && this.props.forReview && !this.props.prof && !this.state.showCorrect) {
       shouldShowCorrect = false
     }
