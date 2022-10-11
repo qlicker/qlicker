@@ -201,7 +201,7 @@ if (Meteor.isServer) {
         initialQs.forEach(q => {
           let qToAdd = q
           // if prof has marked Q with correct visible, refetch answer options
-          if (q.sessionOptions && q.sessionOptions.correct){
+          if (session.practiceQuiz || (q.sessionOptions && q.sessionOptions.correct) ){
             const qtemp =  Questions.findOne({_id: q._id})
             qToAdd.options = qtemp.options
             qToAdd.correctNumerical = qtemp.correctNumerical
