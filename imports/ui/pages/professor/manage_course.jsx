@@ -32,6 +32,7 @@ class _ManageCourse extends Component {
     this.state = {
       creatingSession: false,
       copySessionModal: false,
+      copyAllSessionsModal: false,
       profileViewModal: false,
       addTAModal: false,
       addStudentModal: false,
@@ -45,8 +46,9 @@ class _ManageCourse extends Component {
       //requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
-
+    this.toggleCopyAllSessionsModal = this.toggleCopyAllSessionsModal.bind(this)
     this.copySession = this.copySession.bind(this)
+    this.copyAllSessions = this.copyAllSessions.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
     this.startSession = this.startSession.bind(this)
     this.endSession = this.endSession.bind(this)
@@ -66,6 +68,10 @@ class _ManageCourse extends Component {
 
   toggleCopySessionModal (sessionId = null) {
     this.setState({ copySessionModal: !this.state.copySessionModal, sessionToCopy: sessionId })
+  }
+
+  toggleCopyAllSessionsModal () {
+    this.setState({ copyAllSessionsModal: !this.state.copyAllSessionsModal})
   }
 
   toggleProfileViewModal (userToView = null) {
@@ -97,6 +103,18 @@ class _ManageCourse extends Component {
       if (courseId) {
         this.toggleCopySessionModal()
         Router.go('course', { courseId: courseId })
+      }
+    })
+  }
+
+  copyAllSessions (targetCourseId = null) {
+
+    Meteor.call('courses.copyAllSessions', this.props.courseId, targetCourseId, (error) => {
+      if (error) return alertify.error('Error copying sessions')
+      alertify.success('Sessions copied')
+      if (targetCourseId) {
+        this.toggleCopyAllSessionsModal()
+        Router.go('course', { courseId: targetCourseId })
       }
     })
   }
@@ -372,6 +390,7 @@ class _ManageCourse extends Component {
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ?  _(this.props.sessions).where({quiz:false}).length : 0
     const nQuizzes = this.props.sessions ? _(this.props.sessions).where({quiz:true}).length : 0
+    const nSessionsAndQuizzes = nQuizzes + nSessions
     return (
       <div className='container ql-manage-course'>
         <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
@@ -436,6 +455,14 @@ class _ManageCourse extends Component {
               Create new interactive session/quiz
             </div>
 
+            { nSessionsAndQuizzes > 0 ?
+              <div className='btn' onClick={this.toggleCopyAllSessionsModal}>
+                Copy all sessions to different course
+              </div>
+              :''
+            }
+
+
             { nSessions > 0 ?
               <div>
                 <h3>Interactive sessions ({nSessions} session{nSessions > 1 ? 's' : '' })</h3>
@@ -466,6 +493,11 @@ class _ManageCourse extends Component {
             selected={(courseId) => this.copySession(this.state.sessionToCopy, courseId)}
             done={this.toggleCopySessionModal} />
           : '' }
+       { this.state.copyAllSessionsModal
+            ? <PickCourseModal
+              selected={(courseId) => this.copyAllSessions(courseId)}
+              done={this.toggleCopyAllSessionsModal } />
+            : '' }
         { this.state.profileViewModal
           ? <ProfileViewModal
             user={this.state.userToView}

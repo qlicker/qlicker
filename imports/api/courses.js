@@ -905,6 +905,27 @@ Meteor.methods({
     } else return false
   },
 
+  'courses.copyAllSessions' (courseId, targetCourseId) {
+    check(courseId, Helpers.MongoID)
+    check(targetCourseId, Helpers.MongoID)
+
+    const course = Courses.findOne(courseId)
+    if (!course) throw new Error('Course not found')
+
+    const targetCourse = Courses.findOne(targetCourseId)
+    if (!targetCourse) throw new Error('targetCourse not found')
+
+    //const user = Meteor.users.findOne({ _id: this.userId })
+    profHasCoursePermission(courseId)
+    profHasCoursePermission(targetCourseId)
+
+    course.sessions.forEach( (sid) => {
+      Meteor.call('sessions.copy', sid, targetCourseId)
+    });
+
+  },
+
+
   /**
    * generates and sets a new enrollment code for the course
    * @param {MongoID} courseId
