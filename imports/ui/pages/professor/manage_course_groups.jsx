@@ -9,6 +9,8 @@ import React, { Component } from 'react'
 import _ from 'underscore'
 import { withTracker }  from 'meteor/react-meteor-data'
 
+import { CSVLink } from 'react-csv'
+
 import { Courses } from '../../../api/courses'
 
 import { CreateGroupCategoryModal } from '../../modals/CreateGroupCategoryModal'
@@ -241,6 +243,46 @@ class _ManageCourseGroups extends Component {
     const nextGroup = () => this.incrementGroup(1)
     const prevGroup = () => this.incrementGroup(-1)
 
+
+    // Make the CSV Data
+    let csvRows = []
+    let csvHeaders = []
+    let csvFilename = 'groups.csv'
+
+    let nCats = groupCategories.length
+
+    csvHeaders = ["CategoryName","CategoryNumber","GroupName","GroupNumber","Email","LastName","FirstName"]
+
+    for ( let icat = 0; icat<nCats ; icat++){
+
+      let groupsInCat = groupCategories[icat].groups
+      let nGroupsInCat = groupsInCat.length
+
+      for ( let igrp = 0; igrp<nGroupsInCat ; igrp++){
+
+        let studentsInGroupCat = groupsInCat[igrp].students
+        let nStudentsInGroupCat = studentsInGroupCat.length
+
+        for (let ist = 0; ist<nStudentsInGroupCat; ist++){
+          let sid = studentsInGroupCat[ist]
+          let student = this.props.students[sid]
+
+          let email = student.emails[0].address
+          let first = student.profile.firstname
+          let last = student.profile.lastname
+
+          let row = [groupCategories[icat].categoryName,
+                     groupCategories[icat].categoryNumber,
+                     groupsInCat[igrp].groupName,
+                     groupsInCat[igrp].groupNumber,
+                     email,
+                     last,
+                     first]
+          csvRows.push(row)
+        }
+      }
+    }// end of CSV build
+
     return (
       <div className='container ql-manage-course-groups'>
         <div className='row'>
@@ -250,10 +292,21 @@ class _ManageCourseGroups extends Component {
                 <h4>Categories</h4>
               </div>
               <div className='ql-card-content'>
+
+                { categoryOptions.length ?
+                  <div className='btn-group btn-group-justified'>
+                    <CSVLink data={csvRows} headers={csvHeaders} filename={csvFilename}>
+                      <div className='btn'> Download all group data </div>
+                    </CSVLink>
+                  </div>
+                  :''
+                }
+
                 <div className='btn-group btn-group-justified'>
                   <div className='btn btn-default' onClick={toggleCreateCategory}> Create category or add groups </div>
                   { this.state.categoryModal ? <CreateGroupCategoryModal courseId={this.props.course._id} done={toggleCreateCategory} /> : '' }
                 </div>
+
                 { categoryOptions.length
                   ? <div className='ql-manage-course-groups-select'>
                     <Select
