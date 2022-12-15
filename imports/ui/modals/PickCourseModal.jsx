@@ -36,6 +36,9 @@ export class _PickCourseModal extends ControlledForm {
               return <CourseListItem key={c._id} course={c} click={() => this.props.selected(c._id)} />
             })
           }
+          <div className='ql-buttongroup'>
+            <a className='btn btn-default' onClick={this.done}>Cancel</a>
+          </div>
         </div>
       </div>
     </div>)
