@@ -213,7 +213,9 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           }
           // POST callback from IdP (IdP -> SP) to either logout or login
           else if (req.method === 'POST') {
+            console.log("got post")
             if (url.parse(req.url).pathname === '/logout') {
+              console.log("logging out")
               //----------- Hack start
               //A hack to bypass the SSO stuff and log the user out using the SessionIndex in the IDP POST request
               //(needed because passport-saml cannot validate the encrypted response)
