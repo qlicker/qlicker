@@ -205,26 +205,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             }
             else if (url.parse(req.url).pathname === '/logout') {
               console.log("got a logout request through GET?!")
-              console.log(req)
-              Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
-                if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
-                  console.log("validating get logout request")
-                  console.log(result)
-                  let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] })
-                  if(user){ //remove the session ID and the login token
-                    console.log(user)
-                    Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
-                  }
-                  Accounts.samlStrategy._saml.getLogoutResponseUrl(req, function(err, logout){
-                    if(error) throw new Error("Unable to generate logout response url");
-                    res.writeHead(302, {'Location': logout});
-                    res.end()
-                  })
-                } else {
-                 console.log(err)
-                 console.log(result)
-                }
-              })
+              console.log(url.parse(req.url))
+
             }
             else {
               // Otherwise redirect to IdP for login (SP -> IdP) (IDP responds with a POST handled below)
