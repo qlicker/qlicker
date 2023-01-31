@@ -76,6 +76,12 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let services = (user && user.services ) ? user.services : {}
         let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
 
+        console.log("register login handler")
+        console.log(samlInfo)
+        console.log(samlProfile)
+        console.log(user)
+        console.log(profile)
+        console.log(services)
         // Remove old sessions from sso sessions (done automatically for resume.loginTokens)
         // Remove sessions that do not have an associated token in resume.loginTokens
         let resumeTokens = (user && user.services && user.services.resume && user.services.resume.loginTokens) ? _(user.services.resume.loginTokens).pluck('hashedToken')  : []
@@ -276,7 +282,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                   let lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
                   let SSORole = settings.SSO_roleIdentifier ? result[settings.SSO_roleIdentifier] : ''
                   let studentNumber = settings.SSO_studentNumberIdentifier ? result[settings.SSO_studentNumberIdentifier] : ''
-
+                  console.log(SSORole)
                   profile = {email:email, firstname:firstname, lastname:lastname}
 
                   Accounts.saml.insertCredential(req.body.RelayState, {profile:profile,
