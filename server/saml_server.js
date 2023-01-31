@@ -212,6 +212,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
 
               //TODO: Not sure if the "saml2p:" prefix is necessary or if it's specific to Queen's University. For Queen's this does not work without.
               let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
+              console.log("xml in hack")
+              console.log(xml)
+              console.log("dom")
+              console.log(dom)
 
               let user = Meteor.users.findOne({ 'services.sso.sessions.sessionIndex':sessionIndex })
 
@@ -221,17 +225,17 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                 let session = _(sessions).findWhere( {sessionIndex:sessionIndex} )
                 let sessionToken = session.loginToken
 
-                //console.log("sessions and tokens before")
-                //console.log(sessions)
-                //console.log(resumetokens)
-                //console.log("Need to remove session index: "+sessionIndex)
-                //console.log("with token: "+sessionToken)
-                sessions = _(sessions).reject( function(ses){return ses.sessionIndex == sessionIndex}  )
-                resumetokens = _(resumetokens).reject(  function(rt){return rt.hashedToken == sessionToken} )
+                console.log("sessions and tokens before")
+                console.log(sessions)
+                console.log(resumetokens)
+                console.log("Need to remove session index: "+sessionIndex)
+                console.log("with token: "+sessionToken)
+                //sessions = _(sessions).reject( function(ses){return ses.sessionIndex == sessionIndex}  )
+                //resumetokens = _(resumetokens).reject(  function(rt){return rt.hashedToken == sessionToken} )
                 //console.log("sessions and tokens after")
                 //console.log(sessions)
                 //console.log(resumetokens)
-                Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
+                //Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
 
               }
                 //console.log(user)
@@ -241,13 +245,14 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //The code below should be used instead of the hack above!!! It should work if we disable encryption
               //on nameID, but we can't figure out how to do this... Passport-saml doesn't know how to validate a POST
               //request if it is encrypter (they have a PR to implement it the same way they validate POST response, as in login)
-              /*
+              /* START HERE */
               Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
                 if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
                   console.log("validating post request")
                   console.log(result)
                   let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] })
                   if(user){ //remove the session ID and the login token
+                    console.log(user)
                     Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
                   }
                   Accounts.samlStrategy._saml.getLogoutResponseUrl(req, function(err, logout){
@@ -259,11 +264,13 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                  console.log(err)
                  console.log(result)
                 }
-              }) */ // end of validate post request
+              }) /*END HERE*/ // end of validate post request
 
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
+                  console.log("login get result")
+                  console.log(result)
                   let email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
                   let firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
                   let lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
