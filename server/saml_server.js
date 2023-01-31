@@ -214,6 +214,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           // POST callback from IdP (IdP -> SP) to either logout or login
           else if (req.method === 'POST') {
             console.log("got post")
+            console.log(req)
             console.log(req.url)
             console.log(url.parse(req.url))
 
