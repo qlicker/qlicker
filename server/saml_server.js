@@ -103,6 +103,12 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             profile[key] = samlProfile[key]
           }
 
+
+          //Update role if needed (only upgrade to professor, don't downgrade to student as it could be an account that was promoted):
+          if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName && !profile['roles'].includes('professor')){
+            profile['roles'] = ['professor']
+          }
+
           //Note that it will not actually update the email address (except to change the case), since the user was found by email address
           Meteor.users.update(userId, {$set: {email: profile.email.toLowerCase(),
                                               emails: [ { address: profile.email, verified: true } ],
