@@ -214,6 +214,9 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           // POST callback from IdP (IdP -> SP) to either logout or login
           else if (req.method === 'POST') {
             console.log("got post")
+            console.log(req.url)
+            console.log(url.parse(req.url))
+
             if (url.parse(req.url).pathname === '/logout') {
               console.log("logging out")
               //----------- Hack start
@@ -283,7 +286,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
-                  console.log("login get result")
+                  console.log("login post result")
                   console.log(result)
                   let email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
                   let firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
