@@ -208,7 +208,8 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //correctly logged out on the Queen's end. This response doesn't have the
               //sessionIndex in it (only and ID in response to the original request which does have the sessionIndex)
               //Seems like a lot of overhead to log out of Qlicker only after this confirmation!
-
+              res.writeHead(302, {'Location': Meteor.absoluteUrl('logout')});//this does not work, probably need a different response
+              res.end()
 
               //console.log("got a logout request through GET?!")
               //console.log(url.parse(req.url).query)
