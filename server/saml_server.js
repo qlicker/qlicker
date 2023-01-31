@@ -202,7 +202,31 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               res.writeHead(200, {'Content-Type': 'application/xml'});
               const decryptionCert = settings.SSO_privCert ? settings.SSO_privCert : ''//Assets.getText('cert.cert');
               res.end(Accounts.samlStrategy._saml.generateServiceProviderMetadata(decryptionCert), 'utf-8');
-            } else {
+            }
+            else if (url.parse(req.url).pathname === '/logout') {
+              console.log("got a logout request through GET?!")
+              console.log(req)
+              Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
+                if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
+                  console.log("validating get logout request")
+                  console.log(result)
+                  let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] })
+                  if(user){ //remove the session ID and the login token
+                    console.log(user)
+                    Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
+                  }
+                  Accounts.samlStrategy._saml.getLogoutResponseUrl(req, function(err, logout){
+                    if(error) throw new Error("Unable to generate logout response url");
+                    res.writeHead(302, {'Location': logout});
+                    res.end()
+                  })
+                } else {
+                 console.log(err)
+                 console.log(result)
+                }
+              })
+            }
+            else {
               // Otherwise redirect to IdP for login (SP -> IdP) (IDP responds with a POST handled below)
               // This route gets called by the login popup window - otherwise, the RelayState will not be set.
               Accounts.samlStrategy._saml.getAuthorizeUrl(req, function (err, result) {
@@ -214,9 +238,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           // POST callback from IdP (IdP -> SP) to either logout or login
           else if (req.method === 'POST') {
             console.log("got post")
-            console.log(req)
             console.log(req.url)
-            console.log(url.parse(req.url))
 
             if (url.parse(req.url).pathname === '/logout') {
               console.log("logging out")
