@@ -204,8 +204,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               res.end(Accounts.samlStrategy._saml.generateServiceProviderMetadata(decryptionCert), 'utf-8');
             }
             else if (url.parse(req.url).pathname === '/logout') {
+
               console.log("got a logout request through GET?!")
-              console.log(url.parse(req.url))
+              console.log(url.parse(req.url).query)
+              const searchParams = new URLSearchParams(url.parse(req.url).query)
+              console.log(searchParam.get('SAMLResponse'))
 
             }
             else {
