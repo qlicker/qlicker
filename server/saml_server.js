@@ -76,12 +76,12 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let services = (user && user.services ) ? user.services : {}
         let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
 
-        console.log("register login handler")
-        console.log(samlInfo)
-        console.log(samlProfile)
-        console.log(user)
-        console.log(profile)
-        console.log(services)
+        //console.log("register login handler")
+        //console.log(samlInfo)
+        //console.log(samlProfile)
+        //console.log(user)
+        //console.log(profile)
+        //console.log(services)
         // Remove old sessions from sso sessions (done automatically for resume.loginTokens)
         // Remove sessions that do not have an associated token in resume.loginTokens
         let resumeTokens = (user && user.services && user.services.resume && user.services.resume.loginTokens) ? _(user.services.resume.loginTokens).pluck('hashedToken')  : []
@@ -204,11 +204,16 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               res.end(Accounts.samlStrategy._saml.generateServiceProviderMetadata(decryptionCert), 'utf-8');
             }
             else if (url.parse(req.url).pathname === '/logout') {
+              //The Queen's Azure server responds with a GET instead of a post to confirm it
+              //correctly logged out on the Queen's end. This response doesn't have the
+              //sessionIndex in it (only and ID in response to the original request which does have the sessionIndex)
+              //Seems like a lot of overhead to log out of Qlicker only after this confirmation!
 
-              console.log("got a logout request through GET?!")
-              console.log(url.parse(req.url).query)
-              const searchParams = new URLSearchParams(url.parse(req.url).query)
-              console.log(searchParam.get('SAMLResponse'))
+
+              //console.log("got a logout request through GET?!")
+              //console.log(url.parse(req.url).query)
+              //const searchParams = new URLSearchParams(url.parse(req.url).query)
+            //  console.log(searchParam.get('SAMLResponse'))
 
             }
             else {
@@ -222,11 +227,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           }
           // POST callback from IdP (IdP -> SP) to either logout or login
           else if (req.method === 'POST') {
-            console.log("got post")
-            console.log(req.url)
+            //console.log("got post")
+            //console.log(req.url)
 
             if (url.parse(req.url).pathname === '/logout') {
-              console.log("logging out")
+            //  console.log("logging out")
               //----------- Hack start
               //A hack to bypass the SSO stuff and log the user out using the SessionIndex in the IDP POST request
               //(needed because passport-saml cannot validate the encrypted response)
@@ -237,10 +242,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
 
               //TODO: Not sure if the "saml2p:" prefix is necessary or if it's specific to Queen's University. For Queen's this does not work without.
               let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
-              console.log("xml in hack")
-              console.log(xml)
-              console.log("dom")
-              console.log(dom)
+              //console.log("xml in hack")
+              //console.log(xml)
+              //console.log("dom")
+              //console.log(dom)
 
               let user = Meteor.users.findOne({ 'services.sso.sessions.sessionIndex':sessionIndex })
 
@@ -250,11 +255,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                 let session = _(sessions).findWhere( {sessionIndex:sessionIndex} )
                 let sessionToken = session.loginToken
 
-                console.log("sessions and tokens before")
-                console.log(sessions)
-                console.log(resumetokens)
-                console.log("Need to remove session index: "+sessionIndex)
-                console.log("with token: "+sessionToken)
+              //  console.log("sessions and tokens before")
+              //  console.log(sessions)
+              //  console.log(resumetokens)
+              //  console.log("Need to remove session index: "+sessionIndex)
+                //console.log("with token: "+sessionToken)
                 //sessions = _(sessions).reject( function(ses){return ses.sessionIndex == sessionIndex}  )
                 //resumetokens = _(resumetokens).reject(  function(rt){return rt.hashedToken == sessionToken} )
                 //console.log("sessions and tokens after")
@@ -270,7 +275,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               //The code below should be used instead of the hack above!!! It should work if we disable encryption
               //on nameID, but we can't figure out how to do this... Passport-saml doesn't know how to validate a POST
               //request if it is encrypter (they have a PR to implement it the same way they validate POST response, as in login)
-              /* START HERE */
+              /*
               Accounts.samlStrategy._saml.validatePostRequest(req.body, function(err, result){
                 if(!err){ //based on https://github.com/lucidprogrammer/meteor-saml-sp/blob/master/src/server/samlServerHandler.js
                   console.log("validating post request")
@@ -289,19 +294,19 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                  console.log(err)
                  console.log(result)
                 }
-              }) /*END HERE*/ // end of validate post request
+              }) */ // end of validate post request
 
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
-                  console.log("login post result")
-                  console.log(result)
+                  //console.log("login post result")
+                  //console.log(result)
                   let email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
                   let firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
                   let lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
                   let SSORole = settings.SSO_roleIdentifier ? result[settings.SSO_roleIdentifier] : ''
                   let studentNumber = settings.SSO_studentNumberIdentifier ? result[settings.SSO_studentNumberIdentifier] : ''
-                  console.log(SSORole)
+                  //console.log(SSORole)
                   profile = {email:email, firstname:firstname, lastname:lastname}
 
                   Accounts.saml.insertCredential(req.body.RelayState, {profile:profile,
