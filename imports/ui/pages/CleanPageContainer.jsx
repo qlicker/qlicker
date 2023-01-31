@@ -137,7 +137,7 @@ class _CleanPageContainer extends Component {
 
     const logoutSSO = () => {
       if (this.state.ssoLogoutUrl){
-        //Meteor.logout()
+        Meteor.logout() // in case SSO logout fails
         window.location.href=this.state.ssoLogoutUrl
       }
       Router.go('logout')
