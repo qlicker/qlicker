@@ -31,7 +31,7 @@
     "meteor-node-stubs": "~0.2.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.40",
-    "passport-saml": "^0.33.0",
+    "passport-saml": "^1.3.0",
     "prop-types": "^15.8.1",
     "rc-datetime-picker": "^1.6.1",
     "react": "^15.6.2",
