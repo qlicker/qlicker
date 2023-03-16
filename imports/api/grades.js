@@ -613,6 +613,12 @@ Meteor.methods({
         let numAnsweredTotal = 0
         const joined = _(sess.joined).contains(studentId)
 
+        // Update grade name, since not automatically updated if session name
+        //changed after grade was created:
+        if(existingGrade && existingGrade.name != sess.name){
+          existingGrade.name = sess.name
+        }
+
         for (let iq = 0; iq < numQuestionsTotal; iq++) {
           let question = questions[iq]
 
