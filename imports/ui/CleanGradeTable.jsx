@@ -101,7 +101,7 @@ export class _CleanGradeTable extends Component {
     for(let iStu = 0; iStu < nStu; iStu++){
       let csvRow = [gradeRows[iStu][0].first, gradeRows[iStu][0].last, gradeRows[iStu][0].email, gradeRows[iStu][0].avgParticipation ]
       for(let iSess = 0; iSess <nSess; iSess++){
-        let grade = gradeRows[iStu][1+iSess] // + 3 because of last, first, email
+        let grade = gradeRows[iStu][1+iSess] // + 1 because of last, first, email
         if(iStu ==0 ){
           csvHeaders.push(grade.name+' mark')
           csvHeaders.push(grade.name+' particip.')
@@ -381,9 +381,15 @@ export const CleanGradeTable = withTracker((props) => {
     for (let iSess = 0; iSess < numSessions; iSess++) {
       let gpart = 0
       if(sgrades){
-        let grade = _(sgrades).findWhere( {sessionId:sessions[iSess]._id} )
+        let session = sessions[iSess]
+        let grade = _(sgrades).findWhere( {sessionId:session._id} )
+
         if (grade) {
           gpart = grade.participation ? grade.participation : 0
+          //If session name was changed after grade was created, grade name is not up to date
+          if (grade.name != session.name) {
+            grade.name = session.name
+          }
           gradeRow.push(grade)
         } else {
           gradeRow.push(0)
