@@ -392,7 +392,8 @@ export const CleanGradeTable = withTracker((props) => {
           }
           gradeRow.push(grade)
         } else {
-          gradeRow.push(0)
+          grade = {name: session.name, value:0, participation:0, sessionId:session._id}
+          gradeRow.push(grade)
         }
       }
       participation += gpart
