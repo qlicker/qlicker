@@ -99,7 +99,7 @@ export class _CleanGradeTable extends Component {
     let csvRows = []
 
     for(let iStu = 0; iStu < nStu; iStu++){
-      let csvRow = [gradeRows[iStu][0].first, gradeRows[iStu][0].last, gradeRows[iStu][0].email, gradeRows[iStu][0].avgParticipation ]
+      let csvRow = [gradeRows[iStu][0].last, gradeRows[iStu][0].first, gradeRows[iStu][0].email, gradeRows[iStu][0].avgParticipation ]
       for(let iSess = 0; iSess <nSess; iSess++){
         let grade = gradeRows[iStu][1+iSess] // + 1 because of last, first, email
         if(iStu ==0 ){
