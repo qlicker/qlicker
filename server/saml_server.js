@@ -31,6 +31,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),// IDP logout url (to initiate IDP logout)
     decryptionPvk: (settings.SSO_privKey ? settings.SSO_privKey : ''),//Assets.getText('key.key'),//local private key for decryption
     issuer: settings.SSO_EntityId,//same of the entity id (Qlicker)
+    disableRequestedAuthnContext: true, //required for Active Directory (MS) SSO
     },
     function(profile, done) {
     return done(null, profile);
