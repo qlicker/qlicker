@@ -1159,6 +1159,18 @@ Meteor.methods({
     })
   },
 
+  //TODO Write code to remove students that are left in group arrays after removed from course
+  //Remove missing students from groups
+  /*
+  'courses.cleanGroups' (courseId) {
+    check(courseId, Helpers.MongoID)
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories ) {
+      throw new Meteor.Error('Course does not exist or have groups!')
+    }
+  },*/
+
   // Toggle the course video chat
   // Generates a new random urlId each time it's toggled
   'courses.toggleVideoChat' (courseId) {
