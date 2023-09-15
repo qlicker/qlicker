@@ -202,8 +202,6 @@ class _ManageCourseGroups extends Component {
         //Need to account for the fact that a student removed from the course
         //could still be listed in a group
         studentsInCategory = studentsInCategory.concat( _(g.students).filter( (s) => {return this.props.students[s]} ) )
-        console.log("studentsInCategory")
-        console.log(studentsInCategory)
       })
     }
 
