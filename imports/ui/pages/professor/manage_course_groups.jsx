@@ -260,7 +260,7 @@ class _ManageCourseGroups extends Component {
 
       for ( let igrp = 0; igrp<nGroupsInCat ; igrp++){
 
-        let studentsInGroupCat = groupsInCat[igrp].students
+        let studentsInGroupCat = _(groupsInCat[igrp].students).filter( (s) => {return this.props.students[s]})
         let nStudentsInGroupCat = studentsInGroupCat.length
 
         for (let ist = 0; ist<nStudentsInGroupCat; ist++){
