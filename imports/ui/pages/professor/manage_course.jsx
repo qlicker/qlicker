@@ -107,17 +107,36 @@ class _ManageCourse extends Component {
     })
   }
 
-  copyAllSessions (targetCourseId = null) {
+//  copyAllSessions (targetCourseId = null) {
 
-    Meteor.call('courses.copyAllSessions', this.props.courseId, targetCourseId, (error) => {
-      if (error) return alertify.error('Error copying sessions')
-      alertify.success('Sessions copied')
-      if (targetCourseId) {
-        this.toggleCopyAllSessionsModal()
-        Router.go('course', { courseId: targetCourseId })
+//    Meteor.call('courses.copyAllSessions', this.props.courseId, targetCourseId, (error) => {
+//      if (error) return alertify.error('Error copying sessions')
+//      alertify.success('All sessions copied')
+//      if (targetCourseId) {
+//        this.toggleCopyAllSessionsModal()
+//        Router.go('course', { courseId: targetCourseId })
+//      }
+//    })
+//  }
+
+  copyAllSessions (targetCourseId = null) {
+   var itemsProcessed = 0;
+   this.props.sessions.forEach( (session, index, array) => {
+      itemsProcessed++;
+      Meteor.call('sessions.copy', session._id, targetCourseId, (error) => {
+        if (error) return alertify.error('Error copying session '+session.name)
+        alertify.success('Copied '+session.name)
+      })
+      if(itemsProcessed === array.length) {
+        alertify.success('All sessions copied')
+        if (targetCourseId) {
+          this.toggleCopyAllSessionsModal()
+          Router.go('course', { courseId: targetCourseId })
+        }
       }
     })
   }
+
 
   deleteSession (sessionId) {
     if (confirm('Are you sure?')) {

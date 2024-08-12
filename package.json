@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.20.6",
-    "aws-sdk": "^2.1275.0",
+    "aws-sdk": "^2.1673.0",
     "azure-storage": "^2.10.7",
     "babel-eslint": "^7.1.1",
     "bcrypt": "^5.1.0",
