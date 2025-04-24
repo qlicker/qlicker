@@ -315,6 +315,7 @@ Meteor.methods({
     else Meteor.call('sessions.endSession', session._id)
 
     return Sessions.update({ _id: session._id }, { $set: _.omit(session, '_id') })
+    //TODO: If the session name changes afer grades are created, grades have the wrong internal name
 
     /*return Sessions.update({ _id: session._id }, {
       $set: {

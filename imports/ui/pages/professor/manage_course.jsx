@@ -32,6 +32,7 @@ class _ManageCourse extends Component {
     this.state = {
       creatingSession: false,
       copySessionModal: false,
+      copyAllSessionsModal: false,
       profileViewModal: false,
       addTAModal: false,
       addStudentModal: false,
@@ -45,8 +46,9 @@ class _ManageCourse extends Component {
       //requireApprovedPublicQuestions: this.props.course.allowStudentQuestions
     }
     this.toggleCopySessionModal = this.toggleCopySessionModal.bind(this)
-
+    this.toggleCopyAllSessionsModal = this.toggleCopyAllSessionsModal.bind(this)
     this.copySession = this.copySession.bind(this)
+    this.copyAllSessions = this.copyAllSessions.bind(this)
     this.deleteSession = this.deleteSession.bind(this)
     this.startSession = this.startSession.bind(this)
     this.endSession = this.endSession.bind(this)
@@ -68,9 +70,14 @@ class _ManageCourse extends Component {
     this.setState({ copySessionModal: !this.state.copySessionModal, sessionToCopy: sessionId })
   }
 
+  toggleCopyAllSessionsModal () {
+    this.setState({ copyAllSessionsModal: !this.state.copyAllSessionsModal})
+  }
+
   toggleProfileViewModal (userToView = null) {
     this.setState({ profileViewModal: !this.state.profileViewModal, userToView: userToView })
   }
+
   startSession (sessionId) {
     if (confirm('Are you sure?')) {
       Meteor.call('sessions.startSession', sessionId, (error) => {
@@ -99,6 +106,37 @@ class _ManageCourse extends Component {
       }
     })
   }
+
+//  copyAllSessions (targetCourseId = null) {
+
+//    Meteor.call('courses.copyAllSessions', this.props.courseId, targetCourseId, (error) => {
+//      if (error) return alertify.error('Error copying sessions')
+//      alertify.success('All sessions copied')
+//      if (targetCourseId) {
+//        this.toggleCopyAllSessionsModal()
+//        Router.go('course', { courseId: targetCourseId })
+//      }
+//    })
+//  }
+
+  copyAllSessions (targetCourseId = null) {
+   var itemsProcessed = 0;
+   this.props.sessions.forEach( (session, index, array) => {
+      itemsProcessed++;
+      Meteor.call('sessions.copy', session._id, targetCourseId, (error) => {
+        if (error) return alertify.error('Error copying session '+session.name)
+        alertify.success('Copied '+session.name)
+      })
+      if(itemsProcessed === array.length) {
+        alertify.success('All sessions copied')
+        if (targetCourseId) {
+          this.toggleCopyAllSessionsModal()
+          Router.go('course', { courseId: targetCourseId })
+        }
+      }
+    })
+  }
+
 
   deleteSession (sessionId) {
     if (confirm('Are you sure?')) {
@@ -257,7 +295,7 @@ class _ManageCourse extends Component {
           }
           if (ses.status === 'done') {
             controls.push({ label: 'Make quiz live again', click: () => this.startSession(sId) })
-            controls.push({ label: 'Grade guiz', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
+            controls.push({ label: 'Grade quiz', click: () => Router.go('session.grade', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Review results', click: () => Router.go('session.results', {sessionId: sId, courseId: this.props.course._id}) })
             controls.push({ label: 'Replay session', click: () => Router.go('session.replay', {sessionId: sId, courseId: this.props.course._id}) })
           }
@@ -371,6 +409,7 @@ class _ManageCourse extends Component {
     const nStudents = (this.props.course && this.props.course.students) ? this.props.course.students.length : 0
     const nSessions = this.props.sessions ?  _(this.props.sessions).where({quiz:false}).length : 0
     const nQuizzes = this.props.sessions ? _(this.props.sessions).where({quiz:true}).length : 0
+    const nSessionsAndQuizzes = nQuizzes + nSessions
     return (
       <div className='container ql-manage-course'>
         <h2><span className='ql-course-code'>{this.props.course.courseCode()}</span> - {this.props.course.name}</h2>
@@ -435,6 +474,14 @@ class _ManageCourse extends Component {
               Create new interactive session/quiz
             </div>
 
+            { nSessionsAndQuizzes > 0 ?
+              <div className='btn' onClick={this.toggleCopyAllSessionsModal}>
+                Copy all sessions to different course
+              </div>
+              :''
+            }
+
+
             { nSessions > 0 ?
               <div>
                 <h3>Interactive sessions ({nSessions} session{nSessions > 1 ? 's' : '' })</h3>
@@ -465,6 +512,11 @@ class _ManageCourse extends Component {
             selected={(courseId) => this.copySession(this.state.sessionToCopy, courseId)}
             done={this.toggleCopySessionModal} />
           : '' }
+       { this.state.copyAllSessionsModal
+            ? <PickCourseModal
+              selected={(courseId) => this.copyAllSessions(courseId)}
+              done={this.toggleCopyAllSessionsModal } />
+            : '' }
         { this.state.profileViewModal
           ? <ProfileViewModal
             user={this.state.userToView}

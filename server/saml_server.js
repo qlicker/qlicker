@@ -31,6 +31,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
     logoutUrl: (settings.SSO_logoutUrl ? settings.SSO_logoutUrl : ''),// IDP logout url (to initiate IDP logout)
     decryptionPvk: (settings.SSO_privKey ? settings.SSO_privKey : ''),//Assets.getText('key.key'),//local private key for decryption
     issuer: settings.SSO_EntityId,//same of the entity id (Qlicker)
+    disableRequestedAuthnContext: true, //required for Active Directory (MS) SSO
     },
     function(profile, done) {
     return done(null, profile);
@@ -76,6 +77,12 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
         let services = (user && user.services ) ? user.services : {}
         let sessions = (user && user.services && user.services.sso && user.services.sso.sessions) ? user.services.sso.sessions : []
 
+        //console.log("register login handler")
+        //console.log(samlInfo)
+        //console.log(samlProfile)
+        //console.log(user)
+        //console.log(profile)
+        //console.log(services)
         // Remove old sessions from sso sessions (done automatically for resume.loginTokens)
         // Remove sessions that do not have an associated token in resume.loginTokens
         let resumeTokens = (user && user.services && user.services.resume && user.services.resume.loginTokens) ? _(user.services.resume.loginTokens).pluck('hashedToken')  : []
@@ -95,6 +102,12 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           userId = user._id
           for (key in samlProfile){
             profile[key] = samlProfile[key]
+          }
+
+
+          //Update role if needed (only upgrade to professor, don't downgrade to student as it could be an account that was promoted):
+          if (settings.SSO_roleProfName && samlInfo.SSORole && samlInfo.SSORole === settings.SSO_roleProfName && !profile['roles'].includes('professor')){
+            profile['roles'] = ['professor']
           }
 
           //Note that it will not actually update the email address (except to change the case), since the user was found by email address
@@ -190,7 +203,22 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
               res.writeHead(200, {'Content-Type': 'application/xml'});
               const decryptionCert = settings.SSO_privCert ? settings.SSO_privCert : ''//Assets.getText('cert.cert');
               res.end(Accounts.samlStrategy._saml.generateServiceProviderMetadata(decryptionCert), 'utf-8');
-            } else {
+            }
+            else if (url.parse(req.url).pathname === '/logout') {
+              //The Queen's Azure server responds with a GET instead of a post to confirm it
+              //correctly logged out on the Queen's end. This response doesn't have the
+              //sessionIndex in it (only and ID in response to the original request which does have the sessionIndex)
+              //Seems like a lot of overhead to log out of Qlicker only after this confirmation!
+              res.writeHead(302, {'Location': Meteor.absoluteUrl('logout')});
+              res.end()
+
+              //console.log("got a logout request through GET?!")
+              //console.log(url.parse(req.url).query)
+              //const searchParams = new URLSearchParams(url.parse(req.url).query)
+            //  console.log(searchParam.get('SAMLResponse'))
+
+            }
+            else {
               // Otherwise redirect to IdP for login (SP -> IdP) (IDP responds with a POST handled below)
               // This route gets called by the login popup window - otherwise, the RelayState will not be set.
               Accounts.samlStrategy._saml.getAuthorizeUrl(req, function (err, result) {
@@ -201,7 +229,11 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
           }
           // POST callback from IdP (IdP -> SP) to either logout or login
           else if (req.method === 'POST') {
+            //console.log("got post")
+            //console.log(req.url)
+
             if (url.parse(req.url).pathname === '/logout') {
+            //  console.log("logging out")
               //----------- Hack start
               //A hack to bypass the SSO stuff and log the user out using the SessionIndex in the IDP POST request
               //(needed because passport-saml cannot validate the encrypted response)
@@ -212,6 +244,10 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
 
               //TODO: Not sure if the "saml2p:" prefix is necessary or if it's specific to Queen's University. For Queen's this does not work without.
               let sessionIndex = dom.getElementsByTagName("saml2p:SessionIndex")[0].childNodes[0].nodeValue
+              //console.log("xml in hack")
+              //console.log(xml)
+              //console.log("dom")
+              //console.log(dom)
 
               let user = Meteor.users.findOne({ 'services.sso.sessions.sessionIndex':sessionIndex })
 
@@ -221,17 +257,17 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                 let session = _(sessions).findWhere( {sessionIndex:sessionIndex} )
                 let sessionToken = session.loginToken
 
-                //console.log("sessions and tokens before")
-                //console.log(sessions)
-                //console.log(resumetokens)
-                //console.log("Need to remove session index: "+sessionIndex)
+              //  console.log("sessions and tokens before")
+              //  console.log(sessions)
+              //  console.log(resumetokens)
+              //  console.log("Need to remove session index: "+sessionIndex)
                 //console.log("with token: "+sessionToken)
-                sessions = _(sessions).reject( function(ses){return ses.sessionIndex == sessionIndex}  )
-                resumetokens = _(resumetokens).reject(  function(rt){return rt.hashedToken == sessionToken} )
+                //sessions = _(sessions).reject( function(ses){return ses.sessionIndex == sessionIndex}  )
+                //resumetokens = _(resumetokens).reject(  function(rt){return rt.hashedToken == sessionToken} )
                 //console.log("sessions and tokens after")
                 //console.log(sessions)
                 //console.log(resumetokens)
-                Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
+                //Meteor.users.update({_id:user._id},{ $set: {'services.sso.sessions':sessions, 'services.resume.loginTokens' : resumetokens} })
 
               }
                 //console.log(user)
@@ -248,6 +284,7 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
                   console.log(result)
                   let user = Meteor.users.findOne({ 'services.sso.session.sessionIndex':result['sessionIndex'] })
                   if(user){ //remove the session ID and the login token
+                    console.log(user)
                     Meteor.users.update({_id:user._id},{ $set: {'services.sso.session': {}, 'services.resume.loginTokens' : [] } })
                   }
                   Accounts.samlStrategy._saml.getLogoutResponseUrl(req, function(err, logout){
@@ -264,12 +301,14 @@ if(settings && settings.SSO_enabled && settings.SSO_emailIdentifier && settings.
             } else {//POST request for login:
               Accounts.samlStrategy._saml.validatePostResponse(req.body, function (err, result) {
                 if (!err) {
+                  //console.log("login post result")
+                  //console.log(result)
                   let email = result[settings.SSO_emailIdentifier] //settings.SSO_emailIdentifier has to be specified (see if at top)
                   let firstname = settings.SSO_firstNameIdentifier ? result[settings.SSO_firstNameIdentifier] : 'Brice'
                   let lastname = settings.SSO_lastNameIdentifier ? result[settings.SSO_lastNameIdentifier] : 'de Nice'
                   let SSORole = settings.SSO_roleIdentifier ? result[settings.SSO_roleIdentifier] : ''
                   let studentNumber = settings.SSO_studentNumberIdentifier ? result[settings.SSO_studentNumberIdentifier] : ''
-
+                  //console.log(SSORole)
                   profile = {email:email, firstname:firstname, lastname:lastname}
 
                   Accounts.saml.insertCredential(req.body.RelayState, {profile:profile,

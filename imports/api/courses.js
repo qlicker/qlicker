@@ -653,7 +653,7 @@ Meteor.methods({
     check(courseId, Helpers.MongoID)
 
     profHasCoursePermission(courseId)
-
+    if (!Meteor.isServer) return
     const user = Accounts.findUserByEmail(email) //Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
@@ -685,7 +685,7 @@ Meteor.methods({
     check(courseId, Helpers.MongoID)
 
     profHasCoursePermission(courseId)
-
+    if (!Meteor.isServer) return
     const user = Accounts.findUserByEmail(email) //Meteor.users.findOne({ 'emails.0.address': email })
     if (!user) throw new Meteor.Error('user-not-found', 'User not found')
 
@@ -904,6 +904,27 @@ Meteor.methods({
       return course.allowStudentQuestions
     } else return false
   },
+
+  'courses.copyAllSessions' (courseId, targetCourseId) {
+    check(courseId, Helpers.MongoID)
+    check(targetCourseId, Helpers.MongoID)
+
+    const course = Courses.findOne(courseId)
+    if (!course) throw new Error('Course not found')
+
+    const targetCourse = Courses.findOne(targetCourseId)
+    if (!targetCourse) throw new Error('targetCourse not found')
+
+    //const user = Meteor.users.findOne({ _id: this.userId })
+    profHasCoursePermission(courseId)
+    profHasCoursePermission(targetCourseId)
+
+    course.sessions.forEach( (sid) => {
+      Meteor.call('sessions.copy', sid, targetCourseId)
+    });
+
+  },
+
 
   /**
    * generates and sets a new enrollment code for the course
@@ -1137,6 +1158,18 @@ Meteor.methods({
       }
     })
   },
+
+  //TODO Write code to remove students that are left in group arrays after removed from course
+  //Remove missing students from groups
+  /*
+  'courses.cleanGroups' (courseId) {
+    check(courseId, Helpers.MongoID)
+    profHasCoursePermission(courseId)
+    let course = Courses.findOne(courseId)
+    if (!course || !course.groupCategories ) {
+      throw new Meteor.Error('Course does not exist or have groups!')
+    }
+  },*/
 
   // Toggle the course video chat
   // Generates a new random urlId each time it's toggled

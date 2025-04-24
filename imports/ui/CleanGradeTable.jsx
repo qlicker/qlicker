@@ -99,9 +99,9 @@ export class _CleanGradeTable extends Component {
     let csvRows = []
 
     for(let iStu = 0; iStu < nStu; iStu++){
-      let csvRow = [gradeRows[iStu][0].first, gradeRows[iStu][0].last, gradeRows[iStu][0].email, gradeRows[iStu][0].avgParticipation ]
+      let csvRow = [gradeRows[iStu][0].last, gradeRows[iStu][0].first, gradeRows[iStu][0].email, gradeRows[iStu][0].avgParticipation ]
       for(let iSess = 0; iSess <nSess; iSess++){
-        let grade = gradeRows[iStu][1+iSess] // + 3 because of last, first, email
+        let grade = gradeRows[iStu][1+iSess] // + 1 because of last, first, email
         if(iStu ==0 ){
           csvHeaders.push(grade.name+' mark')
           csvHeaders.push(grade.name+' particip.')
@@ -140,13 +140,13 @@ export class _CleanGradeTable extends Component {
           let sid = sortByColumn.split('_smark')[0]
           gradeRows = _(gradeRows).sortBy((entry) => {
             const grade = _(entry.slice(1)).findWhere({ sessionId: sid })
-            return ((grade && grade.value) ? Math.rount(10*grade.value)/10 : 0)
+            return ((grade && grade.value) ? Math.round(10*grade.value)/10 : 0)
           })
         } else if (sortByColumn.includes('spart')){ // grade.participations
           let sid = sortByColumn.split('_spart')[0]
           gradeRows = _(gradeRows).sortBy((entry) => {
             const grade = _(entry.slice(1)).findWhere({ sessionId: sid })
-            return ((grade && grade.participation) ? Math.rount(10*grade.participation)/10 : 0)
+            return ((grade && grade.participation) ? Math.round(10*grade.participation)/10 : 0)
           })
         } else { }
       }
@@ -381,12 +381,19 @@ export const CleanGradeTable = withTracker((props) => {
     for (let iSess = 0; iSess < numSessions; iSess++) {
       let gpart = 0
       if(sgrades){
-        let grade = _(sgrades).findWhere( {sessionId:sessions[iSess]._id} )
+        let session = sessions[iSess]
+        let grade = _(sgrades).findWhere( {sessionId:session._id} )
+
         if (grade) {
           gpart = grade.participation ? grade.participation : 0
+          //If session name was changed after grade was created, grade name is not up to date
+          if (grade.name != session.name) {
+            grade.name = session.name
+          }
           gradeRow.push(grade)
         } else {
-          gradeRow.push(0)
+          grade = {name: session.name, value:0, participation:0, sessionId:session._id}
+          gradeRow.push(grade)
         }
       }
       participation += gpart
