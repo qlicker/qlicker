@@ -84,38 +84,42 @@ Meteor.methods({
     var AWS = require('aws-sdk')
     var azure = require('azure-storage')
 
-    AWS.config.update({
-      accessKeyId: Meteor.settings.AWSAccessKeyId,
-      secretAccessKey: Meteor.settings.AWSSecretAccessKey
+    // v3 S3 client construction (credentials supplied directly)
+    const { S3Client, ListObjectsCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3')
+    const s3 = new S3Client({
+      region: Meteor.settings.AWSRegion,
+      credentials: {
+        accessKeyId: Meteor.settings.AWSAccessKeyId,
+        secretAccessKey: Meteor.settings.AWSSecretAccessKey
+      }
     })
 
-    var s3 = new AWS.S3({
-      region: Meteor.settings.AWSRegion
-    })
-    s3.listObjects({Bucket: Meteor.settings.bucket}, Meteor.bindEnvironment((err, data) => {
-      if (err) return
-      const entries = _.pluck(data.Contents, 'Key')
-      const local = _.map(entries, (UID) => {
-        return Images.findOne({UID: UID}) || {UID: UID}
-      })
-      _.each(local, (obj) => {
-        let inQuestion
-        let inAns
-        let asProfile
-        if (obj.UID) {
-          const regex = '.*' + obj.UID.substring(0, obj.UID.indexOf('/')) + '.*'
-          inQuestion = Questions.findOne({'content': {$regex: regex}})
-          inAns = Questions.findOne({'options.content': {$regex: regex}})
-          asProfile = Meteor.users.findOne({'profile.profileImage': {$regex: regex}})
-        }
-        if (!inQuestion && !inAns && !asProfile) {
-          Images.remove(obj)
-          s3.deleteObject({Bucket: Meteor.settings.bucket, Key: obj.UID}, (error, data) => {
-            if (error) console.log('Error deleting from S3:', error)
-          })
-        }
-      })
-    }))
+    s3.send(new ListObjectsCommand({ Bucket: Meteor.settings.bucket }))
+      .then(Meteor.bindEnvironment((data) => {
+        const entries = _.pluck(data.Contents, 'Key')
+        const local = _.map(entries, (UID) => {
+          return Images.findOne({ UID: UID }) || { UID: UID }
+        })
+        _.each(local, (obj) => {
+          let inQuestion
+          let inAns
+          let asProfile
+          if (obj.UID) {
+            const regex = '.*' + obj.UID.substring(0, obj.UID.indexOf('/')) + '.*'
+            inQuestion = Questions.findOne({ 'content': { $regex: regex } })
+            inAns = Questions.findOne({ 'options.content': { $regex: regex } })
+            asProfile = Meteor.users.findOne({ 'profile.profileImage': { $regex: regex } })
+          }
+          if (!inQuestion && !inAns && !asProfile) {
+            Images.remove(obj)
+            s3.send(new DeleteObjectCommand({ Bucket: Meteor.settings.bucket, Key: obj.UID }))
+              .catch((error) => { console.log('Error deleting from S3:', error) })
+          }
+        })
+      }))
+      .catch(Meteor.bindEnvironment((err) => {
+        if (err) return
+      }))
   }
 
 }) // end Meteor.methods
