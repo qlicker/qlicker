@@ -1,3 +1,7 @@
+# This version of Qlicker is deprecated!!!
+
+We have significantly modernized and upgraded Qlicker to now become Qlicker 2.0! The repository for Qlicker 2.0 is just qlicker/qlicker2. Qlicker can be updated to version 2.0 without losing information from the database. There are migration notes in the Qlicker 2.0 repository. 
+
 # QLICKER
 Open Source Clicker - CISC498
 
